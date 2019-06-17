@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://sap.com/xi/IS-U/Global2" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:n1="http://sap.com/xi/SAPGlobal20/Global" xmlns:n2="http://sap.com/xi/SAPGlobal/Global">
+<wsdl:definitions targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://sap.com/xi/IS-U/Global2" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:n1="http://sap.com/xi/SAPGlobal20/Global">
  <wsdl:documentation>
   <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
  </wsdl:documentation>
  <wsp:UsingPolicy wsdl:required="true"/>
- <wsp:Policy wsu:Id="OP_IF_OP_SmartMeterMeterReadingDocumentERPCreateConfirmation_E_Out">
+ <wsp:Policy wsu:Id="IF_IF_SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_In">
+  <sapsession:Session xmlns:sapsession="http://www.sap.com/webas/630/soap/features/session/">
+   <sapsession:enableSession>false</sapsession:enableSession>
+  </sapsession:Session>
+ </wsp:Policy>
+ <wsp:Policy wsu:Id="OP_IF_OP_SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_In">
   <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
   <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
   <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>
   <saprmnw05:enableWSRM xmlns:saprmnw05="http://www.sap.com/NW05/soap/features/wsrm/">true</saprmnw05:enableWSRM>
  </wsp:Policy>
  <wsdl:types>
-  <xsd:schema targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns="http://sap.com/xi/IS-U/Global2" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal/Global">
-   <xsd:annotation>
-    <xsd:documentation>
-     <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
-    </xsd:documentation>
-   </xsd:annotation>
+  <xsd:schema targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns="http://sap.com/xi/IS-U/Global2" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global">
    <xsd:simpleType name="AgencyIdentificationCode">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
@@ -303,21 +303,6 @@
      </xsd:extension>
     </xsd:simpleContent>
    </xsd:complexType>
-   <xsd:complexType name="ExchangeFaultData">
-    <xsd:sequence>
-     <xsd:element name="faultText" type="xsd:string"/>
-     <xsd:element name="faultUrl" minOccurs="0" type="xsd:string"/>
-     <xsd:element name="faultDetail" minOccurs="0" maxOccurs="unbounded" type="ExchangeLogData"/>
-    </xsd:sequence>
-   </xsd:complexType>
-   <xsd:complexType name="ExchangeLogData">
-    <xsd:sequence>
-     <xsd:element name="severity" minOccurs="0" type="xsd:string"/>
-     <xsd:element name="text" type="xsd:string"/>
-     <xsd:element name="url" minOccurs="0" type="xsd:string"/>
-     <xsd:element name="id" minOccurs="0" type="xsd:string"/>
-    </xsd:sequence>
-   </xsd:complexType>
    <xsd:simpleType name="GLOBAL_DateTime">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
@@ -367,104 +352,6 @@
      <xsd:minLength value="2"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:complexType name="Log">
-    <xsd:sequence>
-     <xsd:element name="BusinessDocumentProcessingResultCode" minOccurs="0" type="ProcessingResultCode"/>
-     <xsd:element name="MaximumLogItemSeverityCode" minOccurs="0" type="LogItemSeverityCode"/>
-     <xsd:element name="Item" minOccurs="0" maxOccurs="unbounded" type="LogItem"/>
-    </xsd:sequence>
-   </xsd:complexType>
-   <xsd:complexType name="LogItem">
-    <xsd:sequence>
-     <xsd:element name="TypeID" minOccurs="0" type="LogItemTypeID"/>
-     <xsd:element name="CategoryCode" minOccurs="0" type="LogItemCategoryCode"/>
-     <xsd:element name="SeverityCode" minOccurs="0" type="LogItemSeverityCode"/>
-     <xsd:element name="ReferenceObjectNodeSenderTechnicalID" minOccurs="0" type="ObjectNodePartyTechnicalID"/>
-     <xsd:element name="Note" type="LogItemNote"/>
-     <xsd:element name="WebURI" minOccurs="0" type="WebURI"/>
-    </xsd:sequence>
-   </xsd:complexType>
-   <xsd:complexType name="LogItemCategoryCode">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:simpleContent>
-     <xsd:extension base="LogItemCategoryCode.Content">
-      <xsd:attribute name="listID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="listVersionID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="15"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="listAgencyID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="listAgencySchemeID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="listAgencySchemeAgencyID" type="AgencyIdentificationCode"/>
-     </xsd:extension>
-    </xsd:simpleContent>
-   </xsd:complexType>
-   <xsd:simpleType name="LogItemCategoryCode.Content">
-    <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="15"/>
-     <xsd:minLength value="1"/>
-    </xsd:restriction>
-   </xsd:simpleType>
-   <xsd:simpleType name="LogItemNote">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Note</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:string">
-     <xsd:maxLength value="200"/>
-    </xsd:restriction>
-   </xsd:simpleType>
-   <xsd:simpleType name="LogItemSeverityCode">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-     <xsd:length value="1"/>
-    </xsd:restriction>
-   </xsd:simpleType>
-   <xsd:simpleType name="LogItemTypeID">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="40"/>
-     <xsd:minLength value="1"/>
-    </xsd:restriction>
-   </xsd:simpleType>
    <xsd:complexType name="MEDIUM_Name">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
@@ -480,42 +367,6 @@
    <xsd:simpleType name="MEDIUM_Name.Content">
     <xsd:restriction base="xsd:string">
      <xsd:maxLength value="40"/>
-     <xsd:minLength value="1"/>
-    </xsd:restriction>
-   </xsd:simpleType>
-   <xsd:complexType name="MeterReadingDocumentID">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:simpleContent>
-     <xsd:extension base="MeterReadingDocumentID.Content">
-      <xsd:attribute name="schemeAgencyID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-     </xsd:extension>
-    </xsd:simpleContent>
-   </xsd:complexType>
-   <xsd:simpleType name="MeterReadingDocumentID.Content">
-    <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="20"/>
-     <xsd:minLength value="1"/>
-    </xsd:restriction>
-   </xsd:simpleType>
-   <xsd:simpleType name="ObjectNodePartyTechnicalID">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="70"/>
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
@@ -620,27 +471,39 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:simpleType name="ProcessingResultCode">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="2"/>
-     <xsd:minLength value="1"/>
-    </xsd:restriction>
-   </xsd:simpleType>
-   <xsd:complexType name="SmrtMtrMtrRdngDocERPCrteConfMsg">
+   <xsd:complexType name="SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts">
     <xsd:sequence>
-     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
-     <xsd:element name="MeterReadingDocument" type="SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc"/>
-     <xsd:element name="Log" type="Log"/>
+     <xsd:element name="UtilitiesDeviceID" type="UtilitiesDeviceID"/>
+     <xsd:element name="SmartMeter" type="SmrtMtrUtilsConncnStsChgReqERPCrteReqSmrtMtr"/>
     </xsd:sequence>
    </xsd:complexType>
-   <xsd:complexType name="SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc">
+   <xsd:complexType name="SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg">
     <xsd:sequence>
-     <xsd:element name="ID" type="MeterReadingDocumentID"/>
+     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
+     <xsd:element name="UtilitiesConnectionStatusChangeRequest" type="SmrtMtrUtilsConncnStsChgReqERPCrteReqUtilsConncnStsChgReq"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="SmrtMtrUtilsConncnStsChgReqERPCrteReqSmrtMtr">
+    <xsd:sequence>
+     <xsd:element name="UtilitiesAdvancedMeteringSystemID" type="UtilitiesAdvancedMeteringSystemID"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:simpleType name="ConfirmationEndpoint">
+    <xsd:restriction base="xsd:string">
+     <xsd:minLength value="8"/>
+     <xsd:maxLength value="200"/>
+     <xsd:pattern value="https?:\/\/.+"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="SmrtMtrUtilsConncnStsChgReqERPCrteReqUtilsConncnStsChgReq">
+    <xsd:sequence>
+     <xsd:element name="ID" type="UtilitiesConnectionStatusChangeRequestID"/>
+     <xsd:element name="CategoryCode" type="UtilitiesConnectionStatusChangeRequestCategoryCode"/>
+     <xsd:element name="ConfirmationEndpointURL" type="ConfirmationEndpoint"/>
+     <xsd:element name="UtilitiesServiceDisconnectionReasonCode" minOccurs="0" type="UtilitiesServiceDisconnectionReasonCode"/>
+     <xsd:element name="PlannedProcessingDateTime" type="GLOBAL_DateTime"/>
+     <xsd:element name="ImmediateStatusChangeIndicator" minOccurs="0" type="Indicator"/>
+     <xsd:element name="DeviceConnectionStatus" maxOccurs="unbounded" type="SmrtMtrUtilsConncnStsChgReqERPCrteReqDvceConncnSts"/>
     </xsd:sequence>
    </xsd:complexType>
    <xsd:complexType name="UUID">
@@ -676,64 +539,186 @@
      <xsd:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:simpleType name="WebURI">
+   <xsd:complexType name="UtilitiesAdvancedMeteringSystemID">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>URI</ccts:RepresentationTerm>
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
      </xsd:documentation>
     </xsd:annotation>
-    <xsd:restriction base="xsd:anyURI"/>
+    <xsd:simpleContent>
+     <xsd:extension base="UtilitiesAdvancedMeteringSystemID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="UtilitiesAdvancedMeteringSystemID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="4"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="UtilitiesConnectionStatusChangeRequestCategoryCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="UtilitiesConnectionStatusChangeRequestCategoryCode.Content">
+      <xsd:attribute name="listID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listVersionID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="15"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="UtilitiesConnectionStatusChangeRequestCategoryCode.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="2"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="UtilitiesConnectionStatusChangeRequestID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="UtilitiesConnectionStatusChangeRequestID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="UtilitiesConnectionStatusChangeRequestID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="12"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="UtilitiesDeviceID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="UtilitiesDeviceID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="UtilitiesDeviceID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="18"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="UtilitiesServiceDisconnectionReasonCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:length value="2"/>
+    </xsd:restriction>
    </xsd:simpleType>
   </xsd:schema>
-  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal20/Global" xmlns="http://sap.com/xi/SAPGlobal20/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal/Global">
+  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal20/Global" xmlns="http://sap.com/xi/SAPGlobal20/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global">
    <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
-   <xsd:annotation>
-    <xsd:documentation>
-     <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
-    </xsd:documentation>
-   </xsd:annotation>
-   <xsd:element name="SmartMeterMeterReadingDocumentERPCreateConfirmation" type="tns:SmrtMtrMtrRdngDocERPCrteConfMsg"/>
-  </xsd:schema>
-  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal/Global" xmlns="http://sap.com/xi/SAPGlobal/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal/Global">
-   <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
-   <xsd:annotation>
-    <xsd:documentation>
-     <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
-    </xsd:documentation>
-   </xsd:annotation>
-   <xsd:element name="StandardMessageFault">
-    <xsd:complexType>
-     <xsd:sequence>
-      <xsd:element name="standard" type="tns:ExchangeFaultData"/>
-     </xsd:sequence>
-    </xsd:complexType>
-   </xsd:element>
+   <xsd:element name="SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest" type="tns:SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg"/>
   </xsd:schema>
  </wsdl:types>
- <wsdl:message name="SmartMeterMeterReadingDocumentERPCreateConfirmation">
-  <wsdl:part name="SmartMeterMeterReadingDocumentERPCreateConfirmation" element="n1:SmartMeterMeterReadingDocumentERPCreateConfirmation"/>
+ <wsdl:message name="SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest">
+  <wsdl:part name="SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest" element="n1:SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest"/>
  </wsdl:message>
- <wsdl:message name="StandardMessageFault">
-  <wsdl:part name="StandardMessageFault" element="n2:StandardMessageFault"/>
- </wsdl:message>
- <wsdl:portType name="SmartMeterMeterReadingDocumentERPCreateConfirmation_E_Out">
+ <wsdl:portType name="SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_In">
   <wsdl:documentation>
    <sapdoc:sapdoc xmlns:sapdoc="urn:sap:esi:documentation">
     <sapdoc:docitem applicationComponent="IS-U"/>
    </sapdoc:sapdoc>
   </wsdl:documentation>
-  <wsdl:operation name="SmartMeterMeterReadingDocumentERPCreateConfirmation_E_Out">
+  <wsp:Policy>
+   <wsp:PolicyReference URI="#IF_IF_SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_In"/>
+  </wsp:Policy>
+  <wsdl:operation name="SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_In">
    <wsp:Policy>
-    <wsp:PolicyReference URI="#OP_IF_OP_SmartMeterMeterReadingDocumentERPCreateConfirmation_E_Out"/>
+    <wsp:PolicyReference URI="#OP_IF_OP_SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_In"/>
    </wsp:Policy>
-   <wsdl:input message="tns:SmartMeterMeterReadingDocumentERPCreateConfirmation"/>
+   <wsdl:input message="tns:SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest"/>
   </wsdl:operation>
  </wsdl:portType>
-    <wsdl:binding name="SmartMeterMeterReadingDocumentERPCreateConfirmation_E_OutBinding"
-                  type="tns:SmartMeterMeterReadingDocumentERPCreateConfirmation_E_Out">
+    <wsdl:binding name="SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_InBinding"
+                  type="tns:SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_In">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"
                       xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-        <wsdl:operation name="SmartMeterMeterReadingDocumentERPCreateConfirmation_E_Out">
+        <wsdl:operation name="SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_In">
             <soap:operation soapAction="http://sap.com/xi/WebService/soap1.1"
                             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
             <wsdl:input>
@@ -741,16 +726,10 @@
             </wsdl:input>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:service name="SmartMeterMeterReadingDocumentERPCreateConfirmation_E_OutService">
-        <wsdl:port name="HTTP_Port" binding="tns:SmartMeterMeterReadingDocumentERPCreateConfirmation_E_OutBinding">
-            <soap:address
-                    location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=SmartMeterMeterReadingDocumentERPCreateConfirmation_E_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
-                    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-        </wsdl:port>
-        <wsdl:port name="HTTPS_Port" binding="tns:SmartMeterMeterReadingDocumentERPCreateConfirmation_E_OutBinding">
-            <soap:address
-                    location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=SmartMeterMeterReadingDocumentERPCreateConfirmation_E_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
-                    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+    <wsdl:service name="SmartMeterConnectionStatusCreateRequestService" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+        <wsdl:port binding="tns:SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequest_C_InBinding"
+                   name="SmartMeterConnectionStatusCreateRequestPort">
+            <soap:address location="http://localhost:8080"/>
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

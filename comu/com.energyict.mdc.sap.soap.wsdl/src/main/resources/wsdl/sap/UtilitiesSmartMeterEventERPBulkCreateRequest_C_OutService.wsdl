@@ -4,7 +4,7 @@
   <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
  </wsdl:documentation>
  <wsp:UsingPolicy wsdl:required="true"/>
- <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesSmartMeterEventERPBulkCreateRequest_E_Out">
+ <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out">
   <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
   <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
   <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>
@@ -1251,34 +1251,34 @@
  <wsdl:message name="StandardMessageFault">
   <wsdl:part name="StandardMessageFault" element="n1:StandardMessageFault"/>
  </wsdl:message>
- <wsdl:portType name="UtilitiesSmartMeterEventERPBulkCreateRequest_E_Out">
+ <wsdl:portType name="UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out">
   <wsdl:documentation>
    <sapdoc:sapdoc xmlns:sapdoc="urn:sap:esi:documentation">
     <sapdoc:docitem applicationComponent="IS-U"/>
    </sapdoc:sapdoc>
   </wsdl:documentation>
-  <wsdl:operation name="UtilitiesSmartMeterEventERPBulkCreateRequest_E_Out">
+  <wsdl:operation name="UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out">
    <wsp:Policy>
-    <wsp:PolicyReference URI="#OP_IF_OP_UtilitiesSmartMeterEventERPBulkCreateRequest_E_Out"/>
+    <wsp:PolicyReference URI="#OP_IF_OP_UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out"/>
    </wsp:Policy>
    <wsdl:input message="tns:UtilitiesSmartMeterEventERPBulkCreateRequest"/>
   </wsdl:operation>
  </wsdl:portType>
-    <wsdl:binding name="UtilitiesSmartMeterEventERPBulkCreateRequest_E_OutBinding" type="tns:UtilitiesSmartMeterEventERPBulkCreateRequest_E_Out">
+    <wsdl:binding name="UtilitiesSmartMeterEventERPBulkCreateRequest_C_OutBinding" type="tns:UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out">
         <soap:binding xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" style="document" transport="http://schemas.xmlsoap.org/soap/http" />
-        <wsdl:operation name="UtilitiesSmartMeterEventERPBulkCreateRequest_E_Out">
+        <wsdl:operation name="UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out">
             <soap:operation xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" soapAction="http://sap.com/xi/WebService/soap1.1" />
             <wsdl:input>
                 <soap:body xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" use="literal" />
             </wsdl:input>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:service name="UtilitiesSmartMeterEventERPBulkCreateRequest_E_OutService">
-        <wsdl:port name="HTTP_Port" binding="tns:UtilitiesSmartMeterEventERPBulkCreateRequest_E_OutBinding">
-            <soap:address xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" location="http://vddpi.dewa.gov.ae:50000/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=LS_ELSTER&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesSmartMeterEventERPBulkCreateRequest_E_Out&amp;interfaceNamespace=http%3A%2F%2Fdewa.gov.ae%2FAMI%2FBulk" />
+    <wsdl:service name="UtilitiesSmartMeterEventERPBulkCreateRequest_C_OutService">
+        <wsdl:port name="HTTP_Port" binding="tns:UtilitiesSmartMeterEventERPBulkCreateRequest_C_OutBinding">
+            <soap:address xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" location="http://vddpi.dewa.gov.ae:50000/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=LS_ELSTER&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out&amp;interfaceNamespace=http%3A%2F%2Fdewa.gov.ae%2FAMI%2FBulk" />
         </wsdl:port>
-        <wsdl:port name="HTTPS_Port" binding="tns:UtilitiesSmartMeterEventERPBulkCreateRequest_E_OutBinding">
-            <soap:address xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" location="https://vddpi.dewa.gov.ae:50001/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=LS_ELSTER&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesSmartMeterEventERPBulkCreateRequest_E_Out&amp;interfaceNamespace=http%3A%2F%2Fdewa.gov.ae%2FAMI%2FBulk" />
+        <wsdl:port name="HTTPS_Port" binding="tns:UtilitiesSmartMeterEventERPBulkCreateRequest_C_OutBinding">
+            <soap:address xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" location="https://vddpi.dewa.gov.ae:50001/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=LS_ELSTER&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out&amp;interfaceNamespace=http%3A%2F%2Fdewa.gov.ae%2FAMI%2FBulk" />
         </wsdl:port>
     </wsdl:service>
 </wsdl:definitions>

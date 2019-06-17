@@ -28,8 +28,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.Quantity;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilitiesTimeSeriesERPItemBulkCreateRequestEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilitiesTimeSeriesERPItemBulkCreateRequestEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilitiesTimeSeriesERPItemBulkCreateRequestCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilitiesTimeSeriesERPItemBulkCreateRequestCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilitiesTimeSeriesItemTypeCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmBulkCrteReqMsg;
@@ -72,7 +72,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     private static final QName QNAME = new QName("urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkcreaterequest",
             "UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutService");
 
-    private Map<String, UtilitiesTimeSeriesERPItemBulkCreateRequestEOut> createRequestPorts = new ConcurrentHashMap<>();
+    private Map<String, UtilitiesTimeSeriesERPItemBulkCreateRequestCOut> createRequestPorts = new ConcurrentHashMap<>();
 
     public UtilitiesTimeSeriesBulkCreateRequestProvider() {
         // for OSGi purposes
@@ -121,28 +121,28 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addCreateRequestPort(UtilitiesTimeSeriesERPItemBulkCreateRequestEOut createRequestPort, Map<String, Object> properties) {
+    public void addCreateRequestPort(UtilitiesTimeSeriesERPItemBulkCreateRequestCOut createRequestPort, Map<String, Object> properties) {
         createRequestPorts.put(getUrl(properties), createRequestPort);
     }
 
-    public void removeCreateRequestPort(UtilitiesTimeSeriesERPItemBulkCreateRequestEOut createRequestPort) {
+    public void removeCreateRequestPort(UtilitiesTimeSeriesERPItemBulkCreateRequestCOut createRequestPort) {
         createRequestPorts.values().removeIf(port -> createRequestPort == port);
     }
 
     @Override
     Optional<Consumer<UtilsTmeSersERPItmBulkCrteReqMsg>> getPort(EndPointConfiguration endPointConfiguration) {
         return Optional.ofNullable(createRequestPorts.values().stream().findFirst().get())
-                .map(port -> (Consumer<UtilsTmeSersERPItmBulkCrteReqMsg>) port::utilitiesTimeSeriesERPItemBulkCreateRequestEOut);
+                .map(port -> (Consumer<UtilsTmeSersERPItmBulkCrteReqMsg>) port::utilitiesTimeSeriesERPItemBulkCreateRequestCOut);
     }
 
     @Override
     public Service get() {
-        return new UtilitiesTimeSeriesERPItemBulkCreateRequestEOutService();
+        return new UtilitiesTimeSeriesERPItemBulkCreateRequestCOutService();
     }
 
     @Override
     public Class getService() {
-        return UtilitiesTimeSeriesERPItemBulkCreateRequestEOut.class;
+        return UtilitiesTimeSeriesERPItemBulkCreateRequestCOut.class;
     }
 
     @Override

@@ -9,8 +9,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentRequestConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationCOutService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -28,7 +28,7 @@ import java.util.Optional;
         property = {"name=" + MeterReadingDocumentRequestConfirmation.SAP_METER_READING_DOCUMENT_REQUEST_CONFIRMATION})
 public class MeterReadingDocumentCreateConfirmationProvider implements MeterReadingDocumentRequestConfirmation, OutboundSoapEndPointProvider {
 
-    private final Map<String, SmartMeterMeterReadingDocumentERPCreateConfirmationEOut> ports = new HashMap<>();
+    private final Map<String, SmartMeterMeterReadingDocumentERPCreateConfirmationCOut> ports = new HashMap<>();
 
     private volatile Thesaurus thesaurus;
 
@@ -37,7 +37,7 @@ public class MeterReadingDocumentCreateConfirmationProvider implements MeterRead
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addRequestConfirmationPort(SmartMeterMeterReadingDocumentERPCreateConfirmationEOut port,
+    public void addRequestConfirmationPort(SmartMeterMeterReadingDocumentERPCreateConfirmationCOut port,
                                            Map<String, Object> properties) {
         Optional.ofNullable(properties)
                 .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
@@ -45,7 +45,7 @@ public class MeterReadingDocumentCreateConfirmationProvider implements MeterRead
                 .ifPresent(url -> ports.put(url, port));
     }
 
-    public void removeRequestConfirmationPort(SmartMeterMeterReadingDocumentERPCreateConfirmationEOut port) {
+    public void removeRequestConfirmationPort(SmartMeterMeterReadingDocumentERPCreateConfirmationCOut port) {
         ports.values().removeIf(entryPort -> port == entryPort);
     }
 
@@ -56,12 +56,12 @@ public class MeterReadingDocumentCreateConfirmationProvider implements MeterRead
 
     @Override
     public Service get() {
-        return new SmartMeterMeterReadingDocumentERPCreateConfirmationEOutService();
+        return new SmartMeterMeterReadingDocumentERPCreateConfirmationCOutService();
     }
 
     @Override
     public Class getService() {
-        return SmartMeterMeterReadingDocumentERPCreateConfirmationEOut.class;
+        return SmartMeterMeterReadingDocumentERPCreateConfirmationCOut.class;
     }
 
     @Override
@@ -69,6 +69,6 @@ public class MeterReadingDocumentCreateConfirmationProvider implements MeterRead
         if (ports.isEmpty()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
-        ports.values().stream().findFirst().get().smartMeterMeterReadingDocumentERPCreateConfirmationEOut(confirmationMessage.getConfirmationMessage());
+        ports.values().stream().findFirst().get().smartMeterMeterReadingDocumentERPCreateConfirmationCOut(confirmationMessage.getConfirmationMessage());
     }
 }

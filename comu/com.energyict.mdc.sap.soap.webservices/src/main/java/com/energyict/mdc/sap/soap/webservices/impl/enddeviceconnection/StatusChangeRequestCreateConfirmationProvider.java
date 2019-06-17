@@ -9,8 +9,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -30,7 +30,7 @@ import java.util.Optional;
 public class StatusChangeRequestCreateConfirmationProvider implements StatusChangeRequestCreateConfirmation,
         OutboundSoapEndPointProvider {
 
-    private final Map<String, SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut> ports =
+    private final Map<String, SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut> ports =
             new HashMap<>();
 
     private volatile Thesaurus thesaurus;
@@ -41,7 +41,7 @@ public class StatusChangeRequestCreateConfirmationProvider implements StatusChan
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
-            SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut port,
+            SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port,
             Map<String, Object> properties) {
         Optional.ofNullable(properties)
                 .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
@@ -50,7 +50,7 @@ public class StatusChangeRequestCreateConfirmationProvider implements StatusChan
     }
 
     public void removeSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
-            SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut port) {
+            SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port) {
         ports.values().removeIf(entryPort -> port == entryPort);
     }
 
@@ -61,12 +61,12 @@ public class StatusChangeRequestCreateConfirmationProvider implements StatusChan
 
     @Override
     public Service get() {
-        return new SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService();
+        return new SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService();
     }
 
     @Override
     public Class getService() {
-        return SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut.class;
+        return SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut.class;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class StatusChangeRequestCreateConfirmationProvider implements StatusChan
         if (ports.isEmpty()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
-        ports.values().stream().findFirst().get().smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
+        ports.values().stream().findFirst().get().smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut(
                 confirmationMessage.getConfirmationMessage());
     }
 }

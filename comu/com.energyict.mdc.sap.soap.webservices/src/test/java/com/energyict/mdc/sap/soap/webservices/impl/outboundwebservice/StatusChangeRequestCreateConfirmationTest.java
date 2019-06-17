@@ -8,8 +8,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationProvider;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundWebserviceTest {
 
     @Mock
-    private SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut port;
+    private SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port;
     @Mock
     private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg confirmationMessage;
     @Mock
@@ -50,7 +50,7 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
         provider.addSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(port, properties);
         provider.call(outboundMessage);
 
-        Mockito.verify(port).smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(outboundMessage.getConfirmationMessage());
+        Mockito.verify(port).smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut(outboundMessage.getConfirmationMessage());
     }
 
     @Test
@@ -67,12 +67,12 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
     @Test
     public void testGetService() {
         StatusChangeRequestCreateConfirmationProvider provider = new StatusChangeRequestCreateConfirmationProvider();
-        Assert.assertEquals(provider.getService(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut.class);
+        Assert.assertEquals(provider.getService(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut.class);
     }
 
     @Test
     public void testGet() {
         StatusChangeRequestCreateConfirmationProvider provider = new StatusChangeRequestCreateConfirmationProvider();
-        Assert.assertEquals(provider.get().getClass(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService.class);
+        Assert.assertEquals(provider.get().getClass(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService.class);
     }
 }

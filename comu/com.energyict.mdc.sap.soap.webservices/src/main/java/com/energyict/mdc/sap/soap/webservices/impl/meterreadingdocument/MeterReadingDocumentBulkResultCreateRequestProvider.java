@@ -9,8 +9,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkResult;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOutService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -28,7 +28,7 @@ import java.util.Optional;
         property = {"name=" + MeterReadingDocumentBulkResult.SAP_METER_READING_DOCUMENT_BULK_RESULT})
 public class MeterReadingDocumentBulkResultCreateRequestProvider implements MeterReadingDocumentBulkResult, OutboundSoapEndPointProvider {
 
-    private final Map<String, MeterReadingDocumentERPResultBulkCreateRequestEOut> ports = new HashMap<>();
+    private final Map<String, MeterReadingDocumentERPResultBulkCreateRequestCOut> ports = new HashMap<>();
 
     private volatile Thesaurus thesaurus;
 
@@ -37,7 +37,7 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider implements Mete
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addBulkResultsPort(MeterReadingDocumentERPResultBulkCreateRequestEOut port,
+    public void addBulkResultsPort(MeterReadingDocumentERPResultBulkCreateRequestCOut port,
                                    Map<String, Object> properties) {
         Optional.ofNullable(properties)
                 .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
@@ -45,7 +45,7 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider implements Mete
                 .ifPresent(url -> ports.put(url, port));
     }
 
-    public void removeBulkResultsPort(MeterReadingDocumentERPResultBulkCreateRequestEOut port) {
+    public void removeBulkResultsPort(MeterReadingDocumentERPResultBulkCreateRequestCOut port) {
         ports.values().removeIf(entryPort -> port == entryPort);
     }
 
@@ -56,12 +56,12 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider implements Mete
 
     @Override
     public Service get() {
-        return new MeterReadingDocumentERPResultBulkCreateRequestEOutService();
+        return new MeterReadingDocumentERPResultBulkCreateRequestCOutService();
     }
 
     @Override
     public Class getService() {
-        return MeterReadingDocumentERPResultBulkCreateRequestEOut.class;
+        return MeterReadingDocumentERPResultBulkCreateRequestCOut.class;
     }
 
     @Override
@@ -69,6 +69,6 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider implements Mete
         if (ports.isEmpty()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
-        ports.values().stream().findFirst().get().meterReadingDocumentERPResultBulkCreateRequestEOut(resultMessage.getBulkResultMessage());
+        ports.values().stream().findFirst().get().meterReadingDocumentERPResultBulkCreateRequestCOut(resultMessage.getBulkResultMessage());
     }
 }

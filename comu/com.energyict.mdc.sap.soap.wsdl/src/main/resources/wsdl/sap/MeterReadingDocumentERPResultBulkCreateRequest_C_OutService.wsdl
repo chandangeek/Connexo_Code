@@ -4,7 +4,7 @@
   <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
  </wsdl:documentation>
  <wsp:UsingPolicy wsdl:required="true"/>
- <wsp:Policy wsu:Id="OP_IF_OP_MeterReadingDocumentERPResultCreateRequest_E_Out">
+ <wsp:Policy wsu:Id="OP_IF_OP_MeterReadingDocumentERPResultBulkCreateRequest_C_Out">
   <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
   <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
   <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>
@@ -485,6 +485,12 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
+   <xsd:complexType name="MtrRdngDocERPRsltBulkCrteReqMsg">
+    <xsd:sequence>
+     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
+     <xsd:element name="MeterReadingDocumentERPResultCreateRequestMessage" maxOccurs="unbounded" type="MtrRdngDocERPRsltCrteReqMsg"/>
+    </xsd:sequence>
+   </xsd:complexType>
    <xsd:complexType name="MtrRdngDocERPRsltCrteReqMsg">
     <xsd:sequence>
      <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
@@ -791,7 +797,7 @@
      <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
     </xsd:documentation>
    </xsd:annotation>
-   <xsd:element name="MeterReadingDocumentERPResultCreateRequest" type="tns:MtrRdngDocERPRsltCrteReqMsg"/>
+   <xsd:element name="MeterReadingDocumentERPResultBulkCreateRequest" type="tns:MtrRdngDocERPRsltBulkCrteReqMsg"/>
   </xsd:schema>
   <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal/Global" xmlns="http://sap.com/xi/SAPGlobal/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal/Global">
    <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
@@ -809,30 +815,30 @@
    </xsd:element>
   </xsd:schema>
  </wsdl:types>
- <wsdl:message name="MeterReadingDocumentERPResultCreateRequest">
-  <wsdl:part name="MeterReadingDocumentERPResultCreateRequest" element="n1:MeterReadingDocumentERPResultCreateRequest"/>
+ <wsdl:message name="MeterReadingDocumentERPResultBulkCreateRequest">
+  <wsdl:part name="MeterReadingDocumentERPResultBulkCreateRequest" element="n1:MeterReadingDocumentERPResultBulkCreateRequest"/>
  </wsdl:message>
  <wsdl:message name="StandardMessageFault">
   <wsdl:part name="StandardMessageFault" element="n2:StandardMessageFault"/>
  </wsdl:message>
- <wsdl:portType name="MeterReadingDocumentERPResultCreateRequest_E_Out">
+ <wsdl:portType name="MeterReadingDocumentERPResultBulkCreateRequest_C_Out">
   <wsdl:documentation>
    <sapdoc:sapdoc xmlns:sapdoc="urn:sap:esi:documentation">
     <sapdoc:docitem applicationComponent="IS-U"/>
    </sapdoc:sapdoc>
   </wsdl:documentation>
-  <wsdl:operation name="MeterReadingDocumentERPResultCreateRequest_E_Out">
+  <wsdl:operation name="MeterReadingDocumentERPResultBulkCreateRequest_C_Out">
    <wsp:Policy>
-    <wsp:PolicyReference URI="#OP_IF_OP_MeterReadingDocumentERPResultCreateRequest_E_Out"/>
+    <wsp:PolicyReference URI="#OP_IF_OP_MeterReadingDocumentERPResultBulkCreateRequest_C_Out"/>
    </wsp:Policy>
-   <wsdl:input message="tns:MeterReadingDocumentERPResultCreateRequest"/>
+   <wsdl:input message="tns:MeterReadingDocumentERPResultBulkCreateRequest"/>
   </wsdl:operation>
  </wsdl:portType>
-    <wsdl:binding name="MeterReadingDocumentERPResultCreateRequest_E_OutBinding"
-                  type="tns:MeterReadingDocumentERPResultCreateRequest_E_Out">
+    <wsdl:binding name="MeterReadingDocumentERPResultBulkCreateRequest_C_OutBinding"
+                  type="tns:MeterReadingDocumentERPResultBulkCreateRequest_C_Out">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"
                       xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-        <wsdl:operation name="MeterReadingDocumentERPResultCreateRequest_E_Out">
+        <wsdl:operation name="MeterReadingDocumentERPResultBulkCreateRequest_C_Out">
             <soap:operation soapAction="http://sap.com/xi/WebService/soap1.1"
                             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
             <wsdl:input>
@@ -840,15 +846,15 @@
             </wsdl:input>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:service name="MeterReadingDocumentERPResultCreateRequest_E_OutService">
-        <wsdl:port name="HTTP_Port" binding="tns:MeterReadingDocumentERPResultCreateRequest_E_OutBinding">
+    <wsdl:service name="MeterReadingDocumentERPResultBulkCreateRequest_C_OutService">
+        <wsdl:port name="HTTP_Port" binding="tns:MeterReadingDocumentERPResultBulkCreateRequest_C_OutBinding">
             <soap:address
-                    location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=MeterReadingDocumentERPResultCreateRequest_E_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
+                    location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=MeterReadingDocumentERPResultBulkCreateRequest_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
                     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
         </wsdl:port>
-        <wsdl:port name="HTTPS_Port" binding="tns:MeterReadingDocumentERPResultCreateRequest_E_OutBinding">
+        <wsdl:port name="HTTPS_Port" binding="tns:MeterReadingDocumentERPResultBulkCreateRequest_C_OutBinding">
             <soap:address
-                    location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=MeterReadingDocumentERPResultCreateRequest_E_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
+                    location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=MeterReadingDocumentERPResultBulkCreateRequest_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
                     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
         </wsdl:port>
     </wsdl:service>

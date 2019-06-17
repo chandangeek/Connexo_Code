@@ -9,8 +9,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentResult;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestCOutService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -28,7 +28,7 @@ import java.util.Optional;
         property = {"name=" + MeterReadingDocumentResult.SAP_METER_READING_DOCUMENT_RESULT})
 public class MeterReadingDocumentResultCreateRequestProvider implements MeterReadingDocumentResult, OutboundSoapEndPointProvider {
 
-    private final Map<String, MeterReadingDocumentERPResultCreateRequestEOut> ports = new HashMap<>();
+    private final Map<String, MeterReadingDocumentERPResultCreateRequestCOut> ports = new HashMap<>();
 
     public MeterReadingDocumentResultCreateRequestProvider() {
         // for OSGI purposes
@@ -37,7 +37,7 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
     private volatile Thesaurus thesaurus;
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addResultPort(MeterReadingDocumentERPResultCreateRequestEOut port,
+    public void addResultPort(MeterReadingDocumentERPResultCreateRequestCOut port,
                               Map<String, Object> properties) {
         Optional.ofNullable(properties)
                 .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
@@ -45,7 +45,7 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
                 .ifPresent(url -> ports.put(url, port));
     }
 
-    public void removeResultPort(MeterReadingDocumentERPResultCreateRequestEOut port) {
+    public void removeResultPort(MeterReadingDocumentERPResultCreateRequestCOut port) {
         ports.values().removeIf(entryPort -> port == entryPort);
     }
 
@@ -56,12 +56,12 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
 
     @Override
     public Service get() {
-        return new MeterReadingDocumentERPResultCreateRequestEOutService();
+        return new MeterReadingDocumentERPResultCreateRequestCOutService();
     }
 
     @Override
     public Class getService() {
-        return MeterReadingDocumentERPResultCreateRequestEOut.class;
+        return MeterReadingDocumentERPResultCreateRequestCOut.class;
     }
 
     @Override
@@ -69,6 +69,6 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
         if (ports.isEmpty()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
-        ports.values().stream().findFirst().get().meterReadingDocumentERPResultCreateRequestEOut(resultMessage.getResultMessage());
+        ports.values().stream().findFirst().get().meterReadingDocumentERPResultCreateRequestCOut(resultMessage.getResultMessage());
     }
 }

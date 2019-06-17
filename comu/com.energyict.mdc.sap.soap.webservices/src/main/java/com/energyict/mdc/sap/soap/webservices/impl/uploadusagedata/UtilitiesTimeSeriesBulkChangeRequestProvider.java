@@ -28,8 +28,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.Quantity;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesERPItemBulkChangeRequestEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesERPItemBulkChangeRequestEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesERPItemBulkChangeRequestCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesERPItemBulkChangeRequestCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilitiesTimeSeriesItemTypeCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest.UtilsTmeSersERPItmBulkChgReqMsg;
@@ -72,7 +72,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     private static final QName QNAME = new QName("urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkchangerequest",
             "UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutService");
 
-    private Map<String, UtilitiesTimeSeriesERPItemBulkChangeRequestEOut> changeRequestPorts = new ConcurrentHashMap<>();
+    private Map<String, UtilitiesTimeSeriesERPItemBulkChangeRequestCOut> changeRequestPorts = new ConcurrentHashMap<>();
 
     public UtilitiesTimeSeriesBulkChangeRequestProvider() {
         // for OSGi purposes
@@ -121,28 +121,28 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addChangeRequestPort(UtilitiesTimeSeriesERPItemBulkChangeRequestEOut changeRequestPort, Map<String, Object> properties) {
+    public void addChangeRequestPort(UtilitiesTimeSeriesERPItemBulkChangeRequestCOut changeRequestPort, Map<String, Object> properties) {
         changeRequestPorts.put(getUrl(properties), changeRequestPort);
     }
 
-    public void removeChangeRequestPort(UtilitiesTimeSeriesERPItemBulkChangeRequestEOut changeRequestPort) {
+    public void removeChangeRequestPort(UtilitiesTimeSeriesERPItemBulkChangeRequestCOut changeRequestPort) {
         changeRequestPorts.values().removeIf(port -> changeRequestPort == port);
     }
 
     @Override
     Optional<Consumer<UtilsTmeSersERPItmBulkChgReqMsg>> getPort(EndPointConfiguration endPointConfiguration) {
         return Optional.ofNullable(changeRequestPorts.values().stream().findFirst().get())
-                .map(port -> (Consumer<UtilsTmeSersERPItmBulkChgReqMsg>) port::utilitiesTimeSeriesERPItemBulkChangeRequestEOut);
+                .map(port -> (Consumer<UtilsTmeSersERPItmBulkChgReqMsg>) port::utilitiesTimeSeriesERPItemBulkChangeRequestCOut);
     }
 
     @Override
     public Service get() {
-        return new UtilitiesTimeSeriesERPItemBulkChangeRequestEOutService();
+        return new UtilitiesTimeSeriesERPItemBulkChangeRequestCOutService();
     }
 
     @Override
     public Class getService() {
-        return UtilitiesTimeSeriesERPItemBulkChangeRequestEOut.class;
+        return UtilitiesTimeSeriesERPItemBulkChangeRequestCOut.class;
     }
 
     @Override

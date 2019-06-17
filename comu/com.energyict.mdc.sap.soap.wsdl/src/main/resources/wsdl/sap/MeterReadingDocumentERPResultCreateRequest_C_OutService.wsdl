@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://sap.com/xi/IS-U/Global2" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:n1="http://sap.com/xi/SAPGlobal/Global" xmlns:n2="http://sap.com/xi/SAPGlobal20/Global">
+<wsdl:definitions targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://sap.com/xi/IS-U/Global2" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:n1="http://sap.com/xi/SAPGlobal20/Global" xmlns:n2="http://sap.com/xi/SAPGlobal/Global">
  <wsdl:documentation>
   <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
  </wsdl:documentation>
  <wsp:UsingPolicy wsdl:required="true"/>
- <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesTimeSeriesERPItemBulkCreateRequest_E_Out">
+ <wsp:Policy wsu:Id="OP_IF_OP_MeterReadingDocumentERPResultCreateRequest_C_Out">
   <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
   <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
   <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>
   <saprmnw05:enableWSRM xmlns:saprmnw05="http://www.sap.com/NW05/soap/features/wsrm/">true</saprmnw05:enableWSRM>
  </wsp:Policy>
  <wsdl:types>
-  <xsd:schema targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns="http://sap.com/xi/IS-U/Global2" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal20/Global">
+  <xsd:schema targetNamespace="http://sap.com/xi/IS-U/Global2" xmlns="http://sap.com/xi/IS-U/Global2" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal/Global">
    <xsd:annotation>
     <xsd:documentation>
      <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
@@ -26,26 +26,6 @@
     <xsd:restriction base="xsd:token">
      <xsd:maxLength value="3"/>
      <xsd:minLength value="1"/>
-    </xsd:restriction>
-   </xsd:simpleType>
-   <xsd:complexType name="Amount">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Amount</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:simpleContent>
-     <xsd:extension base="Amount.Content">
-      <xsd:attribute name="currencyCode" use="required" type="CurrencyCode"/>
-     </xsd:extension>
-    </xsd:simpleContent>
-   </xsd:complexType>
-   <xsd:simpleType name="Amount.Content">
-    <xsd:restriction base="xsd:decimal">
-     <xsd:totalDigits value="28"/>
-     <xsd:fractionDigits value="6"/>
-     <xsd:maxInclusive value="9999999999999999999999.999999"/>
-     <xsd:minInclusive value="-9999999999999999999999.999999"/>
     </xsd:restriction>
    </xsd:simpleType>
    <xsd:complexType name="BusinessDocumentMessageHeader">
@@ -304,14 +284,14 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:simpleType name="CurrencyCode">
+   <xsd:simpleType name="Date">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+      <ccts:RepresentationTerm>Date</ccts:RepresentationTerm>
      </xsd:documentation>
     </xsd:annotation>
-    <xsd:restriction base="xsd:token">
-     <xsd:length value="3"/>
+    <xsd:restriction base="xsd:date">
+     <xsd:pattern value="[0-9]{4}-[0-9]{2}-[0-9]{2}"/>
     </xsd:restriction>
    </xsd:simpleType>
    <xsd:complexType name="EmailURI">
@@ -415,17 +395,139 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:simpleType name="MeasureUnitCode">
+   <xsd:complexType name="MeterReadingDocumentID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="MeterReadingDocumentID.Content">
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="MeterReadingDocumentID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="20"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="MeterReadingReasonCode">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
       <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
      </xsd:documentation>
     </xsd:annotation>
     <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="3"/>
+     <xsd:maxLength value="2"/>
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
+   <xsd:simpleType name="MeterReadingResultValue">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Value</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:decimal">
+     <xsd:totalDigits value="25"/>
+     <xsd:fractionDigits value="10"/>
+     <xsd:maxInclusive value="999999999999999.9999999999"/>
+     <xsd:minInclusive value="-999999999999999.9999999999"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="MeterReadingTypeCode">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="MeterReadingTypeCode.Content">
+      <xsd:attribute name="listID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listVersionID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="30"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="listAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
+   </xsd:complexType>
+   <xsd:simpleType name="MeterReadingTypeCode.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="2"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:complexType name="MtrRdngDocERPRsltCrteReqMsg">
+    <xsd:sequence>
+     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
+     <xsd:element name="MeterReadingDocument" type="MtrRdngDocERPRsltCrteReqMtrRdngDoc"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="MtrRdngDocERPRsltCrteReqMtrRdngDoc">
+    <xsd:sequence>
+     <xsd:element name="ID" minOccurs="0" type="MeterReadingDocumentID"/>
+     <xsd:element name="MeterReadingReasonCode" minOccurs="0" type="MeterReadingReasonCode"/>
+     <xsd:element name="ScheduledMeterReadingDate" minOccurs="0" type="Date"/>
+     <xsd:element name="UtiltiesMeasurementTask" minOccurs="0" type="MtrRdngDocERPRsltCrteReqUtilsMsmtTsk"/>
+     <xsd:element name="Result" type="MtrRdngDocERPRsltCrteReqRslt"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="MtrRdngDocERPRsltCrteReqRslt">
+    <xsd:sequence>
+     <xsd:element name="ActualMeterReadingDate" type="Date"/>
+     <xsd:element name="ActualMeterReadingTime" type="Time"/>
+     <xsd:element name="MaximumMeterReadingDate" minOccurs="0" type="Date"/>
+     <xsd:element name="MaximumMeterReadingTime" minOccurs="0" type="Time"/>
+     <xsd:element name="MeterReadingTypeCode" minOccurs="0" type="MeterReadingTypeCode"/>
+     <xsd:element name="MeterReadingResultValue" type="MeterReadingResultValue"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="MtrRdngDocERPRsltCrteReqUtilsDvce">
+    <xsd:sequence>
+     <xsd:element name="UtilitiesDeviceID" type="UtilitiesDeviceID"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="MtrRdngDocERPRsltCrteReqUtilsMsmtTsk">
+    <xsd:sequence>
+     <xsd:element name="UtilitiesMeasurementTaskID" minOccurs="0" type="UtilitiesMeasurementTaskID"/>
+     <xsd:element name="UtilitiesObjectIdentificationSystemCodeText" minOccurs="0" type="UtilitiesObjectIdentificationSystemCodeText"/>
+     <xsd:element name="UtiltiesDevice" minOccurs="0" type="MtrRdngDocERPRsltCrteReqUtilsDvce"/>
+     <xsd:element name="UtilitiesPointOfDelivery" minOccurs="0" type="MtrRdngDocERPRsltCrteReqUtilsPtDeliv"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="MtrRdngDocERPRsltCrteReqUtilsPtDeliv">
+    <xsd:sequence>
+     <xsd:element name="UtilitiesPointOfDeliveryPartyID" type="UtilitiesPointOfDeliveryPartyID"/>
+    </xsd:sequence>
+   </xsd:complexType>
    <xsd:complexType name="PartyInternalID">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
@@ -527,24 +629,14 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:complexType name="Quantity">
+   <xsd:simpleType name="Time">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Quantity</ccts:RepresentationTerm>
+      <ccts:RepresentationTerm>Time</ccts:RepresentationTerm>
      </xsd:documentation>
     </xsd:annotation>
-    <xsd:simpleContent>
-     <xsd:extension base="Quantity.Content">
-      <xsd:attribute name="unitCode" type="MeasureUnitCode"/>
-     </xsd:extension>
-    </xsd:simpleContent>
-   </xsd:complexType>
-   <xsd:simpleType name="Quantity.Content">
-    <xsd:restriction base="xsd:decimal">
-     <xsd:totalDigits value="31"/>
-     <xsd:fractionDigits value="14"/>
-     <xsd:maxInclusive value="99999999999999999.99999999999999"/>
-     <xsd:minInclusive value="-99999999999999999.99999999999999"/>
+    <xsd:restriction base="xsd:time">
+     <xsd:pattern value="[0-9]{2}:[0-9]{2}:[0-9]{2}"/>
     </xsd:restriction>
    </xsd:simpleType>
    <xsd:complexType name="UUID">
@@ -580,14 +672,14 @@
      <xsd:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:complexType name="UtilitiesTimeSeriesID">
+   <xsd:complexType name="UtilitiesDeviceID">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
       <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
      </xsd:documentation>
     </xsd:annotation>
     <xsd:simpleContent>
-     <xsd:extension base="UtilitiesTimeSeriesID.Content">
+     <xsd:extension base="UtilitiesDeviceID.Content">
       <xsd:attribute name="schemeID">
        <xsd:simpleType>
         <xsd:restriction base="xsd:token">
@@ -607,21 +699,21 @@
      </xsd:extension>
     </xsd:simpleContent>
    </xsd:complexType>
-   <xsd:simpleType name="UtilitiesTimeSeriesID.Content">
+   <xsd:simpleType name="UtilitiesDeviceID.Content">
     <xsd:restriction base="xsd:token">
      <xsd:maxLength value="18"/>
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:complexType name="UtilitiesTimeSeriesItemTypeCode">
+   <xsd:complexType name="UtilitiesMeasurementTaskID">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
      </xsd:documentation>
     </xsd:annotation>
     <xsd:simpleContent>
-     <xsd:extension base="UtilitiesTimeSeriesItemTypeCode.Content">
-      <xsd:attribute name="listID">
+     <xsd:extension base="UtilitiesMeasurementTaskID.Content">
+      <xsd:attribute name="schemeID">
        <xsd:simpleType>
         <xsd:restriction base="xsd:token">
          <xsd:maxLength value="60"/>
@@ -629,15 +721,7 @@
         </xsd:restriction>
        </xsd:simpleType>
       </xsd:attribute>
-      <xsd:attribute name="listVersionID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="15"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="listAgencyID">
+      <xsd:attribute name="schemeAgencyID">
        <xsd:simpleType>
         <xsd:restriction base="xsd:token">
          <xsd:maxLength value="60"/>
@@ -645,58 +729,71 @@
         </xsd:restriction>
        </xsd:simpleType>
       </xsd:attribute>
-      <xsd:attribute name="listAgencySchemeID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="listAgencySchemeAgencyID" type="AgencyIdentificationCode"/>
      </xsd:extension>
     </xsd:simpleContent>
    </xsd:complexType>
-   <xsd:simpleType name="UtilitiesTimeSeriesItemTypeCode.Content">
+   <xsd:simpleType name="UtilitiesMeasurementTaskID.Content">
     <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="4"/>
+     <xsd:maxLength value="18"/>
+     <xsd:minLength value="1"/>
+     <xsd:pattern value="\d+"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+   <xsd:simpleType name="UtilitiesObjectIdentificationSystemCodeText">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Text</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:string">
+     <xsd:maxLength value="15"/>
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:complexType name="UtilsTmeSersERPItmBulkCrteReqMsg">
-    <xsd:sequence>
-     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
-     <xsd:element name="UtilitiesTimeSeriesERPItemCreateRequestMessage" maxOccurs="unbounded" type="UtilsTmeSersERPItmCrteReqMsg"/>
-    </xsd:sequence>
+   <xsd:complexType name="UtilitiesPointOfDeliveryPartyID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:simpleContent>
+     <xsd:extension base="UtilitiesPointOfDeliveryPartyID.Content">
+      <xsd:attribute name="schemeID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+      <xsd:attribute name="schemeAgencyID">
+       <xsd:simpleType>
+        <xsd:restriction base="xsd:token">
+         <xsd:maxLength value="60"/>
+         <xsd:minLength value="1"/>
+        </xsd:restriction>
+       </xsd:simpleType>
+      </xsd:attribute>
+     </xsd:extension>
+    </xsd:simpleContent>
    </xsd:complexType>
-   <xsd:complexType name="UtilsTmeSersERPItmCrteReqItm">
-    <xsd:sequence>
-     <xsd:element name="Amount" minOccurs="0" type="Amount"/>
-     <xsd:element name="Quantity" minOccurs="0" type="Quantity"/>
-     <xsd:element name="UTCValidityStartDateTime" type="GLOBAL_DateTime"/>
-     <xsd:element name="UTCValidityEndDateTime" type="GLOBAL_DateTime"/>
-     <xsd:element name="ItemStatus" maxOccurs="unbounded" type="UtilsTmeSersERPItmCrteReqItmSts"/>
-    </xsd:sequence>
-   </xsd:complexType>
-   <xsd:complexType name="UtilsTmeSersERPItmCrteReqItmSts">
-    <xsd:sequence>
-     <xsd:element name="UtilitiesTimeSeriesItemTypeCode" type="UtilitiesTimeSeriesItemTypeCode"/>
-    </xsd:sequence>
-   </xsd:complexType>
-   <xsd:complexType name="UtilsTmeSersERPItmCrteReqMsg">
-    <xsd:sequence>
-     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
-     <xsd:element name="UtilitiesTimeSeries" type="UtilsTmeSersERPItmCrteReqUtilsTmeSers"/>
-    </xsd:sequence>
-   </xsd:complexType>
-   <xsd:complexType name="UtilsTmeSersERPItmCrteReqUtilsTmeSers">
-    <xsd:sequence>
-     <xsd:element name="ID" minOccurs="0" type="UtilitiesTimeSeriesID"/>
-     <xsd:element name="Item" minOccurs="0" maxOccurs="unbounded" type="UtilsTmeSersERPItmCrteReqItm"/>
-    </xsd:sequence>
-   </xsd:complexType>
+   <xsd:simpleType name="UtilitiesPointOfDeliveryPartyID.Content">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="50"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
   </xsd:schema>
-  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal/Global" xmlns="http://sap.com/xi/SAPGlobal/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal20/Global">
+  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal20/Global" xmlns="http://sap.com/xi/SAPGlobal20/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal/Global">
+   <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
+   <xsd:annotation>
+    <xsd:documentation>
+     <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
+    </xsd:documentation>
+   </xsd:annotation>
+   <xsd:element name="MeterReadingDocumentERPResultCreateRequest" type="tns:MtrRdngDocERPRsltCrteReqMsg"/>
+  </xsd:schema>
+  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal/Global" xmlns="http://sap.com/xi/SAPGlobal/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal20/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal/Global">
    <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
    <xsd:annotation>
     <xsd:documentation>
@@ -711,40 +808,31 @@
     </xsd:complexType>
    </xsd:element>
   </xsd:schema>
-  <xsd:schema targetNamespace="http://sap.com/xi/SAPGlobal20/Global" xmlns="http://sap.com/xi/SAPGlobal20/Global" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:3.0" xmlns:sprx="urn:sap.com:abap:proxy" xmlns:xi0="http://sap.com/xi/SAPGlobal/Global" xmlns:xi1="http://sap.com/xi/SAPGlobal20/Global">
-   <xsd:import namespace="http://sap.com/xi/IS-U/Global2"/>
-   <xsd:annotation>
-    <xsd:documentation>
-     <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
-    </xsd:documentation>
-   </xsd:annotation>
-   <xsd:element name="UtilitiesTimeSeriesERPItemBulkCreateRequest" type="tns:UtilsTmeSersERPItmBulkCrteReqMsg"/>
-  </xsd:schema>
  </wsdl:types>
- <wsdl:message name="UtilitiesTimeSeriesERPItemBulkCreateRequest">
-  <wsdl:part name="UtilitiesTimeSeriesERPItemBulkCreateRequest" element="n2:UtilitiesTimeSeriesERPItemBulkCreateRequest"/>
+ <wsdl:message name="MeterReadingDocumentERPResultCreateRequest">
+  <wsdl:part name="MeterReadingDocumentERPResultCreateRequest" element="n1:MeterReadingDocumentERPResultCreateRequest"/>
  </wsdl:message>
  <wsdl:message name="StandardMessageFault">
-  <wsdl:part name="StandardMessageFault" element="n1:StandardMessageFault"/>
+  <wsdl:part name="StandardMessageFault" element="n2:StandardMessageFault"/>
  </wsdl:message>
- <wsdl:portType name="UtilitiesTimeSeriesERPItemBulkCreateRequest_E_Out">
+ <wsdl:portType name="MeterReadingDocumentERPResultCreateRequest_C_Out">
   <wsdl:documentation>
    <sapdoc:sapdoc xmlns:sapdoc="urn:sap:esi:documentation">
     <sapdoc:docitem applicationComponent="IS-U"/>
    </sapdoc:sapdoc>
   </wsdl:documentation>
-  <wsdl:operation name="UtilitiesTimeSeriesERPItemBulkCreateRequest_E_Out">
+  <wsdl:operation name="MeterReadingDocumentERPResultCreateRequest_C_Out">
    <wsp:Policy>
-    <wsp:PolicyReference URI="#OP_IF_OP_UtilitiesTimeSeriesERPItemBulkCreateRequest_E_Out"/>
+    <wsp:PolicyReference URI="#OP_IF_OP_MeterReadingDocumentERPResultCreateRequest_C_Out"/>
    </wsp:Policy>
-   <wsdl:input message="tns:UtilitiesTimeSeriesERPItemBulkCreateRequest"/>
+   <wsdl:input message="tns:MeterReadingDocumentERPResultCreateRequest"/>
   </wsdl:operation>
  </wsdl:portType>
-    <wsdl:binding name="UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutBinding"
-                  type="tns:UtilitiesTimeSeriesERPItemBulkCreateRequest_E_Out">
+    <wsdl:binding name="MeterReadingDocumentERPResultCreateRequest_C_OutBinding"
+                  type="tns:MeterReadingDocumentERPResultCreateRequest_C_Out">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"
                       xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-        <wsdl:operation name="UtilitiesTimeSeriesERPItemBulkCreateRequest_E_Out">
+        <wsdl:operation name="MeterReadingDocumentERPResultCreateRequest_C_Out">
             <soap:operation soapAction="http://sap.com/xi/WebService/soap1.1"
                             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
             <wsdl:input>
@@ -752,15 +840,15 @@
             </wsdl:input>
         </wsdl:operation>
     </wsdl:binding>
-    <wsdl:service name="UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutService">
-        <wsdl:port name="HTTP_Port" binding="tns:UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutBinding">
+    <wsdl:service name="MeterReadingDocumentERPResultCreateRequest_C_OutService">
+        <wsdl:port name="HTTP_Port" binding="tns:MeterReadingDocumentERPResultCreateRequest_C_OutBinding">
             <soap:address
-                    location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesTimeSeriesERPItemBulkCreateRequest_E_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
+                    location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=MeterReadingDocumentERPResultCreateRequest_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
                     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
         </wsdl:port>
-        <wsdl:port name="HTTPS_Port" binding="tns:UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutBinding">
+        <wsdl:port name="HTTPS_Port" binding="tns:MeterReadingDocumentERPResultCreateRequest_C_OutBinding">
             <soap:address
-                    location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesTimeSeriesERPItemBulkCreateRequest_E_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
+                    location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=MeterReadingDocumentERPResultCreateRequest_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
                     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
         </wsdl:port>
     </wsdl:service>

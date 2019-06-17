@@ -4,12 +4,12 @@
   <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
  </wsdl:documentation>
  <wsp:UsingPolicy wsdl:required="true"/>
- <wsp:Policy wsu:Id="IF_IF_SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_In">
+ <wsp:Policy wsu:Id="IF_IF_SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_In">
   <sapsession:Session xmlns:sapsession="http://www.sap.com/webas/630/soap/features/session/">
    <sapsession:enableSession>false</sapsession:enableSession>
   </sapsession:Session>
  </wsp:Policy>
- <wsp:Policy wsu:Id="OP_IF_OP_SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_In">
+ <wsp:Policy wsu:Id="OP_IF_OP_SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_In">
   <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
   <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
   <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>
@@ -765,27 +765,27 @@
  <wsdl:message name="SmartMeterMeterReadingDocumentERPBulkCreateRequest">
   <wsdl:part name="SmartMeterMeterReadingDocumentERPBulkCreateRequest" element="n1:SmartMeterMeterReadingDocumentERPBulkCreateRequest"/>
  </wsdl:message>
- <wsdl:portType name="SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_In">
+ <wsdl:portType name="SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_In">
   <wsdl:documentation>
    <sapdoc:sapdoc xmlns:sapdoc="urn:sap:esi:documentation">
     <sapdoc:docitem applicationComponent="IS-U"/>
    </sapdoc:sapdoc>
   </wsdl:documentation>
   <wsp:Policy>
-   <wsp:PolicyReference URI="#IF_IF_SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_In"/>
+   <wsp:PolicyReference URI="#IF_IF_SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_In"/>
   </wsp:Policy>
-  <wsdl:operation name="SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_In">
+  <wsdl:operation name="SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_In">
    <wsp:Policy>
-    <wsp:PolicyReference URI="#OP_IF_OP_SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_In"/>
+    <wsp:PolicyReference URI="#OP_IF_OP_SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_In"/>
    </wsp:Policy>
    <wsdl:input message="tns:SmartMeterMeterReadingDocumentERPBulkCreateRequest"/>
   </wsdl:operation>
  </wsdl:portType>
-    <wsdl:binding name="SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_InBinding"
-                  type="tns:SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_In">
+    <wsdl:binding name="SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_InBinding"
+                  type="tns:SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_In">
         <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"
                       xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-        <wsdl:operation name="SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_In">
+        <wsdl:operation name="SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_In">
             <soap:operation soapAction="http://sap.com/xi/WebService/soap1.1"
                             xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
             <wsdl:input>
@@ -795,7 +795,7 @@
     </wsdl:binding>
     <wsdl:service name="SmartMeterMeterReadingBulkCreateRequestService"
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
-        <wsdl:port binding="tns:SmartMeterMeterReadingDocumentERPBulkCreateRequest_E_InBinding"
+        <wsdl:port binding="tns:SmartMeterMeterReadingDocumentERPBulkCreateRequest_C_InBinding"
                    name="SmartMeterMeterReadingBulkCreateRequestPort">
             <soap:address location="http://localhost:8080"/>
         </wsdl:port>

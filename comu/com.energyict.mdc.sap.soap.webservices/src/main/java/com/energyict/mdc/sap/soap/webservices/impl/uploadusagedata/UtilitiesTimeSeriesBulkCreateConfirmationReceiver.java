@@ -19,7 +19,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UUID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilitiesTimeSeriesERPItemBulkCreateConfirmationEIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilitiesTimeSeriesERPItemBulkCreateConfirmationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreateconfirmation.UtilsTmeSersERPItmBulkCrteConfMsg;
 
 import com.google.common.collect.ImmutableSet;
@@ -37,7 +37,7 @@ import java.util.stream.Stream;
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateConfirmationReceiver.NAME})
-public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationEIn {
+public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkCreateConfirmationCIn {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateConfirmation_C_In";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of("5");
 
@@ -82,7 +82,7 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver implements Inboun
     }
 
     @Override
-    public void utilitiesTimeSeriesERPItemBulkCreateConfirmationEIn(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
+    public void utilitiesTimeSeriesERPItemBulkCreateConfirmationCIn(UtilsTmeSersERPItmBulkCrteConfMsg confirmation) {
         setPrincipal();
         Optional<String> uuid = findReferenceUuid(confirmation);
         ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)

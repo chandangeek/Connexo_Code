@@ -4,13 +4,13 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MeterReadingDocumentERPResultCreateConfirmationEIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MeterReadingDocumentERPResultCreateConfirmationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfMsg;
 
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class MeterReadingDocumentResultCreateConfirmationEndpoint implements MeterReadingDocumentERPResultCreateConfirmationEIn {
+public class MeterReadingDocumentResultCreateConfirmationEndpoint implements MeterReadingDocumentERPResultCreateConfirmationCIn {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -20,7 +20,7 @@ public class MeterReadingDocumentResultCreateConfirmationEndpoint implements Met
     }
 
     @Override
-    public void meterReadingDocumentERPResultCreateConfirmationEIn(MtrRdngDocERPRsltCrteConfMsg request) {
+    public void meterReadingDocumentERPResultCreateConfirmationCIn(MtrRdngDocERPRsltCrteConfMsg request) {
         Optional.ofNullable(request)
                 .ifPresent(requestMessage ->
                         serviceCallCommands
