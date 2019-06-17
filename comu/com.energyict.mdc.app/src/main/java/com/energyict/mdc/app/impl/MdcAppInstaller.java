@@ -12,9 +12,11 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.YellowfinService;
@@ -33,6 +35,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -70,17 +74,19 @@ public class MdcAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
+        Map<Version,  Class<? extends Upgrader>>  upgraders = new HashMap<>();
+        upgraders.put(version(10, 2), UpgraderV10_2.class);
+        upgraders.put(version(10, 3), UpgraderV10_3.class);
+        upgraders.put(version(10, 4), UpgraderV10_4.class);
+        upgraders.put(version(10, 4, 1), UpgraderV10_4_1.class);
+        upgraders.put(version(10, 6), UpgraderV10_6.class);
+        upgraders.put(version(10, 7), UpgraderV10_7.class);
+
         upgradeService.register(
                 InstallIdentifier.identifier("MultiSense", "MDA"),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class,
-                        version(10, 3), UpgraderV10_3.class,
-                        version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class,
-                        version(10, 6), UpgraderV10_6.class
-                )
+                ImmutableMap.copyOf(upgraders)
         );
     }
 
