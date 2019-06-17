@@ -15,7 +15,8 @@ Ext.define('Imt.issue.view.IssueFilter', {
         'Isu.store.IssueAssignees',
         'Imt.issue.store.UsagePoints',
         'Isu.store.DueDate',
-        'Isu.store.IssueReasons'
+        'Isu.store.IssueReasons',
+        'Imt.usagepointgroups.store.UsagePointGroups'
     ],
 
     initComponent: function () {
@@ -140,7 +141,17 @@ Ext.define('Imt.issue.view.IssueFilter', {
                         fn: me.comboLimitNotification
                     }
                 }
-            }
+            },
+            {
+                type: 'combobox',
+                itemId: 'issue-usagePointGroup-filter',
+                dataIndex: 'usagePointGroup',
+                emptyText: Uni.I18n.translate('general.usagePointGroup', 'IMT', 'Usage point group'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Imt.usagepointgroups.store.UsagePointGroups',
+                multiSelect: true,
+            },
         ];
 
         me.callParent(arguments);
