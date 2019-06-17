@@ -53,6 +53,8 @@ public interface RecurrentTaskBuilder {
 
         RecurrentTaskBuilderFinisher setLogLevel(int level);
 
+        RecurrentTaskBuilderFinisher setPriority(int priority);
+
         RecurrentTaskBuilderFinisher setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 
         RecurrentTask build();

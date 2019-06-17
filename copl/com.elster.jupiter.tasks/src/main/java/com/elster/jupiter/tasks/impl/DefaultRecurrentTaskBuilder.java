@@ -40,6 +40,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     private final DataModel dataModel;
     private int logLevel = Level.WARNING.intValue();
     private List<RecurrentTask> nextRecurrentTasks = new ArrayList<>();
+    private int priority = RecurrentTask.DEFAULT_PRIORITY;
 
     @Override
     public RecurrentTaskBuilderNameSetter setApplication(String application) {
@@ -103,6 +104,12 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
     }
 
     @Override
+    public RecurrentTaskBuilderFinisher setPriority(int priority) {
+        this.priority = priority;
+        return this;
+    }
+
+    @Override
     public RecurrentTaskBuilderFinisher setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
         this.nextRecurrentTasks = nextRecurrentTasks;
         return this;
@@ -110,7 +117,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder, RecurrentTask
 
     @Override
     public RecurrentTask build() {
-        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, application, name, scheduleExpression, destination, payload, logLevel);
+        RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, application, name, scheduleExpression, destination, payload, logLevel, priority);
         if (firstExecution != null) {
             recurrentTask.setNextExecution(firstExecution);
         } else if (scheduleImmediately) {

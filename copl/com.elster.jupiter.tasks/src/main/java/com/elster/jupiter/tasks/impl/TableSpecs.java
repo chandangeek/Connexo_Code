@@ -38,6 +38,7 @@ enum TableSpecs {
             table.column("NEXTEXECUTION").number().conversion(NUMBER2INSTANT).map("nextExecution").notAudited().add();
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             Column destination = table.column("DESTINATION").varChar(30).notNull().map("destination").add();
+            table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").installValue("0").notNull().since(Version.version(10, 7)).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();

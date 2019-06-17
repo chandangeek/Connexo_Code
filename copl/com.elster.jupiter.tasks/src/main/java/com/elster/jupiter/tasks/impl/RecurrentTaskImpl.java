@@ -6,6 +6,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -61,6 +62,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private Instant nextExecution;
     private String payload;
     private String destination;
+    private int priority;
     private Instant lastRun;
     private transient DestinationSpec destinationSpec;
     private int logLevel;
@@ -94,9 +96,10 @@ class RecurrentTaskImpl implements RecurrentTask {
         // for persistence
         this.clock = clock;
         this.setLogLevel(Level.WARNING.intValue());
+        this.priority = DEFAULT_PRIORITY;
     }
 
-    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, int logLevel) {
+    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, int logLevel, int priority) {
         this.application = application;
         this.destinationSpec = destinationSpec;
         this.destination = destinationSpec.getName();
@@ -105,11 +108,12 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.name = name;
         this.scheduleExpression = scheduleExpression;
         this.setLogLevel(logLevel);
+        this.priority = priority;
         return this;
     }
 
-    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, int logLevel) {
-        return dataModel.getInstance(RecurrentTaskImpl.class).init(application, name, scheduleExpression, destinationSpec, payload, logLevel);
+    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload, int logLevel, int priority) {
+        return dataModel.getInstance(RecurrentTaskImpl.class).init(application, name, scheduleExpression, destinationSpec, payload, logLevel, priority);
     }
 
     @Override
@@ -275,7 +279,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     }
 
-    public void triggetNewRecuurentTasks() {
+    public void triggerNewRecurrentTasks() {
         this.getNextRecurrentTasks().stream().forEach(
                 nextRecurrentTask -> nextRecurrentTask.triggerNow()
         );
@@ -283,7 +287,15 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     private void enqueue(TaskOccurrenceImpl taskOccurrence) {
         String json = toJson(taskOccurrence);
-        getDestination().message(json).send();
+        buildMessage(json, taskOccurrence.getRecurrentTask().getPriority()).send();
+    }
+
+    private MessageBuilder buildMessage(String json, int priority) {
+        MessageBuilder messageBuilder = getDestination().message(json);
+        if (getDestination().isPrioritized()) {
+            messageBuilder.withPriority(priority);
+        }
+        return messageBuilder;
     }
 
     @TransactionRequired
@@ -294,7 +306,7 @@ class RecurrentTaskImpl implements RecurrentTask {
                 TaskOccurrenceImpl taskOccurrence = createScheduledTaskOccurrence();
 
                 String json = toJson(taskOccurrence);
-                getDestination().message(json).send();
+                buildMessage(json, taskOccurrence.getRecurrentTask().getPriority()).send();
                 if (taskOccurrence.wasScheduled()) {
                     updateNextExecution();
                     dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
@@ -308,7 +320,7 @@ class RecurrentTaskImpl implements RecurrentTask {
                 TaskOccurrenceImpl taskOccurrence = createAdHocTaskOccurrence(taskAdHocExecution1.getTriggerTime());
 
                 String json = toJson(taskOccurrence);
-                getDestination().message(json).send();
+                buildMessage(json, taskOccurrence.getRecurrentTask().getPriority()).send();
                 getAdhocExecutions().removeIf(taskAdHocExecution2 -> taskAdHocExecution1.getId() == taskAdHocExecution2.getId());
                 taskOccurrences.add(taskOccurrence);
             });
@@ -471,4 +483,14 @@ class RecurrentTaskImpl implements RecurrentTask {
         Save.UPDATE.save(dataModel, this);
     }
 
+    @Override
+    public int getPriority() {
+        return priority;
+    }
+
+    @Override
+    public void setPriority(int priority) {
+        this.priority = priority;
+        Save.UPDATE.save(dataModel, this);
+    }
 }
