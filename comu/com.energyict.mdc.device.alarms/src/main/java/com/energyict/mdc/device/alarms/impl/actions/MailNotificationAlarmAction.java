@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,19 +67,40 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-
         return Arrays.asList(
-                getPropertySpecService().
-                        specForValuesOf(new MailValueFactory()).
-                        named(TO, TranslationKeys.ACTION_MAIL_NOTIFY).
-                        fromThesaurus(this.getThesaurus()).setDefaultValue(new MailTo("TO")).finish());
+                getPropertySpecService()
+                        .specForValuesOf(new MailValueFactory())
+                        .named(TO, TranslationKeys.ACTION_MAIL_TO)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue((MailTo) issue)
+                        .finish());
     }
 
+    @Override
+    public String getFormattedProperties(Map<String, Object> props) {
+        Object value = props.get(TO);
+        if (value != null) {
+            return ((MailTo) value).recipient.orElse("");
+        }
+        return "";
+    }
     private class MailValueFactory implements ValueFactory<MailTo>, MailPropertyFactory {
 
 
         @Override
         public MailTo fromStringValue(String stringValue) {
+        /*    try{
+                JSONObject jsonData = new JSONObject(stringValue);
+                String recipient = jsonData.get("recipient").toString();
+                return new MailTo(recipient);
+            }
+            catch(JSONException e)
+            {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+
+            return null;*/
             return new MailTo(stringValue);
         }
 
