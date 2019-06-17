@@ -57,9 +57,13 @@ public class ServiceCallTransitionUtils {
     }
 
     private static void transitserviceCallToResultState(ServiceCall serviceCall, DefaultState finalState) {
-        serviceCall.requestTransition(DefaultState.ONGOING);
-        if (finalState != DefaultState.ONGOING) {
-            serviceCall.requestTransition(finalState);
+        if (serviceCall.getState() != finalState) {
+            if (serviceCall.getState() != DefaultState.ONGOING) {
+                serviceCall.requestTransition(DefaultState.ONGOING);
+            }
+            if (finalState != DefaultState.ONGOING) {
+                serviceCall.requestTransition(finalState);
+            }
         }
     }
 }

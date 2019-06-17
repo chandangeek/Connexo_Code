@@ -159,7 +159,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                 MeterReadings meterReadings = builder
                         .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
                         .build();
-                return createMeterReadingsResponseMessageType(meterReadings, errorTypes);
+                return createMeterReadingsResponseMessageType(meterReadings, errorTypes, null);
             }
             // -UsagePoint
             List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
@@ -172,7 +172,8 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                     .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameTypeEnum.PURPOSE))
                     .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
                     .build();
-            MeterReadingsResponseMessageType meterReadingsResponseMessageType = createMeterReadingsResponseMessageType(meterReadings);
+            MeterReadingsResponseMessageType meterReadingsResponseMessageType =
+                    createMeterReadingsResponseMessageType(meterReadings, null);
             meterReadingsResponseMessageType.setReply(usagePoints.size() > 1 ?
                     replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null, USAGE_POINTS_LIST_ITEM) :
                     replyTypeFactory.okReplyType());
@@ -219,7 +220,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         /// TODO check if only Registers or Load Profiles or Reading Types are present in request
         for (int i = 0; i < readings.size(); ++i) {
             Reading reading = readings.get(i);
-            getTimeInterval(reading, i);
+            checkTimeInterval(reading, i, true);
             String connectionMethod = reading.getConnectionMethod();
             ScheduleStrategyEnum scheduleStrategy = getScheduleStrategy(reading.getScheduleStrategy());
             /// TODO check that reading or loadProfile com task exists
@@ -243,7 +244,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
         /// no meter readings on sync reply! It's built in parent service call
         MeterReadings meterReadings = null;
-        return createMeterReadingsResponseMessageType(meterReadings, errorTypes);
+        return createMeterReadingsResponseMessageType(meterReadings, errorTypes, corelationId);
     }
 
     // LoadProfile or RegisterGroup
@@ -293,8 +294,11 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return strategy;
     }
 
-    private MeterReadingsResponseMessageType createMeterReadingsResponseMessageType(MeterReadings meterReadings, Set<ErrorType> errorTypes) {
-        MeterReadingsResponseMessageType meterReadingsResponseMessageType = createMeterReadingsResponseMessageType(meterReadings);
+    private MeterReadingsResponseMessageType createMeterReadingsResponseMessageType(MeterReadings meterReadings,
+                                                                                    Set<ErrorType> errorTypes,
+                                                                                    String correlationId) {
+        MeterReadingsResponseMessageType meterReadingsResponseMessageType =
+                createMeterReadingsResponseMessageType(meterReadings, correlationId);
         meterReadingsResponseMessageType.setReply(errorTypes.isEmpty() ?
                 replyTypeFactory.okReplyType() :
                 replyTypeFactory.failureReplyType(ReplyType.Result.PARTIAL, errorTypes.stream().toArray(ErrorType[]::new)));
@@ -588,23 +592,38 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     private Range<Instant> getTimeInterval(Reading reading, int index) throws FaultMessage {
+        checkTimeInterval(reading, index, false);
+        Instant end = reading.getTimePeriod().getEnd();
+        return Range.openClosed(reading.getTimePeriod().getStart(), reading.getTimePeriod().getEnd());
+    }
+
+    private void checkTimeInterval(Reading reading, int index, boolean asyncFlag)  throws FaultMessage {
         final String READING_ITEM = READING_LIST_ITEM + '[' + index + ']';
         DateTimeInterval interval = Optional.ofNullable(reading.getTimePeriod())
                 .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,READING_ITEM + ".timePeriod"));
-        Instant start = Optional.ofNullable(interval.getStart())
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,READING_ITEM + ".timePeriod.start"));
+        Instant start = interval.getStart();
         Instant end = interval.getEnd();
-        if (end == null) {
-            end = clock.instant();
-            interval.setEnd(end);
+        if (!asyncFlag) {
+            if (start == null) {
+                faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, READING_ITEM + ".timePeriod.start");
+            }
+            if (end == null) {
+                end = clock.instant();
+                interval.setEnd(end);
+            }
         }
-        if (!end.isAfter(start)) {
+        if (start == null && end != null) {
+            faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                    MessageSeeds.WRONG_TIME_PERIOD_COMBINATION,
+                    XsdDateTimeConverter.marshalDateTime(start),
+                    XsdDateTimeConverter.marshalDateTime(end));
+        }
+        if (start != null && end != null && !end.isAfter(start)) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
                     MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
                     XsdDateTimeConverter.marshalDateTime(start),
                     XsdDateTimeConverter.marshalDateTime(end)).get();
         }
-        return Range.openClosed(start, end);
     }
 
     private void collectDeviceMridsAndNames(EndDevice endDevice, int index, List<String> mRIDs, List<String> deviceNames) throws FaultMessage {
@@ -663,11 +682,12 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                 .collect(Collectors.toSet());
     }
 
-    private MeterReadingsResponseMessageType createMeterReadingsResponseMessageType(MeterReadings meterReadings) {
+    private MeterReadingsResponseMessageType createMeterReadingsResponseMessageType(MeterReadings meterReadings, String correlationId) {
         MeterReadingsResponseMessageType meterReadingsResponseMessageType = getMeterReadingsMessageObjectFactory.createMeterReadingsResponseMessageType();
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun(NOUN);
+        header.setCorrelationID(correlationId);
         meterReadingsResponseMessageType.setHeader(header);
         MeterReadingsPayloadType meterReadingsPayloadType = getMeterReadingsMessageObjectFactory.createMeterReadingsPayloadType();
         meterReadingsPayloadType.setMeterReadings(meterReadings);

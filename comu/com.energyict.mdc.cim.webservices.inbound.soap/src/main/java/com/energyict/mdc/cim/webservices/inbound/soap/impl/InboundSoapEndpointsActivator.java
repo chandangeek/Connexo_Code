@@ -32,6 +32,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -135,6 +136,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile MessageService messageService;
     private volatile OrmService ormService;
     private volatile MeterConfigFactory meterConfigFactory;
+    private volatile TaskService taskService;
+    private volatile BundleContext bundleContext;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -157,7 +160,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                          MetrologyConfigurationService metrologyConfigurationService,
                                          SendMeterReadingsProvider sendMeterReadingsProvider, MessageService messageService,
-                                         OrmService ormService) {
+                                         OrmService ormService, TaskService taskService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -187,6 +190,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setSecurityManagementService(securityManagementService);
 		setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
 		setOrmService(ormService);
+        setTaskService(taskService);
     }
 
     private Module getModule() {
@@ -224,16 +228,21 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(MessageService.class).toInstance(messageService);
 				bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
 				bind(OrmService.class).toInstance(ormService);
+                bind(TaskService.class).toInstance(taskService);
+                bind(BundleContext.class).toInstance(bundleContext);
             }
         };
     }
 
     @Activate
     public void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(10, 6), UpgraderV10_6.class));
+        /// TODO fix issue with identifier COMPONENT_NAME ("SIM")
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
+                ImmutableMap.of(version(10, 6), UpgraderV10_6.class));
 
         addConverter(new ObisCodePropertyValueConverter());
         registerHandlers();
@@ -460,6 +469,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public final void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @Override

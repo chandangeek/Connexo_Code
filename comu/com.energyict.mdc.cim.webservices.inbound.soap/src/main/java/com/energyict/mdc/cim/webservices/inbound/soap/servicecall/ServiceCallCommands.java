@@ -19,6 +19,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
@@ -62,11 +63,15 @@ import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import com.google.common.collect.Range;
+import org.osgi.framework.BundleContext;
+
+import java.time.temporal.ChronoUnit;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +114,8 @@ public class ServiceCallCommands {
         }
     }
 
+    private static final String RECURENT_TASK_READ_OUT_DELAY = "com.energyict.mdc.cim.webservices.inbound.soap.readoutdelay";
+
     private final DeviceService deviceService;
     private final JsonService jsonService;
     private final EndDeviceEventsBuilder endDeviceEventsBuilder;
@@ -119,13 +126,14 @@ public class ServiceCallCommands {
     private final MeterReadingFaultMessageFactory faultMessageFactory;
     private final MessageService messageService;
     private final Clock clock;
+    private final BundleContext bundleContext;
 
     @Inject
     public ServiceCallCommands(DeviceService deviceService, JsonService jsonService,
                                MeterConfigParser meterConfigParser, MeterConfigFaultMessageFactory meterConfigFaultMessageFactory,
                                ServiceCallService serviceCallService, EndDeviceEventsBuilder endDeviceEventsBuilder,
                                Thesaurus thesaurus, MeterReadingFaultMessageFactory faultMessageFactory,
-                               MessageService messageService, Clock clock) {
+                               MessageService messageService, Clock clock, BundleContext bundleContext) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
@@ -136,6 +144,7 @@ public class ServiceCallCommands {
         this.faultMessageFactory = faultMessageFactory;
         this.messageService = messageService;
         this.clock = clock;
+        this.bundleContext = bundleContext;
 
     }
 
@@ -251,13 +260,20 @@ public class ServiceCallCommands {
                                                                ScheduleStrategyEnum scheduleStrategy) throws
             ch.iec.tc57._2011.getmeterreadings.FaultMessage {
 
+        Instant start = timePeriod.getStart();
+        Instant end = timePeriod.getEnd();
+        String property = bundleContext.getProperty(RECURENT_TASK_READ_OUT_DELAY);
+        long delay = property == null? 1 : Long.parseLong(property);
+
+        Instant now = clock.instant();
+
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.PARENT_GET_METER_READINGS);
         ParentGetMeterReadingsDomainExtension parentGetMeterReadingsDomainExtension = new ParentGetMeterReadingsDomainExtension();
         parentGetMeterReadingsDomainExtension.setSource(source);
         parentGetMeterReadingsDomainExtension.setCallbackUrl(replyAddress);
         parentGetMeterReadingsDomainExtension.setCorelationId(corelationId);
-        parentGetMeterReadingsDomainExtension.setTimePeriodStart(timePeriod.getStart());
-        parentGetMeterReadingsDomainExtension.setTimePeriodEnd(timePeriod.getEnd());
+        parentGetMeterReadingsDomainExtension.setTimePeriodStart(start);
+        parentGetMeterReadingsDomainExtension.setTimePeriodEnd(end);
         parentGetMeterReadingsDomainExtension.setReadingTypes(getReadingTypesString(existedReadingTypes));
         parentGetMeterReadingsDomainExtension.setLoadProfiles(getCommaSeparatedStringFromList(existedLoadProfiles));
         parentGetMeterReadingsDomainExtension.setRegisterGroups(getCommaSeparatedStringFromList(existedRegisterGroups));
@@ -284,15 +300,76 @@ public class ServiceCallCommands {
                 Device device = findDeviceForEndDevice(meter);
                 if (!checkConnectionMethodExists(device, connectionMethod)) {
                     /// TODO throw exception like WrongCommunicationMethod (see confluence)
+                    parentServiceCall.requestTransition(DefaultState.FAILED);
                     return parentServiceCall; // or even better return null
                 }
                 ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
 
+                List<ComTaskExecution> existedComTaskExecutions = findComTaskExecutions(device, existedReadingTypes,
+                        existedLoadProfiles, existedRegisterGroups);
+
+                // TODO check Hybrid
                 if (isMeterReadingRequired(source, meter, existedReadingTypes,  timePeriod.getEnd())) {
                     subParentServiceCall.requestTransition(DefaultState.PENDING);
                     subParentServiceCall.requestTransition(DefaultState.ONGOING);
 //                    readMeter(subParentServiceCall, meter, existedReadingTypes);
-                    scheduleReading(subParentServiceCall, meter, existedReadingTypes, clock.instant());
+
+                    //****
+
+                    for(ComTaskExecution comTaskExecution : existedComTaskExecutions) {
+                        if(!checkCommectionMethodForComTaskExecution(comTaskExecution, connectionMethod)) {
+                            // TODO error?
+                        }
+                        Instant actualStart = getActualStart(start, comTaskExecution);
+                        Instant actualEnd = getActualEnd(end, now);
+                        Instant next = comTaskExecution.getNextExecutionTimestamp();
+
+                        Instant trigger;
+                        if (end != null) {
+                            trigger = end.plus(delay, ChronoUnit.MINUTES);
+                        } else {
+                            trigger = actualEnd.plus(delay, ChronoUnit.MINUTES);
+                        }
+
+                        /// TODO proper exception
+                        if (!actualEnd.isAfter(actualStart)) {
+                            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                                    MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
+                                    XsdDateTimeConverter.marshalDateTime(actualStart),
+                                    XsdDateTimeConverter.marshalDateTime(actualEnd)).get();
+                        }
+
+                        // run now
+                        if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
+                            if (start == null && end == null) {
+                                processComTaskExectionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
+                                        actualStart, actualEnd);
+                            } else if (start != null && end == null) {
+                                processComTaskExectionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
+                                        actualStart, actualEnd);
+                            } else if (end != null && !trigger.isAfter(now)) {
+                                scheduleOrRunNowComTaskExecution(subParentServiceCall, device, comTaskExecution, trigger,
+                                        actualStart, actualEnd, true);
+                            } else if (end != null && trigger.isAfter(now)) {
+                                processComTaskExectionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
+                                        actualStart, actualEnd);
+                            }
+                        } else { // use schedule
+                            if (next.isBefore(end)) {
+                                trigger = end;
+                            } else if (next.isAfter(end)) {
+                                trigger = next;
+                            }
+                            /// TODO what if start/end dates not specified?
+                            scheduleOrRunNowComTaskExecution(subParentServiceCall, device, comTaskExecution, trigger,
+                                    actualStart, actualEnd, false);
+                            // wait next task execution
+                        }
+                    }
+
+                    //***
+
+//                    scheduleOrRunNowReading(subParentServiceCall, device, existedReadingTypes, clock.instant(), scheduleStrategy);
                     subParentServiceCall.requestTransition(DefaultState.WAITING);
                     meterReadingRunning = true;
                 }
@@ -306,6 +383,63 @@ public class ServiceCallCommands {
         return parentServiceCall;
     }
 
+    private Instant getActualStart(Instant start, ComTaskExecution comTaskExecution){
+        if (start == null) {
+            return comTaskExecution.getLastSuccessfulCompletionTimestamp();
+        }
+        return start;
+    }
+
+    private Instant getActualEnd(Instant end, Instant now) {
+        if (end == null) {
+            return now;
+        }
+        return end;
+    }
+
+    private List<ComTaskExecution> findComTaskExecutions(Device device, List<ReadingType> existedReadingTypes,
+                                                         List<String> existedLoadProfiles,
+                                                         List<String> existedRegisterGroups) throws
+            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+        if (existedReadingTypes != null && !existedReadingTypes.isEmpty()) {
+            comTaskExecutions.addAll(getSupportedReadingTypeExecutionMapping(device, existedReadingTypes).keySet());
+        } else if (existedLoadProfiles != null && !existedLoadProfiles.isEmpty()) {
+            // TODO find proper comTaskExecutions
+        } else if (existedRegisterGroups != null && !existedRegisterGroups.isEmpty()) {
+            // TODO find proper comTaskExecutions
+        }
+        return comTaskExecutions;
+    }
+
+    private void processComTaskExectionByRecurrentTask(ServiceCall subParentServiceCall,
+                                                       ComTaskExecution comTaskExecution, Instant trigger,
+                                                       Instant actualStart, Instant actualEnd) {
+        ServiceCall childServiceCall = createComTaskExecutionServiceCall(subParentServiceCall,
+                ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS,
+                comTaskExecution.getComTask().getName(), trigger, actualStart, actualEnd,
+                comTaskExecution.getDevice());
+        // recurrent task will check childServiceCall in state SCHEDULED
+        childServiceCall.requestTransition(DefaultState.SCHEDULED);
+    }
+
+    private void scheduleOrRunNowComTaskExecution(ServiceCall subParentServiceCall, Device device,
+                                                  ComTaskExecution comTaskExecution, Instant trigger,
+                                                  Instant actualStart, Instant actualEnd, boolean runNow) {
+        ServiceCall serviceCall = createComTaskExecutionServiceCall(subParentServiceCall,
+            ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, comTaskExecution.getComTask().getName(), trigger,
+                actualStart, actualEnd, device);
+        serviceCall.requestTransition(DefaultState.PENDING);
+        serviceCall.requestTransition(DefaultState.ONGOING);
+        serviceCall.requestTransition(DefaultState.WAITING);
+        if (runNow) {
+            comTaskExecution.runNow();
+        } else { // wait until already scheduled comTask
+            // scheduleComTaskExecution(comTaskExecution, trigger);
+        }
+    }
+
+
     private ServiceCall createSubParentServiceCall(ServiceCall parent, com.elster.jupiter.metering.Meter meter) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.SUBPARENT_GET_METER_READINGS);
 
@@ -318,12 +452,15 @@ public class ServiceCallCommands {
     }
 
     private ServiceCall createComTaskExecutionServiceCall(ServiceCall subParentServiceCall, ServiceCallTypes childServiceCallType,
-                                                          String comTaskName, Instant triggerDate, Device device) {
+                                                          String comTaskName, Instant triggerDate, Instant actualStart,
+                                                          Instant actualEnd, Device device) {
         ServiceCallType serviceCallType = getServiceCallType(childServiceCallType);
 
         ChildGetMeterReadingsDomainExtension childDomainExtension = new ChildGetMeterReadingsDomainExtension();
         childDomainExtension.setCommunicationTask(comTaskName);
-        childDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
+        childDomainExtension.setTriggerDate(triggerDate);
+        childDomainExtension.setActialStartDate(actualStart);
+        childDomainExtension.setActialEndDate(actualEnd);
 
         return subParentServiceCall.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension)
@@ -337,13 +474,22 @@ public class ServiceCallCommands {
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
-    private boolean checkConnectionMethodExists(Device device, String connectionMethod) {
-        return device.getComTaskExecutions().stream()
-                /// TODO check optional
-                .map(cte -> cte.getConnectionTask().get().getPartialConnectionTask().getName())
-//                .map(ct -> ct.getPartialConnectionTask())
-//                .map(pct -> pct.getName())
-                .anyMatch(taskName -> taskName.equalsIgnoreCase(connectionMethod));
+    private boolean checkConnectionMethodExists(Device device, String connectionMethod) throws
+            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+        for (ComTaskExecution cte : device.getComTaskExecutions()) {
+            if (checkCommectionMethodForComTaskExecution(cte, connectionMethod)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean checkCommectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws
+            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+        return comTaskExecution.getConnectionTask()
+                /// TODO add proper exception translation
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES))
+                .getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod);
     }
 
     private void initiateReading(ServiceCall serviceCall) {
@@ -351,34 +497,41 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(DefaultState.ONGOING);
     }
 
-    private void scheduleReading(ServiceCall subParentServiceCall, com.elster.jupiter.metering.Meter meter, List<ReadingType> readingTypes,
-                                 Instant triggerDate) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        Device multiSenseDevice = findDeviceForEndDevice(meter);
-        Map<ComTaskExecution, List<ReadingType>> comTaskExecReadingTypeMap = getSupportedReadingTypeExecutionMapping(multiSenseDevice, readingTypes);
-        Set<ReadingType> supportedReadingTypes = comTaskExecReadingTypeMap.values().stream()
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        if (supportedReadingTypes.size() < readingTypes.size()) {
-            /// TODO think how to deal with that
-            subParentServiceCall.log(LogLevel.SEVERE, "Some reading types are not supported");
-            subParentServiceCall.requestTransition(DefaultState.FAILED);
-        } else {
-            /// TODO calculate trigger time
-            comTaskExecReadingTypeMap.keySet().forEach(cte -> {
-                ServiceCall serviceCall = createComTaskExecutionServiceCall(subParentServiceCall,
-                        ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, cte.getComTask().getName(), triggerDate, multiSenseDevice);
-                serviceCall.requestTransition(DefaultState.PENDING);
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                scheduleComTaskExecution(cte, triggerDate);
-            } );
-        }
-    }
+//    private void scheduleOrRunNowReading(ServiceCall subParentServiceCall, Device device, List<ReadingType> readingTypes,
+//                                         Instant triggerDate, ScheduleStrategyEnum scheduleStrategy) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+//        Map<ComTaskExecution, List<ReadingType>> comTaskExecReadingTypeMap = getSupportedReadingTypeExecutionMapping(device, readingTypes);
+//        Set<ReadingType> supportedReadingTypes = comTaskExecReadingTypeMap.values().stream()
+//                .flatMap(Collection::stream)
+//                .collect(Collectors.toSet());
+//
+//        if (supportedReadingTypes.size() < readingTypes.size()) {
+//            /// TODO think how to deal with that
+//            subParentServiceCall.log(LogLevel.SEVERE, "Some reading types are not supported");
+//            subParentServiceCall.requestTransition(DefaultState.FAILED);
+//        } else {
+//            /// TODO calculate trigger time
+////            comTaskExecReadingTypeMap.keySet().forEach(cte -> {
+////
+////            });
+//            for (ComTaskExecution cte : comTaskExecReadingTypeMap.keySet()) {
+//                ServiceCall serviceCall = createComTaskExecutionServiceCall(subParentServiceCall,
+//                        ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, cte.getComTask().getName(), triggerDate, device);
+//                serviceCall.requestTransition(DefaultState.PENDING);
+//                serviceCall.requestTransition(DefaultState.ONGOING);
+////                if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
+////                    cte.runNow();
+////                } else {
+//                scheduleComTaskExecution(cte, triggerDate);
+////                }
+//            }
+//        }
+//    }
 
     private Map<ComTaskExecution, List<ReadingType>> getSupportedReadingTypeExecutionMapping(Device device,
                                                                                              Collection<ReadingType> readingTypes)
             throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+        comTaskExecutions.addAll(device.getComTaskExecutions());
         Map<ComTaskExecution, List<ReadingType>> comTaskExecReadingTypeMap = getSupportedReadingTypeExecutionMapping(comTaskExecutions, readingTypes);
         Set<ReadingType> readingTypesWithExecutions = comTaskExecReadingTypeMap.values().stream()
                 .flatMap(Collection::stream)
@@ -461,8 +614,6 @@ public class ServiceCallCommands {
 
         }
         return null;
-
-
     }
 
     private void scheduleComTaskExecution(ComTaskExecution comTaskExecution, Instant instant) {

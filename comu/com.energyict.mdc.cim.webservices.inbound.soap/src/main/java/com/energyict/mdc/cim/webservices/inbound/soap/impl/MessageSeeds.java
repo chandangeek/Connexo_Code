@@ -101,6 +101,7 @@ public enum MessageSeeds implements MessageSeed {
     READING_TYPES_NOT_FOUND_ON_DEVICE(7012, "ReadingTypesNotFoundOnDevice", "Reading type(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
     NO_USAGE_POINT_WITH_MRID(7013, "NoUsagePointWithMRID", "No usage point is found by MRID ''{0}''."),
     NO_USAGE_POINT_WITH_NAME(7014, "NoUsagePointWithName", "No usage point is found by name ''{0}''."),
+    WRONG_TIME_PERIOD_COMBINATION(7015, "WrongTimePeriodCombination", "Can''t construct a valid time period: provided start ''{0}'' and the end ''{1}''."),
 
     NO_HEAD_END_INTERFACE_FOUND(8004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     ;

@@ -18,6 +18,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 
 public class ChildGetMeterReadingsDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
@@ -25,7 +26,10 @@ public class ChildGetMeterReadingsDomainExtension extends AbstractPersistentDoma
     public enum FieldNames {
         DOMAIN("serviceCall", "SERVICE_CALL"),
         COMMUNICATION_TASK("communicationTask", "COMMUNICATION_TASK"),
-        TRIGGER_DATE("triggerDate", "TRIGGER_DATE");
+        TRIGGER_DATE("triggerDate", "TRIGGER_DATE"),
+        ACTUAL_START_DATE("actialStartDate", "ACTUAL_START_DATE"),
+        ACTUAL_END_DATE("actialEndDate", "ACTUAL_END_DATE")
+        ;
 
         private final String javaName;
         private final String databaseName;
@@ -50,7 +54,11 @@ public class ChildGetMeterReadingsDomainExtension extends AbstractPersistentDoma
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String communicationTask;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal triggerDate;
+    private Instant triggerDate;
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private Instant actialStartDate;
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private Instant actialEndDate;
 
     public ChildGetMeterReadingsDomainExtension() {
         super();
@@ -73,27 +81,46 @@ public class ChildGetMeterReadingsDomainExtension extends AbstractPersistentDoma
         this.communicationTask = communicationTask;
     }
 
-    public BigDecimal getTriggerDate() {
+    public Instant getTriggerDate() {
         return triggerDate;
     }
 
-    public void setTriggerDate(BigDecimal triggerDate) {
+    public void setTriggerDate(Instant triggerDate) {
         this.triggerDate = triggerDate;
+    }
+
+    public Instant getActialStartDate() {
+        return actialStartDate;
+    }
+
+    public void setActialStartDate(Instant actialStartDate) {
+        this.actialStartDate = actialStartDate;
+    }
+
+    public Instant getActialEndDate() {
+        return actialEndDate;
+    }
+
+    public void setActialEndDate(Instant actialEndDate) {
+        this.actialEndDate = actialEndDate;
     }
 
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setCommunicationTask((String) propertyValues.getProperty(FieldNames.COMMUNICATION_TASK.javaName()));
-        this.setTriggerDate(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.TRIGGER_DATE.javaName()))
-                .orElse(BigDecimal.ZERO)
-                .toString()));
+        this.setTriggerDate((Instant) propertyValues.getProperty(FieldNames.TRIGGER_DATE.javaName()));
+        this.setActialStartDate((Instant) propertyValues.getProperty(FieldNames.ACTUAL_START_DATE.javaName()));
+        this.setActialEndDate((Instant) propertyValues.getProperty(FieldNames.ACTUAL_END_DATE.javaName()));
+
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.COMMUNICATION_TASK.javaName(), this.getCommunicationTask());
         propertySetValues.setProperty(FieldNames.TRIGGER_DATE.javaName(), this.getTriggerDate());
+        propertySetValues.setProperty(FieldNames.ACTUAL_START_DATE.javaName(), this.getActialStartDate());
+        propertySetValues.setProperty(FieldNames.ACTUAL_END_DATE.javaName(), this.getActialEndDate());
     }
 
     @Override

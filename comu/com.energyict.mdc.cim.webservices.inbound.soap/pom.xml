@@ -176,6 +176,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>

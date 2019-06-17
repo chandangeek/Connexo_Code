@@ -60,7 +60,6 @@ public class SubParentGetMeterReadingsServiceCallHandler implements ServiceCallH
 
     @Override
     public void onChildStateChange(ServiceCall subParentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
-//        childServiceCall.log(LogLevel.FINE, "Service call is switched to state " + newState.getDefaultFormat());
         ServiceCallTransitionUtils.resultTransition(subParentServiceCall);
     }
 }

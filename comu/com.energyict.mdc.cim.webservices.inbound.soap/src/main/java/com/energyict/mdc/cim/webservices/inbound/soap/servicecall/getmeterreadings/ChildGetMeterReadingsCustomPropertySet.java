@@ -13,7 +13,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -87,7 +89,7 @@ public class ChildGetMeterReadingsCustomPropertySet implements CustomPropertySet
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(TranslationKeys.CGMR_NAME).format();
+        return ChildGetMeterReadingsCustomPropertySet.class.getName();
     }
 
     @Override
@@ -134,8 +136,18 @@ public class ChildGetMeterReadingsCustomPropertySet implements CustomPropertySet
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .specForValuesOf(new InstantFactory())
                         .named(ChildGetMeterReadingsDomainExtension.FieldNames.TRIGGER_DATE.javaName(), TranslationKeys.TRIGGER_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
+                        .named(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_START_DATE.javaName(), TranslationKeys.ACTUAL_START_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
+                        .named(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_END_DATE.javaName(), TranslationKeys.ACTUAL_END_DATE)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
@@ -188,11 +200,20 @@ public class ChildGetMeterReadingsCustomPropertySet implements CustomPropertySet
                     .map(ChildGetMeterReadingsDomainExtension.FieldNames.COMMUNICATION_TASK.javaName())
                     .notNull()
                     .add();
-            table
-                    .column(ChildGetMeterReadingsDomainExtension.FieldNames.TRIGGER_DATE.databaseName())
+            table.column(ChildGetMeterReadingsDomainExtension.FieldNames.TRIGGER_DATE.databaseName())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(ChildGetMeterReadingsDomainExtension.FieldNames.TRIGGER_DATE.javaName())
-                    .notNull()
+                    .add();
+            table.column(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_START_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_START_DATE.javaName())
+                    .add();
+            table.column(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_END_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_END_DATE.javaName())
                     .add();
         }
 

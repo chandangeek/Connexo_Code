@@ -93,8 +93,9 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         ChildGetMeterReadingsDomainExtension domainExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-        Instant triggerDate = Instant.ofEpochMilli(domainExtension.getTriggerDate().longValue());
+        Instant triggerDate = domainExtension.getTriggerDate();
         if (clock.instant().isAfter(triggerDate)) {
+            serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         }
     }
@@ -153,7 +154,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
     private List<ServiceCall> findServiceCallsLinkedTo(Device device, String handlerName) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.targetObject = device;
-        filter.states = Collections.singletonList(DefaultState.ONGOING.name());
+        filter.states = Collections.singletonList(DefaultState.WAITING.name());
         filter.types = Collections.singletonList(handlerName);
         return serviceCallService.getServiceCallFinder(filter).find();
     }

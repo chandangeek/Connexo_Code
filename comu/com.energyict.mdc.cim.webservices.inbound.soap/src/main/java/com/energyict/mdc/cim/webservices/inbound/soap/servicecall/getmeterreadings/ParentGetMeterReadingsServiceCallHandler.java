@@ -78,9 +78,10 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
     @Override
     public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall subParentServiceCall, DefaultState oldState, DefaultState newState) {
-        /// TODO check why log doesn't works
-//        subParentServiceCall.log(LogLevel.FINE, "Service call is switched to state " + newState.getDefaultFormat());
-        ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
+        if (newState == DefaultState.SUCCESSFUL || newState == DefaultState.PARTIAL_SUCCESS
+                || newState == DefaultState.CANCELLED || newState == DefaultState.FAILED) {
+            ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
+        }
     }
 
     private void collectAndSendResult(ServiceCall serviceCall) {
