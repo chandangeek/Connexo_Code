@@ -25,6 +25,8 @@ public interface FirmwareCampaignService {
 
     Optional<FirmwareCampaign> getFirmwareCampaignById(long id);
 
+    Optional<FirmwareCampaign> getCampaignbyName(String name);
+
     Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version);
 
 //    Finder<campaign> getFirmwareCampaigns();

@@ -378,4 +378,8 @@ public class InMemoryPersistence {
         public void bind(SqlBuilder builder, Object value) {
         }
     }
+
+    public <T> T get(Class<T> clazz) {
+        return this.injector.getInstance(clazz);
+    }
 }

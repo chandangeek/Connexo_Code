@@ -49,7 +49,7 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
     }
 
     private Instant getComWindowAppliedStartDate(FirmwareCampaign firmwareCampaign, Instant startDate) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(getClock().getZone()));
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTimeInMillis(startDate.toEpochMilli());
         ComWindow comWindow = firmwareCampaign.getComWindow();
         if (comWindow.includes(calendar)) {

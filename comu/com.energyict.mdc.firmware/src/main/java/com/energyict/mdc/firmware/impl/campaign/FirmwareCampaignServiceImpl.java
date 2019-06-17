@@ -119,6 +119,11 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     }
 
     @Override
+    public Optional<FirmwareCampaign> getCampaignbyName(String name) {
+        return streamAllCampaigns().filter(Where.where("name").isEqualTo(name)).findAny().map(FirmwareCampaign.class::cast);
+    }
+
+    @Override
     public Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version) {
         return ormService.getDataModel(FirmwareCampaignPersistenceSupport.COMPONENT_NAME).get()
                 .mapper(FirmwareCampaignDomainExtension.class).lockObjectIfVersion(version, id, registeredCustomPropertySet.getId()).map(FirmwareCampaign.class::cast);
