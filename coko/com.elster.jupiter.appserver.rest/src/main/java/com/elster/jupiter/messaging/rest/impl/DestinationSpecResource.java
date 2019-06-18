@@ -165,6 +165,11 @@ public class DestinationSpecResource {
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response doCreateDestinationSpec(DestinationSpecInfo info) {
         DestinationSpecBean bean = new DestinationSpecBean(info.name, info.queueTypeName);
+
+        if (bean.isReserved()) {
+            return buildErrorResponse4("name", MessageSeeds.RESERVED_QUEUE_NAME);
+        }
+
         if (bean.isWrongNameDefined()) {
             return buildErrorResponse4("name", MessageSeeds.EMPTY_QUEUE_NAME);
         }
