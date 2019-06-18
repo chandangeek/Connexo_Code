@@ -895,6 +895,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             formErrorsPanel = me.getTaskEdit().down('#errors'),
             model = Ext.create('Mdc.model.CommunicationTask'),
             nameField = editView.down('form').down('textfield[name=name]'),
+            systemTaskField = editView.down('form').down('checkbox[name=systemTask]'),
             router = me.getController('Uni.controller.history.Router');
 
         editView.setLoading(true);
@@ -910,6 +911,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
             record.beginEdit();
             record.set('name', nameField.getValue());
+            record.set('systemTask', systemTaskField.getValue());
             record.set('commands', me.comTaskBeingEdited ? me.comTaskBeingEdited.get('commands') : []);
             record.set('messages', me.comTaskBeingEdited ? me.comTaskBeingEdited.get('messages') : []);
             record.endEdit();
@@ -1205,6 +1207,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             backUrl = router.getRoute('administration/communicationtasks/view/actions').buildUrl(),
             item2Remove;
 
+        debugger;
         view.setLoading(true);
         errorMsgPnl.hide();
 
