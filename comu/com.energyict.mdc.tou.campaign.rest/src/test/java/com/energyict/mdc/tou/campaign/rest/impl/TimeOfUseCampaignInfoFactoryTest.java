@@ -13,12 +13,14 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -66,6 +69,15 @@ public class TimeOfUseCampaignInfoFactoryTest {
         assertEquals(timeOfUseCampaignInfo.calendar.id, 2L);
         assertEquals(timeOfUseCampaignInfo.deviceType.name, "TestDeviceType");
         assertEquals(timeOfUseCampaignInfo.deviceType.id, 1L);
+
+        assertEquals(timeOfUseCampaignInfo.sendCalendarСomTask.name, "ctask");
+        assertEquals(timeOfUseCampaignInfo.sendCalendarСomTask.id, 1L);
+        assertEquals(timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.name, "As soon as possible");
+        assertEquals(timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id, 2L);
+        assertEquals(timeOfUseCampaignInfo.validationСomTask.name, "ctask");
+        assertEquals(timeOfUseCampaignInfo.validationСomTask.id, 1L);
+        assertEquals(timeOfUseCampaignInfo.validationСonnectionStrategy.name, "Minimize connections");
+        assertEquals(timeOfUseCampaignInfo.validationСonnectionStrategy.id, 1L);
     }
 
     @Test
@@ -104,6 +116,8 @@ public class TimeOfUseCampaignInfoFactoryTest {
         Calendar calendar = mock(Calendar.class);
         when(calendar.getId()).thenReturn(2L);
         when(calendar.getName()).thenReturn("TestCalendar");
+        when(timeOfUseCampaign.getId()).thenReturn(3L);
+        when(timeOfUseCampaign.getVersion()).thenReturn(4L);
         when(timeOfUseCampaign.getName()).thenReturn("TestCampaign");
         when(timeOfUseCampaign.getDeviceType()).thenReturn(deviceType);
         when(timeOfUseCampaign.getDeviceGroup()).thenReturn("TestGroup");
@@ -114,8 +128,13 @@ public class TimeOfUseCampaignInfoFactoryTest {
         when(timeOfUseCampaign.getActivationOption()).thenReturn("immediately");
         when(timeOfUseCampaign.getActivationDate()).thenReturn(Instant.ofEpochSecond(100));
         when(timeOfUseCampaign.getValidationTimeout()).thenReturn(120L);
-        when(timeOfUseCampaign.getId()).thenReturn(3L);
-        when(timeOfUseCampaign.getVersion()).thenReturn(4L);
+        when(timeOfUseCampaign.getSendCalendarComTaskId()).thenReturn(1L);
+        when(timeOfUseCampaign.getValidationComTaskId()).thenReturn(1L);
+        when(timeOfUseCampaign.getSendCalendarСonnectionStrategyId()).thenReturn(2L);
+        when(timeOfUseCampaign.getValidationСonnectionStrategyId()).thenReturn(1L);
+        ComTask comtask = mock(ComTask.class);
+        when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
+        when(taskService.findComTask(anyLong()).get().getName()).thenReturn("ctask");
         return timeOfUseCampaign;
     }
 }

@@ -15,6 +15,8 @@ import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
@@ -39,6 +41,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -225,6 +228,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(timeOfUseCampaignService.findAndLockToUCampaignByIdAndVersion(timeOfUseCampaignInfo.id, timeOfUseCampaignInfo.version))
                 .thenReturn(Optional.of(timeOfUseCampaign));
         when(timeOfUseCampaignService.getCampaign(3)).thenReturn(Optional.of(timeOfUseCampaign));
+        ComTask comtask = mock(ComTask.class);
+        when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
+        when(taskService.findComTask(anyLong()).get().getName()).thenReturn("ctask");
         Response response = target("toucampaigns/3/edit").request().put(Entity.json(timeOfUseCampaignInfo));
         verify(timeOfUseCampaign).update();
     }
@@ -311,6 +317,10 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         timeOfUseCampaignInfo.startedOn = Instant.ofEpochSecond(111);
         timeOfUseCampaignInfo.finishedOn = null;
         timeOfUseCampaignInfo.status = "Ongoing";
+        timeOfUseCampaignInfo.sendCalendarСomTask = new IdWithNameInfo(1L, "ctask");
+        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy = new IdWithNameInfo(2L, "As soon as possible");
+        timeOfUseCampaignInfo.validationСomTask = new IdWithNameInfo(1L, "ctask");
+        timeOfUseCampaignInfo.validationСonnectionStrategy = new IdWithNameInfo(1L, "Minimize connections");
         return timeOfUseCampaignInfo;
     }
 
@@ -338,6 +348,13 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(timeOfUseCampaign.getValidationTimeout()).thenReturn(120L);
         when(timeOfUseCampaign.getId()).thenReturn(3L);
         when(timeOfUseCampaign.getVersion()).thenReturn(4L);
+        when(timeOfUseCampaign.getSendCalendarComTaskId()).thenReturn(1L);
+        when(timeOfUseCampaign.getValidationComTaskId()).thenReturn(1L);
+        when(timeOfUseCampaign.getSendCalendarСonnectionStrategyId()).thenReturn(2L);
+        when(timeOfUseCampaign.getValidationСonnectionStrategyId()).thenReturn(1L);
+        ComTask comtask = mock(ComTask.class);
+        when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
+        when(taskService.findComTask(anyLong()).get().getName()).thenReturn("ctask");
         return timeOfUseCampaign;
     }
 }

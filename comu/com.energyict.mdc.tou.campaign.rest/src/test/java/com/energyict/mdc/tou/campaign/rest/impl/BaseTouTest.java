@@ -9,6 +9,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import javax.ws.rs.core.Application;
@@ -29,6 +30,8 @@ public abstract class BaseTouTest extends FelixRestApplicationJerseyTest {
     Clock clock;
     @Mock
     CalendarService calendarService;
+    @Mock
+    TaskService taskService;
 
     @Override
     protected Application getApplication() {
@@ -40,6 +43,7 @@ public abstract class BaseTouTest extends FelixRestApplicationJerseyTest {
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setNlsService(nlsService);
         application.setCalendarService(calendarService);
+        application.setTaskService(taskService);
         return application;
     }
 }
