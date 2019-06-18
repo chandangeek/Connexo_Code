@@ -31,6 +31,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -100,10 +101,9 @@ public class ServiceCallTypeResource {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_TYPE));
 
-        List<String> queues = serviceCallService.getCompatibleQueues4(serviceCallType.getDestinationName())
+        Map<String, Boolean> queues = serviceCallService.getCompatibleQueues4(serviceCallType.getDestinationName())
                 .stream()
-                .map(destinationSpec -> destinationSpec.getName())
-                .collect(Collectors.toList());
+                .collect(Collectors.toMap(spec -> spec.getName(), spec -> spec.isDefault()));
 
         return Response.status(Response.Status.OK).entity(queues).build();
     }

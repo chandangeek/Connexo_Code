@@ -11,9 +11,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
-
 import com.jayway.jsonpath.JsonModel;
-import org.json.JSONArray;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
@@ -68,20 +66,19 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
 
     @Test
     public void testGetCompatibleQueues() throws Exception {
-        JSONArray queues = new JSONArray();
-        queues.put(QUEUE_NAME);
         mockServiceCallType(1L);
 
         Response response = target("/servicecalltypes/compatiblequeues/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
-        assertThat(jsonModel.getJsonObject().toString()).isEqualTo(queues.toString());
+        assertThat(jsonModel.getJsonObject().toString()).contains("\"" + QUEUE_NAME + "\":" + true);
     }
 
     private ServiceCallType mockServiceCallType(long id) {
         List<DestinationSpec> specs = new ArrayList<>();
         DestinationSpec destination = mock(DestinationSpec.class);
         when(destination.getName()).thenReturn(QUEUE_NAME);
+        when(destination.isDefault()).thenReturn(true);
         specs.add(destination);
         ServiceCallType serviceCallType = mock(ServiceCallType.class);
         ServiceCallLifeCycle serviceCallLifeCycle = mock(ServiceCallLifeCycle.class);
