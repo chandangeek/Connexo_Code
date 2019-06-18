@@ -123,6 +123,7 @@ public class ComTaskResource {
 
         ComTask comTask = resourceHelper.lockComTaskOrThrowException(comTaskInfo);
         comTask.setName(comTaskInfo.name);
+        comTask.setSystemTask(comTaskInfo.systemTask);
         comTask.setMaxNrOfTries(comTaskInfo.maxNrOfTries);
         List<ProtocolTask> currentProtocolTasks = new ArrayList<>(comTask.getProtocolTasks());
 
