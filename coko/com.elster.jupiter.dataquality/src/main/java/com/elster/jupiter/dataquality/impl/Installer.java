@@ -84,15 +84,15 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         return messageService.getDestinationSpec("ValKpiCalcTopic").isPresent();
     }
 
-    private void createMessageHandlers() {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+    protected void createMessageHandlers() {
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_PRIORITYRAWQUEUETABLE").get();
         this.createMessageHandler(defaultQueueTableSpec, DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
-            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, false, true);
             queue.activate();
             queue.subscribe(subscriberName, DataQualityKpiService.COMPONENTNAME, Layer.DOMAIN);
         } else {
