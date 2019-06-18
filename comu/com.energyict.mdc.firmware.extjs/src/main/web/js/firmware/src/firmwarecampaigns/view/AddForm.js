@@ -328,7 +328,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
-            me.getRecord().propertiesStore = propertyForm.getRecord().properties();
+            var properties = propertyForm.getRecord().properties();
+            Ext.Array.filter(properties, function(item){
+               return ( item.get('key') !== 'FirmwareDeviceMessage.upgrade.activationdate' );
+            });
+            me.getRecord().propertiesStore = properties;
         }
     },
 

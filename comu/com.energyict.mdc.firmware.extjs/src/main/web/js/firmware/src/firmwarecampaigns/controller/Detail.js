@@ -40,6 +40,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Detail', {
                 Ext.suspendLayouts();
                 me.getSideMenu().setHeader(record.get('name'));
                 widget.down('firmware-campaigns-detail-form').loadRecord(record);
+                var properties = record.properties();
+                if (properties) {
+                    properties.removeAt(properties.findBy(function(prop){
+                         return prop.get('key') === 'FirmwareDeviceMessage.upgrade.activationdate'
+                    }));
+                }
                 widget.down('firmware-campaigns-detail-form property-form').loadRecord(record);
                 me.getApplication().fireEvent('loadFirmwareCampaign', record);
                 Ext.resumeLayouts(true);
