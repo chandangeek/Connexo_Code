@@ -231,6 +231,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public void setNextExecution(Instant nextExecution) {
         this.nextExecution = nextExecution;
+        this.suspendUntilTime = null;
     }
 
     @Override
