@@ -64,6 +64,11 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         result.success(getThesaurus().getFormat(TranslationKeys.ACTION_MAIL_NOTIFY).format());
         return result;
     }
+    @Override
+    public MailNotificationAlarmAction setIssue(Issue issue) {
+        this.issue = issue;
+        return this;
+    }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
@@ -80,67 +85,17 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
     @Override
     public String getFormattedProperties(Map<String, Object> props) {
         Object value = props.get(TO);
+        String data="";
         if (value != null) {
-            return ((MailTo) value).recipient.orElse("");
-        }
-        return "";
-    }
-    private class MailValueFactory implements ValueFactory<MailTo>, MailPropertyFactory {
-
-
-        @Override
-        public MailTo fromStringValue(String stringValue) {
-        /*    try{
-                JSONObject jsonData = new JSONObject(stringValue);
-                String recipient = jsonData.get("recipient").toString();
-                return new MailTo(recipient);
-            }
-            catch(JSONException e)
-            {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-
-            return null;*/
-            return new MailTo(stringValue);
-        }
-
-        @Override
-        public String toStringValue(MailTo object) {
-            return object.getName();
-        }
-
-        @Override
-        public Class<MailTo> getValueType() {
-            return MailTo.class;
-        }
-
-        @Override
-        public MailTo valueFromDatabase(Object object) {
-            return this.fromStringValue((String)object);
-        }
-
-        @Override
-        public Object valueToDatabase(MailTo object) {
-            return this.toStringValue(object);
-        }
-
-        @Override
-        public void bind(PreparedStatement statement, int offset, MailTo value) throws SQLException {
-            if (value != null) {
-                statement.setObject(offset, valueToDatabase(value));
-            } else {
-                statement.setNull(offset, Types.VARCHAR);
+            try {
+                JSONObject jsonObject = new JSONObject(((MailTo) value).recipient.get());
+                data = String.format("%s",jsonObject.get("recipient"));
+            } catch (JSONException e) {
+                data = "";
             }
         }
+            return data;
 
-        @Override
-        public void bind(SqlBuilder builder, MailTo value) {
-            if (value != null) {
-                builder.addObject(valueToDatabase(value));
-            } else {
-                builder.addNull(Types.VARCHAR);
-            }
-        }
     }
     public static class MailTo implements HasName {
         private Optional<String> recipient;
@@ -150,7 +105,6 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
             this.recipient = recipient != null ? Optional.of(recipient) : Optional.empty();
         }
-
 
         @Override
         public String getName() {
@@ -164,6 +118,55 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
             return "";
         }
     }
+        private class MailValueFactory implements ValueFactory<MailTo>, MailPropertyFactory {
 
-}
+            @Override
+            public MailTo fromStringValue(String stringValue) {
+
+                return new MailTo(stringValue);
+
+            }
+
+            @Override
+            public String toStringValue(MailTo object) {
+                return object.getName();
+            }
+
+            @Override
+            public Class<MailTo> getValueType() {
+                return MailTo.class;
+            }
+
+            @Override
+            public MailTo valueFromDatabase(Object object) {
+                return this.fromStringValue((String) object);
+            }
+
+            @Override
+            public Object valueToDatabase(MailTo object) {
+                return this.toStringValue(object);
+            }
+
+            @Override
+            public void bind(PreparedStatement statement, int offset, MailTo value) throws SQLException {
+                if (value != null) {
+                    statement.setObject(offset, valueToDatabase(value));
+                } else {
+                    statement.setNull(offset, Types.VARCHAR);
+                }
+            }
+
+            @Override
+            public void bind(SqlBuilder builder, MailTo value) {
+                if (value != null) {
+                    builder.addObject(valueToDatabase(value));
+                } else {
+                    builder.addNull(Types.VARCHAR);
+                }
+            }
+        }
+
+    }
+
+
 
