@@ -17,15 +17,18 @@ import com.elster.jupiter.issue.rest.response.IssueCommentInfo;
 import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.entity.DeviceGroupNotFoundException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
+import com.elster.jupiter.issue.share.entity.UsagePointGroupNotFoundException;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -61,10 +64,11 @@ public class IssueResourceHelper {
     private final Thesaurus thesaurus;
     private final SecurityContext securityContext;
     private final MeteringService meteringService;
+    private final MeteringGroupsService meteringGroupService;
     private final UserService userService;
 
     @Inject
-    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, UserService userService,
+    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService,MeteringGroupsService meteringGroupService, UserService userService,
                                IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext) {
         this.transactionService = transactionService;
         this.issueService = issueService;
@@ -74,6 +78,7 @@ public class IssueResourceHelper {
         this.thesaurus = thesaurus;
         this.securityContext = securityContext;
         this.meteringService = meteringService;
+        this.meteringGroupService = meteringGroupService;
         this.userService = userService;
     }
 
@@ -168,9 +173,23 @@ public class IssueResourceHelper {
                     .ifPresent(filter::addDevice);
         }
 
+        if (jsonFilter.hasProperty(IssueRestModuleConst.DEVICE_GROUP)) {
+            jsonFilter.getLongList(IssueRestModuleConst.DEVICE_GROUP).stream()
+                    .map(id -> meteringGroupService.findEndDeviceGroup(id).orElseThrow(() -> new DeviceGroupNotFoundException(thesaurus, id)))
+                    .filter(devGroup -> devGroup != null)
+                    .forEach(filter::addDeviceGroup);
+        }
+
         if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {
             meteringService.findUsagePointByName(jsonFilter.getString(IssueRestModuleConst.USAGEPOINT))
                     .ifPresent(filter::addUsagePoint);
+        }
+
+        if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT_GROUPS)) {
+            jsonFilter.getLongList(IssueRestModuleConst.USAGEPOINT_GROUPS).stream()
+                    .map(id -> meteringGroupService.findUsagePointGroup(id).orElseThrow(() -> new UsagePointGroupNotFoundException(thesaurus, id)))
+                    .filter(upGroup -> upGroup != null)
+                    .forEach(filter::addUsagePointGroup);
         }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s -> s == null)) {
@@ -257,4 +276,5 @@ public class IssueResourceHelper {
             }
         }).collect(Collectors.toList());
     }
+
 }

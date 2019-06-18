@@ -5,6 +5,7 @@
 package com.energyict.comserver.core.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;

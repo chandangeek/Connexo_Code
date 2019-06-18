@@ -186,6 +186,11 @@ Ext.define('Uni.view.window.Confirmation', {
 
     show: function (config) {
         var me = this;
+        
+        if (Ext.isDefined(config.htmlEncode)) {
+            me.msg.htmlEncode = config.htmlEncode;
+        }
+
         if (!Ext.isDefined(config.icon)) {
             Ext.apply(config, {
                 icon: me.green ? 'icon-info' : (me.orange ? 'icon-question' : 'icon-warning')

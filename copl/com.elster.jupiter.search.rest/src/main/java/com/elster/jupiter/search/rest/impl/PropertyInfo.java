@@ -47,6 +47,7 @@ public class PropertyInfo {
     public List<String> constraints; // List of other properties who's value will be used to narrow down possible values for this property
     public List<IdWithDisplayValueInfo> values; // List of all available variants for this property
     public Integer total; // the number of items in the values-list, if any.
+    public List<String> availableOperators; // contains available operators for search.Operators such as "==","!=", "IN".
 
     @JsonIgnore
     private SearchableProperty property;
@@ -73,6 +74,7 @@ public class PropertyInfo {
         this.constraints = property.getConstraints().stream().map(SearchableProperty::getName).collect(toList());
         this.allowsIsDefined = property.allowsIsDefined();
         this.allowsIsUndefined = property.allowsIsUnDefined();
+        this.availableOperators = property.getAvailableOperators();
     }
 
     PropertyInfo withLink(Link link) {

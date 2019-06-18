@@ -198,7 +198,9 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
                 int signal_strength = networkInformation.getDataType(0).intValue();
                 int base_stations = networkInformation.getDataType(1).intValue();
                 String network_id = networkInformation.getDataType(2).getOctetString().stringValue();
-                return new RegisterValue(register, "Signal strength: " + signal_strength + ", number of base stations: " + base_stations + ", network ID: " + network_id);
+                String networkInformationDescription = "Signal strength: " + signal_strength + "dBm, number of base stations: " + base_stations + ", network ID: " + network_id;
+                getProtocol().journal(networkInformationDescription);
+                return new RegisterValue(register, new Quantity(signal_strength, Unit.get(BaseUnit.DECIBELPOWERRATIO)), null, null, null, new Date(), 0, networkInformationDescription);
             }
         } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE) || rObisCode.equals(MODULE_FIRMWARE_SIGNATURE)) {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
