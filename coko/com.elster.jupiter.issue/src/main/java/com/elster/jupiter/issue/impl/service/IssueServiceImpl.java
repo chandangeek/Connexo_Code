@@ -857,8 +857,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             }else if(node.get("operator").asText().equals("BETWEEN")){
                 int first = node.get("criteria").get(0).asInt();
                 int second = node.get("criteria").get(1).asInt();
-                condition = condition.and(where("priorityTotal").isLessThan(first))
-                        .and(where("priorityTotal").isGreaterThan(second));
+                condition = condition.and(where("priorityTotal").isGreaterThan(first))
+                        .and(where("priorityTotal").isLessThan(second));
             }
 
         }
