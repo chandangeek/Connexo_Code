@@ -85,7 +85,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     protected void createMessageHandlers() {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_PRIORITYRAWQUEUETABLE").get();
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_PRIORITIZEDROWTABLE").get();
         this.createMessageHandler(defaultQueueTableSpec, DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
     }
 

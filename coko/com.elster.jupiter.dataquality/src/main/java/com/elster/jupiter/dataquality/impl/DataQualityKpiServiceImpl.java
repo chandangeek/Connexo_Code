@@ -103,7 +103,9 @@ public class DataQualityKpiServiceImpl implements ServerDataQualityKpiService, M
     @Activate
     public final void activate() {
         dataModel.register(this.getModule());
-        upgradeService.register(identifier("Pulse", DataQualityKpiService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(version(10, 3, 1), UpgraderV10_3_1.class));
+        upgradeService.register(identifier("Pulse", DataQualityKpiService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                version(10, 3, 1), UpgraderV10_3_1.class,
+                version(10, 7), UpgraderV10_7.class));
     }
 
     private Module getModule() {

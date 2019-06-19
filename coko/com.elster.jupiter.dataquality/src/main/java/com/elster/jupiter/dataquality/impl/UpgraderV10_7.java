@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.dataquality.impl;
 
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.dataquality.impl.calc.DataQualityKpiCalculatorHandlerFactory;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -16,22 +15,17 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.google.inject.Inject;
 
 import java.util.Optional;
-import java.util.logging.Logger;
 
 public class UpgraderV10_7  implements Upgrader {
     private final DataModel dataModel;
     private final MessageService messageService;
-    private final AppService appService;
     private final Installer installer;
-    private final Logger logger;
 
     @Inject
-    UpgraderV10_7(DataModel dataModel, MessageService messageService, AppService appService, Installer installer) {
+    UpgraderV10_7(DataModel dataModel, MessageService messageService, Installer installer) {
         this.dataModel = dataModel;
         this.messageService = messageService;
-        this.appService = appService;
         this.installer = installer;
-        this.logger = Logger.getLogger(this.getClass().getName());
     }
 
     @Override
