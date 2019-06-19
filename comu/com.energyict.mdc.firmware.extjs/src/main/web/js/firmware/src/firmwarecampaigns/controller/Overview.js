@@ -58,6 +58,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
 
         Ext.suspendLayouts();
         preview.loadRecord(record);
+        var properties = record.properties();
+        if (properties){
+            properties.removeAt(properties.findBy(function(prop){
+                return prop.get('key') === 'FirmwareDeviceMessage.upgrade.activationdate'
+            }));
+        }
         preview.down('property-form').loadRecord(record);
         preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         Ext.resumeLayouts(true);
@@ -101,11 +107,14 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             form = this.getPreview().down('form'),
             store = this.getStore('Fwc.firmwarecampaigns.store.FirmwareCampaigns');
 
-        store.getProxy().url = '/api/fwc/campaigns/' + record.id;
         //TODO: format should be changed
         record.set('status', "Cancelled");
-        record.save({
-            isNotEdit: true,
+        var data = record.getProxy().getWriter().getRecordData(record);
+
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/fwc/campaigns/' + record.getId() + '/cancel',
+            jsonData: data,
             success: function () {
                 form.loadRecord(record);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));

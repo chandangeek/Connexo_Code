@@ -68,9 +68,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         name: 'timeBoundaryAsText',
                         fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
                         renderer: function (value){
-                             return value ? Uni.I18n.translate('general.betweenXandY', 'FWC', 'Between {0} and {1}', Ext.Array.map(value, function (item){
-                                 return Uni.DateTime.formatDateTimeLong(new Date(item))
-                             })) : '-';
+                             return value ? Uni.I18n.translate('general.betweenXandY', 'FWC', 'Between {0} and {1}', value ) : '-';
                         }
                     },
                     {
@@ -94,8 +92,23 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.firmwareTimeout', 'FWC', 'Timeout before validation'),
                         name: 'validationTimeout',
                         renderer: function (value) {
-
                             return value ? Ext.String.format('{0} {1}', value.count, value.localizedTimeUnit) : '-'
+                        }
+                    },
+                    {
+                        itemId: 'firmware-service-call-field',
+                        fieldLabel: Uni.I18n.translate('general.firmwareServiceCall', 'FWC', 'Service call'),
+                        name: 'serviceCall',
+                        renderer: function (value) {
+                            return value ?  '<a href="' + me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id})+ '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
+                        }
+                    },
+                    {
+                        itemId: 'firmware-activation-date-field',
+                        fieldLabel: Uni.I18n.translate('general.activationDate', 'FWC', 'Activation date'),
+                        name: 'activationDate',
+                        renderer: function (value) {
+                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-'
                         }
                     },
                     {
@@ -107,6 +120,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         isEdit: false,
                         defaults: {
                             labelWidth: me.defaults.defaults.labelWidth
+                        },
+                        renderer: function (value) {
+                            debugger;
+                            return value;
                         }
                     }
                 ]

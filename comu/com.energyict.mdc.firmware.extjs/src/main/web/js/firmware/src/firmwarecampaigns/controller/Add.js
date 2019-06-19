@@ -104,6 +104,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         form.updateRecord();
         page.setLoading();
         var record = form.getRecord();
+        var propertyForm = form.down('property-form');
 
         if(record.get('managementOption')){
             record.set('validationTimeout', {
@@ -114,6 +115,13 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
 
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
+
+        var propertiesFormData = propertyForm.getFieldValues();
+
+        if ( propertyForm &&  propertyForm.getPropertyField('FirmwareDeviceMessage.upgrade.activationdate')){
+            var activationDate = propertyForm.getPropertyField('FirmwareDeviceMessage.upgrade.activationdate').getValue();
+            if (activationDate) record.set('activationDate', activationDate);
+        }
 
         record.save({
             backUrl: page.returnLink,
@@ -163,12 +171,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             form.campaignRecordBeingEdited.set('name', nameField.getValue());
             nameOrTimeBoundaryChanged = true;
         }
-        if (form.campaignRecordBeingEdited.get('timeBoundaryStart') != timeBoundaryStartField.getValue()) {
-            form.campaignRecordBeingEdited.set('timeBoundaryStart', timeBoundaryStartField.getValue());
+        if (form.campaignRecordBeingEdited.get('timeBoundaryStart') != me.convertTimeFormat(timeBoundaryStartField.getValue())) {
+            form.campaignRecordBeingEdited.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStartField.getValue()));
             nameOrTimeBoundaryChanged = true;
         }
-        if (form.campaignRecordBeingEdited.get('timeBoundaryEnd') != timeBoundaryEndField.getValue()) {
-            form.campaignRecordBeingEdited.set('timeBoundaryEnd', timeBoundaryEndField.getValue());
+        if (form.campaignRecordBeingEdited.get('timeBoundaryEnd') != me.convertTimeFormat(timeBoundaryEndField.getValue())) {
+            form.campaignRecordBeingEdited.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEndField.getValue()));
             nameOrTimeBoundaryChanged = true;
         }
 
