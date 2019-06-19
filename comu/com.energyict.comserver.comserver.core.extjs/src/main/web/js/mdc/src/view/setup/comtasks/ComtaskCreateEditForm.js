@@ -22,7 +22,6 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                     itemId: 'errors',
                     hidden: true,
                     width: 380
-
                 },
                 {
                     xtype: 'textfield',

@@ -1207,7 +1207,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             backUrl = router.getRoute('administration/communicationtasks/view/actions').buildUrl(),
             item2Remove;
 
-        debugger;
         view.setLoading(true);
         errorMsgPnl.hide();
 

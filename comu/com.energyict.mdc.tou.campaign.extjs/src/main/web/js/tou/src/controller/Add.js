@@ -23,7 +23,9 @@ Ext.define('Tou.controller.Add', {
         'Tou.store.DeviceGroups',
         'Tou.store.DaysWeeksMonths',
         'Tou.store.AllowedCalendars',
-        'Tou.store.AllowedDeviceTypeOptions'
+        'Tou.store.AllowedDeviceTypeOptions',
+        'Tou.store.ComTasks',
+        'Tou.store.ConnectionStrategy'
     ],
 
     refs: [{
