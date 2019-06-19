@@ -282,6 +282,17 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     showPopUp: function (action, store, initialValue, scheduleName) {
         var comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
         this.comTask = comTask.get('comTask');
+        var records = [];
+        store.each(function (record) {
+            if(record.data['status']== 'connectionTaskStatusInActive'){
+                records.push(record)
+            };
+
+        });
+        Ext.each(records, function (record) {
+            store.remove(record);
+
+        });
         var widget = Ext.widget('changeConnectionItemPopUp', {action: action, store: store, init: initialValue, scheduleName: scheduleName, comTaskName: this.comTask.name});
         widget.show();
     },
