@@ -6,6 +6,7 @@ package com.elster.jupiter.properties.rest.impl;
 
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.MailPropertyFactory;
 import com.elster.jupiter.properties.rest.AssignPropertyFactory;
 import com.elster.jupiter.properties.rest.ProcessPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyType;
@@ -39,6 +40,9 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
     public PropertyType getPropertyType(PropertySpec propertySpec) {
         if (propertySpec.getValueFactory() instanceof AssignPropertyFactory) {
             return SimplePropertyType.ASSIGN;
+        }
+        if (propertySpec.getValueFactory() instanceof MailPropertyFactory) {
+            return SimplePropertyType.MAILTO;
         }
         if (propertySpec.getValueFactory() instanceof RaiseEventPropertyFactory) {
             return SimplePropertyType.RAISEEVENTPROPS;
