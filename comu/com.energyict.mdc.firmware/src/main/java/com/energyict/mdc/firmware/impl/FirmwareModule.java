@@ -41,6 +41,7 @@ public class FirmwareModule extends AbstractModule {
         requireBinding(com.elster.jupiter.tasks.TaskService.class);
 
         bind(FirmwareService.class).to(FirmwareServiceImpl.class).in(Scopes.SINGLETON);
+        bind(FirmwareServiceImpl.class).in(Scopes.SINGLETON);
         bind(FirmwareCampaignService.class).to(FirmwareCampaignServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

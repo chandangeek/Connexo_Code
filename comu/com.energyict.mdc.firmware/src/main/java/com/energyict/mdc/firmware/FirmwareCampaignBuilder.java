@@ -15,8 +15,6 @@ public interface FirmwareCampaignBuilder {
 
     FirmwareCampaignBuilder withUploadTimeBoundaries(Instant activationStart, Instant activationEnd);
 
-    FirmwareCampaignBuilder withActivationDate(Instant activationDate);
-
     FirmwareCampaignBuilder withDeviceGroup(String deviceGroup);
 
     FirmwareCampaignBuilder withDeviceType(DeviceType deviceType);

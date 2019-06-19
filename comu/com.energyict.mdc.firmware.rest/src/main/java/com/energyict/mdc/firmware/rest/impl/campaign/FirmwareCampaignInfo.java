@@ -32,7 +32,6 @@ public class FirmwareCampaignInfo {
     public Instant finishedOn;
     public Instant timeBoundaryStart;
     public Instant timeBoundaryEnd;
-    public Instant activationDate;
     public List<PropertyInfo> properties;
     public List<DevicesStatusAndQuantity> devices;
     public long version;

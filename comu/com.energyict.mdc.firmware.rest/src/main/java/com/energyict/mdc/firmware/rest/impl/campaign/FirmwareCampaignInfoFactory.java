@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.firmware.rest.impl.campaign;
 
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -50,7 +49,6 @@ public class FirmwareCampaignInfoFactory {
     private final ResourceHelper resourceHelper;
     private final FirmwareCampaignService firmwareCampaignService;
     private final FirmwareService firmwareService;
-    private final MeteringGroupsService meteringGroupsService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final FirmwareVersionInfoFactory firmwareVersionFactory;
@@ -61,7 +59,6 @@ public class FirmwareCampaignInfoFactory {
     @Inject
     public FirmwareCampaignInfoFactory(
             Thesaurus thesaurus,
-            MeteringGroupsService meteringGroupsService,
             DeviceConfigurationService deviceConfigurationService,
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             ResourceHelper resourceHelper,
@@ -72,7 +69,6 @@ public class FirmwareCampaignInfoFactory {
             FirmwareService firmwareService) {
         this.thesaurus = thesaurus;
         this.resourceHelper = resourceHelper;
-        this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareVersionFactory = firmwareVersionFactory;
@@ -92,7 +88,6 @@ public class FirmwareCampaignInfoFactory {
         info.timeBoundaryStart = campaign.getUploadPeriodStart();
         info.timeBoundaryEnd = campaign.getUploadPeriodEnd();
         info.firmwareType = new FirmwareTypeInfo(campaign.getFirmwareType(), thesaurus);
-        info.activationDate = campaign.getActivationDate();
         info.validationTimeout = new TimeDurationInfo(campaign.getValidationTimeout());
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
@@ -142,7 +137,6 @@ public class FirmwareCampaignInfoFactory {
                 .withDeviceGroup(info.deviceGroup)
                 .withFirmwareType(firmwareService.getFirmwareVersionById(firmwareVersionId).get().getFirmwareType())
                 .withManagementOption(managementOptions)
-                .withActivationDate(info.activationDate)
                 .withValidationTimeout(info.validationTimeout.asTimeDuration())
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id, firmwareVersion);

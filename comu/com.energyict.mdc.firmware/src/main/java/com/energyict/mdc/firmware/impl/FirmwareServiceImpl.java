@@ -174,7 +174,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                ServiceCallService serviceCallService,
                                CustomPropertySetService customPropertySetService,
                                BundleContext bundleContext,
-                               TransactionService transactionService) {
+                               TransactionService transactionService,
+                               MeteringGroupsService meteringGroupsService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -194,6 +195,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setServiceCallService(serviceCallService);
         setCustomPropertySetService(customPropertySetService);
         setTransactionService(transactionService);
+        setMeteringGroupsService(meteringGroupsService);
         activate(bundleContext);
     }
 

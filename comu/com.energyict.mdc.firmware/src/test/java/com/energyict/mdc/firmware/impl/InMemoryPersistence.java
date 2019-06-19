@@ -178,7 +178,6 @@ public class InMemoryPersistence {
                 new IssuesModule(),
                 new ProtocolApiModule(),
                 new PluggableModule(),
-                new ProtocolPluggableModule(),
                 new SchedulingModule(),
                 new TasksModule(),
                 new MasterDataModule(),
@@ -268,6 +267,7 @@ public class InMemoryPersistence {
             bind(HttpService.class).toInstance(httpService);
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(ProtocolPluggableService.class).toInstance(mock(ProtocolPluggableService.class));
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);

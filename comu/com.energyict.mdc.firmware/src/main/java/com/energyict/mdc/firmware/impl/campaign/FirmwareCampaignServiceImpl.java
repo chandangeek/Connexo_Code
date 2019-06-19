@@ -41,13 +41,11 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.RetryDeviceInFirmwareCampaignExceptions;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.ImmutableMap;
@@ -219,12 +217,13 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
 
     @Override
     public void editCampaignItems(FirmwareCampaign firmwareCampaign) {
-        dataModel.stream(FirmwareCampaignItemDomainExtension.class).join(ServiceCall.class)
+        ormService.getDataModel(FirmwareCampaignItemPersistenceSupport.COMPONENT_NAME).get()
+                .stream(FirmwareCampaignItemDomainExtension.class).join(ServiceCall.class)
                 .filter(Where.where("serviceCall.parent").isEqualTo(firmwareCampaign.getServiceCall()))
                 .forEach(firmwareCampaignItemDomainExtension -> firmwareCampaignItemDomainExtension.getDeviceMessage().ifPresent(deviceMessage -> {
                     deviceMessage.setReleaseDate(firmwareCampaign.getUploadPeriodStart());
                     deviceMessage.save();
-                    firmwareCampaignItemDomainExtension.startFirmwareProcess();
+                    findFirmwareComTaskExecution(firmwareCampaignItemDomainExtension.getDevice()).get().schedule(firmwareCampaign.getUploadPeriodStart());
                 }));
     }
 
@@ -364,7 +363,8 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
 
         public PropInfo(String key, Object value) {
             this.key = key;
-            this.value = value instanceof String ? (String) value : value instanceof Boolean ? Boolean.toString((Boolean) value) : value != null ? Integer.toString((Integer) value) : "";
+            this.value = value instanceof String ? (String) value : value instanceof Boolean ? Boolean.toString((Boolean) value) : value instanceof Long ? Long.toString((Long) value) : value != null ? Integer
+                    .toString((Integer) value) : "";
         }
     }
 

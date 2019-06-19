@@ -129,7 +129,7 @@ public class FirmwareCampaignResource {
                         .withActualVersion(() -> getCurrentCampaignVersion(firmwareCampaignInfo.id))
                         .supplier());
         firmwareCampaign.cancel();
-        return Response.ok().build();
+        return Response.ok(campaignInfoFactory.getOverviewCampaignInfo(firmwareCampaign)).build();
     }
 
     @GET

@@ -16,6 +16,7 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -46,12 +47,6 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     public FirmwareCampaignBuilder withUploadTimeBoundaries(Instant uploadStart, Instant uploadEnd) {
         this.uploadStart = uploadStart;
         this.uploadEnd = uploadEnd;
-        return this;
-    }
-
-    @Override
-    public FirmwareCampaignBuilder withActivationDate(Instant activationDate) {
-        this.activationDate = activationDate;
         return this;
     }
 
@@ -93,6 +88,9 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     @Override
     public FirmwareCampaignBuilder addProperty(PropertySpec propertySpec, Object propertyValue) {
         this.properties.put(propertySpec, propertyValue);
+        if (propertySpec.getName().equals("FirmwareDeviceMessage.upgrade.activationdate")) {
+            this.activationDate = (((Date) propertyValue).toInstant());
+        }
         return this;
     }
 
