@@ -5,22 +5,16 @@
 Ext.define('Isu.model.IssueUsagePoints', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'id', type: 'int'},
-        {name: 'name', type: 'string'},
-        {name: 'serialNumber', type: 'string'},
-        {name: 'usagePoint', type: 'auto'},
-        {name: 'serviceLocation', type: 'auto'},
-        {name: 'serviceCategory', type: 'auto'},
-        {name: 'version', type: 'int'}
+        {name: 'usagePoint', type: 'auto'}
     ],
     idProperty: 'name',
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/usagepoints',
+        url: '/api/mtr/usagepoints',
         reader: {
             type: 'json',
-            root: 'usagePoints'
+            root: 'data'
         }
     }
 });

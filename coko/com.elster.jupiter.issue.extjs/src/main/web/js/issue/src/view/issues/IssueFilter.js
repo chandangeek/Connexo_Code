@@ -141,10 +141,27 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 }
             },
             {
-                type: 'customnumeric',
+                emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
+                type: 'combobox',
                 itemId: 'issue-usagePoints-filter',
                 dataIndex: 'usagePoint',
-                text: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points')
+                displayField: 'name',
+                valueField: 'name',
+                store: 'Isu.store.IssueUsagePoints',
+                queryMode: 'remote',
+                queryParam: 'like',
+                queryCaching: false,
+                minChars: 0,
+                loadStore: false,
+                setFilterValue: me.comboSetFilterValue,
+                getParamValue: me.comboGetParamValue,
+                forceSelection: false,
+                hidden: me.isOverviewFilter,
+                listeners: {
+                    expand: {
+                        fn: me.comboLimitNotification
+                    }
+                }
             },
             {
                 type: 'interval',
