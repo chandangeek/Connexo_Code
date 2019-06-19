@@ -55,7 +55,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     }
 
     @Override
-    public RequestSenderImpl using(String methodName) {
+    public RequestSenderImpl  using(String methodName) {
         return new RequestSenderImpl(methodName);
     }
 
