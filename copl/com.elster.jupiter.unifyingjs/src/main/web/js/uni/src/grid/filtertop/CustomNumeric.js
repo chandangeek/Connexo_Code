@@ -94,7 +94,7 @@ Ext.define('Uni.grid.filtertop.CustomNumeric', {
             }
         });
 
-        if (me.down('uni-search-criteria-numerict').isValid()) {
+        if (me.down('uni-search-criteria-numeric').isValid()) {
             me.fireFilterUpdateEvent();
             me.down('button[action=chooseValues]').hideMenu();
             me.updateTitle();
