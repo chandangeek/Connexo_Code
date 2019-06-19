@@ -328,7 +328,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
-            \var propertie\\\\\\\+ = propertyForm.getRecord().properties();
+            var properties = propertyForm.getRecord().properties();
             me.getRecord().propertiesStore = properties;
         }
     },
