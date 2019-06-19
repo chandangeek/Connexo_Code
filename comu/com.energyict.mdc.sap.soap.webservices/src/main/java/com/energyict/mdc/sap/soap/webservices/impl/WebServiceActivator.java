@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -148,7 +149,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                                EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
                                JsonService jsonService, CustomPropertySetService customPropertySetService,
                                WebServicesService webServicesService, MessageService messageService,
-                               TaskService taskService, SAPCustomPropertySets sapCustomPropertySets) {
+                               TaskService taskService, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -172,6 +173,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         setMessageService(messageService);
         setTaskService(taskService);
         setSAPCustomPropertySets(sapCustomPropertySets);
+        setOrmService(ormService);
         activate(bundleContext);
     }
 
@@ -212,7 +214,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     @Activate
     public void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-        dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(getModule());
 
         loadProperties(bundleContext);
@@ -445,6 +446,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    @Reference
+    public final void setOrmService(OrmService ormService) {
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "SAP");
     }
 
     @Override
