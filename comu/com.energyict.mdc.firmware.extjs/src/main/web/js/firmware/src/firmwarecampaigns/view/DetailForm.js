@@ -104,14 +104,6 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         }
                     },
                     {
-                        itemId: 'firmware-activation-date-field',
-                        fieldLabel: Uni.I18n.translate('general.activationDate', 'FWC', 'Activation date'),
-                        name: 'activationDate',
-                        renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-'
-                        }
-                    },
-                    {
                         xtype: 'property-form',
                         itemId: 'property-form',
                         bodyStyle: {

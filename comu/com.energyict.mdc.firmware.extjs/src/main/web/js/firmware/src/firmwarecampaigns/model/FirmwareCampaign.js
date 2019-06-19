@@ -71,7 +71,6 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
                 return '-';
             }
         },
-        {name: 'activationDate',type: 'int', useNull: false},
         {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null}
     ],
     associations: [

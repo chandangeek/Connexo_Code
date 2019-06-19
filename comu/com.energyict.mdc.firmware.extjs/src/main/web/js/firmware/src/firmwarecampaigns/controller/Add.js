@@ -116,13 +116,6 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
 
-        var propertiesFormData = propertyForm.getFieldValues();
-
-        if ( propertyForm &&  propertyForm.getPropertyField('FirmwareDeviceMessage.upgrade.activationdate')){
-            var activationDate = propertyForm.getPropertyField('FirmwareDeviceMessage.upgrade.activationdate').getValue();
-            if (activationDate) record.set('activationDate', activationDate);
-        }
-
         record.save({
             backUrl: page.returnLink,
             success: function (record, operation) {
