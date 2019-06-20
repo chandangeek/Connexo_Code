@@ -175,28 +175,8 @@ public class IssueResourceHelper {
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.USAGEPOINT)) {
-            Finder<UsagePoint> usagePoints = meteringService.getUsagePoints(new UsagePointFilter());
-
-            String usagePointJsonString = jsonFilter.getComplexProperty(IssueRestModuleConst.USAGEPOINT);
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode node = null;
-            try {
-                node = mapper.readTree(usagePointJsonString);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            List<UsagePoint> list = null;
-            if ( node.get(IssueRestModuleConst.OPERATOR).asText().equals("==")){
-                String criteria = node.get(IssueRestModuleConst.CRITERIA).asText();
-                list = usagePoints.stream().filter(usagePoint -> usagePoint.getName()
-                        .equals(criteria)).collect(Collectors.toList());
-            }else{
-                String criteria = node.get(IssueRestModuleConst.CRITERIA).asText();
-                list = usagePoints.stream().filter(usagePoint -> !usagePoint.getName()
-                        .equals(criteria)).collect(Collectors.toList());
-            }
-            if (list != null)
-                list.forEach(filter::addUsagePoint);
+            meteringService.findUsagePointByName(jsonFilter.getString(IssueRestModuleConst.USAGEPOINT))
+                    .ifPresent(filter::addUsagePoint);
         }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.ASSIGNEE).stream().allMatch(s -> s == null)) {
