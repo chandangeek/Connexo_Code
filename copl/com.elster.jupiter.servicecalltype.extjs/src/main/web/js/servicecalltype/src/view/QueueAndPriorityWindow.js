@@ -5,6 +5,7 @@
 Ext.define('Sct.view.QueueAndPriorityWindow', {
   extend: 'Ext.window.Window',
   alias: 'widget.queue-priority-window',
+  itemId: 'queue-priority-window',
   modal: true,
   title: Uni.I18n.translate('general.setQueueAndPriority', 'SCT', 'Set queue and priority'),
 
