@@ -90,7 +90,7 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         Finder<ServiceCallType> serviceCallTypeFinder = mockFinder(Collections.singletonList(serviceCallType));
         when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
         when(serviceCallService.findAndLockServiceCallType(id, 1L)).thenReturn(Optional.of(serviceCallType));
-        when(serviceCallService.getCompatibleQueues4(SERVICE_CALL_TYPE_DESTINATION_NAME)).thenReturn(specs);
+        when(serviceCallService.getCompatibleQueues4()).thenReturn(specs);
         when(serviceCallType.getServiceCallLifeCycle()).thenReturn(serviceCallLifeCycle);
         when(serviceCallType.getLogLevel()).thenReturn(LogLevel.WARNING);
         when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);

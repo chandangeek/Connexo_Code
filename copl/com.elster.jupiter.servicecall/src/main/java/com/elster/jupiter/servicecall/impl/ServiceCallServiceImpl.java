@@ -471,7 +471,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public List<DestinationSpec> getCompatibleQueues4(String destination) {
+    public List<DestinationSpec> getCompatibleQueues4() {
         List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
         String queueTypeName = SERVICE_CALLS_SUBSCRIBER_NAME;
         return destinationSpecs.stream()

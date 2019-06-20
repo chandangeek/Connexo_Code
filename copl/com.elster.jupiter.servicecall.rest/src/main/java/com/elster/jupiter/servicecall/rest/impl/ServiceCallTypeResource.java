@@ -77,7 +77,7 @@ public class ServiceCallTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
-    public Response changeLogLevel(@PathParam("id") long id, ServiceCallTypeInfo info) {
+    public Response updateServiceCallType(@PathParam("id") long id, ServiceCallTypeInfo info) {
         info.id = id; // oh well
         ServiceCallType type = fetchAndLockServiceCallType(info);
         if (info.logLevel != null) {
@@ -92,18 +92,14 @@ public class ServiceCallTypeResource {
     }
 
     @GET
-    @Path("/compatiblequeues/{id}")
+    @Path("/compatiblequeues")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALLS})
-    public Response getCompatibleQueues(@PathParam("id") long id) {
-        ServiceCallType serviceCallType = serviceCallService.getServiceCallTypes().stream()
-                .filter(type -> type.getId() == id)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_TYPE));
-
-        Map<String, Boolean> queues = serviceCallService.getCompatibleQueues4(serviceCallType.getDestinationName())
+    public Response getCompatibleQueues() {
+        List<ServiceCallQueueInfo> queues = serviceCallService.getCompatibleQueues4()
                 .stream()
-                .collect(Collectors.toMap(spec -> spec.getName(), spec -> spec.isDefault()));
+                .map(spec -> new ServiceCallQueueInfo(spec.getName(), spec.isDefault()))
+                .collect(Collectors.toList());
 
         return Response.status(Response.Status.OK).entity(queues).build();
     }
