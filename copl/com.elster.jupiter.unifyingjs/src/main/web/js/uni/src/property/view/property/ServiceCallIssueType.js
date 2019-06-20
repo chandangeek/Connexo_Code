@@ -82,7 +82,7 @@ Ext.define('Uni.property.view.property.ServiceCallIssueType', {
             serviceCallStateValue = me.down('#service-call-state').getValue();
 
         if (serviceCallTypeValue || serviceCallStateValue) {
-            return { serviceCallType: serviceCallTypeValue, serviceCallState: serviceCallStateValue };
+            return [ serviceCallTypeValue, serviceCallStateValue ];
         } else return null;
      },
 
