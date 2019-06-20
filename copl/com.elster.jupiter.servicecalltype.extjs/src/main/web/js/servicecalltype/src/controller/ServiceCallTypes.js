@@ -109,7 +109,6 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         var me = this,
             store = Ext.getStore('Sct.store.AvailableQueues');
 
-        store.getProxy().setUrl(record);
         var changeLogLevelWindow = Ext.widget('queue-priority-window', {
             record: record,
             store: store
