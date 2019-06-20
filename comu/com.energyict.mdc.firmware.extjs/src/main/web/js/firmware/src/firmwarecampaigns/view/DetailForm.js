@@ -112,10 +112,6 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         isEdit: false,
                         defaults: {
                             labelWidth: me.defaults.defaults.labelWidth
-                        },
-                        renderer: function (value) {
-                            debugger;
-                            return value;
                         }
                     }
                 ]
