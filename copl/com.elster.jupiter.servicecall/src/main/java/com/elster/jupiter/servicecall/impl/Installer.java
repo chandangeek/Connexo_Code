@@ -38,7 +38,7 @@ import java.util.stream.Stream;
  */
 public class Installer implements FullInstaller, PrivilegesProvider {
 
-    private static final String QUEUE_TABLE_NAME = "MSG_PRIORITYRAWQUEUETABLE";
+    private static final String QUEUE_TABLE_NAME = "MSG_PRIORITYRAWQUEUETAB";
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
