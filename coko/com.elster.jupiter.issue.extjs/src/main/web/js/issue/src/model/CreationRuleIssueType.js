@@ -19,7 +19,7 @@ Ext.define('Isu.model.CreationRuleIssueType', {
 
     proxy: {
         type: 'rest',
-        url: '/api/isu/issuetypes',
+        url: '/api/isu/issuetypes/notmanual',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,

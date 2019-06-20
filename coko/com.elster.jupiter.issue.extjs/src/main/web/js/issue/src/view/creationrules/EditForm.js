@@ -53,7 +53,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 name: 'issueType',
                 fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                 required: true,
-                store: 'Isu.store.IssueTypes',
+                store: 'Isu.store.CreationRuleIssueTypes',
                 queryMode: 'local',
                 displayField: 'name',
                 valueField: 'uid',
