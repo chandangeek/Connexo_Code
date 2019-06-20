@@ -26,6 +26,11 @@ Ext.define('Sct.view.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.status', 'SCT', 'Status'),
+                dataIndex: 'statusName',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.queue', 'SCT', 'Queue'),
                 dataIndex: 'destination',
                 flex: 1
@@ -33,11 +38,6 @@ Ext.define('Sct.view.Grid', {
             {
                 header: Uni.I18n.translate('general.priority', 'SCT', 'Priority'),
                 dataIndex: 'priority',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.status', 'SCT', 'Status'),
-                dataIndex: 'statusName',
                 flex: 1
             },
             {
