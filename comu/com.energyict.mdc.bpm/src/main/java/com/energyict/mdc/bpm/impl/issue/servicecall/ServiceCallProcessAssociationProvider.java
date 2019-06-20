@@ -8,7 +8,6 @@ import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,7 +19,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
-import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
@@ -47,8 +45,8 @@ public class ServiceCallProcessAssociationProvider implements ProcessAssociation
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "BPM";
     public static final String ASSOCIATION_TYPE = "servicecallissue";
+    public static final String ISSUE_TYPE = "servicecall";
 
-    private volatile License license;
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
@@ -80,11 +78,6 @@ public class ServiceCallProcessAssociationProvider implements ProcessAssociation
         this.propertySpecService = propertySpecService;
     }
 
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-        this.license = license;
-    }
-
     @Override
     public String getName() {
         return this.thesaurus.getFormat(TranslationKeys.SERVICE_CALL_ISSUE_ASSOCIATION_PROVIDER).format();
@@ -113,7 +106,7 @@ public class ServiceCallProcessAssociationProvider implements ProcessAssociation
     }
 
     private PropertySpec getTaskIssueReasonPropertySpec() {
-        IssueType issueType = issueService.findIssueType(IssueServiceCallService.ISSUE_TYPE_NAME).orElse(null);
+        IssueType issueType = issueService.findIssueType(ISSUE_TYPE).orElse(null);
 
         IssueReasonInfo[] possibleValues = issueService.query(IssueReason.class)
                 .select(where("issueType").isEqualTo(issueType))
