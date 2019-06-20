@@ -1234,7 +1234,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
                     break;
                 case 'createmanualissue' : {
-                    title = Uni.I18n.translate('workspace.newManuallyIssue', 'MDC', 'Create issue')
+                    title = Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue')
                 }
                     break;
             }

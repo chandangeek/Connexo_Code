@@ -25,7 +25,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                 items: [
                     {
                         itemId: 'manual-issue-id',
-                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'IDV', 'ID'),
+                        fieldLabel: Uni.I18n.translate('general.title.issueId', 'ISU', 'ID'),
                         name: 'issueId'
                     },
                     {
@@ -46,7 +46,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                     },
                     {
                         itemId: 'manual-issue-detail-device',
-                        fieldLabel: Uni.I18n.translate('general.title.device', 'IDV', 'Device'),
+                        fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
                         name: 'device',
                         renderer: function (value) {
                             var url = '',
@@ -74,7 +74,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                 items: [
                     {
                         itemId: 'manual-issue-detail-status',
-                        fieldLabel: Uni.I18n.translate('general.title.status', 'IDV', 'Status'),
+                        fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
                         name: 'status',
                         afterSubTpl: '<span id="issue-status-field-sub-tpl" class="field-additional-info" style="color: #686868;"></span>',
                         renderer: function (value) {
@@ -83,7 +83,7 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                     },
                     {
                         itemId: 'manual-issue-detail-due-date',
-                        fieldLabel: Uni.I18n.translate('general.title.dueDate', 'IDV', 'Due date'),
+                        fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateLong(value) : '';
@@ -91,28 +91,28 @@ Ext.define('Isu.view.issues.ManualIssueDetailForm', {
                     },
                     {
                         itemId: 'manual-issue-detail-priority',
-                        fieldLabel: Uni.I18n.translate('general.title.priority', 'IDV', 'Priority'),
+                        fieldLabel: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority'),
                         name: 'priority'
                     },
                     {
                         itemId: 'manual-issue-detail-workgroup',
-                        fieldLabel: Uni.I18n.translate('general.title.workgroup', 'IDV', 'Workgroup'),
+                        fieldLabel: Uni.I18n.translate('general.title.workgroup', 'ISU', 'Workgroup'),
                         name: 'workGroupAssignee',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'IDV', 'Unassigned');
+                            return value.name ? Ext.String.htmlEncode(value.name) : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                         }
                     },
                     {
                         itemId: 'manual-issue-detail-assignee',
-                        fieldLabel: Uni.I18n.translate('general.title.user', 'IDV', 'User'),
+                        fieldLabel: Uni.I18n.translate('general.title.user', 'ISU', 'User'),
                         name: 'userAssignee',
                         renderer: function (value) {
-                            return value.name ? value.name : Uni.I18n.translate('general.unassigned', 'IDV', 'Unassigned');
+                            return value.name ? value.name : Uni.I18n.translate('general.unassigned', 'ISU', 'Unassigned');
                         }
                     },
                     {
                         itemId: 'manual-issue-detail-creation-date',
-                        fieldLabel: Uni.I18n.translate('general.title.creationDate', 'IDV', 'Creation date'),
+                        fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
                         name: 'creationDate',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeLong(value) : '';

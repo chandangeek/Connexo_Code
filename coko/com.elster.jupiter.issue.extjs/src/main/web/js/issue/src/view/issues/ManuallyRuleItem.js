@@ -19,7 +19,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     },
     newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
     deviceId: null,
-    deviceIdSetted: false,
+    deviceIdSet: false,
     initComponent: function () {
         var me = this;
         var defaultUrgency = 25;
@@ -385,10 +385,10 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
             var deviceIdCombo =  me.down('#deviceId');
             if (!deviceIdCombo) return;
             var device = deviceIdCombo.store.find('name', me.deviceId);
-            if (device !== -1 && !me.deviceIdSetted){
+            if (device !== -1 && !me.deviceIdSet){
                  deviceIdCombo.setRawValue(me.deviceId);
                  deviceIdCombo.setValue(deviceIdCombo.store.getAt(device).get('id'));
-                 me.deviceIdSetted = true;
+                 me.deviceIdSet = true;
             }
        }
     }

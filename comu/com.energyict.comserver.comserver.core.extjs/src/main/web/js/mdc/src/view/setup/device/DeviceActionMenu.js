@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
             me.items.push({
                 itemId: 'device-issue-link',
                 privileges: Isu.privileges.Issue.createManualIssue,
-                text: Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue'),
+                text: Uni.I18n.translate('workspace.newManuallyIssue', 'MDC', 'Create issue'),
                 href: '#/devices/' + encodeURIComponent(me.deviceName) + '/newissuemanually',
                 section: me.SECTION_ACTION
             });
