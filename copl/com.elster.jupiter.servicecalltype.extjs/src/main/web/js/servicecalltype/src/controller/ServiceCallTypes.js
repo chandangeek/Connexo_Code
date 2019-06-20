@@ -109,14 +109,13 @@ Ext.define('Sct.controller.ServiceCallTypes', {
         var me = this,
             store = Ext.getStore('Sct.store.AvailableQueues');
 
-        var changeLogLevelWindow = Ext.widget('queue-priority-window', {
-            record: record,
-            store: store
-        });
-
         me.getPage().setLoading();
         store.load(function(records, operation, success) {
             if (success) {
+                var changeLogLevelWindow = Ext.widget('queue-priority-window', {
+                    record: record,
+                    store: store
+                });
                 changeLogLevelWindow.show();
             }
             me.getPage().setLoading(false);

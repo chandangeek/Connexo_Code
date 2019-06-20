@@ -17,6 +17,7 @@ Ext.define('Sct.view.QueueAndPriorityWindow', {
 
     initComponent: function () {
         var me = this;
+        var defaultQueue = me.store.findRecord('isDefault', true);
 
         me.items = {
             xtype: 'form',
@@ -54,17 +55,22 @@ Ext.define('Sct.view.QueueAndPriorityWindow', {
                             displayField: 'name',
                             queryMode: 'local',
                             value: me.record.get('destination'),
-                            emptyText: Uni.I18n.translate('general.selectQueue', 'SCT', 'Select a queue...')
+                            emptyText: Uni.I18n.translate('general.selectQueue', 'SCT', 'Select a queue...'),
+                            listeners: {
+                                change: function(field, val) {
+                                    me.down('#queue-field-reset').setDisabled(defaultQueue.get('name') === val);
+                                },
+                                scope: me,
+                            }
                         },
                         {
                             xtype: 'uni-default-button',
                             itemId: 'queue-field-reset',
                             margin: '0 0 0 20',
+                            disabled: me.record.get('destination') === defaultQueue.get('name'),
                             handler: function() {
-                                var record = me.store.findRecord('isDefault', true);
-
-                                if (record) {
-                                    me.down('[name=destination]').setValue(record.get('name'));
+                                if (defaultQueue) {
+                                    me.down('[name=destination]').setValue(defaultQueue.get('name'));
                                 } else {
                                     me.down('[name=destination]').reset();
                                 }
@@ -83,16 +89,23 @@ Ext.define('Sct.view.QueueAndPriorityWindow', {
                         {
                             xtype: 'numberfield',
                             itemId: 'priority-field',
-                            name: 'priority'
+                            name: 'priority',
+                            listeners: {
+                                change: function(field, val) {
+                                    me.down('#priority-field-reset').setDisabled(Number(val) === 0);
+                                },
+                                scope: me,
+                            }
                         },
                         {
                             xtype: 'uni-default-button',
-                            itemId: 'queue-field-reset',
+                            itemId: 'priority-field-reset',
                             margin: '0 0 0 20',
                             handler: function() {
                                 me.down('[name=priority]').setValue(0);
                             },
                             tooltip: Uni.I18n.translate('general.resetToDefault', 'SCT', 'Reset to default'),
+                            disabled: true,
                             hidden: false,
                             scope: me
                         }
