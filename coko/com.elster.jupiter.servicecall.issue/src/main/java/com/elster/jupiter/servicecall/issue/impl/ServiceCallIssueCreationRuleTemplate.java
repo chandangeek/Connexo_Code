@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.ServiceCallInfoPropertyFactory;
+import com.elster.jupiter.properties.rest.ServiceCallStateInfoPropertyFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -38,7 +39,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -144,7 +144,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
-                propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory())
+                propertySpecService.specForValuesOf(new ServiceCallStateInfoValueFactory())
                 .named(TranslationKeys.SERVICE_CALL_TYPE_STATE)
                 .fromThesaurus(thesaurus)
                 .markRequired()
@@ -196,6 +196,53 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
         this.appKey = Optional.of(appKey);
     }
 
+
+    private class ServiceCallStateInfoValueFactory implements ValueFactory<HasIdAndName>, ServiceCallStateInfoPropertyFactory {
+        @Override
+        public HasIdAndName fromStringValue(String stringValue) {
+            return serviceCallService.getServiceCallTypes().stream().filter(serviceCallType -> String.valueOf(serviceCallType.getId()).equals(stringValue))
+                    .map(ServiceCallTypeInfo::new).findFirst().orElse(null);
+        }
+
+        @Override
+        public String toStringValue(HasIdAndName object) {
+            return object.getName();
+        }
+
+        @Override
+        public Class<HasIdAndName> getValueType() {
+            return HasIdAndName.class;
+        }
+
+        @Override
+        public HasIdAndName valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(HasIdAndName object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, HasIdAndName value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
     private class ServiceCallInfoValueFactory implements ValueFactory<HasIdAndName>, ServiceCallInfoPropertyFactory {
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
@@ -243,6 +290,44 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     @XmlRootElement
+    static class ServiceCallTypeInfo extends HasIdAndName {
+
+        private transient ServiceCallType serviceCallType;
+
+        ServiceCallTypeInfo(ServiceCallType serviceCallType) {
+            this.serviceCallType = serviceCallType;
+        }
+
+        @Override
+        public Long getId() {
+            return serviceCallType.getId();
+        }
+
+        @Override
+        public String getName() {
+            return serviceCallType.getName();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this != o) {
+                return false;
+            }
+            if (getClass() != o.getClass()) {
+                return false;
+            }
+            return super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + Long.hashCode(serviceCallType.getId());
+            return result;
+        }
+    }
+
+    @XmlRootElement
     static class DefaultStateInfo extends HasIdAndName {
 
         private transient DefaultState defaultState;
@@ -278,44 +363,6 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
         public int hashCode() {
             int result = super.hashCode();
             result = 31 * result + Long.hashCode(defaultState.ordinal());
-            return result;
-        }
-    }
-
-    @XmlRootElement
-    static class ServiceCallTypeInfo extends HasIdAndName {
-
-        private transient ServiceCallType serviceCallType;
-
-        ServiceCallTypeInfo(ServiceCallType serviceCallType) {
-            this.serviceCallType = serviceCallType;
-        }
-
-        @Override
-        public Long getId() {
-            return serviceCallType.getId();
-        }
-
-        @Override
-        public String getName() {
-            return serviceCallType.getName();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this != o) {
-                return false;
-            }
-            if (getClass() != o.getClass()) {
-                return false;
-            }
-            return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + Long.hashCode(serviceCallType.getId());
             return result;
         }
     }

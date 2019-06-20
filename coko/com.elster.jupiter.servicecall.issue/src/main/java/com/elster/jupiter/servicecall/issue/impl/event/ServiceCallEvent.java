@@ -42,7 +42,7 @@ public abstract class ServiceCallEvent implements IssueEvent {
     }
 
     @Override
-    public Optional<com.elster.jupiter.metering.EndDevice> getEndDevice() {
+    public Optional getEndDevice() {
         return Optional.empty();
     }
 

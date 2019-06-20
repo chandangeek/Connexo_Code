@@ -52,10 +52,6 @@
         <!-- Jupiter modules -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
         </dependency>
         <dependency>
@@ -108,27 +104,17 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>estimation</artifactId>
+            <artifactId>servicecall</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
+            <artifactId>metering</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>validation</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>kpi</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -252,11 +238,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>pki</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
@@ -273,13 +254,9 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>hsm</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>audit</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 </project>

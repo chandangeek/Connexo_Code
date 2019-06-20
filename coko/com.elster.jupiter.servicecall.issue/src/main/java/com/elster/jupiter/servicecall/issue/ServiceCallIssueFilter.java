@@ -6,7 +6,6 @@ package com.elster.jupiter.servicecall.issue;
 
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.users.User;
 
 import aQute.bnd.annotation.ProviderType;
@@ -27,7 +26,6 @@ public class ServiceCallIssueFilter {
 
     private Optional<IssueReason> issueReason = Optional.empty();
 
-    private Optional<EndDevice> device = Optional.empty();
 
     public void setUnassignedOnly() {
         this.unassignedOnly = true;
@@ -35,10 +33,6 @@ public class ServiceCallIssueFilter {
     
     public void setAssignee(User assignee) {
         this.assignee = Optional.of(assignee);
-    }
-
-    public void setDevice(EndDevice device) {
-        this.device = Optional.of(device);
     }
 
     public void setIssueReason(IssueReason issueReason) {
@@ -55,10 +49,6 @@ public class ServiceCallIssueFilter {
     
     public boolean isUnassignedOnly() {
         return unassignedOnly;
-    }
-    
-    public Optional<EndDevice> getDevice() {
-        return device;
     }
 
     public Optional<IssueReason> getIssueReason() {
