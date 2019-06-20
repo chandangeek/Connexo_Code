@@ -267,17 +267,35 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
             this.pPassword = p.getTypedProperty(PASSWORD.getName());
         }
 
-        this.pTimeout = p.getTypedProperty(PK_TIMEOUT);
-        this.pRetries = p.getTypedProperty(PK_RETRIES);
-        this.pRoundTripCorrection = p.getTypedProperty(ROUNDTRIPCORRECTION.getName());
-        this.pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
-        this.pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        if (p.getTypedProperty(PK_TIMEOUT) != null) {
+            this.pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        }
+
+        if (p.getTypedProperty(PK_RETRIES) != null) {
+            this.pRetries = p.getTypedProperty(PK_RETRIES);
+        }
+
+        if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+            this.pRoundTripCorrection = p.getTypedProperty(ROUNDTRIPCORRECTION.getName());
+        }
+
+        if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
+            this.pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
+        }
+
+        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            this.pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        }
+
         this.pSecurityLevel = p.getTypedProperty(PK_SECURITYLEVEL, 3);
         if (this.pSecurityLevel != 0) {
             // Password is required when security level != 0
             this.passwordPropertySpec(true).validateValue(this.pPassword);
         }
-        this.pEchoCancelling = p.getTypedProperty(PK_ECHO_CANCELING);
+
+        if (p.getTypedProperty(PK_ECHO_CANCELING) != null) {
+            this.pEchoCancelling = p.getTypedProperty(PK_ECHO_CANCELING);
+        }
         this.scriptingEnabled = p.getTypedProperty(PK_SCRIPTING_ENABLED, 0);
         // tricky... If scripting is enabled, we know it is an RF meter. So set the forced delay default to 0!
         if (this.scriptingEnabled > 0) {
@@ -287,7 +305,10 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         if (p.getTypedProperty(PK_FORCED_DELAY) != null) {
             this.forcedDelay = p.getTypedProperty(PK_FORCED_DELAY);
         }
-        this.pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
+
+        if (p.getTypedProperty(PK_IEC1107_COMPATIBLE) != null) {
+            this.pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
+        }
 
         this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
 
