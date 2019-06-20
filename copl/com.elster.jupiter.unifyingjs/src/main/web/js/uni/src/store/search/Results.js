@@ -17,6 +17,12 @@ Ext.define('Uni.store.search.Results', {
     proxy: {
         timeout: 9999999,
         type: 'ajax',
+        actionMethods: {
+            create : 'POST',
+            read   : 'POST',
+            update : 'POST',
+            destroy: 'POST'
+        },
         reader: {
             type: 'json',
             root: 'searchResults'
