@@ -176,7 +176,6 @@ public class FirmwareCampaignServiceIT {
         Instant activationStart = Instant.ofEpochSecond(70000);
         Instant activationEnd = Instant.ofEpochSecond(75000);
         ProtocolSupportedFirmwareOptions activationOption = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE;
-        String updateType = "fullCalendar";
         TimeDuration timeValidation = new TimeDuration(2, TimeDuration.TimeUnit.MINUTES);
         FirmwareCampaign firmwareCampaign1 = firmwareCampaignService.newFirmwareCampaignBuilder(name)
                 .withFirmwareType(firmwareType)
@@ -184,6 +183,7 @@ public class FirmwareCampaignServiceIT {
                 .withDeviceGroup(deviceGroup)
                 .withManagementOption(activationOption)
                 .withValidationTimeout(timeValidation)
+                .withDeviceType(deviceType1)
                 .create();
         assertThat(firmwareCampaign1.getName()).isEqualTo(name);
         assertThat(firmwareCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);

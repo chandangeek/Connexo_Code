@@ -19,6 +19,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
@@ -93,7 +94,6 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
@@ -268,19 +268,29 @@ public class InMemoryPersistence {
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(ProtocolPluggableService.class).toInstance(mock(ProtocolPluggableService.class));
+            bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_DATA_CONCENTRATOR_MULTICAST_FIRMWARE_UPGRADE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_DATA_CONCENTRATOR_MULTICAST_FIRMWARE_UPGRADE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE);
             doReturn(Optional.empty()).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE);
 
             when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenAnswer(invocation -> {
                 Object[] args = invocation.getArguments();
