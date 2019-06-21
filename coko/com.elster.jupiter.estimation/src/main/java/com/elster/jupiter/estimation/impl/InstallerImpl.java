@@ -48,9 +48,10 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     public static final String SUBSCRIBER_NAME = EstimationServiceImpl.SUBSCRIBER_NAME;
 
-    private static final String DESTINATION_NAME = EstimationServiceImpl.DESTINATION_NAME;
+    static final String DESTINATION_NAME = EstimationServiceImpl.DESTINATION_NAME;
     private static final String RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.estimation";
     private static final boolean ENABLE_EXTRA_QUEUE_CREATION = true;
+    private static final boolean MAKE_QUEUE_PRIORITIZED = true;
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
@@ -112,9 +113,9 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
         timeService.createRelativePeriodCategory(RELATIVE_PERIOD_CATEGORY);
     }
 
-    private void createDestinationAndSubscriber() {
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION);
+    void createDestinationAndSubscriber() {
+        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
+        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION, MAKE_QUEUE_PRIORITIZED);
         destinationSpec.save();
         destinationSpec.activate();
         destinationSpec.subscribe(TranslationKeys.SUBSCRIBER_NAME, EstimationService.COMPONENTNAME, Layer.DOMAIN);

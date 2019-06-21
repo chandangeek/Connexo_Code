@@ -84,8 +84,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         return messageService.getDestinationSpec("ValKpiCalcTopic").isPresent();
     }
 
-    protected void createMessageHandlers() {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_PRIORITIZEDROWTABLE").get();
+    void createMessageHandlers() {
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
         this.createMessageHandler(defaultQueueTableSpec, DataQualityKpiCalculatorHandlerFactory.TASK_DESTINATION, TranslationKeys.KPICALCULATOR_DISPLAYNAME);
     }
 

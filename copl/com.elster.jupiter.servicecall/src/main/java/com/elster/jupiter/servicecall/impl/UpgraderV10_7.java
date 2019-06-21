@@ -44,7 +44,7 @@ public class UpgraderV10_7 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
-        QueueTableSpec defaultQueueTableSpec = installerV10_7.createDefaultQueueTableSpecIfNotExist();
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
         installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, logger);
         replaceSubscriber();
         deleteOldDestination();

@@ -34,6 +34,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final boolean ENABLE_EXTRA_QUEUE_CREATION = true;
+    private static final boolean MAKE_QUEUE_PRIORITIZED = true;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -99,15 +100,15 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
             eventType.install(eventService);
         }
     }
-    private void createMessageHandlers() {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+    void createMessageHandlers() {
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
         this.createMessageHandler(defaultQueueTableSpec, ValidationServiceImpl.DESTINATION_NAME, TranslationKeys.MESSAGE_SPEC_SUBSCRIBER);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
-            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION);
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION, MAKE_QUEUE_PRIORITIZED);
             queue.activate();
             queue.subscribe(subscriberName, ValidationService.COMPONENTNAME, Layer.DOMAIN);
         } else {

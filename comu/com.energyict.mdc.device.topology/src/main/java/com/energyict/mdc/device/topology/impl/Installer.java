@@ -64,8 +64,8 @@ public class Installer implements FullInstaller {
         addPrivileges();
     }
 
-    private void createMessageHandlers() {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+    void createMessageHandlers() {
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
         this.createMessageHandler(defaultQueueTableSpec, RegisteredDevicesKpiCalculatorFactory.TASK_DESTINATION, TranslationKeys.REGISTERED_DEVICES_KPI_CALCULATOR);
     }
 
@@ -73,7 +73,7 @@ public class Installer implements FullInstaller {
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberKey) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
-            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, false, true);
             queue.activate();
             queue.subscribe(subscriberKey, TopologyService.COMPONENT_NAME, Layer.DOMAIN);
         } else {

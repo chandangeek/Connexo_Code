@@ -18,6 +18,7 @@ public interface MessageService {
     String DESTINATION_NAME = "destination";
     String SUBSCRIBER_NAME = "subscriber";
     String COMPONENTNAME = "MSG";
+    String PRIORITIZED_ROW_QUEUE_TABLE = "MSG_PRIORITIZEDROWTABLE";
 
     default QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
     	return createQueueTableSpec(name, payloadType, multiConsumer, false);

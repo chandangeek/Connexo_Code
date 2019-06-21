@@ -43,6 +43,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -58,6 +59,7 @@ import com.elster.jupiter.time.spi.RelativePeriodCategoryTranslationProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
@@ -410,13 +412,14 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                     InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                     dataModel,
                     Installer.class,
-                    ImmutableMap.of(
-                            version(10, 2), UpgraderV10_2.class,
-                            version(10, 3), UpgraderV10_3.class,
-                            version(10, 4), V10_4SimpleUpgrader.class,
-                            version(10, 4, 3), V10_4_3SimpleUpgrader.class,
-                            UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class
-                    ));
+                    ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                            .put(version(10, 2), UpgraderV10_2.class)
+                            .put(version(10, 3), UpgraderV10_3.class)
+                            .put(version(10, 4), V10_4SimpleUpgrader.class)
+                            .put(version(10, 4, 3),  V10_4_3SimpleUpgrader.class)
+                            .put(UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class)
+                            .put(version(10, 7), UpgraderV10_7.class)
+                            .build());
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;

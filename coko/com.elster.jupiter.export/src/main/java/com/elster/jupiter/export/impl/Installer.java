@@ -42,8 +42,9 @@ import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
 
 class Installer implements FullInstaller, PrivilegesProvider {
 
-    private static final String DESTINATION_NAME = DataExportServiceImpl.DESTINATION_NAME;
+    static final String DESTINATION_NAME = DataExportServiceImpl.DESTINATION_NAME;
     private static final boolean ENABLE_EXTRA_QUEUE_CREATION = true;
+    private static final boolean MAKE_QUEUE_PRIORITIZED = true;
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     static final String SUBSCRIBER_NAME = DataExportServiceImpl.SUBSCRIBER_NAME;
@@ -119,9 +120,9 @@ class Installer implements FullInstaller, PrivilegesProvider {
         timeService.createRelativePeriodCategory(RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY);
     }
 
-    private void createDestinationAndSubscriber() {
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION);
+    void createDestinationAndSubscriber() {
+        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
+        DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION, MAKE_QUEUE_PRIORITIZED);
         destinationSpec.save();
         destinationSpec.activate();
         destinationSpec.subscribe(TranslationKeys.SUBSCRIBER_NAME, DataExportService.COMPONENTNAME, Layer.DOMAIN);
