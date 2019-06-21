@@ -5,10 +5,14 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
+import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInfo;
 
 import java.time.Instant;
 
@@ -30,7 +34,9 @@ public class DeviceInFirmwareCampaignInfoTest {
     @Mock
     private DeviceInFirmwareCampaign deviceInFirmwareCampaign;
     @Mock
-    private FirmwareCampaign firmwareCampaign;
+    private ServiceCall firmwareCampaign;
+    @Mock
+    private ServiceCall item;
     @Mock
     private Device device;
 
@@ -42,21 +48,22 @@ public class DeviceInFirmwareCampaignInfoTest {
         when(thesaurus.getString(anyString(), anyString())).thenReturn("someTranslatedFirmwareManagementDeviceStatus");
 
         when(device.getName()).thenReturn("NameOfDevice");
-        when(firmwareCampaign.getId()).thenReturn(6598L);
+        when(device.getId()).thenReturn(6598L);
         when(deviceInFirmwareCampaign.getDevice()).thenReturn(device);
-        when(deviceInFirmwareCampaign.getFirmwareCampaign()).thenReturn(firmwareCampaign);
-        when(deviceInFirmwareCampaign.getStatus()).thenReturn(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
-        when(deviceInFirmwareCampaign.getStartedOn()).thenReturn(startedOn);
-        when(deviceInFirmwareCampaign.getFinishedOn()).thenReturn(finishedOn);
+        when(deviceInFirmwareCampaign.getParent()).thenReturn(firmwareCampaign);
+        when(item.getCreationTime()).thenReturn(startedOn);
+        when(item.getLastModificationTime()).thenReturn(finishedOn);
+        when(deviceInFirmwareCampaign.getServiceCall()).thenReturn(item);
+
     }
     @Test
     public void testDeviceInFirmwareCampaignInfoConstructor(){
-        DeviceInFirmwareCampaignInfo info = new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign, thesaurus);
+        DeviceInFirmwareCampaignInfo info = new DeviceInFirmwareCampaignInfo(1L, new IdWithNameInfo(device.getId(), device.getName()), "Pending", startedOn, finishedOn);
 
-        assertThat(info.campaignId).isEqualTo(6598L);
-        assertThat(info.deviceName).isEqualTo("NameOfDevice");
-        assertThat(info.status.id).isEqualTo(FirmwareManagementDeviceStatus.UPLOAD_PENDING.key());
-        assertThat(info.status.name).isEqualTo("someTranslatedFirmwareManagementDeviceStatus");
+        assertThat(info.id).isEqualTo(1L);
+        assertThat(info.device.name).isEqualTo("NameOfDevice");
+        assertThat(info.device.id).isEqualTo(device.getId());
+        assertThat(info.status).isEqualTo("Pending");
         assertThat(info.startedOn).isEqualTo(startedOn);
         assertThat(info.finishedOn).isEqualTo(finishedOn);
     };

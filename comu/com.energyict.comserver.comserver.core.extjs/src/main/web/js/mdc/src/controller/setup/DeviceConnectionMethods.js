@@ -214,6 +214,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     previewDeviceConnectionMethod: function () {
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
+
         Ext.suspendLayouts();
         if (connectionMethod.length == 1) {
             this.getConnectionMethodActionMenu().record = connectionMethod[0];
@@ -733,8 +734,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         connectionMethod.beginEdit();
         if (connectionMethod.get('isDefault') === true) {
             connectionMethod.set('isDefault', false);
+            localStorage.setItem('isDefault', true);
         } else {
             connectionMethod.set('isDefault', true);
+            localStorage.setItem('isDefault', false);
         }
         if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
@@ -743,11 +746,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         connectionMethod.getProxy().setExtraParam('deviceId', me.deviceId);
         connectionMethod.save({
             isNotEdit: true,
-            success: function () {
-                if (connectionMethod.get('isDefault') === true) {
+            success: function (data) {
+
+                if (localStorage.getItem("isDefault") == "false") {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.setAsDefault', 'MDC', 'Connection method set as default'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
+
                 }
                 router.getRoute().forward();
             },

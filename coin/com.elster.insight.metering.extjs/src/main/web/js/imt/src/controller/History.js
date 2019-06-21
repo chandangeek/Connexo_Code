@@ -233,6 +233,21 @@ Ext.define('Imt.controller.History', {
                                     controller: 'Imt.usagepointsetup.controller.MetrologyConfig',
                                     action: 'showActivateMeters',
                                     privileges: Imt.privileges.UsagePoint.admin
+                                },
+                                unlinkmeter: {
+                                    title: Uni.I18n.translate('general.unlinkMeter', 'IMT', 'Unlink meter'),
+                                    route: 'unlink/{meterName}',
+                                    controller: 'Imt.usagepointmanagement.controller.MetrologyConfigurationDetails',
+                                    action: 'unlinkMeter',
+                                    privileges: Imt.privileges.UsagePoint.admin,
+                                    callback: function (route) {
+                                        this.getApplication().on('unlinkMeterPageLoaded', function (meterName) {
+                                            route.setTitle(Uni.I18n.translate('general.tooltip.unlink.meter', 'IMT', "Unlink '{0}'", [meterName]));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         },
@@ -929,6 +944,13 @@ Ext.define('Imt.controller.History', {
                     controller: 'Isu.controller.Overview',
                     action: 'showIssuesOverview',
                     privileges: Isu.privileges.Issue.viewAdminDevice
+                },
+                audit: {
+                    title: Uni.I18n.translate('general.auditTrail', 'IMT', 'Audit trail'),
+                    route: 'audit',
+                    controller: 'Cfg.audit.controller.Audit',
+                    action: 'showOverview',
+                    privileges: Cfg.privileges.Audit.viewAuditLog
                 }
             }
         },

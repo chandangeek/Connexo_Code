@@ -9,7 +9,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum AuditDomainTranslationKeys implements TranslationKey {
 
     UNKNOWN(AuditDomainType.UNKNOWN, "Unknown"),
-    DEVICE(AuditDomainType.DEVICE, "Device");
+    DEVICE(AuditDomainType.DEVICE, "Device"),
+    USAGEPOINT(AuditDomainType.USAGEPOINT, "Usage point");
 
     private AuditDomainType key;
     private String defaultFormat;
@@ -18,7 +19,6 @@ public enum AuditDomainTranslationKeys implements TranslationKey {
         this.key = key;
         this.defaultFormat = defaultFormat;
     }
-
 
     @Override
     public String getKey() {

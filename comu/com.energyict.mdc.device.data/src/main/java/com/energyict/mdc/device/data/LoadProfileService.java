@@ -19,6 +19,10 @@ import java.util.Optional;
 @ProviderType
 public interface LoadProfileService {
 
+    String BULK_LOADPROFILE_QUEUE_DESTINATION = "BulkLoadProfileQD";
+    String BULK_LOADPROFILE_QUEUE_SUBSCRIBER = "BulkLoadProfileQS";
+    String BULK_LOADPROFILE_QUEUE_DISPLAYNAME = "Handle load profile change next reading block start";
+
     /**
      * Finds the LoadProfile that is uniquely identified by the specified number.
      *
