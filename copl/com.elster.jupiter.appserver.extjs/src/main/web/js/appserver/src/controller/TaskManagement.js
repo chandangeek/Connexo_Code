@@ -351,6 +351,9 @@ Ext.define('Apr.controller.TaskManagement', {
                 var response = Ext.JSON.decode(operation.responseText);
                 recordTask.set('lastRunDate',response.lastRunDate);
                 recordTask.set('suspendUntilTime', response.suspendUntilTime);
+                recordTask.set('queueStatusDate', response.queueStatusDate);
+                recordTask.set('queueStatus', response.queueStatus);
+                recordTask.set('queueStatusString', '');
                 recordTask.commit();
                 operationCompletedSuspend.call(controller, true);
 

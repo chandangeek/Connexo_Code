@@ -308,7 +308,7 @@ class RecurrentTaskImpl implements RecurrentTask {
                 getDestination().message(json).send();
                 if (taskOccurrence.wasScheduled()) {
                     updateNextExecution();
-                    dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
+                    dataModel.mapper(RecurrentTask.class).update(this, "nextExecution","suspendUntilTime");
                 }
                 taskOccurrences.add(taskOccurrence);
             }
@@ -484,8 +484,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void setSuspendUntil(Instant suspendUntilTime) {
-        this.suspendUntilTime = suspendUntilTime;
-        updateNextExecution();
+        this.nextExecution = this.suspendUntilTime = suspendUntilTime;
         save();
     }
 
