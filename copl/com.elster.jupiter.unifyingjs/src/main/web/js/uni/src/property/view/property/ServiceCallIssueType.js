@@ -34,7 +34,7 @@ Ext.define('Uni.property.view.property.ServiceCallIssueType', {
                         required: me.property.get('required'),
                         listeners: {
                             change: function (combo, newValue, oldValue) {
-                                var serviceCallStateCombo = me.down('#service-call-state');
+                                var serviceCallStateCombo = Ext.ComponentQuery.query('#service-call-state')[0];
                                 
                                 if (newValue.length !== 0) {
                                     serviceCallStateCombo.setDisabled(false);
@@ -44,26 +44,6 @@ Ext.define('Uni.property.view.property.ServiceCallIssueType', {
                                 }
                             }
                         }
-                    },
-                    {
-                        xtype: 'uni-grid-filtertop-combobox',
-                        itemId: 'service-call-state',
-                        enabled: false,
-                        disabled: true,
-                        fieldLabel: Uni.I18n.translate('serviceCall.state.label', 'UNI', 'State (trigger)'),
-                        queryMode: 'local',
-                        name: 'serviceCallState',
-                        labelWidth: 260,
-                        allowBlank: false,
-                        width: 595,
-                        valueField: 'state',
-                        displayField: 'state',
-                        store: me.getServiceCallStateStore(),
-                        editable: false,
-                        multiSelect: true,
-                        msgTarget: 'under',
-                        required: true,
-                        emptyText: Uni.I18n.translate('serviceCall.state.empty', 'UNI', 'Select a state...')
                     }
                 ]
             }
@@ -77,12 +57,11 @@ Ext.define('Uni.property.view.property.ServiceCallIssueType', {
     },
 
     getValue: function() {
-        var me = this;
-            serviceCallTypeValue = me.down('#service-call-type').getValue(),
-            serviceCallStateValue = me.down('#service-call-state').getValue();
+        var me = this,
+            serviceCallTypeValue = me.down('#service-call-type').getValue();
 
-        if (serviceCallTypeValue || serviceCallStateValue) {
-            return [ serviceCallTypeValue, serviceCallStateValue ];
+        if (serviceCallTypeValue) {
+            return serviceCallTypeValue;
         } else return null;
      },
 
@@ -105,21 +84,6 @@ Ext.define('Uni.property.view.property.ServiceCallIssueType', {
                 { name: 'name' },
             ],
             data: elements
-        });
-
-    },
-
-    getServiceCallStateStore: function () {
-
-        return Ext.create('Ext.data.ArrayStore', {
-            data: [
-                ['Cancelled'],
-                ['Partial success'],
-                ['Successful'],
-                ['Failed'],
-                ['Rejected']
-            ],
-            fields: ['state']
         });
 
     }
