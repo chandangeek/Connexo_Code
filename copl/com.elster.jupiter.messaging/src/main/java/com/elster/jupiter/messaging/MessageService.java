@@ -67,5 +67,7 @@ public interface MessageService {
 
     List<SubscriberSpec> getNonSystemManagedSubscribers();
 
+    List<DestinationSpec> getDestinationSpecs(String queueTypeName);
+
     List<DestinationSpec> findDestinationSpecs();
 }

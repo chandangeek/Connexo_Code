@@ -38,15 +38,15 @@ public interface QueueTableSpec extends HasName {
     void delete();
 
     default DestinationSpec createDestinationSpec(String name, int retryDelay) {
-        return createDestinationSpec(name, retryDelay, 5, true, name, false);
+        return createDestinationSpec(name, retryDelay, 5, true, name, false, false);
     }
 
     default DestinationSpec createDestinationSpec(String name, int retryDelay, int retries) {
-        return createDestinationSpec(name, retryDelay, 5, true, name, false);
+        return createDestinationSpec(name, retryDelay, 5, true, name, false, false);
     }
 
     default DestinationSpec createDestinationSpec(String name, int retryDelay, boolean isExtraQueueCreationEnabled) {
-        return createDestinationSpec(name, retryDelay, 5, true, name, isExtraQueueCreationEnabled);
+        return createDestinationSpec(name, retryDelay, 5, true, name, isExtraQueueCreationEnabled, false);
     }
 
     default DestinationSpec createDestinationSpec(String name, int retryDelay, boolean isExtraQueueCreationEnabled, boolean isPrioritized) {
@@ -55,10 +55,6 @@ public interface QueueTableSpec extends HasName {
 
     default DestinationSpec createBufferedDestinationSpec(String name, int retryDelay) {
         return createBufferedDestinationSpec(name, retryDelay, 5, true, name, false);
-    }
-
-    default DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
-        return createDestinationSpec(name, retryDelay, retries, isDefault, queueTypeName, isExtraQueueCreationEnabled, false);
     }
 
     DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized);

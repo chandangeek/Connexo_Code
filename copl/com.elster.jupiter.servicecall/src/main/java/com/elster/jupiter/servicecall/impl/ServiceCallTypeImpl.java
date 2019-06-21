@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -44,13 +43,12 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private String versionName;
     private Status status;
     private LogLevel logLevel;
-    private String destination;
-    private transient DestinationSpec destinationSpec;
     private int priority;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
 //    @IsRegisteredHandler has been removed, as handlers who are not yet registered on the white board should not cause validation errors
     private String serviceCallHandler;
+    private Reference<DestinationSpec> destination = Reference.empty();
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
@@ -87,7 +85,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         version("version"),
         currentLifeCycleState("currentLifeCycleState"),
         customPropertySets("customPropertySets"),
-        handler("serviceCallHandler");
+        handler("serviceCallHandler"),
+        destination("destination");
 
         private final String javaFieldName;
 
@@ -230,21 +229,17 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public DestinationSpec getDestination() {
-        if (destinationSpec == null) {
-            destinationSpec = messageService.getDestinationSpec(getDestinationName()).get();
-        }
-        return destinationSpec;
+        return destination.get();
     }
 
     @Override
     public String getDestinationName() {
-        return (destination == null) ? SERVICE_CALLS_DESTINATION_NAME : destination;
+        return destination.get().getName();
     }
 
     @Override
-    public void setDestination(String destination) {
-        this.destination = destination;
-        Save.UPDATE.save(dataModel, this);
+    public void setDestination(DestinationSpec destination) {
+        this.destination.set(destination);
     }
 
     @Override

@@ -97,15 +97,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         return resources;
     }
 
-    protected QueueTableSpec createDefaultQueueTableSpecIfNotExist() {
-        Optional<QueueTableSpec> queueTableSpec = messageService.getQueueTableSpec(QUEUE_TABLE_NAME);
-        if (!queueTableSpec.isPresent()) {
-            return messageService.createQueueTableSpec(QUEUE_TABLE_NAME, "RAW", false, true);
-        }
-        return queueTableSpec.get();
+    QueueTableSpec createDefaultQueueTableSpecIfNotExist() {
+        return messageService.getQueueTableSpec(QUEUE_TABLE_NAME)
+                .orElseGet(()-> messageService.createQueueTableSpec(QUEUE_TABLE_NAME, "RAW", false, true));
     }
 
-    protected void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName, Logger logger) {
+    void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName, Logger logger) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
             DestinationSpec queue = doTry(

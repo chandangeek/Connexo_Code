@@ -33,7 +33,7 @@ public interface ServiceCallType extends HasId, HasName {
 
     String getDestinationName();
 
-    void setDestination(String destination);
+    void setDestination(DestinationSpec destination);
 
     int getPriority();
 

@@ -5,6 +5,8 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -44,17 +46,20 @@ public class ServiceCallTypeResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ExceptionFactory exceptionFactory;
+    private final MessageService messageService;
 
     @Inject
     public ServiceCallTypeResource(ServiceCallService serviceCallService,
                                    ServiceCallTypeInfoFactory serviceCallTypeInfoFactory,
                                    ConcurrentModificationExceptionFactory conflictFactory,
                                    CustomPropertySetService customPropertySetService,
+                                   MessageService messageService,
                                    ExceptionFactory exceptionFactory) {
         this.serviceCallService = serviceCallService;
         this.serviceCallTypeInfoFactory = serviceCallTypeInfoFactory;
         this.conflictFactory = conflictFactory;
         this.customPropertySetService = customPropertySetService;
+        this.messageService = messageService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -85,7 +90,8 @@ public class ServiceCallTypeResource {
         } else {
             type.setLogLevel(null);
         }
-        type.setDestination(info.destination);
+        DestinationSpec destinationSpec = messageService.getDestinationSpec(info.destination).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DESTINATION));
+        type.setDestination(destinationSpec);
         type.setPriority(info.priority);
         type.save();
         return Response.ok(serviceCallTypeInfoFactory.from(type)).build();

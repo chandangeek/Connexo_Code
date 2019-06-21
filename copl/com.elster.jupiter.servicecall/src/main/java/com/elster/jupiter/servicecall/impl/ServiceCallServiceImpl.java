@@ -40,6 +40,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -279,6 +280,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
+    public Optional<DestinationSpec> getDefaultDestination() {
+        return messageService.getDestinationSpec(SERVICE_CALLS_DESTINATION_NAME);
+    }
+
+    @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
         return DefaultFinder.of(ServiceCallType.class, dataModel)
                 .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
@@ -286,8 +292,15 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel, thesaurus);
+    public Finder<ServiceCallType> getServiceCallTypes(DestinationSpec destinationSpec) {
+        return DefaultFinder.of(ServiceCallType.class, where(ServiceCallTypeImpl.Fields.destination.fieldName()).isEqualTo(destinationSpec), dataModel)
+                .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
+                .sorted(ServiceCallTypeImpl.Fields.version.fieldName(), true);
+    }
+
+    @Override
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, DestinationSpec destination) {
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, dataModel, thesaurus);
     }
 
     @Override
@@ -376,8 +389,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public DestinationSpec getServiceCallQueue(String destinationName) {
-        return messageService.getDestinationSpec(destinationName).get();
+    public Optional<DestinationSpec> getServiceCallQueue(String destinationName) {
+        return messageService.getDestinationSpec(destinationName);
     }
 
     @Override

@@ -7,6 +7,7 @@ package com.elster.jupiter.servicecall.impl;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -90,7 +91,13 @@ public enum TableSpecs {
                     .map(ServiceCallTypeImpl.Fields.currentLifeCycleState.fieldName())
                     .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
-            table.column("DESTINATION").varChar(30).map("destination").since(version(10, 7)).add();
+            Column destinationColumn = table.column("DESTINATION").varChar(30).since(version(10, 7)).add();
+            table.foreignKey("FK_DESTINATION")
+                    .since(version(10, 7))
+                    .references(DestinationSpec.class)
+                    .on(destinationColumn)
+                    .map(ServiceCallTypeImpl.Fields.destination.fieldName())
+                    .add();
             table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").since(version(10, 7)).add();
             table.addAuditColumns();
             table.foreignKey("FK_LIFECYCLE")

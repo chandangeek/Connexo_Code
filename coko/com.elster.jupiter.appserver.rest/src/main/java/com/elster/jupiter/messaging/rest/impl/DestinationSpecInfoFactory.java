@@ -30,7 +30,7 @@ public class DestinationSpecInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public DestinationSpecInfo from(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<ServiceCallType> allServiceCallTypes) {
+    public DestinationSpecInfo from(DestinationSpec destinationSpec, List<RecurrentTask> allTasks, List<ServiceCallType> serviceCallTypes) {
         DestinationSpecInfo info = new DestinationSpecInfo();
         info.name = destinationSpec.getName();
         info.type = DestinationType.typeOf(destinationSpec);
@@ -42,7 +42,7 @@ public class DestinationSpecInfoFactory {
         info.isDefault = destinationSpec.isDefault();
         info.queueTypeName = destinationSpec.getQueueTypeName();
         info.tasks = getTasksFrom(destinationSpec.getName(), allTasks);
-        info.serviceCallTypes = allServiceCallTypes.stream().filter(sct -> destinationSpec.getName().equals(sct.getDestinationName())).map(sct -> sct.getName()).collect(Collectors.toList());
+        info.serviceCallTypes = serviceCallTypes.stream().map(sct -> sct.getName()).collect(Collectors.toList());
 
         return info;
     }
