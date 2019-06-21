@@ -6,8 +6,8 @@ Ext.define('Isu.model.ManuallyRuleItem', {
     extend: 'Ext.data.Model',
     fields: [
         {
-            name: 'deviceId',
-            type: 'long'
+            name: 'deviceName',
+            type: 'text'
         },
         {
             name: 'reasonId',

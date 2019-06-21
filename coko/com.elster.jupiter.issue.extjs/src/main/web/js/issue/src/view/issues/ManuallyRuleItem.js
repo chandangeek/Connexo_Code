@@ -39,11 +39,11 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                },
                {
                     xtype: 'combobox',
-                    itemId: 'deviceId',
-                    name: 'deviceId',
+                    itemId: 'deviceName',
+                    name: 'deviceName',
                     displayField: 'name',
                     fieldLabel: Uni.I18n.translate('general.title.isudevice', 'ISU', 'Device'),
-                    valueField: 'id',
+                    valueField: 'name',
                     allowBlank: false,
                     store: devicesStore,
                     queryMode: 'remote',
@@ -382,12 +382,10 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     setDeviceCombo: function(){
        var me = this;
        if (me.deviceId){
-            var deviceIdCombo =  me.down('#deviceId');
+            var deviceIdCombo =  me.down('#deviceName');
             if (!deviceIdCombo) return;
-            var device = deviceIdCombo.store.find('name', me.deviceId);
-            if (device !== -1 && !me.deviceIdSet){
-                 deviceIdCombo.setRawValue(me.deviceId);
-                 deviceIdCombo.setValue(deviceIdCombo.store.getAt(device).get('id'));
+            if (!me.deviceIdSet){
+                 deviceIdCombo.setValue(me.deviceId);
                  me.deviceIdSet = true;
             }
        }
