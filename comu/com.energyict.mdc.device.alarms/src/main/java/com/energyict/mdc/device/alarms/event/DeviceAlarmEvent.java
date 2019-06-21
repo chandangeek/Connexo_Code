@@ -183,7 +183,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 .anyMatch(event -> checkMatchingEvent(event, this.getEventTypeMrid()))) && issueService.findOpenIssuesForDevice(getDevice().getName())
                 .find()
                 .stream()
-                .anyMatch(issue -> issue.getRule().get().getId() == ruleId);
+                .anyMatch(issue -> issue.getRule().isPresent() && issue.getRule().get().getId() == ruleId);
     }
 
     public boolean hasAssociatedDeviceLifecycleStatesInDeviceTypes(String statesInDeviceTypes) {
