@@ -25,7 +25,7 @@ Ext.define('Uni.property.view.property.ServiceCallIssueState', {
                         labelWidth: 260,
                         allowBlank: false,
                         width: 595,
-                        valueField: 'name',
+                        valueField: 'id',
                         displayField: 'name',
                         store: me.getServiceCallStateStore(),
                         editable: false,
