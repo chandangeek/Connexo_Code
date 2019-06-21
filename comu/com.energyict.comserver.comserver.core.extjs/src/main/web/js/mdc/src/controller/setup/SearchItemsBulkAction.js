@@ -534,7 +534,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 },
 
                 failure: function (response) {
-                    statusPage.showIssueCreatedSuccess( Uni.I18n.translate('searchItems.bulk.createManualIssue.baseFailMsg', 'ISU',  "Issues cannot be created") );
+                    statusPage.showIssueCreatedSuccess( Uni.I18n.translate('searchItems.bulk.createManualIssue.baseFailMsg', 'MDC',  "Issues cannot be created") );
                     finishBtn.enable();
                     wizard.setLoading(false);
                 }
@@ -1161,7 +1161,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                   progressBarText = Uni.I18n.translate('general.adding', 'MDC', 'Adding...');
                                   break;
                                 case 'createmanualissue':
-                                   progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkIssue', 'ISU', 'Creating {0} issues. Please wait...', me.allDevicesCnt, false);
+                                   progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkIssue', 'MDC', 'Creating {0} issues. Please wait...', me.allDevicesCnt, false);
                                    break;
                                 default:
                                    progressBarText = Uni.I18n.translate('general.removing', 'MDC', 'Removing...');
@@ -1234,7 +1234,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
                     break;
                 case 'createmanualissue' : {
-                    title = Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue')
+                    title = Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue')
                 }
                     break;
             }
@@ -1294,7 +1294,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Ext.String.format(pattern, me.zoneName, false);
                     break;
                 case 'createmanualissue':
-                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmPartDevicesMsg', 'ISU', 'Create issues for {0} devices?', me.allDevicesCnt, false);
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmDevicesMsg', 'MDC', 'Create issues for {0} devices?', me.allDevicesCnt);
                     break;
             }
         } else {
@@ -1371,7 +1371,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.confirmMsg1', 'MDC', "{0} from zone '{1}'?", [pattern, me.zoneName]);
                     break;
                 case 'createmanualissue':
-                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmPartDevicesMsg', 'ISU', 'Create issues for {0} devices?', me.devices.length, false);
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmDevicesMsg', 'MDC', 'Create issues for {0} devices?', me.devices.length, false);
                     break;
             }
         }

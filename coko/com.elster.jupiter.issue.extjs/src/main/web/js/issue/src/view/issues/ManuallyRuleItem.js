@@ -19,13 +19,14 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
     },
     newReasonId: '12222e48-9afb-4c76-a41e-d3c40f16ac76',
     deviceId: null,
-    deviceIdSetted: false,
+    deviceIdSet: false,
     initComponent: function () {
         var me = this;
         var defaultUrgency = 25;
         var defaultImpact = 5;
         var devicesStore = Ext.getStore('Isu.store.IssueDevices') || Ext.create('Isu.store.IssueDevices');
         devicesStore.getProxy().setExtraParam('nameOnly', true);
+        if (me.deviceId) devicesStore.getProxy().setExtraParam('name', me.deviceId);
 
         devicesStore.on('load', Ext.bind(me.setDeviceCombo, me));
 
@@ -53,7 +54,7 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                     forceSelection: true,
                     required: !me.bulkAction,
                     hidden: me.bulkAction,
-                    emptyText: me.deviceId ? me.deviceId : '',
+                    emptyText: '',
                     listeners: {
                         expand: {
                             fn: me.comboLimitNotification
@@ -384,10 +385,10 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
             var deviceIdCombo =  me.down('#deviceId');
             if (!deviceIdCombo) return;
             var device = deviceIdCombo.store.find('name', me.deviceId);
-            if (device !== -1 && !me.deviceIdSetted){
+            if (device !== -1 && !me.deviceIdSet){
                  deviceIdCombo.setRawValue(me.deviceId);
                  deviceIdCombo.setValue(deviceIdCombo.store.getAt(device).get('id'));
-                 me.deviceIdSetted = true;
+                 me.deviceIdSet = true;
             }
        }
     }

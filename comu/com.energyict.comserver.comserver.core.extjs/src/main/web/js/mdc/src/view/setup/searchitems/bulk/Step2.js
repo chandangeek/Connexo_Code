@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
             },
             {
                 itemId: 'createmanualissue',
-                boxLabel: '<b>' + Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue') + '</b>',
+                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue') + '</b>',
                 name: 'operation',
                 inputValue: 'createmanualissue',
                 privileges: Isu.privileges.Issue.createManualIssue

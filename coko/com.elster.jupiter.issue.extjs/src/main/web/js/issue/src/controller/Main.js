@@ -110,7 +110,7 @@ Ext.define('Isu.controller.Main', {
 
             if (Isu.privileges.Issue.canCreateManualIssue()){
                 issuesPortalItem.data.items.push({
-                        text: Uni.I18n.translate('workspace.issues.newManuallyIssue', 'ISU', 'Create issue'),
+                        text: Uni.I18n.translate('workspace.newManuallyIssue', 'ISU', 'Create issue'),
                         itemId: 'new-manually-issue-item',
                         href: router.getRoute('workspace/newissuemanually').buildUrl()
                  })
