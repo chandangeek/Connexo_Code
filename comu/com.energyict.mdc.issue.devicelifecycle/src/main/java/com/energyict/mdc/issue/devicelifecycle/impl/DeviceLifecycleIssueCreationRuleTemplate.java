@@ -205,13 +205,18 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                     new IllegalArgumentException(TranslationKeys.UNABLE_TO_UPDATE_TRANSITION_STATUS.getDefaultFormat()) {
                     }));
         }
-        Optional<RecurrenceSelectionInfo> newEventProps = openIssue.getRule().get()
-                .getProperties()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
-                .findFirst()
-                .map(found -> (RecurrenceSelectionInfo) found.getValue());
+        Optional<RecurrenceSelectionInfo> newEventProps;
+        if (openIssue.getRule().isPresent()) {
+            newEventProps = openIssue.getRule().get()
+                    .getProperties()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
+                    .findFirst()
+                    .map(found -> (RecurrenceSelectionInfo) found.getValue());
+        } else {
+            newEventProps = Optional.empty();
+        }
         if (newEventProps.isPresent() &&
                 newEventProps.get().hasIncreaseUrgency()) {
             openIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()

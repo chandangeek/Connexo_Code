@@ -312,11 +312,16 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             DeviceAlarmEvent alarmEvent = (DeviceAlarmEvent) event;
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
             List<String> clearingEvents = new ArrayList<>();
-            alarm.getRule().get().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
-                    .findFirst().ifPresent(element ->
-                    ((ArrayList<EventTypeInfo>) (element.getValue())).forEach(value -> clearingEvents.add(value.getName())));
-            Optional<RaiseEventPropsInfo> newEventProps = alarm.getRule().get().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
-                    .findFirst().map(found -> (RaiseEventPropsInfo) found.getValue());
+            Optional<RaiseEventPropsInfo> newEventProps;
+            if (alarm.getRule().isPresent()) {
+                alarm.getRule().get().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
+                        .findFirst().ifPresent(element ->
+                        ((ArrayList<EventTypeInfo>) (element.getValue())).forEach(value -> clearingEvents.add(value.getName())));
+                newEventProps = alarm.getRule().get().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
+                        .findFirst().map(found -> (RaiseEventPropsInfo) found.getValue());
+            } else {
+                newEventProps = Optional.empty();
+            }
             if (!clearingEvents.isEmpty() &&
                     alarmEvent.isClearing(clearingEvents)) {
                 if (!alarm.getClearStatus().isCleared()) {
