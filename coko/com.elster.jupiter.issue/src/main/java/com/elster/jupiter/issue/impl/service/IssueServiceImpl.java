@@ -834,8 +834,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         //filter by createDate
         if (filter.getStartCreateTime() != null && filter.getEndCreateTime() != null) {
             Condition creationDate = Condition.FALSE;
-            creationDate = creationDate.and(where("createTime").isLessThanOrEqual(filter.getEndCreateTime())
-                    .and(where("createTime").isGreaterThanOrEqual(filter.getStartCreateTime())));
+            creationDate = creationDate.and(where("createTime").isLessThan(filter.getEndCreateTime()))
+                    .and(where("createTime").isGreaterThan(filter.getStartCreateTime()));
             condition = condition.and(creationDate);
         }
 
