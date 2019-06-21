@@ -31,8 +31,6 @@ import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -205,17 +203,10 @@ public class TaskResource {
 
     @POST
     @Path("/tasks/{id}/suspend/{suspendTime}")
-    //@Path("/tasks/{id}/suspend")
-    //@Path("/tasks/{id}/suspend")
-    //@Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.SUSPEND_TASK_OVERVIEW})
-    //public TaskInfo suspendEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
     public TaskInfo suspendGeneralTask(@PathParam("id") long id, @PathParam("suspendTime") long suspendTime, @Context SecurityContext securityContext) {
-  //  public Response suspendGeneralTask(@PathParam("id") long id, @PathParam("recordTask") TaskInfo info) {
-// sa aduc un task indo
-      //  Instant instant = Instant.ofEpochMilli(suspendTime);
 
         Principal principal = (Principal) securityContext.getUserPrincipal();
         Locale locale = Locale.getDefault();
