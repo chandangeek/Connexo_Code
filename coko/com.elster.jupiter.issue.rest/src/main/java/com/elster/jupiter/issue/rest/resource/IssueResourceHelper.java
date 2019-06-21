@@ -280,7 +280,7 @@ public class IssueResourceHelper {
                 .withType(getIssueType())
                 .withStatus(issueService.findStatus(request.statusId).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
                 .withPriority(Priority.fromStringValue(request.priority))
-                .withDevice(meteringService.findEndDeviceById(request.deviceId).orElse(null))
+                .withDevice(meteringService.findMeterByName(request.deviceName).orElse(null))
                 .withDueDate(dueDate)
                 .withOverdue(false)
                 .withComment(request.comment)

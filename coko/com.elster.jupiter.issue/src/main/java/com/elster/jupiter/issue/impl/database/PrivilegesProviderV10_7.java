@@ -2,8 +2,9 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.issue.security;
+package com.elster.jupiter.issue.impl.database;
 
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;

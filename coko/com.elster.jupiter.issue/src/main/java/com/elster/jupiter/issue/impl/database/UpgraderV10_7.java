@@ -7,21 +7,14 @@ package com.elster.jupiter.issue.impl.database;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
-import com.elster.jupiter.issue.security.PrivilegesProviderV10_7;
-import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -50,6 +43,8 @@ public class UpgraderV10_7 implements Upgrader {
         this.addManualIssueType();
         addCloseActionType();
         userService.addModulePrivileges(privilegesProviderV10_7);
+        updateOpenIssueType();
+        updateHistoricalIssueType();
         this.upgradeAllIssues();
     }
 
@@ -58,23 +53,15 @@ public class UpgraderV10_7 implements Upgrader {
     }
 
     private void upgradeAllIssues() {
-        try (Connection connection = this.dataModel.getConnection(true)) {
-            this.upgradeAllIssues(connection);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        execute(dataModel, "CREATE OR REPLACE VIEW ISU_ISSUE_ALL AS SELECT * FROM ISU_ISSUE_OPEN UNION SELECT * FROM ISU_ISSUE_HISTORY");
     }
 
-    private void upgradeAllIssues(Connection connection) {
-        String[] sqlStatements = {
-                "CREATE OR REPLACE VIEW ISU_ISSUE_ALL AS SELECT * FROM ISU_ISSUE_OPEN UNION SELECT * FROM ISU_ISSUE_HISTORY"};
-        for (String sqlStatement : sqlStatements) {
-            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
-            }
-        }
+    private void updateOpenIssueType() {
+        execute(dataModel, "UPDATE (SELECT t1.id, t1.TYPE t_type, t2.ISSUE_TYPE r_type FROM ISU_ISSUE_OPEN t1, ISU_REASON t2 WHERE t1.REASON_ID = t2.KEY) SET t_type = r_type");
+    }
+
+    private void updateHistoricalIssueType() {
+        execute(dataModel, "UPDATE (SELECT t1.id, t1.TYPE t_type, t2.ISSUE_TYPE r_type FROM ISU_ISSUE_HISTORY t1, ISU_REASON t2 WHERE t1.REASON_ID = t2.KEY) SET t_type = r_type");
     }
 
     private void addCloseActionType() {

@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.issue.rest.response;
+package com.elster.jupiter.issue.rest.impl;
 
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -36,7 +36,7 @@ public class ManualIssueInfoFactory implements InfoFactory<Issue> {
         return Issue.class;
     }
 
-    public ManualIssueInfo asInfo(Issue manualIssue, Class<? extends DeviceInfo> deviceInfoClass) {
+    private ManualIssueInfo asInfo(Issue manualIssue, Class<? extends DeviceInfo> deviceInfoClass) {
         ManualIssueInfo info = new ManualIssueInfo(manualIssue, deviceInfoClass);
         return info;
     }

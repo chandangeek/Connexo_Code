@@ -12,7 +12,7 @@ import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.security.PrivilegesProviderV10_7;
+import com.elster.jupiter.issue.impl.database.PrivilegesProviderV10_7;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
