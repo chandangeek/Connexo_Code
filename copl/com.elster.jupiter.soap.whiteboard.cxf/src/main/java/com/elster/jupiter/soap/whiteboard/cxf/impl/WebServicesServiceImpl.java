@@ -7,6 +7,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
@@ -366,5 +367,11 @@ public class WebServicesServiceImpl implements WebServicesService {
             throw new IllegalStateException("Web service call occurrence isn't present.");
         }
         return tmp;
+    }
+
+    @Override
+    public OutboundEndPointProvider getProvider(String webServiceName){
+        OutboundEndPointProvider provider = (OutboundEndPointProvider) webServices.get(webServiceName).getEndPointProvider();
+        return provider;
     }
 }

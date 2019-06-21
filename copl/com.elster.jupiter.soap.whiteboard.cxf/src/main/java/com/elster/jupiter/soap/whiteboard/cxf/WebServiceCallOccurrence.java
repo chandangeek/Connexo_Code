@@ -29,6 +29,7 @@ public interface WebServiceCallOccurrence {
     void setStatus(WebServiceCallOccurrenceStatus status);
     void setPayload(String payload);
     void setApplicationName(String applicationName);
+    void retry();
 
     void save();
 

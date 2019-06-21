@@ -21,6 +21,15 @@ import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.ImmutableMap;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.namespace.QName;
+import javax.xml.transform.stream.StreamSource;
+import java.io.File;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -98,6 +107,39 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                     throws Throwable {
                                 MasterDataLinkageConfigEventMessageType message = invocation.getArgumentAt(0,
                                         MasterDataLinkageConfigEventMessageType.class);
+
+                                StringWriter stringWriter = new StringWriter();
+
+                                JAXBContext jaxbContext = JAXBContext.newInstance(MasterDataLinkageConfigEventMessageType.class);
+                                Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+                                // format the XML output
+                                jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
+                                        true);
+
+                                QName qName = new QName("com.codenotfound.jaxb.model", "car");
+                                JAXBElement<MasterDataLinkageConfigEventMessageType> root = new JAXBElement<>(qName, MasterDataLinkageConfigEventMessageType.class, message);
+
+                                jaxbMarshaller.marshal(root, stringWriter);
+
+                                String result = stringWriter.toString();
+
+                                System.out.println("MESSAGE = "+result);
+
+
+
+                                /* UNMARSHAAAAALLLLL */
+                                JAXBContext jaxbContext1 = JAXBContext.newInstance(MasterDataLinkageConfigEventMessageType.class);
+                                Unmarshaller jaxbUnmarshaller = jaxbContext1.createUnmarshaller();
+
+                                System.out.println("UNMURSHALLLL");
+                                JAXBElement<MasterDataLinkageConfigEventMessageType> root1 =
+                                                jaxbUnmarshaller.unmarshal(new StreamSource(new StringReader( result )), MasterDataLinkageConfigEventMessageType.class);
+
+                                MasterDataLinkageConfigEventMessageType msg = root1.getValue();
+
+
+
                                 assertNotNull(message);
                                 assertNotNull(message.getReply());
                                 assertEquals(ReplyType.Result.OK, message.getReply().getResult());

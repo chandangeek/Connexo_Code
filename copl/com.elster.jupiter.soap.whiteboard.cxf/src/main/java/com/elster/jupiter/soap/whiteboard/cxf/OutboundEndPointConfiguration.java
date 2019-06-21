@@ -15,4 +15,8 @@ public interface OutboundEndPointConfiguration extends EndPointConfiguration {
     void setPassword(String pass);
 
     String getPassword();
+
+    default void retryOccurrence(String method, String payload){
+        System.out.println("DEFAULT IMPLEMENTATION!!!!!");
+    }
 }

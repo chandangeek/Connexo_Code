@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.util.HasId;
@@ -168,5 +169,14 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         } else {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
+    }
+
+    @Override
+    public void retry(){
+        /*Here call retry method*/
+        //requestName
+
+        if (endPointConfiguration instanceof OutboundEndPointConfiguration)
+            ((OutboundEndPointConfiguration) endPointConfiguration).retryOccurrence(requestName, payload);
     }
 }

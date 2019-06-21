@@ -16,8 +16,14 @@ import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
 
 import javax.ws.rs.NotAuthorizedException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.ConnectException;
@@ -45,6 +51,8 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile WebServicesService webServicesService;
     private volatile TransactionService transactionService;
+
+    public Class messageType;
 
     private Map<Long, EP> endpoints = new ConcurrentHashMap<>();
 
@@ -191,10 +199,30 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                     .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
         }
 
+        @Override
+        public <T> void send(String message, Class<T> type){
+
+            JAXBContext jaxbContext;
+            Unmarshaller jaxbUnmarshaller = null;
+            JAXBElement<T> root;
+            try {
+                jaxbContext = JAXBContext.newInstance(type);
+                jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                root = jaxbUnmarshaller.unmarshal(new StreamSource(new StringReader( message)), type);
+                T msg = root.getValue();
+                this.send(msg);
+            } catch (JAXBException e) {
+                e.printStackTrace();
+            }
+        }
+
         private String getApplicationName() {
             return AbstractOutboundEndPointProvider.this instanceof ApplicationSpecific ?
                     ((ApplicationSpecific) AbstractOutboundEndPointProvider.this).getApplication() :
                     ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
         }
     }
+
+    @Override
+    abstract public void retryOccurrence(EndPointConfiguration endPointConfiguration, String method, String payload);
 }
