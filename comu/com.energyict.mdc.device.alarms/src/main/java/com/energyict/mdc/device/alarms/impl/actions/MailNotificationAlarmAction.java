@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.MailPropertyFactory;
@@ -97,7 +98,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
             return data;
 
     }
-    public static class MailTo implements HasName {
+    public static class MailTo extends HasIdAndName {
         private Optional<String> recipient;
 
 
@@ -107,17 +108,24 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         }
 
         @Override
-        public String getName() {
-            try {
-                JSONObject jsonId = new JSONObject();
-                jsonId.put("recipient", recipient.orElse(""));
-                return jsonId.toString();
-            } catch (JSONException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-            return "";
+        public Object getId() {
+         return recipient.get();
         }
-    }
+
+        @Override
+        public String getName() {
+                try {
+                    JSONObject jsonId = new JSONObject();
+                    jsonId.put("recipient", recipient.orElse(""));
+                    return jsonId.toString();
+                } catch (JSONException e) {
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+                return "";
+            }
+        }
+
+
         private class MailValueFactory implements ValueFactory<MailTo>, MailPropertyFactory {
 
             @Override
