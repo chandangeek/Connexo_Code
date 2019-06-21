@@ -6,6 +6,8 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -41,10 +43,12 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private String versionName;
     private Status status;
     private LogLevel logLevel;
+    private int priority;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
 //    @IsRegisteredHandler has been removed, as handlers who are not yet registered on the white board should not cause validation errors
     private String serviceCallHandler;
+    private Reference<DestinationSpec> destination = Reference.empty();
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
@@ -61,11 +65,13 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final IServiceCallService serviceCallService;
+    private final MessageService messageService;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel, IServiceCallService serviceCallService, Thesaurus thesaurus) {
+    public ServiceCallTypeImpl(DataModel dataModel, IServiceCallService serviceCallService, MessageService messageService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
+        this.messageService = messageService;
         this.thesaurus = thesaurus;
         this.status = Status.ACTIVE;
     }
@@ -79,7 +85,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         version("version"),
         currentLifeCycleState("currentLifeCycleState"),
         customPropertySets("customPropertySets"),
-        handler("serviceCallHandler");
+        handler("serviceCallHandler"),
+        destination("destination");
 
         private final String javaFieldName;
 
@@ -220,4 +227,28 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         dataModel.mapper(IServiceCallType.class).remove(this);
     }
 
+    @Override
+    public DestinationSpec getDestination() {
+        return destination.get();
+    }
+
+    @Override
+    public String getDestinationName() {
+        return destination.get().getName();
+    }
+
+    @Override
+    public void setDestination(DestinationSpec destination) {
+        this.destination.set(destination);
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
+    }
+
+    @Override
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 }

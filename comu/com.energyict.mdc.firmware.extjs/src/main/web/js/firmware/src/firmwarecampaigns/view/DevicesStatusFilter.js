@@ -9,30 +9,31 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesStatusFilter', {
 
     initComponent: function () {
         var me = this,
+            //TODO: format should be changed
             statusOptions = [
                 {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.successful', 'FWC', 'Successful'),
-                    value: 'success'
+                    value: 'SUCCESSFUL'
                 },
                 {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.failed', 'FWC', 'Failed'),
-                    value: 'failed'
+                    value: 'FAILED'
                 },
                 {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.configurationError', 'FWC', 'Configuration Error'),
-                    value: 'configurationError'
+                    value: 'REJECTED'
                 },
                 {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.ongoing', 'FWC', 'Ongoing'),
-                    value: 'ongoing'
+                    value: 'ONGOING'
                 },
                 {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.pending', 'FWC', 'Pending'),
-                    value: 'pending'
+                    value: 'PENDING'
                 },
                 {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.cancelled', 'FWC', 'Cancelled'),
-                    value: 'cancelled'
+                    value: 'CANCELLED'
                 }
             ];
 

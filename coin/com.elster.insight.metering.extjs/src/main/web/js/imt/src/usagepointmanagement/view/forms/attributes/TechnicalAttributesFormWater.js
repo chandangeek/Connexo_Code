@@ -84,8 +84,11 @@ Ext.define('Imt.usagepointmanagement.view.forms.attributes.TechnicalAttributesFo
                 },
                 renderer: function (data) {
                     var value;
-                    value = Ext.getStore('Imt.usagepointmanagement.store.BypassStatuses').getById(data);
-                    return value.get('displayValue');
+                    var value;
+                    if (!Ext.isEmpty(value)) {
+                        value = Ext.getStore('Imt.usagepointmanagement.store.BypassStatuses').getById(data).get('displayValue');
+                    }
+                    return value || '-';
                 }
             },
             {

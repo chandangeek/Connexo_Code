@@ -46,7 +46,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
                     itemId: 'firmware-campaign-devices',
                     router: router,
                     deviceType: record.get('deviceType'),
-                    campaignIsOngoing: record.get('status').id === 'ONGOING'
+                    //TODO: format should be changed
+                    campaignIsOngoing: record.get('status') === 'Ongoing'
                 }));
                 me.getSideMenu().setHeader(record.get('name'));
                 me.getApplication().fireEvent('loadFirmwareCampaign', record);
@@ -76,7 +77,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             url: url,
             method: 'PUT',
             success: function (response) {
-                me.doUpdateRecord(record, response.responseText);
+                if (response && response.responseText) me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.cancelled', 'FWC', 'Firmware upload for device cancelled'));
             }
         });
@@ -89,7 +90,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             url: url,
             method: 'PUT',
             success: function (response) {
-                me.doUpdateRecord(record, response.responseText);
+                if (response && response.responseText) me.doUpdateRecord(record, response.responseText);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceInFirmwareCampaign.retry', 'FWC', 'Firmware upload for device rescheduled'));
             }
         });

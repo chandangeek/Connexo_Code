@@ -15,6 +15,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -59,6 +60,8 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     MdcPropertyUtils mdcPropertyUtils;
     @Mock
     SecurityManagementService securityManagementService;
+    @Mock
+    FirmwareCampaignService firmwareCampaignService;
 
     @Override
     protected Application getApplication() {
@@ -70,6 +73,7 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
                 return classes;
             }
         };
+        when(firmwareService.getFirmwareCampaignService()).thenReturn(firmwareCampaignService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setDeviceConfigurationService(deviceConfigurationService);

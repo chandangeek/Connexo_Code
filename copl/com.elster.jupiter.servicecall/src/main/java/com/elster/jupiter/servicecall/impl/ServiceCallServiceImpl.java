@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
@@ -39,6 +40,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -84,8 +86,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
-    static final String SERVICE_CALLS_DESTINATION_NAME = "SerivceCalls";
-    static final String SERVICE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
+    static final String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
+    static final String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -94,6 +96,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private volatile JsonService jsonService;
     private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
     private volatile UserService userService;
+    private volatile AppService appService;
     private volatile UpgradeService upgradeService;
     private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
     private volatile Clock clock;
@@ -103,7 +106,9 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService, Clock clock) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService,
+                                  CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, AppService appService,
+                                  UpgradeService upgradeService, Clock clock) {
         this();
         sqlDialect = SqlDialect.H2;
         setFiniteStateMachineService(finiteStateMachineService);
@@ -113,6 +118,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         setMessageService(messageService);
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
+        setAppService(appService);
         setUpgradeService(upgradeService);
         setClock(clock);
         activate();
@@ -154,6 +160,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
     }
 
     @Reference
@@ -229,6 +240,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 bind(IServiceCallService.class).toInstance(ServiceCallServiceImpl.this);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(AppService.class).toInstance(appService);
                 bind(UserService.class).toInstance(userService);
                 bind(Clock.class).toInstance(clock);
             }
@@ -243,7 +255,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 7), UpgraderV10_7.class
                 ));
     }
 
@@ -267,6 +280,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
+    public Optional<DestinationSpec> getDefaultDestination() {
+        return messageService.getDestinationSpec(SERVICE_CALLS_DESTINATION_NAME);
+    }
+
+    @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
         return DefaultFinder.of(ServiceCallType.class, dataModel)
                 .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
@@ -274,8 +292,15 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel, thesaurus);
+    public Finder<ServiceCallType> getServiceCallTypes(DestinationSpec destinationSpec) {
+        return DefaultFinder.of(ServiceCallType.class, where(ServiceCallTypeImpl.Fields.destination.fieldName()).isEqualTo(destinationSpec), dataModel)
+                .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
+                .sorted(ServiceCallTypeImpl.Fields.version.fieldName(), true);
+    }
+
+    @Override
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, DestinationSpec destination) {
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, dataModel, thesaurus);
     }
 
     @Override
@@ -319,7 +344,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter filter) {
-         return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
+        return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
                 .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ", 0))", true)
                 .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }
@@ -338,7 +363,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
         sqlBuilder.append("SELECT fsm.NAME, scs.TOTAL FROM FSM_STATE fsm, ");
         sqlBuilder.append("(SELECT STATE, COUNT(*) TOTAL FROM SCS_SERVICE_CALL ");
-        sqlBuilder.append("WHERE id IN (SELECT id FROM " + TableSpecs.SCS_SERVICE_CALL  +" where parent=");
+        sqlBuilder.append("WHERE id IN (SELECT id FROM " + TableSpecs.SCS_SERVICE_CALL + " where parent=");
         sqlBuilder.append(id + ") ");
         sqlBuilder.append("GROUP BY STATE) scs ");
         sqlBuilder.append("WHERE fsm.ID = scs.STATE");
@@ -364,8 +389,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public DestinationSpec getServiceCallQueue() {
-        return messageService.getDestinationSpec(SERVICE_CALLS_DESTINATION_NAME).get();
+    public Optional<DestinationSpec> getServiceCallQueue(String destinationName) {
+        return messageService.getDestinationSpec(destinationName);
     }
 
     @Override
@@ -402,7 +427,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 DefaultState.PENDING,
                 DefaultState.SCHEDULED,
                 DefaultState.WAITING
-        );    }
+        );
+    }
 
     private Condition createConditionFromFilter(ServiceCallFilter filter) {
         Condition condition = Condition.TRUE;
@@ -455,5 +481,15 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         return states.stream()
                 .map(stateName -> where(ServiceCallImpl.Fields.state.fieldName() + ".name").isEqualTo(DefaultState.valueOf(stateName).getKey()))
                 .reduce(Condition.FALSE, Condition::or);
+    }
+
+    @Override
+    public List<DestinationSpec> getCompatibleQueues4() {
+        List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
+        String queueTypeName = SERVICE_CALLS_SUBSCRIBER_NAME;
+        return destinationSpecs.stream()
+                .filter(DestinationSpec::isExtraQueueCreationEnabled)
+                .filter(destinationSpec -> destinationSpec.getQueueTypeName().equals(queueTypeName))
+                .collect(Collectors.toList());
     }
 }

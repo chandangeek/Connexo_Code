@@ -4,11 +4,13 @@
 
 package com.elster.jupiter.servicecall;
 
-import com.elster.jupiter.domain.util.Finder;
-
 import aQute.bnd.annotation.ProviderType;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.messaging.DestinationSpec;
+
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +39,12 @@ public interface ServiceCallService {
      */
     Optional<ServiceCallLifeCycle> getDefaultServiceCallLifeCycle();
 
+    /**
+     * Returns the default service call type destination. This default model is installed upon bundle init.
+     * @return Will return empty if no init has been done yet
+     */
+    Optional<DestinationSpec> getDefaultDestination();
+
     ServiceCallLifeCycleBuilder createServiceCallLifeCycle(String name);
 
     /**
@@ -46,19 +54,34 @@ public interface ServiceCallService {
     Finder<ServiceCallType> getServiceCallTypes();
 
     /**
-     * Creates a new service call type, using provided name, version and life cycle. This method start a builder.
+     * Returns list of service call types with specified destination. This method supports paging.
+     * @return Finder
+     */
+    Finder<ServiceCallType> getServiceCallTypes(DestinationSpec destinationSpec);
+
+    /**
+     * Creates a new service call type, using provided name, version, life cycle and destination. This method start a builder.
      * @param name
      * @return
      */
-    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle);
+    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, DestinationSpec destination);
 
     /**
-     * Creates a new service call type, using provided name and version. The default life cycle is used. This method start a builder.
+     * Creates a new service call type, using provided name, version and life cycle. The default destination is used. This method start a builder.
+     * @param name
+     * @return
+     */
+    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, getDefaultDestination().get());
+    }
+
+    /**
+     * Creates a new service call type, using provided name and version. The default life cycle is used. The default destination is used. This method start a builder.
      * @param name
      * @return
      */
     default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
-        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get());
+        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), getDefaultDestination().get());
     }
 
     /**
@@ -143,4 +166,6 @@ public interface ServiceCallService {
     void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 
     Set<DefaultState> nonFinalStates();
+
+    List<DestinationSpec> getCompatibleQueues4();
 }

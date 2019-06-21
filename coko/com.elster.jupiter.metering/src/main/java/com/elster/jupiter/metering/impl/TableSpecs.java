@@ -348,6 +348,10 @@ public enum TableSpecs {
                     .map("usagepointLifeCycle")
                     .since(version(10, 3))
                     .add();
+
+            table.audit(MTR_USAGEPOINT.name())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.ordinal())
+                    .build();
         }
     },
     MTR_READINGTYPE {
@@ -724,6 +728,11 @@ public enum TableSpecs {
                     .reverseMap("detail")
                     .composition()
                     .add();
+
+            table.audit(MTR_USAGEPOINTDETAIL.name())
+                    .domainContext(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES.ordinal())
+                    .domainReferenceColumn("USAGEPOINTID")
+                    .build();
         }
     },
     MTR_USAGEPOINTSTATE {

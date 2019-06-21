@@ -6,6 +6,7 @@
 
 package com.elster.jupiter.audit.impl;
 
+import com.elster.jupiter.audit.ApplicationType;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrail;
@@ -179,7 +180,7 @@ public class AuditServiceImpl implements AuditService, TranslationKeyProvider {
     }
 
     @Override
-    public AuditTrailFilter newAuditTrailFilter() {
-        return new AuditTrailFilterImpl(threadPrincipalService, this);
+    public AuditTrailFilter newAuditTrailFilter(ApplicationType applicationType) {
+        return new AuditTrailFilterImpl(threadPrincipalService, applicationType, this);
     }
 }

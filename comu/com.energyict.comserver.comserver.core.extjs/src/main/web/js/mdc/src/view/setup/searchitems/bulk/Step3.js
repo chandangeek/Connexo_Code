@@ -21,7 +21,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
         'Isu.store.DueinTypes',
         'Isu.store.IssueWorkgroupAssignees',
         'Isu.store.UserList',
-        'Isu.view.issues.AddManuallyRuleItem'
+        'Isu.view.issues.AddManuallyRuleItem',
+        'Mdc.view.setup.searchitems.bulk.ZoneSelectionPanel',
     ],
 
     title: Uni.I18n.translate('searchItems.bulk.step3title', 'MDC', 'Step 3: Action details'),
@@ -200,8 +201,76 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                 itemId: 'issue-manually-creation-rules-item-add-bulk',
                 title: '',
                 bulkAction: true
+            },
+            {
+                xtype: 'form',
+                itemId: 'load-profile-panel',
+                hidden: true,
+                defaults: {
+                    labelWidth: 200
+                },
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'lp-selection',
+                        name: 'lp-id',
+                        fieldLabel: Uni.I18n.translate('searchItems.bulk.loadProfile', 'MDC', 'Load profile'),
+                        emptyText: Uni.I18n.translate('searchItems.bulk.selectLoadProfile', 'MDC', 'Select a load profile...'),
+                        required: true,
+                        width: 200 + 256,
+                        allowBlank: false,
+                        queryMode: 'local',
+                        store: 'Mdc.store.LoadProfilesOfDevice',
+                        displayField: 'name',
+                        valueField: 'id',
+                        listConfig: {
+                            loadMask: false
+                        }
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'lp-next-start',
+                        margin: '10 0 10 0',
+                        fieldLabel: Uni.I18n.translate('general.nextReadingBlockStart', 'MDC', 'Next reading block start'),
+                        required: true,
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'date-time',
+                                itemId: 'lp-date-picker',
+                                name: 'lp-msec',
+                                valueInMilliseconds: true,
+                                layout: 'hbox',
+                                labelAlign: 'left',
+                                style: {
+                                    border: 'none',
+                                    padding: 0,
+                                    marginBottom: '10px'
+                                },
+                                dateConfig: {
+                                    format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault),
+                                    width: 155
+                                },
+                                hoursConfig: {
+                                    width: 60
+                                },
+                                minutesConfig: {
+                                    width: 60
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'lp-no-lp-warning',
+                        fieldLabel: Uni.I18n.translate('searchItems.bulk.loadProfile', 'MDC', 'Load profile'),
+                        value: Uni.I18n.translate('searchItems.bulk.noLoadProfilesDefined', 'MDC', 'The device configuration has no load profiles defined.'),
+                        fieldStyle: 'color: #eb5642',
+                        required: true,
+                        hidden: true
+                    }
+                ]
             }
-
         ];
         me.callParent(arguments);
     },

@@ -7,6 +7,7 @@ package com.elster.jupiter.servicecall.impl;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
@@ -89,6 +91,14 @@ public enum TableSpecs {
                     .map(ServiceCallTypeImpl.Fields.currentLifeCycleState.fieldName())
                     .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
+            Column destinationColumn = table.column("DESTINATION").varChar(30).since(version(10, 7)).add();
+            table.foreignKey("FK_DESTINATION")
+                    .since(version(10, 7))
+                    .references(DestinationSpec.class)
+                    .on(destinationColumn)
+                    .map(ServiceCallTypeImpl.Fields.destination.fieldName())
+                    .add();
+            table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").since(version(10, 7)).add();
             table.addAuditColumns();
             table.foreignKey("FK_LIFECYCLE")
                     .references(ServiceCallLifeCycle.class)
