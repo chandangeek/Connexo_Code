@@ -39,7 +39,7 @@ public class IssueActionExecutor implements Runnable {
 
     @Override
     public void run() {
-        CreationRule rule = issue.getRule();
+        CreationRule rule = issue.getRule().orElse(null);
         if (rule == null) {
             return;
         }

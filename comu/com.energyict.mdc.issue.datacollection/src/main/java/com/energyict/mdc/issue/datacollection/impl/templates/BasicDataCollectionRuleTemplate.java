@@ -162,7 +162,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                     }));
         }
 
-        Optional<EventTypeInfo> newEventProps = openIssue.getRule()
+        Optional<EventTypeInfo> newEventProps = openIssue.getRule().get()
                 .getProperties()
                 .entrySet()
                 .stream()

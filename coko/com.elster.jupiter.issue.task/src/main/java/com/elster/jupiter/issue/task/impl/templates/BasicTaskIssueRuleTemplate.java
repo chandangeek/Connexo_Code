@@ -159,7 +159,7 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                         new IllegalArgumentException(TranslationKeys.ISSUE_REASON_TASKFAILED.getDefaultFormat()) {
                         }));
             }
-            Optional<RecurrenceSelectionInfo> recurrenceSelectionInfo = openIssue.getRule()
+            Optional<RecurrenceSelectionInfo> recurrenceSelectionInfo = openIssue.getRule().get()
                     .getProperties()
                     .entrySet()
                     .stream()

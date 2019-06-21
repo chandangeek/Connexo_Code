@@ -312,10 +312,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             DeviceAlarmEvent alarmEvent = (DeviceAlarmEvent) event;
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
             List<String> clearingEvents = new ArrayList<>();
-            alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
+            alarm.getRule().get().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
                     .findFirst().ifPresent(element ->
                     ((ArrayList<EventTypeInfo>) (element.getValue())).forEach(value -> clearingEvents.add(value.getName())));
-            Optional<RaiseEventPropsInfo> newEventProps = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
+            Optional<RaiseEventPropsInfo> newEventProps = alarm.getRule().get().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
                     .findFirst().map(found -> (RaiseEventPropsInfo) found.getValue());
             if (!clearingEvents.isEmpty() &&
                     alarmEvent.isClearing(clearingEvents)) {

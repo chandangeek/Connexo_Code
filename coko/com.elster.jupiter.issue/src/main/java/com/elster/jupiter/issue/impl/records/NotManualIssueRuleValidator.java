@@ -35,7 +35,7 @@ public class NotManualIssueRuleValidator implements ConstraintValidator<NotManua
     }
 
     private boolean ruleIsValid(IssueImpl issue) {
-        if (issue.getRule() == null) {
+        if (!issue.getRule().isPresent()) {
             if (issue.getType() != null && IssueService.MANUAL_ISSUE_TYPE.equals(issue.getType().getKey())) {
                 return true;
             } else {

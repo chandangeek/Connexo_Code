@@ -140,8 +140,8 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public CreationRule getRule() {
-        return rule.orNull();
+    public Optional<CreationRule> getRule() {
+        return rule.getOptional();
     }
 
     @Override

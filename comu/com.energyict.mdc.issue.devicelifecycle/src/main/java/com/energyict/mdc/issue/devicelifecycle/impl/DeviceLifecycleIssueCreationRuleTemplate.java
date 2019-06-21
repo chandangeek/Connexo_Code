@@ -205,7 +205,7 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                     new IllegalArgumentException(TranslationKeys.UNABLE_TO_UPDATE_TRANSITION_STATUS.getDefaultFormat()) {
                     }));
         }
-        Optional<RecurrenceSelectionInfo> newEventProps = openIssue.getRule()
+        Optional<RecurrenceSelectionInfo> newEventProps = openIssue.getRule().get()
                 .getProperties()
                 .entrySet()
                 .stream()

@@ -49,7 +49,7 @@ public interface Issue extends Entity {
 
     void setOverdue(boolean overdue);
 
-    CreationRule getRule();
+    Optional<CreationRule> getRule();
 
     void setRule(CreationRule rule);
 
