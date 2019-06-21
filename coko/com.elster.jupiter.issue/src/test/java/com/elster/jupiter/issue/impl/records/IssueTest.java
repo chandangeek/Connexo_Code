@@ -29,7 +29,7 @@ public class IssueTest extends BaseTest {
         issue.setPriority(Priority.DEFAULT);
         issue.setType(getIssueService().findIssueType(IssueService.MANUAL_ISSUE_TYPE).orElse(null));
         issue.save();
-        assertThat(issue.getRule()).isNull();
+        assertThat(issue.getRule().isPresent()).isFalse();
     }
 
     @Test
@@ -48,6 +48,6 @@ public class IssueTest extends BaseTest {
     @Transactional
     public void createIssueNotManualNotNullRuleSuccess() {
         OpenIssue issue = createIssueMinInfo();
-        assertThat(issue.getRule()).isNotNull();
+        assertThat(issue.getRule().isPresent()).isTrue();
     }
 }
