@@ -5,7 +5,7 @@
 Ext.define('Isu.model.IssueUsagePoints', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'usagePoint', type: 'auto'}
+        {name: 'name', type: 'auto'}
     ],
     idProperty: 'name',
 
@@ -14,6 +14,7 @@ Ext.define('Isu.model.IssueUsagePoints', {
         url: '/api/udr/usagepoints',
         reader: {
             type: 'json',
+            root: "usagePoints"
         }
     }
 });
