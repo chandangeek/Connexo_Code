@@ -463,7 +463,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     wizard.setLoading(false);
                 }
             });
-        } else if (me.operation == 'createmanualissue') {
+            break;
+        case 'createmanualissue':
             var mDeviceIds = [];
             var manualIssueBulk = '/api/isu/issues/bulkadd';
             if (me.allDevices) {
@@ -540,42 +541,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     wizard.setLoading(false);
                 }
             });
-        }
-        else if (me.operation != 'changeconfig') {
-            Ext.each(me.schedules, function (item) {
-                scheduleIds.push(item.getId());
-            });
-            Ext.each(me.devices, function (item) {
-                deviceIds.push(item.getId());
-            });
-            request.action = me.operation;
-            request.scheduleIds = scheduleIds;
-            request.strategy = me.strategy;
-            if (me.allDevices) {
-                var store = me.getDevicesGrid().getStore();
-                request.filter = store.getProxy().encodeFilters(store.filters.getRange());
-            } else {
-                request.deviceIds = deviceIds;
-            }
-            jsonData = Ext.encode(request);
-            Ext.Ajax.request({
-                url: url,
-                method: 'PUT',
-                jsonData: jsonData,
-                timeout: 180000,
-                success: function (response) {
-                    statusPage.showChangeDeviceConfigSuccess(
-                        me.buildFinalMessage()
-                    );
-                    finishBtn.enable();
-                    wizard.setLoading(false);
-                },
-                    failure: function () {
-                        finishBtn.enable();
-                        wizard.setLoading(false);
-                    }
-                });
-                break;
+            break;
             case 'add':
             case 'remove':
                 Ext.each(me.schedules, function (item) {
@@ -1004,76 +970,12 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 changeDeviceConfigForm = nextCmp.down('#change-device-configuration'),
                                 currentConfigField = nextCmp.down('#current-device-config-selection');
 
-                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
-                        nextCmp.down('#device-zone-add-panel').hide();
-                        nextCmp.down('#select-schedules-panel').hide();
-                        nextCmp.down('#bulk-start-processes-panel').hide();
-                        changeDeviceConfigForm.show();
-                        changeDeviceConfigForm.getForm().clearInvalid();
+                            changeDeviceConfigForm.show();
+                            changeDeviceConfigForm.getForm().clearInvalid();
 
                             var device = me.getDevicesGrid().getStore().getAt(0);
                             configStore.getProxy().setUrl({deviceType: me.deviceType});
 
-                        wizard.setLoading(true);
-                        configStore.clearFilter(false);
-                        configStore.addFilter([
-                            function (record) {
-                                return record.get('id') !== me.deviceConfigId && !record.get('dataloggerEnabled');
-                            }
-                        ]);
-                        configStore.load(function (operation, success) {
-                            var deviceConfig = this.getById(me.deviceConfigId);
-                            currentConfigField.setValue(deviceConfig.get('name'));
-                            if (success && (configStore.getCount() < 1)) {
-                                wizard.down('#nextButton').disable();
-                                nextCmp.down('#new-device-config-selection').hide();
-                                nextCmp.down('#no-device-configuration').show();
-                            } else {
-                                wizard.down('#nextButton').enable();
-                                nextCmp.down('#new-device-config-selection').show();
-                                nextCmp.down('#no-device-configuration').hide();
-                            }
-                            if (configStore.getCount() === 1) {
-                                wizard.down('#new-device-config-selection').setValue(this.getAt(0).get('id'));
-                                wizard.down('#nextButton').enable();
-                            }
-                            wizard.setLoading(false);
-                        });
-                    } else if(me.operation == 'startprocess') {
-                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
-                        nextCmp.down('#select-schedules-panel').hide();
-                        nextCmp.down('#change-device-configuration').hide();
-                        nextCmp.down('#device-zone-add-panel').hide();
-                        nextCmp.down('#bulk-start-processes-panel').show();
-                        nextCmp.down('#bulk-start-processes-panel').loadAvailableProcessesStore(function (visible) {
-                            wizard.down('#nextButton').setDisabled(visible);
-                        });
-
-                    }
-                    else if(me.operation == 'addToZone' || me.operation == 'removeFromZone'){
-                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
-                        nextCmp.down('#select-schedules-panel').hide();
-                        nextCmp.down('#change-device-configuration').hide();
-                        nextCmp.down('#bulk-start-processes-panel').hide();
-
-                        var zoneTypesStore = me.getStore('Cfg.zones.store.ZoneTypes');
-                        zoneTypesStore.load(function (operation, success) {
-                            nextCmp.down('#device-zone-add-panel').show();
-                        });
-                    }
-                     else if(me.operation == 'createmanualissue'){
-                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').show();
-                        nextCmp.down('#select-schedules-panel').hide();
-                        nextCmp.down('#change-device-configuration').hide();
-                        nextCmp.down('#bulk-start-processes-panel').hide();
-                        nextCmp.down('#device-zone-add-panel').hide();
-                    }
-                     else {
-                        nextCmp.down('#select-schedules-panel').show();
-                        nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
-                        nextCmp.down('#change-device-configuration').hide();
-                        nextCmp.down('#bulk-start-processes-panel').hide();
-                        nextCmp.down('#device-zone-add-panel').hide();
                             wizard.setLoading(true);
                             configStore.clearFilter(false);
                             configStore.addFilter([
@@ -1117,6 +1019,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         case 'remove':
                             nextCmp.down('#select-schedules-panel').show();
                             break;
+                        case 'createmanualissue':
+                            nextCmp.down('#issue-manually-creation-rules-item-add-bulk').show();
+                        break;
                         case 'changeLoadProfileStart':
                             nextCmp.down('#load-profile-panel').show();
                             nextCmp.down('#load-profile-panel').getForm().clearInvalid();
@@ -1243,8 +1148,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         formErrorsPanelZone.show();
                         me.validation = false;
                     }
-
-                } else if (me.operation == 'createmanualissue') {
+                    break;
+                case 'createmanualissue':
                     var form = currentCmp.down('#issue-manually-creation-rules-item-add-bulk').down('form');
                     var formErrorsManualIssue = form.down('#form-errors');
                     var comboReason = form.down('#issueReason');
@@ -1268,33 +1173,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             if (deviceData && deviceData.searchResults) me.allDevicesCnt = deviceData.searchResults.length;
                         }
                     }
-
-                }else if (me.operation != 'changeconfig') {
-                    me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
-                    errorPanel = currentCmp.down('#step3-errors');
-                    me.validation = me.schedules.length;
-                }  else {
-                    var form = currentCmp.down('#change-device-configuration');
-                    me.validation = currentCmp.down('#change-device-configuration').isValid();
-                    me.validation && (me.configData = form.getValues());
-                    me.configNames = {
-                        fromconfig: form.down('#current-device-config-selection').getRawValue(),
-                        toconfig: form.down('#new-device-config-selection').getRawValue()
-                    };
-                    errorPanel = currentCmp.down('#step3-errors');
-                    errorContainer = null;
-                }
-
-                            me.validation = true;
-                            me.zoneName = me.getDeviceZoneForm().down("#zone-name").getRawValue();
-                            me.zoneTypeName = me.getDeviceZoneForm().down("#zone-type").getRawValue();
-                            if (me.operation == 'addToZone' && nextCmp.name == 'confirmPage')//to avoid sending the rest when click on back button
-                                me.devicesWithZoneTypeAlreadyDefined();
-                        } else {
-                            formErrorsPanelZone.show();
-                            me.validation = false;
-                        }
-                        break;
+                    break;
                     case 'add':
                     case 'remove':
                         me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
@@ -1333,11 +1212,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             switch (nextCmp.name) {
                 case 'confirmPage':
                     switch (me.operation) {
-                        case 'addToZone':
-                        case 'removeFromZone':
-                            nextCmp.showMessage(me.buildConfirmMessage());
-                            wizard.down('#confirmButton').enable();
-                            break;
                         case 'add':
                         case 'remove':
                             nextCmp.showMessage(me.buildConfirmMessage());
@@ -1383,10 +1257,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 }
                             });
                             break;
-                        case 'changeLoadProfileStart':
+                        default:
                             nextCmp.showMessage(me.buildConfirmMessage());
                             wizard.down('#confirmButton').enable();
                             break;
+
                     }
                     break;
                 case 'statusPage':
@@ -1678,9 +1553,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             case 'changeLoadProfileStart':
                 bodyText = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartConfirmMsg', 'MDC', 'Next reading block start will be changed for selected load profile for selected devices.');
                 break;
-                case 'createmanualissue':
-                    bodyText = ' ';
-                    break;
+            case 'createmanualissue':
+                bodyText = ' ';
+                break;
         }
 
         message = {
