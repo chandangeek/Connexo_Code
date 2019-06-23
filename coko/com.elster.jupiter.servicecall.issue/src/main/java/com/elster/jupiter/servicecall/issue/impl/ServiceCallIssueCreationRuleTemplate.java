@@ -14,30 +14,21 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.ServiceCallInfoPropertyFactory;
-import com.elster.jupiter.properties.rest.ServiceCallStateInfoPropertyFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
 import com.elster.jupiter.servicecall.issue.OpenIssueServiceCall;
 import com.elster.jupiter.servicecall.issue.TranslationKeys;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -144,30 +135,34 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
-                propertySpecService.specForValuesOf(new ServiceCallStateInfoValueFactory())
-                .named(TranslationKeys.SERVICE_CALL_TYPE_STATE)
-                .fromThesaurus(thesaurus)
-                .markRequired()
-                .markMultiValued(":")
-                .addValues(Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen()).map(defaultState -> new DefaultStateInfo(defaultState, thesaurus)).collect(Collectors.toList()))
-                .markExhaustive(PropertySelectionMode.LIST)
-                .finish());
-        builder.add(
-                propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory())
+                propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory(serviceCallService))
                         .named(TranslationKeys.SERVICE_CALL_TYPE_HANDLER)
                         .describedAs(TranslationKeys.SERVICE_CALL_TYPE_HANDLER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markRequired()
-                        .markMultiValued(",")
-                        .addValues(serviceCallService.getServiceCallTypes().stream().map(ServiceCallTypeInfo::new).toArray(ServiceCallTypeInfo[]::new))
+                        .markMultiValued(ServiceCallInfoValueFactory.SEPARATOR)
+                        .addValues(serviceCallService.getServiceCallTypes().stream().filter(this::getServiceCallTypeFilter).map(ServiceCallTypeInfo::new).toArray(ServiceCallTypeInfo[]::new))
                         .markExhaustive(PropertySelectionMode.LIST)
                         .finish());
+        builder.add(
+                propertySpecService.specForValuesOf(new ServiceCallStateInfoValueFactory(thesaurus))
+                .named(TranslationKeys.SERVICE_CALL_TYPE_STATE)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .markMultiValued(ServiceCallStateInfoValueFactory.SEPARATOR)
+                .addValues(Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen()).map(defaultState -> new DefaultStateInfo(defaultState, thesaurus)).collect(Collectors.toList()))
+                .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
         return builder.build();
+    }
+
+    private boolean getServiceCallTypeFilter(ServiceCallType serviceCallType) {
+        return appKey.map(s -> s.equals(serviceCallType.reservedByApplication().orElse(null))).orElse(true);
     }
 
     @Override
     public IssueType getIssueType() {
-        return issueService.findIssueType(IssueServiceCallService.ISSUE_TYPE_NAME).get();
+        return issueService.findIssueType(IssueServiceCallService.ISSUE_TYPE_NAME).orElse(null);
     }
 
     @Override
@@ -182,7 +177,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
             OpenIssueServiceCall issueDataValidation = (OpenIssueServiceCall) issue.get();
             event.apply(issueDataValidation);
             if (issueDataValidation.getNotEstimatedBlocks().isEmpty()) {
-                return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
+                return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).orElse(null)));
             } else {
                 issueDataValidation.update();
                 return Optional.of(issueDataValidation);
@@ -193,177 +188,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public void setAppKey(String appKey) {
-        this.appKey = Optional.of(appKey);
+        this.appKey = Optional.of("MDC".equals(appKey) ? "MultiSense" : appKey);
     }
 
-
-    private class ServiceCallStateInfoValueFactory implements ValueFactory<HasIdAndName>, ServiceCallStateInfoPropertyFactory {
-        @Override
-        public HasIdAndName fromStringValue(String stringValue) {
-            return serviceCallService.getServiceCallTypes().stream().filter(serviceCallType -> String.valueOf(serviceCallType.getId()).equals(stringValue))
-                    .map(ServiceCallTypeInfo::new).findFirst().orElse(null);
-        }
-
-        @Override
-        public String toStringValue(HasIdAndName object) {
-            return object.getName();
-        }
-
-        @Override
-        public Class<HasIdAndName> getValueType() {
-            return HasIdAndName.class;
-        }
-
-        @Override
-        public HasIdAndName valueFromDatabase(Object object) {
-            return this.fromStringValue((String) object);
-        }
-
-        @Override
-        public Object valueToDatabase(HasIdAndName object) {
-            return this.toStringValue(object);
-        }
-
-        @Override
-        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws SQLException {
-            if (value != null) {
-                statement.setObject(offset, valueToDatabase(value));
-            } else {
-                statement.setNull(offset, Types.VARCHAR);
-            }
-        }
-
-        @Override
-        public void bind(SqlBuilder builder, HasIdAndName value) {
-            if (value != null) {
-                builder.addObject(valueToDatabase(value));
-            } else {
-                builder.addNull(Types.VARCHAR);
-            }
-        }
-    }
-
-    private class ServiceCallInfoValueFactory implements ValueFactory<HasIdAndName>, ServiceCallInfoPropertyFactory {
-        @Override
-        public HasIdAndName fromStringValue(String stringValue) {
-            return serviceCallService.getServiceCallTypes().stream().filter(serviceCallType -> String.valueOf(serviceCallType.getId()).equals(stringValue))
-                    .map(ServiceCallTypeInfo::new).findFirst().orElse(null);
-        }
-
-        @Override
-        public String toStringValue(HasIdAndName object) {
-            return object.getName();
-        }
-
-        @Override
-        public Class<HasIdAndName> getValueType() {
-            return HasIdAndName.class;
-        }
-
-        @Override
-        public HasIdAndName valueFromDatabase(Object object) {
-            return this.fromStringValue((String) object);
-        }
-
-        @Override
-        public Object valueToDatabase(HasIdAndName object) {
-            return this.toStringValue(object);
-        }
-
-        @Override
-        public void bind(PreparedStatement statement, int offset, HasIdAndName value) throws SQLException {
-            if (value != null) {
-                statement.setObject(offset, valueToDatabase(value));
-            } else {
-                statement.setNull(offset, Types.VARCHAR);
-            }
-        }
-
-        @Override
-        public void bind(SqlBuilder builder, HasIdAndName value) {
-            if (value != null) {
-                builder.addObject(valueToDatabase(value));
-            } else {
-                builder.addNull(Types.VARCHAR);
-            }
-        }
-    }
-
-    @XmlRootElement
-    static class ServiceCallTypeInfo extends HasIdAndName {
-
-        private transient ServiceCallType serviceCallType;
-
-        ServiceCallTypeInfo(ServiceCallType serviceCallType) {
-            this.serviceCallType = serviceCallType;
-        }
-
-        @Override
-        public Long getId() {
-            return serviceCallType.getId();
-        }
-
-        @Override
-        public String getName() {
-            return serviceCallType.getName();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this != o) {
-                return false;
-            }
-            if (getClass() != o.getClass()) {
-                return false;
-            }
-            return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + Long.hashCode(serviceCallType.getId());
-            return result;
-        }
-    }
-
-    @XmlRootElement
-    static class DefaultStateInfo extends HasIdAndName {
-
-        private transient DefaultState defaultState;
-        private transient Thesaurus thesaurus;
-
-        DefaultStateInfo(DefaultState defaultState, Thesaurus thesaurus) {
-            this.defaultState = defaultState;
-            this.thesaurus = thesaurus;
-        }
-
-        @Override
-        public Long getId() {
-            return (long) defaultState.ordinal();
-        }
-
-        @Override
-        public String getName() {
-            return defaultState.getDisplayName(thesaurus);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this != o) {
-                return false;
-            }
-            if (getClass() != o.getClass()) {
-                return false;
-            }
-            return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + Long.hashCode(defaultState.ordinal());
-            return result;
-        }
-    }
 }

@@ -50,7 +50,6 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private String appKey;
-    private Optional<String> reservedByApplication = Optional.empty();
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
@@ -181,10 +180,7 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public Optional<String> reservedByApplication() {
-        if (appKey != null && !reservedByApplication.isPresent()) {
-            reservedByApplication = Optional.of(appKey);
-        }
-        return reservedByApplication;
+        return Optional.ofNullable(appKey);
     }
 
     @Override
