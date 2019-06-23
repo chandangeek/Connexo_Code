@@ -22,7 +22,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
 import com.elster.jupiter.servicecall.issue.OpenIssueServiceCall;
-import com.elster.jupiter.servicecall.issue.TranslationKeys;
+import com.elster.jupiter.servicecall.issue.impl.i18n.TranslationKeys;
 
 import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;

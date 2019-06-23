@@ -4,10 +4,24 @@
 
 package com.elster.jupiter.servicecall.issue.impl.i18n;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
-    START_PROCESS_ACTION("issue.action.startProcess", "Start process");
+    START_PROCESS_ACTION("issue.action.startProcess", "Start process"),
+    START_PROCESS_ACTION_PROCESS("issue.action.process", "Process"),
+    START_PROCESS_ACTION_SELECT_PROCESS("issue.action.select_process", "Select process"),
+    SERVICE_CALL_ISSUE_TYPE("ServiceCallIssueType", "Service Call"),
+    SERVICE_CALL_ISSUE_FAILED_REASON("ServiceCallIssueFailedReason", "Service call failed"),
+    SERVICE_CALL_ISSUE_FAILED_REASON_DESCRIPTION("ServiceCallIssueFailedReasonDescription", "Service call failed on {0}"),
+    SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON("ServiceCallIssuePartialSucceedReason", "Service call partial succeed"),
+    SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON_DESCRIPTION("ServiceCallIssuePartialSucceedReasonDescription", "Service call partial succeed description"),
+    SERVICE_CALL_TYPE_HANDLER("ServiceCallTypeHandler", "Service call handler name"),
+    SERVICE_CALL_TYPE_HANDLER_DESCRIPTION("ServiceCallTypeHandlerDescription", "Service call handler description"),
+    SERVICE_CALL_TYPE_STATE("ServiceCallTypeState", "Service call state"),
+
+    SERVICE_CALL_ISSUE_RULE_TEMPLATE_NAME("ServiceCallIssueRuleTemplateName", "State change"),
+    SERVICE_CALL_ISSUE_RULE_TEMPLATE_DESCRIPTION("ServiceCallIssueRuleTemplateDescription", "State change");
 
     private final String key;
     private final String defaultFormat;
@@ -27,4 +41,7 @@ public enum TranslationKeys implements TranslationKey {
         return this.defaultFormat;
     }
 
+    public String getTranslated(Thesaurus thesaurus) {
+        return thesaurus.getFormat(this).format();
+    }
 }
