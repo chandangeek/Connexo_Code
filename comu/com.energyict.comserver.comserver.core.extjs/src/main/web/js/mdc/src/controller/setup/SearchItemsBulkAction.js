@@ -478,7 +478,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
             } else {
                 Ext.each(me.devices, function (item) {
-                    mDeviceNames.push(item.getName());
+                    mDeviceNames.push(item.get('name'));
                 });
             }
             var form = me.getManualIssueForm(),
