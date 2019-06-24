@@ -64,7 +64,6 @@ public class TaskIssueApplication extends Application implements MessageSeedProv
     private volatile JsonService jsonService;
     private volatile BpmService bpmService;
     private volatile PropertyValueInfoService propertyValueInfoService;
-    private volatile IssueResourceHelper issueResourceHelper;
     private volatile MeteringGroupsService meteringGroupsService;
 
     public TaskIssueApplication() {
@@ -79,11 +78,6 @@ public class TaskIssueApplication extends Application implements MessageSeedProv
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
-    }
-
-    @Reference
-    public void setIssueResourceHelper(IssueResourceHelper issueResourceHelper) {
-        this.issueResourceHelper = issueResourceHelper;
     }
 
     @Reference
