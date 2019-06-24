@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.servicecall.issue.impl.action;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
@@ -17,7 +19,6 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.issue.impl.i18n.TranslationKeys;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -30,21 +31,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StartProcessAction extends AbstractIssueAction {
 
     private static final String NAME = "StartProcessAction";
 
     private final IssueService issueService;
-    private final ThreadPrincipalService threadPrincipalService;
+    private final BpmService bpmService;
 
     @Inject
-    protected StartProcessAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, ThreadPrincipalService threadPrincipalService) {
+    protected StartProcessAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, BpmService bpmService) {
         super(dataModel, thesaurus, propertySpecService);
         this.issueService = issueService;
-        this.threadPrincipalService = threadPrincipalService;
+        this.bpmService = bpmService;
     }
 
     @Override
@@ -57,19 +58,19 @@ public class StartProcessAction extends AbstractIssueAction {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
-        List<HasIdAndName> fakeProcessInfos = new ArrayList<>();
-        fakeProcessInfos.add(new ProcessInfo(1, "Fake process 1"));
-        fakeProcessInfos.add(new ProcessInfo(2, "Fake process 2"));
-        fakeProcessInfos.add(new ProcessInfo(3, "Fake process 3"));
-
+        List<HasIdAndName> processInfos = bpmService.getBpmProcessDefinitions().stream().filter(this::getBpmProcessDefinitionFilter).map(ProcessInfo::new).collect(Collectors.toList());
         builder.add(
                 getPropertySpecService().specForValuesOf(new ProcessInfoValueFactory())
                         .named(TranslationKeys.START_PROCESS_ACTION_PROCESS)
                         .fromThesaurus(getThesaurus())
                         .markRequired()
-                        .addValues(fakeProcessInfos)
+                        .addValues(processInfos)
                         .finish());
         return builder.build();
+    }
+
+    private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition){
+        return true;
     }
 
     @Override
@@ -96,7 +97,7 @@ public class StartProcessAction extends AbstractIssueAction {
 
         @Override
         public HasIdAndName fromStringValue(String stringValue) {
-            return new ProcessInfo(1, stringValue);
+            return new ProcessInfo(bpmService.findBpmProcessDefinition(Integer.valueOf(stringValue)).orElse(null));
         }
 
         @Override
@@ -141,41 +142,20 @@ public class StartProcessAction extends AbstractIssueAction {
     @XmlRootElement
     class ProcessInfo extends HasIdAndName {
 
-        private String name;
-        private int id;
+        private BpmProcessDefinition processDefinition;
 
-        ProcessInfo(int id, String name) {
-            this.id = id;
-            this.name = name;
+        ProcessInfo(BpmProcessDefinition processDefinition) {
+            this.processDefinition = processDefinition;
         }
 
         @Override
-        public Integer getId() {
-           return id;
+        public Long getId() {
+           return processDefinition.getId();
         }
 
         @Override
         public String getName() {
-            return name;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this != o) {
-                return false;
-            }
-            if (getClass() != o.getClass()) {
-                return false;
-            }
-            return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + Integer.hashCode(id);
-            return result;
+            return processDefinition.getProcessName();
         }
     }
-
 }

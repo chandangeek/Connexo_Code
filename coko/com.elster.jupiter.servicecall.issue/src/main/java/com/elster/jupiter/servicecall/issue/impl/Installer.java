@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
 import com.elster.jupiter.servicecall.issue.ModuleConstants;
-import com.elster.jupiter.servicecall.issue.ServiceCallActionsFactory;
 import com.elster.jupiter.servicecall.issue.impl.action.FailedAction;
 import com.elster.jupiter.servicecall.issue.impl.action.PartialSucceedAction;
 import com.elster.jupiter.servicecall.issue.impl.action.StartProcessAction;
@@ -84,8 +83,8 @@ class Installer implements FullInstaller {
         IssueReason serviceCallPartialSucceed = issueService.createReason(ModuleConstants.REASON_PARTIAL_SUCCEED, issueType,
                 TranslationKeys.SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON, TranslationKeys.SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON_DESCRIPTION);
 
-        issueActionService.createActionType(ServiceCallActionsFactory.ID, FailedAction.class.getName(), serviceCallFailed);
-        issueActionService.createActionType(ServiceCallActionsFactory.ID, PartialSucceedAction.class.getName(), serviceCallPartialSucceed);
+        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, FailedAction.class.getName(), serviceCallFailed);
+        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, PartialSucceedAction.class.getName(), serviceCallPartialSucceed);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, StartProcessAction.class.getName(), issueType, CreationRuleActionPhase.CREATE);
     }
 
