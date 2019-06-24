@@ -293,29 +293,21 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.empty();
         }
     },
-    DataConcentratorMulticastFirmwareUpgrade(5020, "Multicast firmware upgrade (Data concentrator mode)") {
+    MulticastFirmwareUpgradeKSMW(5020, "Multicast firmware upgrade (pre-established client)") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, deviceIdsAttributeName, deviceIdsAttributeDefaultTranslation),
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.getFirmwareIdentifierPropertySpec(service).get(),
-                     this.bigDecimalSpecWithDefaultValue(service, UnicastClientWPort, UnicastClientWPortDefaultTranslation, BigDecimal.ONE),
-                    this.bigDecimalSpecWithDefaultValue(service, BroadcastClientWPort, BroadcastClientWPortDefaultTranslation, BigDecimal.valueOf(64)),
-                    this.bigDecimalSpecWithDefaultValue(service, MulticastClientWPort, MulticastClientWPortDefaultTranslation, BigDecimal.valueOf(102)),
+                    this.bigDecimalSpecWithDefaultValue(service, RequestedBlockSize, RequestedBlockSizeDefaultTranslation, BigDecimal.valueOf(330)),
+                    this.bigDecimalSpecWithDefaultValue(service, MulticastGroup, MulticastGroupDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpecWithDefaultValue(service, UdpMeterPort, UdpMeterPortDefaultTranslation, BigDecimal.valueOf(61616)),
                     this.bigDecimalSpecWithDefaultValue(service, LogicalDeviceLSap, LogicalDeviceLSapDefaultTranslation, BigDecimal.ONE),
-                    this.bigDecimalSpecWithDefaultValue(service, SecurityLevelUnicast, SecurityLevelUnicastDefaultTranslation, BigDecimal.valueOf(3)),
-                    this.bigDecimalSpecWithDefaultValue(service, SecurityLevelBroadcast, SecurityLevelBroadcastDefaultTranslation, BigDecimal.valueOf(3)),
-                    this.bigDecimalSpecWithDefaultValue(service, SecurityPolicyBroadcast, SecurityPolicyBroadcastDefaultTranslation, BigDecimal.ZERO),
-                    this.durationSpec(service, DelayAfterLastBlock, DelayAfterLastBlockDefaultTranslation, Duration.ofSeconds(5)),
-                    this.durationSpec(service, DelayPerBlock, DelayPerBlockDefaultTranslation, Duration.ofSeconds(4)),
-                    this.durationSpec(service, DelayBetweenBlockSentFast, DelayBetweenBlockSentFastDefaultTranslation, Duration.ofMillis(250)),
-                    this.durationSpec(service, DelayBetweenBlockSentSlow, DelayBetweenBlockSentSlowDefaultTranslation, Duration.ofMillis(500)),
-                    this.bigDecimalSpecWithDefaultValue(service, BlocksPerCycle, BlocksPerCycleDefaultTranslation, BigDecimal.valueOf(30)),
+                    this.bigDecimalSpecWithDefaultValue(service, MulticastClientWPort, MulticastClientWPortDefaultTranslation, BigDecimal.valueOf(3)),
                     this.bigDecimalSpecWithDefaultValue(service, MaxCycles, MaxCyclesDefaultTranslation, BigDecimal.ONE),
-                    this.bigDecimalSpec(service, RequestedBlockSize, RequestedBlockSizeDefaultTranslation, BigDecimal.valueOf(1024)),
                     this.booleanSpec(service, PadLastBlock, PadLastBlockDefaultTranslation, Boolean.FALSE),
-                    this.booleanSpec(service, UseTransferredBlockStatus, UseTransferredBlockStatusDefaultTranslation, Boolean.TRUE)
+                    this.durationSpec(service, DelayBetweenBlockSentSlow, DelayBetweenBlockSentSlowDefaultTranslation, Duration.ofMillis(100)),
+                    this.durationSpec(service, DelayAfterLastBlock, DelayAfterLastBlockDefaultTranslation, Duration.ofSeconds(5))
             );
         }
 
@@ -583,6 +575,42 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Optional.empty();
         }
 
+    },
+    DataConcentratorMulticastFirmwareUpgrade(5037, "Multicast firmware upgrade (Data concentrator mode)") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, deviceIdsAttributeName, deviceIdsAttributeDefaultTranslation),
+                    this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
+                    this.getFirmwareIdentifierPropertySpec(service).get(),
+                    this.bigDecimalSpecWithDefaultValue(service, UnicastClientWPort, UnicastClientWPortDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpecWithDefaultValue(service, BroadcastClientWPort, BroadcastClientWPortDefaultTranslation, BigDecimal.valueOf(64)),
+                    this.bigDecimalSpecWithDefaultValue(service, MulticastClientWPort, MulticastClientWPortDefaultTranslation, BigDecimal.valueOf(102)),
+                    this.bigDecimalSpecWithDefaultValue(service, LogicalDeviceLSap, LogicalDeviceLSapDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpecWithDefaultValue(service, SecurityLevelUnicast, SecurityLevelUnicastDefaultTranslation, BigDecimal.valueOf(3)),
+                    this.bigDecimalSpecWithDefaultValue(service, SecurityLevelBroadcast, SecurityLevelBroadcastDefaultTranslation, BigDecimal.valueOf(3)),
+                    this.bigDecimalSpecWithDefaultValue(service, SecurityPolicyBroadcast, SecurityPolicyBroadcastDefaultTranslation, BigDecimal.ZERO),
+                    this.durationSpec(service, DelayAfterLastBlock, DelayAfterLastBlockDefaultTranslation, Duration.ofSeconds(5)),
+                    this.durationSpec(service, DelayPerBlock, DelayPerBlockDefaultTranslation, Duration.ofSeconds(4)),
+                    this.durationSpec(service, DelayBetweenBlockSentFast, DelayBetweenBlockSentFastDefaultTranslation, Duration.ofMillis(250)),
+                    this.durationSpec(service, DelayBetweenBlockSentSlow, DelayBetweenBlockSentSlowDefaultTranslation, Duration.ofMillis(500)),
+                    this.bigDecimalSpecWithDefaultValue(service, BlocksPerCycle, BlocksPerCycleDefaultTranslation, BigDecimal.valueOf(30)),
+                    this.bigDecimalSpecWithDefaultValue(service, MaxCycles, MaxCyclesDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpec(service, RequestedBlockSize, RequestedBlockSizeDefaultTranslation, BigDecimal.valueOf(1024)),
+                    this.booleanSpec(service, PadLastBlock, PadLastBlockDefaultTranslation, Boolean.FALSE),
+                    this.booleanSpec(service, UseTransferredBlockStatus, UseTransferredBlockStatusDefaultTranslation, Boolean.TRUE)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
+        }
+
+        @Override
+        public Optional<PropertySpec> getFirmwareIdentifierPropertySpec(PropertySpecService service) {
+            return Optional.of(this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation));
+        }
     };
 
     private final long id;

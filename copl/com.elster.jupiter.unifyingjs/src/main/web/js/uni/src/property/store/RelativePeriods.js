@@ -10,6 +10,8 @@ Ext.define('Uni.property.store.RelativePeriods', {
     proxy: {
         type: 'rest',
         url: '../../api/tmr/relativeperiods',
+        limitParam:false,
+        pageParam:false,
         reader: {
             type: 'json',
             root: 'data'
