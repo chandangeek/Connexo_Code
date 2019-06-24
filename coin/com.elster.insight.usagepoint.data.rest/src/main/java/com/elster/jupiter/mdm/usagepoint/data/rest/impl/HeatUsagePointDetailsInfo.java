@@ -57,13 +57,13 @@ public class HeatUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
     public boolean isEqual(UsagePoint usagePoint, Clock clock){
         return usagePoint.getDetail(clock.instant())
                 .map(upd -> {
-                    GasUsagePointDetailsInfo detail = (GasUsagePointDetailsInfo)upd;
-                    return isEqual(collar, detail.collar) &&
-                            isEqual(pressure, detail.pressure) &&
-                            isEqual(physicalCapacity, detail.physicalCapacity) &&
-                            isEqual(bypass, detail.bypass) &&
-                            isEqual(bypassStatus, detail.bypassStatus) &&
-                            isEqual(valve, detail.valve);
+                    HeatDetail detail = (HeatDetail)upd;
+                    return isEqual(collar, detail.isCollarInstalled()) &&
+                            isEqual(pressure, detail.getPressure()) &&
+                            isEqual(physicalCapacity, detail.getPhysicalCapacity()) &&
+                            isEqual(bypass, detail.isBypassInstalled()) &&
+                            isEqual(bypassStatus, detail.getBypassStatus()) &&
+                            isEqual(valve, detail.isValveInstalled());
                 })
                 .orElseGet(() -> false);
     }

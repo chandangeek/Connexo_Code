@@ -74,19 +74,19 @@ public class WaterUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
     public boolean isEqual(UsagePoint usagePoint, Clock clock){
         return usagePoint.getDetail(clock.instant())
                 .map(upd -> {
-                    GasUsagePointDetailsInfo detail = (GasUsagePointDetailsInfo)upd;
-                    return isEqual(collar, detail.collar) &&
-                            isEqual(grounded, detail.grounded) &&
-                            isEqual(pressure, detail.pressure) &&
-                            isEqual(physicalCapacity, detail.physicalCapacity) &&
-                            isEqual(limiter, detail.limiter) &&
-                            isEqual(loadLimiterType, detail.loadLimiterType) &&
-                            isEqual(loadLimit, detail.loadLimit) &&
-                            isEqual(bypass, detail.bypass) &&
-                            isEqual(bypassStatus, detail.bypassStatus) &&
-                            isEqual(valve, detail.valve) &&
-                            isEqual(capped, detail.capped) &&
-                            isEqual(clamped, detail.clamped);
+                    WaterDetail detail = (WaterDetail)upd;
+                    return isEqual(collar, detail.isCollarInstalled()) &&
+                            isEqual(grounded, detail.isGrounded()) &&
+                            isEqual(pressure, detail.getPressure()) &&
+                            isEqual(physicalCapacity, detail.getPhysicalCapacity()) &&
+                            isEqual(limiter, detail.getLoadLimit()) &&
+                            isEqual(loadLimiterType, detail.getLoadLimiterType()) &&
+                            isEqual(loadLimit, detail.getLoadLimit()) &&
+                            isEqual(bypass, detail.isBypassInstalled()) &&
+                            isEqual(bypassStatus, detail.getBypassStatus()) &&
+                            isEqual(valve, detail.isValveInstalled()) &&
+                            isEqual(capped, detail.isCapped()) &&
+                            isEqual(clamped, detail.isClamped());
                 })
                 .orElseGet(() -> false);
     }
