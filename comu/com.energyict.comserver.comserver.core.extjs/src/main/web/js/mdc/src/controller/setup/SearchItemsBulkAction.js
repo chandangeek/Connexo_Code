@@ -22,7 +22,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         'Mdc.store.CommunicationSchedulesWithoutPaging',
         'Mdc.store.DeviceConfigurations',
         'Mdc.store.BulkDeviceConfigurations',
-        'Cfg.zones.store.ZoneTypes'
+        'Cfg.zones.store.ZoneTypes',
+        'Isu.store.IssueDevices',
+        'Isu.store.IssueReasons',
+        'Isu.store.ManualIssueReasons',
+        'Isu.store.DueinTypes',
+        'Isu.store.IssueWorkgroupAssignees',
+        'Isu.store.UserList'
     ],
     refs: [
         {
@@ -100,8 +106,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'deviceZoneForm',
             selector: 'add-to-zone-panel #device-zone-add-form'
+        },
+        {
+            ref: 'manualIssueForm',
+            selector: 'issue-manually-creation-rules-item-add issue-manually-creation-rules-item'
         }
-
     ],
 
     ajaxTimeout : 180000,
@@ -449,12 +458,90 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         wizard.setLoading(false);
                     },
 
-                    failure: function () {
-                        finishBtn.enable();
-                        wizard.setLoading(false);
-                    }
+                failure: function () {
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                }
+            });
+            break;
+        case 'createmanualissue':
+            var mDeviceNames = [];
+            var manualIssueBulk = '/api/isu/issues/bulkadd';
+            if (me.allDevices) {
+                var store = me.getDevicesGrid().getStore();
+                var deviceData = store.getProxy().getReader().jsonData;
+                if (deviceData && deviceData.searchResults){
+                    Ext.each(deviceData.searchResults, function (item) {
+                        mDeviceNames.push(item.name);
+                    });
+                    me.allDevicesCnt = mDeviceNames.length;
+                }
+            } else {
+                Ext.each(me.devices, function (item) {
+                    mDeviceNames.push(item.get('name'));
                 });
-                break;
+            }
+            var form = me.getManualIssueForm(),
+               comboReason = form.down('#issueReason'),
+               reasonEditedValue = comboReason.getRawValue(),
+               reason = comboReason.store.find('name', reasonEditedValue);
+
+            form.updateRecord();
+
+            var record = form.getRecord();
+
+            if(reason === -1 && reasonEditedValue.trim() != ''){
+                var value = reasonEditedValue.trim();
+                var rec = {
+                    id: value,
+                    name: value
+                };
+                comboReason.store.add(rec);
+                comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
+                record.set('reasonId', value)
+           }
+
+           var urgency = record.get('priority.urgency');
+           var impact = record.get('priority.impact');
+           if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
+           if (form.down('#dueDateTrigger') && form.down('[name=dueIn.number]') &&  form.down('[name=dueIn.number]').getValue()) {
+                record.set('dueDate', {
+                    number: form.down('[name=dueIn.number]').getValue(),
+                    type: form.down('[name=dueIn.type]').getValue()
+                });
+                form.down('#dueDateTrigger').setValue({dueDate: true});
+           } else {
+                record.set('dueDate', null);
+                form.down('#dueDateTrigger').setValue({dueDate: false});
+           }
+
+            var jsonData = [];
+            Ext.each(mDeviceNames, function (item) {
+                var data = Ext.clone(record.data);
+                data.deviceName = item;
+                jsonData.push(data);
+            });
+
+            Ext.Ajax.request({
+                url: manualIssueBulk,
+                method: 'POST',
+                jsonData: {'issues' : jsonData},
+                timeout: 180000,
+                success: function (response) {
+                    statusPage.showIssueCreatedSuccess(
+                        me.buildFinalMessage()
+                    );
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                },
+
+                failure: function (response) {
+                    statusPage.showIssueCreatedSuccess( Uni.I18n.translate('searchItems.bulk.createManualIssue.baseFailMsg', 'MDC',  "Issues cannot be created") );
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                }
+            });
+            break;
             case 'add':
             case 'remove':
                 Ext.each(me.schedules, function (item) {
@@ -644,6 +731,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                 finalMessage = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.baseSuccessMsg1', 'MDC',
                     "Successfully removed zone '{0}' {1}", [me.zoneName, message]);
+                break;
+            case 'createmanualissue':
+                finalMessage = Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedManualIssue', me.allDevices? me.allDevicesCnt : me.devices.length, 'MDC',
+                        "{0} issues were created",
+                        "{0} issue was created",
+                        "{0} issues were created"
+                    );
+
                 break;
             case 'changeLoadProfileStart':
                 finalMessage = Ext.isEmpty(me.devices)
@@ -924,6 +1019,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         case 'remove':
                             nextCmp.down('#select-schedules-panel').show();
                             break;
+                        case 'createmanualissue':
+                            nextCmp.down('#issue-manually-creation-rules-item-add-bulk').show();
+                        break;
                         case 'changeLoadProfileStart':
                             nextCmp.down('#load-profile-panel').show();
                             nextCmp.down('#load-profile-panel').getForm().clearInvalid();
@@ -1041,16 +1139,41 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 propertyFormZone.getForm().clearInvalid();
                             }
 
-                            me.validation = true;
-                            me.zoneName = me.getDeviceZoneForm().down("#zone-name").getRawValue();
-                            me.zoneTypeName = me.getDeviceZoneForm().down("#zone-type").getRawValue();
-                            if (me.operation == 'addToZone' && nextCmp.name == 'confirmPage')//to avoid sending the rest when click on back button
-                                me.devicesWithZoneTypeAlreadyDefined();
-                        } else {
-                            formErrorsPanelZone.show();
-                            me.validation = false;
+                        me.validation = true;
+                        me.zoneName = me.getDeviceZoneForm().down("#zone-name").getRawValue();
+                        me.zoneTypeName = me.getDeviceZoneForm().down("#zone-type").getRawValue();
+                        if (me.operation == 'addToZone' && nextCmp.name == 'confirmPage')//to avoid sending the rest when click on back button
+                            me.devicesWithZoneTypeAlreadyDefined();
+                    } else {
+                        formErrorsPanelZone.show();
+                        me.validation = false;
+                    }
+                    break;
+                case 'createmanualissue':
+                    var form = currentCmp.down('#issue-manually-creation-rules-item-add-bulk').down('form');
+                    var formErrorsManualIssue = form.down('#form-errors');
+                    var comboReason = form.down('#issueReason');
+                    var reasonEditedValue = comboReason.getRawValue();
+
+                    if ( reasonEditedValue.trim() == '') {
+                        formErrorsManualIssue.show();
+                        comboReason.markInvalid('This field is required');
+                        me.validation = false;
+                    }else{
+                        if (!formErrorsManualIssue.isHidden()) {
+                            formErrorsManualIssue.hide();
+                            form.getForm().clearInvalid();
                         }
-                        break;
+
+                        me.validation = true;
+                        if (me.allDevices){
+                            me.allDevicesCnt = 0;
+                            var store = me.getDevicesGrid().getStore();
+                            var deviceData = store.getProxy().getReader().jsonData;
+                            if (deviceData && deviceData.searchResults) me.allDevicesCnt = deviceData.searchResults.length;
+                        }
+                    }
+                    break;
                     case 'add':
                     case 'remove':
                         me.schedules = me.getSchedulesGrid().getSelectionModel().getSelection();
@@ -1089,11 +1212,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             switch (nextCmp.name) {
                 case 'confirmPage':
                     switch (me.operation) {
-                        case 'addToZone':
-                        case 'removeFromZone':
-                            nextCmp.showMessage(me.buildConfirmMessage());
-                            wizard.down('#confirmButton').enable();
-                            break;
                         case 'add':
                         case 'remove':
                             nextCmp.showMessage(me.buildConfirmMessage());
@@ -1139,10 +1257,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 }
                             });
                             break;
-                        case 'changeLoadProfileStart':
+                        default:
                             nextCmp.showMessage(me.buildConfirmMessage());
                             wizard.down('#confirmButton').enable();
                             break;
+
                     }
                     break;
                 case 'statusPage':
@@ -1151,11 +1270,24 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             progressBar = Ext.create('Ext.ProgressBar', {width: '50%'});
                             Ext.suspendLayouts();
                             nextCmp.removeAll(true);
+                            var progressBarText = '';
+                            switch (me.operation){
+                                case 'add':
+                                case 'addToZone':
+                                  progressBarText = Uni.I18n.translate('general.adding', 'MDC', 'Adding...');
+                                  break;
+                                case 'createmanualissue':
+                                   progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkIssue', 'MDC', 'Creating {0} issues. Please wait...', me.allDevicesCnt, false);
+                                   break;
+                                default:
+                                   progressBarText = Uni.I18n.translate('general.removing', 'MDC', 'Removing...');
+                                   break;
+                            }
                             nextCmp.add(
                                 progressBar.wait({
                                     interval: 50,
                                     increment: 20,
-                                    text: (me.operation === 'add' || me.operation === 'addToZone'  ? Uni.I18n.translate('general.adding', 'MDC', 'Adding...') : Uni.I18n.translate('general.removing', 'MDC', 'Removing...'))
+                                    text: progressBarText
                                 })
                             );
                             Ext.resumeLayouts();
@@ -1175,7 +1307,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             errorPanel && errorPanel.show();
             if (errorContainer && !errorContainer.isVisible()) {
 
-                if (me.operation == 'addToZone' || me.operation == 'removeFromZone')
+                if (me.operation == 'addToZone' || me.operation == 'removeFromZone' || me.operation == 'createmanualissue')
                     errorContainer.hide();
                 else {
                     errorContainer.show();
@@ -1215,6 +1347,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     break;
                 case 'removeFromZone' : {
                     title = Uni.I18n.translate('searchItems.bulk.removeFromZone', 'MDC', 'Remove from zone')
+                }
+                    break;
+                case 'createmanualissue' : {
+                    title = Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue')
                 }
                     break;
                 case 'changeLoadProfileStart' : {
@@ -1276,6 +1412,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 case 'removeFromZone':
                     pattern = Uni.I18n.translate('searchItems.bulk.removeFromZone.confirmMsg', 'MDC', 'Unlink all devices from zone "{0}" (if linked)?');
                     titleText = Ext.String.format(pattern, me.zoneName, false);
+                    break;
+                case 'createmanualissue':
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmDevicesMsg', 'MDC', 'Create issues for {0} devices?', me.allDevicesCnt);
                     break;
                 case 'changeLoadProfileStart':
                     pattern = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartForDevices', 'MDC', "for all devices");
@@ -1356,6 +1495,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                     titleText = Uni.I18n.translate('searchItems.bulk.removeZoneToDevices.confirmMsg1', 'MDC', "{0} from zone '{1}'?", [pattern, me.zoneName]);
                     break;
+                case 'createmanualissue':
+                    titleText = Uni.I18n.translate('searchItems.bulk.createmanualissue.confirmDevicesMsg', 'MDC', 'Create issues for {0} devices?', me.devices.length, false);
+                    break;
                 case 'changeLoadProfileStart':
                     pattern = Uni.I18n.translatePlural('searchItems.bulk.changeLoadProfileStartForDevices', me.devices.length, 'MDC',
                         "for {0} devices", "for {0} device", "for {0} devices");
@@ -1410,6 +1552,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 break;
             case 'changeLoadProfileStart':
                 bodyText = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartConfirmMsg', 'MDC', 'Next reading block start will be changed for selected load profile for selected devices.');
+                break;
+            case 'createmanualissue':
+                bodyText = ' ';
                 break;
         }
 

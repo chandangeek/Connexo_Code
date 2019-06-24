@@ -6,7 +6,9 @@ package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.request.AddIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkAddIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
@@ -16,13 +18,17 @@ import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
+import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
@@ -30,8 +36,12 @@ import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
+import com.jayway.jsonpath.JsonModel;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -430,6 +440,43 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(groupMap.get("id")).isEqualTo(1);
         assertThat(groupMap.get("description")).isEqualTo("Reason 1");
         assertThat(groupMap.get("number")).isEqualTo(5);
+    }
+
+    @Test
+    public void testAddIssues() throws IOException {
+        OpenIssue issue1 = getDefaultIssue();
+        OpenIssue issue2 = mockIssue(2L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultDevice(), getDefaultUsagePoint());
+        when(securityContext.getUserPrincipal()).thenReturn(mock(User.class));
+        when(issueService.findOrCreateReason(any(String.class), any(IssueType.class))).thenReturn(mock(IssueReason.class));
+        when(issueService.findIssueType(any(String.class))).thenReturn(Optional.of(mock(IssueType.class)));
+        when(issueService.findStatus(any(String.class))).thenReturn(Optional.of(mock(IssueStatus.class)));
+        when(meteringService.findEndDeviceById(any(Long.class))).thenReturn(Optional.of(mock(EndDevice.class)));
+        ManualIssueBuilder manualIssueBuilder = mock(ManualIssueBuilder.class);
+        when(manualIssueBuilder.withReason(any(IssueReason.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withType(any(IssueType.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withStatus(any(IssueStatus.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withPriority(any(Priority.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withDevice(any(EndDevice.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withDueDate(any(Instant.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withOverdue(false)).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withComment(any(String.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withAssignToUserAndWorkgroup(any(Long.class), any(Long.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.withAssignComment(any(String.class))).thenReturn(manualIssueBuilder);
+        when(manualIssueBuilder.create()).thenReturn(issue1, issue2);
+        when(issueService.newIssueBuilder()).thenReturn(manualIssueBuilder);
+
+        AddIssueRequest request = new AddIssueRequest();
+        request.reasonId = "reason";
+        BulkAddIssueRequest bulkRequest = new BulkAddIssueRequest();
+        bulkRequest.setIssues(Arrays.asList(request, request));
+        Entity<BulkAddIssueRequest> json = Entity.json(bulkRequest);
+        Response response = target("issues/bulkadd").request().post(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.data.success[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.data.success[1].id")).isEqualTo(2);
+
     }
 
     private void assertDefaultIssueMap(Map<?, ?> issueMap) {

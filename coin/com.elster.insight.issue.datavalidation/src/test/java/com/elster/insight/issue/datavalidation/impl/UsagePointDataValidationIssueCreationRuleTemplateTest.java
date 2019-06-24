@@ -219,7 +219,7 @@ public class UsagePointDataValidationIssueCreationRuleTemplateTest {
         issues = usagePointIssueDataValidationService.findAllDataValidationIssues(new UsagePointDataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
         assertThat(issues.get(0).getDevice().getId()).isEqualTo(usagePoint.getId());
-        assertThat(issues.get(0).getRule().getId()).isEqualTo(rule.getId());
+        assertThat(issues.get(0).getRule().get().getId()).isEqualTo(rule.getId());
     }
 
     @Test

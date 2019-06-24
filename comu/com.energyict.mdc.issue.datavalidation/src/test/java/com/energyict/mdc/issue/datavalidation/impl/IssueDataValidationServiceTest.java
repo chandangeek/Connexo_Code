@@ -273,7 +273,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getAssignee().getUser().getId()).isEqualTo(assignee.getId());
@@ -304,7 +304,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         IssueDataValidation issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -342,7 +342,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getDevice()).isEqualTo(endDevice);
@@ -374,7 +374,7 @@ public class IssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         IssueDataValidation issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -673,7 +673,7 @@ public class IssueDataValidationServiceTest {
         Optional<HistoricalIssueDataValidation> historicalIssue = issueDataValidationService.findHistoricalIssue(openIssue.getId());
         assertThat(historicalIssue).isPresent();
         assertThat(historicalIssue.get().getId()).isEqualTo(openIssue.getId());
-        assertThat(historicalIssue.get().getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(historicalIssue.get().getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(historicalIssue.get().getReason().getKey()).isEqualTo(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(historicalIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
         List<NotEstimatedBlock> notEstimatedBlocks = historicalIssue.get().getNotEstimatedBlocks();

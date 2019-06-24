@@ -30,15 +30,15 @@ public final class HistoricalIssueImpl extends IssueImpl implements HistoricalIs
         this.setStatus(issue.getStatus());
         this.setDevice(issue.getDevice());
         this.setUsagePoint(issue.getUsagePoint().orElse(null));
-        this.setRule(issue.getRule());
+        this.setRule(issue.getRule().orElse(null));
         this.setCreateDateTime(issue.getCreateDateTime());
         this.setPriority(issue.getPriority());
         this.assignTo(issue.getAssignee());
+        this.setType(issue.getType());
     }
 
     @Override
     public void delete() {
-        this.getIssueService().getIssueProviders().stream().forEach(provider -> provider.getHistoricalIssue(this).ifPresent(Entity::delete));
         this.getDataModel().remove(this);
     }
 }
