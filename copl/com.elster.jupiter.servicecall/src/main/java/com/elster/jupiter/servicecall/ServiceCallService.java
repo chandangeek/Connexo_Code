@@ -49,8 +49,8 @@ public interface ServiceCallService {
     Finder<ServiceCallType> getServiceCallTypes();
 
     /**
-     * Returns list of service call types with specified destination. This method supports paging.
-     * @return Finder
+     * Returns list of service call types with specified destination.
+     * @return List
      */
     List<ServiceCallType> getServiceCallTypes(String destination);
 

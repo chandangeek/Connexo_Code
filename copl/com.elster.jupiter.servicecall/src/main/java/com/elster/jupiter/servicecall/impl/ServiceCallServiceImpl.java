@@ -287,9 +287,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public List<ServiceCallType> getServiceCallTypes(String destination) {
-        return getServiceCallTypes().find().stream()
-                .filter(s -> s.getDestinationName().equals(destination))
-                .collect(Collectors.toList());
+        return dataModel.mapper(ServiceCallType.class).find(ServiceCallTypeImpl.Fields.destination.fieldName(), destination);
     }
 
     @Override
