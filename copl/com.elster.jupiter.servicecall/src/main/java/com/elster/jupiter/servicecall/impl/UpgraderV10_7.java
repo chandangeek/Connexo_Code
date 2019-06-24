@@ -14,14 +14,10 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -52,14 +48,6 @@ public class UpgraderV10_7 implements Upgrader {
         installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, logger);
         replaceSubscriber();
         deleteOldDestination();
-        try (
-                Connection connection = dataModel.getConnection(true);
-                Statement statement = connection.createStatement();
-        ) {
-            setDefaultQueueForServiceCallType(statement);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 
     private Optional<SubscriberSpec> getSubscriber4(String destinationName) {
@@ -94,8 +82,4 @@ public class UpgraderV10_7 implements Upgrader {
         });
     }
 
-    private void setDefaultQueueForServiceCallType(Statement statement) throws SQLException {
-        String sql = "UPDATE SCS_SERVICE_CALL_TYPE SET DESTINATION = '" + ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME + "' where DESTINATION = 'NULL'";
-        statement.execute(sql);
-    }
 }

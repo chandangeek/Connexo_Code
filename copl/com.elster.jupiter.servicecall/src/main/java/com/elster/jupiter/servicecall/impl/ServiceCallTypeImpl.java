@@ -43,12 +43,13 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private String versionName;
     private Status status;
     private LogLevel logLevel;
+    private String destination;
+    private transient DestinationSpec destinationSpec;
     private int priority;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
 //    @IsRegisteredHandler has been removed, as handlers who are not yet registered on the white board should not cause validation errors
     private String serviceCallHandler;
-    private Reference<DestinationSpec> destination = Reference.empty();
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
@@ -229,17 +230,20 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public DestinationSpec getDestination() {
-        return destination.get();
+        if (destinationSpec == null) {
+            destinationSpec = messageService.getDestinationSpec(getDestinationName()).get();
+        }
+        return destinationSpec;
     }
 
     @Override
     public String getDestinationName() {
-        return destination.get().getName();
+        return destination;
     }
 
     @Override
-    public void setDestination(DestinationSpec destination) {
-        this.destination.set(destination);
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 
     @Override
