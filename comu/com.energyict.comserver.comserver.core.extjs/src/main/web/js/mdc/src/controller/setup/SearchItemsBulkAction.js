@@ -465,20 +465,20 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             });
             break;
         case 'createmanualissue':
-            var mDeviceIds = [];
+            var mDeviceNames = [];
             var manualIssueBulk = '/api/isu/issues/bulkadd';
             if (me.allDevices) {
                 var store = me.getDevicesGrid().getStore();
                 var deviceData = store.getProxy().getReader().jsonData;
                 if (deviceData && deviceData.searchResults){
                     Ext.each(deviceData.searchResults, function (item) {
-                        mDeviceIds.push(item.id);
+                        mDeviceNames.push(item.name);
                     });
-                    me.allDevicesCnt = mDeviceIds.length;
+                    me.allDevicesCnt = mDeviceNames.length;
                 }
             } else {
                 Ext.each(me.devices, function (item) {
-                    mDeviceIds.push(item.getId());
+                    mDeviceNames.push(item.getName());
                 });
             }
             var form = me.getManualIssueForm(),
@@ -516,9 +516,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
            }
 
             var jsonData = [];
-            Ext.each(mDeviceIds, function (item) {
+            Ext.each(mDeviceNames, function (item) {
                 var data = Ext.clone(record.data);
-                data.deviceId = item;
+                data.deviceName = item;
                 jsonData.push(data);
             });
 
