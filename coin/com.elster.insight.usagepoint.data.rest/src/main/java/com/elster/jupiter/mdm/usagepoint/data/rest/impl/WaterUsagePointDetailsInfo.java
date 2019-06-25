@@ -79,7 +79,7 @@ public class WaterUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
                             isEqual(grounded, detail.isGrounded()) &&
                             isEqual(pressure, detail.getPressure()) &&
                             isEqual(physicalCapacity, detail.getPhysicalCapacity()) &&
-                            isEqual(limiter, detail.getLoadLimit()) &&
+                            isEqual(limiter, detail.isLimiter()) &&
                             isEqual(loadLimiterType, detail.getLoadLimiterType()) &&
                             isEqual(loadLimit, detail.getLoadLimit()) &&
                             isEqual(bypass, detail.isBypassInstalled()) &&
