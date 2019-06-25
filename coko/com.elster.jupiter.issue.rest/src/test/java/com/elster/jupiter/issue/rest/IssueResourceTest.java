@@ -29,6 +29,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
@@ -450,7 +451,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         when(issueService.findOrCreateReason(any(String.class), any(IssueType.class))).thenReturn(mock(IssueReason.class));
         when(issueService.findIssueType(any(String.class))).thenReturn(Optional.of(mock(IssueType.class)));
         when(issueService.findStatus(any(String.class))).thenReturn(Optional.of(mock(IssueStatus.class)));
-        when(meteringService.findEndDeviceById(any(Long.class))).thenReturn(Optional.of(mock(EndDevice.class)));
+        when(meteringService.findMeterByName(any(String.class))).thenReturn(Optional.of(mock(Meter.class)));
         ManualIssueBuilder manualIssueBuilder = mock(ManualIssueBuilder.class);
         when(manualIssueBuilder.withReason(any(IssueReason.class))).thenReturn(manualIssueBuilder);
         when(manualIssueBuilder.withType(any(IssueType.class))).thenReturn(manualIssueBuilder);
@@ -467,6 +468,7 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
 
         AddIssueRequest request = new AddIssueRequest();
         request.reasonId = "reason";
+        request.deviceName = "test";
         BulkAddIssueRequest bulkRequest = new BulkAddIssueRequest();
         bulkRequest.setIssues(Arrays.asList(request, request));
         Entity<BulkAddIssueRequest> json = Entity.json(bulkRequest);
