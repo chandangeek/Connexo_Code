@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -266,6 +267,7 @@ public class InMemoryPersistence {
             bind(HttpService.class).toInstance(httpService);
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
