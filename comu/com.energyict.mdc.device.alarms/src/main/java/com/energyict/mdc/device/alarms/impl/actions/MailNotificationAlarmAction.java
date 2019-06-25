@@ -12,7 +12,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.MailPropertyFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -38,19 +37,12 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     private static final Logger LOGGER = Logger.getLogger(MailNotificationAlarmAction.class.getName());
 
-    private DeviceAlarmService deviceAlarmService;
-    private IssueService issueService;
-    private UserService userService;
-    private ThreadPrincipalService threadPrincipalService;
-
     private Issue issue;
 
     @Inject
-    public MailNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, com.energyict.mdc.dynamic.PropertySpecService propertySpecService, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService) {
+    public MailNotificationAlarmAction(DataModel dataModel, Thesaurus thesaurus, com.energyict.mdc.dynamic.PropertySpecService propertySpecService)
+    {
         super(dataModel, thesaurus, propertySpecService);
-        this.issueService = issueService;
-        this.userService = userService;
-        this.threadPrincipalService = threadPrincipalService;
     }
 
 
@@ -86,17 +78,11 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
     @Override
     public String getFormattedProperties(Map<String, Object> props) {
         Object value = props.get(TO);
-        String data="";
+        String data = "";
         if (value != null) {
-            try {
-                JSONObject jsonObject = new JSONObject(((MailTo) value).recipient.get());
-                data = String.format("%s",jsonObject.get("recipient"));
-            } catch (JSONException e) {
-                data = "";
-            }
+            data = ((MailTo) value).recipient.get();
         }
             return data;
-
     }
     public static class MailTo extends HasIdAndName {
         private Optional<String> recipient;
@@ -130,11 +116,19 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
             @Override
             public MailTo fromStringValue(String stringValue) {
-
-                return new MailTo(stringValue);
-
+                //framework is not returning JSON string when recipient value is entered for the first time
+                //Hence, this specific check for JSON string
+                if (stringValue.substring(0, 1).compareTo("{") == 0) {
+                    try {
+                        JSONObject jsonData = new JSONObject(stringValue);
+                        String recipient = jsonData.get("recipient").toString();
+                        return new MailTo(recipient);
+                    }
+                 catch (JSONException e) {
+                        LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                    }}
+                    return new MailTo(stringValue);
             }
-
             @Override
             public String toStringValue(MailTo object) {
                 return object.getName();
@@ -173,8 +167,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
                 }
             }
         }
-
-    }
+}
 
 
 

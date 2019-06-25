@@ -64,6 +64,7 @@ public class ActionResource extends BaseAlarmResource {
                 .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
                 .filter(issueActionType -> isStartProcessApplicable(issueReason, issueActionType))
                 .map(i-> actionInfoFactory.asInfo(i, issueReason.isPresent() ? issueReason.get().getName() : null))
+                .filter(item -> !(phaseParam.equals("OVERDUE") && item.name.equals("Email")))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
     }
