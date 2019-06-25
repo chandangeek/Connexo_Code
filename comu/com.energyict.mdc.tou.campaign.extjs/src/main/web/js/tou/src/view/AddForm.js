@@ -10,7 +10,9 @@ Ext.define('Tou.view.AddForm', {
         'Uni.form.field.TimeInHoursAndMinutes',
         'Ext.form.RadioGroup',
         'Tou.view.ActivateCalendar',
-        'Tou.store.DaysWeeksMonths'
+        'Tou.store.DaysWeeksMonths',
+        'Tou.store.ComTasks',
+        'Uni.property.view.DefaultButton'
     ],
     alias: 'widget.tou-campaigns-add-form',
     returnLink: null,
@@ -101,6 +103,10 @@ Ext.define('Tou.view.AddForm', {
                 required: true,
                 allowBlank: false,
                 hidden: true,
+                listeners: {
+                    change: me.onActiveCalendarChange,
+                    scope: me
+                }
             }, {
                 xtype: 'displayfield',
                 itemId: 'tou-update-type-disp',
@@ -190,6 +196,125 @@ Ext.define('Tou.view.AddForm', {
                 ),
                 name: 'withUniqueCalendarName'
             }, {
+                xtype: 'combobox',
+                itemId: 'tou-campaign-allowed-comtask',
+                name: 'sendCalendarСomTask',
+                store: 'Tou.store.ComTasks',
+                fieldLabel: Uni.I18n.translate(
+                    'general.sendCalendarСomTask',
+                    'TOU',
+                    'Send calendar communication task'
+                ),
+                required: true,
+                allowBlank: false,
+                forceSelection: true,
+                emptyText: Uni.I18n.translate(
+                    'general.sendCalendarСomTask.empty',
+                    'TOU',
+                    'Select communication task ...'
+                ),
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                margin: '30 0 10 0',
+                hidden: true
+            },
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                itemId: 'tou-campaign-send-connection-strategy-container',
+                hidden: true,
+                fieldLabel: Uni.I18n.translate(
+                    'general.connectionMethodStrategy',
+                    'TOU',
+                    'Connection method strategy'
+                ),
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'tou-campaign-send-connection-strategy',
+                        name: 'sendCalendarСonnectionStrategy',
+                        store: 'Tou.store.ConnectionStrategy',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        margin: '0 10 0 0',
+                        valueField: 'id',
+                        value: 1,
+                        allowBlank: false,
+                        forceSelection: true
+                    },
+                    {
+                        xtype: 'uni-default-button',
+                        itemId: 'tou-campaign-send-connection-strategy-reset',
+                        handler: function() {
+                            this.down('[name=sendCalendarСonnectionStrategy]').reset();
+                        },
+                        scope: me,
+                        margin: '0 0 0 10',
+                        hidden: false
+                    }
+                ]
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'tou-campaign-validation-comtask',
+                name: 'validationСomTask',
+                store: 'Tou.store.ComTasks',
+                fieldLabel: Uni.I18n.translate(
+                    'general.validationСomTask',
+                    'TOU',
+                    'Validation communication task'
+                ),
+                required: true,
+                allowBlank: false,
+                forceSelection: true,
+                emptyText: Uni.I18n.translate(
+                    'general.validationСomTask.empty',
+                    'TOU',
+                    'Select communication task ...'
+                ),
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                hidden: true
+            },
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                itemId: 'tou-campaign-validation-strategy-container',
+                hidden: true,
+                fieldLabel: Uni.I18n.translate(
+                    'general.validationMethodStrategy',
+                    'TOU',
+                    'Validation method strategy'
+                ),
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'tou-campaign-validation-connection-strategy',
+                        name: 'validationСonnectionStrategy',
+                        store: 'Tou.store.ConnectionStrategy',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        margin: '0 10 0 0',
+                        valueField: 'id',
+                        value: 1,
+                        allowBlank: false,
+                        forceSelection: true
+                    },
+                    {
+                        xtype: 'uni-default-button',
+                        itemId: 'tou-campaign-validation-connection-strategy-reset',
+                        handler: function() {
+                            this.down('[name=validationСonnectionStrategy]').reset();
+                        },
+                        scope: me,
+                        margin: '0 0 0 10',
+                        hidden: false
+                    }
+                ]
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
@@ -215,6 +340,22 @@ Ext.define('Tou.view.AddForm', {
 
         me.callParent(arguments);
     },
+
+    onActiveCalendarChange: function (field, newValue) {
+        var me = this;
+        var value = newValue.activateCal;
+
+        Ext.suspendLayouts();
+        if (value && (value === 'immediately' || value === 'onDate')) {
+            me.down('[name=validationСomTask]').show();
+            me.down('#tou-campaign-validation-strategy-container').show();
+        } else {
+            me.down('[name=validationСomTask]').hide();
+            me.down('#tou-campaign-validation-strategy-container').hide();
+        }
+        Ext.resumeLayouts(true);
+    },
+
     setUpdateTypeLabel: function (option){
          switch (option){
              case 'fullCalendar':
@@ -266,14 +407,19 @@ Ext.define('Tou.view.AddForm', {
         if (!radiogroup.findRecordByValue(newValue)) return;
 
         var activateCalendarItem = me.down('#activate-calendar');
+        var sendComtaskField = me.down("[name=sendCalendarСomTask]");
         activateCalendarItem.show();
         me.down('#tou-update-type').show();
+        me.down('#tou-campaign-send-connection-strategy-container').show();
+        sendComtaskField.show();
 
         var cbxCal = me.down('#tou-campaign-allowed-calendar');
         cbxCal.show();
 
         var calStore = Ext.create('Tou.store.AllowedDeviceTypeOptions');
         calStore.getProxy().setUrl(newValue);
+        sendComtaskField.getStore().getProxy().setUrl(newValue);
+        sendComtaskField.getStore().load();
 
         calStore.load(function () {
             var calParams = calStore.getAt(0);
