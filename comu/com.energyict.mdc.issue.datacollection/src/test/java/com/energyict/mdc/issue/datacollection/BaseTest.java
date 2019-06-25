@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datacollection;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -158,6 +159,7 @@ public abstract class BaseTest {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 
