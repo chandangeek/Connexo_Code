@@ -64,6 +64,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -138,6 +139,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile MeterConfigFactory meterConfigFactory;
     private volatile TaskService taskService;
     private volatile BundleContext bundleContext;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
@@ -160,7 +162,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                          MetrologyConfigurationService metrologyConfigurationService,
                                          SendMeterReadingsProvider sendMeterReadingsProvider, MessageService messageService,
-                                         OrmService ormService, TaskService taskService) {
+                                         OrmService ormService, TaskService taskService,
+                                         DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -191,6 +194,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 		setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
 		setOrmService(ormService);
         setTaskService(taskService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
     }
 
     private Module getModule() {
@@ -230,6 +234,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
 				bind(OrmService.class).toInstance(ormService);
                 bind(TaskService.class).toInstance(taskService);
                 bind(BundleContext.class).toInstance(bundleContext);
+                bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             }
         };
     }
@@ -454,6 +459,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference

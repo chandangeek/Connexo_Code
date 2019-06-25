@@ -15,6 +15,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsDomainExtension;
 import com.energyict.mdc.device.data.Device;
@@ -66,12 +67,7 @@ public class FutureComTaskExecutionHandler implements TaskExecutor {
                         serviceCall.requestTransition(DefaultState.PENDING);
                         serviceCall.requestTransition(DefaultState.ONGOING);
                         serviceCall.requestTransition(DefaultState.WAITING);
-                        if (checkShiftNextExecutionRequired(serviceCall)) {
-                            comTaskExecutionOptional.get().schedule(childExtension.getActialStartDate());
-                        } else {
-                            comTaskExecutionOptional.get().runNow();
-                        }
-
+                        comTaskExecutionOptional.get().runNow();
                     } else {
                         serviceCall.log(LogLevel.SEVERE, "The communication task required for the read-out not found on the device");
                         serviceCall.requestTransition(DefaultState.FAILED);
@@ -80,19 +76,10 @@ public class FutureComTaskExecutionHandler implements TaskExecutor {
             });
     }
 
-    private boolean checkShiftNextExecutionRequired(ServiceCall serviceCall) {
-        ParentGetMeterReadingsDomainExtension extension = serviceCall.getParent()
-                .orElseThrow(() -> new IllegalStateException("Unable to get SubParent service call"))// subparent
-                .getParent()
-                .orElseThrow(() -> new IllegalStateException("Unable to get Parent service call")) // parent
-                .getExtension(ParentGetMeterReadingsDomainExtension.class)
-                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-        return extension.getTimePeriodStart() != null && extension.getTimePeriodEnd() == null;
-    }
-
     private Finder<ServiceCall> findFutureServiceCalls() {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        filter.types.add(DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         filter.states.add(DefaultState.SCHEDULED.name());
         return serviceCallService.getServiceCallFinder(filter);
     }

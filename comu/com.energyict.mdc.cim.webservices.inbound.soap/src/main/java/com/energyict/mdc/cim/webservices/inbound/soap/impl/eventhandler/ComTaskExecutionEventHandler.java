@@ -8,6 +8,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -16,9 +17,11 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadin
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -84,7 +87,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                     .forEach(serviceCall -> handleForReadingReading(serviceCall));
         } else if (forLoadProfilesDeviceMessage(comTaskExecution)) {
             findServiceCallsLinkedTo(comTaskExecution.getDevice(), DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
-                    .forEach(serviceCall -> handleForDeviceMessages(serviceCall));
+                    .forEach(serviceCall -> handleForDeviceMessages(serviceCall, comTaskExecution.getDevice()));
         }
         // skipp all other comTaskExecutions
     }
@@ -100,8 +103,29 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         }
     }
 
-    private void handleForDeviceMessages(ServiceCall serviceCall) {
-        /// TODO
+    private void handleForDeviceMessages(ServiceCall serviceCall, Device device) {
+        ChildGetMeterReadingsDomainExtension domainExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+
+        Instant triggerDate = domainExtension.getTriggerDate();
+        if (clock.instant().isAfter(triggerDate)) {
+            if (device.getMessages().stream()
+                    .map(DeviceMessage::getStatus)
+                    .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CONFIRMED))
+                    .findAny()
+                    .isPresent()) {
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                serviceCall.log(LogLevel.SEVERE, "Device message is confirmed");
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            } else {
+                /// TODO check all cases != Confirmed ?
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                serviceCall.log(LogLevel.SEVERE, "Device message wasn't confirmed");
+                /// FIXME it is temporal workaround
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+//                serviceCall.requestTransition(DefaultState.FAILED);
+            }
+        }
     }
 
     private boolean forLoadProfileOrRegisterReading(ComTaskExecution comTaskExecution) {

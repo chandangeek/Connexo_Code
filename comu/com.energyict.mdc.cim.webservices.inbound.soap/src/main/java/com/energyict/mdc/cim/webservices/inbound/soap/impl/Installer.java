@@ -31,11 +31,10 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class Installer implements FullInstaller {
-    private static final int DESTINATION_SPEC_RETRY_DELAY = 60;
-    private static final String RECURENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurenttaskfrequency";
-    private static final String RECURENT_TASK_NAME = "CheckConfirmationTimeoutTask";
-    private static final String RECURENT_TASK_SCHEDULE = "0 0/5 * 1/1 * ? *";
-    private static final int RECURENT_TASK_RETRY_DELAY = 60;
+    static final String RECURENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurenttaskfrequency";
+    static final String RECURENT_TASK_NAME = "CheckConfirmationTimeoutTask";
+    static final String RECURENT_TASK_SCHEDULE = "0 0/5 * 1/1 * ? *";
+    static final int RECURENT_TASK_RETRY_DELAY = 60;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
     private final MessageService messageService;
@@ -59,16 +58,11 @@ public class Installer implements FullInstaller {
                 this::createServiceCallTypes,
                 logger
         );
-//        doTry(
-//                "Create future com tasks execution task",
-//                this::createFutureComTasksExecutionTask,
-//                logger
-//        );
-//        doTry(
-//                "Create destination specs",
-//                this::createDestinationSpecs,
-//                logger
-//        );
+        doTry(
+                "Create future com tasks execution task",
+                this::createFutureComTasksExecutionTask,
+                logger
+        );
     }
 
     private void createServiceCallTypes() {
@@ -97,23 +91,6 @@ public class Installer implements FullInstaller {
         }
     }
 
-//    private void createDestinationSpecs() {
-//        if (!messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION).isPresent()) {
-//            Optional<QueueTableSpec> queueTableSpec = messageService
-//                    .getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME);
-//            if (queueTableSpec.isPresent()) {
-//                DestinationSpec destinationSpec = queueTableSpec.get()
-//                        .createDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION, DESTINATION_SPEC_RETRY_DELAY);
-//                destinationSpec.activate();
-//                destinationSpec.subscribe(TranslationKeys.READ_METER_CHANGE_MESSAGE_HANDLER, InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP);
-//            } else {
-//                throw new IllegalStateException(MessageFormat.format("Queue table specification ''{0}'' is not available",
-//                        ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME));
-//            }
-//        }
-//
-//    }
-
     private void createFutureComTasksExecutionTask() {
         String property = bundleContext.getProperty(RECURENT_TASK_FREQUENCY);
         createActionTask(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION,
@@ -131,7 +108,7 @@ public class Installer implements FullInstaller {
         destination.subscribe(subscriberSpecName, InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.DOMAIN);
 
         taskService.newBuilder()
-                .setApplication("Admin")
+                .setApplication("MultiSense")
                 .setName(taskName)
                 .setScheduleExpressionString(taskSchedule)
                 .setDestination(destination)

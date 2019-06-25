@@ -8,7 +8,6 @@ import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TranslationKeys;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -30,6 +29,11 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.meterreadings.DateTimeInterval;
@@ -69,13 +73,15 @@ public class MeterReadingsBuilder {
     private final MeteringService meteringService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
+    private final DeviceService deviceService;
 
     private UsagePoint usagePoint;
-    private List<EndDevice> endDevices;
+    private List<Meter> endDevices;
     private Set<MetrologyPurpose> purposes;
     private Set<String> readingTypeMRIDs = Collections.emptySet();
     private Set<String> readingTypeFullAliasNames = Collections.emptySet();
     private RangeSet<Instant> timePeriods;
+    private Set<LoadProfile> loadProfiles;
 
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
@@ -83,13 +89,14 @@ public class MeterReadingsBuilder {
     @Inject
     public MeterReadingsBuilder(MeteringService meteringService,
                          MetrologyConfigurationService metrologyConfigurationService,
-                         MeterReadingFaultMessageFactory faultMessageFactory) {
+                         MeterReadingFaultMessageFactory faultMessageFactory, DeviceService deviceService) {
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.faultMessageFactory = faultMessageFactory;
+        this.deviceService = deviceService;
     }
 
-    public MeterReadingsBuilder withEndDevices(List<EndDevice> endDevices) {
+    public MeterReadingsBuilder withEndDevices(List<Meter> endDevices) {
         this.endDevices = endDevices;
         return this;
     }
@@ -134,11 +141,25 @@ public class MeterReadingsBuilder {
         return this;
     }
 
+    /// TODO may be avoid to use of findDeviceForEndDevice and deviceService
+    public MeterReadingsBuilder withLoadProfiles(Set<String> loadProfilesNames) throws FaultMessage {
+        loadProfiles = new HashSet<>();
+        if (loadProfilesNames != null) {
+            for (Meter meter: endDevices) {
+                loadProfiles.addAll(findDeviceForEndDevice(meter).getLoadProfiles().stream()
+                        .filter(loadProfile -> loadProfilesNames.contains(loadProfile.getLoadProfileSpec().getLoadProfileType().getName()))
+                        .collect(Collectors.toSet()));
+            }
+        }
+        return this;
+    }
+
     public MeterReadings build() throws FaultMessage {
         MeterReadings meterReadings = new MeterReadings();
         List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
         List<ch.iec.tc57._2011.meterreadings.ReadingType> readingTypeList = meterReadings.getReadingType();
         List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> readingQualityTypeList = meterReadings.getReadingQualityType();
+        List<ch.iec.tc57._2011.meterreadings.LoadProfile> loadProfileList = meterReadings.getLoadProfile();
         referencedReadingTypes = new HashSet<>();
         referencedReadingQualityTypes = new HashSet<>();
 
@@ -162,6 +183,9 @@ public class MeterReadingsBuilder {
                 });
         }
 
+        loadProfiles.stream()
+                .map(MeterReadingsBuilder::createLoadProfile)
+                .forEach(loadProfileList::add);
         // filled in in scope of wrapInMeterReading
         referencedReadingTypes.stream()
                 .map(MeterReadingsBuilder::createReadingType)
@@ -478,6 +502,23 @@ public class MeterReadingsBuilder {
         return info;
     }
 
+    private static ch.iec.tc57._2011.meterreadings.LoadProfile createLoadProfile(LoadProfile loadProfile) {
+        ch.iec.tc57._2011.meterreadings.LoadProfile info = new ch.iec.tc57._2011.meterreadings.LoadProfile();
+        info.setName(loadProfile.getLoadProfileSpec().getLoadProfileType().getName());
+        List<ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType> readingTypes = info.getReadingType();
+
+        loadProfile.getChannels().stream()
+                .map(channel -> channel.getReadingType().getMRID())
+                /// TODO may be filter that readingType present in reply?
+                .forEach(mrid -> {
+                        ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType readingType =
+                                new ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType();
+                        readingType.setRef(mrid);
+                    readingTypes.add(readingType);
+                });
+        return info;
+    }
+
     private static RationalNumber createRationalNumber(com.elster.jupiter.cbo.RationalNumber rational) {
         return Optional.ofNullable(rational)
                 .filter(number -> !com.elster.jupiter.cbo.RationalNumber.NOTAPPLICABLE.equals(number))
@@ -525,5 +566,11 @@ public class MeterReadingsBuilder {
                             || readingTypeFullAliasNames.contains(readingType.getFullAliasName()));
         }
         return readingTypes;
+    }
+
+    private Device findDeviceForEndDevice(com.elster.jupiter.metering.Meter meter) throws FaultMessage {
+        long deviceId = Long.parseLong(meter.getAmrId());
+        return deviceService.findDeviceById(deviceId)
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, meter.getAmrId()));
     }
 }

@@ -7,6 +7,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadi
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -26,6 +27,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -90,6 +92,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         Instant timePeriodStart = extension.getTimePeriodStart();
         Instant timePeriodEnd = extension.getTimePeriodEnd();
         String readingTypesString = extension.getReadingTypes();
+        String loadProfilesString = extension.getLoadProfiles();
         List<String> endDevicesMRIDs = serviceCall.findChildren().stream()
                 .map(c -> c.getExtension(SubParentGetMeterReadingsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"))
@@ -98,9 +101,11 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         String source = extension.getSource();
         String callbackUrl = extension.getCallbackUrl();
 
+        /// TODO start/end can be not specified
         RangeSet<Instant> timeRangeSet =  getTimeRangeSet(timePeriodStart, timePeriodEnd);
-        List<EndDevice> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
-        Set<String> readingTypesMRIDs = getReadingTypes(readingTypesString);
+        List<Meter> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
+        Set<String> readingTypesMRIDs = getSetOfValuesFromString(readingTypesString);
+        Set<String> loadProfilesNames = getSetOfValuesFromString(loadProfilesString);
 
         MeterReadingsBuilder meterReadingsBuilder = readingBuilderProvider.get();
         MeterReadings meterReadings = null;
@@ -110,6 +115,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             meterReadings = meterReadingsBuilder.withEndDevices(endDevices)
                     .ofReadingTypesWithMRIDs(readingTypesMRIDs)
                     .inTimeIntervals(timeRangeSet)
+                    .withLoadProfiles(loadProfilesNames)
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(DefaultState.FAILED);
@@ -162,16 +168,22 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         return rangeSet;
     }
 
-    private Set<String> getReadingTypes(String readingTypesString) {
+    private Set<String> getSetOfValuesFromString(String readingTypesString) {
         return Arrays.stream(readingTypesString.split(";")).collect(Collectors.toSet());
     }
 
-    private List<EndDevice> getEndDevices(List<String> endDevicesMRIDs, ServiceCall serviceCall) {
+    private List<Meter> getEndDevices(List<String> endDevicesMRIDs, ServiceCall serviceCall) {
         List<EndDevice> existedEndDevices = meteringService.getEndDeviceQuery()
                 .select(where("MRID").in(endDevicesMRIDs));
         if (existedEndDevices == null || existedEndDevices.isEmpty()) {
             serviceCall.log(LogLevel.WARNING, "No end devices was found");
         }
-        return existedEndDevices;
+        List<Meter> existedMeters = new ArrayList<>();
+        for (com.elster.jupiter.metering.EndDevice endDevice: existedEndDevices) {
+            if (endDevice instanceof Meter) {
+                existedMeters.add((Meter)endDevice);
+            }
+        }
+        return existedMeters;
     }
 }
