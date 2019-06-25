@@ -18,6 +18,7 @@ public class UpgraderV10_7 implements Upgrader {
     public UpgraderV10_7(DataModel dataModel,
                          UserService userService,
                          PrivilegesProviderV10_7 privilegesProviderV10_7) {
+
         this.dataModel = dataModel;
         this.userService = userService;
         this.privilegesProviderV10_7 = privilegesProviderV10_7;

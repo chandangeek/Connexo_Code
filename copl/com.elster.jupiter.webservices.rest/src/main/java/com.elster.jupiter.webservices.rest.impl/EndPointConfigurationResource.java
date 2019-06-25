@@ -363,8 +363,6 @@ public class EndPointConfigurationResource {
     @Transactional
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
     public Response retryOccurrence(@PathParam("id") long id,
-                                    EndPointConfigurationInfo info,
-                                    @Context UriInfo uriInfo,
                                     @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
 
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
@@ -372,11 +370,12 @@ public class EndPointConfigurationResource {
 
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
 
-        epOcc.get().retry();
+        WebServiceCallOccurrence occurrence = epOcc.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
+
+        occurrence.retry();
 
         return Response.ok().build();
     }
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

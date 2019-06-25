@@ -52,8 +52,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     private volatile WebServicesService webServicesService;
     private volatile TransactionService transactionService;
 
-    public Class messageType;
-
     private Map<Long, EP> endpoints = new ConcurrentHashMap<>();
 
     protected void doAddEndpoint(EP endpoint, Map<String, Object> properties) {
@@ -184,6 +182,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                                         // TODO send event for issue here, in a different transaction
                                     }
                                 }
+                                if (message == null)
+                                {
+                                    message = "null";
+                                }
                                 epcAndEP.getKey().log(message, wse);
                             } else if (cause instanceof NotAuthorizedException) { // REST endpoint
                                 // TODO send event for issue here, in a different transaction
@@ -199,18 +201,26 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                     .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
         }
 
-        @Override
-        public <T> void send(String message, Class<T> type){
+        //@Override
+        public void send(String message, EndPointConfiguration endPointConfiguration){
+            Class<?> type;
+            Method method = Arrays.stream(getService().getMethods())
+                    .filter(meth -> meth.getName().equals(methodName))
+                    .filter(meth -> meth.getParameterCount() == 1)
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException(
+                            new NoSuchMethodException("Couldn't find corresponding public method " + methodName + " in class " + getService().getName())));
+            Class[] types = method.getParameterTypes();
+            type = types[0];
 
-            JAXBContext jaxbContext;
-            Unmarshaller jaxbUnmarshaller = null;
-            JAXBElement<T> root;
             try {
-                jaxbContext = JAXBContext.newInstance(type);
-                jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                root = jaxbUnmarshaller.unmarshal(new StreamSource(new StringReader( message)), type);
-                T msg = root.getValue();
-                this.send(msg);
+                JAXBContext jaxbContext = JAXBContext.newInstance(type);
+                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                StringReader sReader = new StringReader( message);
+                StreamSource streamSource = new StreamSource(sReader);
+                JAXBElement<?>  root = jaxbUnmarshaller.unmarshal(streamSource, type);
+                Object msg = root.getValue();
+                send(msg);
             } catch (JAXBException e) {
                 e.printStackTrace();
             }
@@ -222,7 +232,4 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                     ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
         }
     }
-
-    @Override
-    abstract public void retryOccurrence(EndPointConfiguration endPointConfiguration, String method, String payload);
 }

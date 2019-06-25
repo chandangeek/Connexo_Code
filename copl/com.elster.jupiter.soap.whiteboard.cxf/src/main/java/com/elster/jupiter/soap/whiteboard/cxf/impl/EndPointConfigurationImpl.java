@@ -436,10 +436,9 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public void retryOccurrence(String payload, String method){
+    public void retryOccurrence(String method, String payload){
         OutboundEndPointProvider provider = (OutboundEndPointProvider)webServicesService.getProvider(webServiceName);
-        provider.retryOccurrence(this, method, payload);
-        /*XROMVYU*/
+        provider.using(method).toEndpoints(this).send( payload, this);
     }
 
 }

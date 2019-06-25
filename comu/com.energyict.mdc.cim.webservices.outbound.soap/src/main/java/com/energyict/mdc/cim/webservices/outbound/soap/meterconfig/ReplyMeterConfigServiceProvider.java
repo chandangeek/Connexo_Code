@@ -162,20 +162,6 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 .send(message);
     }
 
-
-
-
-    @Override
-    public void retryOccurrence(EndPointConfiguration endPointConfiguration, String method, String message) {
-        //MeterConfigEventMessageType message;
-        /*XROMVYU convert payload to message here */
-        using(method)
-                .toEndpoints(endPointConfiguration)
-                .send(message, MeterConfigEventMessageType.class);
-    }
-
-
-
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
