@@ -33,10 +33,10 @@ public class TimeOfUseCampaignInfo {
     public long version;
     public boolean withUniqueCalendarName;
 
-    public IdWithNameInfo sendCalendarСomTask;
+    public IdWithNameInfo sendCalendarComTask;
     public IdWithNameInfo sendCalendarConnectionStrategy;
 
-    public IdWithNameInfo validationСomTask;
+    public IdWithNameInfo validationComTask;
     public IdWithNameInfo validationConnectionStrategy;
 
 }

@@ -317,9 +317,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         timeOfUseCampaignInfo.startedOn = Instant.ofEpochSecond(111);
         timeOfUseCampaignInfo.finishedOn = null;
         timeOfUseCampaignInfo.status = "Ongoing";
-        timeOfUseCampaignInfo.sendCalendarСomTask = new IdWithNameInfo(1L, "ctask");
+        timeOfUseCampaignInfo.sendCalendarComTask = new IdWithNameInfo(1L, "ctask");
         timeOfUseCampaignInfo.sendCalendarConnectionStrategy = new IdWithNameInfo(2L, "As soon as possible");
-        timeOfUseCampaignInfo.validationСomTask = new IdWithNameInfo(1L, "ctask");
+        timeOfUseCampaignInfo.validationComTask = new IdWithNameInfo(1L, "ctask");
         timeOfUseCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(1L, "Minimize connections");
         return timeOfUseCampaignInfo;
     }

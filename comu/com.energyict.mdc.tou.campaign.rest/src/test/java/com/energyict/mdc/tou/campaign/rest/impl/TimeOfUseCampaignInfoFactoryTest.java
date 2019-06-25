@@ -70,12 +70,12 @@ public class TimeOfUseCampaignInfoFactoryTest {
         assertEquals(timeOfUseCampaignInfo.deviceType.name, "TestDeviceType");
         assertEquals(timeOfUseCampaignInfo.deviceType.id, 1L);
 
-        assertEquals(timeOfUseCampaignInfo.sendCalendarСomTask.name, "ctask");
-        assertEquals(timeOfUseCampaignInfo.sendCalendarСomTask.id, 1L);
+        assertEquals(timeOfUseCampaignInfo.sendCalendarComTask.name, "ctask");
+        assertEquals(timeOfUseCampaignInfo.sendCalendarComTask.id, 1L);
         assertEquals(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.name, "As soon as possible");
         assertEquals(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.id, 2L);
-        assertEquals(timeOfUseCampaignInfo.validationСomTask.name, "ctask");
-        assertEquals(timeOfUseCampaignInfo.validationСomTask.id, 1L);
+        assertEquals(timeOfUseCampaignInfo.validationComTask.name, "ctask");
+        assertEquals(timeOfUseCampaignInfo.validationComTask.id, 1L);
         assertEquals(timeOfUseCampaignInfo.validationConnectionStrategy.name, "Minimize connections");
         assertEquals(timeOfUseCampaignInfo.validationConnectionStrategy.id, 1L);
     }
