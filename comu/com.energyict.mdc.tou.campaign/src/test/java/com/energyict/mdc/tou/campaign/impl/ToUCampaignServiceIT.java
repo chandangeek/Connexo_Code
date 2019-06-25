@@ -201,8 +201,8 @@ public class ToUCampaignServiceIT {
                 .withUniqueCalendarName(false)
                 .withSendCalendarComTaskId(1L)
                 .withValidationComTaskId(1L)
-                .withSendCalendarСonnectionStrategyId(2L)
-                .withValidationСonnectionStrategyId(1L)
+                .withSendCalendarConnectionStrategyId(2L)
+                .withValidationConnectionStrategyId(1L)
                 .create();
         assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
         assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
@@ -215,8 +215,8 @@ public class ToUCampaignServiceIT {
         assertThat(timeOfUseCampaign1.getValidationTimeout()).isEqualTo(timeValidation);
         assertThat(timeOfUseCampaign1.getSendCalendarComTaskId()).isEqualTo(1L);
         assertThat(timeOfUseCampaign1.getValidationComTaskId()).isEqualTo(1L);
-        assertThat(timeOfUseCampaign1.getSendCalendarСonnectionStrategyId()).isEqualTo(2L);
-        assertThat(timeOfUseCampaign1.getValidationСonnectionStrategyId()).isEqualTo(1L);
+        assertThat(timeOfUseCampaign1.getSendCalendarConnectionStrategyId()).isEqualTo(2L);
+        assertThat(timeOfUseCampaign1.getValidationConnectionStrategyId()).isEqualTo(1L);
     }
 
     @Test

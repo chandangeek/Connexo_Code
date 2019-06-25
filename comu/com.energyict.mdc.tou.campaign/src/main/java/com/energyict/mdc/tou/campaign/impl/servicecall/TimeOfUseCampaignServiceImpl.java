@@ -42,16 +42,20 @@ import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
@@ -118,6 +122,9 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
+    /*private volatile TaskService taskService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile SchedulingService schedulingService;*/
     private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -134,7 +141,8 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                                         MeteringGroupsService meteringGroupsService, OrmService ormService, Clock clock, DeviceService deviceService,
                                         CalendarService calendarService, DeviceConfigurationService deviceConfigurationService,
                                         DeviceMessageSpecificationService deviceMessageSpecificationService, EventService eventService,
-                                        BundleContext bundleContext) {
+                                        BundleContext bundleContext/*,
+                                        TaskService taskService,CommunicationTaskService communicationTaskService,SchedulingService schedulingService*/) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
@@ -153,6 +161,9 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         setCalendarService(calendarService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        /*setTaskService(taskService);
+        setCommunicationTaskService(communicationTaskService);
+        setSchedulingService(schedulingService);*/
         activate(bundleContext);
     }
 
@@ -181,6 +192,9 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(TimeOfUseCampaignService.class).toInstance(TimeOfUseCampaignServiceImpl.this);
                 bind(TimeOfUseCampaignServiceImpl.class).toInstance(TimeOfUseCampaignServiceImpl.this);
+                /*bind(TaskService.class).toInstance(taskService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(SchedulingService.class).toInstance(schedulingService);*/
             }
         };
     }
@@ -300,6 +314,21 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
+
+   /* @Reference
+    public void setTaskService(TaskService taskService){
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService){
+        this.schedulingService = schedulingService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService){
+        this.communicationTaskService = communicationTaskService;
+    }*/
 
     @Override
     public String getComponentName() {
@@ -590,4 +619,13 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         String activationOption = timeOfUseCampaign.getActivationOption();
         return (activationOption.equals(TranslationKeys.IMMEDIATELY.getKey()) || activationOption.equals(TranslationKeys.ON_DATE.getKey()));
     }
+
+    /*public void startToUCampaignComTasks(TimeOfUseCampaign timeOfUseCampaign){
+        taskService.findComTask(timeOfUseCampaign.getSendCalendarComTaskId());
+        taskService.findComTask(timeOfUseCampaign.getValidationComTaskId());
+        List<ComTaskExecution> comTaskExecution = new ArrayList<>();
+        ComTaskExecution cte = new ComTaskExecutionImpl(dataModel, eventService,thesaurus,clock,communicationTaskService,schedulingService);
+        cte.schedule(timeOfUseCampaign.getUploadPeriodStart());
+    }*/
+
 }

@@ -64,11 +64,11 @@ public interface TimeOfUseCampaign {
 
     void setValidationComTaskId(long validationComTaskId);
 
-    Long getSendCalendarСonnectionStrategyId();
+    Long getSendCalendarConnectionStrategyId();
 
-    Long getValidationСonnectionStrategyId();
+    Long getValidationConnectionStrategyId();
 
-    void setSendCalendarСonnectionStrategyId(long sendCalendarСonnectionStrategyId);
+    void setSendCalendarConnectionStrategyId(long sendCalendarConnectionStrategyId);
 
-    void setValidationСonnectionStrategyId(long validationСonnectionStrategyId);
+    void setValidationConnectionStrategyId(long validationConnectionStrategyId);
 }

@@ -113,6 +113,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.scheduling</artifactId>
+        </dependency>
         <!-- Testing -->
 
         <dependency>
@@ -228,11 +232,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.metering</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.scheduling</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

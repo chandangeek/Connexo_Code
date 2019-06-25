@@ -34,9 +34,9 @@ public class TimeOfUseCampaignInfo {
     public boolean withUniqueCalendarName;
 
     public IdWithNameInfo sendCalendarСomTask;
-    public IdWithNameInfo sendCalendarСonnectionStrategy;
+    public IdWithNameInfo sendCalendarConnectionStrategy;
 
     public IdWithNameInfo validationСomTask;
-    public IdWithNameInfo validationСonnectionStrategy;
+    public IdWithNameInfo validationConnectionStrategy;
 
 }

@@ -318,9 +318,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         timeOfUseCampaignInfo.finishedOn = null;
         timeOfUseCampaignInfo.status = "Ongoing";
         timeOfUseCampaignInfo.sendCalendarСomTask = new IdWithNameInfo(1L, "ctask");
-        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy = new IdWithNameInfo(2L, "As soon as possible");
+        timeOfUseCampaignInfo.sendCalendarConnectionStrategy = new IdWithNameInfo(2L, "As soon as possible");
         timeOfUseCampaignInfo.validationСomTask = new IdWithNameInfo(1L, "ctask");
-        timeOfUseCampaignInfo.validationСonnectionStrategy = new IdWithNameInfo(1L, "Minimize connections");
+        timeOfUseCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(1L, "Minimize connections");
         return timeOfUseCampaignInfo;
     }
 
@@ -350,8 +350,8 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         when(timeOfUseCampaign.getVersion()).thenReturn(4L);
         when(timeOfUseCampaign.getSendCalendarComTaskId()).thenReturn(1L);
         when(timeOfUseCampaign.getValidationComTaskId()).thenReturn(1L);
-        when(timeOfUseCampaign.getSendCalendarСonnectionStrategyId()).thenReturn(2L);
-        when(timeOfUseCampaign.getValidationСonnectionStrategyId()).thenReturn(1L);
+        when(timeOfUseCampaign.getSendCalendarConnectionStrategyId()).thenReturn(2L);
+        when(timeOfUseCampaign.getValidationConnectionStrategyId()).thenReturn(1L);
         ComTask comtask = mock(ComTask.class);
         when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
         when(taskService.findComTask(anyLong()).get().getName()).thenReturn("ctask");

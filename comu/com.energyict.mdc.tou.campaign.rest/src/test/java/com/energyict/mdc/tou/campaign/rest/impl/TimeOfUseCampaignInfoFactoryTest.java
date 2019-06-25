@@ -72,12 +72,12 @@ public class TimeOfUseCampaignInfoFactoryTest {
 
         assertEquals(timeOfUseCampaignInfo.sendCalendarСomTask.name, "ctask");
         assertEquals(timeOfUseCampaignInfo.sendCalendarСomTask.id, 1L);
-        assertEquals(timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.name, "As soon as possible");
-        assertEquals(timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id, 2L);
+        assertEquals(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.name, "As soon as possible");
+        assertEquals(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.id, 2L);
         assertEquals(timeOfUseCampaignInfo.validationСomTask.name, "ctask");
         assertEquals(timeOfUseCampaignInfo.validationСomTask.id, 1L);
-        assertEquals(timeOfUseCampaignInfo.validationСonnectionStrategy.name, "Minimize connections");
-        assertEquals(timeOfUseCampaignInfo.validationСonnectionStrategy.id, 1L);
+        assertEquals(timeOfUseCampaignInfo.validationConnectionStrategy.name, "Minimize connections");
+        assertEquals(timeOfUseCampaignInfo.validationConnectionStrategy.id, 1L);
     }
 
     @Test
@@ -130,8 +130,8 @@ public class TimeOfUseCampaignInfoFactoryTest {
         when(timeOfUseCampaign.getValidationTimeout()).thenReturn(120L);
         when(timeOfUseCampaign.getSendCalendarComTaskId()).thenReturn(1L);
         when(timeOfUseCampaign.getValidationComTaskId()).thenReturn(1L);
-        when(timeOfUseCampaign.getSendCalendarСonnectionStrategyId()).thenReturn(2L);
-        when(timeOfUseCampaign.getValidationСonnectionStrategyId()).thenReturn(1L);
+        when(timeOfUseCampaign.getSendCalendarConnectionStrategyId()).thenReturn(2L);
+        when(timeOfUseCampaign.getValidationConnectionStrategyId()).thenReturn(1L);
         ComTask comtask = mock(ComTask.class);
         when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
         when(taskService.findComTask(anyLong()).get().getName()).thenReturn("ctask");

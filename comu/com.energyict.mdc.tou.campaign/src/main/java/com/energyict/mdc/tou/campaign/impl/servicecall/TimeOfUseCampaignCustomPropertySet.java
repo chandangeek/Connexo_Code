@@ -155,12 +155,12 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .finish(),
                 propertySpecService
                         .longSpec()
-                        .named(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_СONNECTIONSTRATEGY_ID.javaName(), TranslationKeys.SEND_CALENDAR_СONNECTIONSTRATEGY_ID)
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_CONNECTIONSTRATEGY_ID.javaName(), TranslationKeys.SEND_CALENDAR_CONNECTIONSTRATEGY_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .longSpec()
-                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_СONNECTIONSTRATEGY_ID.javaName(), TranslationKeys.VALIDATION_СONNECTIONSTRATEGY_ID)
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY_ID.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY_ID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );

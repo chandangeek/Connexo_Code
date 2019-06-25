@@ -57,6 +57,10 @@ public class TimeOfUseCampaignInfoFactory {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, timeOfUseCampaignInfo.deviceType.id));
         Calendar calendar = calendarService.findCalendar(((Number) timeOfUseCampaignInfo.calendar.id).longValue())
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.CALENDAR_WITH_ID_ISNT_FOUND, timeOfUseCampaignInfo.calendar.id));
+        if(timeOfUseCampaignInfo.validationСomTask == null){
+            timeOfUseCampaignInfo.validationСomTask = new IdWithNameInfo(0,null);
+            timeOfUseCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(0,null);
+        }
         TimeOfUseCampaignBuilder timeOfUseCampaignBuilder = timeOfUseCampaignService
                 .newTouCampaignBuilder(timeOfUseCampaignInfo.name, deviceType, calendar)
                 .withDeviceGroup(timeOfUseCampaignInfo.deviceGroup)
@@ -68,8 +72,8 @@ public class TimeOfUseCampaignInfoFactory {
                 .withUniqueCalendarName(timeOfUseCampaignInfo.withUniqueCalendarName)
                 .withSendCalendarComTaskId(Long.parseLong(timeOfUseCampaignInfo.sendCalendarСomTask.id.toString()))
                 .withValidationComTaskId(Long.parseLong(timeOfUseCampaignInfo.validationСomTask.id.toString()))
-                .withSendCalendarСonnectionStrategyId(Long.parseLong(timeOfUseCampaignInfo.sendCalendarСonnectionStrategy.id.toString()))
-                .withValidationСonnectionStrategyId(Long.parseLong(timeOfUseCampaignInfo.validationСonnectionStrategy.id.toString()));
+                .withSendCalendarConnectionStrategyId(Long.parseLong(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.id.toString()))
+                .withValidationConnectionStrategyId(Long.parseLong(timeOfUseCampaignInfo.validationConnectionStrategy.id.toString()));
         return timeOfUseCampaignBuilder.create();
     }
 
@@ -89,13 +93,13 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.version = campaign.getVersion();
         timeOfUseCampaignInfo.withUniqueCalendarName = campaign.isWithUniqueCalendarName();
         timeOfUseCampaignInfo.sendCalendarСomTask = new IdWithNameInfo(campaign.getSendCalendarComTaskId(),taskService.findComTask(campaign.getSendCalendarComTaskId()).get().getName());
-        timeOfUseCampaignInfo.validationСomTask = new IdWithNameInfo(new Long(campaign.getValidationComTaskId()),taskService.findComTask(campaign.getValidationComTaskId()).get().getName());
-        timeOfUseCampaignInfo.sendCalendarСonnectionStrategy = new IdWithNameInfo(campaign.getSendCalendarСonnectionStrategyId(),
-                campaign.getSendCalendarСonnectionStrategyId() == 1?
+        timeOfUseCampaignInfo.validationСomTask = campaign.getValidationComTaskId() == 0 ? null : new IdWithNameInfo(new Long(campaign.getValidationComTaskId()),taskService.findComTask(campaign.getValidationComTaskId()).get().getName());
+        timeOfUseCampaignInfo.sendCalendarConnectionStrategy = new IdWithNameInfo(campaign.getSendCalendarConnectionStrategyId(),
+                campaign.getSendCalendarConnectionStrategyId() == 1?
                         TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
                         TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
-        timeOfUseCampaignInfo.validationСonnectionStrategy = new IdWithNameInfo(campaign.getValidationСonnectionStrategyId(),
-                campaign.getValidationСonnectionStrategyId() == 1?
+        timeOfUseCampaignInfo.validationConnectionStrategy = campaign.getValidationConnectionStrategyId() == 0 ? null : new IdWithNameInfo(campaign.getValidationConnectionStrategyId(),
+                campaign.getValidationConnectionStrategyId() == 1?
                         TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
                         TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         return timeOfUseCampaignInfo;

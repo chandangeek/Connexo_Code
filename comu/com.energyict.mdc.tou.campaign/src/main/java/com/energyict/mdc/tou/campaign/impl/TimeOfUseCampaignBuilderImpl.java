@@ -31,8 +31,8 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public boolean withUniqueCalendarName;
     public Long sendCalendarComTaskId;
     public Long validationComTaskId;
-    public Long sendCalendarСonnectionStrategyId;
-    public Long validationСonnectionStrategyId;
+    public Long sendCalendarConnectionStrategyId;
+    public Long validationConnectionStrategyId;
 
     private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private final DataModel dataModel;
@@ -74,14 +74,14 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withSendCalendarСonnectionStrategyId(long sendCalendarСonnectionStrategyId) {
-        this.sendCalendarСonnectionStrategyId = sendCalendarСonnectionStrategyId;
+    public TimeOfUseCampaignBuilder withSendCalendarConnectionStrategyId(long sendCalendarConnectionStrategyId) {
+        this.sendCalendarConnectionStrategyId = sendCalendarConnectionStrategyId;
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withValidationСonnectionStrategyId(long validationСonnectionStrategyId) {
-        this.validationСonnectionStrategyId = validationСonnectionStrategyId;
+    public TimeOfUseCampaignBuilder withValidationConnectionStrategyId(long validationConnectionStrategyId) {
+        this.validationConnectionStrategyId = validationConnectionStrategyId;
         return this;
     }
 
@@ -138,11 +138,12 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setWithUniqueCalendarName(withUniqueCalendarName);
         timeOfUseCampaign.setSendCalendarComTaskId(sendCalendarComTaskId);
         timeOfUseCampaign.setValidationComTaskId(validationComTaskId);
-        timeOfUseCampaign.setSendCalendarСonnectionStrategyId(sendCalendarСonnectionStrategyId);
-        timeOfUseCampaign.setValidationСonnectionStrategyId(validationСonnectionStrategyId);
+        timeOfUseCampaign.setSendCalendarConnectionStrategyId(sendCalendarConnectionStrategyId);
+        timeOfUseCampaign.setValidationConnectionStrategyId(validationConnectionStrategyId);
         Optional.ofNullable(activationDate).ifPresent(timeOfUseCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(timeOfUseCampaign::setValidationTimeout);
         ServiceCall serviceCall = timeOfUseCampaignService.createServiceCallAndTransition(timeOfUseCampaign);
+        //timeOfUseCampaignService.startToUCampaignComTasks(timeOfUseCampaign);
         return timeOfUseCampaignService.getCampaign(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Just created campaign not found."));
     }
 }

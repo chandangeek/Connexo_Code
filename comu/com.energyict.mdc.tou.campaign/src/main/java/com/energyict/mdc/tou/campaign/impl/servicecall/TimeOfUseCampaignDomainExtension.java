@@ -47,8 +47,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name"),
         VALIDATION_COMTASK_ID("validationComTaskId", "validation_comtask_id"),
         SEND_CALENDAR_COMTASK_ID("sendCalendarComTaskId", "send_calendar_comtask_id"),
-        VALIDATION_СONNECTIONSTRATEGY_ID("validationСonnectionStrategyId", "validation_constrategy_id"),
-        SEND_CALENDAR_СONNECTIONSTRATEGY_ID("sendCalendarСonnectionStrategyId", "send_calendar_constrategy_id"),
+        VALIDATION_CONNECTIONSTRATEGY_ID("validationConnectionStrategyId", "validation_constrategy_id"),
+        SEND_CALENDAR_CONNECTIONSTRATEGY_ID("sendCalendarConnectionStrategyId", "send_calendar_constrategy_id"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -101,8 +101,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private boolean withUniqueCalendarName;
     private long sendCalendarComTaskId;
     private long validationComTaskId;
-    private long sendCalendarСonnectionStrategyId;
-    private long validationСonnectionStrategyId;
+    private long sendCalendarConnectionStrategyId;
+    private long validationConnectionStrategyId;
 
     @Inject
     public TimeOfUseCampaignDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
@@ -201,23 +201,23 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public Long getSendCalendarСonnectionStrategyId() {
-        return sendCalendarСonnectionStrategyId;
+    public Long getSendCalendarConnectionStrategyId() {
+        return sendCalendarConnectionStrategyId;
     }
 
     @Override
-    public Long getValidationСonnectionStrategyId() {
-        return validationСonnectionStrategyId;
+    public Long getValidationConnectionStrategyId() {
+        return validationConnectionStrategyId;
     }
 
     @Override
-    public void setSendCalendarСonnectionStrategyId(long sendCalendarСonnectionStrategyId) {
-        this.sendCalendarСonnectionStrategyId = sendCalendarСonnectionStrategyId;
+    public void setSendCalendarConnectionStrategyId(long sendCalendarConnectionStrategyId) {
+        this.sendCalendarConnectionStrategyId = sendCalendarConnectionStrategyId;
     }
 
     @Override
-    public void setValidationСonnectionStrategyId(long validationСonnectionStrategyId) {
-        this.validationСonnectionStrategyId = validationСonnectionStrategyId;
+    public void setValidationConnectionStrategyId(long validationConnectionStrategyId) {
+        this.validationConnectionStrategyId = validationConnectionStrategyId;
     }
 
     @Override
@@ -305,8 +305,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setWithUniqueCalendarName((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName()));
         this.setValidationComTaskId((long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
         this.setSendCalendarComTaskId((long) propertyValues.getProperty(FieldNames.SEND_CALENDAR_COMTASK_ID.javaName()));
-        this.setValidationСonnectionStrategyId((long) propertyValues.getProperty(FieldNames.VALIDATION_СONNECTIONSTRATEGY_ID.javaName()));
-        this.setSendCalendarСonnectionStrategyId((long) propertyValues.getProperty(FieldNames.SEND_CALENDAR_СONNECTIONSTRATEGY_ID.javaName()));
+        this.setValidationConnectionStrategyId((long) propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY_ID.javaName()));
+        this.setSendCalendarConnectionStrategyId((long) propertyValues.getProperty(FieldNames.SEND_CALENDAR_CONNECTIONSTRATEGY_ID.javaName()));
     }
 
     @Override
@@ -324,8 +324,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
         propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
         propertySetValues.setProperty(FieldNames.SEND_CALENDAR_COMTASK_ID.javaName(), this.getSendCalendarComTaskId());
-        propertySetValues.setProperty(FieldNames.VALIDATION_СONNECTIONSTRATEGY_ID.javaName(), this.getValidationСonnectionStrategyId());
-        propertySetValues.setProperty(FieldNames.SEND_CALENDAR_СONNECTIONSTRATEGY_ID.javaName(), this.getSendCalendarСonnectionStrategyId());
+        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY_ID.javaName(), this.getValidationConnectionStrategyId());
+        propertySetValues.setProperty(FieldNames.SEND_CALENDAR_CONNECTIONSTRATEGY_ID.javaName(), this.getSendCalendarConnectionStrategyId());
     }
 
     @Override
