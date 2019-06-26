@@ -42,7 +42,7 @@ Ext.define('Isu.controller.CreationManualRule', {
 
         if (router.arguments && router.arguments.deviceId){
             deviceId = router.arguments.deviceId;
-            returnLink = router.getRoute('devices').buildUrl() + '/' + deviceId;
+            returnLink = router.getRoute('devices/device').buildUrl();
         }
         if (Isu.privileges.Issue.canCreateManualIssue()){
             var widget = Ext.widget('issue-manually-creation-rules-item-add',{
@@ -55,54 +55,72 @@ Ext.define('Isu.controller.CreationManualRule', {
 
     },
 
+    validateIssueReason: function(record){
+        var me = this,
+            form = me.getForm(),
+            comboReason = form.down('#issueReason'),
+            reasonEditedValue = comboReason.getRawValue(),
+            reason = comboReason.store.find('name', reasonEditedValue),
+            reasonEditedValueWithoutSpaces = reasonEditedValue.trim();
+
+            if (reason === -1){
+                if (reasonEditedValueWithoutSpaces !== ''){
+                    var reasonData = {
+                        id: reasonEditedValue,
+                        name: reasonEditedValue
+                    };
+                    comboReason.store.add(reasonData);
+                    record.set('reasonId', reasonEditedValue)
+                }else{
+                    comboReason.markInvalid(Uni.I18n.translate('issues.required.field', 'ISU', 'This field is required'));
+                    return false;
+                }
+            }
+            return true;
+    },
+
+    setDueDate: function(record){
+        var me = this,
+            form = me.getForm(),
+            dueDateTrigger = form.down('#dueDateTrigger'),
+            dueInNumber = form.down('[name=dueIn.number]'),
+            dueInType = form.down('[name=dueIn.type]'),
+            urgency = record.get('priority.urgency'),
+            impact = record.get('priority.impact');
+
+           if ( urgency !== undefined && impact !== undefined ){
+                record.set('priority' , urgency + ':' + impact);
+           }
+           if (dueDateTrigger && dueInNumber &&  dueInNumber.getValue()) {
+                record.set('dueDate', {
+                    number: dueInNumber.getValue(),
+                    type: dueInType.getValue()
+                });
+                dueDateTrigger.setValue({dueDate: true});
+           } else {
+                record.set('dueDate', null);
+                dueDateTrigger.setValue({dueDate: false});
+           }
+    },
+
     saveAction: function (){
        var me = this,
            page = me.getPage(),
            form = me.getForm(),
            errorMessage = form.down('uni-form-error-message'),
-           baseForm = form.getForm(),
-           comboReason = form.down('#issueReason'),
-           reasonEditedValue = comboReason.getRawValue(),
-           reason = comboReason.store.find('name', reasonEditedValue);
+           baseForm = form.getForm();
 
        errorMessage.hide();
 
-       if (!form.isValid() || reasonEditedValue.trim() == '') {
+       form.updateRecord();
+       var record = form.getRecord();
+
+       if (!form.isValid() || !me.validateIssueReason(record)) {
             errorMessage.show();
-            if (reasonEditedValue.trim() == '') comboReason.markInvalid(Uni.I18n.translate('issues.required.field', 'ISU', 'This field is required'));
             return;
        }
 
-
-       form.updateRecord();
-
-       var record = form.getRecord();
-
-       if(reason === -1 && reasonEditedValue.trim() != ''){
-            var value = reasonEditedValue.trim();
-            var id = value.toLowerCase().replace (/ /g, '.');
-            var rec = {
-                id: value,
-                name: value
-            };
-            comboReason.store.add(rec);
-            comboReason.setValue(comboReason.store.getAt(comboReason.store.count()-1).get('id'));
-            record.set('reasonId', value)
-       }
-
-       var urgency = record.get('priority.urgency');
-       var impact = record.get('priority.impact');
-       if ( urgency !== undefined && impact !== undefined ) record.set('priority' , urgency + ':' + impact);
-       if (form.down('#dueDateTrigger') && form.down('[name=dueIn.number]') &&  form.down('[name=dueIn.number]').getValue()) {
-            record.set('dueDate', {
-                number: form.down('[name=dueIn.number]').getValue(),
-                type: form.down('[name=dueIn.type]').getValue()
-            });
-            form.down('#dueDateTrigger').setValue({dueDate: true});
-       } else {
-            record.set('dueDate', null);
-            form.down('#dueDateTrigger').setValue({dueDate: false});
-       }
+       me.setDueDate(record);
 
        Ext.Ajax.request({
             url: record.getProxy().url,

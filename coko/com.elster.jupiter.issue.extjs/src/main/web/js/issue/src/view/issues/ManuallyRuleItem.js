@@ -195,10 +195,13 @@ Ext.define('Isu.view.issues.ManuallyRuleItem', {
                                         },
                                         change: {
                                             fn: function (field, newValue) {
+                                                var maxValue = Math.pow(10,12);
+                                                var absValue = Math.abs(newValue);
+
                                                 if (newValue < 0) {
-                                                    field.setValue(Math.abs(newValue));
-                                                } else if (newValue > Math.pow(10,12)) {
-                                                    field.setValue(Math.pow(10,12));
+                                                    field.setValue(absValue);
+                                                } else if (newValue > maxValue) {
+                                                    field.setValue(maxValue);
                                                 }
                                             }
                                         }
