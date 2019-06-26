@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.MailPropertyFactory;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,9 +32,11 @@ public class MailIssueAction extends AbstractIssueAction {
     public static final String TO = NAME + ".to";
 
     private Issue issue;
+    private IssueService issueService;
     @Inject
     protected MailIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService) {
         super(dataModel, thesaurus, propertySpecService);
+        this.issueService = issueService;
     }
 
     @Override
@@ -51,6 +52,44 @@ public class MailIssueAction extends AbstractIssueAction {
 
     @Override
     public IssueActionResult execute(Issue issue) {
+
+       /* Properties props = new Properties();
+        props.put("mail.host", "smtp.honeywell.com");
+
+        Session mailConnection = Session.getInstance(props, null);
+        Message msg = new MimeMessage(mailConnection);
+
+        Address a = null;
+        try {
+            a = new InternetAddress("venkatakrishna.alisetty@honeywell.com", "A a");
+            Address b = new InternetAddress("venkatakrishna.alisetty@honeywell.com");
+            msg.setContent("Mail contect", "text/plain");
+            msg.setFrom(a);
+            msg.setRecipient(Message.RecipientType.TO, b);
+            msg.setSubject("subject");
+            Transport.send(msg);
+        } catch (UnsupportedEncodingException  | MessagingException e) {
+            e.printStackTrace();
+        }*/
+
+
+
+        System.out.println( "Subject:   "+issue.getIssueId() + "-"+issue.getTitle());
+        System.out.println();
+        System.out.println("Body:   "+"\n" +
+                                "ID:" + issue.getIssueId() +"\n" +
+                                "Issue reason: " + issue.getReason().getName() +"\n" +
+                                "Issue type: " +issue.getReason().getIssueType().getName() +"\n" +
+                                "User: " + issue.getAssignee().getUser().getDescription() +"\n" +
+                                "Creation Time: " + issue.getCreateDateTime()
+        );
+/*
+        Object ID: DLI-1012
+        Issue reason: Device life cycle transition failure
+        Issue type: Device life cycle
+        User: root
+        Creation Date: Wed 17 Apr'19 at 14:26:05*/
+        //   issue.getIssueId()() + "-"+issue.getTitle()
         IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
         result.success(getThesaurus().getFormat(TranslationKeys.ACTION_MAIL_ISSUE).format());
         return result;
@@ -64,7 +103,7 @@ public class MailIssueAction extends AbstractIssueAction {
                         .named(TO, TranslationKeys.ACTION_MAIL_TO)
                         .fromThesaurus(this.getThesaurus())
                         .markRequired()
-                        .setDefaultValue(getDefaultValues())
+                        .setDefaultValue(getDefaultValues(issue))
                         .finish());
         return propertySpecs;
     }
@@ -75,9 +114,8 @@ public class MailIssueAction extends AbstractIssueAction {
         String data = "";
         if (value != null) {
             try {
-                JSONObject jsonData = new JSONObject(((MailTo) value).mailTo.get());
-                data = String.format("%s",
-                        jsonData.get("mailTo"));
+                String recipients = ((MailTo) value).mailTo.get();
+                data = String.format("%s", recipients);
             } catch (Exception e) {
                 data = "";
             }
@@ -90,20 +128,19 @@ public class MailIssueAction extends AbstractIssueAction {
         private Optional<String> mailTo;
 
         MailTo(String mailTo) {
-            this.mailTo = mailTo != null ? Optional.of(mailTo) : Optional.empty();
+            this.mailTo = mailTo != null ? Optional.of(mailTo) : Optional.of("");
         }
 
         @Override
         public String getId() {
             return mailTo.get();
-
         }
 
         @Override
         public String getName() {
             try {
                 JSONObject jsonName = new JSONObject();
-                jsonName.put("mailTo", mailTo.get());
+                jsonName.put("recipients", mailTo.get());
                 return jsonName.toString();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -113,16 +150,26 @@ public class MailIssueAction extends AbstractIssueAction {
 
     }
 
-    private MailTo getDefaultValues() {
-        MailTo mailTo = new MailTo("Recipients");
-        return mailTo;
+    private MailTo getDefaultValues(Issue issue) {
+        if(issue != null)
+            return new MailTo("");
+        return new MailTo("");
     }
 
     private class MailToValueFactory implements ValueFactory<MailTo>, MailPropertyFactory {
         @Override
         public MailTo fromStringValue(String stringValue) {
-            MailTo m = new MailTo(stringValue);
-            return m;
+            if(stringValue.substring(0, 1).compareTo("{") == 0){
+                try {
+                    JSONObject jsonData = new JSONObject(stringValue);
+                    String value = jsonData.get("recipients").toString();
+                    return new MailTo(value);
+                } catch (JSONException e) {
+                    return null;
+                }
+            }
+            return new MailTo(stringValue);
+
         }
 
         @Override
@@ -137,15 +184,8 @@ public class MailIssueAction extends AbstractIssueAction {
 
         @Override
         public MailTo valueFromDatabase(Object object) {
-            JSONObject jsonObject = new JSONObject(object);
-            MailTo mailTo;
-            try {
-                mailTo = this.fromStringValue(jsonObject.getString("mailTo"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-                mailTo = null;
-            }
-            return mailTo;
+            return this.fromStringValue((String) object);
+
         }
 
         @Override
