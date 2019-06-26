@@ -63,16 +63,18 @@ Ext.define('Isu.controller.CreationManualRule', {
             reason = comboReason.store.find('name', reasonEditedValue),
             reasonEditedValueWithoutSpaces = reasonEditedValue.trim();
 
-            if (reason === -1 && reasonEditedValueWithoutSpaces !== ''){
-                var reasonData = {
-                    id: reasonEditedValue,
-                    name: reasonEditedValue
-                };
-                comboReason.store.add(reasonData);
-                record.set('reasonId', reasonEditedValue)
-            }else{
-                comboReason.markInvalid(Uni.I18n.translate('issues.required.field', 'ISU', 'This field is required'));
-                return false;
+            if (reason === -1){
+                if (reasonEditedValueWithoutSpaces !== ''){
+                    var reasonData = {
+                        id: reasonEditedValue,
+                        name: reasonEditedValue
+                    };
+                    comboReason.store.add(reasonData);
+                    record.set('reasonId', reasonEditedValue)
+                }else{
+                    comboReason.markInvalid(Uni.I18n.translate('issues.required.field', 'ISU', 'This field is required'));
+                    return false;
+                }
             }
             return true;
     },
