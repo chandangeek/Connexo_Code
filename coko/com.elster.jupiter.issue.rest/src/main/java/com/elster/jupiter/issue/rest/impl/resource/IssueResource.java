@@ -33,10 +33,7 @@ import com.elster.jupiter.issue.rest.transactions.BulkSnoozeTransaction;
 import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
 import com.elster.jupiter.issue.rest.transactions.UnassignSingleIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.IssueActionResult;
-import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.*;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
@@ -44,6 +41,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -80,7 +78,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
@@ -114,7 +114,8 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         validateMandatory(params, START, LIMIT);
-        Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter));
+        IssueFilter issueFilter = issueResourceHelper.buildFilterFromQueryParameters(filter);
+        Finder<? extends Issue> finder = getIssueService().findIssues(issueFilter);
         addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
@@ -124,8 +125,20 @@ public class IssueResource extends BaseResource {
         for (Issue baseIssue : issues) {
             for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
-                issueRef.ifPresent(issue -> issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issue)
-                        .from(issue))));
+                issueRef.ifPresent(issue -> {
+                    IssueInfo issueInfo = IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issue).from(issue));
+                    if ( !issueFilter.getUsagePoints().isEmpty()) {
+                        issueFilter.getUsagePoints().stream().forEach(usagePoint -> {
+                            try{
+                                if ( usagePoint.getId() == issueInfo.usagePointInfo.getId() ){
+                                    issueInfos.add(issueInfo);
+                                }
+                            }catch(NullPointerException e){}
+                        });
+                    }else{
+                        issueInfos.add(issueInfo);
+                    }
+                });
             }
         }
         return PagedInfoList.fromPagedList("data", issueInfos, queryParams);

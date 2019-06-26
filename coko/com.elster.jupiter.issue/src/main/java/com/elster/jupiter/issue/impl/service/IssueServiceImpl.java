@@ -806,9 +806,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
 
         //filter by usagepoint
-        if (!filter.getUsagePoints().isEmpty()) {
-            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
-        }
+//        if (!filter.getUsagePoints().isEmpty()) {
+//            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
+//        }
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {
             condition = condition.and(where("status").in(filter.getStatuses()));
