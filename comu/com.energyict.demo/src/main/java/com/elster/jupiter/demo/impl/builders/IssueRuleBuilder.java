@@ -8,6 +8,7 @@ import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -156,15 +157,19 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             IssueCreationService.CreationRuleActionBuilder actionBuilder = builder.newCreationRuleAction();
             actionBuilder.setPhase(CreationRuleActionPhase.fromString("CREATE"));
             Condition condition = where("className").isEqualTo("com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction");
-            Optional<IssueActionType> actionType = Optional.of(issueService.getIssueActionService().getActionTypeQuery().select(condition).get(0));
+            Optional<IssueActionType> actionType = Optional.ofNullable(issueService.getIssueActionService().getActionTypeQuery().select(condition).get(0));
             actionType.ifPresent(issueActionType -> {
-                actionBuilder.setActionType(actionType.get());
-                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonName(issueType.getName()).getPropertySpecs()) {
-                    actionBuilder.addProperty(propertySpec.getName(), propertySpec
-                            .getValueFactory()
-                            .fromStringValue("{\"workgroupId\":2,\"comment\":\"\",\"userId\":-1}"));
-                    actionBuilder.complete();
-                    rule.update();
+                actionBuilder.setActionType(issueActionType);
+                Optional<IssueAction> issueAction = issueActionType.createIssueAction();
+                if (issueAction.isPresent()) {
+                    issueAction.get().setReasonName(issueType.getName());
+                    for (PropertySpec propertySpec : issueAction.get().getPropertySpecs()) {
+                        actionBuilder.addProperty(propertySpec.getName(), propertySpec
+                                .getValueFactory()
+                                .fromStringValue("{\"workgroupId\":2,\"comment\":\"\",\"userId\":-1}"));
+                        actionBuilder.complete();
+                        rule.update();
+                    }
                 }
             });
         }
