@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -269,7 +270,7 @@ public class InMemoryPersistence {
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(ProtocolPluggableService.class).toInstance(mock(ProtocolPluggableService.class));
             bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
-
+            bind(AppService.class).toInstance(mock(AppService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
             doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService)

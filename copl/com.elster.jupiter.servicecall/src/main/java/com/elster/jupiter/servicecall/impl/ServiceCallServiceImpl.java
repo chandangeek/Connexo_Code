@@ -40,7 +40,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -86,7 +85,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
-    static final String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
+    public static final String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
     static final String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
@@ -280,11 +279,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public Optional<DestinationSpec> getDefaultDestination() {
-        return messageService.getDestinationSpec(SERVICE_CALLS_DESTINATION_NAME);
-    }
-
-    @Override
     public Finder<ServiceCallType> getServiceCallTypes() {
         return DefaultFinder.of(ServiceCallType.class, dataModel)
                 .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
@@ -292,14 +286,12 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public Finder<ServiceCallType> getServiceCallTypes(DestinationSpec destinationSpec) {
-        return DefaultFinder.of(ServiceCallType.class, where(ServiceCallTypeImpl.Fields.destination.fieldName()).isEqualTo(destinationSpec), dataModel)
-                .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
-                .sorted(ServiceCallTypeImpl.Fields.version.fieldName(), true);
+    public List<ServiceCallType> getServiceCallTypes(String destination) {
+        return dataModel.mapper(ServiceCallType.class).find(ServiceCallTypeImpl.Fields.destination.fieldName(), destination);
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, DestinationSpec destination) {
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String destination) {
         return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, dataModel, thesaurus);
     }
 

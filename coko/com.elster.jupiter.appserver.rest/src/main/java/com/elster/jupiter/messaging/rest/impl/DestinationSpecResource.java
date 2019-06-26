@@ -254,7 +254,7 @@ public class DestinationSpecResource {
     }
 
     private List<ServiceCallType> getServiceCallTypes(DestinationSpec destinationSpec) {
-        return serviceCallService.getServiceCallTypes(destinationSpec).find();
+        return serviceCallService.getServiceCallTypes(destinationSpec.getName());
     }
 
     private Set<String> getUsedDestinationNames() {

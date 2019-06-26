@@ -91,7 +91,7 @@ public class ServiceCallTypeResource {
             type.setLogLevel(null);
         }
         DestinationSpec destinationSpec = messageService.getDestinationSpec(info.destination).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DESTINATION));
-        type.setDestination(destinationSpec);
+        type.setDestination(destinationSpec.getName());
         type.setPriority(info.priority);
         type.save();
         return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
