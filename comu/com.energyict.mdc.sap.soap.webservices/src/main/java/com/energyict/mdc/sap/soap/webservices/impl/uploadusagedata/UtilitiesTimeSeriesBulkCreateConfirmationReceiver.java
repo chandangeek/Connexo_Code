@@ -45,8 +45,6 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
-    private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile UserService userService;
 
     public UtilitiesTimeSeriesBulkCreateConfirmationReceiver() {
         // for OSGi purposes

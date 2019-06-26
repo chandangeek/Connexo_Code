@@ -4,19 +4,17 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
@@ -30,12 +28,10 @@ import javax.inject.Provider;
 
 import java.util.Optional;
 
-public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkageConfigPort, ApplicationSpecific {
+public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPoint implements MasterDataLinkageConfigPort, ApplicationSpecific {
     static final String NOUN = "MasterDataLinkageConfig";
     private static final String UNSUPPORTED_OPERATION_MESSAGE = "Specified action is not supported. Only Create and Close actions are allowed";
 
-    private final TransactionService transactionService;
-    private final EndPointHelper endPointHelper;
     private final MasterDataLinkageFaultMessageFactory faultMessageFactory;
     private final Provider<MasterDataLinkageHandler> masterDataLinkageHandlerProvider;
     private final Provider<MasterDataLinkageMessageValidator> masterDataLinkageMessageValidatorProvider;
@@ -44,20 +40,17 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
     private final ServiceCallCommands serviceCallCommands;
 
     @FunctionalInterface
-    private interface ThrowingFunction<T, R> {
-        R apply(T t) throws FaultMessage;
+    private interface ThrowingFunction<R> {
+        R apply() throws FaultMessage;
     }
 
     @Inject
     public ExecuteMasterDataLinkageConfigEndpoint(MasterDataLinkageFaultMessageFactory faultMessageFactory,
-            TransactionService transactionService, EndPointHelper endPointHelper,
             Provider<MasterDataLinkageHandler> masterDataLinkageHandlerProvider,
             Provider<MasterDataLinkageMessageValidator> masterDataLinkageMessageValidatorProvider,
             EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
             ServiceCallCommands serviceCallCommands) {
         this.faultMessageFactory = faultMessageFactory;
-        this.transactionService = transactionService;
-        this.endPointHelper = endPointHelper;
         this.masterDataLinkageHandlerProvider = masterDataLinkageHandlerProvider;
         this.masterDataLinkageMessageValidatorProvider = masterDataLinkageMessageValidatorProvider;
         this.endPointConfigurationService = endPointConfigurationService;
@@ -68,10 +61,9 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
     @Override
     public MasterDataLinkageConfigResponseMessageType createMasterDataLinkageConfig(
             MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
-        return process(message, MasterDataLinkageAction.CREATE, context -> {
+        return process(message, MasterDataLinkageAction.CREATE, () -> {
             MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
                     .forMessage(message).createLinkage();
-            context.commit();
             return response;
         });
     }
@@ -79,36 +71,35 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
     @Override
     public MasterDataLinkageConfigResponseMessageType closeMasterDataLinkageConfig(
             MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
-        return process(message, MasterDataLinkageAction.CLOSE, context -> {
+        return process(message, MasterDataLinkageAction.CLOSE, () -> {
             MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
                     .forMessage(message).closeLinkage();
-            context.commit();
             return response;
         });
     }
 
     private MasterDataLinkageConfigResponseMessageType process(MasterDataLinkageConfigRequestMessageType message,
             MasterDataLinkageAction action,
-            ThrowingFunction<TransactionContext, MasterDataLinkageConfigResponseMessageType> synchronousProcessor)
+            ThrowingFunction<MasterDataLinkageConfigResponseMessageType> synchronousProcessor)
             throws FaultMessage {
         masterDataLinkageMessageValidatorProvider.get().validate(message, action);
-        endPointHelper.setSecurityContext();
-        try (TransactionContext context = transactionService.getContext()) {
-            if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
-                return processAsynchronously(message, action, context);
+        return runInTransactionWithOccurrence(() -> {
+            try {
+                if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
+                    return processAsynchronously(message, action);
+                }
+                return synchronousProcessor.apply();
+            } catch (VerboseConstraintViolationException e) {
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(action, e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw faultMessageFactory.createMasterDataLinkageFaultMessage(action, e.getLocalizedMessage(),
+                        e.getErrorCode());
             }
-            return synchronousProcessor.apply(context);
-        } catch (VerboseConstraintViolationException e) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action, e.getLocalizedMessage());
-        } catch (LocalizedException e) {
-            throw faultMessageFactory.createMasterDataLinkageFaultMessage(action, e.getLocalizedMessage(),
-                    e.getErrorCode());
-        }
+        });
     }
 
     private MasterDataLinkageConfigResponseMessageType processAsynchronously(
-            MasterDataLinkageConfigRequestMessageType message, MasterDataLinkageAction action,
-            TransactionContext context) throws FaultMessage {
+            MasterDataLinkageConfigRequestMessageType message, MasterDataLinkageAction action) throws FaultMessage {
         Optional<EndPointConfiguration> outboundEndPointConfiguration;
         String replyAddress = getReplyAddress(message);
         if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
@@ -117,7 +108,6 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
             outboundEndPointConfiguration = Optional.of(getOutboundEndPointConfiguration(action, replyAddress));
         }
         createServiceCallAndTransition(message, outboundEndPointConfiguration, action);
-        context.commit();
         return masterDataLinkageHandlerProvider.get().forMessage(message)
                 .createQuickResponseMessage(HeaderType.Verb.REPLY);
     }

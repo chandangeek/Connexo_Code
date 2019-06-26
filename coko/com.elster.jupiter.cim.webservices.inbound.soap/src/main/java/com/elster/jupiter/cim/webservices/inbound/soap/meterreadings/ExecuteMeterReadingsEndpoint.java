@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.meterreadings;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
@@ -16,12 +15,11 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -63,7 +61,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort, ApplicationSpecific {
+public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implements GetMeterReadingsPort, ApplicationSpecific {
     private static final String NOUN = "MeterReadings";
     private static final String GET_METER_READINGS_ITEM = "GetMeterReadings";
     private static final String READING_TYPES_LIST_ITEM = GET_METER_READINGS_ITEM + ".ReadingType";
@@ -82,8 +80,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort, Appli
     private final Provider<MeterReadingsBuilder> readingBuilderProvider;
     private final ReplyTypeFactory replyTypeFactory;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
-    private final EndPointHelper endPointHelper;
-    private final TransactionService transactionService;
     private final Clock clock;
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
@@ -95,8 +91,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort, Appli
     public ExecuteMeterReadingsEndpoint(Provider<MeterReadingsBuilder> readingBuilderProvider,
                                         ReplyTypeFactory replyTypeFactory,
                                         MeterReadingFaultMessageFactory faultMessageFactory,
-                                        EndPointHelper endPointHelper,
-                                        TransactionService transactionService,
                                         Clock clock,
                                         ServiceCallCommands serviceCallCommands,
                                         EndPointConfigurationService endPointConfigurationService,
@@ -105,8 +99,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort, Appli
         this.readingBuilderProvider = readingBuilderProvider;
         this.replyTypeFactory = replyTypeFactory;
         this.faultMessageFactory = faultMessageFactory;
-        this.endPointHelper = endPointHelper;
-        this.transactionService = transactionService;
         this.clock = clock;
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
@@ -117,75 +109,75 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort, Appli
 
     @Override
     public MeterReadingsResponseMessageType getMeterReadings(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage) throws FaultMessage {
-        endPointHelper.setSecurityContext();
-        try (TransactionContext context = transactionService.getContext()) {
-            GetMeterReadings getMeterReadings = Optional.ofNullable(getMeterReadingsRequestMessage.getRequest().getGetMeterReadings())
-                    .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_METER_READINGS_ITEM));
-            boolean async = false;
-            if (getMeterReadingsRequestMessage.getHeader() != null) {
-                async = getMeterReadingsRequestMessage.getHeader().isAsyncReplyFlag();
-            }
-            checkGetMeterReading(getMeterReadings, async);
-
-            // run async
-            if (async) {
-                return runAsyncMode(getMeterReadingsRequestMessage, context);
-            }
-            // run sync
-            // -EndDevice
-            List<EndDevice> endDevices = getMeterReadings.getEndDevice();
-            MeterReadingsBuilder builder = readingBuilderProvider.get();
-            if (endDevices != null && !endDevices.isEmpty()) {
-                Set<String> notFoundDeviceMRIDs = new HashSet<>();
-                Set<String> notFoundDeviceNames = new HashSet<>();
-                List<com.elster.jupiter.metering.EndDevice> existedEndDevices =
-                        getExistedEndDevices(endDevices.stream().limit(1).collect(Collectors.toList()),
-                                notFoundDeviceMRIDs, notFoundDeviceNames);
-                builder.withEndDevices(existedEndDevices);
-
-                Set<String> notFoundRTMRIDs = new HashSet<>();
-                Set<String> notFoundRTNames = new HashSet<>();
-                List<com.elster.jupiter.metering.ReadingType> existedReadingTypes =
-                        setReadingTypesInfo(builder, getMeterReadings.getReadingType(), notFoundRTMRIDs, notFoundRTNames);
-                if (existedReadingTypes == null || existedReadingTypes.isEmpty()) {
-                    throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES).get();
+        return runInTransactionWithOccurrence(() -> {
+            try {
+                GetMeterReadings getMeterReadings = Optional.ofNullable(getMeterReadingsRequestMessage.getRequest().getGetMeterReadings())
+                        .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_METER_READINGS_ITEM));
+                boolean async = false;
+                if (getMeterReadingsRequestMessage.getHeader() != null) {
+                    async = getMeterReadingsRequestMessage.getHeader().isAsyncReplyFlag();
                 }
-                Set<ErrorType> errorTypes = getErrorTypes(notFoundDeviceMRIDs, notFoundDeviceNames, existedEndDevices,
-                                                          notFoundRTMRIDs, notFoundRTNames, existedReadingTypes);
-                if (endDevices.size() > 1) {
-                    errorTypes.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, END_DEVICE_LIST_ITEM));
+                checkGetMeterReading(getMeterReadings, async);
+
+                // run async
+                if (async) {
+                    return runAsyncMode(getMeterReadingsRequestMessage);
                 }
+                // run sync
+                // -EndDevice
+                List<EndDevice> endDevices = getMeterReadings.getEndDevice();
+                MeterReadingsBuilder builder = readingBuilderProvider.get();
+                if (endDevices != null && !endDevices.isEmpty()) {
+                    Set<String> notFoundDeviceMRIDs = new HashSet<>();
+                    Set<String> notFoundDeviceNames = new HashSet<>();
+                    List<com.elster.jupiter.metering.EndDevice> existedEndDevices =
+                            getExistedEndDevices(endDevices.stream().limit(1).collect(Collectors.toList()),
+                                    notFoundDeviceMRIDs, notFoundDeviceNames);
+                    builder.withEndDevices(existedEndDevices);
+
+                    Set<String> notFoundRTMRIDs = new HashSet<>();
+                    Set<String> notFoundRTNames = new HashSet<>();
+                    List<com.elster.jupiter.metering.ReadingType> existedReadingTypes =
+                            setReadingTypesInfo(builder, getMeterReadings.getReadingType(), notFoundRTMRIDs, notFoundRTNames);
+                    if (existedReadingTypes == null || existedReadingTypes.isEmpty()) {
+                        throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES).get();
+                    }
+                    Set<ErrorType> errorTypes = getErrorTypes(notFoundDeviceMRIDs, notFoundDeviceNames, existedEndDevices,
+                            notFoundRTMRIDs, notFoundRTNames, existedReadingTypes);
+                    if (endDevices.size() > 1) {
+                        errorTypes.add(replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, END_DEVICE_LIST_ITEM));
+                    }
+                    MeterReadings meterReadings = builder
+                            .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
+                            .build();
+                    return createMeterReadingsResponseMessageType(meterReadings, errorTypes);
+                }
+                // -UsagePoint
+                List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
+                UsagePoint usagePoint = usagePoints.stream().findFirst()
+                        .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
+
+                setUsagePointInfo(builder, usagePoint);
+                setReadingTypesInfo(builder, getMeterReadings.getReadingType(), new HashSet<>(), new HashSet<>());
                 MeterReadings meterReadings = builder
+                        .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameTypeEnum.PURPOSE))
                         .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
                         .build();
-                return createMeterReadingsResponseMessageType(meterReadings, errorTypes);
+                MeterReadingsResponseMessageType meterReadingsResponseMessageType = createMeterReadingsResponseMessageType(meterReadings);
+                meterReadingsResponseMessageType.setReply(usagePoints.size() > 1 ?
+                        replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, USAGE_POINTS_LIST_ITEM) :
+                        replyTypeFactory.okReplyType());
+                return meterReadingsResponseMessageType;
+
+            } catch (VerboseConstraintViolationException e) {
+                throw faultMessageFactory.createMeterReadingFaultMessage(e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw faultMessageFactory.createMeterReadingFaultMessage(e.getLocalizedMessage(), e.getErrorCode());
             }
-            // -UsagePoint
-            List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
-            UsagePoint usagePoint = usagePoints.stream().findFirst()
-                    .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
-
-            setUsagePointInfo(builder, usagePoint);
-            setReadingTypesInfo(builder, getMeterReadings.getReadingType(), new HashSet<>(), new HashSet<>());
-            MeterReadings meterReadings = builder
-                    .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameTypeEnum.PURPOSE))
-                    .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
-                    .build();
-            MeterReadingsResponseMessageType meterReadingsResponseMessageType = createMeterReadingsResponseMessageType(meterReadings);
-            meterReadingsResponseMessageType.setReply(usagePoints.size() > 1 ?
-                    replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, USAGE_POINTS_LIST_ITEM) :
-                    replyTypeFactory.okReplyType());
-            return meterReadingsResponseMessageType;
-
-        } catch (VerboseConstraintViolationException e) {
-            throw faultMessageFactory.createMeterReadingFaultMessage(e.getLocalizedMessage());
-        } catch (LocalizedException e) {
-            throw faultMessageFactory.createMeterReadingFaultMessage(e.getLocalizedMessage(), e.getErrorCode());
-        }
+        });
     }
 
-    private MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage,
-                                                  TransactionContext context) throws FaultMessage {
+    private MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage) throws FaultMessage {
         String replyAddress = getMeterReadingsRequestMessage.getHeader().getReplyAddress();
         checkIfMissingOrIsEmpty(replyAddress, GET_METER_READINGS_ITEM +".Header.ReplyAddress");
         List<EndDevice> endDevices = getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getEndDevice();
@@ -217,7 +209,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort, Appli
             serviceCallCommands.createParentGetMeterReadingsServiceCall(reading.getSource(), replyAddress,
                     reading.getTimePeriod(), existedEndDevices, existedReadingTypes);
         }
-        context.commit();
 
         /// no meter readings on sync reply! It's built in parent service call
         MeterReadings meterReadings = null;

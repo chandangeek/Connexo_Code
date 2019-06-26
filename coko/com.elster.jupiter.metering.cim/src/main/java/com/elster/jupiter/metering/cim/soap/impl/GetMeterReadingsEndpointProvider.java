@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.cim.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 
 import org.osgi.service.component.annotations.Activate;
@@ -16,7 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Clock;
 
 @Component(name = "com.elster.jupiter.metering.cim.soap", service = {InboundSoapEndPointProvider.class}, immediate = true, property = {"name=CIM GetMeterReadings"})
-public class GetMeterReadingsEndpointProvider implements InboundSoapEndPointProvider {
+public class GetMeterReadingsEndpointProvider extends AbstractInboundEndPoint implements InboundSoapEndPointProvider {
 
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;

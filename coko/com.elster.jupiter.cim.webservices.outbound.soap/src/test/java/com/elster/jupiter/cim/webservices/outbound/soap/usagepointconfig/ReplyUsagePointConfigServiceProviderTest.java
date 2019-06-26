@@ -96,14 +96,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
 
     @Before
     public void setUp() {
-        testable = new ReplyUsagePointConfigServiceProvider() {
-            @Override
-            boolean isValidUsagePointConfigPortService(UsagePointConfigPort usagePointConfigPort) {
-                return true;
-            }
-        };
         testable.setClock(Clock.fixed(NOW, ZoneId.systemDefault()));
-        testable.setWebServicesService(webServicesService);
         testable.setCustomPropertySetService(customPropertySetService);
         testable.addUsagePointConfigPort(usagePointConfigPort, PROPS);
         testable.onActivate();

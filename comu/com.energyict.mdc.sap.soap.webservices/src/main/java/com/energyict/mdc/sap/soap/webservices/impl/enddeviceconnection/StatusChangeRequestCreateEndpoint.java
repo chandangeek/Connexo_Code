@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn;
@@ -11,7 +12,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuscha
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class StatusChangeRequestCreateEndpoint implements SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn, ApplicationSpecific {
+public class StatusChangeRequestCreateEndpoint extends AbstractInboundEndPoint implements SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -22,9 +23,12 @@ public class StatusChangeRequestCreateEndpoint implements SmartMeterUtilitiesCon
 
     @Override
     public void smartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg request) {
-        Optional.ofNullable(request)
-                .ifPresent(requestMessage -> serviceCallCommands.createServiceCallAndTransition(
-                        StatusChangeRequestCreateMessage.builder().from(requestMessage).build()));
+        runInTransactionWithOccurrence(() -> {
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage -> serviceCallCommands.createServiceCallAndTransition(
+                            StatusChangeRequestCreateMessage.builder().from(requestMessage).build()));
+            return null;
+        });
     }
 
     @Override

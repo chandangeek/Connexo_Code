@@ -4,6 +4,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -28,7 +29,7 @@ import java.util.Optional;
         service = {MeterReadingDocumentResult.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentResult.SAP_METER_READING_DOCUMENT_RESULT})
-public class MeterReadingDocumentResultCreateRequestProvider implements MeterReadingDocumentResult, OutboundSoapEndPointProvider, ApplicationSpecific {
+public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOutboundEndPointProvider<MeterReadingDocumentERPResultCreateRequestEOut> implements MeterReadingDocumentResult, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private final Map<String, MeterReadingDocumentERPResultCreateRequestEOut> ports = new HashMap<>();
 
@@ -41,14 +42,11 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResultPort(MeterReadingDocumentERPResultCreateRequestEOut port,
                               Map<String, Object> properties) {
-        Optional.ofNullable(properties)
-                .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
-                .map(String.class::cast)
-                .ifPresent(url -> ports.put(url, port));
+        super.doAddEndpoint(port, properties);
     }
 
     public void removeResultPort(MeterReadingDocumentERPResultCreateRequestEOut port) {
-        ports.values().removeIf(entryPort -> port == entryPort);
+        super.doRemoveEndpoint(port);
     }
 
     @Reference
@@ -69,10 +67,14 @@ public class MeterReadingDocumentResultCreateRequestProvider implements MeterRea
     }
 
     @Override
+    protected String getName() {
+        return MeterReadingDocumentResult.SAP_METER_READING_DOCUMENT_RESULT;
+    }
+
+    @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
-        Optional.ofNullable(ports.get(resultMessage.getUrl()))
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                .meterReadingDocumentERPResultCreateRequestEOut(resultMessage.getResultMessage());
+        using("meterReadingDocumentERPResultCreateRequestEOut")
+                .send(resultMessage.getResultMessage());
     }
 
     @Override

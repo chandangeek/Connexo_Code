@@ -3,13 +3,10 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkRequestConfirmation;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOutService;
 
@@ -22,17 +19,12 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.sap.meterreadingdocumentbulkrequest.outbound.provider",
         service = {MeterReadingDocumentBulkRequestConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentBulkRequestConfirmation.SAP_METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATION})
-public class MeterReadingDocumentBulkRequestConfirmationProvider implements MeterReadingDocumentBulkRequestConfirmation, OutboundSoapEndPointProvider, ApplicationSpecific {
-
-    private final Map<String, SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut> ports = new HashMap<>();
-
-    private volatile Thesaurus thesaurus;
+public class MeterReadingDocumentBulkRequestConfirmationProvider extends AbstractOutboundEndPointProvider<SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut> implements MeterReadingDocumentBulkRequestConfirmation, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     public MeterReadingDocumentBulkRequestConfirmationProvider() {
         // for OSGI purposes
@@ -41,19 +33,11 @@ public class MeterReadingDocumentBulkRequestConfirmationProvider implements Mete
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addConfirmationPort(SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut port,
                                     Map<String, Object> properties) {
-        Optional.ofNullable(properties)
-                .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
-                .map(String.class::cast)
-                .ifPresent(url -> ports.put(url, port));
+        super.doAddEndpoint(port, properties);
     }
 
     public void removeConfirmationPort(SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut port) {
-        ports.values().removeIf(entryPort -> port == entryPort);
-    }
-
-    @Reference
-    public void setThesaurus(WebServiceActivator webServiceActivator) {
-        this.thesaurus = webServiceActivator.getThesaurus();
+        super.doRemoveEndpoint(port);
     }
 
     @Override
@@ -69,10 +53,14 @@ public class MeterReadingDocumentBulkRequestConfirmationProvider implements Mete
     }
 
     @Override
+    protected String getName() {
+        return MeterReadingDocumentBulkRequestConfirmation.SAP_METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATION;
+    }
+
+    @Override
     public void call(MeterReadingDocumentRequestConfirmationMessage confirmationMessage) {
-        Optional.ofNullable(ports.get(confirmationMessage.getUrl()))
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                .smartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut(confirmationMessage.getBulkConfirmationMessage());
+        using("smartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut")
+                .send(confirmationMessage);
     }
 
     @Override
