@@ -7,6 +7,7 @@ package com.elster.jupiter.issue.impl.records;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -25,7 +26,17 @@ public final class OpenIssueImpl extends IssueImpl implements OpenIssue {
 
     @Override
     public HistoricalIssue close(IssueStatus status) {
-        return closeInternal(status);
+        if (getType() != null && IssueService.MANUAL_ISSUE_TYPE.equals(getType().getKey())) {
+            return closeInternal(status);
+        } else {
+            for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
+                Optional<? extends OpenIssue> issue = issueProvider.getOpenIssue(this);
+                if (issue.isPresent()) {
+                    return issue.get().close(status);
+                }
+            }
+            return null;
+        }
     }
 
     public HistoricalIssue closeInternal(IssueStatus status) {
