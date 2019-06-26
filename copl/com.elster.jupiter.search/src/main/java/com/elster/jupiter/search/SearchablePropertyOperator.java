@@ -187,6 +187,18 @@ public enum SearchablePropertyOperator {
         public boolean isUnary() {
             return true;
         }
+    },
+    /**
+     * The operator 'IN'
+     */
+    IN("IN") {
+        @Override
+        public void appendCriteria(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
+            if (values == null || values.isEmpty()) {
+                throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
+            }
+            criterionBuilder.in(values);
+        }
     }
     ;
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
 import com.elster.jupiter.issue.rest.impl.resource.AssigneeResource;
 import com.elster.jupiter.issue.rest.impl.resource.CreationRuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.DeviceGroupResource;
 import com.elster.jupiter.issue.rest.impl.resource.HistoryResource;
 import com.elster.jupiter.issue.rest.impl.resource.IssuePriorityResource;
 import com.elster.jupiter.issue.rest.impl.resource.IssueResource;
@@ -31,6 +32,7 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -73,6 +75,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile IssueActionService issueActionService;
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
@@ -88,6 +91,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
                     StatusResource.class,
                     CreationRuleResource.class,
                     MeterResource.class,
+                    DeviceGroupResource.class,
                     IssueTypeResource.class,
                     ActionResource.class,
                     WorkGroupsResource.class,
@@ -131,6 +135,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
@@ -185,6 +194,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(thesaurus).to(Thesaurus.class);

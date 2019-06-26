@@ -362,7 +362,7 @@ public final class TimeSeriesImpl implements TimeSeries {
             throw new UnsupportedOperationException("Unsupported operation on non-regular timeseries");
         }
         if (!isValid(instant)) {
-            throw new IllegalArgumentException("Interval timestamp \'" + instant + "\' is not valid");
+            throw new IllegalArgumentException("Interval timestamp \'" + instant + "\' is not valid. Time zone used to convert it is "+timeZoneName);
         }
         if (intervalLengthUnit == MINUTE) {
             return instant.plusSeconds(numberOfEntries * intervalLength * 60);
