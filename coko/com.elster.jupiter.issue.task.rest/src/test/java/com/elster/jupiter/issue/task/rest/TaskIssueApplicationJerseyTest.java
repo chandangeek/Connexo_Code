@@ -88,7 +88,6 @@ public abstract class TaskIssueApplicationJerseyTest extends FelixRestApplicatio
         application.setAppService(appService);
         application.setJsonService(jsonService);
         application.setPropertyValueInfoService(propertyValueInfoService);
-        application.setIssueResourceHelper(issueResourceHelper);
         application.setMeteringGroupsService(meteringGroupService);
         return application;
     }
