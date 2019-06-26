@@ -963,6 +963,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     nextCmp.down('#device-zone-add-panel').hide();
                     nextCmp.down('#bulk-start-processes-panel').hide();
                     nextCmp.down('#load-profile-panel').hide();
+                    nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
 
                     switch (me.operation) {
                         case 'changeconfig':
