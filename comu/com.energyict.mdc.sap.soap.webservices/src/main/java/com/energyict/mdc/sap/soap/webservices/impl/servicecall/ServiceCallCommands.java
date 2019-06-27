@@ -171,7 +171,7 @@ public class ServiceCallCommands {
 
     private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message) {
         serviceCall.log(LogLevel.INFO, "Handling breaker operations for device with SAP id " + deviceId);
-        Optional<Device> device = sapCustomPropertySets.getDevice(new BigDecimal(deviceId));
+        Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
         Optional<EndDevice> endDevice = device.isPresent()
                 ? meteringService.findEndDeviceByMRID(device.get().getmRID())
                 : Optional.empty();
@@ -207,14 +207,14 @@ public class ServiceCallCommands {
         MeterReadingDocumentCreateRequestDomainExtension childDomainExtension = new MeterReadingDocumentCreateRequestDomainExtension();
         childDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
         childDomainExtension.setMeterReadingDocumentId(message.getId());
-        childDomainExtension.setDeviceId(new BigDecimal(message.getDeviceId()));
-        childDomainExtension.setLrn(new BigDecimal(message.getLrn()));
+        childDomainExtension.setDeviceId(message.getDeviceId());
+        childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
         childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
-        sapCustomPropertySets.getDevice(new BigDecimal(message.getDeviceId())).ifPresent(serviceCallBuilder::targetObject);
+        sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
         serviceCallBuilder.create();
     }
 

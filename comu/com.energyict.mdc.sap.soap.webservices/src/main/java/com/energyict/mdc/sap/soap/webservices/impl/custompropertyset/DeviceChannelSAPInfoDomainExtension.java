@@ -8,12 +8,16 @@ import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -43,7 +47,8 @@ public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersis
 
     private Reference<ChannelSpec> channelSpec = ValueReference.absent();
     private Long device;
-    private BigDecimal logicalRegisterNumber;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String logicalRegisterNumber;
 
     @Override
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
@@ -54,7 +59,7 @@ public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersis
     public void copyFrom(ChannelSpec domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.channelSpec.set(domainInstance);
         this.device = additionalPrimaryKeyValues.length > 0 ? (Long) additionalPrimaryKeyValues[0] : null;
-        this.logicalRegisterNumber = (BigDecimal) propertyValues.getProperty(FieldNames.LOGICAL_REGISTER_NUMBER.javaName());
+        this.logicalRegisterNumber = (String) propertyValues.getProperty(FieldNames.LOGICAL_REGISTER_NUMBER.javaName());
     }
 
     @Override
@@ -90,7 +95,7 @@ public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersis
         return channelSpec.get();
     }
 
-    public Optional<BigDecimal> getLogicalRegisterNumber() {
+    public Optional<String> getLogicalRegisterNumber() {
         return Optional.ofNullable(logicalRegisterNumber);
     }
 }

@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
@@ -87,7 +88,7 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
     public List<PropertySpec> getPropertySpecs() {
         return Collections.singletonList(
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .stringSpec()
                         .named(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), TranslationKeys.CPS_DEVICE_IDENTIFIER)
                         .describedAs(TranslationKeys.CPS_DEVICE_IDENTIFIER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
@@ -139,8 +140,15 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
             Column deviceIdColumn = table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.databaseName())
                     .number()
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName())
+                    .upTo(Version.version(10, 7))
                     .add();
-            table.index(IDX).on(deviceIdColumn).add();
+            Column deviceIdColumnString = table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.databaseName())
+                    .varChar(80)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName())
+                    .since(Version.version(10, 7))
+                    .previously(deviceIdColumn)
+                    .add();
+            table.index(IDX).on(deviceIdColumnString).add();
         }
 
         @Override

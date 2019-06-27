@@ -63,13 +63,15 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
     private String meterReadingDocumentId;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal deviceId;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String deviceId;
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceName;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal lrn;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String lrn;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -105,11 +107,11 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.meterReadingDocumentId = meterReadingDocumentId;
     }
 
-    public BigDecimal getDeviceId() {
+    public String getDeviceId() {
         return deviceId;
     }
 
-    public void setDeviceId(BigDecimal deviceId) {
+    public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
     }
 
@@ -121,11 +123,11 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.deviceName = deviceName;
     }
 
-    public BigDecimal getLrn() {
+    public String getLrn() {
         return lrn;
     }
 
-    public void setLrn(BigDecimal lrn) {
+    public void setLrn(String lrn) {
         this.lrn = lrn;
     }
 
@@ -199,9 +201,9 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.setParentServiceCallId(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
                 .orElse(BigDecimal.ZERO).toString()));
         this.setMeterReadingDocumentId((String) propertyValues.getProperty(FieldNames.METER_READING_DOCUMENT_ID.javaName()));
-        this.setDeviceId((BigDecimal) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
+        this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
         this.setDeviceName((String) propertyValues.getProperty(FieldNames.DEVICE_NAME.javaName()));
-        this.setLrn((BigDecimal) propertyValues.getProperty(FieldNames.LRN.javaName()));
+        this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setReadingReasonCode((String) propertyValues.getProperty(FieldNames.READING_REASON_CODE.javaName()));
         this.setScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.SCHEDULED_READING_DATE.javaName()));
         this.setProcessingDate((Instant) propertyValues.getProperty(FieldNames.PROCESSING_DATE.javaName()));
@@ -223,7 +225,6 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         propertySetValues.setProperty(FieldNames.SCHEDULED_READING_DATE.javaName(), this.getScheduledReadingDate());
         propertySetValues.setProperty(FieldNames.PROCESSING_DATE.javaName(), this.getProcessingDate());
         propertySetValues.setProperty(FieldNames.CHANNEL_ID.javaName(), this.getChannelId());
-        propertySetValues.setProperty(FieldNames.DATA_SOURCE.javaName(), this.getDataSource());
         propertySetValues.setProperty(FieldNames.DATA_SOURCE.javaName(), this.getDataSource());
         propertySetValues.setProperty(FieldNames.FUTURE_CASE.javaName(), this.isFutureCase());
         propertySetValues.setProperty(FieldNames.ACTUAL_READING_DATE.javaName(), this.getActualReadingDate());

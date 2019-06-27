@@ -8,13 +8,16 @@ import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
-import java.math.BigDecimal;
+import javax.validation.constraints.Size;
 import java.util.Optional;
 
 public class DeviceRegisterSAPInfoDomainExtension extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<RegisterSpec>, Effectivity {
@@ -43,7 +46,8 @@ public class DeviceRegisterSAPInfoDomainExtension extends AbstractVersionedPersi
 
     private Reference<RegisterSpec> registerSpec = ValueReference.absent();
     private Long device;
-    private BigDecimal logicalRegisterNumber;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String logicalRegisterNumber;
 
     @Override
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
@@ -54,7 +58,7 @@ public class DeviceRegisterSAPInfoDomainExtension extends AbstractVersionedPersi
     public void copyFrom(RegisterSpec registerSpec, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.registerSpec.set(registerSpec);
         this.device = additionalPrimaryKeyValues.length > 0 ? (Long) additionalPrimaryKeyValues[0] : null;
-        this.logicalRegisterNumber = (BigDecimal) propertyValues.getProperty(FieldNames.LOGICAL_REGISTER_NUMBER.javaName());
+        this.logicalRegisterNumber = (String) propertyValues.getProperty(FieldNames.LOGICAL_REGISTER_NUMBER.javaName());
     }
 
     @Override
@@ -90,7 +94,7 @@ public class DeviceRegisterSAPInfoDomainExtension extends AbstractVersionedPersi
         return registerSpec.get();
     }
 
-    public Optional<BigDecimal> getLogicalRegisterNumber() {
+    public Optional<String> getLogicalRegisterNumber() {
         return Optional.ofNullable(logicalRegisterNumber);
     }
 }

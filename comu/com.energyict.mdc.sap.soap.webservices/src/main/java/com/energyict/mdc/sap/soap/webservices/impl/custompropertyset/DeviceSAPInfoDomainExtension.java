@@ -8,9 +8,13 @@ import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -38,7 +42,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     }
 
     private Reference<Device> device = Reference.empty();
-    private BigDecimal deviceIdentifier;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String deviceIdentifier;
 
     @Override
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
@@ -48,7 +53,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     @Override
     public void copyFrom(Device device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.device.set(device);
-        setDeviceIdentifier((BigDecimal) propertyValues.getProperty(FieldNames.DEVICE_IDENTIFIER.javaName()));
+        setDeviceIdentifier((String) propertyValues.getProperty(FieldNames.DEVICE_IDENTIFIER.javaName()));
     }
 
     @Override
@@ -61,11 +66,11 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         // for future purposes
     }
 
-    public Optional<BigDecimal> getDeviceIdentifier() {
+    public Optional<String> getDeviceIdentifier() {
         return Optional.ofNullable(deviceIdentifier);
     }
 
-    public void setDeviceIdentifier(BigDecimal deviceIdentifier) {
+    public void setDeviceIdentifier(String deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
     }
 

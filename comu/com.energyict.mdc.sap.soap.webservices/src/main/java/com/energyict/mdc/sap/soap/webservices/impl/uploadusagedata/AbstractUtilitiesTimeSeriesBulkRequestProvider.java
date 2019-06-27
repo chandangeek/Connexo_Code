@@ -186,8 +186,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<MSG> implem
         return a.isAfter(b) ? a : b;
     }
 
-    Map<BigDecimal, RangeSet<Instant>> getTimeSlicedLRN(Channel channel, Range<Instant> range, IdentifiedObject meter) {
-        Map<BigDecimal, RangeSet<Instant>> lrn = sapCustomPropertySets.getLrn(channel, range);
+    Map<String, RangeSet<Instant>> getTimeSlicedLRN(Channel channel, Range<Instant> range, IdentifiedObject meter) {
+        Map<String, RangeSet<Instant>> lrn = sapCustomPropertySets.getLrn(channel, range);
         if (!lrn.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_NOT_FOUND_FOR_CHANNEL,
                     channel.getMainReadingType().getFullAliasName(),

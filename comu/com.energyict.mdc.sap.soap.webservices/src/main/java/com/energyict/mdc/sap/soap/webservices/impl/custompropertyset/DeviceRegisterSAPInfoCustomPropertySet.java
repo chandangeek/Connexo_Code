@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -88,7 +89,7 @@ public class DeviceRegisterSAPInfoCustomPropertySet implements CustomPropertySet
     public List<PropertySpec> getPropertySpecs() {
         return Collections.singletonList(
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .stringSpec()
                         .named(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), TranslationKeys.CPS_LOGICAL_REGISTER_NUMBER)
                         .describedAs(TranslationKeys.CPS_DEVICE_REGISTER_IDENTIFIER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
@@ -146,8 +147,15 @@ public class DeviceRegisterSAPInfoCustomPropertySet implements CustomPropertySet
             Column lrnColumn = table.column(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
                     .number()
                     .map(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
+                    .upTo(Version.version(10,7))
                     .add();
-            table.index(IDX).on(lrnColumn).add();
+            Column lrnColumnString = table.column(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
+                    .varChar(80)
+                    .map(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
+                    .since(Version.version(10, 7))
+                    .previously(lrnColumn)
+                    .add();
+            table.index(IDX).on(lrnColumnString).add();
         }
 
         @Override

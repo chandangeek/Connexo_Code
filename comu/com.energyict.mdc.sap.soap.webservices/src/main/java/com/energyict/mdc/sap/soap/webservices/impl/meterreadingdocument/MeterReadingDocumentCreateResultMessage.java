@@ -128,12 +128,12 @@ public class MeterReadingDocumentCreateResultMessage {
             MtrRdngDocERPRsltCrteReqUtilsMsmtTsk mtrRdngDocERPRsltCrteReqUtilsMsmtTsk = OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqUtilsMsmtTsk();
             MtrRdngDocERPRsltCrteReqUtilsDvce mtrRdngDocERPRsltCrteReqUtilsDvce = OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqUtilsDvce();
             UtilitiesDeviceID utilitiesDeviceID = OBJECT_FACTORY.createUtilitiesDeviceID();
-            utilitiesDeviceID.setValue(childExtension.getDeviceId().toString());
+            utilitiesDeviceID.setValue(childExtension.getDeviceId());
             mtrRdngDocERPRsltCrteReqUtilsDvce.setUtilitiesDeviceID(utilitiesDeviceID);
             mtrRdngDocERPRsltCrteReqUtilsMsmtTsk.setUtiltiesDevice(mtrRdngDocERPRsltCrteReqUtilsDvce);
 
             UtilitiesMeasurementTaskID utilitiesMeasurementTaskID = OBJECT_FACTORY.createUtilitiesMeasurementTaskID();
-            utilitiesMeasurementTaskID.setValue(childExtension.getLrn().toString());
+            utilitiesMeasurementTaskID.setValue(childExtension.getLrn());
             mtrRdngDocERPRsltCrteReqUtilsMsmtTsk.setUtilitiesMeasurementTaskID(utilitiesMeasurementTaskID);
             meterReadingDocument.setUtiltiesMeasurementTask(mtrRdngDocERPRsltCrteReqUtilsMsmtTsk);
 

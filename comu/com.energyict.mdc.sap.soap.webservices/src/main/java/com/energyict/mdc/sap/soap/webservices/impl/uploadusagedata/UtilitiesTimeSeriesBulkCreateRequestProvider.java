@@ -207,14 +207,14 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                 .forEach(msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage()::add);
     }
 
-    private static UtilsTmeSersERPItmCrteReqMsg createRequestItem(BigDecimal lrn, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now) {
+    private static UtilsTmeSersERPItmCrteReqMsg createRequestItem(String lrn, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now) {
         UtilsTmeSersERPItmCrteReqMsg msg = new UtilsTmeSersERPItmCrteReqMsg();
         msg.setMessageHeader(createMessageHeader(UUID.randomUUID().toString(), now));
         msg.setUtilitiesTimeSeries(createTimeSeries(lrn, rangeSet, meterReading, interval, unit));
         return msg;
     }
 
-    private static UtilsTmeSersERPItmCrteReqUtilsTmeSers createTimeSeries(BigDecimal lrn, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit) {
+    private static UtilsTmeSersERPItmCrteReqUtilsTmeSers createTimeSeries(String lrn, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit) {
         UtilsTmeSersERPItmCrteReqUtilsTmeSers timeSeries = new UtilsTmeSersERPItmCrteReqUtilsTmeSers();
         timeSeries.setID(createTimeSeriesID(lrn));
         meterReading.getIntervalBlocks().stream()
@@ -230,9 +230,9 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         return timeSeries;
     }
 
-    private static UtilitiesTimeSeriesID createTimeSeriesID(BigDecimal lrn) {
+    private static UtilitiesTimeSeriesID createTimeSeriesID(String lrn) {
         UtilitiesTimeSeriesID id = new UtilitiesTimeSeriesID();
-        id.setValue(lrn.toPlainString());
+        id.setValue(lrn);
         return id;
     }
 

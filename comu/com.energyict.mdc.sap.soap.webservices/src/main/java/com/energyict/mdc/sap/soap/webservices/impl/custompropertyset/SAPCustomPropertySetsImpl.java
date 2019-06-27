@@ -139,7 +139,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public Optional<BigDecimal> getSapDeviceId(Device device) {
+    public Optional<String> getSapDeviceId(Device device) {
         return getCPSDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device))
@@ -148,13 +148,13 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public Optional<BigDecimal> getSapDeviceId(String deviceName) {
+    public Optional<String> getSapDeviceId(String deviceName) {
         return deviceService.findDeviceByName(deviceName)
                 .flatMap(this::getSapDeviceId);
     }
 
     @Override
-    public Optional<Device> getDevice(BigDecimal sapDeviceId) {
+    public Optional<Device> getDevice(String sapDeviceId) {
         return getCPSDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
                 .join(Device.class)
@@ -164,7 +164,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public Map<BigDecimal, RangeSet<Instant>> getLrn(Channel channel, Range<Instant> range) {
+    public Map<String, RangeSet<Instant>> getLrn(Channel channel, Range<Instant> range) {
         return channel.getChannelsContainer().getMeter()
                 .map(Meter::getId)
                 .flatMap(deviceService::findDeviceByMeterId)
@@ -173,17 +173,17 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public Map<BigDecimal, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Channel channel, Range<Instant> range) {
+    public Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Channel channel, Range<Instant> range) {
         return getLrn(channel.getDevice(), channel.getChannelSpec(), range);
     }
 
     @Override
-    public Map<BigDecimal, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Register register, Range<Instant> range) {
+    public Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Register register, Range<Instant> range) {
         return getLrn(register.getDevice(), register.getRegisterSpec(), range);
     }
 
     @Override
-    public Optional<Channel> getChannel(BigDecimal lrn, Instant when) {
+    public Optional<Channel> getChannel(String lrn, Instant when) {
         return Stream.<Supplier<Optional<Pair<Long, ReadingType>>>>of(
                 () -> getChannelIdentification(lrn, when),
                 () -> getRegisterIdentification(lrn, when)
@@ -195,7 +195,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .flatMap(deviceIdAndReadingType -> getChannel(deviceIdAndReadingType.getFirst(), deviceIdAndReadingType.getLast(), when));
     }
 
-    private Optional<Pair<Long, ReadingType>> getChannelIdentification(BigDecimal lrn, Instant when) {
+    private Optional<Pair<Long, ReadingType>> getChannelIdentification(String lrn, Instant when) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
@@ -206,7 +206,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .map(ext -> Pair.of(ext.getDeviceId(), ext.getChannelSpec().getReadingType()));
     }
 
-    private Optional<Pair<Long, ReadingType>> getRegisterIdentification(BigDecimal lrn, Instant when) {
+    private Optional<Pair<Long, ReadingType>> getRegisterIdentification(String lrn, Instant when) {
         return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .join(RegisterSpec.class)
@@ -224,7 +224,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .flatMap(cc -> cc.getChannel(readingType));
     }
 
-    private Map<BigDecimal, RangeSet<Instant>> getLrn(Device device, Channel channel, Range<Instant> range) {
+    private Map<String, RangeSet<Instant>> getLrn(Device device, Channel channel, Range<Instant> range) {
         return anyPoint(range).flatMap(instant -> channel.isRegular() ?
                 getChannelSpec(device, channel.getReadingTypes(), instant)
                         .map(spec -> getLrn(device, spec, range)) :
@@ -247,7 +247,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .flatMap(specs -> specs.stream().filter(spec -> readingTypes.contains(spec.getReadingType())).findAny());
     }
 
-    private Map<BigDecimal, RangeSet<Instant>> getLrn(Device device, ChannelSpec channelSpec, Range<Instant> range) {
+    private Map<String, RangeSet<Instant>> getLrn(Device device, ChannelSpec channelSpec, Range<Instant> range) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(channelSpec))
@@ -258,7 +258,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast, RangeSets::union));
     }
 
-    private Map<BigDecimal, RangeSet<Instant>> getLrn(Device device, RegisterSpec registerSpec, Range<Instant> range) {
+    private Map<String, RangeSet<Instant>> getLrn(Device device, RegisterSpec registerSpec, Range<Instant> range) {
         return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(registerSpec))

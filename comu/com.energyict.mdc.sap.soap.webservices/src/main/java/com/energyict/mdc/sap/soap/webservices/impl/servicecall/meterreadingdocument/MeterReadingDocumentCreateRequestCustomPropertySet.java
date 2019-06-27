@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -135,7 +136,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .stringSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
                         .describedAs(TranslationKeys.DEVICE_ID)
                         .fromThesaurus(thesaurus)
@@ -147,7 +148,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .stringSpec()
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.javaName(), TranslationKeys.LRN)
                         .describedAs(TranslationKeys.LRN)
                         .fromThesaurus(thesaurus)
@@ -246,6 +247,13 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .number()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 7))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
+                    .varChar(80)
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
+                    .notNull()
+                    .since(Version.version(10, 7))
                     .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_NAME.databaseName())
                     .varChar()
@@ -266,6 +274,13 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .number()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.javaName())
                     .notNull()
+                    .upTo(Version.version(10, 7))
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.databaseName())
+                    .varChar(80)
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.javaName())
+                    .notNull()
+                    .since(Version.version(10, 7))
                     .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.READING_REASON_CODE.databaseName())
                     .varChar()

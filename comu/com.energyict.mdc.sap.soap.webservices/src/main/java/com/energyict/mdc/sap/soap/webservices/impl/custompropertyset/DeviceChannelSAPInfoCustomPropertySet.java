@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -88,7 +89,7 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
     public List<PropertySpec> getPropertySpecs() {
         return Collections.singletonList(
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .stringSpec()
                         .named(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), TranslationKeys.CPS_LOGICAL_REGISTER_NUMBER)
                         .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_IDENTIFIER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
@@ -132,13 +133,12 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            return Collections.singletonList(
-                    table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.name())
-                            .number()
-                            .map(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName())
-                            .conversion(ColumnConversion.NUMBER2LONG)
-                            .notNull()
-                            .add());
+            return Collections.singletonList(table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.name())
+                    .number()
+                    .map(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName())
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .notNull()
+                    .add());
         }
 
         @Override
@@ -146,8 +146,15 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
             Column lrnColumn = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
                     .number()
                     .map(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
+                    .upTo(Version.version(10,7))
                     .add();
-            table.index(IDX).on(lrnColumn).add();
+            Column lrnColumnString = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
+                    .varChar(80)
+                    .map(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
+                    .since(Version.version(10, 7))
+                    .previously(lrnColumn)
+                    .add();
+            table.index(IDX).on(lrnColumnString).add();
         }
 
         @Override
