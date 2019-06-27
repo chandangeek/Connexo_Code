@@ -211,8 +211,6 @@ public enum TableSpecs {
                     .on(campaign, cps)
                     .references(FirmwareCampaignDomainExtension.class)
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())
-                    //     .reverseMap(FirmwareCampaignDomainExtension.FieldNames.PROPERTIES.databaseName())
-                    //     .composition()
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_PROPS").on(campaign, key).add();
         }

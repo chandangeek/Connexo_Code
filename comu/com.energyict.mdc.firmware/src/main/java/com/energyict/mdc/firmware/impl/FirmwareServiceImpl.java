@@ -558,7 +558,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private void cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
         if (fwComTaskExecution.getNextExecutionTimestamp() != null) {
             fwComTaskExecution.schedule(null);
-            fwComTaskExecution.updateNextExecutionTimestamp();
         }
         fwComTaskExecution.updateNextExecutionTimestamp();
         cancelPendingFirmwareMessages(fwComTaskExecution.getDevice());
@@ -852,12 +851,25 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public FirmwareCampaignService getFirmwareCampaignService() {
+    public FirmwareCampaignServiceImpl getFirmwareCampaignService() {
         return firmwareCampaignService;
     }
 
-    public FirmwareCampaignServiceImpl getFirmwareCampaignServiceImpl() {
-        return firmwareCampaignService;
+    @Override
+    public Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
+                                                                                                             FirmwareVersion firmwareVersion) {
+        Optional<DeviceMessageId> firmwareMessageId = getFirmwareMessageId(deviceType, firmwareManagementOptions, firmwareVersion);
+        if (firmwareMessageId.isPresent()) {
+            return deviceMessageSpecificationService.findMessageSpecById(firmwareMessageId.get().dbValue());
+        }
+        return Optional.empty();
+    }
+
+    public Optional<DeviceMessageId> getFirmwareMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions, FirmwareVersion firmwareVersion) {
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent() && firmwareManagementOptions != null) {
+            return bestSuitableFirmwareUpgradeMessageId(deviceType, firmwareManagementOptions, firmwareVersion);
+        }
+        return Optional.empty();
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {

@@ -11,6 +11,7 @@ import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -118,4 +119,7 @@ public interface FirmwareService {
     void reorderFirmwareVersions(DeviceType deviceType, KPermutation kPermutation);
 
     FirmwareCampaignService getFirmwareCampaignService();
+
+    Optional<DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
+                                                       FirmwareVersion firmwareVersion);
 }

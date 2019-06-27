@@ -22,7 +22,7 @@ import java.util.Optional;
 public class FirmwareCampaignInfo {
     public long id;
     public String name;
-    public String status;
+    public IdWithNameInfo status;
     public IdWithLocalizedValue<Long> deviceType;
     public String deviceGroup;
     public ManagementOptionInfo managementOption;

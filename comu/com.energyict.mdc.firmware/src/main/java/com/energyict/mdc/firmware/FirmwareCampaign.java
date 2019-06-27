@@ -18,6 +18,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -72,4 +73,12 @@ public interface FirmwareCampaign extends HasId, HasName {
     void clearProperties();
 
     ComWindow getComWindow();
+
+    boolean isWithVerification();
+
+    Instant getStartedOn();
+
+    Instant getFinishedOn();
+
+    List<DeviceInFirmwareCampaign> getDevices();
 }

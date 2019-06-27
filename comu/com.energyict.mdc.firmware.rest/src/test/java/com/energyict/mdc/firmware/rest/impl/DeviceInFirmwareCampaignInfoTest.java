@@ -10,8 +10,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInfo;
 
 import java.time.Instant;
@@ -58,12 +56,12 @@ public class DeviceInFirmwareCampaignInfoTest {
     }
     @Test
     public void testDeviceInFirmwareCampaignInfoConstructor(){
-        DeviceInFirmwareCampaignInfo info = new DeviceInFirmwareCampaignInfo(1L, new IdWithNameInfo(device.getId(), device.getName()), "Pending", startedOn, finishedOn);
+        DeviceInFirmwareCampaignInfo info = new DeviceInFirmwareCampaignInfo(1L, new IdWithNameInfo(device.getId(), device.getName()), new IdWithNameInfo(DefaultState.PENDING, "Pending"), startedOn, finishedOn);
 
         assertThat(info.id).isEqualTo(1L);
         assertThat(info.device.name).isEqualTo("NameOfDevice");
         assertThat(info.device.id).isEqualTo(device.getId());
-        assertThat(info.status).isEqualTo("Pending");
+        assertThat(info.status.name).isEqualTo("Pending");
         assertThat(info.startedOn).isEqualTo(startedOn);
         assertThat(info.finishedOn).isEqualTo(finishedOn);
     };

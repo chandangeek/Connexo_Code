@@ -174,7 +174,7 @@ public class ResourceHelper {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent() && deviceInFirmwareCampaign.get().getParent().getId() == campaignId) {
             deviceInFirmwareCampaign.get().cancel();
-            return Optional.of(deviceInFirmwareCampaignInfoFactory.create(deviceInFirmwareCampaign.get().getDevice(), deviceInFirmwareCampaign.get().getServiceCall()));
+            return Optional.of(deviceInFirmwareCampaignInfoFactory.createInfo(deviceInFirmwareCampaign.get()));
         } else {
             return Optional.empty();
         }
@@ -184,7 +184,7 @@ public class ResourceHelper {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent() && deviceInFirmwareCampaign.get().getParent().getId() == campaignId) {
             deviceInFirmwareCampaign.get().retry();
-            return Optional.of(deviceInFirmwareCampaignInfoFactory.create(deviceInFirmwareCampaign.get().getDevice(), deviceInFirmwareCampaign.get().getServiceCall()));
+            return Optional.of(deviceInFirmwareCampaignInfoFactory.createInfo(deviceInFirmwareCampaign.get()));
         } else {
             return Optional.empty();
         }

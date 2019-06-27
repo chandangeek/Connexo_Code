@@ -67,7 +67,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<String>get("$.firmwareCampaigns[0].deviceType.localizedValue")).isEqualTo(firmwareCampaign.deviceType.localizedValue);
         assertThat(jsonModel.<Number>get("$.firmwareCampaigns[0].startedOn")).isEqualTo(((Number) firmwareCampaign.startedOn.toEpochMilli()).intValue());
         assertNull(jsonModel.<Number>get("$.firmwareCampaigns[0].finishedOn"));
-        assertThat(jsonModel.<String>get("$.firmwareCampaigns[0].status")).isEqualTo(firmwareCampaign.status);
+        assertThat(jsonModel.<String>get("$.firmwareCampaigns[0].status.name")).isEqualTo(firmwareCampaign.status.name);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<String>get("$.deviceType.localizedValue")).isEqualTo(firmwareCampaign.getDeviceType().getName());
         assertThat(jsonModel.<Number>get("$.startedOn")).isEqualTo(((Number) firmwareCampaign.getServiceCall().getCreationTime().toEpochMilli()).intValue());
         assertNull(jsonModel.<Number>get("$.finishedOn"));
-        assertThat(jsonModel.<String>get("$.status")).isEqualTo(firmwareCampaign.getServiceCall().getState().getDefaultFormat());
+        assertThat(jsonModel.<String>get("$.status.id")).isEqualTo(firmwareCampaign.getServiceCall().getState().name());
     }
 
     @Test
@@ -97,9 +97,9 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         FirmwareCampaign firmwareCampaign = createCampaignMock();
         when(firmwareCampaignService.getFirmwareCampaignById(firmwareCampaign.getId())).thenReturn(Optional.of(firmwareCampaign));
         DeviceInFirmwareCampaignInfo deviceInCampaignInfo1 = new DeviceInFirmwareCampaignInfo(1, new IdWithNameInfo(1L, "TestDevice1"),
-                "Pending", Instant.ofEpochSecond(3600), null);
+                new IdWithNameInfo(DefaultState.PENDING,"Pending"), Instant.ofEpochSecond(3600), null);
         DeviceInFirmwareCampaignInfo deviceInCampaignInfo2 = new DeviceInFirmwareCampaignInfo(1, new IdWithNameInfo(2L, "TestDevice2"),
-                "Pending", Instant.ofEpochSecond(3500), null);
+                new IdWithNameInfo(DefaultState.PENDING,"Pending"), Instant.ofEpochSecond(3500), null);
         QueryStream queryStream = FakeBuilder.initBuilderStub(Stream.of(deviceInCampaignInfo1, deviceInCampaignInfo2), QueryStream.class);
         when(firmwareCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
         String json = target("campaigns/3/devices").request().get(String.class);
@@ -108,12 +108,12 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<Number>get("$.devicesInCampaign[0].device.id")).isEqualTo(((Number) deviceInCampaignInfo1.device.id).intValue());
         assertThat(jsonModel.<String>get("$.devicesInCampaign[0].device.name")).isEqualTo(deviceInCampaignInfo1.device.name);
         assertThat(jsonModel.<Number>get("$.devicesInCampaign[0].startedOn")).isEqualTo(((Number) deviceInCampaignInfo1.startedOn.toEpochMilli()).intValue());
-        assertThat(jsonModel.<String>get("$.devicesInCampaign[0].status")).isEqualTo(deviceInCampaignInfo1.status);
+        assertThat(jsonModel.<String>get("$.devicesInCampaign[0].status.name")).isEqualTo(deviceInCampaignInfo1.status.name);
         assertNull(jsonModel.<Number>get("$.devicesInCampaign[0].finishedOn"));
         assertThat(jsonModel.<Number>get("$.devicesInCampaign[1].device.id")).isEqualTo(((Number) deviceInCampaignInfo2.device.id).intValue());
         assertThat(jsonModel.<String>get("$.devicesInCampaign[1].device.name")).isEqualTo(deviceInCampaignInfo2.device.name);
         assertThat(jsonModel.<Number>get("$.devicesInCampaign[1].startedOn")).isEqualTo(((Number) deviceInCampaignInfo2.startedOn.toEpochMilli()).intValue());
-        assertThat(jsonModel.<String>get("$.devicesInCampaign[1].status")).isEqualTo(deviceInCampaignInfo2.status);
+        assertThat(jsonModel.<String>get("$.devicesInCampaign[1].status.name")).isEqualTo(deviceInCampaignInfo2.status.name);
         assertNull(jsonModel.<Number>get("$.devicesInCampaign[1].finishedOn"));
     }
 
@@ -126,12 +126,12 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("TestDeviceType");
         when(deviceConfigurationService.findDeviceType(1L)).thenReturn(Optional.ofNullable(deviceType));
-        when(firmwareCampaignService.newFirmwareCampaignBuilder("TestCampaign")).thenReturn(fakeBuilder);
+        when(firmwareCampaignService.newFirmwareCampaign("TestCampaign")).thenReturn(fakeBuilder);
         FirmwareVersion firmwareVersion = firmwareCampaign.getFirmwareVersion();
         when(firmwareService.getFirmwareVersionById(8)).thenReturn(Optional.ofNullable(firmwareVersion));
         when(firmwareService.bestSuitableFirmwareUpgradeMessageId(any(), any(), any())).thenReturn(Optional.of(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE));
         Optional<DeviceMessageSpec> deviceMessageSpec = firmwareCampaign.getFirmwareMessageSpec();
-        when(firmwareCampaignService.getFirmwareMessageSpec(any(), any(), any())).thenReturn(deviceMessageSpec);
+        when(firmwareService.getFirmwareMessageSpec(any(), any(), any())).thenReturn(deviceMessageSpec);
         Response response = target("campaigns").request().post(Entity.json(createCampaignInfo()));
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.id")).isEqualTo(((Number) firmwareCampaign.getId()).intValue());
@@ -184,11 +184,10 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         firmwareCampaignInfo.deviceType = new IdWithLocalizedValue<>(1L, "TestDeviceType");
         firmwareCampaignInfo.startedOn = Instant.ofEpochSecond(111);
         firmwareCampaignInfo.finishedOn = null;
-        firmwareCampaignInfo.status = "Ongoing";
+        firmwareCampaignInfo.status = new IdWithNameInfo(DefaultState.ONGOING.name(),"Ongoing");
         ArrayList<PropertyInfo> propertyInfos = new ArrayList<>();
         propertyInfos.add(new PropertyInfo("Firmware file", "FirmwareDeviceMessage.upgrade.userfile", new PropertyValueInfo<>(8, ""), null, true));
         firmwareCampaignInfo.properties = propertyInfos;
-        //firmwareCampaignInfo.firmwareVersion = new FirmwareVersionInfo();
         return firmwareCampaignInfo;
     }
 
@@ -222,7 +221,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getVersion()).thenReturn(4L);
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
         when(firmwareCampaign.getFirmwareVersion()).thenReturn(firmwareVersion);
-
+        when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
         return firmwareCampaign;
     }
 }

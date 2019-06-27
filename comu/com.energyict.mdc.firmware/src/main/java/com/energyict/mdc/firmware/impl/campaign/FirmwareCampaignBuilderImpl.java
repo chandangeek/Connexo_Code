@@ -23,16 +23,16 @@ import java.util.Optional;
 
 public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
 
-    public String name;
-    public DeviceType deviceType;
-    public String deviceGroup;
-    public Instant uploadStart;
-    public Instant uploadEnd;
-    public Instant activationDate;
-    public TimeDuration validationTimeout;
-    public ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
-    public FirmwareType firmwareType;
-    public Map<PropertySpec, Object> properties;
+    String name;
+    DeviceType deviceType;
+    String deviceGroup;
+    Instant uploadStart;
+    Instant uploadEnd;
+    Instant activationDate;
+    TimeDuration validationTimeout;
+    ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
+    FirmwareType firmwareType;
+    Map<PropertySpec, Object> properties;
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel dataModel;

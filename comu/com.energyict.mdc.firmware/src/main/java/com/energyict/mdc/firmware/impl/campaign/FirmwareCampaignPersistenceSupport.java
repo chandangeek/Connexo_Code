@@ -25,7 +25,7 @@ import static com.elster.jupiter.orm.Version.version;
 
 public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<ServiceCall, FirmwareCampaignDomainExtension> {
 
-    public static final String TABLE_NAME = FirmwareCampaignService.COMPONENT_NAME + "_" + "FC1_CAMPAIGN";
+    public static final String TABLE_NAME = FirmwareService.COMPONENTNAME + "_" + "FC1_CAMPAIGN";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
     static final String COMPONENT_NAME = "FC1";
     private final FirmwareServiceImpl firmwareService;
@@ -123,7 +123,6 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .conversion(ColumnConversion.NUMBER2INT)
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName() + ".count")
                 .notNull()
-                .since(version(10, 4, 1))
                 .installValue("1")
                 .add();
         table.column("VALIDATION_TIMEOUT_UNIT")
@@ -131,7 +130,6 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .conversion(ColumnConversion.NUMBER2INT)
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName() + ".timeUnitCode")
                 .notNull()
-                .since(version(10, 4, 1))
                 .installValue(Integer.toString(TimeDuration.TimeUnit.HOURS.getCode()))
                 .add();
         table.foreignKey(FK_NAME + "_DT")

@@ -9,8 +9,11 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
+@ProviderType
 public interface FirmwareCampaignBuilder {
 
     FirmwareCampaignBuilder withUploadTimeBoundaries(Instant activationStart, Instant activationEnd);

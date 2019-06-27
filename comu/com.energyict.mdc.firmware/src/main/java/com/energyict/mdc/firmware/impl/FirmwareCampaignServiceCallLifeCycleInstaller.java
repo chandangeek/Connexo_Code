@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.Optional;
 
-public class FirmwareCampaignServiceCallLifeCycleInstaller {
+class FirmwareCampaignServiceCallLifeCycleInstaller {
 
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;

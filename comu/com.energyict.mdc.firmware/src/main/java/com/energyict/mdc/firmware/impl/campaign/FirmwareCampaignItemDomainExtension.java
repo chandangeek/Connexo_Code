@@ -137,6 +137,23 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return parent.get();
     }
 
+    @Override
+    public Instant getStartedOn() {
+        return getServiceCall().getCreationTime();
+    }
+
+    @Override
+    public Instant getFinishedOn() {
+        ServiceCall serviceCall = getServiceCall();
+        return (serviceCall.getState().equals(DefaultState.CANCELLED)
+                || serviceCall.getState().equals(DefaultState.SUCCESSFUL)) ? serviceCall.getLastModificationTime() : null;
+    }
+
+    @Override
+    public long getId() {
+        return getServiceCall().getId();
+    }
+
     public void setParent(ServiceCall parent) {
         this.parent.set(parent);
     }

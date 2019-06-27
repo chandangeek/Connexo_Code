@@ -7,7 +7,6 @@ package com.energyict.mdc.firmware.rest.impl;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -35,19 +34,6 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_VERSION_MISSING(20, Keys.FIRMWARE_VERSION_MISSING, "Firmware version is missing in the request"),
     FIRMWARE_ACTION_CHECK_VERSION(21, Keys.FIRMWARE_ACTION_CHECK_VERSION, "Check firmware version/image"),
 
-    FIRMWARE_CAMPAIGN_STATUS_PROCESSING(50, Keys.FIRMWARE_CAMPAIGN_STATUS_PROCESSING, "Processing"),
-    FIRMWARE_CAMPAIGN_STATUS_SCHEDULED(51, Keys.FIRMWARE_CAMPAIGN_STATUS_SCHEDULED, "Scheduled"),
-    FIRMWARE_CAMPAIGN_STATUS_ONGOING(52, Keys.FIRMWARE_CAMPAIGN_STATUS_ONGOING, "Ongoing"),
-    FIRMWARE_CAMPAIGN_STATUS_COMPLETE(53, Keys.FIRMWARE_CAMPAIGN_STATUS_COMPLETE, "Complete"),
-    FIRMWARE_CAMPAIGN_STATUS_CANCELLED(54, Keys.FIRMWARE_CAMPAIGN_STATUS_CANCELLED, "Cancelled"),
-
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_SUCCESS(101, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.SUCCESS, "Successful"),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_FAILED(102, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.FAILED, "Failed"),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_ONGOING(103, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.ONGOING, "Ongoing"),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_PENDING(104, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.PENDING, "Pending"),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_CONFIGURATION_ERROR(105, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, "Configuration error"),
-    FIRMWARE_MANAGEMENT_DEVICE_STATUS_CANCELLED(106, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CANCELLED, "Cancelled"),
-
     SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND(1001, "SupportedFirmwareUpgradeOptionsNotFound", "There is no such supported firmware upgrade option"),
     FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE(1002, "FirmwareUpgradeOptionsAreDisabledForDeviceType", "Firmware upgrade options are disabled for device type"),
     DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND(1003, "DefaultFirmwareManagementTaskCanNotBeFound", "The default firmware management communication task cannot be found"),
@@ -63,12 +49,12 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE(1012, "FirmwareCheckTaskConcurrentFail", "Failed to run ''{0}''"),
     FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY(1013, "FirmwareCheckTaskConcurrentBody", "{0} has changed since the page was last updated."),
     FIRMWARE_COMMUNICATION_TASK_NAME(1014, "FirmwareTaskName", "Firmware communication task"),
-    NOT_ABLE_TO_CREATE_CAMPAIGN(1015, "NotAbleToCreateCampaign", "Not able to create a new firmware campaign from the specified information"),
+    NOT_ABLE_TO_CREATE_CAMPAIGN(1015, "NotAbleToCreateCampaign", "Not able to createInfo a new firmware campaign from the specified information"),
     SECURITY_ACCESSOR_EXPIRED(1018, "SecurityAccessorExpired", "Security accessor expired."),
     SIGNATURE_VALIDATION_FAILED(1019, "SignatureValidationFailed", "Incorrect firmware file: image signature verification failed."),
 
     DEVICETYPE_WITH_ID_ISNT_FOUND(2000, "DeviceTypeWithIdIsntFound", "Device type with id {0} isn''t found."),
-    PROTOCOL_WITH_ID_ISNT_FOUND(2001, "ProtocolWithIdIsntFound", "Protocol supported firmware options with id ''{0}'' isn''t found.");
+    PROTOCOL_WITH_ID_ISNT_FOUND(2001, "ProtocolWithIdIsntFound", "Protocol supported firmware option with id ''{0}'' isn''t found.");
 
     private final int number;
     private final String key;
@@ -117,16 +103,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MAX_FILE_SIZE_EXCEEDED = "MaxFileSizeExceeded";
         public static final String FILE_IO = "FileIO";
         public static final String FIRMWARE_ACTION_CHECK_VERSION = "FirmwareActionCheckVersion";
-        public static final String FIRMWARE_CAMPAIGN_STATUS_PROCESSING = "FirmwareCampaignStatusProcessing";
-        public static final String FIRMWARE_CAMPAIGN_STATUS_SCHEDULED = "FirmwareCampaignStatusScheduled";
-        public static final String FIRMWARE_CAMPAIGN_STATUS_ONGOING = "FirmwareCampaignStatusOngoing";
-        public static final String FIRMWARE_CAMPAIGN_STATUS_COMPLETE = "FirmwareCampaignStatusComplete";
-        public static final String FIRMWARE_CAMPAIGN_STATUS_CANCELLED = "FirmwareCampaignStatusCancelled";
         public static final String FIRMWARE_CAMPAIGN_NOT_FOUND = "firmwareCampaignNotFound";
         public static final String FIRMWARE_VERSION_NOT_FOUND = "firmwareVersionNotFound";
         public static final String FIRMWARE_VERSION_MISSING = "firmwareVersionMissing";
         public static final String DEVICE_GROUP_NOT_FOUND = "deviceGroupNotFound";
-        public static final String FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX = "FirmwareManagementDeviceStatus.";
 
         public static final TranslationKey FIRMWARE_ACTION_CHECK_VERSION_NOW_TRANSLATION_KEY = new SimpleTranslationKey("FirmwareActionCheckVersionNow", "Check firmware version/image now");
     }

@@ -20,7 +20,7 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
 
     @Inject
     public FirmwareCampaignItemServiceCallHandler(FirmwareServiceImpl firmwareService) {
-        this.firmwareCampaignService = firmwareService.getFirmwareCampaignServiceImpl();
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.energyict.mdc.firmware.impl.EventType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 
 import javax.inject.Inject;
@@ -23,7 +24,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
 
     @Inject
     public FirmwareCampaignServiceCallHandler(FirmwareServiceImpl firmwareService) {
-        this.firmwareCampaignService = firmwareService.getFirmwareCampaignServiceImpl();
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
     }
 
     @Override
@@ -44,6 +45,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
                 firmwareCampaignService.createItemsOnCampaign(serviceCall);
                 break;
             case CANCELLED:
+                firmwareCampaignService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED, serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get());
                 break;
             case SUCCESSFUL:
                 serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
@@ -56,7 +58,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     public void onChildStateChange(ServiceCall parent, ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
             case CANCELLED:
-                firmwareCampaignService.cancelFirmwareUpload(serviceCall);
+                firmwareCampaignService.handleFirmwareUploadCancellation(serviceCall);
             case FAILED:
             case REJECTED:
             case SUCCESSFUL:

@@ -58,7 +58,7 @@ public class UpgraderV10_2 implements Upgrader {
         PreparedStatement statement = connection.prepareStatement("UPDATE MSG_SUBSCRIBERSPEC SET nls_component = ?, nls_layer = ? WHERE name = ?");
         statement.setString(1, FirmwareService.COMPONENTNAME);
         statement.setString(2, Layer.DOMAIN.name());
-     //   statement.setString(3, TranslationKeys.FIRMWARE_CAMPAIGNS_SUBSCRIBER.getKey());
+        statement.setString(3, "FirmwareCampaignsSubscriber");
         return statement;
     }
 

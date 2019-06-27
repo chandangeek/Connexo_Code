@@ -53,7 +53,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
     public FirmwareCampaignHandler(FirmwareServiceImpl firmwareService, Clock clock, ServiceCallService serviceCallService,
                                    Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, TransactionService transactionService) {
         super(LocalEvent.class);
-        this.firmwareCampaignService = firmwareService.getFirmwareCampaignServiceImpl();
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
         this.serviceCallService = serviceCallService;
         this.clock = clock;
         this.thesaurus = thesaurus;
@@ -81,7 +81,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 Principal principal = threadPrincipalService.getPrincipal();
                 CompletableFuture.runAsync(() -> {
                     threadPrincipalService.set(principal);
-                    transactionService.run(() -> firmwareCampaignService.editCampaignItems((FirmwareCampaign) event.getSource()));
+                    transactionService.run(() -> firmwareCampaignService.handleCampaignUpdate((FirmwareCampaign) event.getSource()));
                 }, Executors.newSingleThreadExecutor());
                 break;
             default:
@@ -107,7 +107,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             Optional<FirmwareCampaign> firmwareCampaignOptional = firmwareCampaignService.getCampaignOn(comTaskExecution);
             if (firmwareCampaignOptional.isPresent()) {
                 FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
-                if (firmwareCampaignService.isWithVerification(firmwareCampaign)) {
+                if (firmwareCampaign.isWithVerification()) {
                     ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                     if (serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class)
                             .flatMap(FirmwareCampaignItemDomainExtension::getDeviceMessage)
@@ -131,7 +131,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 Device device = comTaskExecution.getDevice();
                 ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_COMPLETED).format());
-                if (!firmwareCampaignService.isWithVerification(firmwareCampaign)) {
+                if (!firmwareCampaign.isWithVerification()) {
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                 } else {
@@ -144,7 +144,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             Optional<FirmwareCampaign> firmwareCampaignOptional = firmwareCampaignService.getCampaignOn(comTaskExecution);
             if (firmwareCampaignOptional.isPresent()) {
                 FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
-                if (firmwareCampaignService.isWithVerification(firmwareCampaign)) {
+                if (firmwareCampaign.isWithVerification()) {
                     ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                     if (serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class)
                             .flatMap(FirmwareCampaignItemDomainExtension::getDeviceMessage)

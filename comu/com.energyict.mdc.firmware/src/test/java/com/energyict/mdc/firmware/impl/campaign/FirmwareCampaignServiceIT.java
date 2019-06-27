@@ -177,7 +177,7 @@ public class FirmwareCampaignServiceIT {
         Instant activationEnd = Instant.ofEpochSecond(75000);
         ProtocolSupportedFirmwareOptions activationOption = ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE;
         TimeDuration timeValidation = new TimeDuration(2, TimeDuration.TimeUnit.MINUTES);
-        FirmwareCampaign firmwareCampaign1 = firmwareCampaignService.newFirmwareCampaignBuilder(name)
+        FirmwareCampaign firmwareCampaign1 = firmwareCampaignService.newFirmwareCampaign(name)
                 .withFirmwareType(firmwareType)
                 .withUploadTimeBoundaries(activationStart, activationEnd)
                 .withDeviceGroup(deviceGroup)
@@ -215,7 +215,7 @@ public class FirmwareCampaignServiceIT {
     @Transactional
     public void getCampaignByNameTest() {
         makeDefaultCampaign();
-        assertThat(firmwareCampaignService.getCampaignbyName("c-1").get()).isInstanceOf(FirmwareCampaign.class);
+        assertThat(firmwareCampaignService.getCampaignByName("c-1").get()).isInstanceOf(FirmwareCampaign.class);
     }
 
     @Test

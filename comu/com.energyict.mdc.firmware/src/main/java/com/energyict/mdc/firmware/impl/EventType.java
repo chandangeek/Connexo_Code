@@ -18,15 +18,10 @@ public enum EventType {
     ACTIVATED_FIRMWARE_VERSION_CREATED("activatedfirmwareversion/CREATED"),
     ACTIVATED_FIRMWARE_VERSION_UPDATED("activatedfirmwareversion/UPDATED"),
     ACTIVATED_FIRMWARE_VERSION_DELETED("activatedfirmwareversion/DELETED"),
-    DEVICE_IN_FIRMWARE_CAMPAIGN_UPDATE_TIME_BOUNDARIES("firmwarecampaign/device/UPDATETIMEBOUNDARIES") {
-        @Override
-        protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
-            return eventTypeBuilder
-                    .withProperty("deviceId", ValueType.LONG, "device.id")
-                    .withProperty("firmwareCampaignId", ValueType.LONG, "firmwareCampaign.id")
-                    .shouldPublish();
-        }
-    },
+    FIRMWARE_CAMPAIGN_CREATED("firmwarecampaign/CREATED"),
+    FIRMWARE_CAMPAIGN_CANCELLED("firmwarecampaign/CANCELLED"),
+    DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED("firmwarecampaign/device/CREATED"),
+    DEVICE_IN_FIRMWARE_CAMPAIGN_CANCEL("firmwarecampaign/device/CANCEL"),
     FIRMWARE_CAMPAIGN_EDITED("firmwarecampaign/EDITED");
 
     private static final String NAMESPACE = "com/energyict/mdc/firmware/";

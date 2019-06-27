@@ -64,7 +64,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 logger
         );
         userService.addModulePrivileges(this);
-        Arrays.stream(EventType.values()).forEach(eventType -> eventType.createIfNotExists(eventService));
     }
 
     @Override

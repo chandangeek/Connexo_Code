@@ -32,7 +32,7 @@ public class UniqueNameValidator implements ConstraintValidator<UniqueName, HasU
         if (!value.isValidName(this.caseSensitive)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(firmwareService.getThesaurus().getSimpleFormat(MessageSeeds.NAME_MUST_BE_UNIQUE).format())
-                    .addPropertyNode(FirmwareCampaignDomainExtension.FieldNames.NAME.databaseName())
+                    .addPropertyNode(FirmwareCampaignDomainExtension.FieldNames.NAME.javaName())
                     .addConstraintViolation();
             return false;
         } else {

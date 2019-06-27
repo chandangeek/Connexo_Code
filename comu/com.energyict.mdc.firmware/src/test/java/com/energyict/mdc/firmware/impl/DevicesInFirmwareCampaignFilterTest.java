@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
@@ -13,7 +15,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.BadFilterException;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.impl.campaign.DevicesInFirmwareCampaignFilterImpl;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemDomainExtension;
 
@@ -21,16 +22,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class DevicesInFirmwareCampaignFilterTest {
     @Mock
@@ -44,16 +44,18 @@ public class DevicesInFirmwareCampaignFilterTest {
 
     @Test
     public void testForCampaign() {
+        ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareService.getFirmwareCampaignById(1L)).thenReturn(Optional.of(firmwareCampaign));
         when(firmwareCampaign.getId()).thenReturn(1L);
+        when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
 
         Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                 .withFirmwareCampaignId(this.firmwareCampaign.getId())
                 .getCondition();
 
-//        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.CAMPAIGN.databaseName());
+        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".parent");
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()).containsOnly(firmwareCampaign);
+        assertThat(((Comparison) condition).getValues()).containsOnly(serviceCall);
     }
 
     @Test(expected = BadFilterException.class)
@@ -66,80 +68,75 @@ public class DevicesInFirmwareCampaignFilterTest {
                 .getCondition();
     }
 
-//    @Test
-//    public void testStateSuccess() {
-//        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-//                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.SUCCESS))
-//                .getCondition();
-//
-//        assertThat(condition.getClass()).isEqualTo(Contains.class);
-//        assertThat(((Contains) condition).getFieldName()).isEqualTo(FirmwareCampaignItemDomainExtension.FieldNames.STATUS.databaseName());
-//        assertThat(((Contains) condition).getCollection()).containsOnly(
-//                DefaultState.UPLOAD_SUCCESS, FirmwareManagementDeviceStatus.ACTIVATION_PENDING,
-//                FirmwareManagementDeviceStatus.ACTIVATION_ONGOING, FirmwareManagementDeviceStatus.ACTIVATION_FAILED,
-//                FirmwareManagementDeviceStatus.ACTIVATION_SUCCESS, FirmwareManagementDeviceStatus.VERIFICATION_ONGOING,
-//                FirmwareManagementDeviceStatus.VERIFICATION_TASK_FAILED, FirmwareManagementDeviceStatus.VERIFICATION_SUCCESS,
-//                FirmwareManagementDeviceStatus.VERIFICATION_FAILED);
-//    }
+    @Test
+    public void testStateSuccess() {
+        Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
+                .withStatus(Collections.singletonList(DefaultState.SUCCESSFUL.getKey()))
+                .getCondition();
+
+        assertThat(condition.getClass()).isEqualTo(Comparison.class);
+        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name");
+        assertThat(((Comparison) condition).getValues()).containsOnly(DefaultState.SUCCESSFUL);
+    }
 
     @Test
     public void testStateFailed() {
         Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.FAILED))
+                .withStatus(Collections.singletonList(DefaultState.FAILED.getKey()))
                 .getCondition();
 
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
-//        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.STATUS.databaseName());
+        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name");
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.UPLOAD_FAILED);
+        assertThat(((Comparison) condition).getValues()).containsOnly(DefaultState.FAILED);
     }
 
     @Test
     public void testStateOngoing() {
         Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.ONGOING))
+                .withStatus(Collections.singletonList(DefaultState.ONGOING.getKey()))
                 .getCondition();
 
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
-//        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.STATUS.databaseName());
+        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name");
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.UPLOAD_ONGOING);
+        assertThat(((Comparison) condition).getValues()).containsOnly(DefaultState.ONGOING);
     }
 
     @Test
     public void testStatePending() {
         Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.PENDING))
+                .withStatus(Collections.singletonList(DefaultState.PENDING.getKey()))
                 .getCondition();
 
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
-//        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.STATUS.databaseName());
+        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name");
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.UPLOAD_PENDING);
+        assertThat(((Comparison) condition).getValues()).containsOnly(DefaultState.PENDING);
     }
 
     @Test
     public void testStateConfigurationError() {
         Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR))
+                .withStatus(Collections.singletonList(DefaultState.REJECTED.getKey()))
                 .getCondition();
 
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
-//        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.STATUS.databaseName());
+        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name");
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.CONFIGURATION_ERROR);
+        assertThat(((Comparison) condition).getValues()).containsOnly(DefaultState.REJECTED);
     }
 
     @Test
     public void testStateCancelled() {
         Condition condition = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.CANCELLED))
+                .withStatus(Collections.singletonList(DefaultState.CANCELLED.getKey()))
                 .getCondition();
 
         assertThat(condition.getClass()).isEqualTo(Comparison.class);
-        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.PARENT.databaseName());
+        assertThat(((Comparison) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name");
         assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.EQUAL);
-        assertThat(((Comparison) condition).getValues()).containsOnly(FirmwareManagementDeviceStatus.CANCELLED);
+        assertThat(((Comparison) condition).getValues()).containsOnly(DefaultState.CANCELLED);
     }
 
     @Test
@@ -169,7 +166,7 @@ public class DevicesInFirmwareCampaignFilterTest {
                 .getCondition();
 
         assertThat(condition.getClass()).isEqualTo(Contains.class);
-//        assertThat(((Contains) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DEVICE.databaseName());
+        assertThat(((Contains) condition).getFieldName()).isEqualToIgnoringCase(FirmwareCampaignItemDomainExtension.FieldNames.DEVICE.javaName());
         //assertThat(((Contains) condition).getCollection()).containsOnly(device1, device2);
     }
 
@@ -180,13 +177,13 @@ public class DevicesInFirmwareCampaignFilterTest {
 
         DevicesInFirmwareCampaignFilterImpl filter = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                 .withFirmwareCampaignId(this.firmwareCampaign.getId())
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.SUCCESS));
+                .withStatus(Collections.singletonList(DefaultState.SUCCESSFUL.getKey()));
 
         DevicesInFirmwareCampaignFilterImpl filter1 = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                 .withFirmwareCampaignId(this.firmwareCampaign.getId());
 
         DevicesInFirmwareCampaignFilterImpl filter2 = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.SUCCESS));
+                .withStatus(Collections.singletonList(DefaultState.SUCCESSFUL.getKey()));
 
         Condition condition = filter.getCondition();
 
@@ -201,13 +198,13 @@ public class DevicesInFirmwareCampaignFilterTest {
 
         DevicesInFirmwareCampaignFilterImpl filter = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                 .withFirmwareCampaignId(this.firmwareCampaign.getId())
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.FAILED));
+                .withStatus(Collections.singletonList(DefaultState.FAILED.getKey()));
 
         DevicesInFirmwareCampaignFilterImpl filter1 = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
                 .withFirmwareCampaignId(this.firmwareCampaign.getId());
 
         DevicesInFirmwareCampaignFilterImpl filter2 = new DevicesInFirmwareCampaignFilterImpl(firmwareService, deviceService)
-                .withStatus(Collections.singletonList(FirmwareManagementDeviceStatus.Constants.FAILED));
+                .withStatus(Collections.singletonList(DefaultState.FAILED.getKey()));
 
         Condition condition = filter.getCondition();
 

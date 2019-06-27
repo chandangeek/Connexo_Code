@@ -74,7 +74,7 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
         }
         ServiceCall campaignServiceCall = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId.get())
                 .orElseThrow(() -> new BadFilterException(String.format("Campaign %d not found.", firmwareCampaignId.get()))).getServiceCall();
-        return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.PARENT.databaseName(), campaignServiceCall);
+        return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".parent", campaignServiceCall);
     }
 
     private Condition conditionForDevice() {
@@ -90,9 +90,9 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
             if (!devices.get(0).isPresent()) {
                 throw new BadFilterException(String.format("Device %d not found.", deviceId));
             }
-            return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DEVICE.databaseName(), devices.get(0).get());
+            return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DEVICE.javaName(), devices.get(0).get());
         }
-        return ListOperator.IN.contains(FirmwareCampaignItemDomainExtension.FieldNames.DEVICE.databaseName(), devices.stream().map(Optional::get).collect(Collectors.toList()));
+        return ListOperator.IN.contains(FirmwareCampaignItemDomainExtension.FieldNames.DEVICE.javaName(), devices.stream().map(Optional::get).collect(Collectors.toList()));
     }
 
     private Condition conditionForStatus() {
@@ -101,9 +101,9 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
             return Condition.TRUE;
         }
         if (statuses.size() == 1) {
-            return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.databaseName(), statuses.get(0));
+            return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name", statuses.get(0));
         }
-        return ListOperator.IN.contains(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.databaseName(), statuses);//todo
+        return ListOperator.IN.contains(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".state.name", statuses);
     }
 
     private List<DefaultState> getDeviceInFirmwareCampaignStatusOrdinals() {

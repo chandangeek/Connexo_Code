@@ -5,13 +5,10 @@
 package com.energyict.mdc.firmware.impl.campaign;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -20,11 +17,8 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -37,7 +31,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -65,25 +58,7 @@ public class FirmwareCampaignHandlerTest {
     @Mock
     private FirmwareServiceImpl firmwareService;
     @Mock
-    private MeteringGroupsService meteringGroupsService;
-    @Mock
-    private DeviceService deviceService;
-    @Mock
     private Clock clock;
-    @Mock
-    private EventService eventService;
-    @Mock
-    private TaskService taskService;
-    @Mock
-    private JsonService jsonService;
-    @Mock
-    private DeviceType deviceType;
-    @Mock
-    private DeviceConfiguration deviceConfiguration;
-    @Mock
-    private DataModel dataModel;
-
-    private final long deviceTypeId = 485L;
 
     private FirmwareCampaignServiceImpl firmwareCampaignService = mock(FirmwareCampaignServiceImpl.class);
     private ServiceCallService serviceCallService = mock(ServiceCallService.class);
@@ -103,16 +78,14 @@ public class FirmwareCampaignHandlerTest {
 
     private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
     private final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
-    private final static String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
-    private final static String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
     private final static String FIRMWARE_COMTASKEXECUTION_STARTED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/STARTED";
     private final static String FIRMWARE_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/COMPLETED";
     private final static String FIRMWARE_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/firmwarecomtaskexecution/FAILED";
     private final static String FIRMWARE_CAMPAIGN_EDITED = "com/energyict/mdc/firmware/firmwarecampaign/EDITED";
-    
+
     @Before
     public void setUp() {
-        when(firmwareService.getFirmwareCampaignServiceImpl()).thenReturn(firmwareCampaignService);
+        when(firmwareService.getFirmwareCampaignService()).thenReturn(firmwareCampaignService);
         when(firmwareComTaskExecution.isFirmware()).thenReturn(true);
         when(firmwareCampaignService.getCampaignOn(firmwareComTaskExecution)).thenReturn(Optional.of(firmwareCampaign));
         when(firmwareCampaignService.getCampaignOn(verificationComTaskExecution)).thenReturn(Optional.of(firmwareCampaign2));
@@ -165,7 +138,7 @@ public class FirmwareCampaignHandlerTest {
     public void testVerificationTaskCompletedSuccessful() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
-        when(firmwareCampaignService.isWithVerification(firmwareCampaign2)).thenReturn(true);
+        when(firmwareCampaign2.isWithVerification()).thenReturn(true);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
@@ -178,7 +151,7 @@ public class FirmwareCampaignHandlerTest {
     public void testVerificationTaskCompletedFailed() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
-        when(firmwareCampaignService.isWithVerification(firmwareCampaign2)).thenReturn(true);
+        when(firmwareCampaign2.isWithVerification()).thenReturn(true);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
@@ -190,7 +163,7 @@ public class FirmwareCampaignHandlerTest {
     @Test
     public void testVerificationTaskFailed() {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
-        when(firmwareCampaignService.isWithVerification(firmwareCampaign2)).thenReturn(true);
+        when(firmwareCampaign2.isWithVerification()).thenReturn(true);
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_FAILED);
@@ -204,7 +177,7 @@ public class FirmwareCampaignHandlerTest {
         when(eventType.getTopic()).thenReturn(FIRMWARE_CAMPAIGN_EDITED);
         when(event.getSource()).thenReturn(firmwareCampaign);
         firmwareCampaignHandler.onEvent(event);
-        verify(firmwareCampaignService, timeout(500)).editCampaignItems(firmwareCampaign);
+        verify(firmwareCampaignService, timeout(500)).handleCampaignUpdate(firmwareCampaign);
     }
 
     private static ComTaskExecution createFirmwareTaskMock() {

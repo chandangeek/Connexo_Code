@@ -80,18 +80,18 @@ public class FirmwareCampaignFactoryTest {
     public void getOverviewTest() {
         FirmwareCampaign firmwareCampaign = createMockCampaign();
         FirmwareCampaignInfo firmwareCampaignInfo = firmwareCampaignInfoFactory.getOverviewCampaignInfo(firmwareCampaign);
-        assertEquals(firmwareCampaignInfo.id, 3L);
-        assertEquals(firmwareCampaignInfo.version, 4L);
-        assertEquals(firmwareCampaignInfo.validationTimeout.count, 2);
-        assertEquals(firmwareCampaignInfo.name, "TestCampaign");
-        assertEquals(firmwareCampaignInfo.managementOption.localizedValue, "activate");
-        assertEquals(firmwareCampaignInfo.deviceGroup, "TestGroup");
-        assertEquals(firmwareCampaignInfo.timeBoundaryStart, Instant.ofEpochSecond(100));
-        assertEquals(firmwareCampaignInfo.timeBoundaryEnd, Instant.ofEpochSecond(200));
-        assertEquals(firmwareCampaignInfo.deviceType.localizedValue, "TestDeviceType");
-        assertEquals(firmwareCampaignInfo.startedOn, Instant.ofEpochSecond(111));
+        assertEquals(3L,firmwareCampaignInfo.id);
+        assertEquals(4L,firmwareCampaignInfo.version);
+        assertEquals(2, firmwareCampaignInfo.validationTimeout.count);
+        assertEquals("TestCampaign", firmwareCampaignInfo.name);
+        assertEquals("activate", firmwareCampaignInfo.managementOption.localizedValue);
+        assertEquals("TestGroup", firmwareCampaignInfo.deviceGroup);
+        assertEquals(Instant.ofEpochSecond(100), firmwareCampaignInfo.timeBoundaryStart);
+        assertEquals(Instant.ofEpochSecond(200), firmwareCampaignInfo.timeBoundaryEnd);
+        assertEquals("TestDeviceType", firmwareCampaignInfo.deviceType.localizedValue);
+        assertEquals(Instant.ofEpochSecond(111), firmwareCampaignInfo.startedOn);
         assertNull(firmwareCampaignInfo.finishedOn);
-        assertEquals(firmwareCampaignInfo.status, "Ongoing");
+        assertEquals("Ongoing", firmwareCampaignInfo.status.name);
     }
 
 
@@ -118,6 +118,8 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getId()).thenReturn(3L);
         when(firmwareCampaign.getVersion()).thenReturn(4L);
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
+        when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
+        when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
         return firmwareCampaign;
     }
 }

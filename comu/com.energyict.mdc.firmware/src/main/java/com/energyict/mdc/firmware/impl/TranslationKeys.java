@@ -13,13 +13,12 @@ import com.elster.jupiter.nls.TranslationKey;
  * @since 2016-09-26 (11:34)
  */
 public enum TranslationKeys implements TranslationKey {
-    // FIRMWARE_CAMPAIGNS_SUBSCRIBER(FirmwareCampaignHandlerFactory.FIRMWARE_CAMPAIGNS_SUBSCRIBER, "Handle firmware campaigns"),
     DOMAIN_NAME("serviceCall", "Service call"),
     NAME_OF_CAMPAIGN("name", "Name"),
     DEVICE_TYPE("deviceType", "Device type"),
     DEVICE_GROUP("deviceGroup", "Device group"),
-    UPDATE_START("updateStart", "Time boundary start"),
-    UPDATE_END("updateEnd", "Time boundary end"),
+    UPDATE_START("updateStart", "Update time start"),
+    UPDATE_END("updateEnd", "Update time end"),
     ACTIVATION_OPTION("activationOption", "Activation option"),
     ACTIVATION_DATE("activationDate", "Activation date"),
     VALIDATION_TIMEOUT("validationTimeout", "Timeout before validation"),

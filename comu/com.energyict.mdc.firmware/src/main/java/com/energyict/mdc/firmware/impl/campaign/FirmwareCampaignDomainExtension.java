@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -22,8 +23,11 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -49,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -170,7 +175,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         Optional<DeviceMessageSpec> firmwareMessageSpec = getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             Map<String, Object> convertedProperties = new HashMap<>();
-            for (FirmwareCampaignProperty property : properties) { //Из базы
+            for (FirmwareCampaignProperty property : properties) {
                 firmwareMessageSpec
                         .get()
                         .getPropertySpec(property.getKey())
@@ -372,5 +377,31 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     public ComWindow getComWindow() {
         return new ComWindow((((Number) (this.getUploadPeriodStart().getEpochSecond() % 86400)).intValue()),
                 (((Number) (this.getUploadPeriodEnd().getEpochSecond() % 86400)).intValue()));
+
+    }
+
+    @Override
+    public boolean isWithVerification() {
+        return !getFirmwareManagementOption().equals(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
+    }
+
+    @Override
+    public Instant getStartedOn() {
+        return getServiceCall().getCreationTime();
+    }
+
+    @Override
+    public Instant getFinishedOn() {
+        ServiceCall serviceCall = getServiceCall();
+        return (serviceCall.getState().equals(DefaultState.CANCELLED)
+                || serviceCall.getState().equals(DefaultState.SUCCESSFUL)) ? serviceCall.getLastModificationTime() : null;
+    }
+
+    @Override
+    public List<DeviceInFirmwareCampaign> getDevices() {
+        return firmwareService.getFirmwareCampaignService().streamDevicesInCampaigns()
+                .join(ServiceCall.class).join(ServiceCall.class).join(State.class)
+                .filter(Where.where("serviceCall.parent.id").isEqualTo(getId()))
+                .collect(Collectors.toList());
     }
 }

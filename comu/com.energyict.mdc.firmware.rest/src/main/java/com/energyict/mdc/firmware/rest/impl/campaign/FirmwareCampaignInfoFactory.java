@@ -36,13 +36,15 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.energyict.mdc.firmware.rest.impl.campaign.CampaignRestUtil.getCampaignStatus;
-import static com.energyict.mdc.firmware.rest.impl.campaign.CampaignRestUtil.getDeviceStatus;
+import static com.energyict.mdc.firmware.rest.impl.campaign.StatusInfoFactory.getCampaignStatus;
+import static com.energyict.mdc.firmware.rest.impl.campaign.StatusInfoFactory.getDeviceStatus;
 
 public class FirmwareCampaignInfoFactory {
     private final Thesaurus thesaurus;
@@ -94,7 +96,7 @@ public class FirmwareCampaignInfoFactory {
         info.version = campaign.getVersion();
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
-            info.firmwareVersion = firmwareVersionFactory.from(campaign.getFirmwareVersion());
+            info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
             info.properties = firmwareMessageInfoFactory.getProperties(firmwareMessageSpec.get(), campaign.getDeviceType(), info.firmwareType.id.getType(), campaign.getProperties());
         }
         return info;
@@ -103,9 +105,8 @@ public class FirmwareCampaignInfoFactory {
     public FirmwareCampaignInfo getOverviewCampaignInfo(FirmwareCampaign campaign) {
         FirmwareCampaignInfo info = from(campaign);
         ServiceCall campaignsServiceCall = campaign.getServiceCall();
-        info.startedOn = campaignsServiceCall.getCreationTime();
-        info.finishedOn = (campaignsServiceCall.getState().equals(DefaultState.CANCELLED)
-                || campaignsServiceCall.getState().equals(DefaultState.SUCCESSFUL)) ? campaignsServiceCall.getLastModificationTime() : null;
+        info.startedOn = campaign.getStartedOn();
+        info.finishedOn = campaign.getFinishedOn();
         info.status = getCampaignStatus(campaignsServiceCall.getState(), thesaurus);
         info.devices = new ArrayList<>();
         info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.SUCCESSFUL, thesaurus), 0L));
@@ -132,7 +133,7 @@ public class FirmwareCampaignInfoFactory {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_VERSION_MISSING));
         FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(firmwareVersionId);
         FirmwareCampaignBuilder firmwareCampaignBuilder = firmwareCampaignService
-                .newFirmwareCampaignBuilder(info.name)
+                .newFirmwareCampaign(info.name)
                 .withDeviceType(deviceType)
                 .withDeviceGroup(info.deviceGroup)
                 .withFirmwareType(firmwareService.getFirmwareVersionById(firmwareVersionId).get().getFirmwareType())
@@ -147,7 +148,7 @@ public class FirmwareCampaignInfoFactory {
         info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_RESUME).ifPresent(x -> x.propertyValueInfo = new PropertyValueInfo<>(false, false, true));
         Map<String, Object> properties = new HashMap<>();
         info.properties.forEach(propertyInfo -> properties.put(propertyInfo.key, propertyInfo.propertyValueInfo.getValue()));
-        Optional<DeviceMessageSpec> deviceMessageSpec = firmwareCampaignService.getFirmwareMessageSpec(deviceType, managementOptions,
+        Optional<DeviceMessageSpec> deviceMessageSpec = firmwareService.getFirmwareMessageSpec(deviceType, managementOptions,
                 firmwareCampaignService.getFirmwareVersion(properties));
         if (deviceMessageSpec.isPresent()) {
             for (PropertySpec propertySpec : deviceMessageSpec.get().getPropertySpecs()) {
@@ -187,7 +188,7 @@ public class FirmwareCampaignInfoFactory {
     }
 
     public static Instant getToday(Clock clock) {
-        return Instant.parse(clock.instant().toString().substring(0, 11) + "00:00:00Z");
+        return LocalDate.now(clock).atStartOfDay().toInstant(ZoneOffset.UTC);
     }
 
     public static long getSecondsInDays(int days) {

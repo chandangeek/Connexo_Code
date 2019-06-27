@@ -23,6 +23,7 @@ import com.energyict.mdc.tasks.TaskService;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -87,6 +88,7 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setMdcPropertyUtils(mdcPropertyUtils);
         application.setSecurityManagementService(securityManagementService);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         return application;
     }
 

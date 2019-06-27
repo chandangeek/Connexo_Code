@@ -7,6 +7,7 @@ package com.energyict.mdc.firmware.impl.campaign;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -33,20 +34,14 @@ import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
-import com.energyict.mdc.firmware.FirmwareCampaignException;
-import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.impl.EventType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
-import com.energyict.mdc.firmware.impl.RetryDeviceInFirmwareCampaignExceptions;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.ImmutableMap;
 import org.osgi.framework.BundleContext;
@@ -67,29 +62,26 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private final DataModel dataModel;
     private final DeviceService deviceService;
     private final ServiceCallService serviceCallService;
-    private final TaskService taskService;
     private final OrmService ormService;
     private final Thesaurus thesaurus;
     private final MeteringGroupsService meteringGroupsService;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private final RegisteredCustomPropertySet registeredCustomPropertySet;
+    private final EventService eventService;
 
     @Inject
     public FirmwareCampaignServiceImpl(FirmwareServiceImpl firmwareService, DeviceService deviceService,
-                                       ServiceCallService serviceCallService, TaskService taskService,
-                                       Thesaurus thesaurus, MeteringGroupsService meteringGroupsService,
-                                       DeviceMessageSpecificationService deviceMessageSpecificationService) {
+                                       ServiceCallService serviceCallService, EventService eventService,
+                                       Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
         this.firmwareService = firmwareService;
         this.dataModel = firmwareService.getDataModel();
         this.ormService = firmwareService.getOrmService();
         this.registeredCustomPropertySet = firmwareService.getRegisteredCustomPropertySet();
         this.deviceService = deviceService;
         this.serviceCallService = serviceCallService;
-        this.taskService = taskService;
         this.thesaurus = thesaurus;
         this.meteringGroupsService = meteringGroupsService;
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.eventService = eventService;
     }
 
     public ServiceCall createServiceCallAndTransition(FirmwareCampaignDomainExtension campaign) {
@@ -102,6 +94,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                 .origin("MultiSense")
                 .extendedWith(campaign)
                 .create();
+        postEvent(EventType.FIRMWARE_CAMPAIGN_CREATED, campaign);
         serviceCall.requestTransition(DefaultState.ONGOING);
         return serviceCallService.getServiceCall(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Just created service call not found."));
     }
@@ -117,7 +110,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     }
 
     @Override
-    public Optional<FirmwareCampaign> getCampaignbyName(String name) {
+    public Optional<FirmwareCampaign> getCampaignByName(String name) {
         return streamAllCampaigns().filter(Where.where("name").isEqualTo(name)).findAny().map(FirmwareCampaign.class::cast);
     }
 
@@ -133,11 +126,10 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     }
 
     @Override
-    public Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter) {
-        return DefaultFinder.of(DeviceInFirmwareCampaign.class, filter.getCondition(), dataModel);
+    public Finder<? extends DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(DevicesInFirmwareCampaignFilter filter) {
+        return DefaultFinder.of(FirmwareCampaignItemDomainExtension.class, filter.getCondition(), dataModel, ServiceCall.class, State.class);
     }
 
-    @Override
     public void createItemsOnCampaign(ServiceCall serviceCall) {
         serviceCall.getExtension(FirmwareCampaignDomainExtension.class).ifPresent(campaign -> {
             Map<MessageSeeds, Integer> numberOfDevices = new HashMap<>();
@@ -147,7 +139,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                     .collect(Collectors.toList());
             if (!devicesByGroupAndType.isEmpty()) {
                 devicesByGroupAndType.forEach(device -> {
-                    MessageSeeds messageSeeds = createChildServiceCall(serviceCall, device, campaign);
+                    MessageSeeds messageSeeds = createChildServiceCall(serviceCall, device);
                     numberOfDevices.compute(messageSeeds, (key, value) -> value == null ? 1 : value + 1);
                 });
             } else {
@@ -173,23 +165,20 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         });
     }
 
-    private FirmwareCampaignDomainExtension getFirmwareCampaign(ServiceCall serviceCall) {
-        return serviceCall.getExtension(FirmwareCampaignDomainExtension.class).orElse(null);
-    }
-
     private List<Device> getDevicesByGroup(String deviceGroup) {
         EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(deviceGroup)
                 .orElseThrow(() -> new FirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_GROUP_ISNT_FOUND, deviceGroup));
         return deviceService.deviceQuery().select(ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), "meter"));
     }
 
-    private MessageSeeds createChildServiceCall(ServiceCall parent, Device device, FirmwareCampaignDomainExtension campaign) {
+    private MessageSeeds createChildServiceCall(ServiceCall parent, Device device) {
         if (!findActiveFirmwareItemByDevice(device).isPresent()) {
             ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.FIRMWARE_CAMPAIGN_ITEM);
             FirmwareCampaignItemDomainExtension firmwareCampaignItemDomainExtension = dataModel.getInstance(FirmwareCampaignItemDomainExtension.class);
             firmwareCampaignItemDomainExtension.setDevice(device);
             firmwareCampaignItemDomainExtension.setParent(parent);
             ServiceCall serviceCall = parent.newChildCall(serviceCallType).extendedWith(firmwareCampaignItemDomainExtension).targetObject(device).create();
+            postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CREATED, firmwareCampaignItemDomainExtension);
             serviceCall.requestTransition(DefaultState.PENDING);
             return MessageSeeds.DEVICE_WAS_ADDED;
         } else {
@@ -203,20 +192,20 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
     }
 
-    @Override
-    public void cancelFirmwareUpload(ServiceCall serviceCall) {
-        Device device = serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().getDevice();
+    public void handleFirmwareUploadCancellation(ServiceCall serviceCall) {
+        FirmwareCampaignItemDomainExtension firmwareCampaignItemDomainExtension = serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get();
+        Device device = firmwareCampaignItemDomainExtension.getDevice();
         firmwareService.cancelFirmwareUploadForDevice(device);
+        postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CANCEL, firmwareCampaignItemDomainExtension);
     }
 
     @Override
-    public FirmwareCampaignBuilder newFirmwareCampaignBuilder(String name) {
+    public FirmwareCampaignBuilder newFirmwareCampaign(String name) {
         return new FirmwareCampaignBuilderImpl(this, dataModel)
                 .withName(name);
     }
 
-    @Override
-    public void editCampaignItems(FirmwareCampaign firmwareCampaign) {
+    public void handleCampaignUpdate(FirmwareCampaign firmwareCampaign) {
         ormService.getDataModel(FirmwareCampaignItemPersistenceSupport.COMPONENT_NAME).get()
                 .stream(FirmwareCampaignItemDomainExtension.class).join(ServiceCall.class)
                 .filter(Where.where("serviceCall.parent").isEqualTo(firmwareCampaign.getServiceCall()))
@@ -234,10 +223,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     @Override
     public Optional<FirmwareCampaign> getCampaignOn(ComTaskExecution comTaskExecution) {
         Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = findActiveFirmwareItemByDevice(comTaskExecution.getDevice());
-        if (deviceInFirmwareCampaign.isPresent()) {
-            return Optional.of(deviceInFirmwareCampaign.get().getParent().getExtension(FirmwareCampaignDomainExtension.class).get());
-        }
-        return Optional.empty();
+        return deviceInFirmwareCampaign.map(deviceInFirmwareCampaign1 -> deviceInFirmwareCampaign1.getParent().getExtension(FirmwareCampaignDomainExtension.class).get());
     }
 
     @Override
@@ -253,25 +239,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     @Override
     public QueryStream<? extends DeviceInFirmwareCampaign> streamDevicesInCampaigns() {
         return ormService.getDataModel(FirmwareCampaignItemPersistenceSupport.COMPONENT_NAME).get().stream(FirmwareCampaignItemDomainExtension.class);
-    }
-
-    @Override
-    public boolean isWithVerification(FirmwareCampaign firmwareCampaign) {
-        return !firmwareCampaign.getFirmwareManagementOption().equals(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
-    }
-
-
-    @Override
-    public boolean retryFirmwareUploadForDevice(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
-        if (deviceInFirmwareCampaign.getParent().getState() != DefaultState.ONGOING) {
-            throw RetryDeviceInFirmwareCampaignExceptions.invalidState(this.thesaurus);
-        }
-        // retry
-        if (!deviceInFirmwareCampaign.getServiceCall().canTransitionTo(DefaultState.PENDING)) {
-            throw RetryDeviceInFirmwareCampaignExceptions.transitionToPendingStateImpossible(this.thesaurus, deviceInFirmwareCampaign);
-        }
-        ((FirmwareCampaignItemDomainExtension) deviceInFirmwareCampaign).retryFirmwareProcess();
-        return true;
     }
 
     @Override
@@ -309,7 +276,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         registerServiceCallHandler(bundleContext, dataModel.getInstance(FirmwareCampaignServiceCallHandler.class), FirmwareCampaignServiceCallHandler.NAME);
         registerServiceCallHandler(bundleContext, dataModel.getInstance(FirmwareCampaignItemServiceCallHandler.class), FirmwareCampaignItemServiceCallHandler.NAME);
         serviceRegistrations.add(bundleContext.registerService(Subscriber.class, dataModel.getInstance(FirmwareCampaignHandler.class), new Hashtable<>()));
-
     }
 
     public void deactivate() {
@@ -317,27 +283,13 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         serviceRegistrations.clear();
     }
 
-    @Override
-    public Optional<DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
-                                                              FirmwareVersion firmwareVersion) {
-        Optional<DeviceMessageId> firmwareMessageId = getFirmwareMessageId(deviceType, firmwareManagementOptions, firmwareVersion);
-        if (firmwareMessageId.isPresent()) {
-            return deviceMessageSpecificationService.findMessageSpecById(firmwareMessageId.get().dbValue());
-        }
-        return Optional.empty();
-    }
-
-    public Optional<DeviceMessageId> getFirmwareMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions, FirmwareVersion firmwareVersion) {
-        if (deviceType.getDeviceProtocolPluggableClass().isPresent() && firmwareManagementOptions != null) {
-            return firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType, firmwareManagementOptions, firmwareVersion);
-        }
-        return Optional.empty();
+    void postEvent(EventType eventType, Object source){
+        eventService.postEvent(eventType.topic(), source);
     }
 
     @Override
     public FirmwareVersion getFirmwareVersion(Map<String, Object> properties) {
         Optional<DeviceMessageSpec> firmwareMessageSpec = firmwareService.defaultFirmwareVersionSpec();
-        List<FirmwareCampaignProperty> firmwareCampaignProperties = new ArrayList<>();
         List<PropInfo> propInfos = new ArrayList<>();
         properties.forEach((key, value) -> propInfos.add(new PropInfo(key, value)));
         if (firmwareMessageSpec.isPresent()) {

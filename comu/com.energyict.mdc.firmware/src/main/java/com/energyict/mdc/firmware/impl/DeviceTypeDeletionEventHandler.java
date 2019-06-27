@@ -41,17 +41,12 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
     public DeviceTypeDeletionEventHandler(FirmwareService firmwareService, FirmwareCampaignService firmwareCampaignService) {
         this();
         this.setFirmwareService(firmwareService);
-        this.setFirmwareCampaignService(firmwareCampaignService);
     }
 
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
-    }
-
-    @Reference
-    public void setFirmwareCampaignService(FirmwareCampaignService firmwareCampaignService) {
-        this.firmwareCampaignService = firmwareCampaignService;
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
     }
 
     @Override

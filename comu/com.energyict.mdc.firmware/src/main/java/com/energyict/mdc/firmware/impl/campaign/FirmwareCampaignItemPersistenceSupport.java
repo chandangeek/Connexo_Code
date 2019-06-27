@@ -22,7 +22,7 @@ import java.util.Optional;
 
 public class FirmwareCampaignItemPersistenceSupport implements PersistenceSupport<ServiceCall, FirmwareCampaignItemDomainExtension> {
 
-    private static final String TABLE_NAME = FirmwareCampaignService.COMPONENT_NAME + "_" + "FC2_ITEMS";
+    private static final String TABLE_NAME = FirmwareService.COMPONENTNAME + "_" + "FC2_ITEMS";
     private static final String FK_NAME = "FK_" + TABLE_NAME;
     public static final String COMPONENT_NAME = "FC2";
     private final FirmwareServiceImpl firmwareService;
