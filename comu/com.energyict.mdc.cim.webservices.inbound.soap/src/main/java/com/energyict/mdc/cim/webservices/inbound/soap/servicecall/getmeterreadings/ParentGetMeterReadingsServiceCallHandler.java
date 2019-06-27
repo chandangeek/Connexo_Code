@@ -44,6 +44,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     private final SendMeterReadingsProvider sendMeterReadingsProvider;
     private final Provider<MeterReadingsBuilder> readingBuilderProvider;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
 
     @Inject
     public ParentGetMeterReadingsServiceCallHandler(MeteringService meteringService, SendMeterReadingsProvider sendMeterReadingsProvider,
@@ -94,6 +95,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         String readingTypesString = extension.getReadingTypes();
         String loadProfilesString = extension.getLoadProfiles();
         String registerGroupsString = extension.getRegisterGroups();
+        String correlationId = extension.getCorelationId();
         List<String> endDevicesMRIDs = serviceCall.findChildren().stream()
                 .map(c -> c.getExtension(SubParentGetMeterReadingsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"))
@@ -139,7 +141,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             serviceCall.requestTransition(DefaultState.FAILED);
             return;
         }
-        boolean isOk = sendMeterReadingsProvider.call(meterReadings, HeaderType.Verb.CREATED, endPointConfiguration);
+        boolean isOk = sendMeterReadingsProvider.call(meterReadings, getHeader(correlationId), endPointConfiguration);
         if (!isOk) {
             serviceCall.requestTransition(DefaultState.FAILED);
             serviceCall.log(LogLevel.SEVERE,
@@ -150,6 +152,14 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         serviceCall.log(LogLevel.FINE,
                 MessageFormat.format("Data successfully sent for source ''{0}'', time range {1}",
                         source, timeRangeSet));
+    }
+
+    private HeaderType getHeader(String correlationId) {
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setVerb(HeaderType.Verb.CREATED);
+        header.setNoun("MeterReadings");
+        header.setCorrelationID(correlationId);
+        return header;
     }
 
     private EndPointConfiguration getEndPointConfiguration(ServiceCall serviceCall, String url) {

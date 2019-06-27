@@ -90,12 +90,12 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         MeterReadings meterReadings = readingBuilderProvider.build(readingInfos);
         if (checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
             meterReadingsPorts.forEach((url, soapService) ->
-                    sendMeterReadingsPortResponse(soapService, meterReadings, requestVerb)
+                    sendMeterReadingsPortResponse(soapService, meterReadings, getHeader(requestVerb))
             );
         }
     }
 
-    public boolean call(MeterReadings meterReadings, HeaderType.Verb requestVerb, EndPointConfiguration endPointConfiguration) {
+    public boolean call(MeterReadings meterReadings, HeaderType header, EndPointConfiguration endPointConfiguration) {
         if (!checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
             return false;
         }
@@ -104,16 +104,12 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
             LOGGER.log(Level.SEVERE, "No meter reading port was found for url: " + endPointConfiguration.getUrl());
             return false;
         }
-        return sendMeterReadingsPortResponse(meterReadingsPort, meterReadings, requestVerb);
+        return sendMeterReadingsPortResponse(meterReadingsPort, meterReadings, header);
     }
 
-    protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType.Verb requestVerb) {
+    protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType header) {
         MeterReadingsEventMessageType meterReadingsResponseMessageType = meterReadingsMessageObjectFactory.createMeterReadingsEventMessageType();
 
-        // set header
-        HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setVerb(requestVerb);
-        header.setNoun(NOUN);
         meterReadingsResponseMessageType.setHeader(header);
 
         // set payload
@@ -124,13 +120,20 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         return meterReadingsResponseMessageType;
     }
 
-    private boolean sendMeterReadingsPortResponse(MeterReadingsPort meterReadingsPort, MeterReadings meterReadings, HeaderType.Verb requestVerb) {
+    private HeaderType getHeader(HeaderType.Verb requestVerb) {
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setVerb(requestVerb);
+        header.setNoun(NOUN);
+        return header;
+    }
+
+    private boolean sendMeterReadingsPortResponse(MeterReadingsPort meterReadingsPort, MeterReadings meterReadings, HeaderType header) {
         MeterReadingsResponseMessageType meterReadingsResponseMessageType;
         try {
-            if (requestVerb.equals(HeaderType.Verb.CREATED)) {
-                meterReadingsResponseMessageType = meterReadingsPort.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, requestVerb));
-            } else if (requestVerb.equals(HeaderType.Verb.CHANGED)) {
-                meterReadingsResponseMessageType = meterReadingsPort.changedMeterReadings(createMeterReadingsEventMessage(meterReadings, requestVerb));
+            if (header.getVerb().equals(HeaderType.Verb.CREATED)) {
+                meterReadingsResponseMessageType = meterReadingsPort.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, header));
+            } else if (header.getVerb().equals(HeaderType.Verb.CHANGED)) {
+                meterReadingsResponseMessageType = meterReadingsPort.changedMeterReadings(createMeterReadingsEventMessage(meterReadings, header));
             } else {
                 LOGGER.log(Level.SEVERE, "Unknown request type to send meter readings.");
                 return false;
