@@ -262,12 +262,6 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Override
-    public void retryOccurrence(EndPointConfiguration endPointConfiguration, String method, String payload){
-        System.out.println("DO NOTHING FOR NOW");
-        return;
-    }
-
-    @Override
     public String getApplication(){
         return WebServiceApplicationName.MULTISENSE.getName();
     }
