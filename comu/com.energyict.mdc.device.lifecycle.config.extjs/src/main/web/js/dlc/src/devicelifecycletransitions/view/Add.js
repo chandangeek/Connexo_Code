@@ -35,7 +35,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
             toComboValue = me.down('#transition-to-combo').getValue();
 
         if (!!fromComboValue && !!toComboValue) {
-            var isSystemContext = eventContext && eventContext === 'System'ж
+            var isSystemContext = eventContext && eventContext === 'System';
             me.fillActions(fromComboValue, toComboValue, isSystemContext);
             me.fillChecks(fromComboValue, toComboValue, isSystemContext);
         } else {
