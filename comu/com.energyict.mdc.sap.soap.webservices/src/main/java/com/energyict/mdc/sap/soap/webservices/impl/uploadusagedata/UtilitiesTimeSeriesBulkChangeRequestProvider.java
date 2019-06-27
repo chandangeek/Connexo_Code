@@ -265,9 +265,4 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     public String getApplication(){
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
-
-    @Override
-    public void retryOccurrence(EndPointConfiguration endPointConfiguration, String method, String payload){
-        System.out.println("NO IMPLEMENTATION FOR NOW");
-    }
 }
