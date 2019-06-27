@@ -2,17 +2,16 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.processes.view.AllProcesses', {
-    alias: 'widget.all-flow-processes',
+Ext.define('Imt.processes.view.AllProcessesInsight', {
+    alias: 'widget.all-flow-processes-insight',
     extend: 'Uni.view.container.ContentContainer',
-    xtype: 'allProcesses',
+    xtype: 'allProcessesInsight',
     requires: [
-        'Mdc.processes.view.AllProcessesGrid',
-        'Mdc.processes.view.ProcessPreview',
+        'Imt.processes.view.InsightProcessesGrid',
+        'Imt.processes.view.ProcessPreview',
         'Uni.view.container.PreviewContainer',
-        'Mdc.processes.view.AllProcessesTopFilter',
-        'Mdc.processes.store.AllProcessesStore',
-        'Mdc.processes.store.ProcessesBuffered',
+        'Imt.processes.view.InsightProcessesTopFilter',
+        'Imt.processes.store.InsightProcessesStore',
         'Uni.view.notifications.NoItemsFoundPanel'
     ],
     router: null,
@@ -22,30 +21,30 @@ Ext.define('Mdc.processes.view.AllProcesses', {
     initComponent: function () {
 
         var me = this;
-
+        
         this.content = [
             {
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'processesSetupPanel',
-                title: Uni.I18n.translate('processesSetupPanel.title', 'MDC', 'Processes'),
+                title: Uni.I18n.translate('processesSetupPanel.title', 'IMT', 'Processes'),
                 items: [
                     {
-                        xtype: 'view-all-processes-topfilter',
-                        itemId: 'view-all-processes-topfilter'
+                        xtype: 'view-insight-processes-topfilter',
+                        itemId: 'view-insight-processes-topfilter'
                     },
                     {
                         xtype: 'filter-toolbar',
-                        title: Uni.I18n.translate('mdc.process.filter.sort', 'MDC', 'Sort'),
+                        title: Uni.I18n.translate('imt.process.filter.sort', 'IMT', 'Sort'),
                         name: 'sortprocessespanel',
                         itemId: 'processes-sorting-toolbar',
-                        emptyText: Uni.I18n.translate('mdc.process.filter.none','MDC','None'),
+                        emptyText: Uni.I18n.translate('imt.process.filter.none','IMT','None'),
                         tools: [
                             {
                                 xtype: 'button',
                                 action: 'addSort',
                                 itemId: 'add-sort-btn',
-                                text: Uni.I18n.translate('mdc.process.filter.addSort', 'MDC', 'Add sort'),
+                                text: Uni.I18n.translate('imt.process.filter.addSort', 'IMT', 'Add sort'),
                                 menu: {
                                     xtype: 'processes-sorting-menu',
                                     itemId: 'processes-sorting-menu-id',
@@ -65,10 +64,10 @@ Ext.define('Mdc.processes.view.AllProcesses', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'all-procesess-no-processes-panel',
-                            title: Uni.I18n.translate('processesGrid.empty.title', 'MDC', 'No processes are found'),
+                            title: Uni.I18n.translate('processesGrid.empty.title', 'IMT', 'No processes are found'),
                             reasons: [
-                                    Uni.I18n.translate('processesGrid.empty.list.item1', 'MDC', 'No processes have been configured yet.'),
-                                    Uni.I18n.translate('processesGrid.empty.list.item2', 'MDC', 'No processes match filter settings.')
+                                    Uni.I18n.translate('processesGrid.empty.list.item1', 'IMT', 'No processes have been configured yet.'),
+                                    Uni.I18n.translate('processesGrid.empty.list.item2', 'IMT', 'No processes match filter settings.')
                             ]
                         },
                         previewComponent: {
@@ -80,7 +79,7 @@ Ext.define('Mdc.processes.view.AllProcesses', {
                             items: [
                                 {
                                     margin: '10 0 0 0',
-                                    title: Uni.I18n.translate('processes.processDetails.title', 'MDC', 'Details'),
+                                    title: Uni.I18n.translate('processes.processDetails.title', 'IMT', 'Details'),
                                     itemId: 'details-process-tab',
                                     items: [
                                         {
@@ -92,7 +91,7 @@ Ext.define('Mdc.processes.view.AllProcesses', {
                                 },
                                 {
                                     margin: '10 0 0 0',
-                                    title: Uni.I18n.translate('processes.processStatus.title', 'MDC', 'Status overview'),
+                                    title: Uni.I18n.translate('processes.processStatus.title', 'IMT', 'Status overview'),
                                     itemId: 'status-process-tab',
                                     items: [
                                         {

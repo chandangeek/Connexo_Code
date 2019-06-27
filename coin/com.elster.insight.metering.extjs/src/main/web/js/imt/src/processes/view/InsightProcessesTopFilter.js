@@ -2,17 +2,17 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
+Ext.define('Imt.processes.view.InsightProcessesTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
-    xtype: 'view-all-processes-topfilter',
-    store: 'Mdc.processes.store.AllProcessesStore',
+    xtype: 'view-insight-processes-topfilter',
+    store: 'Imt.processes.store.InsightProcessesStore',
 
     requires: [
-        'Mdc.processes.store.AllProcessesFilterStore',
-        'Mdc.processes.store.AllProcessTypeStore',
+        'Imt.processes.store.InsightProcessesFilterStore',
+        'Imt.processes.store.InsightProcessTypeStore',
         'Bpm.monitorprocesses.store.HistoryProcessesFilterUsers',
-        'Mdc.processes.store.AllProcessesStatusStore',
-        'Mdc.processes.store.AllProcessesStore'
+        'Imt.processes.store.InsightProcessesStatusStore',
+        'Imt.processes.store.InsightProcessesStore'
     ],
 
     initComponent: function () {
@@ -22,31 +22,31 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'process',
-                emptyText: Uni.I18n.translate('mdc.processes.filter.process', 'MDC', 'Process'),
-                itemId: 'processes-topfilter-all-processes',
+                emptyText: Uni.I18n.translate('imt.processes.filter.process', 'IMT', 'Process'),
+                itemId: 'processes-topfilter-insight-processes',
                 multiSelect: true,
                 displayField: 'displayName',
                 valueField: 'fullName',
                 width: 240,
-                store: 'Mdc.processes.store.AllProcessesFilterStore'
+                store: 'Imt.processes.store.InsightProcessesFilterStore'
             },
             {
                 type: 'interval',
                 dataIndex: 'startedBetween',
                 dataIndexFrom: 'startedOnFrom',
                 dataIndexTo: 'startedOnTo',
-                text: Uni.I18n.translate('mdc.processes.startedBetween', 'MDC', 'Started between'),
-                itemId: 'processes-topfilter-all-processes-started'
+                text: Uni.I18n.translate('imt.processes.startedBetween', 'IMT', 'Started between'),
+                itemId: 'processes-topfilter-insight-processes-started'
             },
             {
                 type: 'combobox',
                 dataIndex: 'variableId',
-                emptyText: Uni.I18n.translate('mdc.processes.allprocessestopfilter.type', 'MDC', 'Type'),
-                itemId: 'processes-topfilter-all-processes-type',
+                emptyText: Uni.I18n.translate('imt.processes.allprocessestopfilter.type', 'IMT', 'Type'),
+                itemId: 'processes-topfilter-insight-processes-type',
                 multiSelect: false,
                 displayField: 'displayType',
                 valueField: 'valueType',
-                store: 'Mdc.processes.store.AllProcessTypeStore',
+                store: 'Imt.processes.store.InsightProcessTypeStore',
                 listeners: {
                     change: {
                             scope: me,
@@ -56,12 +56,12 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
             },
             {
                 type: 'combobox',
-                itemId: 'processes-topfilter-all-processes-object',
+                itemId: 'processes-topfilter-insight-processes-object',
                 dataIndex: 'value',
-                emptyText: Uni.I18n.translate('mdc.processes.allprocessestopfilter.objects', 'MDC', 'Objects'),
+                emptyText: Uni.I18n.translate('imt.processes.allprocessestopfilter.objects', 'IMT', 'Objects'),
                 displayField: 'name',
                 valueField: 'mrId',
-                store: 'Mdc.processes.store.ObjectStoreExtended',
+                store: 'Imt.processes.store.ObjectStoreInsightExt',
                 queryMode: 'remote',
                 queryParam: 'like',
                 queryCaching: false,
@@ -81,18 +81,18 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'status',
-                emptyText: Uni.I18n.translate('mdc.processes.filter.status', 'MDC', 'Status'),
-                itemId: 'processes-topfilter-all-processes-status',
+                emptyText: Uni.I18n.translate('imt.processes.filter.status', 'IMT', 'Status'),
+                itemId: 'processes-topfilter-insight-processes-status',
                 multiSelect: true,
                 displayField: 'display',
                 valueField: 'value',
-                store: 'Mdc.processes.store.AllProcessesStatusStore'
+                store: 'Imt.processes.store.InsightProcessesStatusStore'
             },
             {
                 type: 'combobox',
                 dataIndex: 'user',
-                emptyText: Uni.I18n.translate('mdc.processes.filter.startedBy', 'MDC', 'Started by'),
-                itemId: 'processes-topfilter-all-processes-startedBy',
+                emptyText: Uni.I18n.translate('imt.processes.filter.startedBy', 'IMT', 'Started by'),
+                itemId: 'processes-topfilter-insight-processes-startedBy',
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'name',
@@ -180,7 +180,7 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
             if (store.getTotalCount() > store.getCount()) {
                 el.appendChild({
                     tag: 'li',
-                    html: Uni.I18n.translate('mdc.processes.limitNotification', 'MDC', 'Keep typing to narrow down'),
+                    html: Uni.I18n.translate('imt.processes.limitNotification', 'IMT', 'Keep typing to narrow down'),
                     cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
                 });
             }
@@ -197,27 +197,31 @@ Ext.define('Mdc.processes.view.AllProcessesTopFilter', {
     onTypeChange: function(typeCombo, newValue, oldValue) {
         var me = this;
 
-        objectsCombo = me.down('#processes-topfilter-all-processes-object');
+        objectsCombo = me.down('#processes-topfilter-insight-processes-object');
 
         if(newValue === undefined || newValue == undefined || newValue == "" || newValue == null){
             objectsCombo.setDisabled(true);
             return;
         }
 
-        typeCombo = me.down('#processes-topfilter-all-processes-type');
+        typeCombo = me.down('#processes-topfilter-insight-processes-type');
         var selectedType = typeCombo.getValue();
 
         if (selectedType == "deviceId")
         {
-            objectsCombo.getStore('Mdc.processes.store.ObjectStoreExtended').getProxy().setUrl("deviceobjects");
+            objectsCombo.getStore('Imt.processes.store.ObjectStoreInsightExt').getProxy().setUrl("deviceobjects");
+        }
+        if (selectedType == "usagePointId")
+        {
+            objectsCombo.getStore('Imt.processes.store.ObjectStoreInsightExt').getProxy().setUrl("usagepointobjects");
         }
         if (selectedType == "alarmId")
         {
-            objectsCombo.getStore('Mdc.processes.store.ObjectStoreExtended').getProxy().setUrl("alarmobjects");
+            objectsCombo.getStore('Imt.processes.store.ObjectStoreInsightExt').getProxy().setUrl("alarmobjects");
         }
         if (selectedType == "issueId")
         {
-            objectsCombo.getStore('Mdc.processes.store.ObjectStoreExtended').getProxy().setUrl("issueobjects");
+            objectsCombo.getStore('Imt.processes.store.ObjectStoreInsightExt').getProxy().setUrl("issueobjects");
         }
 
         objectsCombo.setDisabled(false);

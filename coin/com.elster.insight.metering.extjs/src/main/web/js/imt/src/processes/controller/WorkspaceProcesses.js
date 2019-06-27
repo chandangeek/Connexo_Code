@@ -2,48 +2,49 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.processes.controller.ProcessesController', {
+Ext.define('Imt.processes.controller.WorkspaceProcesses', {
     extend: 'Ext.app.Controller',
-
+    
     models: [
-        'Bpm.monitorprocesses.model.ProcessNodes',
         'Bpm.monitorprocesses.model.ExtendedProcessNodes',
         'Bpm.monitorprocesses.model.ParentProcess'
     ],
-
+    
     requires: [
-        'Mdc.processes.view.ProcessPreview',
-        'Mdc.processes.view.ProcessPreviewForm',
-        'Mdc.processes.view.AllProcessesGrid',
-        'Mdc.processes.controller.ProcGlobalVars'
+        'Bpm.startprocess.controller.StartProcess',
+        'Bpm.monitorprocesses.controller.MonitorProcesses',
+        'Uni.property.controller.Registry',
+        'Imt.processes.controller.ProcInsightGlobalVars'
     ],
-    views: [
-        'Mdc.processes.view.AllProcesses',
-        'Mdc.processes.view.AllProcessesGrid',
-        'Mdc.processes.view.ProcessPreview',
-        'Mdc.processes.view.ProcessPreviewForm'
+    
+    controllers: [
+        'Bpm.startprocess.controller.StartProcess',
+        'Bpm.monitorprocesses.controller.MonitorProcesses'
     ],
-
+    
     stores: [
-        'Mdc.processes.store.AllProcessesStore',
-        'Mdc.processes.store.AllProcessesFilterStore',
-        'Mdc.processes.store.AllProcessesStatusStore',
-        'Mdc.processes.store.AllProcessTypeStore',
-        'Mdc.processes.store.ProcessesBuffered',
-        'Bpm.monitorprocesses.store.HistoryProcessesFilterUsers',
-        'Mdc.processes.store.ObjectStoreExtended'
+        'Imt.usagepointsetup.store.Devices',
+        'Imt.usagepointmanagement.store.MeterActivations',
+        'Imt.processes.store.PurposesWithValidationRuleSets',
+        'Imt.processes.store.AvailableTransitions',
+        'Imt.processes.store.InsightProcessesStore',
+        'Imt.processes.store.InsightProcessesFilterStore',
+        'Imt.processes.store.InsightProcessTypeStore',
+        'Imt.processes.store.InsightProcessesStatusStore'
     ],
-
-    mixins: [],
-
-
+    
+    views: [
+        'Imt.processes.view.AllProcessesInsight',
+        'Imt.processes.view.InsightProcessesGrid',
+        'Imt.processes.view.ProcessPreview',
+        'Imt.processes.view.ProcessPreviewForm'
+    ],
+    
     refs: [
         {ref: 'processesGrid', selector: '#processesGrid'},
-        {ref: 'processes', selector: 'all-flow-processes'},
+        {ref: 'processes', selector: 'all-flow-processes-insight'},
         {ref: 'processPreview', selector: '#processPreview'},
         {ref: 'processPreviewForm', selector: '#processPreviewForm'},
-        {ref: 'processStatusPreviewGrid', selector: '#all-process-status-preview #process-nodes-grid'},
-        {ref: 'statusVariablesPreviewPanel', selector: '#all-process-status-preview #node-variables-preview-panel'},
         {ref: 'openTasksDisplay', selector: '#processPreviewForm #preview-running-process-open-tasks-all-processes'},
         {ref: 'processStatusPreviewExtendedTab', selector: '#all-process-status-preview-extended'},
         {ref: 'processStatusPreviewExtendedGrid', selector: '#all-process-status-preview-extended #process-nodes-grid-extended'},
@@ -51,15 +52,11 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         {ref: 'childProcessPreviewExtendedPanel', selector: '#all-process-status-preview-extended #child-process-preview-panel'},
 		{ref: 'parentProcessPreviewExtendedPanel', selector: '#all-process-status-preview-extended #parent-process-preview-panel'}
     ],
-    router: null,
 
-    init: function () {
+	init: function () {
         this.control({
             '#processesGrid': {
                selectionchange: this.previewProcess
-            },
-            '#all-process-status-preview #process-nodes-grid': {
-                select: this.showVariablesPreviewForStatus
             },
             '#all-process-status-preview-extended #process-nodes-grid-extended': {
                 select: this.showVariablesPreviewExtendedForStatus
@@ -79,33 +76,90 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         });
     },
 
-    showProcesses: function () {
-        var me = this;
+	showAllProcessesInsight: function() {
+	
+		var me = this;
         var queryString = Uni.util.QueryString.getQueryStringValues(false);
 
         /* If queryString is empty and setDefaultParams is true it means that probably it is firs load of page.
-        And we should set default params. After  bulk action is performed parameters should not be set to default params even if filters was cleared.That is why
-        setDefaultParams set to false in ProcBulkAction */
-        if (_.isEmpty(queryString) && Mdc.processes.controller.ProcGlobalVars.setDefaultParams){
+        And we should set default params.*/
+        if (_.isEmpty(queryString) && Imt.processes.controller.ProcInsightGlobalVars.setDefaultParams) {
             /*First load of page with processes*/
             queryString.status = ['1'];
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
             /* Set default values for sorting panel */
             me.setDefaultSort();
         }else{
-            Mdc.processes.controller.ProcGlobalVars.setDefaultParams = true;
-            var routerToSet = this.getController('Uni.controller.history.Router');
-            var widget = Ext.widget('allProcesses',{
-                router: routerToSet
+			Imt.processes.controller.ProcInsightGlobalVars.setDefaultParams = true;
+			var routerToSet = this.getController('Uni.controller.history.Router');
+			var widget = Ext.widget('allProcessesInsight', {
+				router: routerToSet
+			});
+			this.getApplication().fireEvent('changecontentevent', widget);
+			me.updateSortingToolbar();
+		}
+	},
+	
+	setDefaultSort: function () {
+        var me = this,
+            store = me.getStore('Imt.processes.store.InsightProcessesStore'),
+            sorting = store.getProxy().extraParams['sort'];
+
+        if (sorting === undefined) { // set default filters
+            sorting = [];
+            sorting.push({
+                property: 'processId',
+                direction: Uni.component.sort.model.Sort.DESC
             });
+            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        }
+    },
+    
+    updateSortingToolbar: function () {
+        var me = this,
+            page = me.getProcesses(),
+            sortContainer = page.down('container[name=sortprocessespanel]').getContainer(),
+            store = me.getStore('Imt.processes.store.InsightProcessesStore'),
+            menu = page.down('#processes-sorting-menu-id'),
+            addSortBtn = page.down('#add-sort-btn'),
+            sorting,
+            menuItem,
+            cls;
 
-            this.getApplication().fireEvent('changecontentevent', widget);
+        sortContainer.removeAll();
+        sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
 
-            me.updateSortingToolbar();
+        menu.down('[name=processId]').show();
+        page.down('#add-sort-btn').enable();
+
+        if (Ext.isArray(sorting)) {
+            Ext.Array.each(sorting, function (sortItem) {
+
+                if (sortItem.direction) {
+                    menuItem = me.getProcesses().down('#processes-sorting-menu-id [name=' + sortItem.property + ']');
+                    cls = sortItem.direction === Uni.component.sort.model.Sort.ASC
+                        ? 'x-btn-sort-item-asc'
+                        : 'x-btn-sort-item-desc';
+
+                    sortContainer.add({
+                        xtype: 'sort-item-btn',
+                        itemId: 'history-sort-by-' + sortItem.property + '-button',
+                        text: menuItem.text,
+                        sortType: sortItem.property,
+                        sortDirection: sortItem.direction,
+                        iconCls: cls
+                    });
+                    menuItem.hide();
+
+                    if (sortContainer.items.getCount() == menu.totalNumberOfItems){
+                        addSortBtn.disable();
+                    }
+                }
+            });
         }
     },
 
-    previewProcess: function (grid, record) {
+	previewProcess: function (grid, record) {
         var me = this;
         var processes = this.getProcessesGrid().getSelectionModel().getSelection();
         var openTasksValue = "";
@@ -125,6 +179,16 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
             {
                 previewForm.down("#deviceName").setValue(process.get('objectName'));
                 previewForm.down("#deviceName").setVisible(true);
+                previewForm.down("#usagePointName").setVisible(false);
+                previewForm.down("#alarmName").setVisible(false);
+                previewForm.down("#issueName").setVisible(false);
+                previewForm.down("#deviceForAlarm").setVisible(false);
+                previewForm.down("#deviceForIssue").setVisible(false);
+            } else if (type == "UsagePoint")
+            {
+                previewForm.down("#usagePointName").setValue(process.get('objectName'));
+                previewForm.down("#usagePointName").setVisible(true);
+                previewForm.down("#deviceName").setVisible(false);
                 previewForm.down("#alarmName").setVisible(false);
                 previewForm.down("#issueName").setVisible(false);
                 previewForm.down("#deviceForAlarm").setVisible(false);
@@ -134,6 +198,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                 previewForm.down("#alarmName").setValue(process);
                 previewForm.down("#alarmName").setVisible(true);
                 previewForm.down("#deviceName").setVisible(false);
+                previewForm.down("#usagePointName").setVisible(false);
                 previewForm.down("#issueName").setVisible(false);
                 previewForm.down("#deviceForIssue").setVisible(false);
 
@@ -147,10 +212,12 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                 previewForm.down("#deviceForIssue").setVisible(true);
 
                 previewForm.down("#deviceName").setVisible(false);
+                previewForm.down("#usagePointName").setVisible(false);
                 previewForm.down("#alarmName").setVisible(false);
                 previewForm.down("#deviceForAlarm").setVisible(false);
             } else {
                 previewForm.down("#deviceName").setVisible(false);
+                previewForm.down("#usagePointName").setVisible(false);
                 previewForm.down("#alarmName").setVisible(false);
                 previewForm.down("#issueName").setVisible(false);
                 previewForm.down("#deviceForAlarm").setVisible(false);
@@ -158,11 +225,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
             }
 
             /* For status preview */
-            if(me.getProcessStatusPreviewExtendedTab()){
-            	this.showNodesDetailsWithSubprocesses(process, this.getProcessStatusPreviewExtendedGrid(), this.getParentProcessPreviewExtendedPanel(), this.getChildProcessPreviewExtendedPanel(), this.getStatusVariablesPreviewExtendedPanel());
-            } else {
-            	this.showNodesDetails(process, this.getProcessStatusPreviewGrid());
-            }
+           	this.showNodesDetailsWithSubprocesses(process, this.getProcessStatusPreviewExtendedGrid(), this.getParentProcessPreviewExtendedPanel(), this.getChildProcessPreviewExtendedPanel(), this.getStatusVariablesPreviewExtendedPanel());
             
             /* Prepare user tasks to show */
             process.openTasks().each(function (rec) {
@@ -170,9 +233,9 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                     openTasksValue += '<br>';
                 }
 
-                var taskName = rec.get('name').length > 0 ? rec.get('name') : Uni.I18n.translate('mdc.process.noTaskName', 'MDC', 'No task name'),
+                var taskName = rec.get('name').length > 0 ? rec.get('name') : Uni.I18n.translate('imt.process.noTaskName', 'IMT', 'No task name'),
                     status = rec.get('statusDisplay'),
-                    assign = rec.get('actualOwner').length > 0 ? rec.get('actualOwner') : Uni.I18n.translate('mdc.process.unassigned', 'MDC', 'Unassigned');
+                    assign = rec.get('actualOwner').length > 0 ? rec.get('actualOwner') : Uni.I18n.translate('imt.process.unassigned', 'IMT', 'Unassigned');
 
                     if (Bpm.privileges.BpmManagement.canView()){
                         openTasksValue += Ext.String.format('<a href =\"{0}\">{1}</a> ({2}, {3})',
@@ -182,95 +245,12 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                         openTasksValue += Ext.String.format('{0}({1}, {2})',Ext.String.htmlEncode(taskName), status, assign);
                     }
             });
-            this.getOpenTasksDisplay().setValue((openTasksValue.length > 0) ? openTasksValue : Uni.I18n.translate('mdc.process.noOpenTasks', 'MDC', 'None'));
+            this.getOpenTasksDisplay().setValue((openTasksValue.length > 0) ? openTasksValue : Uni.I18n.translate('imt.process.noOpenTasks', 'IMT', 'None'));
 
         }
     },
 
-    showProcessPreview: function (selectionModel, record) {
-        var me = this,
-            mainPage = me.getMainPage(),
-            previewRunningDetails = mainPage.down('bpm-running-process-preview'),
-            previewHistoryDetails = mainPage.down('bpm-history-process-preview'),
-            previewHistoryDetailsForm = mainPage.down('#frm-preview-history-process');
-
-        Ext.suspendLayouts();
-        previewHistoryDetails.setTitle(record.get('name'));
-        previewHistoryDetailsForm.loadRecord(record);
-        me.showNodesDetails(record, me.getHistoryProcessNodesGrid());
-
-        Ext.resumeLayouts();
-    },
-
-    showNodesDetails: function (processRecord, grid) {
-        var me = this;
-        var processNodesModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ProcessNodes');
-
-        Ext.Ajax.request({
-            url: Ext.String.format('../../api/bpm/runtime/process/instance/{0}/nodes', processRecord.get('processId')),
-            method: 'GET',
-            success: function (option) {
-                var response = Ext.JSON.decode(option.responseText),
-                    reader = Bpm.monitorprocesses.model.ProcessNodes.getProxy().getReader(),
-                    resultSet = reader.readRecords(response),
-                    record = resultSet.records[0];
-                if (grid){
-                    grid.reconfigure(record.processInstanceNodes());
-                    grid.getSelectionModel().select(0);
-                }
-
-            }
-        })
-    },
-    
-    showVariablesPreviewForStatus: function (selectionModel, record) {
-        var me = this;
-        return me.showVariablesPreview(me.getStatusVariablesPreviewPanel(), record);
-    },
-
-   showVariablesPreview: function (panel, record) {
-        var me = this;
-
-        panel.setTitle(Ext.String.format(Uni.I18n.translate('mdc.process.node.variablesTitle', 'MDC', '{0} ({1}) variables'),
-            record.get('name'), record.get('type')));
-
-        var panelItems = new Ext.util.MixedCollection();
-
-
-        if (record.get('processInstanceVariables') && record.get('processInstanceVariables').length > 0) {
-            Ext.Array.each(record.get('processInstanceVariables'), function (variable) {
-                panelItems.add(Ext.create("Ext.form.field.Display", {
-                        fieldLabel: variable.variableName,
-                        style: '{word-break: break-word; word-wrap: break-word;}',
-                        flex: 1,
-                        labelWidth: 150,
-                        value: variable.value
-                    }
-                ))
-            });
-        }
-        else {
-            panelItems.add(Ext.create("Ext.Component", {
-                    height: 40,
-                    autoEl: {
-                        html: Uni.I18n.translate('mdc.process.node.noVariables', 'MDC', 'No variable change during the node execution'),
-                        tag: 'span',
-                        style: {
-                            top: '2em !important',
-                            fontStyle: 'italic',
-                            color: '#999'
-                        }
-                    }
-                }
-            ))
-        }
-
-        panel.removeAll();
-        panel.items = panelItems;
-        panel.doLayout();
-    },
-    
-    showNodesDetailsWithSubprocesses: function (processRecord, grid, parentProcessPanel, childProcessPanel, variablesValuesPanel) {
+	showNodesDetailsWithSubprocesses: function (processRecord, grid, parentProcessPanel, childProcessPanel, variablesValuesPanel) {
         var me = this;
         var extendedProcessNodesModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ExtendedProcessNodes');
         var parentProcessModel = Ext.ModelManager.getModel('Bpm.monitorprocesses.model.ParentProcess');
@@ -313,7 +293,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 						record = resultSet.records[0];
 				
 					panelItems.add(Ext.create("Ext.form.field.Display", {
-							fieldLabel: Uni.I18n.translate('mdc.process.parentProcessInstanceId', 'MDC', 'Parent process instance id'),
+							fieldLabel: Uni.I18n.translate('imt.process.parentProcessInstanceId', 'IMT', 'Parent process instance id'),
 							style: '{word-break: break-word; word-wrap: break-word;}',
 							flex: 1,
 							labelWidth: 200,
@@ -323,7 +303,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 								afterrender: function(view) {
 									view.getEl().on('click', function() {
 										var router = me.getController('Uni.controller.history.Router');
-										var route = router.getRoute('workspace/multisenseprocesses');
+										var route = router.getRoute('workspace/insightprocesses');
 										route.forwardInNewTab(null, {processInstanceId: [record.get('processInstanceId')], searchInAllProcesses: true});
 									});
 								}
@@ -331,7 +311,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 						}
 					));
 					panelItems.add(Ext.create("Ext.form.field.Display", {
-							fieldLabel: Uni.I18n.translate('mdc.process.parentProcessName', 'MDC', 'Parent process name'),
+							fieldLabel: Uni.I18n.translate('imt.process.parentProcessName', 'IMT', 'Parent process name'),
 							style: '{word-break: break-word; word-wrap: break-word;}',
 							flex: 1,
 							labelWidth: 200,
@@ -345,7 +325,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 					panelItems.add(Ext.create("Ext.Component", {
                     height: 40,
                     autoEl: {
-                        html: Uni.I18n.translate('mdc.process.noParentProcess', 'MDC', 'The specified process has no parent process'),
+                        html: Uni.I18n.translate('imt.process.noParentProcess', 'IMT', 'The specified process has no parent process'),
                         tag: 'span',
                         style: {
                             top: '2em !important',
@@ -372,10 +352,10 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
    showVariablesPreviewExtended: function (panel, subprocessPanel, record) {
         var me = this;
 
-        panel.setTitle(Ext.String.format(Uni.I18n.translate('mdc.process.node.variablesTitle', 'MDC', '{0} ({1}) variables'),
+        panel.setTitle(Ext.String.format(Uni.I18n.translate('imt.process.node.variablesTitle', 'IMT', '{0} ({1}) variables'),
             record.get('nodeInfo.name'), record.get('nodeInfo.type')));
             
-        subprocessPanel.setTitle(Ext.String.format(Uni.I18n.translate('mdc.process.node.subprocessesTitle', 'MDC', '{0} ({1}) subprocesses'),
+        subprocessPanel.setTitle(Ext.String.format(Uni.I18n.translate('imt.process.node.subprocessesTitle', 'IMT', '{0} ({1}) subprocesses'),
             record.get('nodeInfo.name'), record.get('nodeInfo.type')));
 
         var panelItems = new Ext.util.MixedCollection(), subprocessPanelItems = new Ext.util.MixedCollection();
@@ -397,7 +377,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
             panelItems.add(Ext.create("Ext.Component", {
                     height: 40,
                     autoEl: {
-                        html: Uni.I18n.translate('mdc.process.node.noVariables', 'MDC', 'No variable change during the node execution'),
+                        html: Uni.I18n.translate('imt.process.node.noVariables', 'IMT', 'No variable change during the node execution'),
                         tag: 'span',
                         style: {
                             top: '2em !important',
@@ -411,7 +391,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         
         if(record.get('childSubprocessLog.childProcessInstanceId')) {
         	subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
-                        fieldLabel: Uni.I18n.translate('mdc.process.node.childProcessInstanceId', 'MDC', 'Child process instance id'),
+                        fieldLabel: Uni.I18n.translate('imt.process.node.childProcessInstanceId', 'IMT', 'Child process instance id'),
                         style: '{word-break: break-word; word-wrap: break-word;}',
                         flex: 1,
                         labelWidth: 200,
@@ -421,7 +401,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                         	afterrender: function(view) {
                         		view.getEl().on('click', function() {
                         			var router = me.getController('Uni.controller.history.Router');
-                        			var route = router.getRoute('workspace/multisenseprocesses');
+                        			var route = router.getRoute('workspace/insightprocesses');
                         			route.forwardInNewTab(null, {processInstanceId: [record.get('childSubprocessLog.childProcessInstanceId')], searchInAllProcesses: true});
                         		});
                         	}
@@ -429,7 +409,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
                     }
                 ));
             subprocessPanelItems.add(Ext.create("Ext.form.field.Display", {
-                        fieldLabel: Uni.I18n.translate('mdc.process.node.childProcessName', 'MDC', 'Child process name'),
+                        fieldLabel: Uni.I18n.translate('imt.process.node.childProcessName', 'IMT', 'Child process name'),
                         style: '{word-break: break-word; word-wrap: break-word;}',
                         flex: 1,
                         labelWidth: 200,
@@ -440,7 +420,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 			subprocessPanelItems.add(Ext.create("Ext.Component", {
                     height: 40,
                     autoEl: {
-                        html: Uni.I18n.translate('mdc.process.node.noChildProcessInNode', 'MDC', 'No child process started in this node'),
+                        html: Uni.I18n.translate('imt.process.node.noChildProcessInNode', 'IMT', 'No child process started in this node'),
                         tag: 'span',
                         style: {
                             top: '2em !important',
@@ -460,11 +440,11 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         subprocessPanel.doLayout();
     },
     
-   /* Functions for sorting */
+    /* Functions for sorting */
    chooseSort: function (menu, item) {
            var me = this,
                name = item.name,
-               store = me.getStore('Mdc.processes.store.AllProcessesStore'),
+               store = me.getStore('Imt.processes.store.InsightProcessesStore'),
                sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
                sortingItem;
 
@@ -495,7 +475,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
     updateSortingToolbarAndResults: function() {
         var me = this,
-        store = me.getStore('Mdc.processes.store.AllProcessesStore');
+        store = me.getStore('Imt.processes.store.InsightProcessesStore');
         me.updateSortingToolbar();
         store.load();
     },
@@ -504,7 +484,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
         var me = this,
             page = me.getProcesses(),
             sortContainer = page.down('container[name=sortprocessespanel]').getContainer(),
-            store = me.getStore('Mdc.processes.store.AllProcessesStore'),
+            store = me.getStore('Imt.processes.store.InsightProcessesStore'),
             menu = page.down('#processes-sorting-menu-id'),
             addSortBtn = page.down('#add-sort-btn'),
             sorting,
@@ -546,7 +526,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
     setDefaultSort: function () {
         var me = this,
-            store = me.getStore('Mdc.processes.store.AllProcessesStore'),
+            store = me.getStore('Imt.processes.store.InsightProcessesStore'),
             sorting = store.getProxy().extraParams['sort'];
 
         if (sorting === undefined) { // set default filters
@@ -562,7 +542,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
     switchSortingOrder: function (btn) {
         var me = this,
-            store = me.getStore('Mdc.processes.store.AllProcessesStore'),
+            store = me.getStore('Imt.processes.store.InsightProcessesStore'),
             sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
             sortingItem;
 
@@ -584,7 +564,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
     clearAllSorting: function (btn) {
         var me = this,
-            store = me.getStore('Mdc.processes.store.AllProcessesStore'),
+            store = me.getStore('Imt.processes.store.InsightProcessesStore'),
             page = me.getProcesses(),
             menu = page.down('#processes-sorting-menu-id'),
             sorting;
@@ -597,7 +577,7 @@ Ext.define('Mdc.processes.controller.ProcessesController', {
 
     onSortCloseClicked: function (btn) {
         var me = this,
-            store = me.getStore('Mdc.processes.store.AllProcessesStore'),
+            store = me.getStore('Imt.processes.store.InsightProcessesStore'),
             sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
             page = me.getProcesses(),
             menu = page.down('#processes-sorting-menu-id');
