@@ -167,7 +167,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
     public String getTopicMatcher() {
         return "com/energyict/mdc/device/data/device/CREATED";
     }
-
+    /*XROMVYU*/
     private void call(EndDevice endDevice, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
         endPointConfigurations.forEach(endPointConfiguration -> {
             EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate, endDeviceAttributesProviders);

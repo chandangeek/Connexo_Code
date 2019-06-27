@@ -183,4 +183,9 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         }
         return lrn;
     }
+
+    @Override
+    public void retryOccurrence(EndPointConfiguration endPointConfiguration, String method, String payload){
+        System.out.println("NO IMPLEMENTATION FOR NOW");
+    }
 }

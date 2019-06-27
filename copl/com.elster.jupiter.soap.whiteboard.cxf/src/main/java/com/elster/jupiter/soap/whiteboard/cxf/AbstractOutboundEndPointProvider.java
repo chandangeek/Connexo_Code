@@ -16,8 +16,14 @@ import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
 
 import javax.ws.rs.NotAuthorizedException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.ConnectException;
@@ -173,6 +179,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                                         // TODO send event for issue here, in a different transaction
                                     }
                                 }
+                                if (message == null)
+                                {
+                                    message = "null";
+                                }
                                 epcAndEP.getKey().log(message, wse);
                             } else if (cause instanceof NotAuthorizedException) { // REST endpoint
                                 // TODO send event for issue here, in a different transaction
@@ -186,6 +196,31 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
+        }
+
+        //@Override
+        public void send(String message, EndPointConfiguration endPointConfiguration){
+            Class<?> type;
+            Method method = Arrays.stream(getService().getMethods())
+                    .filter(meth -> meth.getName().equals(methodName))
+                    .filter(meth -> meth.getParameterCount() == 1)
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException(
+                            new NoSuchMethodException("Couldn't find corresponding public method " + methodName + " in class " + getService().getName())));
+            Class[] types = method.getParameterTypes();
+            type = types[0];
+
+            try {
+                JAXBContext jaxbContext = JAXBContext.newInstance(type);
+                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                StringReader sReader = new StringReader( message);
+                StreamSource streamSource = new StreamSource(sReader);
+                JAXBElement<?>  root = jaxbUnmarshaller.unmarshal(streamSource, type);
+                Object msg = root.getValue();
+                send(msg);
+            } catch (JAXBException e) {
+                e.printStackTrace();
+            }
         }
 
         private String getApplicationName() {
