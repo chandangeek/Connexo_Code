@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -29,15 +30,13 @@ import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import java.util.List;
 
-public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndPointProp, ApplicationSpecific {
+public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint implements EndDeviceEventsPort, EndPointProp, ApplicationSpecific {
     private static final String NOUN = "EndDeviceEvents";
     private static final String END_DEVICE_EVENT_ITEM = NOUN + ".EndDeviceEvent";
     private static final String PAYLOAD_ITEM = "Payload";
 
-    private final EndPointHelper endPointHelper;
     private final ReplyTypeFactory replyTypeFactory;
     private final EndDeviceEventsFaultMessageFactory messageFactory;
-    private final TransactionService transactionService;
     private final EndDeviceEventsBuilder endDeviceBuilder;
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
@@ -49,17 +48,13 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
     private final Thesaurus thesaurus;
 
     @Inject
-    ExecuteEndDeviceEventsEndpoint(EndPointHelper endPointHelper,
-                                   ReplyTypeFactory replyTypeFactory,
+    ExecuteEndDeviceEventsEndpoint(ReplyTypeFactory replyTypeFactory,
                                    EndDeviceEventsFaultMessageFactory messageFactory,
-                                   TransactionService transactionService,
                                    EndDeviceEventsBuilder endDeviceBuilder,
                                    PropertySpecService propertySpecService,
                                    Thesaurus thesaurus) {
-        this.endPointHelper = endPointHelper;
         this.replyTypeFactory = replyTypeFactory;
         this.messageFactory = messageFactory;
-        this.transactionService = transactionService;
         this.endDeviceBuilder = endDeviceBuilder;
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -67,38 +62,38 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
 
     @Override
     public EndDeviceEventsResponseMessageType createdEndDeviceEvents(EndDeviceEventsEventMessageType createdEndDeviceEventsEventMessage) throws FaultMessage {
-        endPointHelper.setSecurityContext();
-        try (TransactionContext context = transactionService.getContext()) {
-            List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(createdEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS);
-            EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
-                    .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
-                            MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
-            EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
-            context.commit();
-            return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1);
-        } catch (VerboseConstraintViolationException e) {
-            throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
-        } catch (LocalizedException e) {
-            throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage(), e.getErrorCode());
-        }
+        return runInTransactionWithOccurrence(() -> {
+            try {
+                List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(createdEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS);
+                EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
+                        .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
+                                MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
+                EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
+                return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1);
+            } catch (VerboseConstraintViolationException e) {
+                throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage(), e.getErrorCode());
+            }
+        });
     }
 
     @Override
     public EndDeviceEventsResponseMessageType closedEndDeviceEvents(EndDeviceEventsEventMessageType closedEndDeviceEventsEventMessage) throws FaultMessage {
-        endPointHelper.setSecurityContext();
-        try (TransactionContext context = transactionService.getContext()) {
-            List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(closedEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS);
-            EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
-                    .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,
-                            MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
-            EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
-            context.commit();
-            return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1);
-        } catch (VerboseConstraintViolationException e) {
-            throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage());
-        } catch (LocalizedException e) {
-            throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage(), e.getErrorCode());
-        }
+        return runInTransactionWithOccurrence(() -> {
+            try {
+                List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(closedEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS);
+                EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
+                        .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,
+                                MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
+                EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
+                return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1);
+            } catch (VerboseConstraintViolationException e) {
+                throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage(), e.getErrorCode());
+            }
+        });
     }
 
     @Override

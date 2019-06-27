@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.MeterReadingDocumentERPResultBulkCreateConfirmationEIn;
@@ -11,7 +12,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreatec
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint implements MeterReadingDocumentERPResultBulkCreateConfirmationEIn , ApplicationSpecific {
+public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint extends AbstractInboundEndPoint implements MeterReadingDocumentERPResultBulkCreateConfirmationEIn , ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -22,13 +23,16 @@ public class MeterReadingDocumentResultBulkCreateConfirmationEndpoint implements
 
     @Override
     public void meterReadingDocumentERPResultBulkCreateConfirmationEIn(MtrRdngDocERPRsltBulkCrteConfMsg request) {
-        Optional.ofNullable(request)
-                .ifPresent(requestMessage ->
-                        serviceCallCommands
-                                .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
-                                        .builder()
-                                        .from(requestMessage)
-                                        .build()));
+        runInTransactionWithOccurrence(() -> {
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage ->
+                            serviceCallCommands
+                                    .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
+                                            .builder()
+                                            .from(requestMessage)
+                                            .build()));
+            return null;
+        });
     }
 
     @Override

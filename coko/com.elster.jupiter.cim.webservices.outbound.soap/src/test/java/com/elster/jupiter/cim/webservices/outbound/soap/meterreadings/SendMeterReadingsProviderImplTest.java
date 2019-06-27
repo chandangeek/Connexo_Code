@@ -59,7 +59,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
 
         SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl();
         Map<String, Object> properties = ImmutableMap.of("url", "some_url");
-        provider.addMeterReadingsPort(meterReadingsPort, properties);
+        //provider.addMeterReadingsPort(meterReadingsPort, properties);
 
         provider.call(listReadingInfo, HeaderType.Verb.CREATED);
 
@@ -86,7 +86,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         meterReadingsResponseMessageType.setReply(replyType);
         when(meterReadingsPort.createdMeterReadings(anyObject()))
                 .thenReturn(meterReadingsResponseMessageType);
-        provider.addMeterReadingsPort(meterReadingsPort, properties);
+        //provider.addMeterReadingsPort(meterReadingsPort, properties);
 
         when(endPointConfiguration.getUrl()).thenReturn("some_url");
         assertTrue(provider.call(meterReadings, HeaderType.Verb.CREATED, endPointConfiguration));

@@ -70,7 +70,6 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         String url = "some url";
         provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url));
 
-        doReturn(true).when(provider).isValidMasterDataLinkageConfigPortService(masterDataLinkageConfigPort);
         when(endPointConfiguration.getUrl()).thenReturn(url);
 
         when(failedLinkage.getErrorCode()).thenReturn(ERROR_CODE);

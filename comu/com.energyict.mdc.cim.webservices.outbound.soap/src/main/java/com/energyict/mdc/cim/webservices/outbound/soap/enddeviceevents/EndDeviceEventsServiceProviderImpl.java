@@ -8,10 +8,10 @@ import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
@@ -31,21 +31,17 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.inject.Inject;
 import javax.xml.ws.Service;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents.provider",
         service = {EndDeviceEventsServiceProvider.class, IssueWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + EndDeviceEventsServiceProvider.NAME})
-public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider, ApplicationSpecific {
+public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPointProvider<EndDeviceEventsPort> implements EndDeviceEventsServiceProvider, IssueWebServiceClient, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private static final Logger LOGGER = Logger.getLogger(EndDeviceEventsServiceProviderImpl.class.getName());
     private static final String END_DEVICE_EVENTS = "EndDeviceEvents";
@@ -57,36 +53,17 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
     private final ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory endDeviceEventsMessageObjectFactory
             = new ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory();
 
-    private List<EndDeviceEventsPort> endDeviceEvents = new ArrayList<>();
-
-    private volatile WebServicesService webServicesService;
-
     public EndDeviceEventsServiceProviderImpl() {
         // for OSGI purposes
     }
 
-    @Inject
-    public EndDeviceEventsServiceProviderImpl(WebServicesService webServicesService) {
-        this();
-        setWebServicesService(webServicesService);
-    }
-
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService) {
-        this.webServicesService = webServicesService;
-    }
-
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addReplyEndDeviceEvents(EndDeviceEventsPort events) {
-        endDeviceEvents.add(events);
+    public void addReplyEndDeviceEvents(EndDeviceEventsPort events, Map<String, Object> properties) {
+        super.doAddEndpoint(events, properties);
     }
 
     public void removeReplyEndDeviceEvents(EndDeviceEventsPort events) {
-        endDeviceEvents.remove(events);
-    }
-
-    public List<EndDeviceEventsPort> getEndDeviceEventsPorts() {
-        return Collections.unmodifiableList(endDeviceEvents);
+        super.doRemoveEndpoint(events);
     }
 
     @Override
@@ -100,28 +77,22 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
     }
 
     @Override
-    public String getWebServiceName() {
+    protected String getName() {
         return NAME;
     }
 
     @Override
-    public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
-        publish(endPointConfiguration);
-        getEndDeviceEventsPorts().forEach(event -> {
-            try {
-                event.createdEndDeviceEvents(createResponseMessage(issue));
-            } catch (Exception e) {
-                endPointConfiguration.log(String.format("Failed to send %s to web service %s with the URL: %s",
-                        END_DEVICE_EVENTS, endPointConfiguration.getWebServiceName(), endPointConfiguration.getUrl()), e);
-            }
-        });
-        return true;
+    public String getWebServiceName() {
+        return getName();
     }
 
-    private void publish(EndPointConfiguration endPointConfiguration) {
-        if (endPointConfiguration.isActive() && !webServicesService.isPublished(endPointConfiguration)) {
-            webServicesService.publishEndPoint(endPointConfiguration);
-        }
+    @Override
+    public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
+        EndDeviceEventsEventMessageType message = createResponseMessage(issue);
+        using("createdEndDeviceEvents")
+                .toEndpoints(endPointConfiguration)
+                .send(message);
+        return true;
     }
 
     private EndDeviceEventsEventMessageType createResponseMessage(Issue issue) {
@@ -157,18 +128,9 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
 
     @Override
     public void call(EndDeviceEventRecord record) {
-        if (! getEndDeviceEventsPorts().isEmpty()) {
-            EndDeviceEventsEventMessageType message = createResponseMessage(record);
-            getEndDeviceEventsPorts().forEach(event -> {
-                try {
-                    event.createdEndDeviceEvents(message);
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-                }
-            });
-        } else {
-            LOGGER.log(Level.SEVERE, "No published web service endpoint is found to send end device events.");
-        }
+        EndDeviceEventsEventMessageType message = createResponseMessage(record);
+        using("createdEndDeviceEvents")
+                .send(message);
     }
 
     private EndDeviceEventsEventMessageType createResponseMessage(EndDeviceEventRecord record) {
