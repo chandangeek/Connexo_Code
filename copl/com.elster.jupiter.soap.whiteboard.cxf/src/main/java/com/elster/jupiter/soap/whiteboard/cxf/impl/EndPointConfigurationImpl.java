@@ -258,6 +258,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void log(LogLevel logLevel, String message) {
+        System.out.println("LOG MESSAGE ="+message);
         if (this.logLevel.compareTo(logLevel) > -1) {
             if (transactionService.isInTransaction()) {
                 doLog(logLevel, message);
@@ -436,7 +437,8 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public void retryOccurrence(String method, String payload){
+    public void retryOccurrence(String method, String payload, WebServiceCallOccurrence occurrence){
+        transactionService.runInIndependentTransaction(()->{this.log(LogLevel.INFO, "Occurrence has been retried",occurrence);});
         OutboundEndPointProvider provider = (OutboundEndPointProvider)webServicesService.getProvider(webServiceName);
         provider.using(method).toEndpoints(this).send( payload, this);
     }

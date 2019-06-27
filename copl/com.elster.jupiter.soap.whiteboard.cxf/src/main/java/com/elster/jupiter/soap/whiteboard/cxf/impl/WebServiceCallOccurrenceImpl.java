@@ -182,7 +182,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     @Override
     public void retry(){
         if (endPointConfiguration.get() instanceof OutboundEndPointConfiguration) {
-            endPointConfiguration.get().retryOccurrence(requestName, payload);
+            endPointConfiguration.get().retryOccurrence(requestName, payload,this);
         }
     }
 }
