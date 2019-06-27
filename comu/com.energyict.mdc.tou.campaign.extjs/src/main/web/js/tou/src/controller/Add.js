@@ -140,6 +140,48 @@ Ext.define('Tou.controller.Add', {
                 }
             }
         }
+
+        var sendCalendarComTaskField = form.down('[name=sendCalendarComTask]');
+        var sendCalendarComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
+
+        if (sendCalendarComTask) {
+            record.set('sendCalendarComTask', sendCalendarComTask.getData());
+        }
+
+        var sendCalendarConnectionStrategyField = form.down('[name=sendCalendarConnectionStrategy]');
+        var sendCalendarConnectionStrategy = sendCalendarConnectionStrategyField.store.getById(
+            sendCalendarConnectionStrategyField.value
+        );
+
+        if (sendCalendarConnectionStrategy) {
+            record.set('sendCalendarConnectionStrategy', sendCalendarConnectionStrategy.getData());
+        }
+
+        var activateCalendarItem = form.down('#activate-calendar');
+        if (activateCalendarItem.getOptionValue() === "immediately"
+        || activateCalendarItem.getOptionValue() === "onDate") {
+            var validationComTaskField = form.down('[name=validationComTask]');
+            var validationComTask = validationComTaskField.store.getById(
+                validationComTaskField.value
+            );
+
+            if (validationComTask) {
+                record.set('validationComTask', validationComTask.getData());
+            }
+
+            var validationConnectionStrategyField = form.down('[name=validationConnectionStrategy]');
+            var validationConnectionStrategy = validationConnectionStrategyField.store.getById(
+                validationConnectionStrategyField.value
+            );
+
+            if (validationConnectionStrategy) {
+                record.set('validationConnectionStrategy', validationConnectionStrategy.getData());
+            }
+        } else {
+            record.set('validationComTask', undefined);
+            record.set('validationConnectionStrategy', undefined);
+        }
+
         if (record && record.data && record.data["devices"] !== undefined)
             delete record.data["devices"];
         if (record && record.data && record.data["timeBoundary"] !== undefined)
@@ -151,6 +193,7 @@ Ext.define('Tou.controller.Add', {
         if (record && record.data && record.data["status"] !== undefined)
             delete record.data["status"];
     },
+
     addTouCampaign: function () {
         var me = this,
         page = me.getPage(),
