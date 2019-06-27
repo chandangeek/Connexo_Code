@@ -34,10 +34,9 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
             fromComboValue = me.down('#transition-from-combo').getValue(),
             toComboValue = me.down('#transition-to-combo').getValue();
 
-        if (!!fromComboValue && !!toComboValue
-            && eventContext && eventContext != 'System') {
+        if (!!fromComboValue && !!toComboValue) {
             me.fillActions(fromComboValue, toComboValue);
-            me.fillChecks(fromComboValue, toComboValue);
+            me.fillChecks(fromComboValue, toComboValue, eventContext && eventContext === 'System');
         } else {
             Ext.suspendLayouts();
             autoActionsContainer.removeAll();
@@ -73,12 +72,12 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
         );
     },
 
-    fillChecks: function (fromComboValue, toComboValue) {
+    fillChecks: function (fromComboValue, toComboValue, isSystemContext) {
         var me = this,
             pretransitionChecksContainer = this.down('#pretansitionsContainer'),
             store = Ext.create('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionChecks');
 
-        store.getProxy().setUrl(me.router.arguments, fromComboValue, toComboValue);
+        store.getProxy().setUrl(me.router.arguments, fromComboValue, toComboValue, isSystemContext);
 
         store.load(
             function () {
