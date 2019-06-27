@@ -53,6 +53,8 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -133,6 +135,7 @@ public class ServiceCallCommands {
     private final Clock clock;
     private final BundleContext bundleContext;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final MasterDataService masterDataService;
 
     @Inject
     public ServiceCallCommands(DeviceService deviceService, JsonService jsonService,
@@ -140,7 +143,8 @@ public class ServiceCallCommands {
                                ServiceCallService serviceCallService, EndDeviceEventsBuilder endDeviceEventsBuilder,
                                Thesaurus thesaurus, MeterReadingFaultMessageFactory faultMessageFactory,
                                MessageService messageService, Clock clock, BundleContext bundleContext,
-                               DeviceMessageSpecificationService deviceMessageSpecificationService) {
+                               DeviceMessageSpecificationService deviceMessageSpecificationService,
+                               MasterDataService masterDataService) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
@@ -153,6 +157,7 @@ public class ServiceCallCommands {
         this.clock = clock;
         this.bundleContext = bundleContext;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.masterDataService = masterDataService;
 
     }
 
@@ -308,16 +313,9 @@ public class ServiceCallCommands {
                 return parentServiceCall; // or even better return null
             }
             ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
+
             List<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, existedLoadProfiles);
             ComTaskExecution deviceMessagesComTaskExecution = null;
-
-
-
-            Set<ReadingType> readingTypesFromLoadProfiles =  loadProfiles.stream()
-                    .map (LoadProfile::getChannels)
-                    .flatMap(Collection::stream)
-                    .map(channel -> channel.getReadingType())
-                    .collect(Collectors.toSet());
 
             if (loadProfiles != null && !loadProfiles.isEmpty()) {
                 if (start != null && end != null) { // load profiles case
@@ -349,7 +347,7 @@ public class ServiceCallCommands {
                 //****
 
                 List<ComTaskExecution> existedComTaskExecutions = findComTaskExecutions(device, existedReadingTypes,
-                        existedLoadProfiles, existedRegisterGroups);
+                        existedRegisterGroups);
                 for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
                     if (!checkCommectionMethodForComTaskExecution(comTaskExecution, connectionMethod)) {
                         // TODO error?
@@ -366,7 +364,7 @@ public class ServiceCallCommands {
                     Instant trigger = getTriggerDate(actualEnd, delay, comTaskExecution, scheduleStrategy);
 
 
-                    if (start == null || end == null) { // chahhels / registers without concreate start + end date
+                    if (comTaskExecutionRequired(start, end, comTaskExecution)) {
                         // run now
                         if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
                             if (start == null && end == null) {
@@ -407,6 +405,16 @@ public class ServiceCallCommands {
         return parentServiceCall;
     }
 
+    // channels without concrete start or end date / registers with start and end dates
+    private boolean comTaskExecutionRequired(Instant start, Instant end, ComTaskExecution comTaskExecution) {
+        return (comTaskExecution.getProtocolTasks().stream()
+                .anyMatch(protocolTask -> LoadProfile.class.isInstance(protocolTask))
+                && (start == null || end == null))
+            || (comTaskExecution.getProtocolTasks().stream()
+                .anyMatch(protocolTask -> RegistersTask.class.isInstance(protocolTask))
+                && start != null && end != null);
+    }
+
     private Instant getTriggerDate(Instant actualEnd, long delay, ComTaskExecution comTaskExecution,
                                    ScheduleStrategyEnum scheduleStrategy) {
         Instant trigger;
@@ -435,6 +443,7 @@ public class ServiceCallCommands {
                 .forEach(loadProfile -> device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update());
     }
 
+    /// FIXME use load profile next block read start
     private Instant getActualStart(Instant start, ComTaskExecution comTaskExecution){
         if (start == null) {
             return comTaskExecution.getLastSuccessfulCompletionTimestamp();
@@ -450,17 +459,20 @@ public class ServiceCallCommands {
     }
 
     private List<ComTaskExecution> findComTaskExecutions(Device device, List<ReadingType> existedReadingTypes,
-                                                         List<String> existedLoadProfiles,
                                                          List<String> existedRegisterGroups) throws
             ch.iec.tc57._2011.getmeterreadings.FaultMessage {
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         if (existedReadingTypes != null && !existedReadingTypes.isEmpty()) {
             comTaskExecutions.addAll(getSupportedReadingTypeExecutionMapping(device, existedReadingTypes).keySet());
-        } else if (existedLoadProfiles != null && !existedLoadProfiles.isEmpty()) {
-
-            // TODO find proper comTaskExecutions
-        } else if (existedRegisterGroups != null && !existedRegisterGroups.isEmpty()) {
-            // TODO find proper comTaskExecutions
+        }
+        if (existedRegisterGroups != null && !existedRegisterGroups.isEmpty()) {
+            comTaskExecutions.addAll(getSupportedReadingTypeExecutionMapping(device, masterDataService.findAllRegisterGroups().stream()
+                    .filter(rg -> existedRegisterGroups.contains(rg.getName()))
+                    .map(RegisterGroup::getRegisterTypes)
+                    .flatMap(Collection::stream)
+                    .map(registerType -> registerType.getReadingType())
+                    .collect(Collectors.toList()))
+                    .keySet());
         }
         return comTaskExecutions;
     }

@@ -241,7 +241,7 @@
     <xs:complexType name="RegisterGroup">
         <xs:sequence>
         <xs:element name="name" type="xs:string" minOccurs="0" sawsdl:modelReference=""/>
-        <xs:element name="ReadingType" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IntervalBlock.ReadingType">
+        <xs:element name="ReadingType" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Reading.ReadingType">
             <xs:complexType sawsdl:modelReference="">
                 <xs:attribute name="ref" type="xs:string"/>
             </xs:complexType>

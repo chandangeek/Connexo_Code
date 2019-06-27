@@ -93,6 +93,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         Instant timePeriodEnd = extension.getTimePeriodEnd();
         String readingTypesString = extension.getReadingTypes();
         String loadProfilesString = extension.getLoadProfiles();
+        String registerGroupsString = extension.getRegisterGroups();
         List<String> endDevicesMRIDs = serviceCall.findChildren().stream()
                 .map(c -> c.getExtension(SubParentGetMeterReadingsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"))
@@ -106,6 +107,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         List<Meter> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
         Set<String> readingTypesMRIDs = getSetOfValuesFromString(readingTypesString);
         Set<String> loadProfilesNames = getSetOfValuesFromString(loadProfilesString);
+        Set<String> registerGroupsNames = getSetOfValuesFromString(registerGroupsString);
 
         MeterReadingsBuilder meterReadingsBuilder = readingBuilderProvider.get();
         MeterReadings meterReadings = null;
@@ -114,8 +116,9 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         try {
             meterReadings = meterReadingsBuilder.withEndDevices(endDevices)
                     .ofReadingTypesWithMRIDs(readingTypesMRIDs)
-                    .inTimeIntervals(timeRangeSet)
                     .withLoadProfiles(loadProfilesNames)
+                    .withRegisterGroups(registerGroupsNames)
+                    .inTimeIntervals(timeRangeSet)
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(DefaultState.FAILED);
@@ -169,7 +172,10 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     }
 
     private Set<String> getSetOfValuesFromString(String readingTypesString) {
-        return Arrays.stream(readingTypesString.split(";")).collect(Collectors.toSet());
+        if (readingTypesString != null) {
+            return Arrays.stream(readingTypesString.split(";")).collect(Collectors.toSet());
+        }
+        return null;
     }
 
     private List<Meter> getEndDevices(List<String> endDevicesMRIDs, ServiceCall serviceCall) {

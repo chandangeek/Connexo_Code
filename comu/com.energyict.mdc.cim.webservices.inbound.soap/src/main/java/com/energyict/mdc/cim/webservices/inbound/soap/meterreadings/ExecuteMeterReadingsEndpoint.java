@@ -9,10 +9,8 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -57,6 +55,7 @@ import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -96,6 +95,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     private final MeteringService meteringService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final DeviceService deviceService;
+    private final MasterDataService masterDataService;
 
     @Inject
     public ExecuteMeterReadingsEndpoint(Provider<MeterReadingsBuilder> readingBuilderProvider,
@@ -108,7 +108,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                                         EndPointConfigurationService endPointConfigurationService,
                                         WebServicesService webServicesService, MeteringService meteringService,
                                         MetrologyConfigurationService metrologyConfigurationService,
-                                        DeviceService deviceService) {
+                                        DeviceService deviceService, MasterDataService masterDataService) {
         this.readingBuilderProvider = readingBuilderProvider;
         this.replyTypeFactory = replyTypeFactory;
         this.faultMessageFactory = faultMessageFactory;
@@ -121,6 +121,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.deviceService = deviceService;
+        this.masterDataService = masterDataService;
     }
 
     @Override
@@ -238,16 +239,13 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             List<String> dsNames = getDataSourceNames(reading.getDataSource());
             if (dsTypeName != null && !dsNames.isEmpty()) {
                 if (dsTypeName == DataSourceTypeNameEnum.LOAD_PROFILE) {
-                    existedLoadProfiles = dsNames;
+                    /// TODO not found load profiles
+                    existedLoadProfiles = getExistedOnDevicesLoadProfilesNames(existedMeters, dsNames);
                 } else {
-                    existedRegisterGroups = dsNames;
+                    /// TODO not found register groups
+                    existedRegisterGroups = getExistedRegisterGroupsNames(dsNames);
                 }
             }
-
-
-
-//            Long deviceId = Long.parseLong(meter.getAmrId());
-//            return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
 
 
             serviceCallCommands.createParentGetMeterReadingsServiceCall(reading.getSource(), replyAddress, corelationId,
@@ -261,14 +259,33 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return createMeterReadingsResponseMessageType(meterReadings, errorTypes, corelationId);
     }
 
-    private List<LoadProfile> getExistedLoadProfiles(Device device) {
+
+
+    /// TODO
+    private List<String> getExistedOnDevicesLoadProfilesNames(List<com.elster.jupiter.metering.Meter> existedMeters,
+                                                              List<String> existedLoadProfiles) {
+        if (existedLoadProfiles != null) {
+            return existedMeters.stream()
+                    .map(meter -> {
+                        Long deviceId = Long.parseLong(meter.getAmrId());
+                        return deviceService.findDeviceById(deviceId).get();
+                    })
+                    .map(device -> device.getLoadProfiles())
+                    .flatMap(Collection::stream)
+                    .filter(loadProfile -> existedLoadProfiles.contains(loadProfile.getLoadProfileSpec().getLoadProfileType().getName()))
+                    .map(loadProfile -> loadProfile.getLoadProfileSpec().getLoadProfileType().getName())
+                    .collect(Collectors.toList());
+        }
         return null;
     }
 
-    /// TODO for registerGroup
-//    private List<LoadProfile> getExistedRegisterGroups() {
-//        return null;
-//    }
+    /// TODO
+    private List<String> getExistedRegisterGroupsNames(List<String> existedRegisterGroups) {
+        return masterDataService.findAllRegisterGroups().stream()
+                .filter(rg -> existedRegisterGroups.contains(rg.getName()))
+                .map(rg -> rg.getName())
+                .collect(Collectors.toList());
+    }
 
     // LoadProfile or RegisterGroup
     private DataSourceTypeNameEnum getDataSourceNameType(List<DataSource> dataSources) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {

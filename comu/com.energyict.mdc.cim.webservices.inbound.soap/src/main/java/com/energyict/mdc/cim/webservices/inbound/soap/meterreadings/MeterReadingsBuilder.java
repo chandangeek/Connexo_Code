@@ -33,7 +33,8 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.meterreadings.DateTimeInterval;
@@ -74,6 +75,7 @@ public class MeterReadingsBuilder {
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
     private final DeviceService deviceService;
+    private final MasterDataService masterDataService;
 
     private UsagePoint usagePoint;
     private List<Meter> endDevices;
@@ -81,7 +83,8 @@ public class MeterReadingsBuilder {
     private Set<String> readingTypeMRIDs = Collections.emptySet();
     private Set<String> readingTypeFullAliasNames = Collections.emptySet();
     private RangeSet<Instant> timePeriods;
-    private Set<LoadProfile> loadProfiles;
+    private Set<LoadProfile> loadProfiles = Collections.emptySet();
+    private Set<RegisterGroup> registerGroups = Collections.emptySet();
 
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
@@ -89,11 +92,13 @@ public class MeterReadingsBuilder {
     @Inject
     public MeterReadingsBuilder(MeteringService meteringService,
                          MetrologyConfigurationService metrologyConfigurationService,
-                         MeterReadingFaultMessageFactory faultMessageFactory, DeviceService deviceService) {
+                         MeterReadingFaultMessageFactory faultMessageFactory, DeviceService deviceService,
+                         MasterDataService masterDataService) {
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.faultMessageFactory = faultMessageFactory;
         this.deviceService = deviceService;
+        this.masterDataService = masterDataService;
     }
 
     public MeterReadingsBuilder withEndDevices(List<Meter> endDevices) {
@@ -154,12 +159,24 @@ public class MeterReadingsBuilder {
         return this;
     }
 
+    /// TODO may be avoid to use of findDeviceForEndDevice and deviceService
+    public MeterReadingsBuilder withRegisterGroups(Set<String> registerGroupsNames) throws FaultMessage {
+        registerGroups = new HashSet<>();
+        if (registerGroupsNames != null) {
+            registerGroups.addAll(masterDataService.findAllRegisterGroups().stream()
+                    .filter(rg -> registerGroupsNames.contains(rg.getName()))
+                    .collect(Collectors.toSet()));
+        }
+        return this;
+    }
+
     public MeterReadings build() throws FaultMessage {
         MeterReadings meterReadings = new MeterReadings();
         List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
         List<ch.iec.tc57._2011.meterreadings.ReadingType> readingTypeList = meterReadings.getReadingType();
         List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> readingQualityTypeList = meterReadings.getReadingQualityType();
         List<ch.iec.tc57._2011.meterreadings.LoadProfile> loadProfileList = meterReadings.getLoadProfile();
+        List<ch.iec.tc57._2011.meterreadings.RegisterGroup> registerGroupList = meterReadings.getRegisterGroup();
         referencedReadingTypes = new HashSet<>();
         referencedReadingQualityTypes = new HashSet<>();
 
@@ -171,6 +188,20 @@ public class MeterReadingsBuilder {
                     .forEach((purposeName, readingsByReadingTypes) -> wrapInMeterReading(purposeName, null, readingsByReadingTypes)
                             .ifPresent(meterReadingsList::add));
         } else if (endDevices.stream().anyMatch(ed -> ed instanceof Meter)) {
+            if (!loadProfiles.isEmpty()) {
+                readingTypeMRIDs.addAll(loadProfiles.stream()
+                        .map (LoadProfile::getChannels)
+                        .flatMap(Collection::stream)
+                        .map(channel -> channel.getReadingType().getMRID())
+                        .collect(Collectors.toSet()));
+            }
+            if (!registerGroups.isEmpty()) {
+                readingTypeMRIDs.addAll(registerGroups.stream()
+                        .map(RegisterGroup::getRegisterTypes)
+                        .flatMap(Collection::stream)
+                        .map(registerType -> registerType.getReadingType().getMRID())
+                        .collect(Collectors.toSet()));
+            }
                 endDevices.stream()
                         .filter(ed -> ed instanceof Meter)
                         .forEach(ed -> {
@@ -186,6 +217,9 @@ public class MeterReadingsBuilder {
         loadProfiles.stream()
                 .map(MeterReadingsBuilder::createLoadProfile)
                 .forEach(loadProfileList::add);
+        registerGroups.stream()
+                .map(MeterReadingsBuilder::createRegisterGroup)
+                .forEach(registerGroupList::add);
         // filled in in scope of wrapInMeterReading
         referencedReadingTypes.stream()
                 .map(MeterReadingsBuilder::createReadingType)
@@ -514,6 +548,23 @@ public class MeterReadingsBuilder {
                         ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType readingType =
                                 new ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType();
                         readingType.setRef(mrid);
+                    readingTypes.add(readingType);
+                });
+        return info;
+    }
+
+    private static ch.iec.tc57._2011.meterreadings.RegisterGroup createRegisterGroup(RegisterGroup registerGroup) {
+        ch.iec.tc57._2011.meterreadings.RegisterGroup info = new ch.iec.tc57._2011.meterreadings.RegisterGroup();
+        info.setName(registerGroup.getName());
+        List<ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType> readingTypes = info.getReadingType();
+
+        registerGroup.getRegisterTypes().stream()
+                .map(channel -> channel.getReadingType().getMRID())
+                /// TODO may be filter that readingType present in reply?
+                .forEach(mrid -> {
+                    ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType readingType =
+                            new ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType();
+                    readingType.setRef(mrid);
                     readingTypes.add(readingType);
                 });
         return info;
