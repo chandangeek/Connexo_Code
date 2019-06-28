@@ -93,7 +93,6 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         if (comTaskExecution.isFirmware()) {
             Optional<FirmwareCampaign> firmwareCampaignOptional = firmwareCampaignService.getCampaignOn(comTaskExecution);
             if (firmwareCampaignOptional.isPresent()) {
-                FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
                 Device device = comTaskExecution.getDevice();
                 if (firmwareCampaignService.findActiveFirmwareItemByDevice(device).get().getDeviceMessage().get().getStatus().equals(DeviceMessageStatus.FAILED)) {
                     ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(device).get().getServiceCall();

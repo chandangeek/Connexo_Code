@@ -44,7 +44,6 @@ public class FirmwareCampaignFactoryTest {
     private static FirmwareService firmwareService = mock(FirmwareService.class);
     private static Clock clock = mock(Clock.class);
     private static DeviceConfigurationService deviceConfigurationService = mock(DeviceConfigurationService.class);
-    private static CalendarService calendarService = mock(CalendarService.class);
     private static FirmwareCampaignInfoFactory firmwareCampaignInfoFactory;
     private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
@@ -65,15 +64,15 @@ public class FirmwareCampaignFactoryTest {
     public void fromTest() {
         FirmwareCampaign firmwareCampaign = createMockCampaign();
         FirmwareCampaignInfo firmwareCampaignInfo = firmwareCampaignInfoFactory.from(firmwareCampaign);
-        assertEquals(firmwareCampaignInfo.id, 3L);
-        assertEquals(firmwareCampaignInfo.version, 4L);
-        assertEquals(firmwareCampaignInfo.validationTimeout.count, 2);
-        assertEquals(firmwareCampaignInfo.name, "TestCampaign");
-        assertEquals(firmwareCampaignInfo.managementOption.localizedValue, "activate");
-        assertEquals(firmwareCampaignInfo.deviceGroup, "TestGroup");
-        assertEquals(firmwareCampaignInfo.timeBoundaryStart, Instant.ofEpochSecond(100));
-        assertEquals(firmwareCampaignInfo.timeBoundaryEnd, Instant.ofEpochSecond(200));
-        assertEquals(firmwareCampaignInfo.deviceType.localizedValue, "TestDeviceType");
+        assertEquals(3L, firmwareCampaignInfo.id);
+        assertEquals(4L, firmwareCampaignInfo.version);
+        assertEquals(2, firmwareCampaignInfo.validationTimeout.count);
+        assertEquals("TestCampaign", firmwareCampaignInfo.name);
+        assertEquals("activate", firmwareCampaignInfo.managementOption.localizedValue);
+        assertEquals("TestGroup", firmwareCampaignInfo.deviceGroup);
+        assertEquals(Instant.ofEpochSecond(100), firmwareCampaignInfo.timeBoundaryStart);
+        assertEquals(Instant.ofEpochSecond(200), firmwareCampaignInfo.timeBoundaryEnd);
+        assertEquals("TestDeviceType", firmwareCampaignInfo.deviceType.localizedValue);
     }
 
     @Test

@@ -144,7 +144,7 @@ public class FirmwareCampaignResource {
         List<String> states = jsonQueryFilter.getStringList("status").stream().map(DefaultState::valueOf).map(DefaultState::getKey).collect(Collectors.toList());
         QueryStream<? extends DeviceInFirmwareCampaign> devices = firmwareCampaignService.streamDevicesInCampaigns().join(ServiceCall.class).join(ServiceCall.class).join(State.class)
                 .sorted(Order.ascending("device")).filter(Where.where("serviceCall.parent.id").isEqualTo(firmwareCampaignId));
-        if (states.size() > 0) {
+        if (!states.isEmpty()) {
             devices.filter(Where.where("serviceCall.state.name").in(states));
         }
         queryParameters.getStart().ifPresent(devices::skip);

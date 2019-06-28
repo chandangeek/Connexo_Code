@@ -92,6 +92,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         }
     }
 
+    public static final int SECONDS_IN_DAY = 86400;
     private final DataModel dataModel;
     private final DataModel cpsDataModel;
     private final Thesaurus thesaurus;
@@ -375,8 +376,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
 
     @Override
     public ComWindow getComWindow() {
-        return new ComWindow((((Number) (this.getUploadPeriodStart().getEpochSecond() % 86400)).intValue()),
-                (((Number) (this.getUploadPeriodEnd().getEpochSecond() % 86400)).intValue()));
+        return new ComWindow((((Number) (this.getUploadPeriodStart().getEpochSecond() % SECONDS_IN_DAY)).intValue()),
+                (((Number) (this.getUploadPeriodEnd().getEpochSecond() % SECONDS_IN_DAY)).intValue()));
 
     }
 

@@ -116,8 +116,10 @@ public class FirmwareCampaignInfoFactory {
         info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.PENDING, thesaurus), 0L));
         info.devices.add(new DevicesStatusAndQuantity(getDeviceStatus(DefaultState.CANCELLED, thesaurus), 0L));
         campaign.getNumbersOfChildrenWithStatuses().forEach((deviceStatus, quantity) ->
-                info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getDeviceStatus(deviceStatus, thesaurus)))
-                        .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
+                info.devices.stream()
+                        .filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.name.equals(deviceStatus.name()))
+                        .findAny()
+                        .ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
         info.serviceCall = new IdWithNameInfo(campaignsServiceCall.getId(), campaignsServiceCall.getNumber());
         return info;
     }
