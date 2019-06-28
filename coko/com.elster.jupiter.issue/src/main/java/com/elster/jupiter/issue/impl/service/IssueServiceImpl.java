@@ -87,6 +87,7 @@ import com.google.inject.Scopes;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -140,6 +141,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile Thesaurus thesaurus;
     private Set<ComponentAndLayer> alreadyJoined = ConcurrentHashMap.newKeySet();
     private final Object thesaurusLock = new Object();
+    private static BundleContext bundleContext;
 
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
@@ -175,7 +177,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
-                            UpgradeService upgradeService, Clock clock, EventService eventService) {
+                            UpgradeService upgradeService, Clock clock, EventService eventService,
+                            BundleContext bundleContext) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -192,11 +195,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setClock(clock);
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
-        activate();
+        activate(bundleContext);
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext bundleContext) {
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
@@ -224,6 +227,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
+        setBundleContext(bundleContext);
         issueCreationService = dataModel.getInstance(IssueCreationService.class);
         issueActionService = dataModel.getInstance(IssueActionService.class);
         issueAssignmentService = dataModel.getInstance(IssueAssignmentService.class);
@@ -256,6 +260,14 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
+    public void setBundleContext(BundleContext bundleContext){
+        this.bundleContext = bundleContext;
+    }
+
+    @Override
+    public Optional<BundleContext> getBundleContext(){
+        return Optional.of(bundleContext);
+    }
     private Thesaurus getThesaurus() {
         return thesaurus;
     }
