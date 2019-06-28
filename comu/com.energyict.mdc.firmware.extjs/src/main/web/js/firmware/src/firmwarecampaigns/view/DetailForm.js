@@ -123,8 +123,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.status', 'FWC', 'Status'),
                         name: 'status',
                         renderer: function (value) {
-                            //TODO: format should be changed
-                            return value ? value : '-';
+                            return value ? value.name : '-';
                         }
                     },
                     {
@@ -141,24 +140,23 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                             field.addCls('firmware-campaign-status');
                             Ext.Array.each(value, function (devicesStatus, index) {
                                 var iconCls = '';
-                                //TODO: format should be changed
-                                switch (devicesStatus.status) {
-                                    case 'Failed':
+                                switch (devicesStatus.status.id) {
+                                    case 'FAILED':
                                         iconCls = 'icon-cancel-circle';
                                         break;
-                                    case 'Successful':
+                                    case 'SUCCESSFUL':
                                         iconCls = 'icon-checkmark-circle';
                                         break;
-                                    case 'Ongoing':
+                                    case 'ONGOING':
                                         iconCls = 'icon-spinner3';
                                         break;
-                                    case 'Pending':
+                                    case 'PENDING':
                                         iconCls = 'icon-forward2';
                                         break;
-                                    case 'Configuration error':
+                                    case 'REJECTED':
                                         iconCls = 'icon-notification';
                                         break;
-                                    case 'Cancelled':
+                                    case 'CANCELLED':
                                         iconCls = 'icon-blocked';
                                         break;
                                 }
@@ -167,7 +165,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                                     result += '<br>';
                                 }
 
-                                result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status + '"></span>' + devicesStatus.quantity;
+                                result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status.name + '"></span>' + devicesStatus.quantity;
                             });
                             return result;
                         }

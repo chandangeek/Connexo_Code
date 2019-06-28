@@ -56,8 +56,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 dataIndex: 'status',
                 flex: 1,
                 renderer: function (value) {
-                    //return value ? value.localizedValue : ''; TODO: format should be changed
-                    return value ? value : '';
+                    return value ? value.name : '';
                 }
             },
             {
@@ -74,29 +73,28 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                     metaData.tdCls = 'firmware-campaign-status';
                     Ext.Array.each(value, function (devicesStatus) {
                         var iconCls = '';
-                        //TODO: format should be changed
-                        switch (devicesStatus.status) {
-                            case 'Failed':
+                        switch (devicesStatus.status.id) {
+                            case 'FAILED':
                                 iconCls = 'icon-cancel-circle';
                                 break;
-                            case 'Successful':
+                            case 'SUCCESSFUL':
                                 iconCls = 'icon-checkmark-circle';
                                 break;
-                            case 'Ongoing':
+                            case 'ONGOING':
                                 iconCls = 'icon-spinner3';
                                 break;
-                            case 'Pending':
+                            case 'PENDING':
                                 iconCls = 'icon-forward2';
                                 break;
-                            case 'Configuration error':
+                            case 'REJECTED':
                                 iconCls = 'icon-notification';
                                 break;
-                            case 'Cancelled':
+                            case 'CANCELLED':
                                 iconCls = 'icon-blocked';
                                 break;
                         }
 
-                        result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status + '"></span><span style="margin-right: 10px">' + devicesStatus.quantity + '</span>';
+                        result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status.name + '"></span><span style="margin-right: 10px">' + devicesStatus.quantity + '</span>';
                     });
                     return result;
                 }
@@ -114,8 +112,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    //TODO: format should be changed
-                    return record.get('status') !== 'Ongoing';
+                    return record.get('status').id !== 'ONGOING';
                 },
                 menu: {
                     xtype: 'firmware-campaigns-action-menu',

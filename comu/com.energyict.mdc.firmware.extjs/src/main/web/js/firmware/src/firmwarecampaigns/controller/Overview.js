@@ -63,8 +63,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         Ext.resumeLayouts(true);
         if (preview.down('firmware-campaigns-action-menu')) {
             preview.down('firmware-campaigns-action-menu').record = record;
-            //TODO: format should be changed
-            preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status') === 'Ongoing');
+            preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status').id === 'ONGOING');
         }
     },
 
@@ -101,8 +100,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             form = this.getPreview().down('form'),
             store = this.getStore('Fwc.firmwarecampaigns.store.FirmwareCampaigns');
 
-        //TODO: format should be changed
-        record.set('status', "Cancelled");
+        record.set('status', {"id" : "CANCELLED", "name" :"Cancelled"});
         var data = record.getProxy().getWriter().getRecordData(record);
 
         Ext.Ajax.request({

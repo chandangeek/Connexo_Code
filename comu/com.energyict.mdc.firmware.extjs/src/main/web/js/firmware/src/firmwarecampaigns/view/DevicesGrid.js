@@ -37,29 +37,28 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 flex: 1,
                 renderer: function (value, metaData) {
                     var iconCls = '';
-                    //TODO: format should be changed
                     metaData.tdCls = 'firmware-campaign-status';
-                    switch (value) {
-                            case 'Failed':
+                    switch (value.id) {
+                            case 'FAILED':
                                 iconCls = 'icon-cancel-circle';
                                 break;
-                            case 'Successful':
+                            case 'SUCCESSFUL':
                                 iconCls = 'icon-checkmark-circle';
                                 break;
-                            case 'Ongoing':
+                            case 'ONGOING':
                                 iconCls = 'icon-spinner3';
                                 break;
-                            case 'Pending':
+                            case 'PENDING':
                                 iconCls = 'icon-forward2';
                                 break;
-                            case 'Configuration error':
+                            case 'REJECTED':
                                 iconCls = 'icon-notification';
                                 break;
-                            case 'Cancelled':
+                            case 'CANCELLED':
                                 iconCls = 'icon-blocked';
                                 break;
                     }
-                    return value ? '<span class="' + iconCls + '"></span>' + value : '-';
+                    return value ? '<span class="' + iconCls + '"></span>' + value.name : '-';
                 }
             },
             {
@@ -86,14 +85,13 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                     if (!me.campaignIsOngoing) {
                         return true;
                     }
-                    //TODO: format should be changed
-                    switch (record.get('status')) { // current device status
-                        case 'Pending':
-                        case 'Ongoing':
+                    switch (record.get('status').id) { // current device status
+                        case 'PENDING':
+                        case 'ONGOING':
                             return false; // because the device can be skipped
-                        case 'Cancelled':
-                        case 'Failed':
-                        case 'Configuration error':
+                        case 'CANCELLED':
+                        case 'FAILED':
+                        case 'REJECTED':
                             return false; // because the device can be retried
                         default:
                             return true;
