@@ -19,6 +19,7 @@ Ext.define('Tou.view.AddForm', {
     action: null,
     skipLoadingIndication: false,
     campaignRecordBeingEdited: null,
+    defaultConnectionStrategy: 2,
 
     defaults: {
         labelWidth: 260,
@@ -40,10 +41,10 @@ Ext.define('Tou.view.AddForm', {
             validationComTask: validationComTask && validationComTask.id,
             sendCalendarConnectionStrategy: sendCalendarConnectionStrategy
                 ? sendCalendarConnectionStrategy.id
-                : 2,
+                : me.defaultConnectionStrategy,
             validationConnectionStrategy: validationConnectionStrategy
                 ? validationConnectionStrategy.id
-                : 2
+                : me.defaultConnectionStrategy
         })
     },
     initComponent: function () {
@@ -259,9 +260,16 @@ Ext.define('Tou.view.AddForm', {
                         displayField: 'name',
                         margin: '0 10 0 0',
                         valueField: 'id',
-                        value: 2,
+                        value: me.defaultConnectionStrategy,
                         allowBlank: false,
-                        forceSelection: true
+                        forceSelection: true,
+                        listeners: {
+                            change: function(field, val) {
+                                me.down('#tou-campaign-send-connection-strategy-reset')
+                                .setDisabled(me.defaultConnectionStrategy === val);
+                            },
+                            scope: me,
+                        }
                     },
                     {
                         xtype: 'uni-default-button',
@@ -320,9 +328,16 @@ Ext.define('Tou.view.AddForm', {
                         displayField: 'name',
                         margin: '0 10 0 0',
                         valueField: 'id',
-                        value: 2,
+                        value: me.defaultConnectionStrategy,
                         allowBlank: false,
-                        forceSelection: true
+                        forceSelection: true,
+                        listeners: {
+                            change: function(field, val) {
+                                me.down('#tou-campaign-validation-connection-strategy-reset')
+                                .setDisabled(me.defaultConnectionStrategy === val);
+                            },
+                            scope: me,
+                        }
                     },
                     {
                         xtype: 'uni-default-button',
