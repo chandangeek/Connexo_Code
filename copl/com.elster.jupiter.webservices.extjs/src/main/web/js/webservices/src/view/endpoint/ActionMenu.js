@@ -8,11 +8,14 @@ Ext.define('Wss.view.endpoint.ActionMenu', {
     initComponent: function() {
         this.items = [
             {
+                itemId: 'endpoint-occurrence-retry',
+                text: Uni.I18n.translate('general.retry', 'WSS', 'Retry'),
+                action: 'retry'
+            },
+            {
                 itemId: 'endpoint-occurrence-view-payload',
                 text: Uni.I18n.translate('general.viewPayload', 'WSS', 'View payload'),
-                action: 'view-payload',
-                // privileges: Wss.privileges.Webservices.admin,
-                section: this.SECTION_EDIT
+                action: 'view-payload'
             },
         ];
         this.callParent(arguments);
