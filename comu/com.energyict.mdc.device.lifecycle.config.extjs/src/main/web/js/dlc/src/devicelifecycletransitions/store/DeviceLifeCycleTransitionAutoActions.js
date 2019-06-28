@@ -16,9 +16,10 @@ Ext.define('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionAutoAc
             type: 'json',
             root: 'microActions'
         },
-        setUrl: function (params, fromState, toState) {
+        setUrl: function (params, fromState, toState, isSystemContext) {
             this.url = this.urlTpl.replace('{id}', params.deviceLifeCycleId);
             this.extraParams = {fromState: {id: fromState}, toState: {id: toState}};
+            if (isSystemContext) this.extraParams['isSystemContext'] = isSystemContext;
         }
     },
     remoteFilter: false,
