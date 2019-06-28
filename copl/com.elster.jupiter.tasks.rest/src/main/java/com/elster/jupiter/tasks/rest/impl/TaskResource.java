@@ -198,13 +198,12 @@ public class TaskResource {
         return Response.status(Response.Status.OK).entity(queues).build();
     }
 
-    //TODO: change method name
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
-    public Response addTask2Queue(TaskMinInfo info) {
+    public Response modifyTask(TaskMinInfo info) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         if (info.queue != null && !info.queue.isEmpty()) {
             recurrentTask.setDestination(info.queue);
