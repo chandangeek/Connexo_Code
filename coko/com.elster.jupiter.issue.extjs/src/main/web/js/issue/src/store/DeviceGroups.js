@@ -14,7 +14,7 @@ Ext.define('Isu.store.DeviceGroups', {
         property: 'id',
         direction: 'ASC'
     }],
-    remoteSort: true,
+    sortOnLoad: true,
     proxy: {
         type: 'rest',
         url: '../../api/ddr/devicegroups',

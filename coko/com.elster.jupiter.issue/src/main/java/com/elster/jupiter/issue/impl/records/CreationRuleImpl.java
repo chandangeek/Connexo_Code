@@ -201,7 +201,8 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     }
     
     void setExcludedDeviceGroupList(final List<CreationRuleExclGroup> exclGroupMappingList) {
-        this.excludedGroupMappings = exclGroupMappingList;
+        this.excludedGroupMappings.clear();
+        this.excludedGroupMappings.addAll(exclGroupMappingList);
     }
 
     @Override
