@@ -31,7 +31,6 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     private WebServiceCallOccurrenceStatus status;
     private String applicationName;
     private String payload;
-    private TransactionService transactionService;
 
     public enum Fields {
         ID("id"),
@@ -55,10 +54,8 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     @Inject
-    public WebServiceCallOccurrenceImpl(DataModel dataModel,
-                                        TransactionService transactionService) {
+    public WebServiceCallOccurrenceImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.transactionService = transactionService;
     }
 
     public WebServiceCallOccurrenceImpl init(Instant startTime,
