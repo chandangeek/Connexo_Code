@@ -45,8 +45,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Detail', {
                 Ext.resumeLayouts(true);
                 if (widget.down('firmware-campaigns-action-menu')) {
                     widget.down('firmware-campaigns-action-menu').record = record;
-                    //TODO: format should be changed
-                    widget.down('firmware-campaigns-detail-form #firmware-campaigns-detail-action-menu-button').setDisabled(record.get('status') !== 'Ongoing');
+                    widget.down('firmware-campaigns-detail-form #firmware-campaigns-detail-action-menu-button').setDisabled(record.get('status').id !== 'ONGOING');
                 }
             },
             callback: function () {

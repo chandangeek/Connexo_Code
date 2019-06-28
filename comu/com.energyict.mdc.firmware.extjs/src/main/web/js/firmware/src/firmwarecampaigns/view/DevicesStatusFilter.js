@@ -9,7 +9,6 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesStatusFilter', {
 
     initComponent: function () {
         var me = this,
-            //TODO: format should be changed
             statusOptions = [
                 {
                     display: Uni.I18n.translate('firmwareManagementDeviceStatus.successful', 'FWC', 'Successful'),

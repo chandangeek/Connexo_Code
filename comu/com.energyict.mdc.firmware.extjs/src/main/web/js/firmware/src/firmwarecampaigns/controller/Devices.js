@@ -32,6 +32,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
         });
     },
 
+    firmwareCampaignId : null,
+
     showDevices: function (firmwareCampaignId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -39,6 +41,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             devicesStore = me.getStore('Fwc.firmwarecampaigns.store.Devices');
 
         devicesStore.getProxy().setUrl(firmwareCampaignId);
+        me.firmwareCampaignId = firmwareCampaignId;
+
         pageView.setLoading();
         me.getModel('Fwc.firmwarecampaigns.model.FirmwareCampaign').load(firmwareCampaignId, {
             success: function (record) {
@@ -46,8 +50,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
                     itemId: 'firmware-campaign-devices',
                     router: router,
                     deviceType: record.get('deviceType'),
-                    //TODO: format should be changed
-                    campaignIsOngoing: record.get('status') === 'Ongoing'
+                    campaignIsOngoing: record.get('status').id === 'ONGOING'
                 }));
                 me.getSideMenu().setHeader(record.get('name'));
                 me.getApplication().fireEvent('loadFirmwareCampaign', record);
@@ -71,7 +74,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
 
     doCancelDeviceInFirmwareCampaign: function (record) {
         var me = this,
-            url = record.cancelUrl();
+            url = record.cancelUrl(me.firmwareCampaignId);
 
         Ext.Ajax.request({
             url: url,
@@ -84,7 +87,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
     },
     doRetryDeviceInFirmwareCampaign: function (record) {
         var me = this,
-            url = record.retryUrl();
+            url = record.retryUrl(me.firmwareCampaignId);
 
         Ext.Ajax.request({
             url: url,
