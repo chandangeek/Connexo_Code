@@ -120,6 +120,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
+                deferLoading: true,
                 itemsPerPageMsg: Uni.I18n.translate(
                     'webservices.history.pagingtoolbarbottom.itemsPerPage',
                     'WSS',
