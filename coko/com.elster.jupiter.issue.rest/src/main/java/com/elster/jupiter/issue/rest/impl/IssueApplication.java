@@ -23,6 +23,7 @@ import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleExclGroupInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
@@ -31,6 +32,7 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -77,6 +79,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile Thesaurus thesaurus;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile Clock clock;
 
     @Override
@@ -148,6 +151,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
     }
+    
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
 
     @Reference
     public void setClock(Clock clock) {
@@ -192,11 +200,13 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
             bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
             bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
+            bind(CreationRuleExclGroupInfoFactory.class).to(CreationRuleExclGroupInfoFactory.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueInfoFactory.class).to(IssueInfoFactory.class);
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(clock).to(Clock.class);
         }
     }

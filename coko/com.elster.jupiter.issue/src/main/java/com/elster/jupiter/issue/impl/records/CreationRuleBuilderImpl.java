@@ -8,15 +8,19 @@ import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CreationRuleBuilderImpl implements CreationRuleBuilder {
 
@@ -90,6 +94,18 @@ public class CreationRuleBuilderImpl implements CreationRuleBuilder {
     @Override
     public CreationRuleActionBuilder newCreationRuleAction() {
         return new CreationRuleActionBuilderImpl(dataModel.getInstance(CreationRuleActionImpl.class), underConstruction);
+    }
+    
+    @Override
+    public CreationRuleBuilder setExcludedDeviceGroups(List<EndDeviceGroup> deviceGroupsList) {
+        final List<CreationRuleExclGroup> list = deviceGroupsList.stream().map(group -> {
+            CreationRuleExclGroup mapping = dataModel.getInstance(CreationRuleExclGroupImpl.class);
+            mapping.setCreationRule(underConstruction);
+            mapping.setEndDeviceGroup(group);
+            return mapping;
+        }).collect(Collectors.toList());
+        underConstruction.setExcludedDeviceGroupList(list);
+        return this;
     }
 
     @Override

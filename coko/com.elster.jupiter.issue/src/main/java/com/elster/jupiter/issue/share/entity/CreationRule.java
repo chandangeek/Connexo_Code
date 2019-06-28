@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.share.entity;
 
 import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.issue.impl.records.UniqueNamed;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.Priority;
@@ -48,6 +49,7 @@ public interface CreationRule extends Entity, UniqueNamed, HasDynamicPropertiesW
     Priority getPriority();
 
     boolean isActive();
-
+    
+    List<CreationRuleExclGroup> getExcludedGroupMappings();
 
 }

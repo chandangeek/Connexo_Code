@@ -12,15 +12,20 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         'Isu.store.DueinTypes',
         'Isu.store.Clipboard',
         'Isu.store.CreationRuleActionPhases',
-        'Isu.store.CreationRuleReasons'
+        'Isu.store.CreationRuleReasons',
+        'Isu.store.DeviceGroups'
     ],
+    
     views: [
-        'Isu.view.creationrules.Edit'
+        'Isu.view.creationrules.Edit',
+        'Isu.view.creationrules.ExcludeDeviceGroupsWindow'
     ],
-
+    
     models: [
         'Isu.model.CreationRuleAction',
-        'Isu.model.CreationRule'
+        'Isu.model.CreationRule',
+        'Isu.model.DeviceGroup',
+        'Isu.model.ExcludedDeviceGroup'
     ],
 
     refs: [
@@ -35,6 +40,14 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         {
             ref: 'actionsGrid',
             selector: 'issues-creation-rules-edit issues-creation-rules-actions-list'
+        },
+        {
+            ref: 'excludeDeviceGroupsGrid',
+            selector: 'issues-creation-rules-edit issues-creation-rules-excl-device-groups-list'
+        },
+        {
+            ref: 'excludeDeviceGroupsWindow',
+            selector: 'issues-creation-rules-exclude-device-groups-window'
         }
     ],
 
@@ -45,6 +58,22 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             },
             'issues-creation-rules-edit button[action=addAction]': {
                 click: this.addAction
+            },
+            'issues-creation-rules-edit button[action=excludeDeviceGroup]': {
+                click: this.excludeDeviceGroup
+            },
+            'issues-creation-rules-exclude-device-groups-window button[action=saveGroupExclusions]': {
+                click: this.saveSelectedExclusionsAction
+            },
+            'issues-creation-rules-exclude-device-groups-window button[action=cancelGroupExclusions]': {
+                click: this.cancelSelectedExclusionsAction
+            }
+        });
+        this.listen({
+            store: {
+                '#Isu.store.DeviceGroups': {
+                    load: this.onDeviceGroupsStoreLoad
+                }
             }
         });
     },
@@ -161,5 +190,67 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         me.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', form.getRecord());
 
         router.getRoute(router.currentRoute + '/addaction').forward();
+    },
+    
+    excludeDeviceGroup: function () {
+        var me = this,
+            deviceGroups = me.getStore('Isu.store.DeviceGroups');
+        
+        var selectGroupsWindow = Ext.widget('issues-creation-rules-exclude-device-groups-window');
+        selectGroupsWindow.show();
+        selectGroupsWindow.setLoading(true);
+        deviceGroups.load(function (records, operation, success) {
+            if (success == true) {
+                selectGroupsWindow.setLoading(false);
+            }
+        });
+    },
+
+    onDeviceGroupsStoreLoad: function (store, records, successful, eOpts) {
+    
+        var me = this,
+            form = me.getRuleForm(),
+            excludedGroups = form.getRecord().exclGroups();
+        
+        if (successful == true) {
+            Ext.each(records, function (devGroup) {
+                var record = excludedGroups.findRecord('deviceGroupId', devGroup.get('id'), 0, false, true, true);
+                if (record) {
+                    devGroup.set('selected', true);
+                } else {
+                    devGroup.set('selected', false);
+                }
+                devGroup.commit();
+            });
+        }
+    },
+    
+    cancelSelectedExclusionsAction: function () {
+        var me = this;
+        me.getExcludeDeviceGroupsWindow().close();
+    },
+
+    saveSelectedExclusionsAction: function () {
+        var me = this,
+            form = me.getRuleForm(),
+            excludedGroupsStore = form.getRecord().exclGroups(),
+            window = me.getExcludeDeviceGroupsWindow(),
+            selectedGroupsGrid = window.down('isu-device-groups-selection-grid');
+            
+        window.setLoading(true);
+        Ext.each(selectedGroupsGrid.getSelectionModel().getSelection(), function (selectedGroup) {
+            if(selectedGroup.get('selected') == false) {
+                excludedGroupsStore.add(Ext.create('Isu.model.ExcludedDeviceGroup', 
+                    {
+                        deviceGroupId: selectedGroup.get('id'),
+                        deviceGroupName: selectedGroup.get('name'),
+                        isGroupDynamic: selectedGroup.get('dynamic')
+                    }
+                ));
+            }
+        });
+        me.getRuleForm().refreshExcludedGroupsGrid();
+        window.setLoading(false);
+        window.close();
     }
 });

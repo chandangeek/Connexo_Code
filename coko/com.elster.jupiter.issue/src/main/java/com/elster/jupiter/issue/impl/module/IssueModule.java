@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -37,6 +38,7 @@ public class IssueModule extends AbstractModule {
         requireBinding(TaskService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(EndPointConfigurationService.class);
+        requireBinding(MeteringGroupsService.class);
 
         bind(IssueService.class).to(IssueServiceImpl.class).in(Scopes.SINGLETON);
     }

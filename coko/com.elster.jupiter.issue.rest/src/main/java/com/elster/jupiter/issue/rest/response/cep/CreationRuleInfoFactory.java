@@ -10,6 +10,7 @@ import com.elster.jupiter.issue.rest.response.PriorityInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo.DueInInfo;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 
 import javax.inject.Inject;
@@ -20,12 +21,16 @@ public class CreationRuleInfoFactory {
     private final PropertyValueInfoService propertyValueInfoService;
     private final CreationRuleTemplateInfoFactory templateFactory;
     private final CreationRuleActionInfoFactory actionFactory;
+    private final CreationRuleExclGroupInfoFactory exclGroupFactory;
 
     @Inject
-    public CreationRuleInfoFactory(PropertyValueInfoService propertyValueInfoService, CreationRuleTemplateInfoFactory templateFactory, CreationRuleActionInfoFactory actionFactory) {
+    public CreationRuleInfoFactory(PropertyValueInfoService propertyValueInfoService,
+            CreationRuleTemplateInfoFactory templateFactory, CreationRuleActionInfoFactory actionFactory,
+            CreationRuleExclGroupInfoFactory exclGroupFactory) {
         this.propertyValueInfoService = propertyValueInfoService;
         this.templateFactory = templateFactory;
         this.actionFactory = actionFactory;
+        this.exclGroupFactory = exclGroupFactory;
     }
     
     public CreationRuleInfo asInfo(CreationRule rule) {
@@ -44,6 +49,12 @@ public class CreationRuleInfoFactory {
             info.actions = new ArrayList<>();
             for (CreationRuleAction action : rule.getActions()) {
                 info.actions.add(actionFactory.asInfo(action));
+            }
+        }
+        if (rule.getExcludedGroupMappings() != null) {
+            info.exclGroups = new ArrayList<>();
+            for (CreationRuleExclGroup groupMapping : rule.getExcludedGroupMappings()) {
+                info.exclGroups.add(exclGroupFactory.asInfo(groupMapping));
             }
         }
         info.properties = propertyValueInfoService.getPropertyInfos(rule.getPropertySpecs(), rule.getProperties());

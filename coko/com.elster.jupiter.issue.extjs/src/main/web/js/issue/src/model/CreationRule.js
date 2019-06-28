@@ -9,7 +9,8 @@ Ext.define('Isu.model.CreationRule', {
         'Uni.property.model.Property',
         'Isu.model.IssueType',
         'Isu.model.CreationRuleTemplate',
-        'Isu.model.IssueReason'
+        'Isu.model.IssueReason',
+        'Isu.model.ExcludedDeviceGroup'
     ],
     idProperty: 'id',
     fields: [
@@ -112,6 +113,12 @@ Ext.define('Isu.model.CreationRule', {
             associationKey: 'reason',
             getterName: 'getReason',
             setterName: 'setReason'
+        },
+        {
+            name: 'exclGroups',
+            type: 'hasMany',
+            model: 'Isu.model.ExcludedDeviceGroup',
+            associationKey: 'exclGroups'
         }
     ],
 

@@ -1,0 +1,91 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
+Ext.define('Isu.view.creationrules.ExcludeDeviceGroupsGrid', {
+    extend: 'Ext.grid.Panel',
+    overflowY: 'auto',
+    alias: 'widget.isu-device-groups-selection-grid',
+    requires: [
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom',
+        'Isu.model.DeviceGroup',
+        'Isu.store.DeviceGroups'
+    ],
+
+    selType: 'checkboxmodel',
+    
+    selModel: {
+        mode: 'MULTI',
+        checkOnly: true,
+        listeners: {
+            beforeselect: function(grid, record) {
+            if(!grid.getStore())
+                if(record.get('selected') == true) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        },
+        renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+            var me = this;
+            if(record.get('selected') == true) {
+                return '<div>&#160;</div>';
+            } else {
+                return Ext.selection.CheckboxModel.prototype.renderer.call(me);
+            }
+        }
+    },
+    
+    store: 'Isu.store.DeviceGroups',
+
+    initComponent: function () {
+        var me = this;
+        
+        me.columns = [
+            {
+                header: Uni.I18n.translate('general.id', 'ISU', 'Id'),
+                dataIndex: 'id',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.name', 'ISU', 'Name'),
+                dataIndex: 'name',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.type', 'ISU', 'Type'),
+                dataIndex: 'dynamic',
+                renderer: function (value) {
+                    if (value) {
+                        return Uni.I18n.translate('general.dynamic', 'ISU', 'Dynamic')
+                    } else {
+                        return Uni.I18n.translate('general.static', 'ISU', 'Static')
+                    }
+                },
+                flex: 1
+            }
+        ];
+
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('deviceGroup.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} device groups'),
+                displayMoreMsg: Uni.I18n.translate('deviceGroup.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} device groups'),
+                emptyMsg: Uni.I18n.translate('deviceGroup.pagingtoolbartop.emptyMsg', 'ISU', 'There are no device groups to display'),
+                items: []
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
+                dock: 'bottom',
+                itemsPerPageMsg: Uni.I18n.translate('deviceGroup.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device groups per page')
+            }
+        ];
+
+        me.callParent();
+    }
+});

@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
+import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -75,6 +76,8 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @Valid
     private List<CreationRuleAction> actions = new ArrayList<>();//for validation
     private List<CreationRuleAction> persistentActions = new ArrayList<>();
+    
+    private List<CreationRuleExclGroup> excludedGroupMappings = new ArrayList<>();
 
     private final IssueService issueService;
     private final Clock clock;
@@ -190,6 +193,15 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @Override
     public List<CreationRuleAction> getActions() {
         return Collections.unmodifiableList(persistentActions);
+    }
+    
+    @Override
+    public List<CreationRuleExclGroup> getExcludedGroupMappings() {
+        return Collections.unmodifiableList(excludedGroupMappings);
+    }
+    
+    void setExcludedDeviceGroupList(final List<CreationRuleExclGroup> exclGroupMappingList) {
+        this.excludedGroupMappings = exclGroupMappingList;
     }
 
     @Override

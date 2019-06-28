@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetail;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -112,6 +113,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     IssueInfoFactoryService issueInfoFactoryService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
 
     @Provider
     @javax.annotation.Priority(Priorities.AUTHORIZATION)
@@ -148,6 +151,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setUserService(userService);
         application.setIssueInfoFactoryService(issueInfoFactoryService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setMeteringGroupsService(meteringGroupsService);
         application.setClock(clock);
         return application;
     }
