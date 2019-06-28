@@ -12,7 +12,7 @@ public enum TranslationKeys implements TranslationKey {
     START_PROCESS_ACTION("issue.action.startProcess", "Start process"),
     START_PROCESS_ACTION_PROCESS("issue.action.process", "Process"),
     START_PROCESS_ACTION_SELECT_PROCESS("issue.action.select_process", "Select process"),
-    SERVICE_CALL_ISSUE_TYPE("ServiceCallIssueType", "Service Call"),
+    SERVICE_CALL_ISSUE_TYPE("ServiceCallIssueType", "Service call"),
     SERVICE_CALL_ISSUE_FAILED_REASON("ServiceCallIssueFailedReason", "Service call failed"),
     SERVICE_CALL_ISSUE_FAILED_REASON_DESCRIPTION("ServiceCallIssueFailedReasonDescription", "Service call failed on {0}"),
     SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON("ServiceCallIssuePartialSucceedReason", "Service call partial succeed"),

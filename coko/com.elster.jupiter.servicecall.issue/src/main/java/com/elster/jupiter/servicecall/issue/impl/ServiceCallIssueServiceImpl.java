@@ -30,7 +30,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.issue.HistoricalIssueServiceCall;
-import com.elster.jupiter.servicecall.issue.IssueServiceCall;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
 import com.elster.jupiter.servicecall.issue.MessageSeeds;
 import com.elster.jupiter.servicecall.issue.OpenIssueServiceCall;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
@@ -121,7 +121,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Override
-    public Optional<? extends IssueServiceCall> findIssue(long id) {
+    public Optional<? extends ServiceCallIssue> findIssue(long id) {
         Optional<OpenIssueServiceCall> issue = findOpenIssue(id);
         if (issue.isPresent()) {
             return issue;

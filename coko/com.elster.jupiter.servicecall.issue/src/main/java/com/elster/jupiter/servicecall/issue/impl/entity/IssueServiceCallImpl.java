@@ -19,7 +19,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.issue.IssueServiceCall;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.users.User;
 
@@ -28,7 +28,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-public class IssueServiceCallImpl implements IssueServiceCall {
+public class IssueServiceCallImpl implements ServiceCallIssue {
 
     public enum Fields {
         BASEISSUE("baseIssue"),

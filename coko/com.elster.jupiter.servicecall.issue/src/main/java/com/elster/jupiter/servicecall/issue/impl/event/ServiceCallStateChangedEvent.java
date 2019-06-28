@@ -9,8 +9,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.servicecall.issue.IssueServiceCall;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssueFilter;
 
 import com.google.inject.Inject;
@@ -45,8 +44,8 @@ public class ServiceCallStateChangedEvent implements IssueEvent {
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof IssueServiceCall) {
-            IssueServiceCall issueServiceCall = (IssueServiceCall) issue;
+        if (issue instanceof ServiceCallIssue) {
+            ServiceCallIssue issueServiceCall = (ServiceCallIssue) issue;
             issueServiceCall.setNewState(newState);
             issueServiceCall.setServiceCall(serviceCall);
         }

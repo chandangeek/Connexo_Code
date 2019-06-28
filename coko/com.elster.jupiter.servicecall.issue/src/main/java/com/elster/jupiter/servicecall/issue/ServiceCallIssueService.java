@@ -20,7 +20,7 @@ public interface ServiceCallIssueService {
     String ISSUE_TYPE_NAME = "servicecall";
     String SERVICE_CALL_ISSUE_PREFIX = "SCI";
 
-    Optional<? extends IssueServiceCall> findIssue(long id);
+    Optional<? extends ServiceCallIssue> findIssue(long id);
 
     OpenIssueServiceCall createIssue(OpenIssue baseIssue, IssueEvent issueEvent);
 

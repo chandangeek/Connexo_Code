@@ -7,7 +7,7 @@ package com.elster.jupiter.issue.servicecall.rest.impl;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.servicecall.issue.IssueServiceCall;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 
 import javax.annotation.security.RolesAllowed;
@@ -37,7 +37,7 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getIssueById(@PathParam("id") long id) {
-        IssueServiceCall issue = serviceCallIssueService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        ServiceCallIssue issue = serviceCallIssueService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return Response.ok(serviceCallIssueInfoFactory.asInfo(issue, DeviceInfo.class)).build();
     }
 }

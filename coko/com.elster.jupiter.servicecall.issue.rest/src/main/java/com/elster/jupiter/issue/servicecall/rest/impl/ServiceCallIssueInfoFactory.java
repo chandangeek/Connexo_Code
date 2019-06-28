@@ -9,10 +9,9 @@ import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
-import com.elster.jupiter.servicecall.issue.IssueServiceCall;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 
 import org.osgi.service.component.annotations.Component;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component(name="issue.servicecall.info.factory", service = { InfoFactory.class }, immediate = true)
-public class ServiceCallIssueInfoFactory implements InfoFactory<IssueServiceCall> {
+public class ServiceCallIssueInfoFactory implements InfoFactory<ServiceCallIssue> {
 
 
     private volatile Thesaurus thesaurus;
@@ -47,23 +46,23 @@ public class ServiceCallIssueInfoFactory implements InfoFactory<IssueServiceCall
     }
 
     @Override
-    public Object from(IssueServiceCall issueServiceCall) {
+    public Object from(ServiceCallIssue issueServiceCall) {
         return asInfo(issueServiceCall, DeviceInfo.class);
     }
 
     @Override
-    public List<Object> from(List<IssueServiceCall> domainObjects) {
+    public List<Object> from(List<ServiceCallIssue> domainObjects) {
         return null;
     }
 
-    public ServiceCallIssueInfo<?> asInfo(IssueServiceCall issue, Class<? extends DeviceInfo> deviceInfoClass) {
+    public ServiceCallIssueInfo<?> asInfo(ServiceCallIssue issue, Class<? extends DeviceInfo> deviceInfoClass) {
         ServiceCallIssueInfo<?> info = new ServiceCallIssueInfo<>(issue, deviceInfoClass);
         addServiceCallIssueInfo(info, issue);
         return info;
     }
 
 
-    public List<ServiceCallIssueInfo<?>> asInfos(List<? extends IssueServiceCall> issues) {
+    public List<ServiceCallIssueInfo<?>> asInfos(List<? extends ServiceCallIssue> issues) {
         return issues.stream().map(issue -> this.asInfo(issue, DeviceShortInfo.class)).collect(Collectors.toList());
     }
 
@@ -73,12 +72,12 @@ public class ServiceCallIssueInfoFactory implements InfoFactory<IssueServiceCall
     }
 
     @Override
-    public Class<IssueServiceCall> getDomainClass() {
-        return IssueServiceCall.class;
+    public Class<ServiceCallIssue> getDomainClass() {
+        return ServiceCallIssue.class;
     }
 
 
-    private void addServiceCallIssueInfo(ServiceCallIssueInfo<?> info, IssueServiceCall issue) throws LocalizedFieldValidationException {
+    private void addServiceCallIssueInfo(ServiceCallIssueInfo<?> info, ServiceCallIssue issue) throws LocalizedFieldValidationException {
 //        info.serviceCall = new IdWithNameInfo(issue.getServiceCall());
 //        info.onState = new IdWithNameInfo(issue.getNewState().ordinal(), issue.getNewState().name());
     }

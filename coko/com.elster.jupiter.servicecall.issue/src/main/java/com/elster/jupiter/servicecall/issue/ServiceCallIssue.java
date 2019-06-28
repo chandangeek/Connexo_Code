@@ -11,7 +11,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface IssueServiceCall extends Issue {
+public interface ServiceCallIssue extends Issue {
 
     ServiceCall getServiceCall();
 

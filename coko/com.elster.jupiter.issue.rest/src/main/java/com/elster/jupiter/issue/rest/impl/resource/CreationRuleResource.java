@@ -85,7 +85,6 @@ public class CreationRuleResource extends BaseResource {
             issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
                     .select(where(ISSUE_TYPE).in(new ArrayList<IssueType>() {{
                         add(getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).get());
-                        add(getIssueService().findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).get());
                     }})));
         } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
             issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
