@@ -16,7 +16,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
-
+import org.osgi.framework.BundleContext;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
@@ -30,6 +30,8 @@ public interface DeviceAlarmService {
     String DEVICE_ALARM_PREFIX = "ALM";
 
     Optional<? extends DeviceAlarm> findAlarm(long id);
+
+    Optional<BundleContext> getBundleContext();
 
     Optional<? extends  DeviceAlarm> findAndLockDeviceAlarmByIdAndVersion(long id, long version);
 
@@ -53,4 +55,5 @@ public interface DeviceAlarmService {
     Finder<OpenDeviceAlarm> findOpenDeviceAlarms(Condition condition);
 
     Thesaurus thesaurus();
+
 }
