@@ -13,7 +13,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.AbstractModule;
@@ -40,14 +40,14 @@ public class ServiceCallEventHandlerFactory implements MessageHandlerFactory {
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
 //    private volatile DeviceService deviceService;
-    private volatile IssueServiceCallService issueServiceCallService;
+    private volatile ServiceCallIssueService issueServiceCallService;
 
     //for OSGI
     public ServiceCallEventHandlerFactory() {
     }
 
     @Inject
-    public ServiceCallEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, IssueServiceCallService issueServiceCallService) {
+    public ServiceCallEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, ServiceCallIssueService issueServiceCallService) {
         setJsonService(jsonService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -66,8 +66,7 @@ public class ServiceCallEventHandlerFactory implements MessageHandlerFactory {
                 bind(IssueService.class).toInstance(issueService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MeteringService.class).toInstance(meteringService);
-//                bind(DeviceService.class).toInstance(deviceService);
-                bind(IssueServiceCallService.class).toInstance(issueServiceCallService);
+                bind(ServiceCallIssueService.class).toInstance(issueServiceCallService);
             }
         });
         return new ServiceCallEventHandler(injector);
@@ -86,7 +85,7 @@ public class ServiceCallEventHandlerFactory implements MessageHandlerFactory {
     
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(ServiceCallIssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
     
     @Reference
@@ -100,7 +99,7 @@ public class ServiceCallEventHandlerFactory implements MessageHandlerFactory {
 //    }
     
     @Reference
-    public void setIssueServiceCallService(IssueServiceCallService issueServiceCallService) {
+    public void setIssueServiceCallService(ServiceCallIssueService issueServiceCallService) {
         this.issueServiceCallService = issueServiceCallService;
     }
 }

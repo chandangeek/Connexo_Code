@@ -10,11 +10,15 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.servicecall.issue.ModuleConstants;
 import com.elster.jupiter.servicecall.issue.impl.action.FailedAction;
 import com.elster.jupiter.servicecall.issue.impl.action.PartialSucceedAction;
@@ -25,6 +29,7 @@ import com.elster.jupiter.upgrade.FullInstaller;
 
 import com.google.inject.Inject;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
 class Installer implements FullInstaller {
@@ -34,6 +39,8 @@ class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
+
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     @Inject
     Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, EventService eventService, MessageService messageService) {
@@ -47,6 +54,8 @@ class Installer implements FullInstaller {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        createMessageHandler(defaultQueueTableSpec, ServiceCallIssueServiceImpl.ISSUE_SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.ISSUE_SERVICE_CALL_SUBSCRIBER, logger);
         doTry(
                 "Create issue view operation",
                 () -> new CreateIssueViewOperation(dataModel).execute(),
@@ -74,7 +83,7 @@ class Installer implements FullInstaller {
     }
 
     private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(IssueServiceCallService.ISSUE_TYPE_NAME, TranslationKeys.SERVICE_CALL_ISSUE_TYPE, IssueServiceCallService.SERVICE_CALL_ISSUE_PREFIX);
+        return issueService.createIssueType(ServiceCallIssueService.ISSUE_TYPE_NAME, TranslationKeys.SERVICE_CALL_ISSUE_TYPE, ServiceCallIssueService.SERVICE_CALL_ISSUE_PREFIX);
     }
 
     private void createIssueTypeAndReasons(IssueType issueType) {
@@ -95,4 +104,42 @@ class Installer implements FullInstaller {
                 logger
         );
     }
+
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName, Logger logger) {
+        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec queue = doTry(
+                    "Create Queue : " + ServiceCallIssueServiceImpl.ISSUE_SERVICE_CALLS_DESTINATION_NAME,
+                    () -> {
+                        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+                        destinationSpec.activate();
+                        return destinationSpec;
+                    },
+                    logger
+            );
+            doTry(
+                    "Create subsriber " + ServiceCallIssueServiceImpl.ISSUE_SERVICE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallIssueServiceImpl.ISSUE_SERVICE_CALLS_DESTINATION_NAME,
+                    () -> queue.subscribe(TranslationKeys.ISSUE_SERVICE_CALL_SUBSCRIBER, ServiceCallIssueService.COMPONENT_NAME, Layer.DOMAIN),
+                    logger
+            );
+        } else {
+            DestinationSpec queue = destinationSpecOptional.get();
+            boolean notSubscribedYet = queue
+                    .getSubscribers()
+                    .stream()
+                    .noneMatch(spec -> spec.getName().equals(subscriberName.getKey()));
+            if (notSubscribedYet) {
+                doTry(
+                        "Create subsriber " + ServiceCallIssueServiceImpl.ISSUE_SERVICE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallIssueServiceImpl.ISSUE_SERVICE_CALLS_DESTINATION_NAME,
+                        () -> {
+                            queue.activate();
+                            queue.subscribe(subscriberName, ServiceCallIssueService.COMPONENT_NAME, Layer.DOMAIN);
+                        },
+                        logger
+                );
+            }
+        }
+
+    }
+
 }

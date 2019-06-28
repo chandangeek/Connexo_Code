@@ -4,15 +4,14 @@
 
 package com.elster.jupiter.servicecall.issue.impl;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -20,8 +19,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -30,17 +27,18 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.issue.HistoricalIssueServiceCall;
 import com.elster.jupiter.servicecall.issue.IssueServiceCall;
-import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
 import com.elster.jupiter.servicecall.issue.MessageSeeds;
 import com.elster.jupiter.servicecall.issue.OpenIssueServiceCall;
-import com.elster.jupiter.servicecall.issue.ServiceCallIssueFilter;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.servicecall.issue.impl.entity.OpenIssueServiceCallImpl;
+import com.elster.jupiter.servicecall.issue.impl.event.ServiceCallStateChangedEvent;
 import com.elster.jupiter.servicecall.issue.impl.i18n.TranslationKeys;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -55,11 +53,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 @Component(name = "com.elster.jupiter.servicecall.issue.impl.IssueServiceCallServiceImpl",
-           service = { TranslationKeyProvider.class, MessageSeedProvider.class, IssueServiceCallService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
-           property = "name=" + IssueServiceCallService.COMPONENT_NAME,
+           service = { TranslationKeyProvider.class, MessageSeedProvider.class, ServiceCallIssueService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
+           property = "name=" + ServiceCallIssueService.COMPONENT_NAME,
            immediate = true)
-public class IssueServiceCallServiceImpl implements IssueServiceCallService, TranslationKeyProvider, MessageSeedProvider, IssueProvider, IssueGroupTranslationProvider, IssueReasonTranslationProvider {
+public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, TranslationKeyProvider, MessageSeedProvider, IssueProvider, IssueGroupTranslationProvider, IssueReasonTranslationProvider {
 
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
@@ -67,25 +67,27 @@ public class IssueServiceCallServiceImpl implements IssueServiceCallService, Tra
     private volatile EventService eventService;
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
-    /* for dependency - startup/installation order */
-    private volatile MeteringService meteringService;
-//    private volatile EstimationService estimationService;
+    private volatile QueryService queryService;
 
     private volatile DataModel dataModel;
 
+    static final String ISSUE_SERVICE_CALLS_DESTINATION_NAME = "IssueSerivceCalls";
+    public static final String ISSUE_SERVICE_CALLS_SUBSCRIBER_NAME = "IssueSerivceCalls";
+
+
     //for OSGI
-    public IssueServiceCallServiceImpl() {
+    public ServiceCallIssueServiceImpl() {
     }
 
     @Inject
-    public IssueServiceCallServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService) {
-        this();
+    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService, QueryService queryService) {
         setOrmService(ormService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setEventService(eventService);
         setMessageService(messageService);
         setUpgradeService(upgradeService);
+        setQueryService(queryService);
         activate();
     }
 
@@ -98,7 +100,7 @@ public class IssueServiceCallServiceImpl implements IssueServiceCallService, Tra
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
                 bind(IssueActionService.class).toInstance(issueActionService);
-                bind(IssueServiceCallService.class).toInstance(IssueServiceCallServiceImpl.this);
+                bind(ServiceCallIssueService.class).toInstance(ServiceCallIssueServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
             }
@@ -112,24 +114,33 @@ public class IssueServiceCallServiceImpl implements IssueServiceCallService, Tra
     }
 
     @Override
-    public Optional<? extends IssueServiceCall> findIssue(long id) {
-
-//        Optional<OpenIssueServiceCall> issue = findOpenIssue(id);
-//        if (issue.isPresent()) {
-//            return issue;
-//        }
-//        return findHistoricalIssue(id);
-        return null;
+    public void createIssue(ServiceCall serviceCall, DefaultState newState) {
+        for (CreationRule rule : issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class).select(where("active").isEqualTo(true).and(where("reason.issueType.prefix").isEqualToIgnoreCase(SERVICE_CALL_ISSUE_PREFIX)))) {
+            issueService.getIssueCreationService().processIssueCreationEvent(rule.getId(), new ServiceCallStateChangedEvent(serviceCall, newState));
+        }
     }
 
     @Override
-    public Optional<? extends IssueServiceCall> findAndLockIssueDataValidationByIdAndVersion(long id, long version) {
-        Optional<? extends Issue> issue = issueService.findAndLockIssueByIdAndVersion(id, version);
-//        if (issue.isPresent()) {
-//            return findOpenIssue(id);
-//        }
-//        return findHistoricalIssue(id);
-        return null;
+    public Optional<? extends IssueServiceCall> findIssue(long id) {
+        Optional<OpenIssueServiceCall> issue = findOpenIssue(id);
+        if (issue.isPresent()) {
+            return issue;
+        }
+        return findHistoricalIssue(id);
+    }
+
+    @Override
+    public Optional<OpenIssueServiceCall> findOpenIssue(long id) {
+        return find(OpenIssueServiceCall.class, id, OpenIssue.class);
+    }
+
+    @Override
+    public Optional<HistoricalIssueServiceCall> findHistoricalIssue(long id) {
+        return find(HistoricalIssueServiceCall.class, id, HistoricalIssue.class);
+    }
+
+    private <T extends Entity> Optional<T> find(Class<T> clazz, Object key, Class<?>... eagers) {
+        return queryService.wrap(dataModel.query(clazz, eagers)).get(key);
     }
 
     @Override
@@ -174,6 +185,11 @@ public class IssueServiceCallServiceImpl implements IssueServiceCallService, Tra
     }
 
     @Reference
+    public final void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
+    @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
@@ -195,76 +211,18 @@ public class IssueServiceCallServiceImpl implements IssueServiceCallService, Tra
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
-
-//    @Reference
-//    public void setEstimationService(EstimationService estimationService) {
-//        this.estimationService = estimationService;
-//    }
-
-    @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
 
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
-//        return issue instanceof OpenIssueDataValidation ? Optional.of(issue) : findOpenIssue(issue.getId());
-        return null;
+        return issue instanceof OpenIssueServiceCall ? Optional.of(issue) : findOpenIssue(issue.getId());
     }
 
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
-       // return issue instanceof HistoricalIssueDataValidation ? Optional.of(issue) : findHistoricalIssue(issue.getId());
-        return null;
-    }
-
-    @Override
-    public Finder<? extends IssueServiceCall> findAllDataValidationIssues(ServiceCallIssueFilter filter) {
-        Condition condition = buildConditionFromFilter(filter);
-
-        Class<? extends IssueServiceCall> mainClass;
-        Class<? extends Issue> issueEager;
-        List<IssueStatus> statuses = filter.getStatuses();
-//        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
-//            mainClass = OpenIssueDataValidation.class;
-//            issueEager = OpenIssue.class;
-//        } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
-//            mainClass = HistoricalIssueDataValidation.class;
-//            issueEager = HistoricalIssue.class;
-//        } else {
-            mainClass = IssueServiceCall.class;
-            issueEager = Issue.class;
-//        }
-        return DefaultFinder.of(mainClass, condition, dataModel, issueEager, IssueStatus.class, EndDevice.class, User.class,  IssueReason.class, IssueType.class);
-    }
-
-    private Condition buildConditionFromFilter(ServiceCallIssueFilter filter) {
-        Condition condition = Condition.TRUE;
-        //filter by assignee
-        Condition assigneeCondition = Condition.TRUE;
-//        if (filter.getAssignee().isPresent()) {
-//            assigneeCondition = where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isEqualTo(filter.getAssignee().get());
-//        }
-//        if (filter.isUnassignedOnly()) {
-//            assigneeCondition = where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".user").isNull();
-//        }
-//        condition = condition.and(assigneeCondition);
-//        //filter by reason
-//        if (filter.getIssueReason().isPresent()) {
-//            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".reason").isEqualTo(filter.getIssueReason().get()));
-//        }
-//        //filter by device
-//        if (filter.getDevice().isPresent()) {
-//            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".device").isEqualTo(filter.getDevice().get()));
-//        }
-//        //filter by statuses
-//        if (!filter.getStatuses().isEmpty()) {
-//            condition = condition.and(where(IssueDataValidationImpl.Fields.BASEISSUE.fieldName() + ".status").in(filter.getStatuses()));
-//        }
-        return condition;
+        return issue instanceof HistoricalIssueServiceCall ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
 
     public Thesaurus thesaurus() {

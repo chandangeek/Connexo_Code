@@ -12,7 +12,7 @@
     </parent>
     <artifactId>servicecall.issue</artifactId>
     <packaging>bundle</packaging>
-    <name>servicecall.issue [init ISC]</name>
+    <name>[Jupiter] servicecall.issue</name>
     <description>
         Contains servicecall issue templates
     </description>

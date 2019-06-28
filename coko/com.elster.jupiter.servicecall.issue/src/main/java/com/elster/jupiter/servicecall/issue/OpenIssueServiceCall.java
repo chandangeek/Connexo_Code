@@ -14,7 +14,4 @@ public interface OpenIssueServiceCall extends OpenIssue, IssueServiceCall {
     
     HistoricalIssueServiceCall close(IssueStatus status);
 
-//    void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp);
-//
-//    void removeNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp);
 }

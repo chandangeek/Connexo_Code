@@ -10,7 +10,7 @@ import java.util.Map;
 
 public enum ServiceCallEventDescription {
 
-    CANNOT_ESTIMATE_DATA("com/elster/jupiter/estimation/estimationblock/FAILURE", ServiceCallEvent.class),
+    CANNOT_ESTIMATE_DATA("com/elster/jupiter/estimation/estimationblock/FAILURE", ServiceCallStateChangedEvent.class),
 //    READINGQUALITY_DELETED("com/elster/jupiter/metering/readingquality/DELETED", SuspectDeletedEvent.class) {
 //        @Override
 //        public boolean matches(Map<?, ?> map) {
@@ -23,9 +23,9 @@ public enum ServiceCallEventDescription {
     ;
 
     private String topic;
-    private Class<? extends ServiceCallEvent> eventClass;
+    private Class<? extends ServiceCallStateChangedEvent> eventClass;
 
-    private ServiceCallEventDescription(String topic, Class<? extends ServiceCallEvent> eventClass) {
+    private ServiceCallEventDescription(String topic, Class<? extends ServiceCallStateChangedEvent> eventClass) {
         this.topic = topic;
         this.eventClass = eventClass;
     }
@@ -34,7 +34,7 @@ public enum ServiceCallEventDescription {
         return topic;
     }
 
-    public Class<? extends ServiceCallEvent> getEventClass() {
+    public Class<? extends ServiceCallStateChangedEvent> getEventClass() {
         return eventClass;
     }
 

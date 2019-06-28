@@ -5,14 +5,19 @@
 package com.elster.jupiter.servicecall.issue;
 
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 
 import aQute.bnd.annotation.ProviderType;
-
-import java.util.List;
 
 @ProviderType
 public interface IssueServiceCall extends Issue {
 
-    List<NotEstimatedBlock> getNotEstimatedBlocks();
-    
+    ServiceCall getServiceCall();
+
+    DefaultState getNewState();
+
+    void setServiceCall(ServiceCall serviceCall);
+
+    void setNewState(DefaultState newState);
 }

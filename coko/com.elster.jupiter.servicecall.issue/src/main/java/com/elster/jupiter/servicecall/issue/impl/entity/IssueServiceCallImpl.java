@@ -17,15 +17,14 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.issue.IssueServiceCall;
-import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
-import com.elster.jupiter.servicecall.issue.NotEstimatedBlock;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -55,16 +54,38 @@ public class IssueServiceCallImpl implements IssueServiceCall {
     private String userName;
 
     private final DataModel dataModel;
-    private final IssueServiceCallService issueServiceCallService;
+    private final ServiceCallIssueService issueServiceCallService;
+    private ServiceCall serviceCall;
+    private DefaultState newState;
 
     @Inject
-    public IssueServiceCallImpl(DataModel dataModel, IssueServiceCallService issueServiceCallService) {
+    public IssueServiceCallImpl(DataModel dataModel, ServiceCallIssueService issueServiceCallService) {
         this.dataModel = dataModel;
         this.issueServiceCallService = issueServiceCallService;
     }
 
     Issue getBaseIssue() {
         return baseIssue.orNull();
+    }
+
+    @Override
+    public ServiceCall getServiceCall() {
+        return serviceCall;
+    }
+
+    @Override
+    public DefaultState getNewState() {
+        return newState;
+    }
+
+    @Override
+    public void setServiceCall(ServiceCall serviceCall) {
+        this.serviceCall = serviceCall;
+    }
+
+    @Override
+    public void setNewState(DefaultState newState) {
+        this.newState = newState;
     }
 
     @Override
@@ -223,12 +244,6 @@ public class IssueServiceCallImpl implements IssueServiceCall {
 
     public void delete() {
         dataModel.remove(this);
-    }
-
-    @Override
-    public List<NotEstimatedBlock> getNotEstimatedBlocks() {
-        Optional<? extends IssueServiceCall> issue = issueServiceCallService.findIssue(getId());
-        return issue.map(IssueServiceCall::getNotEstimatedBlocks).orElse(Collections.emptyList());
     }
 
     protected DataModel getDataModel() {

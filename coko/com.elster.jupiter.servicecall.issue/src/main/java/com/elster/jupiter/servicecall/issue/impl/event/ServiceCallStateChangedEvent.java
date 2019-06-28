@@ -6,11 +6,11 @@ package com.elster.jupiter.servicecall.issue.impl.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.servicecall.issue.IssueServiceCall;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssueFilter;
 
 import com.google.inject.Inject;
@@ -18,23 +18,20 @@ import com.google.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class ServiceCallEvent implements IssueEvent {
+public class ServiceCallStateChangedEvent implements IssueEvent {
 
-    protected Long channelId;
-    protected String readingType;
-    private final Thesaurus thesaurus;
-
-    private final IssueServiceCallService issueServiceCallService;
-    private final IssueService issueService;
+    private final ServiceCall serviceCall;
+    private final DefaultState newState;
 
     @Inject
-    public ServiceCallEvent(Thesaurus thesaurus, IssueServiceCallService issueServiceCallService, IssueService issueService) {
-        this.thesaurus = thesaurus;
-        this.issueServiceCallService = issueServiceCallService;
-        this.issueService = issueService;
+    public ServiceCallStateChangedEvent(ServiceCall serviceCall, DefaultState newState) {
+        this.serviceCall = serviceCall;
+        this.newState = newState;
     }
 
-    abstract void init(Map<?, ?> jsonPayload);
+    public void init(Map<?, ?> map){
+        map.entrySet();
+    }
 
     @Override
     public String getEventType() {
@@ -48,23 +45,31 @@ public abstract class ServiceCallEvent implements IssueEvent {
 
     @Override
     public void apply(Issue issue) {
+        if (issue instanceof IssueServiceCall) {
+            IssueServiceCall issueServiceCall = (IssueServiceCall) issue;
+            issueServiceCall.setNewState(newState);
+            issueServiceCall.setServiceCall(serviceCall);
+        }
+    }
 
+    public ServiceCall getServiceCall() {
+        return serviceCall;
+    }
+
+    public DefaultState getNewState() {
+        return newState;
     }
 
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
         ServiceCallIssueFilter filter = new ServiceCallIssueFilter();
 //        getEndDevice().ifPresent(filter::setDevice);
-        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
+//        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
+//        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
        // Optional<? extends IssueServiceCall> foundIssue = IssueServiceCallService.findAllDataValidationIssues(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
 //        if (foundIssue.isPresent()) {
 //            return Optional.of((OpenIssue)foundIssue.get());
 //        }
         return Optional.empty();
-    }
-
-    protected Thesaurus getThesaurus() {
-        return thesaurus;
     }
 }

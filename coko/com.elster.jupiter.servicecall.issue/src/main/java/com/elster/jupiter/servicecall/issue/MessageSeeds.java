@@ -48,7 +48,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return IssueServiceCallService.COMPONENT_NAME;
+        return ServiceCallIssueService.COMPONENT_NAME;
     }
 
 }
