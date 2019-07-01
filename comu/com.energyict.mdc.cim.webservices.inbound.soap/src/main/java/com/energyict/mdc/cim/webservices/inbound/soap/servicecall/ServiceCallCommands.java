@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -56,7 +55,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -131,20 +129,16 @@ public class ServiceCallCommands {
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
-    private final MessageService messageService;
     private final Clock clock;
     private final BundleContext bundleContext;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final MasterDataService masterDataService;
 
     @Inject
     public ServiceCallCommands(DeviceService deviceService, JsonService jsonService,
                                MeterConfigParser meterConfigParser, MeterConfigFaultMessageFactory meterConfigFaultMessageFactory,
                                ServiceCallService serviceCallService, EndDeviceEventsBuilder endDeviceEventsBuilder,
-                               Thesaurus thesaurus, MeterReadingFaultMessageFactory faultMessageFactory,
-                               MessageService messageService, Clock clock, BundleContext bundleContext,
-                               DeviceMessageSpecificationService deviceMessageSpecificationService,
-                               MasterDataService masterDataService) {
+                               Thesaurus thesaurus, MeterReadingFaultMessageFactory faultMessageFactory, Clock clock,
+                               BundleContext bundleContext, MasterDataService masterDataService) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
@@ -153,10 +147,8 @@ public class ServiceCallCommands {
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
         this.faultMessageFactory = faultMessageFactory;
-        this.messageService = messageService;
         this.clock = clock;
         this.bundleContext = bundleContext;
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.masterDataService = masterDataService;
 
     }
@@ -300,18 +292,14 @@ public class ServiceCallCommands {
         ServiceCall parentServiceCall = serviceCallBuilder.create();
         parentServiceCall.requestTransition(DefaultState.PENDING);
         parentServiceCall.requestTransition(DefaultState.ONGOING);
-//        if (ReadingSourceEnum.SYSTEM.getSource().equals(source)) {
-//            initiateReading(parentServiceCall);
-//            return parentServiceCall;
-//        }
+        if (ReadingSourceEnum.SYSTEM.getSource().equals(source)) {
+            createSubParentServiceCallsAndTransitToSuccessfull(existedMeters, parentServiceCall);
+            initiateReading(parentServiceCall);
+            return parentServiceCall;
+        }
         boolean meterReadingRunning = false;
         for (com.elster.jupiter.metering.Meter meter: existedMeters) {
             Device device = findDeviceForEndDevice(meter);
-            if (!checkConnectionMethodExists(device, connectionMethod)) {
-                /// TODO throw exception like WrongCommunicationMethod (see confluence)
-                parentServiceCall.requestTransition(DefaultState.FAILED);
-                return parentServiceCall; // or even better return null
-            }
             ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
 
             List<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, existedLoadProfiles);
@@ -392,7 +380,6 @@ public class ServiceCallCommands {
 
                 //***
 
-//                    scheduleOrRunNowReading(subParentServiceCall, device, existedReadingTypes, clock.instant(), scheduleStrategy);
                 subParentServiceCall.requestTransition(DefaultState.WAITING);
                 meterReadingRunning = true;
             }
@@ -403,6 +390,14 @@ public class ServiceCallCommands {
         }
         parentServiceCall.requestTransition(DefaultState.WAITING);
         return parentServiceCall;
+    }
+
+    private void createSubParentServiceCallsAndTransitToSuccessfull(List<com.elster.jupiter.metering.Meter> existedMeters, ServiceCall parentServiceCall) {
+        existedMeters.forEach(meter -> {
+            ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
+            subParentServiceCall.requestTransition(DefaultState.PENDING);
+            subParentServiceCall.requestTransition(DefaultState.ONGOING);
+        });
     }
 
     // channels without concrete start or end date / registers with start and end dates
@@ -555,22 +550,11 @@ public class ServiceCallCommands {
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
-    private boolean checkConnectionMethodExists(Device device, String connectionMethod) throws
-            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        for (ComTaskExecution cte : device.getComTaskExecutions()) {
-            if (checkCommectionMethodForComTaskExecution(cte, connectionMethod)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private boolean checkCommectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws
             ch.iec.tc57._2011.getmeterreadings.FaultMessage {
         return comTaskExecution.getConnectionTask()
-                /// TODO add proper exception translation
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES))
-                .getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod);
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_CONNECTION_TASK,
+                        comTaskExecution.getComTask().getName())).getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod);
     }
 
     private void initiateReading(ServiceCall serviceCall) {
@@ -599,8 +583,6 @@ public class ServiceCallCommands {
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId)
 //                .setTrackingId(Long.toString(serviceCall.getId()))
                 .setReleaseDate(releaseDate);
-
-//        DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).get();
 
         // for DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST
         // LOAD_PROFILE_PARTIAL_REQUEST(13001)

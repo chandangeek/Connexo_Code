@@ -230,7 +230,6 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.CALLBACK_URL.databaseName())
                     .varChar()
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.CALLBACK_URL.javaName())
-                    .notNull()
                     .add();
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.CORRELATION_ID.databaseName())
                     .varChar()
@@ -249,7 +248,6 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.READING_TYPES.databaseName())
                     .varChar()
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.READING_TYPES.javaName())
-                    .notNull()
                     .add();
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.LOAD_PROFILES.databaseName())
                     .varChar()
@@ -262,12 +260,10 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRAGEGY.databaseName())
                     .varChar()
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRAGEGY.javaName())
-                    .notNull()
                     .add();
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.databaseName())
                     .varChar()
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.javaName())
-                    .notNull()
                     .add();
         }
 

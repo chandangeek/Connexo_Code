@@ -202,24 +202,17 @@ public class MeterReadingsBuilder {
                         .map(registerType -> registerType.getReadingType().getMRID())
                         .collect(Collectors.toSet()));
             }
-                endDevices.stream()
-                        .filter(ed -> ed instanceof Meter)
-                        .forEach(ed -> {
-                                Meter meter = (Meter) ed;
-                                meter.getChannelsContainers().stream()
-                                .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
-                                .map(this::fetchReadingsFromContainer)
-                                .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
-                                        .ifPresent(meterReadingsList::add));
-                });
+            endDevices.stream()
+                    .filter(ed -> ed instanceof Meter)
+                    .forEach(ed -> {
+                            Meter meter = (Meter) ed;
+                            meter.getChannelsContainers().stream()
+                            .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
+                            .map(this::fetchReadingsFromContainer)
+                            .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
+                                    .ifPresent(meterReadingsList::add));
+            });
         }
-
-        loadProfiles.stream()
-                .map(MeterReadingsBuilder::createLoadProfile)
-                .forEach(loadProfileList::add);
-        registerGroups.stream()
-                .map(MeterReadingsBuilder::createRegisterGroup)
-                .forEach(registerGroupList::add);
         // filled in in scope of wrapInMeterReading
         referencedReadingTypes.stream()
                 .map(MeterReadingsBuilder::createReadingType)
@@ -228,6 +221,16 @@ public class MeterReadingsBuilder {
         referencedReadingQualityTypes.stream()
                 .map(MeterReadingsBuilder::createReadingQualityType)
                 .forEach(readingQualityTypeList::add);
+
+        Set<String>referencedReadingTypesMrids = referencedReadingTypes.stream()
+                .map(readingType -> readingType.getMRID())
+                .collect(Collectors.toSet());
+        loadProfiles.stream()
+                .map(loadProfile ->  createLoadProfile(loadProfile, referencedReadingTypesMrids))
+                .forEach(loadProfileList::add);
+        registerGroups.stream()
+                .map(registerGroup -> createRegisterGroup(registerGroup, referencedReadingTypesMrids))
+                .forEach(registerGroupList::add);
 
         return meterReadings;
     }
@@ -536,14 +539,14 @@ public class MeterReadingsBuilder {
         return info;
     }
 
-    private static ch.iec.tc57._2011.meterreadings.LoadProfile createLoadProfile(LoadProfile loadProfile) {
+    private static ch.iec.tc57._2011.meterreadings.LoadProfile createLoadProfile(LoadProfile loadProfile, Set<String>referencedReadingTypesMrids) {
         ch.iec.tc57._2011.meterreadings.LoadProfile info = new ch.iec.tc57._2011.meterreadings.LoadProfile();
         info.setName(loadProfile.getLoadProfileSpec().getLoadProfileType().getName());
         List<ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType> readingTypes = info.getReadingType();
 
         loadProfile.getChannels().stream()
                 .map(channel -> channel.getReadingType().getMRID())
-                /// TODO may be filter that readingType present in reply?
+                .filter(mrid -> referencedReadingTypesMrids.contains(mrid))
                 .forEach(mrid -> {
                         ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType readingType =
                                 new ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType();
@@ -553,14 +556,14 @@ public class MeterReadingsBuilder {
         return info;
     }
 
-    private static ch.iec.tc57._2011.meterreadings.RegisterGroup createRegisterGroup(RegisterGroup registerGroup) {
+    private static ch.iec.tc57._2011.meterreadings.RegisterGroup createRegisterGroup(RegisterGroup registerGroup, Set<String>referencedReadingTypesMrids) {
         ch.iec.tc57._2011.meterreadings.RegisterGroup info = new ch.iec.tc57._2011.meterreadings.RegisterGroup();
         info.setName(registerGroup.getName());
         List<ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType> readingTypes = info.getReadingType();
 
         registerGroup.getRegisterTypes().stream()
                 .map(channel -> channel.getReadingType().getMRID())
-                /// TODO may be filter that readingType present in reply?
+                .filter(mrid -> referencedReadingTypesMrids.contains(mrid))
                 .forEach(mrid -> {
                     ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType readingType =
                             new ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType();

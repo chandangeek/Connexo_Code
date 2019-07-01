@@ -73,18 +73,24 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
     private void onComTaskFailed(ComTaskExecution comTaskExecution) {
         if (forLoadProfileOrRegisterReading(comTaskExecution)) {
             findServiceCallsLinkedTo(comTaskExecution.getDevice(), ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
-                    .forEach(serviceCall -> serviceCall.requestTransition(DefaultState.FAILED));
+                    .forEach(serviceCall -> handleForFailure(serviceCall) );
         } else if (forLoadProfilesDeviceMessage(comTaskExecution)) {
             findServiceCallsLinkedTo(comTaskExecution.getDevice(), DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
-                    .forEach(serviceCall -> serviceCall.requestTransition(DefaultState.FAILED));
+                    .forEach(serviceCall -> handleForFailure(serviceCall));
         }
         // skipp all other comTaskExecutions
+    }
+
+    private void handleForFailure(ServiceCall serviceCall) {
+        serviceCall.log(LogLevel.SEVERE, "Communication task execution is failed");
+        serviceCall.requestTransition(DefaultState.ONGOING);
+        serviceCall.requestTransition(DefaultState.FAILED);
     }
 
     private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
         if (forLoadProfileOrRegisterReading(comTaskExecution)) {
             findServiceCallsLinkedTo(comTaskExecution.getDevice(), ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
-                    .forEach(serviceCall -> handleForReadingReading(serviceCall));
+                    .forEach(serviceCall -> handleForReading(serviceCall));
         } else if (forLoadProfilesDeviceMessage(comTaskExecution)) {
             findServiceCallsLinkedTo(comTaskExecution.getDevice(), DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
                     .forEach(serviceCall -> handleForDeviceMessages(serviceCall, comTaskExecution.getDevice()));
@@ -92,12 +98,13 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         // skipp all other comTaskExecutions
     }
 
-    private void handleForReadingReading(ServiceCall serviceCall) {
+    private void handleForReading(ServiceCall serviceCall) {
         ChildGetMeterReadingsDomainExtension domainExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
         Instant triggerDate = domainExtension.getTriggerDate();
         if (clock.instant().isAfter(triggerDate)) {
+            serviceCall.log(LogLevel.INFO, "Communication task execution is completed");
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         }
@@ -115,7 +122,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                     .findAny()
                     .isPresent()) {
                 serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.SEVERE, "Device message is confirmed");
+                serviceCall.log(LogLevel.INFO, "Device message is confirmed");
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 /// TODO check all cases != Confirmed ?
@@ -173,8 +180,6 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         }
     }
 
-    // ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME
-    // DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME
     private List<ServiceCall> findServiceCallsLinkedTo(Device device, String handlerName) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.targetObject = device;

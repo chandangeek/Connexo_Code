@@ -102,6 +102,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_USAGE_POINT_WITH_MRID(7013, "NoUsagePointWithMRID", "No usage point is found by MRID ''{0}''."),
     NO_USAGE_POINT_WITH_NAME(7014, "NoUsagePointWithName", "No usage point is found by name ''{0}''."),
     WRONG_TIME_PERIOD_COMBINATION(7015, "WrongTimePeriodCombination", "Can''t construct a valid time period: provided start ''{0}'' and the end ''{1}''."),
+    DIFFERENT_DATA_SOURCES(7016, "DifferentDataSources", "The request contains data sources of different types."),
+    SCHEDULE_STRATEGY_NOT_FOUND(7017, "ScheduleStrategyNotFound", "Schedule strategy ''{0}'' is not found in the system."),
+    NO_CONNECTION_TASK(7018, "NoConnectionTask", "No connection task have been found for communication task execution of communocation task ''{0}''."),
+    CONNECTION_METHOD_NOT_FOUND(7019, "ConnectionMethodNotFound", "Couldn''t find connection method with name ''{0}''."),
+    DATA_SOURCE_NOT_FOUND(7020, "DataSourceNotFound", "Data source ''{0}'' is not found in the system."),
+    DATA_SOURCE_NAME_TYPE_NOT_FOUND(7021, "DataSourceNotFound", "Data source name type ''{0}'' is not found. Possible values: Load Profile or Register Group."),
 
     NO_HEAD_END_INTERFACE_FOUND(8004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     ;

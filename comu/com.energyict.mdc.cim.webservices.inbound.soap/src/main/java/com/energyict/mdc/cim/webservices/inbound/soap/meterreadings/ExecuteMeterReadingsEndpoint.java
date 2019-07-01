@@ -9,7 +9,9 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -79,6 +81,11 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     private static final String USAGE_POINT_NAME_ITEMS = USAGE_POINT_ITEM
             + ".Names[?(@.NameType.name=='" + UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType() + "')]";
     private static final String USAGE_POINT_NAME = USAGE_POINT_NAME_ITEMS + ".name";
+    private static final String DATA_SOURCE = READING_LIST_ITEM + ".dataSource";
+    private static final String DATA_SOURCE_NAME = DATA_SOURCE + ".name";
+    private static final String DATA_SOURCE_NAME_TYPE = DATA_SOURCE + ".NameType";
+    private static final String DATA_SOURCE_NAME_TYPE_NAME = DATA_SOURCE_NAME_TYPE + ".name";
+
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory getMeterReadingsMessageObjectFactory = new ObjectFactory();
@@ -132,7 +139,8 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                     .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_METER_READINGS_ITEM));
             boolean async = false;
             if (getMeterReadingsRequestMessage.getHeader() != null) {
-                async = getMeterReadingsRequestMessage.getHeader().isAsyncReplyFlag();
+                async = Optional.ofNullable(getMeterReadingsRequestMessage.getHeader().isAsyncReplyFlag())
+                        .orElse(false);
             }
             checkGetMeterReading(getMeterReadings, async);
 
@@ -155,8 +163,8 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                 Set<String> notFoundRTMRIDs = new HashSet<>();
                 Set<String> notFoundRTNames = new HashSet<>();
                 List<com.elster.jupiter.metering.ReadingType> existedReadingTypes =
-                        setReadingTypesInfo(builder, getMeterReadings.getReadingType(), notFoundRTMRIDs, notFoundRTNames);
-                if (existedReadingTypes == null || existedReadingTypes.isEmpty()) {
+                        setReadingTypesInfo(builder, getMeterReadings.getReadingType(), notFoundRTMRIDs, notFoundRTNames, async);
+                if (!async && (existedReadingTypes == null || existedReadingTypes.isEmpty())) {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES).get();
                 }
                 Set<ErrorType> errorTypes = getErrorTypes(notFoundDeviceMRIDs, notFoundDeviceNames, existedEndDevices,
@@ -175,7 +183,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                     .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
 
             setUsagePointInfo(builder, usagePoint);
-            setReadingTypesInfo(builder, getMeterReadings.getReadingType(), new HashSet<>(), new HashSet<>());
+            setReadingTypesInfo(builder, getMeterReadings.getReadingType(), new HashSet<>(), new HashSet<>(), async);
             MeterReadings meterReadings = builder
                     .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameTypeEnum.PURPOSE))
                     .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
@@ -212,39 +220,48 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         Set<String> notFoundRTMRIDs = new HashSet<>();
         Set<String> notFoundRTNames = new HashSet<>();
         List<com.elster.jupiter.metering.ReadingType> existedReadingTypes =
-                setReadingTypesInfo(null, readingTypes, notFoundRTMRIDs, notFoundRTNames);
-        if (existedReadingTypes == null || existedReadingTypes.isEmpty()) {
-            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES).get();
-        }
+                setReadingTypesInfo(null, readingTypes, notFoundRTMRIDs, notFoundRTNames, true);
 
         Set<String> notFoundDevicesMRIDs = new HashSet<>();
         Set<String> notFoundDevicesNames = new HashSet<>();
         List<com.elster.jupiter.metering.Meter> existedMeters = getExistedMeters(endDevices, notFoundDevicesMRIDs,
                                                                                              notFoundDevicesNames);
+        Set<Device> devices = getDevices(existedMeters);
 
         Set<ErrorType> errorTypes = getErrorTypes(notFoundDevicesMRIDs, notFoundDevicesNames, existedMeters,
                                                   notFoundRTMRIDs, notFoundRTNames, existedReadingTypes);
         publishOutboundEndPointConfiguration(replyAddress);
-        /// TODO check if only Registers or Load Profiles or Reading Types are present in request
         for (int i = 0; i < readings.size(); ++i) {
             Reading reading = readings.get(i);
             checkTimeInterval(reading, i, true);
+            /// TODO check that connection method exists on device
             String connectionMethod = reading.getConnectionMethod();
+            if (connectionMethod != null) {
+                checkIsEmpty(connectionMethod, READING_LIST_ITEM + ".connectionMethod");
+                checkConnectionMethodExists(devices, connectionMethod);
+            }
+
+            checkIfMissingOrIsEmpty(reading.getScheduleStrategy(), READING_LIST_ITEM + ".scheduleStrategy");
             ScheduleStrategyEnum scheduleStrategy = getScheduleStrategy(reading.getScheduleStrategy());
             /// TODO check that reading or loadProfile com task exists
             /// TODO check that register group name or load profile name does exist
             DataSourceTypeNameEnum dsTypeName = getDataSourceNameType(reading.getDataSource());
             List<String> existedLoadProfiles = null;
             List<String> existedRegisterGroups = null;
-            List<String> dsNames = getDataSourceNames(reading.getDataSource());
-            if (dsTypeName != null && !dsNames.isEmpty()) {
-                if (dsTypeName == DataSourceTypeNameEnum.LOAD_PROFILE) {
-                    /// TODO not found load profiles
-                    existedLoadProfiles = getExistedOnDevicesLoadProfilesNames(existedMeters, dsNames);
+            if (reading.getDataSource() != null && !reading.getDataSource().isEmpty()) {
+                List<String> dsNames = getDataSourceNames(reading.getDataSource());
+                if (dsTypeName != null && !dsNames.isEmpty()) {
+                    if (dsTypeName == DataSourceTypeNameEnum.LOAD_PROFILE) {
+                        /// TODO not found load profiles
+                        existedLoadProfiles = getExistedLoadProfilesNames(dsNames);
+                    } else {
+                        /// TODO not found register groups
+                        existedRegisterGroups = getExistedRegisterGroupsNames(dsNames);
+                    }
                 } else {
-                    /// TODO not found register groups
-                    existedRegisterGroups = getExistedRegisterGroupsNames(dsNames);
+                    throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, DATA_SOURCE_NAME).get();
                 }
+                checkDataSources(existedLoadProfiles, existedRegisterGroups, existedReadingTypes);
             }
 
 
@@ -259,6 +276,46 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return createMeterReadingsResponseMessageType(meterReadings, errorTypes, corelationId);
     }
 
+    private Set<Device> getDevices(List<com.elster.jupiter.metering.Meter> existedMeters) {
+        return existedMeters.stream()
+                .map(meter -> {
+                    Long deviceId = Long.parseLong(meter.getAmrId());
+                    return deviceService.findDeviceById(deviceId).get();
+                })
+                .collect(Collectors.toSet());
+    }
+
+    private void checkDataSources(List<String> existedLoadProfiles, List<String> existedRegisterGroups,
+                                  List<com.elster.jupiter.metering.ReadingType> existedReadingTypes) throws FaultMessage {
+        boolean hasLoadProfiles = existedLoadProfiles != null && !existedLoadProfiles.isEmpty();
+        boolean hasRegisterGroups = existedRegisterGroups != null && !existedRegisterGroups.isEmpty();
+        boolean hasReadingTypes = existedReadingTypes != null && !existedReadingTypes.isEmpty();
+        if (hasLoadProfiles && hasRegisterGroups
+                || hasLoadProfiles && hasReadingTypes
+                || hasRegisterGroups && hasReadingTypes) {
+            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.DIFFERENT_DATA_SOURCES).get();
+        }
+    }
+
+    // TODO reply for each device separetly!
+    private boolean checkConnectionMethodExists(Set<Device> devices, String connectionMethod) throws FaultMessage {
+        for (Device device : devices) {
+            List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+            for (ComTaskExecution cte : comTaskExecutions) {
+                if (checkCommectionMethodForComTaskExecution(cte, connectionMethod)) {
+                    return true;
+                }
+            }
+        }
+        throw (faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.CONNECTION_METHOD_NOT_FOUND,
+                connectionMethod)).get();
+    }
+
+    private boolean checkCommectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws FaultMessage {
+        return comTaskExecution.getConnectionTask()
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_CONNECTION_TASK,
+                        comTaskExecution.getComTask().getName())).getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod);
+    }
 
 
     /// TODO
@@ -280,6 +337,14 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     /// TODO
+    private List<String> getExistedLoadProfilesNames(List<String> existedLoadProfiles) {
+        return masterDataService.findAllLoadProfileTypes().stream()
+                .filter(rg -> existedLoadProfiles.contains(rg.getName()))
+                .map(rg -> rg.getName())
+                .collect(Collectors.toList());
+    }
+
+    /// TODO
     private List<String> getExistedRegisterGroupsNames(List<String> existedRegisterGroups) {
         return masterDataService.findAllRegisterGroups().stream()
                 .filter(rg -> existedRegisterGroups.contains(rg.getName()))
@@ -290,20 +355,18 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     // LoadProfile or RegisterGroup
     private DataSourceTypeNameEnum getDataSourceNameType(List<DataSource> dataSources) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
         DataSourceTypeNameEnum dsNameType = null;
-
         for (DataSource dataSource : dataSources) {
-            if (dataSource.getNameType() != null && !Strings.isNullOrEmpty(dataSource.getNameType().getName())) {
-                if (dsNameType != null && dsNameType != DataSourceTypeNameEnum.getByName(dataSource.getNameType().getName())) {
-                    /// TODO throw exception DifferentDataSources (see confluence)
-                    //throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, "bla-bla").get();
-                    return null;
-                } else {
-                    dsNameType = DataSourceTypeNameEnum.getByName(dataSource.getNameType().getName());
-                    if (dsNameType == null) {
-                        /// TODO throw exception can't be null
-                        //throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_HEAD_END_INTERFACE_FOUND, "bla-bla").get();
-                        return null;
-                    }
+            if (dataSource.getNameType() == null) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, DATA_SOURCE_NAME_TYPE).get();
+            } else if (Strings.isNullOrEmpty(dataSource.getNameType().getName())) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, DATA_SOURCE_NAME_TYPE_NAME).get();
+            }
+            if (dsNameType != null && dsNameType != DataSourceTypeNameEnum.getByName(dataSource.getNameType().getName())) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.DIFFERENT_DATA_SOURCES).get();
+            } else {
+                dsNameType = DataSourceTypeNameEnum.getByName(dataSource.getNameType().getName());
+                if (dsNameType == null) {
+                    throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.DATA_SOURCE_NAME_TYPE_NOT_FOUND, dataSource.getNameType().getName()).get();
                 }
             }
         }
@@ -328,8 +391,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         if (scheduleStrategy != null) {
             strategy = ScheduleStrategyEnum.getByName(scheduleStrategy);
             if (strategy == null) {
-                /// TODO throw exception: wrong schedule stategy + scheduleStrategy
-//                throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM)).get();
+                throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.SCHEDULE_STRATEGY_NOT_FOUND, scheduleStrategy)).get();
             }
         }
         return strategy;
@@ -415,7 +477,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         if (getMeterReadings.getReading().isEmpty()) {
             throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, READING_LIST_ITEM).get());
         }
-        if (getMeterReadings.getReadingType().isEmpty()) {
+        if (getMeterReadings.getReadingType().isEmpty() && !async) {
             throw(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, READING_TYPES_LIST_ITEM).get());
         }
         checkSources(getMeterReadings.getReading(), async);
@@ -524,13 +586,13 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     private List<com.elster.jupiter.metering.ReadingType> getReadingTypes(Set<String> readingTypesMRIDs,
-                                                                          Set<String> readingTypesNames)throws FaultMessage {
+                                                                          Set<String> readingTypesNames, boolean asyncFlag)throws FaultMessage {
         ReadingTypeFilter filter = new ReadingTypeFilter();
         Condition condition = filter.getCondition().and(where("mRID").in(new ArrayList<>(readingTypesMRIDs)))
                 .or(where("fullAliasName").in(new ArrayList<>(readingTypesNames)));
         filter.addCondition(condition);
         List<com.elster.jupiter.metering.ReadingType> readingTypes = meteringService.findReadingTypes(filter).find();
-        if (readingTypes == null || readingTypes.isEmpty()) {
+        if (!asyncFlag && (readingTypes == null || readingTypes.isEmpty())) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES).get();
         }
         return readingTypes;
@@ -573,7 +635,8 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     private List<com.elster.jupiter.metering.ReadingType> setReadingTypesInfo(MeterReadingsBuilder builder,
                                                                               List<ReadingType> readingTypes,
                                                                               Set<String> notFoundMRIDs,
-                                                                              Set<String> notFoundNames) throws FaultMessage {
+                                                                              Set<String> notFoundNames,
+                                                                              boolean asyncFlag) throws FaultMessage {
         Set<String> mRIDs = new HashSet<>();
         Set<String> fullAliasNames = new HashSet<>();
         for (int i = 0; i < readingTypes.size(); ++i) {
@@ -583,7 +646,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             builder.ofReadingTypesWithMRIDs(mRIDs);
             builder.ofReadingTypesWithFullAliasNames(fullAliasNames);
         }
-        List<com.elster.jupiter.metering.ReadingType> readingTypeList = getReadingTypes(mRIDs, fullAliasNames);
+        List<com.elster.jupiter.metering.ReadingType> readingTypeList = getReadingTypes(mRIDs, fullAliasNames, asyncFlag);
         fillNotFoundReadingTypesMRIDsAndNames(readingTypeList, mRIDs, fullAliasNames, notFoundMRIDs, notFoundNames);
         return readingTypeList;
     }
@@ -648,30 +711,31 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
     private void checkTimeInterval(Reading reading, int index, boolean asyncFlag)  throws FaultMessage {
         final String READING_ITEM = READING_LIST_ITEM + '[' + index + ']';
-        DateTimeInterval interval = Optional.ofNullable(reading.getTimePeriod())
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,READING_ITEM + ".timePeriod"));
-        Instant start = interval.getStart();
-        Instant end = interval.getEnd();
-        if (!asyncFlag) {
-            if (start == null) {
-                faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, READING_ITEM + ".timePeriod.start");
+        DateTimeInterval interval = reading.getTimePeriod();
+        if (interval != null) { //optional
+            Instant start = interval.getStart();
+            Instant end = interval.getEnd();
+            if (!asyncFlag) {
+                if (start == null) {
+                    faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, READING_ITEM + ".timePeriod.start");
+                }
+                if (end == null) {
+                    end = clock.instant();
+                    interval.setEnd(end);
+                }
             }
-            if (end == null) {
-                end = clock.instant();
-                interval.setEnd(end);
+            if (start == null && end != null) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                        MessageSeeds.WRONG_TIME_PERIOD_COMBINATION,
+                        null,
+                        XsdDateTimeConverter.marshalDateTime(end)).get();
             }
-        }
-        if (start == null && end != null) {
-            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
-                    MessageSeeds.WRONG_TIME_PERIOD_COMBINATION,
-                    null,
-                    XsdDateTimeConverter.marshalDateTime(end)).get();
-        }
-        if (start != null && end != null && !end.isAfter(start)) {
-            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
-                    MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
-                    XsdDateTimeConverter.marshalDateTime(start),
-                    XsdDateTimeConverter.marshalDateTime(end)).get();
+            if (start != null && end != null && !end.isAfter(start)) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                        MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
+                        XsdDateTimeConverter.marshalDateTime(start),
+                        XsdDateTimeConverter.marshalDateTime(end)).get();
+            }
         }
     }
 

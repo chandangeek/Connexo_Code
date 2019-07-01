@@ -29,10 +29,14 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
+import static com.elster.jupiter.servicecall.DefaultState.FAILED;
+import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHandler {
@@ -72,7 +76,12 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                 collectAndSendResult(serviceCall);
                 break;
             case SUCCESSFUL:
-            case FAILED:
+                processChilds(serviceCall, SUCCESSFUL);
+                break;
+            case FAILED: // no break expressly
+            case CANCELLED:
+                processChilds(serviceCall, CANCELLED);
+                break;
             default:
                 // No specific action required for these states
                 break;
@@ -81,10 +90,26 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
     @Override
     public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall subParentServiceCall, DefaultState oldState, DefaultState newState) {
-        if (newState == DefaultState.SUCCESSFUL || newState == DefaultState.PARTIAL_SUCCESS
-                || newState == DefaultState.CANCELLED || newState == DefaultState.FAILED) {
-            ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
+        switch (newState) {
+            case SUCCESSFUL:
+            case PARTIAL_SUCCESS:
+            case CANCELLED:
+            case FAILED:
+                switch (parentServiceCall.getState()) {
+                    case PENDING:
+                    case ONGOING:
+                    case WAITING:
+                         ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
+                         break;
+            }
+                break;
         }
+    }
+
+    private void processChilds(ServiceCall parentServiceCall, DefaultState newState) {
+        parentServiceCall.findChildren().stream()
+                .filter(subParentServiceCall -> subParentServiceCall.getState() != newState)
+                .forEach(subParentServiceCall -> subParentServiceCall.requestTransition(newState));
     }
 
     private void collectAndSendResult(ServiceCall serviceCall) {
@@ -123,14 +148,14 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     .inTimeIntervals(timeRangeSet)
                     .build();
         } catch (FaultMessage faultMessage) {
-            serviceCall.requestTransition(DefaultState.FAILED);
+            serviceCall.requestTransition(FAILED);
             serviceCall.log(LogLevel.SEVERE,
                     MessageFormat.format("Unable to collect meter readings for source ''{0}'', time range {1}, du to error: " + faultMessage.getMessage(),
                         source, timeRangeSet));
             return;
         }
         if (meterReadings == null || meterReadings.getMeterReading().isEmpty()) {
-            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            serviceCall.requestTransition(SUCCESSFUL);
             serviceCall.log(LogLevel.FINE,
                     MessageFormat.format("No meter readings are found for source ''{0}'', time range {1}",
                             source, timeRangeSet));
@@ -138,17 +163,17 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         }
         EndPointConfiguration endPointConfiguration = getEndPointConfiguration(serviceCall, callbackUrl);
         if (endPointConfiguration == null) {
-            serviceCall.requestTransition(DefaultState.FAILED);
+            serviceCall.requestTransition(FAILED);
             return;
         }
         boolean isOk = sendMeterReadingsProvider.call(meterReadings, getHeader(correlationId), endPointConfiguration);
         if (!isOk) {
-            serviceCall.requestTransition(DefaultState.FAILED);
+            serviceCall.requestTransition(FAILED);
             serviceCall.log(LogLevel.SEVERE,
                     MessageFormat.format("Unable to send meter readings data for source ''{0}'', time range {1}", source, timeRangeSet));
             return;
         }
-        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+        serviceCall.requestTransition(SUCCESSFUL);
         serviceCall.log(LogLevel.FINE,
                 MessageFormat.format("Data successfully sent for source ''{0}'', time range {1}",
                         source, timeRangeSet));
@@ -185,7 +210,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         if (readingTypesString != null) {
             return Arrays.stream(readingTypesString.split(";")).collect(Collectors.toSet());
         }
-        return null;
+        return new HashSet<>();
     }
 
     private List<Meter> getEndDevices(List<String> endDevicesMRIDs, ServiceCall serviceCall) {

@@ -24,6 +24,6 @@ public enum ScheduleStrategyEnum {
     public static ScheduleStrategyEnum getByName(String name) {
         return Arrays.stream(ScheduleStrategyEnum.values())
                 .filter(strategy -> strategy.getName().equalsIgnoreCase(name))
-                .findFirst().orElseGet(null);
+                .findFirst().orElse(null);
     }
 }

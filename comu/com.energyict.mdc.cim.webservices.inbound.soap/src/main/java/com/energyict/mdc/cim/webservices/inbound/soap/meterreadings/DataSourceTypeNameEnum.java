@@ -24,6 +24,6 @@ public enum DataSourceTypeNameEnum {
     public static DataSourceTypeNameEnum getByName(String name) {
         return Arrays.stream(DataSourceTypeNameEnum.values())
                 .filter(typeName -> typeName.getName().equalsIgnoreCase(name))
-                .findFirst().orElseGet(null);
+                .findFirst().orElse(null);
     }
 }
