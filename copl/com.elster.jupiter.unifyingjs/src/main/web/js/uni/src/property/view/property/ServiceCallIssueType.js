@@ -53,7 +53,25 @@ Ext.define('Uni.property.view.property.ServiceCallIssueType', {
     setLocalizedName: function(name) {
     },
 
-    setValue: function(value) {
+    getField: function () {
+        return this.down('uni-grid-filtertop-combobox');
+    },
+
+    setValue: function (value) {
+        if (this.isEdit) {
+            if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
+                this.getField().emptyText = Uni.I18n.translate('general.valueProvided', 'UNI', 'Value provided - no rights to see the value.');
+            } else {
+                this.getField().emptyText = '';
+            }
+            this.getField().setValue(!Ext.isEmpty(value) ? Ext.isObject(value) ? value.id : value : null);
+        } else {
+            if (this.getProperty().get('hasValue')) {
+                this.getDisplayField().setValue('********');
+            } else {
+                this.getDisplayField().setValue(!Ext.isEmpty(value) ? Ext.isObject(value) ? value.name : value : '');
+            }
+        }
     },
 
     getValue: function() {
