@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
@@ -78,8 +79,9 @@ public class ServiceCallIssueInfoFactory implements InfoFactory<ServiceCallIssue
 
 
     private void addServiceCallIssueInfo(ServiceCallIssueInfo<?> info, ServiceCallIssue issue) throws LocalizedFieldValidationException {
-//        info.serviceCall = new IdWithNameInfo(issue.getServiceCall());
-//        info.onState = new IdWithNameInfo(issue.getNewState().ordinal(), issue.getNewState().name());
+        info.serviceCall = new IdWithNameInfo(issue.getServiceCall().getId(), issue.getServiceCall().getNumber());
+        info.parentServiceCall = issue.getServiceCall().getParent().isPresent() ? new IdWithNameInfo(issue.getServiceCall().getParent().get().getId(), issue.getServiceCall().getParent().get().getNumber()) : null;
+        info.onState = new IdWithNameInfo(issue.getNewState().ordinal(), issue.getNewState().name());
     }
 
 }
