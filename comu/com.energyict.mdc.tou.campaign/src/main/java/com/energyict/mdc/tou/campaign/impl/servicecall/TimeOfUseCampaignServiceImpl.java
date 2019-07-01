@@ -40,22 +40,20 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
@@ -92,6 +90,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -122,11 +122,10 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
-    /*private volatile TaskService taskService;
-    private volatile CommunicationTaskService communicationTaskService;
-    private volatile SchedulingService schedulingService;*/
     private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+
+    private volatile Logger LOGGER = Logger.getLogger(TimeOfUseCampaignService.class.getName());
 
 
     public TimeOfUseCampaignServiceImpl() {
@@ -141,8 +140,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                                         MeteringGroupsService meteringGroupsService, OrmService ormService, Clock clock, DeviceService deviceService,
                                         CalendarService calendarService, DeviceConfigurationService deviceConfigurationService,
                                         DeviceMessageSpecificationService deviceMessageSpecificationService, EventService eventService,
-                                        BundleContext bundleContext/*,
-                                        TaskService taskService,CommunicationTaskService communicationTaskService,SchedulingService schedulingService*/) {
+                                        BundleContext bundleContext) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
@@ -161,9 +159,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         setCalendarService(calendarService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
-        /*setTaskService(taskService);
-        setCommunicationTaskService(communicationTaskService);
-        setSchedulingService(schedulingService);*/
         activate(bundleContext);
     }
 
@@ -192,9 +187,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(TimeOfUseCampaignService.class).toInstance(TimeOfUseCampaignServiceImpl.this);
                 bind(TimeOfUseCampaignServiceImpl.class).toInstance(TimeOfUseCampaignServiceImpl.this);
-                /*bind(TaskService.class).toInstance(taskService);
-                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
-                bind(SchedulingService.class).toInstance(schedulingService);*/
             }
         };
     }
@@ -315,20 +307,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-   /* @Reference
-    public void setTaskService(TaskService taskService){
-        this.taskService = taskService;
-    }
-
-    @Reference
-    public void setSchedulingService(SchedulingService schedulingService){
-        this.schedulingService = schedulingService;
-    }
-
-    @Reference
-    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService){
-        this.communicationTaskService = communicationTaskService;
-    }*/
 
     @Override
     public String getComponentName() {
@@ -620,12 +598,51 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         return (activationOption.equals(TranslationKeys.IMMEDIATELY.getKey()) || activationOption.equals(TranslationKeys.ON_DATE.getKey()));
     }
 
-    /*public void startToUCampaignComTasks(TimeOfUseCampaign timeOfUseCampaign){
-        taskService.findComTask(timeOfUseCampaign.getSendCalendarComTaskId());
-        taskService.findComTask(timeOfUseCampaign.getValidationComTaskId());
-        List<ComTaskExecution> comTaskExecution = new ArrayList<>();
-        ComTaskExecution cte = new ComTaskExecutionImpl(dataModel, eventService,thesaurus,clock,communicationTaskService,schedulingService);
-        cte.schedule(timeOfUseCampaign.getUploadPeriodStart());
-    }*/
+    public void startToUCampaignComTasks(TimeOfUseCampaign campaign){
+        boolean sendCalendarCT = false;
+        boolean validationCT = false;
+        List<Device> devices = getDevicesByGroup(campaign.getDeviceGroup());
+        List<ComTaskExecution> comTaskExecutions;
+        ConnectionStrategy connectionStrategy;
+        for(Device device : devices){
+            comTaskExecutions = device.getComTaskExecutions();
+            for(ComTaskExecution comTaskExecution:comTaskExecutions){
+                connectionStrategy = ((ScheduledConnectionTask)comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
+                if((comTaskExecution.getComTask().getId() == campaign.getSendCalendarComTaskId()) &&
+                        (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId()==1?ConnectionStrategy.MINIMIZE_CONNECTIONS:ConnectionStrategy.AS_SOON_AS_POSSIBLE))
+                ){
+                    comTaskExecution.schedule(campaign.getActivationDate());
+                    sendCalendarCT = true;
+                }
+                if((comTaskExecution.getComTask().getId() == campaign.getValidationComTaskId()) &&
+                        (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId()==1?ConnectionStrategy.MINIMIZE_CONNECTIONS:ConnectionStrategy.AS_SOON_AS_POSSIBLE))
+                ){
+                    comTaskExecution.schedule(campaign.getActivationDate());
+                    validationCT = true;
+                }
+            }
+        }
+        if(!sendCalendarCT) {
+            LOGGER.log(Level.SEVERE, "Unable to schedule send calendar ComTask on a "+campaign.getName());
+        }
+        if(!validationCT) {
+            LOGGER.log(Level.SEVERE, "Unable to schedule validation ComTask on a "+campaign.getName());
+        }
 
+        /*getDevicesByGroup(campaign.getDeviceGroup()).forEach(device ->
+            device.getComTaskExecutions().stream().forEach(cte -> {
+                ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask)cte.getConnectionTask().get()).getConnectionStrategy();
+                if((cte.getComTask().getId() == campaign.getSendCalendarComTaskId()) &&
+                        (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId()==1?ConnectionStrategy.MINIMIZE_CONNECTIONS:ConnectionStrategy.AS_SOON_AS_POSSIBLE))
+                ){
+                    cte.schedule(campaign.getActivationDate());
+
+                }
+                if((cte.getComTask().getId() == campaign.getValidationComTaskId()) &&
+                        (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId()==1?ConnectionStrategy.MINIMIZE_CONNECTIONS:ConnectionStrategy.AS_SOON_AS_POSSIBLE))
+                ){
+                    cte.schedule(campaign.getActivationDate());
+                }
+            }));*/
+    }
 }
