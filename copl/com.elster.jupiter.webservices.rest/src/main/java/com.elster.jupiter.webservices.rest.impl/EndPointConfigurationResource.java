@@ -361,11 +361,11 @@ public class EndPointConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/occurrences/{id}/retry")
     @Transactional
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_WEB_SERVICES)
+    @RolesAllowed(Privileges.Constants.RETRY_WEB_SERVICES)
     public Response retryOccurrence(@PathParam("id") long id,
                                     @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
 
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        String[] privileges = {Privileges.Constants.RETRY_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);

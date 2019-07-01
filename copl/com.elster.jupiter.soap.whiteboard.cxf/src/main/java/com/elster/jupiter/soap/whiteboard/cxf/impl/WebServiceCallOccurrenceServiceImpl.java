@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.Range;
@@ -85,6 +86,8 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
 
             finderBuilder.withStatusIn(filter.getStringList("status")
                     .stream()
+                    .map(status->status.toUpperCase())
+                    .map(WebServiceCallOccurrenceStatus::valueOf)
                     .collect(Collectors.toList()));
         }
 
