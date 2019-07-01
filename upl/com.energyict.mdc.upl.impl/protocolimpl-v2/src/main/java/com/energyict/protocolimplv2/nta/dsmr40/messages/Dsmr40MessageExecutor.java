@@ -79,7 +79,7 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         for (OfflineDeviceMessage pendingMessage : sortSecurityRelatedDeviceMessages(masterMessages)) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
-            getProtocol().journal("Executing message " + pendingMessage.getSpecification().getName());
+            getProtocol().journal("DSMR40 Message executor processing  " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(DeviceActionMessage.RESTORE_FACTORY_SETTINGS)) {
                     restoreFactorySettings();
