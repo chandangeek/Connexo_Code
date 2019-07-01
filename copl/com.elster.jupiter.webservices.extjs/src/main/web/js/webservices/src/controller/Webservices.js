@@ -128,6 +128,7 @@ Ext.define('Wss.controller.Webservices', {
                     success: function (occurrence) {
                         var view = Ext.widget('webservice-history-occurence', {
                             router: me.getController('Uni.controller.history.Router'),
+                            adminView: Uni.util.Application.getAppNamespace() === 'SystemApp',
                             endpoint: endpoint,
                             occurrence: occurrence
                         });
@@ -364,18 +365,31 @@ Ext.define('Wss.controller.Webservices', {
         Ext.Ajax.request({
             method: 'PUT',
             url: '/api/ws/endpointconfigurations/occurrences/' + occurrence.getId() + '/retry',
-                success: function () {
-                    router.getRoute('administration/webserviceendpoints/view/history').forward({
-                        endpointId: occurrence.getEndpoint().getId()
-                    })
-                    me.getApplication().fireEvent(
-                        'acknowledge',
-                        Uni.I18n.translate(
-                            'webservices.retry.success',
-                            'WSS',
-                            'The response is successfully resent'
-                        )
-                    );
+            success: function () {
+                router.getRoute('administration/webserviceendpoints/view/history').forward({
+                    endpointId: occurrence.getEndpoint().getId()
+                })
+                me.getApplication().fireEvent(
+                    'acknowledge',
+                    Uni.I18n.translate(
+                        'webservices.retry.success',
+                        'WSS',
+                        'The response is successfully resent'
+                    )
+                );
+            },
+            failure: function () {
+                var errorWindow = Ext.create('Uni.view.window.Confirmation', {
+                    noConfirmBtn: true
+                });
+                errorWindow.show({
+                    title: Uni.I18n.translate('webservices.retry.error', 'WSS', "Couldn't perform your action"),
+                    msg: Uni.I18n.translate(
+                        'webservices.retry.error.msg',
+                        'WSS',
+                        'The response couldn\'t be resent. Please check the web service configuration'
+                    )
+                });
             }
         });
     },
