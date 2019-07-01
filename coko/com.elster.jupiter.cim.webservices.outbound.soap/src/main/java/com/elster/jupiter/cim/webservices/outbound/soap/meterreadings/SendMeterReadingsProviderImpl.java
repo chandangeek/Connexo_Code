@@ -23,10 +23,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,7 +39,6 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
     private static final String RESOURCE = "/meterreadings/SendMeterReadings.wsdl";
     private static final String NOUN = "MeterReadings";
 
-    private final Map<String, MeterReadingsPort> meterReadingsPorts = new ConcurrentHashMap<>();
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory meterReadingsMessageObjectFactory = new ObjectFactory();
     private final MeterReadingsBuilder readingBuilderProvider = new MeterReadingsBuilder();
@@ -56,10 +53,6 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
 
     public void removeMeterReadingsPort(MeterReadingsPort out) {
         super.doRemoveEndpoint(out);
-    }
-
-    public Map<String, MeterReadingsPort> getMeterReadingsPorts() {
-        return Collections.unmodifiableMap(meterReadingsPorts);
     }
 
     @Override
@@ -134,10 +127,6 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
     private boolean checkMeterReadingsAndMeterReadingsPorts(MeterReadings meterReadings) {
         if (meterReadings.getMeterReading().isEmpty()) {
             LOGGER.log(Level.SEVERE, "No meter readings to send.");
-            return false;
-        }
-        if (meterReadingsPorts.isEmpty()) {
-            LOGGER.log(Level.SEVERE, "No published web service endpoint is found to send meter readings.");
             return false;
         }
         return true;
