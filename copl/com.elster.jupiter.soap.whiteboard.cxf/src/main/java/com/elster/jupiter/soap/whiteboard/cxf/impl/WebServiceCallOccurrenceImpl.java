@@ -5,14 +5,20 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointLogImpl.Fields.occurrence;
 
 public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, HasId {
     private DataModel dataModel;
@@ -25,6 +31,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     private WebServiceCallOccurrenceStatus status;
     private String applicationName;
     private String payload;
+    private TransactionService transactionService;
 
     public enum Fields {
         ID("id"),
@@ -48,8 +55,10 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     @Inject
-    public WebServiceCallOccurrenceImpl(DataModel dataModel) {
+    public WebServiceCallOccurrenceImpl(DataModel dataModel,
+                                        TransactionService transactionService) {
         this.dataModel = dataModel;
+        this.transactionService = transactionService;
     }
 
     public WebServiceCallOccurrenceImpl init(Instant startTime,
@@ -167,6 +176,13 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
             Save.UPDATE.save(this.dataModel, this, Save.Update.class);
         } else {
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
+        }
+    }
+
+    @Override
+    public void retry(){
+        if (endPointConfiguration.get() instanceof OutboundEndPointConfiguration) {
+            endPointConfiguration.get().retryOccurrence(requestName, payload);
         }
     }
 }

@@ -249,7 +249,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 ImmutableMap.of(
                         V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
                         UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class,
-                        V10_7SimpleUpgrader.VERSION, V10_7SimpleUpgrader.class
+                        UpgraderV10_7.VERSION, UpgraderV10_7.class
+
                 ));
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
