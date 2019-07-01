@@ -14,7 +14,7 @@ public interface WebServiceCallOccurrenceFinderBuilder {
 
     public WebServiceCallOccurrenceFinderBuilder withApplicationName(Set<String> applicationName);
 
-    public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<String> statuses);
+    public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<WebServiceCallOccurrenceStatus> statuses);
 
     public WebServiceCallOccurrenceFinderBuilder withWebServiceName(String webServiceName);
 

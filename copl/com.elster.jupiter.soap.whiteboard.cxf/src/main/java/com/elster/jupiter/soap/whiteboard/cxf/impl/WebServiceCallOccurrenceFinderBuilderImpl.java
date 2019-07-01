@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.Range;
@@ -40,7 +41,7 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     @Override
     /*public EndPointConfigurationOccurrenceFinderBuilder withStatusIn(List<Status> statuses) {*/
     /* XROMVYU Change to enum statuses */
-    public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<String> statuses) {
+    public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<WebServiceCallOccurrenceStatus> statuses) {
         if (!statuses.isEmpty()) {
             this.condition = this.condition.and(where("status").in(statuses));
         }
