@@ -37,6 +37,12 @@ public abstract class BaseUsagePointDetailsInfo {
 
     public abstract UsagePointDetailBuilder getUsagePointDetailBuilder(UsagePoint usagePoint, Clock clock);
 
+    public abstract boolean isEqual(UsagePoint usagePoint, Clock clock);
+
+    public boolean isEqual(Object object1, Object object2){
+        return (object1 == null ? object2 == null : object1.equals(object2));
+    }
+
     public static class UsagePointDetailsTypeResolver implements TypeIdResolver {
 
         private JavaType javaType;

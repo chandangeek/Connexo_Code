@@ -359,7 +359,9 @@ public class UsagePointResource {
         }
 
         info.writeTo(usagePoint);
-        info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+        if (!info.techInfo.isEqual(usagePoint, clock)){
+            info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+        }
 
         UsagePointCustomPropertySetExtension extension = usagePoint.forCustomProperties();
         info.customPropertySets

@@ -15,11 +15,11 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.servicecall.topichandler", service = TopicHandler.class)
 public class ServiceCallStateChangeTopicHandler implements TopicHandler {
@@ -44,9 +44,9 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
         ServiceCallImpl serviceCall = (ServiceCallImpl) event.getProperties().get(ServiceCall.class.getName());
         if (serviceCall != null) {
             handle(
-                serviceCall,
-                DefaultState.from(event.getOldState()).get(),
-                DefaultState.from(event.getNewState()).get());
+                    serviceCall,
+                    DefaultState.from(event.getOldState()).get(),
+                    DefaultState.from(event.getNewState()).get());
         }
     }
 
@@ -66,16 +66,20 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
         TransitionNotification transitionNotification = new TransitionNotification(serviceCall, currentState, newState);
 
-        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue();
+        Optional<DestinationSpec> serviceCallQueue = serviceCallService.getServiceCallQueue(serviceCall.getType().getDestinationName());
+        if (serviceCallQueue.isPresent()) {
+            int priority = serviceCall.getType().getPriority();
 
-        if (DefaultState.CANCELLED.equals(newState)) {
-            serviceCallQueue.purgeCorrelationId(serviceCall.getNumber());
-            serviceCall.findChildren().stream().filter(sc -> sc.canTransitionTo(DefaultState.CANCELLED)).forEach(ServiceCall::cancel);
+            if (DefaultState.CANCELLED.equals(newState)) {
+                serviceCallQueue.get().purgeCorrelationId(serviceCall.getNumber());
+                serviceCall.findChildren().stream().filter(sc -> sc.canTransitionTo(DefaultState.CANCELLED)).forEach(ServiceCall::cancel);
+            }
+
+            serviceCallQueue.get().message(jsonService.serialize(transitionNotification))
+                    .withCorrelationId(serviceCall.getNumber())
+                    .withPriority(priority)
+                    .send();
         }
-
-        serviceCallQueue.message(jsonService.serialize(transitionNotification))
-                .withCorrelationId(serviceCall.getNumber())
-                .send();
     }
 
     @Override
