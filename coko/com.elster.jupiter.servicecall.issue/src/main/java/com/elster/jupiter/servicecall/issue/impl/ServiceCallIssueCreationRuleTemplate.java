@@ -7,7 +7,6 @@ package com.elster.jupiter.servicecall.issue.impl;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -20,8 +19,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.servicecall.issue.IssueServiceCallService;
 import com.elster.jupiter.servicecall.issue.OpenIssueServiceCall;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.servicecall.issue.impl.i18n.TranslationKeys;
 
 import com.google.common.collect.ImmutableList;
@@ -43,7 +42,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     public static final String SERVICE_CALL_CONFIGURATIONS = NAME + ".serviceCallConfigurations";
 
-    private volatile IssueServiceCallService issueServiceCallService;
+    private volatile ServiceCallIssueService issueServiceCallService;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -55,7 +54,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     @Inject
-    public ServiceCallIssueCreationRuleTemplate(IssueServiceCallService issueServiceCallService, IssueService issueService, PropertySpecService propertySpecService,
+    public ServiceCallIssueCreationRuleTemplate(ServiceCallIssueService issueServiceCallService, IssueService issueService, PropertySpecService propertySpecService,
                                                 ServiceCallService serviceCallService,
                                                 NlsService nlsService) {
         this();
@@ -108,7 +107,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(IssueServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(ServiceCallIssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -117,7 +116,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     @Reference
-    public void setIssueServiceCallService(IssueServiceCallService issueServiceCallService) {
+    public void setIssueServiceCallService(ServiceCallIssueService issueServiceCallService) {
         this.issueServiceCallService = issueServiceCallService;
     }
 
@@ -157,12 +156,13 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     private boolean getServiceCallTypeFilter(ServiceCallType serviceCallType) {
-        return appKey.map(s -> s.equals(serviceCallType.reservedByApplication().orElse(null))).orElse(true);
+        return appKey.map(s -> !serviceCallType.reservedByApplication().isPresent() ||
+                s.equals(serviceCallType.reservedByApplication().get())).orElse(true);
     }
 
     @Override
     public IssueType getIssueType() {
-        return issueService.findIssueType(IssueServiceCallService.ISSUE_TYPE_NAME).orElse(null);
+        return issueService.findIssueType(ServiceCallIssueService.ISSUE_TYPE_NAME).orElse(null);
     }
 
     @Override
@@ -173,16 +173,16 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
         Optional<? extends Issue> issue = event.findExistingIssue();
-        if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
-            OpenIssueServiceCall issueDataValidation = (OpenIssueServiceCall) issue.get();
-            event.apply(issueDataValidation);
-            if (issueDataValidation.getNotEstimatedBlocks().isEmpty()) {
-                return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).orElse(null)));
-            } else {
-                issueDataValidation.update();
-                return Optional.of(issueDataValidation);
-            }
-        }
+//        if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
+//            OpenIssueServiceCall issueDataValidation = (OpenIssueServiceCall) issue.get();
+//            event.apply(issueDataValidation);
+//            if (issueDataValidation.getNotEstimatedBlocks().isEmpty()) {
+//                return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).orElse(null)));
+//            } else {
+//                issueDataValidation.update();
+//                return Optional.of(issueDataValidation);
+//            }
+//        }
         return issue;
     }
 

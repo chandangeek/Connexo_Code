@@ -34,6 +34,7 @@ public class ServiceCallEventHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
+        message.getPayload();
 //        createEvent(jsonService.deserialize(message.getPayload(), Map.class))
 //                .filter(e -> e.getEndDevice().isPresent())
 //                .filter(e -> e.getEndDevice().get().getState().isPresent())
@@ -51,7 +52,7 @@ public class ServiceCallEventHandler implements MessageHandler {
     }
 
     private Optional<IssueEvent> createEventsBasedOnDescription(Map<?, ?> map, ServiceCallEventDescription description) {
-        ServiceCallEvent event = injector.getInstance(description.getEventClass());
+        ServiceCallStateChangedEvent event = injector.getInstance(description.getEventClass());
         try {
             event.init(map);
         } catch (UnableToCreateEventException e) {

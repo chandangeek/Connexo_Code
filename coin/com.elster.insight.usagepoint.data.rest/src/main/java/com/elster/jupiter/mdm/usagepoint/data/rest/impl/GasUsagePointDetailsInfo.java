@@ -73,4 +73,25 @@ public class GasUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
                 .withClamp(clamped)
                 .withInterruptible(interruptible);
     }
+
+    @Override
+    public boolean isEqual(UsagePoint usagePoint, Clock clock){
+        return usagePoint.getDetail(clock.instant())
+                .map(upd -> {
+                    GasDetail detail = (GasDetail)upd;
+                    return isEqual(grounded, detail.isGrounded()) &&
+                            isEqual(pressure, detail.getPressure()) &&
+                            isEqual(physicalCapacity, detail.getPhysicalCapacity()) &&
+                            isEqual(limiter, detail.isLimiter()) &&
+                            isEqual(loadLimiterType, detail.getLoadLimiterType()) &&
+                            isEqual(loadLimit, detail.getLoadLimit()) &&
+                            isEqual(bypass, detail.isBypassInstalled()) &&
+                            isEqual(bypassStatus, detail.getBypassStatus()) &&
+                            isEqual(valve, detail.isValveInstalled()) &&
+                            isEqual(capped, detail.isCapped()) &&
+                            isEqual(clamped, detail.isClamped()) &&
+                            isEqual(interruptible, detail.isInterruptible());
+                })
+                .orElseGet(() -> false);
+    }
 }

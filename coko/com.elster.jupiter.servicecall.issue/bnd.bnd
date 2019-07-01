@@ -1,3 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
+Export-Package: com.elster.jupiter.servicecall.issue
 Private-Package: com.elster.jupiter.servicecall.issue.impl.*

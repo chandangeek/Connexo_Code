@@ -12,7 +12,7 @@
     </parent>
     <artifactId>servicecall.issue</artifactId>
     <packaging>bundle</packaging>
-    <name>servicecall.issue [init ISC]</name>
+    <name>[Jupiter] servicecall.issue</name>
     <description>
         Contains servicecall issue templates
     </description>
@@ -109,6 +109,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
@@ -221,12 +225,6 @@
             <artifactId>appserver</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bpm</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
@@ -257,6 +255,5 @@
             <artifactId>audit</artifactId>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>

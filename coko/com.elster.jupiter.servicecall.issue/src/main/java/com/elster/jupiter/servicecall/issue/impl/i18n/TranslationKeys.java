@@ -6,12 +6,13 @@ package com.elster.jupiter.servicecall.issue.impl.i18n;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.servicecall.issue.impl.ServiceCallIssueServiceImpl;
 
 public enum TranslationKeys implements TranslationKey {
     START_PROCESS_ACTION("issue.action.startProcess", "Start process"),
     START_PROCESS_ACTION_PROCESS("issue.action.process", "Process"),
     START_PROCESS_ACTION_SELECT_PROCESS("issue.action.select_process", "Select process"),
-    SERVICE_CALL_ISSUE_TYPE("ServiceCallIssueType", "Service Call"),
+    SERVICE_CALL_ISSUE_TYPE("ServiceCallIssueType", "Service call"),
     SERVICE_CALL_ISSUE_FAILED_REASON("ServiceCallIssueFailedReason", "Service call failed"),
     SERVICE_CALL_ISSUE_FAILED_REASON_DESCRIPTION("ServiceCallIssueFailedReasonDescription", "Service call failed on {0}"),
     SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON("ServiceCallIssuePartialSucceedReason", "Service call partial succeed"),
@@ -21,7 +22,8 @@ public enum TranslationKeys implements TranslationKey {
     SERVICE_CALL_TYPE_STATE("ServiceCallTypeState", "Service call state"),
 
     SERVICE_CALL_ISSUE_RULE_TEMPLATE_NAME("ServiceCallIssueRuleTemplateName", "State change"),
-    SERVICE_CALL_ISSUE_RULE_TEMPLATE_DESCRIPTION("ServiceCallIssueRuleTemplateDescription", "State change");
+    SERVICE_CALL_ISSUE_RULE_TEMPLATE_DESCRIPTION("ServiceCallIssueRuleTemplateDescription", "State change"),
+    ISSUE_SERVICE_CALL_SUBSCRIBER(ServiceCallIssueServiceImpl.ISSUE_SERVICE_CALLS_SUBSCRIBER_NAME, "Handle service calls");
 
     private final String key;
     private final String defaultFormat;
