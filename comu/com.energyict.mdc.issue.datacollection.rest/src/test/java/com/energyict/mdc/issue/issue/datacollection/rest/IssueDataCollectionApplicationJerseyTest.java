@@ -94,7 +94,6 @@ public abstract class IssueDataCollectionApplicationJerseyTest extends FelixRest
         when(issueService.getIssueActionService()).thenReturn(issueActionService);
         application.setIssueService(issueService);
         application.setIssueDataCollectionService(issueDataCollectionService);
-        application.setIssueResourceHelper(issueResourceHelper);
         application.setMeteringGroupsService(meteringGroupsService);
         application.setMeteringService(meteringService);
         application.setNlsService(nlsService);
