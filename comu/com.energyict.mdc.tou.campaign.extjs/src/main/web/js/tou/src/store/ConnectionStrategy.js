@@ -10,17 +10,17 @@ Ext.define('Tou.store.ConnectionStrategy', {
     {
       id: 1,
       name: Uni.I18n.translate(
-        'general.connectionStrategy.asSoonAsPossible',
+        'general.connectionStrategy.minimizeConnections',
         'TOU',
-        'As soon as possible'
+        'Minimize connections'
       )
     },
     {
       id: 2,
       name: Uni.I18n.translate(
-        'general.connectionStrategy.minimizeConnections',
+        'general.connectionStrategy.asSoonAsPossible',
         'TOU',
-        'Minimize connections'
+        'As soon as possible'
       )
     }
   ]

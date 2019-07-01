@@ -21,6 +21,18 @@ Ext.define('Tou.view.DetailForm', {
     router: null,
     isPreview: false,
     stores: ['Tou.store.DeviceTypes'],
+
+    loadRecord: function(record) {
+        var me = this;
+        var activationOption = record.get('activationOption');
+        var showValidation = activationOption === 'immediately' || activationOption === 'onDate';
+
+        me.callParent(arguments);
+
+        me.down('[name="validationComTask"]').setVisible(showValidation);
+        me.down('[name="validationConnectionStrategy"]').setVisible(showValidation);
+    },
+
     initComponent: function () {
         var me = this;
 
@@ -168,6 +180,72 @@ Ext.define('Tou.view.DetailForm', {
                                 : Uni.I18n.translate('general.no', 'TOU', 'No');
                         },
                         name: 'withUniqueCalendarName',
+                    }, {
+                        itemId: 'tou-campaign-allowed-comtask',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.sendCalendarComTask',
+                            'TOU',
+                            'Send calendar communication task'
+                        ),
+                        name: 'sendCalendarComTask',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'tou-campaign-send-connection-strategy',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.connectionMethodStrategy',
+                            'TOU',
+                            'Connection method strategy'
+                        ),
+                        name: 'sendCalendarConnectionStrategy',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'tou-campaign-validation-comtask',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.validationComTask',
+                            'TOU',
+                            'Validation communication task'
+                        ),
+                        hidden: true,
+                        name: 'validationComTask',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'tou-campaign-validation-connection-strategy',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.validationMethodStrategy',
+                            'TOU',
+                            'Validation method strategy'
+                        ),
+                        hidden: true,
+                        name: 'validationConnectionStrategy',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
                     }
                 ]
             }, {
