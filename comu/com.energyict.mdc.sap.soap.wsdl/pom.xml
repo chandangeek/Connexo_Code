@@ -501,23 +501,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>UtilitiesDeviceRegisteredBulkNotification</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                        <configuration>
-                            <wsdlFiles>
-                                <wsdlFile>
-                                    sap/UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_OutService.wsdl
-                                </wsdlFile>
-                            </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_OutService.wsdl</wsdlLocation>
-                            <packageName>
-                                com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification
-                            </packageName>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>SmartMeterUtilitiesPODNotification</id>
                         <goals>
                             <goal>wsimport</goal>
