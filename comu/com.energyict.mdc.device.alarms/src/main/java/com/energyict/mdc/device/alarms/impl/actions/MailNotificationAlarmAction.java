@@ -3,7 +3,6 @@ package com.energyict.mdc.device.alarms.impl.actions;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.HasIdAndName;
@@ -72,7 +71,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     @Override
     public IssueActionResult execute(Issue issue) {
-       this.MailImpl(issue);
+        this.MailImpl(issue);
         IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
         result.success(getThesaurus().getFormat(TranslationKeys.ACTION_MAIL_NOTIFY).format());
         return result;
@@ -86,8 +85,8 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
     private void MailImpl(Issue issue) {
         Transport transport = null;
         String receivers = getRecipientFromParameters(properties);
-        String content = "Object Id:" + issue.getIssueId() + "\n" + "Alarm reason:" + issue.getReason().getName() + "\n" +
-                "Alarm type:" + issue.getReason().getName() + "\n" + "User:" + issue.getUserName() + "\n" + "Creation Date:" + issue.getCreateDateTime();
+        String content = "Object Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
+                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + issue.getUserName() + "\n" + "Creation Date : " + issue.getCreateDateTime();
 
         Properties prop = getMailProperties();
         Session session = Session.getInstance(prop, null);
@@ -108,7 +107,6 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
             message.setFrom(from);
             message.setRecipients(MimeMessage.RecipientType.TO, receiverAddress);
             message.setSubject(issue.getIssueId() + " " + issue.getTitle());
-            Transport.send(message);
             try {
                 if (user != null && !user.isEmpty() && password != null && !password.isEmpty()) {
                     transport = session.getTransport("smtp");
@@ -129,8 +127,6 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
                         } else {
                             throw new RuntimeException(e);
                         }
-                        System.out.println("success");
-
                     }
                 }
             }
