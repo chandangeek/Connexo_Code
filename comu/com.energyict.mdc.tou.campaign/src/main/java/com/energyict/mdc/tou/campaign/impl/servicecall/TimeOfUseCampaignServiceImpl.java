@@ -410,7 +410,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
             TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = dataModel.getInstance(TimeOfUseItemDomainExtension.class);
             timeOfUseItemDomainExtension.setDevice(device);
             timeOfUseItemDomainExtension.setParentServiceCallId(parent.getId());
-            ServiceCall serviceCall = parent.newChildCall(serviceCallType).extendedWith(timeOfUseItemDomainExtension).create();
+            ServiceCall serviceCall = parent.newChildCall(serviceCallType).extendedWith(timeOfUseItemDomainExtension).targetObject(device).create();
             serviceCall.requestTransition(DefaultState.PENDING);
             return MessageSeeds.DEVICE_WAS_ADDED;
         } else {

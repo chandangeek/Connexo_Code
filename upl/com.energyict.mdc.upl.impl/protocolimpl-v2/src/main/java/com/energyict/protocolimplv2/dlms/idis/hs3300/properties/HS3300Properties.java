@@ -175,22 +175,6 @@ public class HS3300Properties extends IDISProperties {
         return useBeaconMirrorDeviceDialect() || useSerialDialect();
     }
 
-    public boolean useMeterInTransparentMode() {
-        return getProperties().getTypedProperty(HS3300ConfigurationSupport.USE_METER_IN_TRANSPARENT_MODE, false);
-    }
-
-    public int getTransparentConnectTime() {
-        return getProperties().getTypedProperty(HS3300ConfigurationSupport.TRANSP_CONNECT_TIME, BigDecimal.valueOf(10)).intValue();
-    }
-
-    public String getTransparentPassword() {
-        return getProperties().getTypedProperty(HS3300ConfigurationSupport.PASSWORD, "00000000");
-    }
-
-    public String getTransparentSecurityLevel() {
-        return getProperties().getTypedProperty(HS3300ConfigurationSupport.METER_SECURITY_LEVEL, "1:0");
-    }
-
     public boolean getRequestAuthenticatedFrameCounter() {
         return getProperties().getTypedProperty(HS3300ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false);
     }
@@ -216,37 +200,12 @@ public class HS3300Properties extends IDISProperties {
     }
 
     /**
-     * Indicates whether or not the meter supports the hundreths time field.
-     *
-     * @return    <code>true</code> if supported, <code>false</code> if not.
-     */
-    public final boolean supportsHundredthsTimeField() {
-        return getProperties().<Boolean>getTypedProperty(HS3300ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD, true);
-    }
-
-    /**
      * Indicates whether or not to skip the frame counter authentication tag check.
      *
      * @return    <code>true</code> if this needs to be skipped, <code>false</code> otherwise.
      */
     public final boolean skipFramecounterAuthenticationTag() {
         return this.getProperties().<Boolean>getTypedProperty(HS3300ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION, false);
-    }
-
-    /**
-     * Indicates whether or not we use unspecified as clock status.
-     *
-     * @return    <code>true</code> for unspecified, <code>false</code> if not.
-     */
-    public final boolean useUnspecifiedAsClockStatus() {
-        return this.getProperties().<Boolean>getTypedProperty(HS3300ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS, false);
-    }
-
-    public long getLimitMaxNrOfDays() {
-        return getProperties().getTypedProperty(
-                HS3300ConfigurationSupport.LIMIT_MAX_NR_OF_DAYS_PROPERTY,
-                BigDecimal.valueOf(0)   // Do not limit, but use as-is
-        ).longValue();
     }
 
     /**
@@ -294,6 +253,10 @@ public class HS3300Properties extends IDISProperties {
         } else {
             return super.doGetDataTransportSecurityLevel();
         }
+    }
+
+    protected CertificateWrapperExtractor getCertificateWrapperExtractor() {
+        return certificateWrapperExtractor;
     }
 
 }

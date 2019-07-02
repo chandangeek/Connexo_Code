@@ -424,7 +424,7 @@ public class IssueCreationServiceImplTest extends BaseTest {
         Condition condition = where("reason").isEqualTo(rule.getReason());
         List<? extends Issue> list = query.select(condition);
         assertThat(list.size()).isEqualTo(1);
-        assertThat(list.get(0).getRule().getId()).isEqualTo(rule.getId());
+        assertThat(list.get(0).getRule().get().getId()).isEqualTo(rule.getId());
     }
 
     @Test

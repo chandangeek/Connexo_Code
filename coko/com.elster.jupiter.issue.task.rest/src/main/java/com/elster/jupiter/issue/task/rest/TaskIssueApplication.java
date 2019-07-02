@@ -15,9 +15,9 @@ import com.elster.jupiter.issue.task.rest.i18n.MessageSeeds;
 import com.elster.jupiter.issue.task.rest.i18n.TaskIssueTranslationKeys;
 import com.elster.jupiter.issue.task.rest.resource.IssueResource;
 import com.elster.jupiter.issue.task.rest.response.TaskIssueInfoFactory;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -64,6 +64,7 @@ public class TaskIssueApplication extends Application implements MessageSeedProv
     private volatile JsonService jsonService;
     private volatile BpmService bpmService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     public TaskIssueApplication() {
     }
@@ -77,6 +78,11 @@ public class TaskIssueApplication extends Application implements MessageSeedProv
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
@@ -178,6 +184,7 @@ public class TaskIssueApplication extends Application implements MessageSeedProv
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);

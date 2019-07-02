@@ -492,6 +492,12 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
                             .finish());
         }
     },
+    BillingDateConfiguration(8071, "Billing date configuration") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.dateTimeSpecBuilder(service, DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName, DeviceMessageConstants.billingDateConfigurationDefaultTranslation).finish());
+        }
+    }
 
     ;
 

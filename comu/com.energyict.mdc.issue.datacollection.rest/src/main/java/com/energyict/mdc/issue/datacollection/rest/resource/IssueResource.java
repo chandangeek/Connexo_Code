@@ -24,6 +24,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -85,10 +86,11 @@ public class IssueResource extends BaseResource {
     private final ExceptionFactory exceptionFactory;
     private final BpmService bpmService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final MeteringGroupsService meteringGroupsService;
 
 
     @Inject
-    public IssueResource(IssueService issueService, MessageService messageService, AppService appService, JsonService jsonService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService) {
+    public IssueResource(MeteringGroupsService meteringGroupsService, IssueService issueService, MessageService messageService, AppService appService, JsonService jsonService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService) {
         this.issueService = issueService;
         this.messageService = messageService;
         this.issueDataCollectionService = issueDataCollectionService;
@@ -99,6 +101,7 @@ public class IssueResource extends BaseResource {
         this.jsonService = jsonService;
         this.conflictFactory = conflictFactory;
         this.bpmService = bpmService;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @GET @Transactional
