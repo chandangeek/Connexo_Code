@@ -352,56 +352,67 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected CollectedMessage writeCaptureDefinition(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         String captureObjects = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.captureObjectListAttributeName);
-        //TODO This is just an attempt. Actual code must be adapted to current protocol. Actual code from Dsmr40Messaging in 8.11
-        String[] splitCaptureObjects = captureObjects.split(";");
-        List <String> capturedObjectDefinitions = Arrays.asList(splitCaptureObjects);
-        List <String> filteredCaptureObjects = new ArrayList<>();
-        for(String capturedObject : capturedObjectDefinitions){
-            filteredCaptureObjects.add( capturedObject.replace("{", "").replace("}", ""));
-        }
-        if (filteredCaptureObjects.isEmpty()) {
 
+        String[] splitCaptureObjects = captureObjects.split(";");
+        List <String> rawCapturedObjectDefinitions = Arrays.asList(splitCaptureObjects);
+        List <String> filteredCaptureObjects = new ArrayList<>();
+        for(String capturedObject : rawCapturedObjectDefinitions){
+            filteredCaptureObjects.add( normalizeDLMSObjectDefinition(capturedObject));
+        }
+        if (!filteredCaptureObjects.isEmpty()) {
             ProfileGeneric profileGeneric = null;
             try {
                 profileGeneric = getCosemObjectFactory().getProfileGeneric(ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE);
             } catch (NotInObjectListException e) {
-                e.printStackTrace();
+                getProtocol().journal(Level.SEVERE, e.getLocalizedMessage());
             }
+
             if (profileGeneric == null) {
-                getProtocol().journal(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " is null");
+                getProtocol().journal(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " not found in object list");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             }
-            if(capturedObjectDefinitions.isEmpty()){
-                getProtocol().journal( "Failed to set definable load profile capture objects.");
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            }
+
             Array capturedObjects = new Array();
-            for (String capturedObjectDefinition : capturedObjectDefinitions) {
+            for (String capturedObjectDefinition : filteredCaptureObjects) {
+                getProtocol().journal("Adding capture object: "+capturedObjectDefinition);
                 String[] definitionParts = capturedObjectDefinition.split(",");
                 try {
-                    int dlmsClassId = Integer.parseInt(definitionParts[0].substring(0, 1));
-                    ObisCode obisCode = ObisCode.fromString(definitionParts[1].replace('-', '.').replace(':', '.'));
+                    int dlmsClassId = Integer.parseInt(definitionParts[0]);
+                    ObisCode obisCode = ObisCode.fromString(definitionParts[1]);
                     int attribute = Integer.parseInt(definitionParts[2]);
-                    int dataIndex = Integer.parseInt(definitionParts[3].substring(0, 1));
+                    int dataIndex = Integer.parseInt(definitionParts[3]);
                     Structure definition = new Structure();
                     definition.addDataType(new Unsigned16(dlmsClassId));
                     definition.addDataType(OctetString.fromObisCode(obisCode));
                     definition.addDataType(new Integer8(attribute));
                     definition.addDataType(new Unsigned16(dataIndex));
                     capturedObjects.addDataType(definition);
+
                 } catch (Exception e) {
                     getProtocol().journal(Level.SEVERE, e.getMessage());
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 }
             }
+            getProtocol().journal("Setting definable profile capture objects");
             profileGeneric.setCaptureObjectsAttr(capturedObjects);
             getProtocol().journal("Successfully set definable load profile capture objects.");
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } else {
-            getProtocol().journal("Failed to set definable load profile capture objects.");
+            getProtocol().journal("Parsed an empty list of objects - the list must be in format: {8,0-0:1.0.0.255,2,0};{1,0-0:96.10.2.255,2,0};{3,1-0:1.8.0.255,2,0}...");
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         }
         return collectedMessage;
+    }
+
+    private String normalizeDLMSObjectDefinition(String capturedObject) {
+        return capturedObject
+                .replace("{", "")
+                .replace("}", "")
+                .replace("\n", "")
+                .replace("\t", "")
+                .replace(" ", "")
+                .replace(":", ".")
+                .replace("-", ".");
     }
 
     protected CollectedMessage writeCapturePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
