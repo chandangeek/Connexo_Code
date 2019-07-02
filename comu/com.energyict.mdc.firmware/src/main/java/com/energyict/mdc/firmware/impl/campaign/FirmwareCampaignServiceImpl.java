@@ -248,7 +248,12 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
 
     @Override
     public List<FirmwareCampaign> findFirmwareCampaigns(DeviceType deviceType) {
-        return streamAllCampaigns().filter(firmwareCampaign -> firmwareCampaign.getDeviceType().equals(deviceType)).collect(Collectors.toList());
+        return streamAllCampaigns().filter(Where.where("deviceType").isEqualTo(deviceType)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DeviceInFirmwareCampaign> findFirmwareCampaignItems(Device device) {
+        return streamDevicesInCampaigns().filter(Where.where("device").isEqualTo(device)).collect(Collectors.toList());
     }
 
     public DataModel getDataModel() {
@@ -283,7 +288,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         serviceRegistrations.clear();
     }
 
-    void postEvent(EventType eventType, Object source){
+    void postEvent(EventType eventType, Object source) {
         eventService.postEvent(eventType.topic(), source);
     }
 

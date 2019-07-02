@@ -210,6 +210,7 @@ public enum TableSpecs {
             table.foreignKey("FK_FWC_PROPS_TO_CAMPAIGN")
                     .on(campaign, cps)
                     .references(FirmwareCampaignDomainExtension.class)
+                    .onDelete(CASCADE)
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_PROPS").on(campaign, key).add();

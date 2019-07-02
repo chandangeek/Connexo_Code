@@ -367,4 +367,9 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     return firmwareComTaskExecution;
                 });
     }
+
+    @Override
+    public void delete() {
+        getServiceCall().delete();
+    }
 }

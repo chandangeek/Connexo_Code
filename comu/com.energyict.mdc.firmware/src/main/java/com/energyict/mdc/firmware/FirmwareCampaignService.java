@@ -41,5 +41,7 @@ public interface FirmwareCampaignService {
 
     List<FirmwareCampaign> findFirmwareCampaigns(DeviceType deviceType);
 
+    List<DeviceInFirmwareCampaign> findFirmwareCampaignItems(Device device);
+
     FirmwareVersion getFirmwareVersion(Map<String, Object> properties);
 }
