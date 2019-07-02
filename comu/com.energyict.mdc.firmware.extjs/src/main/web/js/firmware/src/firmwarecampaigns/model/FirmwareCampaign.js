@@ -71,8 +71,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
                 return '-';
             }
         },
-        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null}
-        }, {
+        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null}, {
             name: 'validationComTask',
             type: 'auto',
             useNull: true,
