@@ -144,7 +144,11 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         }  else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus event log on channel "+channel);
-            meterEvents = new MbusLog(dataContainer, channel).getMeterEvents();
+            MbusLog mBusLog = new MbusLog(dataContainer, channel);
+            meterEvents = mBusLog.getMeterEvents();
+            if (mBusLog.getIgnoredEvents()>0){
+                getProtocol().journal("Ignored events: "+mBusLog.getIgnoredEvents());
+            }
         } else {
             getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
             return new ArrayList<>();

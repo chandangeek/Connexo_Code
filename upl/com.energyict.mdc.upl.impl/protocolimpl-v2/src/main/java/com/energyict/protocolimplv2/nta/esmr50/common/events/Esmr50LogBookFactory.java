@@ -56,7 +56,11 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_CONTROL_LOG)) {
             int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus control log on channel "+channel);
-            meterEvents = new ESMR50MbusControlLog(dataContainer, channel).getMeterEvents();
+            ESMR50MbusControlLog mbusControlLog = new ESMR50MbusControlLog(dataContainer, channel);
+            meterEvents = mbusControlLog.getMeterEvents();
+            if (mbusControlLog.getIgnoredEvents()>0){
+                getProtocol().journal("Ignored events: "+mbusControlLog.getIgnoredEvents());
+            }
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus event log on channel "+channel);
