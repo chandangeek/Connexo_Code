@@ -123,12 +123,12 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
         return propertyValueMap;
     }
 
-    private Device findDeviceForEndDevice(EndDevice endDevice) {
+    protected Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
-    private DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {
+    protected DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {
         return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue())
                 .orElseThrow(NoSuchElementException.deviceMessageSpecWithIdNotFound(thesaurus, deviceMessageId.dbValue()));
     }
