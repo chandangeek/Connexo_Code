@@ -18,6 +18,7 @@ import com.elster.jupiter.tasks.security.Privileges;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -205,7 +206,7 @@ public class TaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     public Response modifyTask(TaskMinInfo info) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (info.queue != null && !info.queue.isEmpty()) {
+        if (Checks.is(info.queue).empty()) {
             recurrentTask.setDestination(info.queue);
         }
         if (info.priority != null) {

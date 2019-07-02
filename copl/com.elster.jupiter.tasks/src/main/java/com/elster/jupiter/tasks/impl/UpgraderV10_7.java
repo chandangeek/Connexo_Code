@@ -11,7 +11,7 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_7  implements Upgrader {
+class UpgraderV10_7 implements Upgrader {
     private final DataModel dataModel;
 
     @Inject

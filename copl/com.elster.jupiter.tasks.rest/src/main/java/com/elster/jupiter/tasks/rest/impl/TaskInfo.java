@@ -42,8 +42,8 @@ public class TaskInfo {
     public String lastRunStatus;
     public Long lastRunDate;
     public Long lastRunDuration;
-    public boolean isExtraQueueCreationEnabled;
-    public boolean isQueuePrioritized;
+    public Boolean isExtraQueueCreationEnabled;
+    public Boolean isQueuePrioritized;
     public Integer priority;
 
 
