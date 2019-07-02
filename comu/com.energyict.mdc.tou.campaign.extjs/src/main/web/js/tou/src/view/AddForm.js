@@ -120,12 +120,14 @@ Ext.define('Tou.view.AddForm', {
                         id: 'fullCalendar',
                         boxLabel: Uni.I18n.translate('general.fullCalendar', 'TOU', 'Full calendar'),
                         inputValue: 'fullCalendar',
-                        name: 'updateType'
+                        name: 'updateType',
+                        margin: '5 0 5 0'
                     }, {
                         id: 'specialDays',
                         boxLabel: Uni.I18n.translate('general.specialDays', 'TOU', 'Only special days'),
                         inputValue: 'specialDays',
-                        name: 'updateType'
+                        name: 'updateType',
+                        margin: '5 0 5 0'
                     }
                 ],
                 width: 1000

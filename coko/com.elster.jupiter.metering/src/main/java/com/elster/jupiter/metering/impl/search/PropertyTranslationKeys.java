@@ -32,6 +32,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_VERSION("usagepoint.versionCount", "Version"),
     USAGEPOINT_SERVICEPRIORITY("usagepoint.servicePriority", "Service priority"),
     USAGEPOINT_LOCATION("usagepoint.location", "Location"),
+    USAGEPOINT_COORDINATES("usagepoint.coordinates", "Coordinates"),
     USAGEPOINT_METROLOGYCONFIGURATION("usagepoint.metrologyConfiguration", "Metrology configuration"),
     USAGEPOINT_INSTALLATION_TIME("usagepoint.installationTime", "Installation time"),
     USAGEPOINT_TYPE("usagepoint.type", "Type"),
@@ -71,7 +72,12 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_PRESSURE("usagepoint.pressure", "Pressure"),
     USAGEPOINT_BYPASS_STATUS("usagepoint.bypassStatus", "Bypass status"),
     USAGEPOINT_PURPOSE("usagepoint.purpose", "Purpose"),
-    USAGEPOINT_STATE("usagepoint.state", "State")
+    USAGEPOINT_STATE("usagepoint.state", "State"),
+    USAGEPOINT_SERVICE_DELIVERY_REMARK("usagepoint.serviceDeliveryRemark", "Service delivery remark"),
+    USAGEPOINT_LIFE_CYCLE_NAME("usagepoint.usagepointLifecycleNAme", "Usage point life cycle"),
+    USAGEPOINT_TYPE_OF_USAGE_POINT("usagepoint.typeOf", "Type of usage point"),
+    USAGEPOINT_GENERAL_INFORMATION("usagepoint.general.info", "General information"),
+    USAGEPOINT_TECHNICAL_INFORMATION("usagepoint.technical.info", "Technical information"),
     ;
 
     private String key;

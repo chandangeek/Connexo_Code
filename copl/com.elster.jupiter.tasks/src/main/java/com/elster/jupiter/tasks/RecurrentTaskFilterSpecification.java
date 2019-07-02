@@ -15,6 +15,7 @@ public class RecurrentTaskFilterSpecification {
 
     public Set<String> applications = new HashSet<>();
     public Set<String> queues = new HashSet<>();
+    public Set<String> queueTypes = new HashSet<>();
     public Instant startedOnFrom;
     public Instant startedOnTo;
 }
