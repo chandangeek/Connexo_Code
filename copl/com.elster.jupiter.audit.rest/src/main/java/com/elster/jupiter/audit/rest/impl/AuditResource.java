@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.audit.rest.impl;
 
+import com.elster.jupiter.audit.ApplicationType;
 import com.elster.jupiter.audit.AuditDomainType;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrailFilter;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -38,6 +40,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/audit")
 public class AuditResource {
+    static final String X_CONNEXO_APPLICATION_NAME = "X-CONNEXO-APPLICATION-NAME";
 
     private final TransactionService transactionService;
     private final AuditService auditService;
@@ -66,8 +69,9 @@ public class AuditResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_AUDIT_LOG})
-    public PagedInfoList getAuditTrail(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-        return PagedInfoList.fromPagedList("audit", auditService.getAuditTrail(getAuditTrailFilter(filter))
+    public PagedInfoList getAuditTrail(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter,
+                                       @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appName) {
+        return PagedInfoList.fromPagedList("audit", auditService.getAuditTrail(getAuditTrailFilter(filter, getAppTypeFromAppName(appName)))
                 .from(queryParameters)
                 .stream()
                 .map(audit -> auditInfoFactory.from(audit, thesaurus))
@@ -79,10 +83,11 @@ public class AuditResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/categories")
     @RolesAllowed({Privileges.Constants.VIEW_AUDIT_LOG})
-    public Response getCategories() {
+    public Response getCategories(@HeaderParam(X_CONNEXO_APPLICATION_NAME) String appName) {
         List<IdWithNameInfo> operationInfos =
                 Arrays.stream(AuditDomainType.values())
                         .filter(auditDomainType -> auditDomainType != AuditDomainType.UNKNOWN)
+                        .filter(auditDomainType -> auditDomainType.getApplicationType().equals(getAppTypeFromAppName(appName)))
                         .map(auditDomainType ->
                                 Arrays.stream(AuditDomainTranslationKeys.values())
                                         .filter(keys -> keys.getKey().compareToIgnoreCase(auditDomainType.type()) == 0)
@@ -115,8 +120,8 @@ public class AuditResource {
         return Response.ok(users).build();
     }
 
-    private AuditTrailFilter getAuditTrailFilter(JsonQueryFilter filter) {
-        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter();
+    private AuditTrailFilter getAuditTrailFilter(JsonQueryFilter filter, ApplicationType applicationType) {
+        AuditTrailFilter auditFilter = auditService.newAuditTrailFilter(applicationType);
         if (filter.hasProperty("changedOnFrom")) {
             auditFilter.setChangedOnFrom(filter.getInstant("changedOnFrom"));
         }
@@ -130,6 +135,14 @@ public class AuditResource {
             auditFilter.setChangedBy(filter.getStringList("users"));
         }
         return auditFilter;
+    }
+
+    private ApplicationType getAppTypeFromAppName(String appName)
+    {
+        return Arrays.stream(ApplicationType.values())
+                .filter(applicationType -> applicationType.getName().equals(appName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Application is not supported"));
     }
 
 }

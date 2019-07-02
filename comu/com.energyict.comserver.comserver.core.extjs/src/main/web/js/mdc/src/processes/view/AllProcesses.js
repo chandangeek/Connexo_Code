@@ -96,8 +96,8 @@ Ext.define('Mdc.processes.view.AllProcesses', {
                                     itemId: 'status-process-tab',
                                     items: [
                                         {
-                                            xtype: 'bpm-status-process-preview',
-                                            itemId: 'all-process-status-preview'
+                                            xtype: 'bpm-status-process-preview-extended',
+                                            itemId: 'all-process-status-preview-extended'
                                         }
                                     ]
                                 }
@@ -111,4 +111,3 @@ Ext.define('Mdc.processes.view.AllProcesses', {
         this.callParent(arguments);
    }
 });
-

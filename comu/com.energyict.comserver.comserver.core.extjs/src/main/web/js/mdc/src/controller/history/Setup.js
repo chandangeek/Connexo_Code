@@ -1316,6 +1316,13 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'regdevices',
                             controller: 'Mdc.registereddevices.controller.RegisteredDevices',
                             action: 'showRegisteredDevicesOnGateway'
+                        },
+                        newissuemanually: {
+                                title: Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue'),
+                                route: 'newissuemanually',
+                                controller: 'Isu.controller.CreationManualRule',
+                                action: 'createNewManuallyIssue',
+                                privileges: Isu.privileges.Issue.createManualIssue
                         }
                     }
                 }
@@ -2981,9 +2988,9 @@ Ext.define('Mdc.controller.history.Setup', {
                     audit: {
                         title: Uni.I18n.translate('general.auditTrail', 'MDC', 'Audit trail'),
                         route: 'audit',
-                        controller: 'Mdc.audit.controller.Audit',
+                        controller: 'Cfg.audit.controller.Audit',
                         action: 'showOverview',
-                        privileges: Cfg.privileges.Validation.viewAuditLog
+                        privileges: Cfg.privileges.Audit.viewAuditLog
                     }
                 }
             }

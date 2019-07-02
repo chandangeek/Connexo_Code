@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -277,6 +278,8 @@ public class DeviceFirmwareMessagesResource {
         upgradeMessage.revoke();
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade
         rescheduleFirmwareUpgradeTask(device);
+        firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
+                .ifPresent(DeviceInFirmwareCampaign::cancel);
         return Response.ok().build();
     }
 

@@ -89,7 +89,8 @@ public class MessageServiceImpl implements MessageService {
         });
         upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 Version.version(10, 2), UpgraderV10_2.class,
-                Version.version(10, 5), UpgraderV10_5.class
+                Version.version(10, 5), UpgraderV10_5.class,
+                Version.version(10, 7), UpgraderV10_7.class
         ));
     }
 
@@ -98,8 +99,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
-        QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, multiConsumer);
+    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
+        QueueTableSpecImpl result = QueueTableSpecImpl.from(dataModel, name, payloadType, multiConsumer, isPrioritized);
         result.save();
         result.activate();
         return result;
@@ -136,6 +137,11 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<SubscriberSpec> getNonSystemManagedSubscribers() {
         return dataModel.mapper(SubscriberSpec.class).find("systemManaged", false);
+    }
+
+    @Override
+    public List<DestinationSpec> getDestinationSpecs(String queueTypeName) {
+        return dataModel.mapper(DestinationSpec.class).find("queueTypeName", queueTypeName);
     }
 
     @Override

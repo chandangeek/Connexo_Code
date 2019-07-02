@@ -15,7 +15,8 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.model.IssueWorkgroupAssignee',
         'Isu.model.IssueReason',
         'Isu.model.Device',
-        'Uni.component.sort.model.Sort'
+        'Uni.component.sort.model.Sort',
+        'Isu.model.DeviceGroup'
     ],
 
     stores: [
@@ -28,7 +29,8 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.store.Devices',
         'Isu.store.IssueGrouping',
         'Isu.store.Groups',
-        'Isu.store.Clipboard'
+        'Isu.store.Clipboard',
+        'Isu.store.DeviceGroups'
     ],
 
     views: [

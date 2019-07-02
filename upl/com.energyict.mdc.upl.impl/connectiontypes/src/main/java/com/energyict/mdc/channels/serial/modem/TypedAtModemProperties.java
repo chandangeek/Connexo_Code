@@ -85,7 +85,7 @@ public class TypedAtModemProperties extends AbstractAtModemProperties implements
 
     public PropertySpec atConnectTimeoutSpec() {
         return propertySpecService.durationSpec().named(CONNECT_TIMEOUT, CONNECT_TIMEOUT).describedAs(CONNECT_TIMEOUT)
-                .setDefaultValue(DEFAULT_COMMAND_TIMEOUT).finish();
+                .setDefaultValue(DEFAULT_CONNECT_TIMEOUT).finish();
     }
 
     public PropertySpec atCommandPrefixSpec() {

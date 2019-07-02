@@ -7,6 +7,7 @@ package com.elster.jupiter.issue.task.rest;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -22,6 +23,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -63,6 +65,10 @@ public abstract class TaskIssueApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     BpmService bpmService;
     @Mock
+    IssueResourceHelper issueResourceHelper;
+    @Mock
+    MeteringGroupsService meteringGroupService;
+    @Mock
     PropertyValueInfoService propertyValueInfoService;
 
     @Override
@@ -82,6 +88,7 @@ public abstract class TaskIssueApplicationJerseyTest extends FelixRestApplicatio
         application.setAppService(appService);
         application.setJsonService(jsonService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setMeteringGroupsService(meteringGroupService);
         return application;
     }
 

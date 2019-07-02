@@ -80,7 +80,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware).findFirst();
         if (firmwareComTaskExecution.isPresent()) {
             ComTaskExecution comTaskExecution = firmwareComTaskExecution.get();
-            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution);
+            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution);
             if (firmwareCampaign.isPresent()) {
                 comWindowToUse = firmwareCampaign.get().getComWindow();
             }

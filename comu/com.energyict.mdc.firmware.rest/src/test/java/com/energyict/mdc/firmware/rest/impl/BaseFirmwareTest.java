@@ -16,6 +16,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -23,6 +24,7 @@ import com.energyict.mdc.tasks.TaskService;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,6 +64,8 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     SecurityManagementService securityManagementService;
     @Mock
     ExceptionFactory exceptionFactory;
+    @Mock
+    FirmwareCampaignService firmwareCampaignService;
 
     @Override
     protected Application getApplication() {
@@ -73,6 +77,7 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
                 return classes;
             }
         };
+        when(firmwareService.getFirmwareCampaignService()).thenReturn(firmwareCampaignService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setDeviceConfigurationService(deviceConfigurationService);
@@ -86,6 +91,7 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setMdcPropertyUtils(mdcPropertyUtils);
         application.setSecurityManagementService(securityManagementService);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         application.setExceptionFactory(exceptionFactory);
         return application;
     }

@@ -12,7 +12,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
-        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
+        'Fwc.firmwarecampaigns.store.ComTasks'
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -80,7 +81,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         allowBlank: false,
                         queryMode: 'local',
                         displayField: 'name',
-                        valueField: 'id',
+                        valueField: 'name',
                         width: 325
                     },
                     {
@@ -101,7 +102,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'timeInHoursAndMinutes',
                 fieldLabel: Uni.I18n.translate('general.timeBoundaryStart', 'FWC', 'Time boundary start'),
-                name: 'timeBoundaryStart',
+                name: 'timeBoundaryStartTimeInSec',
                 itemId: 'timeBoundaryStart',
                 required: true,
                 allowBlank: false
@@ -109,10 +110,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'timeInHoursAndMinutes',
                 fieldLabel: Uni.I18n.translate('general.timeBoundaryEnd', 'FWC', 'Time boundary end'),
-                name: 'timeBoundaryEnd',
+                name: 'timeBoundaryEndTimeInSec',
                 itemId: 'timeBoundaryEnd',
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -185,6 +187,125 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 width: 1000
             },
             {
+                xtype: 'combobox',
+                itemId: 'fwc-campaign-allowed-comtask',
+                name: 'sendCalendarComTask',
+                store: 'Fwc.firmwarecampaigns.store.ComTasks',
+                fieldLabel: Uni.I18n.translate(
+                    'general.sendCalendarComTask',
+                    'FWC',
+                    'Send calendar communication task'
+                ),
+                required: true,
+                allowBlank: false,
+                forceSelection: true,
+                emptyText: Uni.I18n.translate(
+                    'general.sendCalendarComTask.empty',
+                    'FWC',
+                    'Select communication task ...'
+                ),
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                margin: '30 0 10 0',
+                hidden: true,
+            },
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                itemId: 'fwc-campaign-send-connection-strategy-container',
+                fieldLabel: Uni.I18n.translate(
+                    'general.connectionMethodStrategy',
+                    'FWC',
+                    'Connection method strategy'
+                ),
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'fwc-campaign-send-connection-strategy',
+                        name: 'sendCalendarConnectionStrategy',
+                        store: 'Fwc.firmwarecampaigns.store.ConnectionStrategy',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        margin: '0 10 0 0',
+                        valueField: 'id',
+                        value: 2,
+                        allowBlank: false,
+                        forceSelection: true
+                    },
+                    {
+                        xtype: 'uni-default-button',
+                        itemId: 'fwc-campaign-send-connection-strategy-reset',
+                        handler: function() {
+                            this.down('[name=sendCalendarConnectionStrategy]').reset();
+                        },
+                        scope: me,
+                        margin: '0 0 0 10',
+                        hidden: false
+                    }
+                ]
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'fwc-campaign-validation-comtask',
+                name: 'validationComTask',
+                store: 'Fwc.firmwarecampaigns.store.ComTasks',
+                fieldLabel: Uni.I18n.translate(
+                    'general.validationComTask',
+                    'FWC',
+                    'Validation communication task'
+                ),
+                hidden: true,
+                disabled: true,
+                required: true,
+                allowBlank: false,
+                forceSelection: true,
+                emptyText: Uni.I18n.translate(
+                    'general.validationComTask.empty',
+                    'FWC',
+                    'Select communication task ...'
+                ),
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id'
+            },
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                itemId: 'fwc-campaign-validation-strategy-container',
+                hidden: true,
+                disabled: true,
+                fieldLabel: Uni.I18n.translate(
+                    'general.validationMethodStrategy',
+                    'FWC',
+                    'Validation method strategy'
+                ),
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'tou-campaign-validation-connection-strategy',
+                        name: 'validationConnectionStrategy',
+                        store: 'Fwc.firmwarecampaigns.store.ConnectionStrategy',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        margin: '0 10 0 0',
+                        valueField: 'id',
+                        allowBlank: false,
+                        forceSelection: true
+                    },
+                    {
+                        xtype: 'uni-default-button',
+                        itemId: 'tou-campaign-validation-connection-strategy-reset',
+                        handler: function() {
+                            this.down('[name=validationConnectionStrategy]').reset();
+                        },
+                        scope: me,
+                        margin: '0 0 0 10',
+                        hidden: false
+                    }
+                ]
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
@@ -235,6 +356,14 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
+            var sendComtaskField = me.down("[name=sendCalendarComTask]");
+            me.down('#fwc-campaign-send-connection-strategy-container').show();
+            sendComtaskField.show();
+            sendComtaskField.getStore().getProxy().setUrl(newValue);
+            sendComtaskField.getStore().load();
+            var validationComTask = me.down("[name=validationComTask]");
+            validationComTask.getStore().getProxy().setUrl(newValue);
+            validationComTask.getStore().load();
         }
     },
 
@@ -284,6 +413,21 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             if (!me.skipLoadingIndication) {
                 me.setLoading();
             }
+            if (newValue.managementOption === "activate" || newValue.managementOption === "activateOnDate"){
+                me.down('[name=validationComTask]').show();
+
+                me.down('#fwc-campaign-validation-strategy-container').show();
+                if (!me.campaignRecordBeingEdited) {
+                    me.down('[name=validationComTask]').setDisabled(false);
+                    me.down('#fwc-campaign-validation-strategy-container').setDisabled(false);
+                }
+            }else{
+                me.down('[name=validationComTask]').hide();
+                me.down('[name=validationComTask]').setDisabled(true);
+                me.down('#fwc-campaign-validation-strategy-container').hide();
+                me.down('#fwc-campaign-validation-strategy-container').setDisabled(true);
+            }
+
             firmwareManagementOption.load(newValue.managementOption, {
                 success: function (record) {
                     me.down('#property-form').loadRecord(record);
@@ -327,7 +471,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
-            me.getRecord().propertiesStore = propertyForm.getRecord().properties();
+            var properties = propertyForm.getRecord().properties();
+            me.getRecord().propertiesStore = properties;
         }
     },
 
@@ -366,6 +511,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
                     periodNumber.setValue(validationTimeout.count);
                 }
+                me.down('#fwc-campaign-allowed-comtask').setDisabled(true);
+                me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
 
             },
             setProperties = function() {
