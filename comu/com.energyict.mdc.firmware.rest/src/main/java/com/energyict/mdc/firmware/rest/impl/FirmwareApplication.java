@@ -61,6 +61,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
     private volatile SecurityManagementService securityManagementService;
+    private volatile ExceptionFactory exceptionFactory;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -76,7 +77,9 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
                 MultiPartFeature.class,
                 RestValidationExceptionMapper.class,
                 DeviceStateAccessFeature.class,
-                SecurityAccessorResource.class
+                SecurityAccessorResource.class,
+                DeviceConfigurationService.class,
+                ExceptionFactory.class
         );
     }
 
@@ -116,6 +119,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(DeviceFirmwareLifecycleHistoryInfoFactory.class).to(DeviceFirmwareLifecycleHistoryInfoFactory.class);
             bind(securityManagementService).to(SecurityManagementService.class);
             bind(SecurityAccessorInfoFactory.class).to(SecurityAccessorInfoFactory.class);
+            bind(exceptionFactory).to(ExceptionFactory.class);
         }
     }
 
@@ -162,6 +166,11 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setExceptionFactory(ExceptionFactory exceptionFactory) {
+        this.exceptionFactory = exceptionFactory;
     }
 
     @Reference

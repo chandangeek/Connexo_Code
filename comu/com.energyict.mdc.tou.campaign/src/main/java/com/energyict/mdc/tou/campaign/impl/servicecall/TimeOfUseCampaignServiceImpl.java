@@ -307,7 +307,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;

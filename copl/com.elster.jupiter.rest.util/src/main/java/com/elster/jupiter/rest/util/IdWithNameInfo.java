@@ -38,8 +38,7 @@ public class IdWithNameInfo {
             return false;
         }
         IdWithNameInfo that = (IdWithNameInfo) obj;
-        return id.equals(that.id) &&
-                name.equals(that.name);
+        return this.id.equals(that.id);
     }
 
     @Override

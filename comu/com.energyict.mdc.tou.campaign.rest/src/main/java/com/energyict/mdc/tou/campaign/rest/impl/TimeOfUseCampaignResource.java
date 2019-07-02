@@ -19,7 +19,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -46,9 +45,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Path("/toucampaigns")
@@ -70,7 +69,7 @@ public class TimeOfUseCampaignResource {
                                      Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory,
                                      DeviceTypeAndOptionsInfoFactory deviceTypeAndOptionsInfoFactory, DeviceInCampaignInfoFactory deviceInCampaignInfoFactory,
                                      DeviceService deviceService, ServiceCallService serviceCallService, ExceptionFactory exceptionFactory,
-                                     DeviceConfigurationService deviceConfigurationService/*, TaskService taskService*/) {
+                                     DeviceConfigurationService deviceConfigurationService) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.timeOfUseCampaignInfoFactory = timeOfUseCampaignInfoFactory;
         this.thesaurus = thesaurus;
@@ -232,15 +231,15 @@ public class TimeOfUseCampaignResource {
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getComTasks(@QueryParam("type") long deviceTypeId) {
 
-        Set<IdWithNameInfo> comTasks = new HashSet<>();
+        Set<IdWithNameInfo> comTasks = new TreeSet<>();
 
-        DeviceType deviceType = deviceConfigurationService.findDeviceType(deviceTypeId)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId));
-
-        List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
-        deviceType.getConfigurations().stream().forEach(cnf -> comTaskEnablements.addAll(cnf.getComTaskEnablements()));
-        comTaskEnablements.stream()
-                .filter(cte -> cte.getComTask().getSystemTask())
+        deviceConfigurationService.findDeviceType(deviceTypeId)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId))
+                .getConfigurations().stream()
+                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                .collect(Collectors.toList())
+                .stream()
+                .filter(cte -> cte.getComTask().isSystemComTask())
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 
         return Response.ok(comTasks).build();

@@ -206,7 +206,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             serviceCall.requestTransition(DefaultState.FAILED);
         } else {
             multiSenseDevice.getComTaskExecutions().stream()
-                    //.filter(cte -> cte.getComTask().isSystemComTask())
                     .forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
         }
 

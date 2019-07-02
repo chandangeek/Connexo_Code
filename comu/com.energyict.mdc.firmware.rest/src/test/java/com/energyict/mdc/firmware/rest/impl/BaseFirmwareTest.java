@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -59,6 +60,8 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     MdcPropertyUtils mdcPropertyUtils;
     @Mock
     SecurityManagementService securityManagementService;
+    @Mock
+    ExceptionFactory exceptionFactory;
 
     @Override
     protected Application getApplication() {
@@ -83,6 +86,7 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setMdcPropertyUtils(mdcPropertyUtils);
         application.setSecurityManagementService(securityManagementService);
+        application.setExceptionFactory(exceptionFactory);
         return application;
     }
 

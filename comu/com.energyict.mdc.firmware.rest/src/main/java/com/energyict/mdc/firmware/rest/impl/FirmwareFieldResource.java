@@ -5,12 +5,15 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -18,6 +21,7 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.tasks.impl.ServerTaskService;
 
 import com.google.common.collect.Range;
 
@@ -31,7 +35,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,13 +49,18 @@ public class FirmwareFieldResource extends FieldResource {
     private final FirmwareService firmwareService;
     private final ResourceHelper resourceHelper;
     private final FirmwareMessageInfoFactory firmwareMessageInfoFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public FirmwareFieldResource(Thesaurus thesaurus, FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareMessageInfoFactory firmwareMessageInfoFactory) {
+    public FirmwareFieldResource(Thesaurus thesaurus, FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareMessageInfoFactory firmwareMessageInfoFactory,
+                                 DeviceConfigurationService deviceConfigurationService, ExceptionFactory exceptionFactory) {
         super(thesaurus);
         this.firmwareService = firmwareService;
         this.resourceHelper = resourceHelper;
         this.firmwareMessageInfoFactory = firmwareMessageInfoFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -138,4 +151,28 @@ public class FirmwareFieldResource extends FieldResource {
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("firmwares", foundFirmwares, queryParameters);
     }
+    
+
+    @GET
+    @Transactional
+    @Path("/comtasks")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response getComTasks(@QueryParam("type") long deviceTypeId, @QueryParam("calendarOrValidation") String calendarOrValidation) {
+
+        Set<IdWithNameInfo> comTasks = new TreeSet<>();
+
+        deviceConfigurationService.findDeviceType(deviceTypeId)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
+                .getConfigurations().stream()
+                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                .collect(Collectors.toList())
+                .stream()
+                .filter(cte -> cte.getComTask().isSystemComTask() &&
+                        (calendarOrValidation.equals("calendar") ? cte.getComTask().getName().equals(ServerTaskService.FIRMWARE_COMTASK_NAME) : cte.getComTask().isSystemComTask()))
+                .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
+
+        return Response.ok(comTasks).build();
+    }
+
 }

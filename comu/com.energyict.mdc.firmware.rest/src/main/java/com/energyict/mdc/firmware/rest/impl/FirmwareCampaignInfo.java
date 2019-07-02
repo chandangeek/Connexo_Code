@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -34,6 +35,11 @@ public class FirmwareCampaignInfo {
     public List<DeviceInFirmwareCampaignStatusInfo> devicesStatus;
     public long version;
     public TimeDurationInfo validationTimeout;
+
+    public IdWithNameInfo sendCalendarConnectionStrategy;
+
+    public IdWithNameInfo validationComTask;
+    public IdWithNameInfo validationConnectionStrategy;
 
     public FirmwareCampaignInfo() {}
 

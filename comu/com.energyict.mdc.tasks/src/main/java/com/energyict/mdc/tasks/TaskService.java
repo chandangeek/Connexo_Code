@@ -18,8 +18,6 @@ public interface TaskService {
 
     public ComTask newComTask(String name);
 
-    public ComTask newComTaskWithSystemTask(String name, boolean systemTask);
-
     public Optional<ComTask> findComTask(long id);
 
     /**

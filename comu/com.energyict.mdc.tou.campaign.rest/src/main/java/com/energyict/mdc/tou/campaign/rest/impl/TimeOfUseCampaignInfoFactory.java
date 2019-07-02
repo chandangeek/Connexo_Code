@@ -41,7 +41,7 @@ public class TimeOfUseCampaignInfoFactory {
     @Inject
     public TimeOfUseCampaignInfoFactory(TimeOfUseCampaignService timeOfUseCampaignService, Clock clock, Thesaurus thesaurus,
                                         DeviceConfigurationService deviceConfigurationService, CalendarService calendarService,
-                                        ExceptionFactory exceptionFactory,TaskService taskService) {
+                                        ExceptionFactory exceptionFactory, TaskService taskService) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.clock = clock;
         this.thesaurus = thesaurus;
@@ -70,10 +70,10 @@ public class TimeOfUseCampaignInfoFactory {
                 .withValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint())
                 .withUniqueCalendarName(timeOfUseCampaignInfo.withUniqueCalendarName)
-                .withSendCalendarComTaskId(Long.parseLong(timeOfUseCampaignInfo.sendCalendarComTask.id.toString()))
-                .withValidationComTaskId(Long.parseLong(timeOfUseCampaignInfo.validationComTask.id.toString()))
-                .withSendCalendarConnectionStrategyId(Long.parseLong(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.id.toString()))
-                .withValidationConnectionStrategyId(Long.parseLong(timeOfUseCampaignInfo.validationConnectionStrategy.id.toString()));
+                .withSendCalendarComTaskId(((Number)timeOfUseCampaignInfo.sendCalendarComTask.id).longValue())
+                .withValidationComTaskId(((Number)timeOfUseCampaignInfo.validationComTask.id).longValue())
+                .withSendCalendarConnectionStrategyId(((Number)timeOfUseCampaignInfo.sendCalendarConnectionStrategy.id).longValue())
+                .withValidationConnectionStrategyId(((Number)timeOfUseCampaignInfo.validationConnectionStrategy.id).longValue());
         return timeOfUseCampaignBuilder.create();
     }
 

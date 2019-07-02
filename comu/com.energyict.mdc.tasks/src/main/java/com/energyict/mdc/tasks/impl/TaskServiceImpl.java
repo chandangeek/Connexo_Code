@@ -161,13 +161,6 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
         comTask.setName(name);
         return comTask;
     }
-    @Override
-    public ComTask newComTaskWithSystemTask(String name, boolean systemTask){
-        ComTask comTask = dataModel.getInstance(ComTask.class);
-        comTask.setName(name);
-        comTask.setSystemTask(systemTask);
-        return comTask;
-    }
 
     @Override
     public Optional<ComTask> findComTask(long id) {

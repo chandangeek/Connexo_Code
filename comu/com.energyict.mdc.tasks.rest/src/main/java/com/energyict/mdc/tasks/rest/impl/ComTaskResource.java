@@ -87,9 +87,10 @@ public class ComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response addComTask(ComTaskInfo comTaskInfo) {
-        ComTask newComTask = comTaskInfo.systemTask
-                ?taskService.newComTaskWithSystemTask(comTaskInfo.name,true)
-                :taskService.newComTask(comTaskInfo.name);
+        ComTask newComTask = taskService.newComTask(comTaskInfo.name);
+        if(comTaskInfo.systemTask){
+            newComTask.setSystemTask(true);
+        }
 
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
             Categories category = Categories.valueOf(protocolTaskInfo.categoryId.toUpperCase());

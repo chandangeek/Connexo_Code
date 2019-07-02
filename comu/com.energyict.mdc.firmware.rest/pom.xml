@@ -125,6 +125,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
@@ -220,11 +224,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cbo</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
