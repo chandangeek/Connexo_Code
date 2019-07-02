@@ -53,7 +53,7 @@ public class EndPointAccessRequestInterceptor extends AbstractPhaseInterceptor<M
             } else {
                 long id = MessageUtils.getOccurrenceId(message);
                 MessageUtils.executeOnOutgoingPayloadAvailable(message, payload -> {
-                    WebServiceCallOccurrence occurrence = webServicesService.getOccurrence(id);
+                    WebServiceCallOccurrence occurrence = webServicesService.getOngoingOccurrence(id);
                     occurrence.setPayload(payload);
                     transactionService.runInIndependentTransaction(occurrence::save);
                 });

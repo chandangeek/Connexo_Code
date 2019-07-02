@@ -90,7 +90,7 @@ public interface WebServicesService {
 
     WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception);
 
-    WebServiceCallOccurrence getOccurrence(long id);
+    WebServiceCallOccurrence getOngoingOccurrence(long id);
 
     EndPointProvider getProvider(String webServiceName);
 }

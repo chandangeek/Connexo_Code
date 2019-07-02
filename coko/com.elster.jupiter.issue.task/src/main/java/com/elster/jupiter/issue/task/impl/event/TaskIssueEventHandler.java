@@ -5,7 +5,7 @@
 package com.elster.jupiter.issue.task.impl.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.task.event.TaskEvent;
 import com.elster.jupiter.messaging.Message;
@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 public class TaskIssueEventHandler implements MessageHandler {
     private static final Logger LOG = Logger.getLogger(TaskIssueEventHandler.class.getName());
@@ -67,7 +66,7 @@ public class TaskIssueEventHandler implements MessageHandler {
                 tskEvent.init(map);
                 // tskEvent.wrap(mapForSingleEvent, description);
                 events.add(tskEvent);
-            } catch (UnableToCreateEventException e) {
+            } catch (UnableToCreateIssueException e) {
                 LOG.severe(e.getMessage());
             }
         }

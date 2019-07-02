@@ -176,7 +176,7 @@ public enum TableSpecs {
                     .conversion(CLOB2STRING)
                     .map(EndPointLogImpl.Fields.stacetrace.fieldName())
                     .add();
-            Column occurrence = table.column("OCCURRENCEID").number().add();
+            Column occurrence = table.column("OCCURRENCEID").number().since(version(10, 7)).add();
 
             table.foreignKey("FK_WS_OCCURRENCE")
                     .references(WS_CALL_OCCURRENCE.name())

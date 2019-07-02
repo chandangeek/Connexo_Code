@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.alarms.event;
 
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -45,7 +45,7 @@ public class EndDeviceEventCreatedEvent extends DeviceAlarmEvent {
             this.endDeviceEventType = (String) jsonPayload.get(ModuleConstants.END_DEVICE_EVENT_TYPE);
             this.deviceCode = (String) jsonPayload.get(ModuleConstants.DEVICE_EVENT_TYPE);
         } catch (Exception e) {
-            throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
+            throw new UnableToCreateIssueException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
         }
     }
 

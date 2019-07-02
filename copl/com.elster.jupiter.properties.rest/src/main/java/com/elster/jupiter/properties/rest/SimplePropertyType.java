@@ -31,6 +31,7 @@ public enum SimplePropertyType implements PropertyType {
     TIMESTAMP(Instant.class),
     LONG(Long.class),
     IDWITHNAME(HasIdAndName.class),
+    IDWITHNAMELIST(ListValueFactory.class),
     RELATIVEPERIOD(RelativePeriodFactory.class),
     SELECTIONGRID(ListValueFactory.class),
     LISTVALUE(ListValueFactory.class),

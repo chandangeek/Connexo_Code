@@ -18,6 +18,7 @@ import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
+import com.elster.jupiter.util.HasId;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +62,9 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
             return SimplePropertyType.ENDDEVICEEVENTTYPE;
         }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory().isReference()) {
+            return SimplePropertyType.IDWITHNAMELIST;
+        }
         return SimplePropertyType.LISTVALUE;
     }
 
@@ -77,10 +81,13 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            List<HasIdAndName> value = (List<HasIdAndName>) domainValue;
-            return value.stream().map(HasIdAndName::getId).collect(Collectors.toList());
+            List<?> value = (List<?>) domainValue;
+            return value.stream().map(ListPropertyValueConverter::retrieveId).collect(Collectors.toList());
         }
         return null;
     }
 
+    private static Object retrieveId(Object value) {
+        return value instanceof HasIdAndName ? ((HasIdAndName) value).getId() : value instanceof HasId ? ((HasId) value).getId() : value;
+    }
 }

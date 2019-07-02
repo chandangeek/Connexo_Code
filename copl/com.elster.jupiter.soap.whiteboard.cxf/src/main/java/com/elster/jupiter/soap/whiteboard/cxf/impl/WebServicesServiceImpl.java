@@ -313,7 +313,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence passOccurrence(long id) {
-        WebServiceCallOccurrence tmp = getOccurrence(id);
+        WebServiceCallOccurrence tmp = getOngoingOccurrence(id);
         occurrences.remove(tmp.getId());
         return transactionService.executeInIndependentTransaction(() -> {
             tmp.log(LogLevel.INFO, "Request completed successfully.");
@@ -337,7 +337,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception) {
-        WebServiceCallOccurrence tmp = getOccurrence(id);
+        WebServiceCallOccurrence tmp = getOngoingOccurrence(id);
         occurrences.remove(tmp.getId());
         return transactionService.executeInIndependentTransaction(() -> {
             if (exception == null) {
@@ -361,7 +361,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public WebServiceCallOccurrence getOccurrence(long id) {
+    public WebServiceCallOccurrence getOngoingOccurrence(long id) {
         WebServiceCallOccurrence tmp = occurrences.get(id);
         if (tmp == null) {
             throw new IllegalStateException("Web service call occurrence isn't present.");

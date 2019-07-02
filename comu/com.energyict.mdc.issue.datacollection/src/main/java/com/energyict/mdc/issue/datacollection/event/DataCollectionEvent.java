@@ -6,7 +6,7 @@ package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
@@ -133,11 +133,11 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
 
     protected void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> amrId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
-        device = getDeviceService().findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
+        device = getDeviceService().findDeviceById(amrId.orElse(0L)).orElseThrow(() -> new UnableToCreateIssueException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
     }
 
     protected void getEventTimestamp(Map<?, ?> rawEvent) {
-        Long timestampMilli = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_TIMESTAMP));
+        Long timestampMilli = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP).orElseThrow(() -> new UnableToCreateIssueException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_TIMESTAMP));
         timestamp = Instant.ofEpochMilli(timestampMilli);
     }
 
@@ -152,7 +152,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
                 return Optional.of(meterRef.get());
             }
         }
-        throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device.getId());
+        throw new UnableToCreateIssueException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device.getId());
     }
 
     protected Instant getLastSuccessfulCommunicationEnd(Device concentrator) {

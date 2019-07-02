@@ -91,6 +91,7 @@ public class CreationRuleResource extends BaseResource {
                         add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.TASK.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.WEB_SERVICE.getName()).get());
                     }})));
         }
 

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.issue.datavalidation.impl.event;
 
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
@@ -43,7 +43,7 @@ public class SuspectDeletedEvent extends DataValidationEvent {
             this.channelId = ((Number) jsonPayload.get("channelId")).longValue();
             this.readingType = (String) jsonPayload.get("readingType");
         } catch (Exception e) {
-            throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
+            throw new UnableToCreateIssueException(getThesaurus(), MessageSeeds.UNABLE_TO_CREATE_EVENT, jsonPayload.toString());
         }
     }
 }

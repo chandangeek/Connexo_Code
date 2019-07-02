@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -57,12 +58,14 @@ public class AuthenticationInInterceptorTest {
     private InboundEndPointConfiguration endPointConfiguration;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private EventService eventService;
 
     private AuthorizationInInterceptor authorizationInInterceptor;
 
     @Before
     public void setUp() throws Exception {
-        authorizationInInterceptor = new AuthorizationInInterceptor(userService, webServicesService, threadPrincipalService);
+        authorizationInInterceptor = new AuthorizationInInterceptor(userService, webServicesService, threadPrincipalService, eventService);
         Group developerGroup = mock(Group.class);
         when(developerGroup.getName()).thenReturn("Developer");
         when(userService.findGroup("Developer")).thenReturn(Optional.of(developerGroup));

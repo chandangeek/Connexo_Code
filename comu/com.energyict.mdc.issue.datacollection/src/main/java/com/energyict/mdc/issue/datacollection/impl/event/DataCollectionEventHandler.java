@@ -5,7 +5,7 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -21,12 +21,10 @@ import com.google.inject.Injector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -105,7 +103,7 @@ public class DataCollectionEventHandler implements MessageHandler {
             try {
                 dcEvent.wrap(mapForSingleEvent, description, device);
                 events.add(dcEvent);
-            } catch (UnableToCreateEventException e) {
+            } catch (UnableToCreateIssueException e) {
                 LOG.severe(e.getMessage());
             }
         }

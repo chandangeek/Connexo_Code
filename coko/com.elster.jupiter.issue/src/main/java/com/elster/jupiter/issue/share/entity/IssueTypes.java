@@ -6,13 +6,13 @@ package com.elster.jupiter.issue.share.entity;
 
 
 public enum IssueTypes {
-
     DATA_COLLECTION("DCI", "datacollection"),
     DATA_VALIDATION("DVI", "datavalidation"),
     DEVICE_ALARM("ALM", "devicealarm"),
     DEVICE_LIFECYCLE("DLI", "devicelifecycle"),
     TASK("TKI", "task"),
     USAGEPOINT_DATA_VALIDATION("UVI", "usagepointdatavalidation"),
+    WEB_SERVICE("WSI", "webservice"),
     NA ("NA", "notapplicable");
 
     private final String prefix;
@@ -39,6 +39,7 @@ public enum IssueTypes {
             case "devicelifecycle" : return IssueTypes.DEVICE_LIFECYCLE;
             case "usagepointdatavalidation" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             case "task" : return  IssueTypes.TASK;
+            case "webservice" : return IssueTypes.WEB_SERVICE;
             default:return IssueTypes.NA;
         }
     }
@@ -52,7 +53,7 @@ public enum IssueTypes {
             case "DVI" : return IssueTypes.DATA_VALIDATION;
             case "TKI" : return IssueTypes.TASK;
             case "UVI" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
-
+            case "WSI" : return IssueTypes.WEB_SERVICE;
             default:return IssueTypes.NA;
         }
     }

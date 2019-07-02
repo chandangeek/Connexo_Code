@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.properties.rest;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface WebServicesEndPointFactory {
 }

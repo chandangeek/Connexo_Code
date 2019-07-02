@@ -4,9 +4,10 @@
 
 package com.elster.jupiter.properties;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.util.TimeZone;
@@ -145,4 +146,10 @@ public interface PropertySpecService {
      */
     <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass);
 
+    /**
+     * Creates a new {@link ValueFactory} for the specified api class references.
+     *
+     * @return The {@link ValueFactory}.
+     */
+    <T> ValueFactory<T> referenceValueFactory(Class<T> apiClass);
 }

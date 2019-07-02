@@ -203,6 +203,11 @@ public class PropertySpecServiceImpl implements PropertySpecService, MessageSeed
     }
 
     @Override
+    public <T> ValueFactory<T> referenceValueFactory(Class<T> apiClass) {
+        return basicPropertySpecService.referenceValueFactory(apiClass);
+    }
+
+    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
