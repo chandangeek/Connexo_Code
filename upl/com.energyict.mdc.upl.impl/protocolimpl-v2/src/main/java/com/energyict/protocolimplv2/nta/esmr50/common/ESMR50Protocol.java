@@ -146,27 +146,30 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         boolean validCachedFrameCounter = false;
         DlmsSession dlmsSession = newDlmsSession(comChannel);
         long cachedFramecounter = getDeviceCache().getFrameCounter();
-        journal("Testing cached frame counter: " + cachedFramecounter );
-        checkFrameCounterLimits(cachedFramecounter);
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);
-        dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFramecounter);
-        try {
-            dlmsSession.getDlmsV2Connection().connectMAC();
-            dlmsSession.createAssociation();
-            if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
-                long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
-                journal("This FrameCounter was validated: " + frameCounter);
-                getDeviceCache().setFrameCounter(frameCounter);
-                validCachedFrameCounter = true;
-                setDlmsSession(dlmsSession);
+        if (checkFrameCounterLimits(cachedFramecounter)){
+            journal("Testing cached frame counter: " + cachedFramecounter);
+            getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);
+            dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFramecounter);
+            try {
+                dlmsSession.getDlmsV2Connection().connectMAC();
+                dlmsSession.createAssociation();
+                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
+                    long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
+                    journal("This FrameCounter was validated: " + frameCounter);
+                    getDeviceCache().setFrameCounter(frameCounter);
+                    validCachedFrameCounter = true;
+                    setDlmsSession(dlmsSession);
+                }
+            } catch (CommunicationException ex) {
+                journal("Association using cached frame counter has failed.");
+            } catch (Exception ex) {
+                journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
+                throw ex;
             }
-        } catch (CommunicationException ex) {
-            journal("Association using cached frame counter has failed.");
-        } catch (Exception ex){
-            journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
-            throw ex;
+        } else {
+            validCachedFrameCounter = false; // outside limits, force re-read
+            journal("Cached frame counter ("+cachedFramecounter+") is outside acceptable limits, will force reading it again.");
         }
-
         return validCachedFrameCounter;
     }
 
@@ -190,7 +193,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         connectWithRetries(publicDlmsSession);
         try {
             ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
-            journal("Public client connected, reading framecounter " + frameCounterObisCode.toString() + ", corresponding to client "+getDlmsSessionProperties().getClientMacAddress());
+            journal("Public client connected, reading frame counter " + frameCounterObisCode.toString() + ", corresponding to client "+getDlmsSessionProperties().getClientMacAddress());
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
             journal("Frame counter received: " + frameCounter);
             checkFrameCounterLimits(frameCounter);
@@ -207,18 +210,19 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     }
 
     private boolean checkFrameCounterLimits(long frameCounter) {
-
+        boolean isValid = true;
         long frameCounterLimit = getDlmsSessionProperties().getFrameCounterLimit();
 
         if (frameCounterLimit>0 && frameCounter>frameCounterLimit) {
-            journal(Level.WARNING, "Frame-counter is above the threshold (" + frameCounterLimit + "), consider key-roll to reset it!");
+            journal(Level.WARNING, "Frame-counter "+frameCounter+" is above the threshold (" + frameCounterLimit + "), consider key-roll to reset it!");
+            isValid = false;
         }
 
         if (frameCounter<=0 || frameCounter >= UNSIGNED32_MAX){
             journal(Level.SEVERE, "Frame counter "+frameCounter+" is not within Unsigned32 acceptable limits, consider key-roll to reset it");
-            return false;
+            isValid = false;
         }
-        return true;
+        return isValid;
     }
 
     private ObisCode getFrameCounterForClient(int clientMacAddress) {
