@@ -74,7 +74,7 @@ public class MdcAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        /*Map<Version,  Class<? extends Upgrader>>  upgraders = new HashMap<>();
+        Map<Version,  Class<? extends Upgrader>>  upgraders = new HashMap<>();
         upgraders.put(version(10, 2), UpgraderV10_2.class);
         upgraders.put(version(10, 3), UpgraderV10_3.class);
         upgraders.put(version(10, 4), UpgraderV10_4.class);
@@ -86,18 +86,7 @@ public class MdcAppInstaller {
                 dataModel,
                 Installer.class,
                 ImmutableMap.copyOf(upgraders)
-        );*/
-        upgradeService.register(
-                InstallIdentifier.identifier("MultiSense", "MDA"),
-                dataModel,
-                Installer.class,
-                                ImmutableMap.of(
-                                               version(10, 2), UpgraderV10_2.class,
-                                               version(10, 3), UpgraderV10_3.class,
-                                               version(10, 4), UpgraderV10_4.class,
-                                               version(10, 4, 1), UpgraderV10_4_1.class,
-                                               version(10, 6), UpgraderV10_6.class)
-                                      );
+        );
     }
 
     public static class Installer implements FullInstaller {

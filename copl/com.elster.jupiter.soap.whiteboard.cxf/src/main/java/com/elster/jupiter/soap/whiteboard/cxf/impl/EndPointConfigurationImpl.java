@@ -258,7 +258,6 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void log(LogLevel logLevel, String message) {
-        System.out.println("LOG MESSAGE ="+message);
         if (this.logLevel.compareTo(logLevel) > -1) {
             if (transactionService.isInTransaction()) {
                 doLog(logLevel, message);

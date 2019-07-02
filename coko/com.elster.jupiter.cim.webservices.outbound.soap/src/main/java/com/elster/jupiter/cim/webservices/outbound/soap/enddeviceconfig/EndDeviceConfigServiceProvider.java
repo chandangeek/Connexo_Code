@@ -172,7 +172,7 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
     public String getTopicMatcher() {
         return "com/energyict/mdc/device/data/device/CREATED";
     }
-    /*XROMVYU*/
+
     private void call(EndDevice endDevice, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
         publish(endPointConfigurations);
         endPointConfigurations.forEach(endPointConfiguration -> {

@@ -116,10 +116,9 @@ public class EndPointConfigurationResource {
                     .map(ws -> ws.getName())
                     .collect(toSet());
 
-            infoList = endPointConfigurationService.findEndPointConfigurations()
+            infoList = endPointConfigurationService.findEndPointConfigurations(webServiceNames)
                     .from(queryParams)
                     .stream()
-                    .filter(epc -> webServiceNames.contains(epc.getWebServiceName()))
                     .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
                     .collect(toList());
         }
