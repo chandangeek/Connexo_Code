@@ -480,7 +480,6 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public void setDestination(String destination) {
         this.destination = destination;
-        Save.UPDATE.save(dataModel, this);
     }
 
     @Override
@@ -491,6 +490,5 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public void setPriority(int priority) {
         this.priority = priority;
-        Save.UPDATE.save(dataModel, this);
     }
 }

@@ -206,11 +206,14 @@ public class TaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     public Response modifyTask(TaskMinInfo info) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (Checks.is(info.queue).empty()) {
+        if (!Checks.is(info.queue).empty()) {
             recurrentTask.setDestination(info.queue);
         }
         if (info.priority != null) {
             recurrentTask.setPriority(info.priority);
+        }
+        if (!Checks.is(info.queue).empty() || info.priority != null) {
+            recurrentTask.save();
         }
         return Response.status(Response.Status.OK).build();
     }
