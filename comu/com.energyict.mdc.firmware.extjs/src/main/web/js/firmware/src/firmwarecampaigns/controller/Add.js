@@ -26,7 +26,9 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.store.Firmwares',
         'Fwc.store.DeviceGroups',
-        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
+        'Fwc.firmwarecampaigns.store.ComTasks',
+        'Fwc.firmwarecampaigns.store.ConnectionStrategy'
     ],
 
     refs: [
@@ -115,6 +117,25 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
 
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
+
+
+        var validationComTaskField = form.down('[name=validationComTask]');
+        var validationComTask = validationComTaskField.store.getById(
+            validationComTaskField.value
+        );
+
+        if (validationComTask) {
+            record.set('validationComTask', validationComTask.getData());
+        }
+
+        var validationConnectionStrategyField = form.down('[name=validationConnectionStrategy]');
+        var validationConnectionStrategy = validationConnectionStrategyField.store.getById(
+            validationConnectionStrategyField.value
+        );
+
+        if (validationConnectionStrategy) {
+            record.set('validationConnectionStrategy', validationConnectionStrategy.getData());
+        }
 
         record.save({
             backUrl: page.returnLink,

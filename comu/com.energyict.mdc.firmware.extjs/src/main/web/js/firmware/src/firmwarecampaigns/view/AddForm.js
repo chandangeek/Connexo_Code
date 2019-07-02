@@ -12,7 +12,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
-        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
+        'Fwc.firmwarecampaigns.store.ComTasks'
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -186,6 +187,66 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 width: 1000
             },
             {
+                xtype: 'combobox',
+                itemId: 'fwc-campaign-validation-comtask',
+                name: 'validationComTask',
+                store: 'Fwc.firmwarecampaigns.store.ComTasks',
+                fieldLabel: Uni.I18n.translate(
+                    'general.validationComTask',
+                    'TOU',
+                    'Validation communication task'
+                ),
+                hidden: true,
+                disabled: true,
+                required: true,
+                allowBlank: false,
+                forceSelection: true,
+                emptyText: Uni.I18n.translate(
+                    'general.validationComTask.empty',
+                    'FWC',
+                    'Select communication task ...'
+                ),
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id'
+            },
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                itemId: 'fwc-campaign-validation-strategy-container',
+                hidden: true,
+                disabled: true,
+                fieldLabel: Uni.I18n.translate(
+                    'general.validationMethodStrategy',
+                    'FWC',
+                    'Validation method strategy'
+                ),
+                items: [
+                    {
+                        xtype: 'combobox',
+                        itemId: 'tou-campaign-validation-connection-strategy',
+                        name: 'validationConnectionStrategy',
+                        store: 'Fwc.firmwarecampaigns.store.ConnectionStrategy',
+                        queryMode: 'local',
+                        displayField: 'name',
+                        margin: '0 10 0 0',
+                        valueField: 'id',
+                        allowBlank: false,
+                        forceSelection: true
+                    },
+                    {
+                        xtype: 'uni-default-button',
+                        itemId: 'tou-campaign-validation-connection-strategy-reset',
+                        handler: function() {
+                            this.down('[name=validationConnectionStrategy]').reset();
+                        },
+                        scope: me,
+                        margin: '0 0 0 10',
+                        hidden: false
+                    }
+                ]
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
@@ -236,6 +297,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
+            var validationComTask = me.down("[name=validationComTask]");
+            validationComTask.getStore().getProxy().setUrl(newValue);
+            validationComTask.getStore().load();
         }
     },
 
@@ -284,6 +348,13 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         if (newValue && newValue.managementOption) {
             if (!me.skipLoadingIndication) {
                 me.setLoading();
+            }
+            me.down('[name=validationComTask]').show();
+
+            me.down('#fwc-campaign-validation-strategy-container').show();
+            if (!me.campaignRecordBeingEdited) {
+                me.down('[name=validationComTask]').setDisabled(false);
+                me.down('#fwc-campaign-validation-strategy-container').setDisabled(false);
             }
             firmwareManagementOption.load(newValue.managementOption, {
                 success: function (record) {

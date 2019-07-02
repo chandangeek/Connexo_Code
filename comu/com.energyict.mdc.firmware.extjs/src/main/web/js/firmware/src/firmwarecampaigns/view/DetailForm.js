@@ -104,6 +104,39 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         }
                     },
                     {
+                        itemId: 'fwc-campaign-validation-comtask',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.validationComTask',
+                            'FWC',
+                            'Validation communication task'
+                        ),
+                        name: 'validationComTask',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'fwc-campaign-validation-connection-strategy',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.validationMethodStrategy',
+                            'FWC',
+                            'Validation method strategy'
+                        ),
+                        name: 'validationConnectionStrategy',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    },
+                    {
                         xtype: 'property-form',
                         itemId: 'property-form',
                         bodyStyle: {
