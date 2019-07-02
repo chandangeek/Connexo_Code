@@ -122,6 +122,12 @@
             <artifactId>mdc.demo.customtask</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- COMU -->
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.webservices.demo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- COIN -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
