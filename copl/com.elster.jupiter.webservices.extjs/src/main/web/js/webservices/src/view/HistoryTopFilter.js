@@ -5,10 +5,16 @@
 Ext.define('Wss.view.HistoryTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'mss-view-history-history-topfilter',
+    requires: [
+        'Wss.store.Endpoints'
+    ],
     endpoint: null,
 
     initComponent: function () {
         var me = this;
+        var endpointStore = Ext.create('Wss.store.Endpoints', {
+            pageSize: 1000,
+        })
 
         me.filters = [
             {
@@ -32,7 +38,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 hidden: Boolean(me.endpoint),
                 displayField: 'name',
                 valueField: 'id',
-                store: 'Wss.store.Endpoints'
+                store: endpointStore
             },
             {
                 type: 'combobox',
