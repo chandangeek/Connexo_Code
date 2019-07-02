@@ -18,7 +18,6 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -30,9 +29,9 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.issue.HistoricalIssueServiceCall;
-import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
 import com.elster.jupiter.servicecall.issue.MessageSeeds;
 import com.elster.jupiter.servicecall.issue.OpenIssueServiceCall;
+import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.servicecall.issue.impl.entity.OpenIssueServiceCallImpl;
 import com.elster.jupiter.servicecall.issue.impl.event.ServiceCallStateChangedEvent;
@@ -65,27 +64,21 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     private volatile IssueActionService issueActionService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
-    private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
 
     private volatile DataModel dataModel;
-
-    static final String ISSUE_SERVICE_CALLS_DESTINATION_NAME = "IssueSerivceCalls";
-    public static final String ISSUE_SERVICE_CALLS_SUBSCRIBER_NAME = "IssueSerivceCalls";
-
 
     //for OSGI
     public ServiceCallIssueServiceImpl() {
     }
 
     @Inject
-    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService, QueryService queryService) {
+    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, UpgradeService upgradeService, QueryService queryService) {
         setOrmService(ormService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setEventService(eventService);
-        setMessageService(messageService);
         setUpgradeService(upgradeService);
         setQueryService(queryService);
         activate();
@@ -102,7 +95,6 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
                 bind(IssueActionService.class).toInstance(issueActionService);
                 bind(ServiceCallIssueService.class).toInstance(ServiceCallIssueServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
-                bind(MessageService.class).toInstance(messageService);
             }
         });
         upgradeService.register(
@@ -203,11 +195,6 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
-    }
-
-    @Reference
-    public void setMessageService(MessageService messageService) {
-        this.messageService = messageService;
     }
 
     @Reference
