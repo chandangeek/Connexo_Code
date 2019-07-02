@@ -17,6 +17,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -96,6 +97,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
@@ -120,9 +122,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -139,6 +143,9 @@ import static com.elster.jupiter.util.streams.Currying.test;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.DUPLICATE_USAGE_POINT_NAME + "}")
 @AllRequiredCustomPropertySetsHaveValues(groups = {Save.Update.class})
 public class UsagePointImpl implements ServerUsagePoint {
+
+    public static final String USAGEPOINT = "com.elster.jupiter.metering.UsagePoint";
+
     // persistent fields
     @SuppressWarnings("unused")
     private long id;
@@ -211,6 +218,8 @@ public class UsagePointImpl implements ServerUsagePoint {
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
     private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
+    private final MessageService messageService;
+    private final JsonService jsonService;
 
     @Inject
     UsagePointImpl(
@@ -225,7 +234,9 @@ public class UsagePointImpl implements ServerUsagePoint {
             ServerDataAggregationService dataAggregationService,
             UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
             UserService userService,
-            ThreadPrincipalService threadPrincipalService) {
+            ThreadPrincipalService threadPrincipalService,
+            MessageService messageService,
+            JsonService jsonService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -239,6 +250,8 @@ public class UsagePointImpl implements ServerUsagePoint {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.userService = userService;
         this.threadPrincipalService = threadPrincipalService;
+        this.messageService = messageService;
+        this.jsonService = jsonService;
     }
 
     UsagePointImpl init(String name, ServiceCategory serviceCategory) {
@@ -445,6 +458,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         if (id == 0) {
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
+            sendMessageCreated();
         } else {
             updateDeviceDefaultLocation();
             Save.UPDATE.save(dataModel, this);
@@ -1605,5 +1619,20 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     protected Stage getStage() {
         return this.getState().getStage().orElseThrow(() -> new IllegalStateException("Usage point state does not have a stage"));
+    }
+
+    private void sendMessageCreated(){
+        // send the InitialStateActions message in order to execute on entry actions for default life cycle states
+        // called only when the usage point is created
+        messageService
+                .getDestinationSpec("InitialStateActions")
+                .ifPresent(destinationSpec -> {
+                    Map<String, String> message = new HashMap<String, String>(){{
+                        put("stateId", String.valueOf(getState().getId()));
+                        put("sourceId", String.valueOf(getId()));
+                        put("sourceType", USAGEPOINT);
+                    }};
+                    destinationSpec.message(jsonService.serialize(message)).send();
+                });
     }
 }

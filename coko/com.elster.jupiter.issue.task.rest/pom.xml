@@ -8,16 +8,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>issue.task.rest</artifactId>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.issue.task.rest</name>
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <profiles>
         <profile>
@@ -129,6 +125,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
@@ -168,6 +168,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -8,6 +8,7 @@ Ext.define('Uni.view.search.field.internal.Input', {
     layout: 'fit',
     flex: 1,
     padding: 0,
+    minWidth: 200,
     style: {
         border: '1px solid #a0a0a0',
         borderRadius: '5px'
