@@ -570,6 +570,10 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		return getTable().getDataModel();
 	}
 
+	public <R extends T> DataMapperImpl<R> subMapper(Class<R> subApi) {
+		return getDataModel().mapper(subApi);
+	}
+
 	@Override
 	public Optional<JournalEntry<T>> getJournalEntry (Instant instant, Object... values)  {
 		return getJournal(values).stream()
