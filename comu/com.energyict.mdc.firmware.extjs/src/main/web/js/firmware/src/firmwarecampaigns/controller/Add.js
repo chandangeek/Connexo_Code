@@ -118,23 +118,45 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
 
+        var sendCalendarComTaskField = form.down('[name=sendCalendarComTask]');
+        var sendCalendarComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
 
-        var validationComTaskField = form.down('[name=validationComTask]');
-        var validationComTask = validationComTaskField.store.getById(
-            validationComTaskField.value
-        );
-
-        if (validationComTask) {
-            record.set('validationComTask', validationComTask.getData());
+        if (sendCalendarComTask) {
+            record.set('sendCalendarComTask', sendCalendarComTask.getData());
         }
 
-        var validationConnectionStrategyField = form.down('[name=validationConnectionStrategy]');
-        var validationConnectionStrategy = validationConnectionStrategyField.store.getById(
-            validationConnectionStrategyField.value
+        var sendCalendarConnectionStrategyField = form.down('[name=sendCalendarConnectionStrategy]');
+        var sendCalendarConnectionStrategy = sendCalendarConnectionStrategyField.store.getById(
+            sendCalendarConnectionStrategyField.value
         );
 
-        if (validationConnectionStrategy) {
-            record.set('validationConnectionStrategy', validationConnectionStrategy.getData());
+        if (sendCalendarConnectionStrategy) {
+            record.set('sendCalendarConnectionStrategy', sendCalendarConnectionStrategy.getData());
+        }
+
+        if (record.get('managementOption') && (record.get('managementOption').id === "activate"
+        || record.get('managementOption').id === "activateOnDate")) {
+            var validationComTaskField = form.down('[name=validationComTask]');
+            var validationComTask = validationComTaskField.store.getById(
+                validationComTaskField.value
+            );
+
+            if (validationComTask) {
+                record.set('validationComTask', validationComTask.getData());
+            }
+
+            var validationConnectionStrategyField = form.down('[name=validationConnectionStrategy]');
+            var validationConnectionStrategy = validationConnectionStrategyField.store.getById(
+                validationConnectionStrategyField.value
+            );
+
+            if (validationConnectionStrategy) {
+                record.set('validationConnectionStrategy', validationConnectionStrategy.getData());
+            }
+        }
+        else {
+            record.set('validationComTask', undefined);
+            record.set('validationConnectionStrategy', undefined);
         }
 
         record.save({

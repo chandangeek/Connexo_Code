@@ -20,6 +20,16 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
     },
     router: null,
     isPreview: false,
+    loadRecord: function(record) {
+        var me = this;
+        var managementOption = record.get('managementOption');
+        var showValidation = managementOption.id === 'activate' || managementOption.id === 'activateOnDate';
+
+        me.callParent(arguments);
+
+        me.down('[name="validationComTask"]').setVisible(showValidation);
+        me.down('[name="validationConnectionStrategy"]').setVisible(showValidation);
+    },
     initComponent: function () {
         var me = this;
 
@@ -102,6 +112,39 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         renderer: function (value) {
                             return value ?  '<a href="' + me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id})+ '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
                         }
+                    },
+                    {
+                        itemId: 'fwc-campaign-allowed-comtask',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.sendCalendarComTask',
+                            'FWC',
+                            'Send calendar communication task'
+                        ),
+                        name: 'sendCalendarComTask',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'fwc-campaign-send-connection-strategy',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.connectionMethodStrategy',
+                            'FWC',
+                            'Connection method strategy'
+                        ),
+                        name: 'sendCalendarConnectionStrategy',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
                     },
                     {
                         itemId: 'fwc-campaign-validation-comtask',

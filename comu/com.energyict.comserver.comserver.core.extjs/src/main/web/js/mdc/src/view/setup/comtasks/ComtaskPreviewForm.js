@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreviewForm', {
         },
         {
             itemId: 'systemTask',
-            fieldLabel: Uni.I18n.translate('comtask.message.systemTask', 'MDC', 'System Task'),
+            fieldLabel: Uni.I18n.translate('comtask.message.systemTask', 'MDC', 'System task'),
             name: 'systemTask',
             renderer: function(value) {
                 return value

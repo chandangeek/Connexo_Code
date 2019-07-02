@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                     xtype: 'checkbox',
                     name: 'systemTask',
                     itemId: 'systemTask',
-                    fieldLabel: Uni.I18n.translate('comtask.message.systemTask', 'MDC', 'System Task')
+                    fieldLabel: Uni.I18n.translate('comtask.message.systemTask', 'MDC', 'System task')
                 },
                 {
                     xtype: 'toolbar',

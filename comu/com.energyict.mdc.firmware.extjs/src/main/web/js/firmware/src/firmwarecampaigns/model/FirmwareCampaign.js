@@ -76,6 +76,22 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             type: 'auto',
             useNull: true,
             defaultValue: undefined
+        },
+        {
+            name: 'sendCalendarComTask',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }, {
+            name: 'validationComTask',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }, {
+            name: 'sendCalendarConnectionStrategy',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
         }, {
             name: 'validationConnectionStrategy',
             type: 'auto',
