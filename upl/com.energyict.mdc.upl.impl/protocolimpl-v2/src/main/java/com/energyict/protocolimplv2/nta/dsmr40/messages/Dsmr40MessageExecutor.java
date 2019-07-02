@@ -29,11 +29,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
@@ -56,6 +52,10 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.white
 public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     protected static final ObisCode OBISCODE_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
+    protected static final char CONFIGURATION_OBJECT_FLAGS_DISCOVER_ON_POWER_ON = 1;
+    protected static final char CONFIGURATION_OBJECT_FLAGS_DYNAMIC_MBUS_ADDRESS = 2;
+    protected static final char CONFIGURATION_OBJECT_FLAGS_P0_ENABLE = 3;
+    
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
     private Dsmr40MbusMessageExecutor mbusMessageExecutor;
@@ -103,7 +103,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     collectedMessage = writeCaptureDefinition(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.CONFIGURE_CAPTURE_PERIOD)) {
                     collectedMessage = writeCapturePeriod(pendingMessage);
-                } else{
+                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ENABLE_DISCOVERY_ON_POWER_UP)) {
+                    changeConfigurationObjectFlag(CONFIGURATION_OBJECT_FLAGS_DISCOVER_ON_POWER_ON, true );
+                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.DISABLE_DISCOVERY_ON_POWER_UP)) {
+                    changeConfigurationObjectFlag(CONFIGURATION_OBJECT_FLAGS_DISCOVER_ON_POWER_ON, false );
+                } else {
                     collectedMessage = null;
                     notExecutedDeviceMessages.add(pendingMessage);  // These messages are not specific for Dsmr 4.0, but can be executed by the super (= Dsmr 2.3) messageExecutor
                 }
@@ -123,6 +127,32 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         // Then delegate all other messages to the Dsmr 2.3 message executor
         result.addCollectedMessages(super.executePendingMessages(notExecutedDeviceMessages));
         return result;
+    }
+
+    private void changeConfigurationObjectFlag(int bit, boolean state) throws IOException {
+        getProtocol().journal("Setting configuration object " + OBISCODE_CONFIGURATION_OBJECT+" bit "+bit+" to "+state);
+
+        Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
+        Structure value;
+        BitString flags;
+        try {
+            value = (Structure) config.getValueAttr();
+            try {
+                AbstractDataType dataType = value.getDataType(0);
+                flags = (BitString) dataType;
+            } catch (IndexOutOfBoundsException e) {
+                throw new ProtocolException("Couldn't write configuration. Expected structure value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to have 2 elements.");
+            } catch (ClassCastException e) {
+                throw new ProtocolException("Couldn't write configuration. Expected second element of structure to be of type 'Bitstring', but was of type '" + value.getDataType(1).getClass().getSimpleName() + "'.");
+            }
+
+            flags.set(bit, state);
+            config.setValueAttr(value);
+        } catch (Exception e) {
+            getProtocol().journal(Level.SEVERE, "Couldn't write configuration: " +e.getLocalizedMessage());
+            throw new ProtocolException(e, "Couldn't write configuration.");
+        }
+
     }
 
     protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -186,27 +216,8 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected void changeAuthenticationLevel(OfflineDeviceMessage pendingMessage, int type, boolean enable) throws IOException {
         int newAuthLevel = getIntegerAttribute(pendingMessage);
         if (newAuthLevel != -1) {
-            Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
-            Structure value;
-            BitString flags;
-            try {
-                value = (Structure) config.getValueAttr();
-                try {
-                    AbstractDataType dataType = value.getDataType(1);
-                    flags = (BitString) dataType;
-                } catch (IndexOutOfBoundsException e) {
-                    throw new ProtocolException("Couldn't write configuration. Expected structure value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to have 2 elements.");
-                } catch (ClassCastException e) {
-                    throw new ProtocolException("Couldn't write configuration. Expected second element of structure to be of type 'Bitstring', but was of type '" + value.getDataType(1).getClass().getSimpleName() + "'.");
-                }
-
-                flags.set(4 - type + newAuthLevel, enable);    //HLS5_P0 = bit9, HLS4_P0 = bit8, HLS3_P0 = bit7, HLS5_P3 = bit6, HLS4_P3 = bit5, HLS3_P3 = bit4
-                config.setValueAttr(value);
-            } catch (ClassCastException e) {
-                throw new ProtocolException("Couldn't write configuration. Expected value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to be of type 'Structure', but was of type '" + config.getValueAttr().getClass().getSimpleName() + "'.");
-            }
-        } else {
-            throw new ProtocolException("Message contained an invalid authenticationLevel.");
+            int bit = 4 - type + newAuthLevel;
+            changeConfigurationObjectFlag(bit, enable);
         }
     }
 
