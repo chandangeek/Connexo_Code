@@ -133,5 +133,5 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
                                                       String applicationName,
                                                       String payload);
 
-    void retryOccurrence(String method, String payload);
+    void retryOccurrence(String method, String payload, WebServiceCallOccurrence occurrence);
 }

@@ -16,12 +16,17 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Created by bvn on 5/4/16.
@@ -74,6 +79,21 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         return DefaultFinder.of(EndPointConfiguration.class, this.dataModel)
                 .defaultSortColumn(EndPointConfigurationImpl.Fields.NAME.fieldName());
     }
+
+    @Override
+    public Finder<EndPointConfiguration> findEndPointConfigurations(Set<String> webServiceNames) {
+
+        Condition condition = Condition.TRUE;
+
+        if (!webServiceNames.isEmpty()) {
+            List<String> namesList = new ArrayList<>(webServiceNames);
+            condition = condition.and(where(EndPointConfigurationImpl.Fields.WEB_SERVICE_NAME.fieldName()).in(namesList));
+        }
+
+        return DefaultFinder.of(EndPointConfiguration.class, condition, this.dataModel)
+                .defaultSortColumn(EndPointConfigurationImpl.Fields.NAME.fieldName());
+    }
+
 
     @Override
     public QueryStream<EndPointConfiguration> streamEndPointConfigurations() {

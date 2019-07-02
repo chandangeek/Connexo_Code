@@ -42,10 +42,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -126,7 +128,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
     public void testGetAllEndpoints() throws Exception {
         Finder<EndPointConfiguration> finder = mockFinder(Arrays.asList(inboundEndPointConfiguration, outboundEndPointConfiguration));
         when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
-        Response response = target("/endpointconfigurations").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get();
+        Response response = target("/endpointconfigurations").request().header("X-CONNEXO-APPLICATION-NAME", "SYS").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("total")).isEqualTo(2);
@@ -419,7 +421,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<String>get("$.occurrences[0].request")).isEqualTo("Request1");
         assertThat(jsonModel.<String>get("$.occurrences[0].applicationName")).isEqualTo(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
 
-
         assertThat(jsonModel.<Integer>get("$.occurrences[1].id")).isEqualTo(0);
         assertThat(jsonModel.<String>get("$.occurrences[1].status")).isEqualTo(WebServiceCallOccurrenceStatus.SUCCESSFUL.getName());
         assertThat(jsonModel.<String>get("$.occurrences[1].request")).isEqualTo("Request2");
@@ -443,8 +444,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
-
-        //when(authentication.getDisplayName(anyObject())).thenReturn("XXXXXXXXXXXXXXXX");
 
         WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel).init(
                 Instant.now(),
@@ -512,7 +511,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
                 ecpMock
         );
 
-        //when(authentication.getDisplayName(anyObject())).thenReturn("XXXXXXXXXXXXXXXX");
         /* Mock logs */
         Instant time = Instant.now();
 
@@ -560,4 +558,37 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
     }
 
 
+    @Test
+    public void testRetry() throws Exception {
+
+        /* Mock privilege */
+        when(privilege.getName()).thenReturn(Privileges.Constants.VIEW_WEB_SERVICES);
+
+        /* Mock webService*/
+        WebService webService = mock(WebService.class);
+        when(webService.getProtocol()).thenReturn(WebServiceProtocol.SOAP);
+        when(webServicesService.getWebService(anyString())).thenReturn(Optional.of(webService));
+
+        /*Mock endPointConfiguration*/
+        OutboundEndPointConfiguration ecpMock = mock(OutboundEndPointConfiguration.class);
+        when(ecpMock.getLogLevel()).thenReturn(LogLevel.INFO);
+        when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
+        when((ecpMock).getUsername()).thenReturn("USER");
+        when((ecpMock).getPassword()).thenReturn("PASSWORD");
+        doNothing().when(ecpMock).retryOccurrence(anyString(), anyString(), anyObject());
+
+        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel);
+        occurrence.init(
+                Instant.now(),
+                "Request1",
+                ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
+                ecpMock
+        );
+
+        when(webServiceCallOccurrenceService.getEndPointOccurrence((long) 1)).thenReturn(Optional.of(occurrence));
+
+        Response response = target("/endpointconfigurations/occurrences/1/retry").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").put(null);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+    }
 }

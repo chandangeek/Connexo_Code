@@ -138,7 +138,6 @@ public enum TableSpecs {
 
 
             table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
-            //TO-DO UNCOMMENT
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },

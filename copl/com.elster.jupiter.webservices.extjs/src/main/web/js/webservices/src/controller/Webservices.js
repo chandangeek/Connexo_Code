@@ -128,6 +128,7 @@ Ext.define('Wss.controller.Webservices', {
                     success: function (occurrence) {
                         var view = Ext.widget('webservice-history-occurence', {
                             router: me.getController('Uni.controller.history.Router'),
+                            adminView: Uni.util.Application.getAppNamespace() === 'SystemApp',
                             endpoint: endpoint,
                             occurrence: occurrence
                         });
@@ -321,6 +322,8 @@ Ext.define('Wss.controller.Webservices', {
     },
 
     chooseEndpointAction: function (menu, item) {
+        var me = this;
+
         switch (item.action) {
             case 'view-payload':
                 var win = window.open();
@@ -332,7 +335,62 @@ Ext.define('Wss.controller.Webservices', {
 
                 win.focus();
                 break;
+            case 'retry':
+                var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                    confirmText: Uni.I18n.translate('webservices.retry.action', 'WSS', "Retry now"),
+                    green: true,
+                });
+                confirmationWindow.show({
+                    title: Uni.I18n.translate('webservices.retry.title', 'WSS', "Retry now?"),
+                    msg: Uni.I18n.translate(
+                        'webservices.retry.msg',
+                        'WSS',
+                        'The response will be resent. The issue will be closed.'
+                    ),
+                    fn: function (state) {
+                        if (state === 'confirm') {
+                            me.retry(menu.record);
+                        }
+                    }
+                });
+                break;
         }
+    },
+
+    retry: function(occurrence) {
+        var me = this;
+        var router = me.getController('Uni.controller.history.Router');
+
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ws/endpointconfigurations/occurrences/' + occurrence.getId() + '/retry',
+            success: function () {
+                router.getRoute('administration/webserviceendpoints/view/history').forward({
+                    endpointId: occurrence.getEndpoint().getId()
+                })
+                me.getApplication().fireEvent(
+                    'acknowledge',
+                    Uni.I18n.translate(
+                        'webservices.retry.success',
+                        'WSS',
+                        'The response is successfully resent'
+                    )
+                );
+            },
+            failure: function () {
+                var errorWindow = Ext.create('Uni.view.window.Confirmation', {
+                    noConfirmBtn: true
+                });
+                errorWindow.show({
+                    title: Uni.I18n.translate('webservices.retry.error', 'WSS', "Couldn't perform your action"),
+                    msg: Uni.I18n.translate(
+                        'webservices.retry.error.msg',
+                        'WSS',
+                        'The response couldn\'t be resent. Please check the web service configuration'
+                    )
+                });
+            }
+        });
     },
 
     removeEndpoint: function (record) {
