@@ -39,8 +39,6 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    /*public EndPointConfigurationOccurrenceFinderBuilder withStatusIn(List<Status> statuses) {*/
-    /* XROMVYU Change to enum statuses */
     public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<WebServiceCallOccurrenceStatus> statuses) {
         if (!statuses.isEmpty()) {
             this.condition = this.condition.and(where("status").in(statuses));
@@ -57,32 +55,26 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc)
-    {
+    public WebServiceCallOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc) {
         this.condition = this.condition.and(where("endPointConfiguration").isEqualTo(epc));
         return this;
     }
 
-
     @Override
     public WebServiceCallOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval) {
-
         this.condition = this.condition.and(where("startTime").in(interval));
         return this;
     }
 
     @Override
     public WebServiceCallOccurrenceFinderBuilder withEndTimeIn(Range<Instant> interval) {
-
         this.condition = this.condition.and(where("endTime").in(interval));
         return this;
     }
 
     @Override
     public Finder<WebServiceCallOccurrence> build() {
-
         return DefaultFinder.of(WebServiceCallOccurrence.class, this.condition, this.dataModel)
-                .defaultSortColumn("startTime");//return DefaultFinder.of(EndPointOccurrence.class, condition, dataModel/*, ImportSchedule.class*/);
+                .defaultSortColumn("startTime");
     }
 }
-

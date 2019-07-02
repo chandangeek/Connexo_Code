@@ -164,7 +164,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                     }
                 }
 
-                if (provider instanceof OutboundSoapEndPointProvider) {
+                if (provider instanceof OutboundSoapEndPointProvider || provider instanceof OutboundRestEndPointProvider) {
                     if ((provider) instanceof ApplicationSpecific) {
                         return ((ApplicationSpecific) provider).getApplication();
                     }
