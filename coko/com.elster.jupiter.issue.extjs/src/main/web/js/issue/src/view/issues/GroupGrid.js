@@ -11,7 +11,6 @@ Ext.define('Isu.view.issues.GroupGrid', {
     alias: 'widget.issues-group-grid',
     columns: [
         {
-//            itemId: 'reason',
             itemId: 'description',
             dataIndex: 'description',
             flex: 1
@@ -80,7 +79,6 @@ Ext.define('Isu.view.issues.GroupGrid', {
             empty = '',
             itemsPerPage = '',
             descriptionColumn = me.down('#description');
-//            descriptionColumn = me.down('#reason');
 
         me.groupingType = groupingType;
 

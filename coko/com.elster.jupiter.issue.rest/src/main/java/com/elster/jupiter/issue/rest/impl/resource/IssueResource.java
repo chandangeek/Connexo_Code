@@ -374,10 +374,10 @@ public class IssueResource extends BaseResource {
                 .stream()
                 .filter(el -> el != null)
                 .forEach(groupFilter::withWorkGroupAssignee);
-        filter.getLongList(IssueRestModuleConst.LOCATION)
+        filter.getStringList(IssueRestModuleConst.LOCATION)
                 .stream()
                 .filter(el -> el != null)
-                .forEach(lId -> locationService.findLocationById(lId).ifPresent(loc -> getMeteringService().findMetersByLocation(loc).forEach(m -> groupFilter.withMeter(m.getId()))));
+                .forEach(lId -> locationService.findLocationById(Long.valueOf(lId)).ifPresent(loc -> getMeteringService().findMetersByLocation(loc).forEach(m -> groupFilter.withMeter(m.getId()))));
         issueResourceHelper.getDueDates(filter)
                 .stream()
                 .forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));

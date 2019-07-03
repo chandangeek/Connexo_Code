@@ -171,10 +171,7 @@ public class IssueResourceHelper {
                     .ifPresent(filter::addDevice);
         }
         if (jsonFilter.hasProperty(IssueRestModuleConst.LOCATION)) {
-            Long locationId = jsonFilter.getLong(IssueRestModuleConst.LOCATION);
-            if(locationId == null) {
-                locationId = Long.valueOf(jsonFilter.getString(IssueRestModuleConst.LOCATION));  // TODO: fix at the source
-            }
+            Long locationId = Long.valueOf(jsonFilter.getString(IssueRestModuleConst.LOCATION));
             locationService.findLocationById(locationId).ifPresent(filter::addLocation);
         }
 

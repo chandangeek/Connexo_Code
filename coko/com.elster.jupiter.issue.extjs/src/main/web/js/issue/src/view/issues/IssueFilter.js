@@ -154,11 +154,25 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 minChars: 0,
                 forceSelection: false,
                 matchFieldWidth: false,
-                width: 377
+                getParamValue: me.comboGetParamValue,
+                width: 377,
+                triggerAction: 'last',
+                listeners: {
+                    beforequery: {
+                        fn: me.locationBeforeQuery
+                    }
+                }
             }
         ];
 
         me.callParent(arguments);
+    },
+
+    locationBeforeQuery: function (qe) {
+        if ( typeof qe.combo.lastQuery !== 'undefined' && qe.combo.lastQuery !== '' && qe.combo.getValue() === null ) {
+            delete qe.combo.lastQuery;
+            return false;
+        }
     },
 
     onBeforeLoad: function (store, options) {

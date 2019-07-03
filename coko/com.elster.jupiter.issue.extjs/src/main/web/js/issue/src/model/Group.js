@@ -7,8 +7,7 @@ Ext.define('Isu.model.Group', {
     fields: [
         {
             name: 'id',
-//            type: 'string'
-            type: 'auto'
+            type: 'string'
         },
         {
             name: 'description',
