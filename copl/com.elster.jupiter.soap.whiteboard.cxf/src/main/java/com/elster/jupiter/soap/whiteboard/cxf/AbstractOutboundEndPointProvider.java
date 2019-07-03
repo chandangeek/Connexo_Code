@@ -61,7 +61,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     }
 
     @Override
-    public RequestSenderImpl  using(String methodName) {
+    public RequestSender using(String methodName) {
         return new RequestSenderImpl(methodName);
     }
 
@@ -179,12 +179,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                                     eventService.postEvent(EventType.OUTBOUND_NO_ACKNOWLEDGEMENT.topic(), occurrence);
                                     return null;
                                 }
-// TODO: move this to end point configuration
-                                if (message == null)
-                                {
-                                    message = "null";
-                                }
-                                epcAndEP.getKey().log(message, wse);
                             } else if (cause instanceof NotAuthorizedException) { // REST endpoint
                                 eventService.postEvent(EventType.OUTBOUND_AUTH_FAILURE.topic(), occurrence);
                                 return null;

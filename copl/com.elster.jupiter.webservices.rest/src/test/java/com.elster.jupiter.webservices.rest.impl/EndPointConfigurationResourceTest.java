@@ -42,7 +42,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
@@ -577,7 +576,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
         doNothing().when(ecpMock).retryOccurrence(anyString(), anyString(), anyObject());
 
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel);
+        WebServiceCallOccurrenceImpl occurrence = new WebServiceCallOccurrenceImpl(dataModel);
         occurrence.init(
                 Instant.now(),
                 "Request1",
