@@ -107,7 +107,13 @@ public enum MessageSeeds implements MessageSeed {
     NO_CONNECTION_TASK(7018, "NoConnectionTask", "No connection task have been found for communication task execution of communocation task ''{0}''."),
     CONNECTION_METHOD_NOT_FOUND(7019, "ConnectionMethodNotFound", "Couldn''t find connection method with name ''{0}''."),
     DATA_SOURCE_NOT_FOUND(7020, "DataSourceNotFound", "Data source ''{0}'' is not found in the system."),
-    DATA_SOURCE_NAME_TYPE_NOT_FOUND(7021, "DataSourceNotFound", "Data source name type ''{0}'' is not found. Possible values: Load Profile or Register Group."),
+    DATA_SOURCE_NAME_TYPE_NOT_FOUND(7021, "DataSourceNameTypeNotFound", "Data source name type ''{0}'' is not found. Possible values: Load Profile or Register Group."),
+    NO_DATA_SOURCES(7022, "NoDataSources", "At least one of ''GetMeterReadings.ReadingType'' or ''GetMeterReadings.Reading.dataSource'' must be specified in the request"),
+    REGISTER_GROUP_NOT_FOUND(7023, "RegisterGroupNotFound", "Couldn''t find register group with name ''{0}''."),
+    LOAD_PROFILE_NOT_FOUND(7024, "LoadProfileNotFound", "Couldn''t find load profile with name ''{0}''."),
+    NO_COM_TASK_EXECUTION(7025, "NoCommTaskExecution", "The required communication task execution of type {0} wasn't found on the device {1}."),
+    LOAD_PROFILE_WRONG_TIME_PERIOD(7026, "LoadProfileWrongTimePeriod",
+            "Wrong or empty time period for load profile data source is provided: start ''{0}'', end ''{1}''."),
 
     NO_HEAD_END_INTERFACE_FOUND(8004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     ;

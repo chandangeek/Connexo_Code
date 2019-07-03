@@ -33,6 +33,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 
@@ -78,12 +79,12 @@ public class MeterReadingsBuilder {
     private final MasterDataService masterDataService;
 
     private UsagePoint usagePoint;
-    private List<Meter> endDevices;
+    private Set<Meter> endDevices;
     private Set<MetrologyPurpose> purposes;
     private Set<String> readingTypeMRIDs = Collections.emptySet();
     private Set<String> readingTypeFullAliasNames = Collections.emptySet();
     private RangeSet<Instant> timePeriods;
-    private Set<LoadProfile> loadProfiles = Collections.emptySet();
+    private Set<LoadProfileType> loadProfiles = Collections.emptySet();
     private Set<RegisterGroup> registerGroups = Collections.emptySet();
 
     private Set<ReadingType> referencedReadingTypes;
@@ -101,7 +102,7 @@ public class MeterReadingsBuilder {
         this.masterDataService = masterDataService;
     }
 
-    public MeterReadingsBuilder withEndDevices(List<Meter> endDevices) {
+    public MeterReadingsBuilder withEndDevices(Set<Meter> endDevices) {
         this.endDevices = endDevices;
         return this;
     }
@@ -150,16 +151,13 @@ public class MeterReadingsBuilder {
     public MeterReadingsBuilder withLoadProfiles(Set<String> loadProfilesNames) throws FaultMessage {
         loadProfiles = new HashSet<>();
         if (loadProfilesNames != null) {
-            for (Meter meter: endDevices) {
-                loadProfiles.addAll(findDeviceForEndDevice(meter).getLoadProfiles().stream()
-                        .filter(loadProfile -> loadProfilesNames.contains(loadProfile.getLoadProfileSpec().getLoadProfileType().getName()))
+            loadProfiles.addAll(masterDataService.findAllLoadProfileTypes().stream()
+                        .filter(loadProfile -> loadProfilesNames.contains(loadProfile.getName()))
                         .collect(Collectors.toSet()));
-            }
         }
         return this;
     }
 
-    /// TODO may be avoid to use of findDeviceForEndDevice and deviceService
     public MeterReadingsBuilder withRegisterGroups(Set<String> registerGroupsNames) throws FaultMessage {
         registerGroups = new HashSet<>();
         if (registerGroupsNames != null) {
@@ -190,9 +188,9 @@ public class MeterReadingsBuilder {
         } else if (endDevices.stream().anyMatch(ed -> ed instanceof Meter)) {
             if (!loadProfiles.isEmpty()) {
                 readingTypeMRIDs.addAll(loadProfiles.stream()
-                        .map (LoadProfile::getChannels)
+                        .map (LoadProfileType::getChannelTypes)
                         .flatMap(Collection::stream)
-                        .map(channel -> channel.getReadingType().getMRID())
+                        .map(channelType -> channelType.getReadingType().getMRID())
                         .collect(Collectors.toSet()));
             }
             if (!registerGroups.isEmpty()) {
@@ -539,12 +537,12 @@ public class MeterReadingsBuilder {
         return info;
     }
 
-    private static ch.iec.tc57._2011.meterreadings.LoadProfile createLoadProfile(LoadProfile loadProfile, Set<String>referencedReadingTypesMrids) {
+    private static ch.iec.tc57._2011.meterreadings.LoadProfile createLoadProfile(LoadProfileType loadProfile, Set<String>referencedReadingTypesMrids) {
         ch.iec.tc57._2011.meterreadings.LoadProfile info = new ch.iec.tc57._2011.meterreadings.LoadProfile();
-        info.setName(loadProfile.getLoadProfileSpec().getLoadProfileType().getName());
+        info.setName(loadProfile.getName());
         List<ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType> readingTypes = info.getReadingType();
 
-        loadProfile.getChannels().stream()
+        loadProfile.getChannelTypes().stream()
                 .map(channel -> channel.getReadingType().getMRID())
                 .filter(mrid -> referencedReadingTypesMrids.contains(mrid))
                 .forEach(mrid -> {

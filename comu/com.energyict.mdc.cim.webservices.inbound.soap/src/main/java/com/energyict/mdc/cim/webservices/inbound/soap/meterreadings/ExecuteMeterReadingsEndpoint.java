@@ -12,7 +12,9 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCom
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -155,7 +157,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             if (endDevices != null && !endDevices.isEmpty()) {
                 Set<String> notFoundDeviceMRIDs = new HashSet<>();
                 Set<String> notFoundDeviceNames = new HashSet<>();
-                List<com.elster.jupiter.metering.Meter> existedEndDevices =
+                Set<com.elster.jupiter.metering.Meter> existedEndDevices =
                         getExistedMeters(endDevices.stream().limit(1).collect(Collectors.toList()),
                                 notFoundDeviceMRIDs, notFoundDeviceNames);
                 builder.withEndDevices(existedEndDevices);
@@ -224,7 +226,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
         Set<String> notFoundDevicesMRIDs = new HashSet<>();
         Set<String> notFoundDevicesNames = new HashSet<>();
-        List<com.elster.jupiter.metering.Meter> existedMeters = getExistedMeters(endDevices, notFoundDevicesMRIDs,
+        Set<com.elster.jupiter.metering.Meter> existedMeters = getExistedMeters(endDevices, notFoundDevicesMRIDs,
                                                                                              notFoundDevicesNames);
         Set<Device> devices = getDevices(existedMeters);
 
@@ -246,28 +248,46 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             /// TODO check that reading or loadProfile com task exists
             /// TODO check that register group name or load profile name does exist
             DataSourceTypeNameEnum dsTypeName = getDataSourceNameType(reading.getDataSource());
-            List<String> existedLoadProfiles = null;
-            List<String> existedRegisterGroups = null;
+            Set<String> existedLoadProfilesNames = null;
+            Set<String> existedRegisterGroupsNames = null;
+            // readingTypes from loadProfiles + loadProfiles + registerGroups
+            Set<com.elster.jupiter.metering.ReadingType> combinerReadingTypes = new HashSet<>(existedReadingTypes);
             if (reading.getDataSource() != null && !reading.getDataSource().isEmpty()) {
                 List<String> dsNames = getDataSourceNames(reading.getDataSource());
                 if (dsTypeName != null && !dsNames.isEmpty()) {
                     if (dsTypeName == DataSourceTypeNameEnum.LOAD_PROFILE) {
                         /// TODO not found load profiles
-                        existedLoadProfiles = getExistedLoadProfilesNames(dsNames);
+                        Set<LoadProfileType> existedLoadProfiles = getExistedLoadProfiles(dsNames);
+                        combinerReadingTypes.addAll(existedLoadProfiles.stream()
+                                .map (LoadProfileType::getChannelTypes)
+                                .flatMap(Collection::stream)
+                                .map(channelType -> channelType.getReadingType())
+                                .collect(Collectors.toSet()));
+                        existedLoadProfilesNames = existedLoadProfiles.stream()
+                                .map(lpt -> lpt.getName())
+                                .collect(Collectors.toSet());
                     } else {
                         /// TODO not found register groups
-                        existedRegisterGroups = getExistedRegisterGroupsNames(dsNames);
+                        Set<RegisterGroup> existedRegisterGroups = getExistedRegisterGroups(dsNames);
+                        combinerReadingTypes.addAll(existedRegisterGroups.stream()
+                                .map(RegisterGroup::getRegisterTypes)
+                                .flatMap(Collection::stream)
+                                .map(registerType -> registerType.getReadingType())
+                                .collect(Collectors.toSet()));
+                        existedRegisterGroupsNames = existedRegisterGroups.stream()
+                                .map(rg -> rg.getName())
+                                .collect(Collectors.toSet());
                     }
                 } else {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, DATA_SOURCE_NAME).get();
                 }
-                checkDataSources(existedLoadProfiles, existedRegisterGroups, existedReadingTypes);
             }
+            checkDataSources(existedLoadProfilesNames, existedRegisterGroupsNames, existedReadingTypes, reading.getTimePeriod());
 
 
             serviceCallCommands.createParentGetMeterReadingsServiceCall(reading.getSource(), replyAddress, corelationId,
-                    reading.getTimePeriod(), existedMeters, existedReadingTypes, existedLoadProfiles,
-                    existedRegisterGroups, connectionMethod, scheduleStrategy);
+                    reading.getTimePeriod(), existedMeters, existedReadingTypes, combinerReadingTypes,
+                    existedLoadProfilesNames, existedRegisterGroupsNames, connectionMethod, scheduleStrategy);
         }
         context.commit();
 
@@ -276,7 +296,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return createMeterReadingsResponseMessageType(meterReadings, errorTypes, corelationId);
     }
 
-    private Set<Device> getDevices(List<com.elster.jupiter.metering.Meter> existedMeters) {
+    private Set<Device> getDevices(Set<com.elster.jupiter.metering.Meter> existedMeters) {
         return existedMeters.stream()
                 .map(meter -> {
                     Long deviceId = Long.parseLong(meter.getAmrId());
@@ -285,11 +305,19 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                 .collect(Collectors.toSet());
     }
 
-    private void checkDataSources(List<String> existedLoadProfiles, List<String> existedRegisterGroups,
-                                  List<com.elster.jupiter.metering.ReadingType> existedReadingTypes) throws FaultMessage {
+    private void checkDataSources(Set<String> existedLoadProfiles, Set<String> existedRegisterGroups,
+                                  List<com.elster.jupiter.metering.ReadingType> existedReadingTypes,
+                                  DateTimeInterval timePeriod) throws FaultMessage {
         boolean hasLoadProfiles = existedLoadProfiles != null && !existedLoadProfiles.isEmpty();
         boolean hasRegisterGroups = existedRegisterGroups != null && !existedRegisterGroups.isEmpty();
         boolean hasReadingTypes = existedReadingTypes != null && !existedReadingTypes.isEmpty();
+        if (hasLoadProfiles && (timePeriod.getStart() == null || timePeriod.getEnd() == null)) {
+            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.LOAD_PROFILE_WRONG_TIME_PERIOD,
+                    timePeriod.getStart(), timePeriod.getEnd()).get();
+        }
+        if (!hasLoadProfiles && !hasRegisterGroups && !hasReadingTypes) {
+            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_DATA_SOURCES).get();
+        }
         if (hasLoadProfiles && hasRegisterGroups
                 || hasLoadProfiles && hasReadingTypes
                 || hasRegisterGroups && hasReadingTypes) {
@@ -337,19 +365,25 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     /// TODO
-    private List<String> getExistedLoadProfilesNames(List<String> existedLoadProfiles) {
-        return masterDataService.findAllLoadProfileTypes().stream()
-                .filter(rg -> existedLoadProfiles.contains(rg.getName()))
-                .map(rg -> rg.getName())
-                .collect(Collectors.toList());
+    private Set<LoadProfileType> getExistedLoadProfiles(List<String> existedLoadProfiles) throws FaultMessage {
+        Set<LoadProfileType> loadProfiles = new HashSet<>();
+        if (existedLoadProfiles != null) {
+            loadProfiles.addAll(masterDataService.findAllLoadProfileTypes().stream()
+                    .filter(loadProfile -> existedLoadProfiles.contains(loadProfile.getName()))
+                    .collect(Collectors.toSet()));
+        }
+        return loadProfiles;
     }
 
     /// TODO
-    private List<String> getExistedRegisterGroupsNames(List<String> existedRegisterGroups) {
-        return masterDataService.findAllRegisterGroups().stream()
-                .filter(rg -> existedRegisterGroups.contains(rg.getName()))
-                .map(rg -> rg.getName())
-                .collect(Collectors.toList());
+    private Set<RegisterGroup> getExistedRegisterGroups(List<String> existedRegisterGroups) throws FaultMessage {
+        Set<RegisterGroup> registerGroups = new HashSet<>();
+        if (existedRegisterGroups != null) {
+            registerGroups.addAll(masterDataService.findAllRegisterGroups().stream()
+                    .filter(rg -> existedRegisterGroups.contains(rg.getName()))
+                    .collect(Collectors.toSet()));
+        }
+        return registerGroups;
     }
 
     // LoadProfile or RegisterGroup
@@ -375,7 +409,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
     /// TODO check existance of DataSourceName and throw exception
     // 15min Electricity A+
-    private List<String> getDataSourceNames(List<DataSource> dataSources) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
+    private List<String> getDataSourceNames(List<DataSource> dataSources) {
         List<String> dsNames = new ArrayList<>();
         for (DataSource dataSource : dataSources) {
             String dsName = dataSource.getName(); // 15min Electricity A+
@@ -409,7 +443,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     private Set<ErrorType> getErrorTypes(Set<String> notFoundMRIDs, Set<String> notFoundNames,
-                                         List<com.elster.jupiter.metering.Meter> existedEndDevices,
+                                         Set<com.elster.jupiter.metering.Meter> existedEndDevices,
                                          Set<String> notFoundRTMRIDs, Set<String> notFoundRTNames,
                                          List<com.elster.jupiter.metering.ReadingType> existedReadingTypes) {
         Set<ErrorType> errorTypes = new HashSet<>();
@@ -545,7 +579,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     private Map<String, String> getNotFoundReadingTypesOnDevices(List<com.elster.jupiter.metering.ReadingType> existedReadingTypes,
-                                                                 List<com.elster.jupiter.metering.Meter> existedEndDevices) {
+                                                                 Set<com.elster.jupiter.metering.Meter> existedEndDevices) {
         Map<String, String> notFoundReadingTypesOnDevices = new HashMap<>();
 
         for (com.elster.jupiter.metering.EndDevice endDevice: existedEndDevices) {
@@ -570,13 +604,13 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return notFoundReadingTypesOnDevices;
     }
 
-    private List<com.elster.jupiter.metering.Meter> fromEndDevicesWithMRIDsAndNames(List<String> mRIDs, List<String> names) throws FaultMessage {
+    private Set<com.elster.jupiter.metering.Meter> fromEndDevicesWithMRIDsAndNames(Set<String> mRIDs, Set<String> names) throws FaultMessage {
         List<com.elster.jupiter.metering.EndDevice> existedEndDevices = meteringService.getEndDeviceQuery()
-                .select(where("mRID").in(mRIDs).or(where("name").in(names)));
+                .select(where("mRID").in(new ArrayList<>(mRIDs)).or(where("name").in(new ArrayList<>(names))));
         if (existedEndDevices == null || existedEndDevices.isEmpty()) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICES).get();
         }
-        List<com.elster.jupiter.metering.Meter> existedMeters = new ArrayList<>();
+        Set<com.elster.jupiter.metering.Meter> existedMeters = new HashSet<>();
         for (com.elster.jupiter.metering.EndDevice endDevice: existedEndDevices) {
             if (endDevice instanceof com.elster.jupiter.metering.Meter) {
                 existedMeters.add((com.elster.jupiter.metering.Meter)endDevice);
@@ -602,21 +636,21 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return notFoundElements.stream().sorted().collect(Collectors.joining(", "));
     }
 
-    private List<com.elster.jupiter.metering.Meter> getExistedMeters(List<EndDevice> endDevices, Set<String> notFoundMRIDs,
+    private Set<com.elster.jupiter.metering.Meter> getExistedMeters(List<EndDevice> endDevices, Set<String> notFoundMRIDs,
                                                                      Set<String> notFoundNames) throws FaultMessage {
-        List<String> mRIDs = new ArrayList<>();
-        List<String> fullAliasNames = new ArrayList<>();
+        Set<String> mRIDs = new HashSet<>();
+        Set<String> fullAliasNames = new HashSet<>();
         for (int i = 0; i < endDevices.size(); ++i) {
             collectDeviceMridsAndNames(endDevices.get(i), i, mRIDs, fullAliasNames);
         }
 
-        List<com.elster.jupiter.metering.Meter> meterList = fromEndDevicesWithMRIDsAndNames(mRIDs, fullAliasNames);
+        Set<com.elster.jupiter.metering.Meter> meterList = fromEndDevicesWithMRIDsAndNames(mRIDs, fullAliasNames);
         fillNotFoundEndDevicesMRIDsAndNames(meterList, mRIDs, fullAliasNames, notFoundMRIDs, notFoundNames);
         return meterList;
     }
 
-    private void fillNotFoundEndDevicesMRIDsAndNames(List<com.elster.jupiter.metering.Meter> MeterList,
-                                                     List<String> requiredMRIDs, List<String> requiredNames,
+    private void fillNotFoundEndDevicesMRIDsAndNames(Set<com.elster.jupiter.metering.Meter> MeterList,
+                                                     Set<String> requiredMRIDs, Set<String> requiredNames,
                                                      Set<String> notFoundMRIDs, Set<String> notFoundNames) {
         Set<String> existedNames = MeterList.stream()
                 .map(endDevice -> endDevice.getName())
@@ -739,7 +773,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         }
     }
 
-    private void collectDeviceMridsAndNames(EndDevice endDevice, int index, List<String> mRIDs, List<String> deviceNames) throws FaultMessage {
+    private void collectDeviceMridsAndNames(EndDevice endDevice, int index, Set<String> mRIDs, Set<String> deviceNames) throws FaultMessage {
         final String END_DEVICES_ITEM = END_DEVICE_LIST_ITEM + '[' + index + ']';
         String mRID = endDevice.getMRID();
         if (mRID == null) {

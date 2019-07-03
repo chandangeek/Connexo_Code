@@ -257,10 +257,11 @@ public class ServiceCallCommands {
     @TransactionRequired
     public ServiceCall createParentGetMeterReadingsServiceCall(String source, String replyAddress, String corelationId,
                                                                DateTimeInterval timePeriod,
-                                                               List<com.elster.jupiter.metering.Meter> existedMeters,
+                                                               Set<com.elster.jupiter.metering.Meter> existedMeters,
                                                                List<ReadingType> existedReadingTypes,
-                                                               List<String> existedLoadProfiles,
-                                                               List<String> existedRegisterGroups,
+                                                               Set<ReadingType> combinedReadingTypes,
+                                                               Set<String> existedLoadProfiles,
+                                                               Set<String> existedRegisterGroups,
                                                                String connectionMethod,
                                                                ScheduleStrategyEnum scheduleStrategy) throws
             ch.iec.tc57._2011.getmeterreadings.FaultMessage {
@@ -268,7 +269,7 @@ public class ServiceCallCommands {
         Instant start = timePeriod.getStart();
         Instant end = timePeriod.getEnd();
         String property = bundleContext.getProperty(RECURENT_TASK_READ_OUT_DELAY);
-        long delay = property == null ? 1 : Long.parseLong(property);
+        int delay = property == null ? 1 : Integer.parseInt(property);
         Instant now = clock.instant();
 
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.PARENT_GET_METER_READINGS);
@@ -279,8 +280,8 @@ public class ServiceCallCommands {
         parentGetMeterReadingsDomainExtension.setTimePeriodStart(start);
         parentGetMeterReadingsDomainExtension.setTimePeriodEnd(end);
         parentGetMeterReadingsDomainExtension.setReadingTypes(getReadingTypesString(existedReadingTypes));
-        parentGetMeterReadingsDomainExtension.setLoadProfiles(getCommaSeparatedStringFromList(existedLoadProfiles));
-        parentGetMeterReadingsDomainExtension.setRegisterGroups(getCommaSeparatedStringFromList(existedRegisterGroups));
+        parentGetMeterReadingsDomainExtension.setLoadProfiles(getCommaSeparatedStringFromSet(existedLoadProfiles));
+        parentGetMeterReadingsDomainExtension.setRegisterGroups(getCommaSeparatedStringFromSet(existedRegisterGroups));
         parentGetMeterReadingsDomainExtension.setConnectionMethod(connectionMethod);
         parentGetMeterReadingsDomainExtension.setScheduleStrategy(scheduleStrategy.getName());
 
@@ -288,12 +289,11 @@ public class ServiceCallCommands {
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin("MultiSense")
                 .extendedWith(parentGetMeterReadingsDomainExtension);
-        /// TODO do not create Parent till all checks are done
         ServiceCall parentServiceCall = serviceCallBuilder.create();
         parentServiceCall.requestTransition(DefaultState.PENDING);
         parentServiceCall.requestTransition(DefaultState.ONGOING);
         if (ReadingSourceEnum.SYSTEM.getSource().equals(source)) {
-            createSubParentServiceCallsAndTransitToSuccessfull(existedMeters, parentServiceCall);
+            existedMeters.forEach(meter -> createSubParentServiceCall(parentServiceCall, meter));
             initiateReading(parentServiceCall);
             return parentServiceCall;
         }
@@ -305,33 +305,25 @@ public class ServiceCallCommands {
             List<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, existedLoadProfiles);
             ComTaskExecution deviceMessagesComTaskExecution = null;
 
-            if (loadProfiles != null && !loadProfiles.isEmpty()) {
-                if (start != null && end != null) { // load profiles case
-                    deviceMessagesComTaskExecution = findComTaskExecutionForDeviceMessages(device);
-                    Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
-                    createDeviceMessages(device, loadProfiles, trigger, start, end);
-                    if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
-                        if (trigger.isAfter(now)) { // use recurrent task
-                            processComTaskExectionByRecurrentTask(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
-                                    end, start, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS);
-                        } else { // run now
-                            scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
-                                    start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, true);
-                        }
-                    } else { // use schedule
+            if (loadProfiles != null && !loadProfiles.isEmpty()) {// load profiles case
+                deviceMessagesComTaskExecution = findComTaskExecutionForDeviceMessages(device);
+                Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
+                createDeviceMessages(device, loadProfiles, trigger, start, end);
+                if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
+                    if (trigger.isAfter(now)) { // use recurrent task
+                        processComTaskExectionByRecurrentTask(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
+                                start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS);
+                    } else { // run now
                         scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
-                                start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, false);
+                                start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, true);
                     }
-                } else {
-                    /// TODO throw exception that start and end date is required for load profile message
+                } else { // use schedule
+                    scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
+                            start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, false);
                 }
             }
 
-            // TODO check Hybrid
-            if (isMeterReadingRequired(source, meter, existedReadingTypes, timePeriod.getEnd())) {
-                subParentServiceCall.requestTransition(DefaultState.PENDING);
-                subParentServiceCall.requestTransition(DefaultState.ONGOING);
-
+            if (isMeterReadingRequired(source, meter, combinedReadingTypes, timePeriod.getEnd(), now, delay)) {
                 //****
 
                 List<ComTaskExecution> existedComTaskExecutions = findComTaskExecutions(device, existedReadingTypes,
@@ -392,14 +384,6 @@ public class ServiceCallCommands {
         return parentServiceCall;
     }
 
-    private void createSubParentServiceCallsAndTransitToSuccessfull(List<com.elster.jupiter.metering.Meter> existedMeters, ServiceCall parentServiceCall) {
-        existedMeters.forEach(meter -> {
-            ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
-            subParentServiceCall.requestTransition(DefaultState.PENDING);
-            subParentServiceCall.requestTransition(DefaultState.ONGOING);
-        });
-    }
-
     // channels without concrete start or end date / registers with start and end dates
     private boolean comTaskExecutionRequired(Instant start, Instant end, ComTaskExecution comTaskExecution) {
         return (comTaskExecution.getProtocolTasks().stream()
@@ -410,7 +394,7 @@ public class ServiceCallCommands {
                 && start != null && end != null);
     }
 
-    private Instant getTriggerDate(Instant actualEnd, long delay, ComTaskExecution comTaskExecution,
+    private Instant getTriggerDate(Instant actualEnd, int delay, ComTaskExecution comTaskExecution,
                                    ScheduleStrategyEnum scheduleStrategy) {
         Instant trigger;
         if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
@@ -454,7 +438,7 @@ public class ServiceCallCommands {
     }
 
     private List<ComTaskExecution> findComTaskExecutions(Device device, List<ReadingType> existedReadingTypes,
-                                                         List<String> existedRegisterGroups) throws
+                                                         Set<String> existedRegisterGroups) throws
             ch.iec.tc57._2011.getmeterreadings.FaultMessage {
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         if (existedReadingTypes != null && !existedReadingTypes.isEmpty()) {
@@ -486,8 +470,7 @@ public class ServiceCallCommands {
         return comTaskExecutions.stream()
                 .filter(comTaskExecution -> comTaskExecution.getProtocolTasks().stream()
                         .anyMatch(protocolTask -> MessagesTask.class.isInstance(protocolTask)))
-                /// TODO add proper exception description
-                .findAny().orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES));
+                .findAny().orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_COM_TASK_EXECUTION, MessagesTask.class.getSimpleName(), device.getName()));
     }
 
     private void processComTaskExectionByRecurrentTask(ServiceCall subParentServiceCall,
@@ -519,13 +502,14 @@ public class ServiceCallCommands {
 
     private ServiceCall createSubParentServiceCall(ServiceCall parent, com.elster.jupiter.metering.Meter meter) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.SUBPARENT_GET_METER_READINGS);
-
         SubParentGetMeterReadingsDomainExtension subParentDomainExtension = new SubParentGetMeterReadingsDomainExtension();
         subParentDomainExtension.setEndDevice(meter.getMRID());
 
-        return parent.newChildCall(serviceCallType)
-                .extendedWith(subParentDomainExtension)
+        ServiceCall subParentServiceCall = parent.newChildCall(serviceCallType).extendedWith(subParentDomainExtension)
                 .create();
+        subParentServiceCall.requestTransition(DefaultState.PENDING);
+        subParentServiceCall.requestTransition(DefaultState.ONGOING);
+        return subParentServiceCall;
     }
 
     private ServiceCall createChildGetMeterReadingServiceCall(ServiceCall subParentServiceCall, ServiceCallTypes childServiceCallType,
@@ -562,7 +546,7 @@ public class ServiceCallCommands {
         serviceCall.requestTransition(DefaultState.ONGOING);
     }
 
-    private List<LoadProfile> getExistedOnDeviceLoadProfiles(Device device, List<String> existedLoadProfiles) {
+    private List<LoadProfile> getExistedOnDeviceLoadProfiles(Device device, Set<String> existedLoadProfiles) {
         if (existedLoadProfiles != null) {
             return device.getLoadProfiles().stream()
                     .filter(loadProfile -> existedLoadProfiles.contains(loadProfile.getLoadProfileSpec().getLoadProfileType().getName()))
@@ -686,18 +670,21 @@ public class ServiceCallCommands {
         comTaskExecution.updateNextExecutionTimestamp();
     }
 
-    private boolean isMeterReadingRequired(String source, com.elster.jupiter.metering.Meter meter, List<ReadingType> readingTypes, Instant endTime) {
+    private boolean isMeterReadingRequired(String source, com.elster.jupiter.metering.Meter meter,
+                                           Set<ReadingType> readingTypes, Instant endTime, Instant now, int delay) {
         if (ReadingSourceEnum.METER.getSource().equals(source)) {
             return true;
         }
         if (ReadingSourceEnum.HYBRID.getSource().equals(source)) {
-            return meter.getChannelsContainers().stream().
-                    anyMatch(container -> isChannelContainerReadOutRequired(container, readingTypes, endTime));
+            boolean inFutireReading = endTime.plus(delay, ChronoUnit.MINUTES).isAfter(now);
+            return inFutireReading || meter.getChannelsContainers().stream()
+                    .anyMatch(container -> isChannelContainerReadOutRequired(container, readingTypes, endTime));
         }
         return false;
     }
 
-    private boolean isChannelContainerReadOutRequired(ChannelsContainer channelsContainer, List<ReadingType> readingTypes, Instant endTime) {
+    private boolean isChannelContainerReadOutRequired(ChannelsContainer channelsContainer, Set<ReadingType> readingTypes,
+                                                      Instant endTime) {
         Set<String> readingTypeMRIDs = readingTypes.stream().map(ert -> ert.getMRID()).collect(Collectors.toSet());
         Range<Instant> range = channelsContainer.getInterval().toOpenClosedRange();
         if (!range.lowerEndpoint().isBefore(endTime)) {
@@ -726,7 +713,7 @@ public class ServiceCallCommands {
                 .collect(Collectors.joining(";"));
     }
 
-    private String getCommaSeparatedStringFromList(List<String> strings) {
+    private String getCommaSeparatedStringFromSet(Set<String> strings) {
         return strings == null ? null : strings.stream()
                 .collect(Collectors.joining(";"));
     }

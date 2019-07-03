@@ -131,7 +131,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
         /// TODO start/end can be not specified
         RangeSet<Instant> timeRangeSet =  getTimeRangeSet(timePeriodStart, timePeriodEnd);
-        List<Meter> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
+        Set<Meter> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
         Set<String> readingTypesMRIDs = getSetOfValuesFromString(readingTypesString);
         Set<String> loadProfilesNames = getSetOfValuesFromString(loadProfilesString);
         Set<String> registerGroupsNames = getSetOfValuesFromString(registerGroupsString);
@@ -213,13 +213,13 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         return new HashSet<>();
     }
 
-    private List<Meter> getEndDevices(List<String> endDevicesMRIDs, ServiceCall serviceCall) {
+    private Set<Meter> getEndDevices(List<String> endDevicesMRIDs, ServiceCall serviceCall) {
         List<EndDevice> existedEndDevices = meteringService.getEndDeviceQuery()
                 .select(where("MRID").in(endDevicesMRIDs));
         if (existedEndDevices == null || existedEndDevices.isEmpty()) {
             serviceCall.log(LogLevel.WARNING, "No end devices was found");
         }
-        List<Meter> existedMeters = new ArrayList<>();
+        Set<Meter> existedMeters = new HashSet<>();
         for (com.elster.jupiter.metering.EndDevice endDevice: existedEndDevices) {
             if (endDevice instanceof Meter) {
                 existedMeters.add((Meter)endDevice);
