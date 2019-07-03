@@ -27,7 +27,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         'Fwc.store.Firmwares',
         'Fwc.store.DeviceGroups',
         'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
-        'Fwc.firmwarecampaigns.store.ComTasks',
+        'Fwc.firmwarecampaigns.store.ComTasksForValidate',
+        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
         'Fwc.firmwarecampaigns.store.ConnectionStrategy'
     ],
 

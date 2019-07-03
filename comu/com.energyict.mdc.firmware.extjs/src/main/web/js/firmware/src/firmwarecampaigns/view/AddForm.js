@@ -13,7 +13,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
         'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
-        'Fwc.firmwarecampaigns.store.ComTasks'
+        'Fwc.firmwarecampaigns.store.ComTasksForValidate',
+        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
+
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -25,6 +27,26 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         labelWidth: 260,
         width: 600,
         msgTarget: 'under'
+    },
+    loadRecord: function(record) {
+        var me = this;
+        var sendCalendarComTask = record.get('sendCalendarComTask');
+        var validationComTask = record.get('validationComTask');
+        var sendCalendarConnectionStrategy = record.get('sendCalendarConnectionStrategy');
+        var validationConnectionStrategy = record.get('validationConnectionStrategy');
+
+        me.callParent(arguments);
+
+        me.getForm().setValues({
+            sendCalendarComTask: sendCalendarComTask && sendCalendarComTask.id,
+            validationComTask: validationComTask && validationComTask.id,
+            sendCalendarConnectionStrategy: sendCalendarConnectionStrategy
+                ? sendCalendarConnectionStrategy.id
+                : me.defaultConnectionStrategy,
+            validationConnectionStrategy: validationConnectionStrategy
+                ? validationConnectionStrategy.id
+                : me.defaultConnectionStrategy
+        })
     },
     initComponent: function () {
         var me = this;
@@ -190,7 +212,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'combobox',
                 itemId: 'fwc-campaign-allowed-comtask',
                 name: 'sendCalendarComTask',
-                store: 'Fwc.firmwarecampaigns.store.ComTasks',
+                store: 'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
                 fieldLabel: Uni.I18n.translate(
                     'general.sendCalendarComTask',
                     'FWC',
@@ -214,6 +236,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'fieldcontainer',
                 layout: 'hbox',
                 itemId: 'fwc-campaign-send-connection-strategy-container',
+                hidden: true,
                 fieldLabel: Uni.I18n.translate(
                     'general.connectionMethodStrategy',
                     'FWC',
@@ -228,10 +251,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         margin: '0 10 0 0',
-                        valueField: 'id',
-                        value: 2,
-                        allowBlank: false,
-                        forceSelection: true
+                        valueField: 'id'
                     },
                     {
                         xtype: 'uni-default-button',
@@ -249,7 +269,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'combobox',
                 itemId: 'fwc-campaign-validation-comtask',
                 name: 'validationComTask',
-                store: 'Fwc.firmwarecampaigns.store.ComTasks',
+                store: 'Fwc.firmwarecampaigns.store.ComTasksForValidate',
                 fieldLabel: Uni.I18n.translate(
                     'general.validationComTask',
                     'FWC',
@@ -289,9 +309,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         queryMode: 'local',
                         displayField: 'name',
                         margin: '0 10 0 0',
-                        valueField: 'id',
-                        allowBlank: false,
-                        forceSelection: true
+                        valueField: 'id'
                     },
                     {
                         xtype: 'uni-default-button',
