@@ -25,7 +25,7 @@ public interface OutboundEndPointProvider extends EndPointProvider {
 
         Map<EndPointConfiguration, ?> send(Object request);
 
-        void send(String message, EndPointConfiguration endPointConfiguration);
+        Map<EndPointConfiguration, ?> sendRawXml(String message);
 
     }
 }

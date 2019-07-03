@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
@@ -18,7 +17,6 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigR
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,8 +35,6 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
     @Mock
     private MasterDataLinkageHandler linkageHandler;
-    @Mock
-    private EndPointHelper endPointHelper;
     @Mock
     private MasterDataLinkageConfigResponseMessageType response;
     @Mock
@@ -59,7 +55,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     @Before
     public void setUp() throws Exception {
         endpoint = new ExecuteMasterDataLinkageConfigEndpoint(getInstance(MasterDataLinkageFaultMessageFactory.class),
-                transactionService, endPointHelper, () -> linkageHandler, () -> validator, endPointConfigurationService,
+                () -> linkageHandler, () -> validator, endPointConfigurationService,
                 webServicesService, serviceCallCommands);
 
         message = getValidMessage().build();
@@ -83,7 +79,6 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         // Verify
         assertThat(actualResponse).isNotNull().isSameAs(response);
         verify(linkageHandler).forMessage(message);
-        verify(endPointHelper, times(1)).setSecurityContext();
         verify(transactionContext, times(1)).commit();
         verify(transactionContext, times(1)).close();
     }
@@ -130,7 +125,6 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         // Verify
         assertThat(actualResponse).isNotNull().isSameAs(response);
         verify(linkageHandler).forMessage(message);
-        verify(endPointHelper, times(1)).setSecurityContext();
         verify(transactionContext, times(1)).commit();
         verify(transactionContext, times(1)).close();
     }

@@ -42,12 +42,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -391,13 +389,13 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
 
-        WebServiceCallOccurrence occurrence1 = new WebServiceCallOccurrenceImpl(dataModel).init(
+        WebServiceCallOccurrence occurrence1 = createOccurrence(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
                 ecpMock
         );
-        WebServiceCallOccurrence occurrence2 = new WebServiceCallOccurrenceImpl(dataModel).init(
+        WebServiceCallOccurrence occurrence2 = createOccurrence(
                 Instant.now(),
                 "Request2",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
@@ -445,7 +443,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
 
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel).init(
+        WebServiceCallOccurrence occurrence = createOccurrence(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
@@ -504,7 +502,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
 
 
 
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel).init(
+        WebServiceCallOccurrence occurrence = createOccurrence(
                 Instant.now(),
                 "Request1",
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
@@ -557,12 +555,10 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<String>get("$.logs[1].stackTrace")).isEqualTo("stackTrace2");
     }
 
-
     @Test
     public void testRetry() throws Exception {
-
         /* Mock privilege */
-        when(privilege.getName()).thenReturn(Privileges.Constants.VIEW_WEB_SERVICES);
+        when(privilege.getName()).thenReturn(Privileges.Constants.RETRY_WEB_SERVICES);
 
         /* Mock webService*/
         WebService webService = mock(WebService.class);
@@ -575,20 +571,18 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
-        doNothing().when(ecpMock).retryOccurrence(anyString(), anyString(), anyObject());
 
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel);
-        occurrence.init(
-                Instant.now(),
-                "Request1",
-                ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
-                ecpMock
-        );
+        WebServiceCallOccurrence occurrence = mock(WebServiceCallOccurrence.class);
 
         when(webServiceCallOccurrenceService.getEndPointOccurrence((long) 1)).thenReturn(Optional.of(occurrence));
 
         Response response = target("/endpointconfigurations/occurrences/1/retry").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").put(null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(occurrence).retry();
+    }
 
+    private WebServiceCallOccurrence createOccurrence(Instant time, String request, String application, EndPointConfiguration endPointConfiguration) {
+        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService)
+                .init(time, request, application, endPointConfiguration);
     }
 }
