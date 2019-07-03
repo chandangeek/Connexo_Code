@@ -98,7 +98,8 @@ public class TopIssuesResource extends BaseResource {
                         and(conditionStatus).
                         and(conditionUser.
                                 or(conditionNullUser.
-                                        and(conditionWG))), 1, 5, Order.ascending(PRIORITYTOTAL)
+                                        and(conditionWG))), 1, 7, Order
+                        .ascending(PRIORITYTOTAL)
                         .ascending(DUEDATE)
                         .ascending(CREATIONDATE)
                         .ascending(DEVICE)
