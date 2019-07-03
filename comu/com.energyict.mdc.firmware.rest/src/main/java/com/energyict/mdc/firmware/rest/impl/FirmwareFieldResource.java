@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -49,17 +50,15 @@ public class FirmwareFieldResource extends FieldResource {
     private final FirmwareService firmwareService;
     private final ResourceHelper resourceHelper;
     private final FirmwareMessageInfoFactory firmwareMessageInfoFactory;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public FirmwareFieldResource(Thesaurus thesaurus, FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareMessageInfoFactory firmwareMessageInfoFactory,
-                                 DeviceConfigurationService deviceConfigurationService, ExceptionFactory exceptionFactory) {
+                                 ExceptionFactory exceptionFactory) {
         super(thesaurus);
         this.firmwareService = firmwareService;
         this.resourceHelper = resourceHelper;
         this.firmwareMessageInfoFactory = firmwareMessageInfoFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -162,8 +161,8 @@ public class FirmwareFieldResource extends FieldResource {
 
         Set<IdWithNameInfo> comTasks = new TreeSet<>();
 
-        deviceConfigurationService.findDeviceType(deviceTypeId)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
+        firmwareService.getDeviceConfigurationService().findDeviceType(deviceTypeId)
+                .orElseThrow(() -> firmwareService.getExceptionFactory().newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
                 .flatMap( cnf -> cnf.getComTaskEnablements().stream())
                 .collect(Collectors.toList())
@@ -171,7 +170,6 @@ public class FirmwareFieldResource extends FieldResource {
                 .filter(cte -> cte.getComTask().isSystemComTask() &&
                         (calendarOrValidation.equals("calendar") ? cte.getComTask().getName().equals(ServerTaskService.FIRMWARE_COMTASK_NAME) : cte.getComTask().isSystemComTask()))
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
-
         return Response.ok(comTasks).build();
     }
 

@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -145,6 +146,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile CustomPropertySetService customPropertySetService;
     private volatile TransactionService transactionService;
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
+    private volatile ExceptionFactory exceptionFactory;
 
     private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
@@ -175,7 +177,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                CustomPropertySetService customPropertySetService,
                                BundleContext bundleContext,
                                TransactionService transactionService,
-                               MeteringGroupsService meteringGroupsService) {
+                               MeteringGroupsService meteringGroupsService,
+                               ExceptionFactory exceptionFactory) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -196,7 +199,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setCustomPropertySetService(customPropertySetService);
         setTransactionService(transactionService);
         setMeteringGroupsService(meteringGroupsService);
+        setExceptionFactory(exceptionFactory);
         activate(bundleContext);
+    }
+
+    @Reference
+    public void setExceptionFactory(ExceptionFactory exceptionFactory) {
+        this.exceptionFactory = exceptionFactory;
     }
 
     @Reference
@@ -668,6 +677,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                     bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                     bind(TransactionService.class).toInstance(transactionService);
+                    bind(ExceptionFactory.class).toInstance(exceptionFactory);
                     bind(FirmwareCampaignService.class).to(FirmwareCampaignServiceImpl.class).in(Scopes.SINGLETON);
 
                 }
@@ -870,6 +880,16 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             return bestSuitableFirmwareUpgradeMessageId(deviceType, firmwareManagementOptions, firmwareVersion);
         }
         return Optional.empty();
+    }
+
+    @Override
+    public DeviceConfigurationService getDeviceConfigurationService(){
+        return this.deviceConfigurationService;
+    }
+
+    @Override
+    public ExceptionFactory getExceptionFactory(){
+        return this.exceptionFactory;
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {

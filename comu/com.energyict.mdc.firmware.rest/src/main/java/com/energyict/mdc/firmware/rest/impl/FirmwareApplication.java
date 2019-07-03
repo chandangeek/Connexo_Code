@@ -102,7 +102,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
         protected void configure() {
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(exceptionFactory).to(ExceptionFactory.class);
             bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(DeviceFirmwareVersionInfoFactory.class).to(DeviceFirmwareVersionInfoFactory.class);
