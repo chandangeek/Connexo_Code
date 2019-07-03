@@ -1046,11 +1046,45 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName())
                     .add();
         }
+    },
+
+    DTC_SECACCTYPES_KEYRENEW_CMD {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<SecurityAccessorTypeKeyRenewalImpl> table = dataModel.addTable(name(), SecurityAccessorTypeKeyRenewalImpl.class)
+                    .since(version(10, 4, 8))
+                    .map(SecurityAccessorTypeKeyRenewalImpl.class);
+            Column deviceType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICETYPE.name()).number().notNull().add();
+            Column secAccType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.name()).number().notNull().add();
+            Column deviceMessageId = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICEMESSAGEID.name()).number().conversion(NUMBER2LONG).map("deviceMessageIdDbValue").notNull().add();
+            Column name = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.NAME.name()).varChar().map("name").notNull().add();
+            table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
+            table.setJournalTableName(Constants.DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE);
+            table.addAuditColumns();
+            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, deviceMessageId, name).add();
+            table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_DT")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceType)
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
+            table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD")
+                    .references(DTC_SECACCTYPES_ON_DEVICETYPE.name())
+                    .on(deviceType, secAccType)
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SECURITYACCESSORTYPEONDEVICETYPE.fieldName())
+                    .reverseMap("securityAccessorTypeKeyRenewals")
+                    .add();
+            table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_ST")
+                    .references(SecurityAccessorType.class)
+                    .on(secAccType)
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.fieldName())
+                    .add();
+        }
     };
 
     abstract void addTo(DataModel component);
 
     interface Constants {
         String DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE = "DTC_SECACCTYPESONDEVTYPE_JRNL";
+        String DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE = "DTC_SECACCTYPESONDTKRN_JRNL";
     }
 }

@@ -182,8 +182,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_NUMBER_OF_ARGUMENTS(9, "invalid.number.of.arguments", "Invalid number of arguments {0}, expected {1}", Level.SEVERE),
     INVALID_ARGUMENT(10, "invalid.argument", "Invalid argument {0}", Level.SEVERE),
     SECURITY_ACCESSOR_TYPE_IS_NOT_FOUND(15031, "securityAccessorTypeIsNotFound", "The security accessor type ''{0}'' is not found"),
-    SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(15032, "securityAccessorTypeIsNotHSM", "The security accessor type ''{0}'' is not HSM")
-    ;
+    SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(15032, "securityAccessorTypeIsNotHSM", "The security accessor type ''{0}'' is not HSM"),
+    DEVICE_MESSAGE_ID_NOT_SUPPORTED(15033, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device");
 
     private final int number;
     private final String key;
@@ -314,5 +314,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING = "securityPropertySet.required.property.missing";
         public static final String CONNECTION_FUNCTION_NOT_SUPPORTED_BY_DEVICE_PROTOCOL = "ConnectionFunction.not.supported.by.deviceProtocol";
         public static final String CONNECTION_FUNCTION_UNIQUE = "ConnectionFunction.unique";
+        public static final String DEVICE_MESSAGE_IS_REQUIRED = "deviceMessage.required.deviceMessageAttribute";
+        public static final String DEVICE_MESSAGE_ID_NOT_SUPPORTED= "deviceMessageId.deviceMessage.device.notSupported";
     }
 }

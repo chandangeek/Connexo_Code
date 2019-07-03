@@ -11,11 +11,17 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeKeyRenewal;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -44,6 +50,8 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String defaultKey;
 
+    // associations
+    private List<SecurityAccessorTypeKeyRenewal> securityAccessorTypeKeyRenewals = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -52,6 +60,8 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private final DataModel dataModel;
 
@@ -66,6 +76,12 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
         return this;
     }
 
+    @Inject
+    SecurityAccessorTypeOnDeviceTypeImpl(DeviceMessageSpecificationService deviceMessageSpecificationService, DataModel dataModel) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.dataModel = dataModel;
+    }
+
     @Override
     public DeviceType getDeviceType() {
         return deviceType.orNull();
@@ -74,6 +90,25 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @Override
     public SecurityAccessorType getSecurityAccessorType() {
         return securityAccessorType.orNull();
+    }
+
+    @Override
+    public Optional<DeviceMessageId> getKeyRenewalDeviceMessageId() {
+        return securityAccessorTypeKeyRenewals.stream()
+                .map(SecurityAccessorTypeKeyRenewal::getKeyRenewalDeviceMessageId)
+                .findFirst();
+    }
+
+    @Override
+    public Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification() {
+        return getKeyRenewalDeviceMessageId()
+                .map(deviceMessageId -> this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()))
+                .orElseGet(Optional::empty);
+    }
+
+    @Override
+    public List<SecurityAccessorTypeKeyRenewal> getKeyRenewalAttributes() {
+        return securityAccessorTypeKeyRenewals;
     }
 
     @Override

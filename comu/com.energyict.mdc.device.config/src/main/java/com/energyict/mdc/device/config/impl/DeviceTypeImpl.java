@@ -1591,4 +1591,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         update();
     }
 
+    @Override
+    public List<SecurityAccessorTypeOnDeviceType> getSecurityAccessors() {
+        return securityAccessorTypes
+                .stream()
+                .collect(Collectors.toList());
+    }
+
 }

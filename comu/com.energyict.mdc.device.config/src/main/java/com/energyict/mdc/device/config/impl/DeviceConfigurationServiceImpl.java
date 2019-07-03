@@ -700,6 +700,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
+                bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             }
         };
     }
@@ -707,7 +708,6 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Activate
     public void activate() {
         dataModel.register(this.getModule());
-
         upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceConfigurationService.COMPONENTNAME),
                 dataModel,
                 Installer.class,
