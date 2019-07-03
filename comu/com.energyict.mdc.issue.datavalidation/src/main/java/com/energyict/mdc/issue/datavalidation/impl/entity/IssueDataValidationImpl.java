@@ -113,7 +113,7 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     @Override
-    public CreationRule getRule() {
+    public Optional<CreationRule> getRule() {
         return getBaseIssue().getRule();
     }
 

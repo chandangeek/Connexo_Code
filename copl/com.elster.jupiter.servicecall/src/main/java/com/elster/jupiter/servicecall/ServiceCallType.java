@@ -5,6 +5,7 @@
 package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -27,6 +28,16 @@ public interface ServiceCallType extends HasId, HasName {
     LogLevel getLogLevel();
 
     void setLogLevel(LogLevel logLevel);
+
+    DestinationSpec getDestination();
+
+    String getDestinationName();
+
+    void setDestination(String destination);
+
+    int getPriority();
+
+    void setPriority(int priority);
 
     ServiceCallLifeCycle getServiceCallLifeCycle();
 
