@@ -284,7 +284,7 @@ abstract class ComTaskImpl implements ComTask {
     }
 
     @Override
-    public void setSystemTask(Boolean systemTask) {
+    public void setSystemTask(boolean systemTask) {
         this.systemTask = systemTask;
     }
 

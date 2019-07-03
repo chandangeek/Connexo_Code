@@ -88,9 +88,7 @@ public class ComTaskResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response addComTask(ComTaskInfo comTaskInfo) {
         ComTask newComTask = taskService.newComTask(comTaskInfo.name);
-        if(comTaskInfo.systemTask){
-            newComTask.setSystemTask(true);
-        }
+        newComTask.setSystemTask(comTaskInfo.systemTask);
 
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
             Categories category = Categories.valueOf(protocolTaskInfo.categoryId.toUpperCase());

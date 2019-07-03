@@ -125,7 +125,7 @@ public interface ComTask extends HasId, HasName {
      */
     boolean isSystemComTask();
 
-    void setSystemTask(Boolean systemTask);
+    void setSystemTask(boolean systemTask);
 
     long getVersion();
 }
