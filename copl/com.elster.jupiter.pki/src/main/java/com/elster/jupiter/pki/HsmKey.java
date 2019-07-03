@@ -34,7 +34,7 @@ public interface HsmKey extends SymmetricKeyWrapper{
 
     /**
      * HSM requires previous key values, in order to generate a new key
-     * @param oldKey previous key
+     * @param masterKey previous key
      */
-    void generateValue(SecurityAccessorType securityAccessorType, HsmKey oldKey);
+    void generateValue(SecurityAccessorType securityAccessorType, HsmKey masterKey);
 }
