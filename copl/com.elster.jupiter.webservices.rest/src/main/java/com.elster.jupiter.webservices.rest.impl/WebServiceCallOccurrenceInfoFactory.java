@@ -17,7 +17,7 @@ public class WebServiceCallOccurrenceInfoFactory {
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
     }
 
-    public WebServiceCallOccurrenceInfo from(WebServiceCallOccurrence endPointOccurrence, UriInfo uriInfo) {
+    public WebServiceCallOccurrenceInfo from(WebServiceCallOccurrence endPointOccurrence, UriInfo uriInfo, Boolean withPayload) {
         WebServiceCallOccurrenceInfo info = new WebServiceCallOccurrenceInfo();
 
         info.id = endPointOccurrence.getId();
@@ -26,7 +26,10 @@ public class WebServiceCallOccurrenceInfoFactory {
         endPointOccurrence.getEndTime().ifPresent(endTime -> info.endTime = endTime);
         endPointOccurrence.getRequest().ifPresent(request -> info.request = request);
         endPointOccurrence.getApplicationName().ifPresent(applicationName -> info.applicationName = applicationName);
-        endPointOccurrence.getPayload().ifPresent(payload -> info.payload = payload);
+
+        if (withPayload){
+            endPointOccurrence.getPayload().ifPresent(payload -> info.payload = payload);
+        }
         if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null) {
             info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
         }

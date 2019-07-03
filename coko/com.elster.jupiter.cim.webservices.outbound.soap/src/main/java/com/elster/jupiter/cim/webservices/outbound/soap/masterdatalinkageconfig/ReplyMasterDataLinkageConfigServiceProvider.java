@@ -47,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
 		OutboundSoapEndPointProvider.class }, immediate = true, property = {
 				"name=" + ReplyMasterDataLinkageConfigWebService.NAME })
 public class ReplyMasterDataLinkageConfigServiceProvider
-		implements ReplyMasterDataLinkageConfigWebService, OutboundSoapEndPointProvider , ApplicationSpecific {
+		implements ReplyMasterDataLinkageConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
 	private static final String NOUN = "MasterDateLinkageConfig";
 	private static final String URL = "url";
@@ -200,6 +200,6 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 
 	@Override
 	public String getApplication(){
-		return "Multisense";
+		return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
 	};
 }

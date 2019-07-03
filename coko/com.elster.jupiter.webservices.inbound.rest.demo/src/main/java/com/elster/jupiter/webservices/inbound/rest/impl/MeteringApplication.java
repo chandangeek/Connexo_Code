@@ -7,6 +7,7 @@ package com.elster.jupiter.webservices.inbound.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -20,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class MeteringApplication extends Application {
+public class MeteringApplication extends Application implements ApplicationSpecific {
 
     private final MeteringService meteringService;
 
@@ -57,4 +58,9 @@ public class MeteringApplication extends Application {
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
         }
     }
+
+    @Override
+    public String getApplication(){
+        return WebServiceApplicationName.MULTISENSE.getName();
+    };
 }

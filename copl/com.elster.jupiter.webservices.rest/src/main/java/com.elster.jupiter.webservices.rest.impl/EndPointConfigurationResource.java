@@ -16,9 +16,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.OccurrenceLogFinderBuilderImpl;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallOccurrenceFinderBuilderImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -42,16 +47,21 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.util.conditions.Condition;
+
+import com.google.common.collect.Range;
 
 /**
  * Resource to manage end point configurations
@@ -304,15 +314,14 @@ public class EndPointConfigurationResource {
 
         Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
 
-        List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationNameToFilter, null);
+        List<WebServiceCallOccurrence> endPointOccurrences = getWebServiceCallOccurrence(queryParameters, filter, applicationNameToFilter, null);
         List<WebServiceCallOccurrenceInfo> webServiceCallOccurrenceInfo = endPointOccurrences.
                                                          stream().
-                                                         map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
+                                                         map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo, false)).
                                                          collect(toList());
 
         return PagedInfoList.fromPagedList("occurrences", webServiceCallOccurrenceInfo , queryParameters);
     }
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -327,7 +336,7 @@ public class EndPointConfigurationResource {
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
 
         return epOcc
-               .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo))
+               .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo, true))
                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
 
     }
@@ -346,10 +355,10 @@ public class EndPointConfigurationResource {
 
         Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
 
-        List<WebServiceCallOccurrence> endPointOccurrences = webServiceCallOccurrenceService.getEndPointOccurrences(queryParameters, filter, applicationNameToFilter, epId);
+        List<WebServiceCallOccurrence> endPointOccurrences = getWebServiceCallOccurrence(queryParameters, filter, applicationNameToFilter, epId);
         List<WebServiceCallOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
                 stream().
-                map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo)).
+                map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo, false)).
                 collect(toList());
 
         return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo, queryParameters);
@@ -387,7 +396,9 @@ public class EndPointConfigurationResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
-        List<EndPointLog> logs = webServiceCallOccurrenceService.getLogForOccurrence(id, queryParameters);
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
+
+        List<EndPointLog> logs = getLogForOccurrence(epOcc, queryParameters);
         List<WebServiceCallOccurrenceLogInfo> logsInfo = logs.stream().
                                                       map(log -> endpointConfigurationLogInfoFactory.fromFull(log, uriInfo)).
                                                       collect(toList());
@@ -439,6 +450,89 @@ public class EndPointConfigurationResource {
 
     private boolean checkPropertyOnNullAndEmpty(Object object) {
         return object == null || object.toString().isEmpty();
+    }
+
+    private List<WebServiceCallOccurrence> getWebServiceCallOccurrence(JsonQueryParameters queryParameters,
+                                                                       JsonQueryFilter filter,
+                                                                       Set<String> applicationNames,
+                                                                       Long epId){
+
+
+        WebServiceCallOccurrenceFinderBuilder finderBuilder =  webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder();
+
+        if (applicationNames != null && !applicationNames.isEmpty()){
+            finderBuilder.withApplicationName(applicationNames);
+        }
+
+        if (epId != null){
+            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(epId).get();
+            finderBuilder.withEndPointConfiguration(epc);
+        }
+
+        if (filter.hasProperty("startedOnFrom")) {
+            if (filter.hasProperty("startedOnTo")) {
+                finderBuilder.withStartTimeIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
+            } else {
+                finderBuilder.withStartTimeIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
+            }
+        } else if (filter.hasProperty("startedOnTo")) {
+            finderBuilder.withStartTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
+        }
+        if (filter.hasProperty("finishedOnFrom")) {
+            if (filter.hasProperty("finishedOnTo")) {
+                finderBuilder.withEndTimeIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
+            } else {
+                finderBuilder.withEndTimeIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
+            }
+        } else if (filter.hasProperty("finishedOnTo")) {
+            finderBuilder.withEndTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
+        }
+        /* Find endpoint by ID */
+        if (filter.hasProperty("webServiceEndPoint")) {
+
+            Long endPointId = filter.getLong("webServiceEndPoint");
+            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId).get();
+            //.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
+
+            finderBuilder.withEndPointConfiguration(epc);
+        }
+
+        if (filter.hasProperty("status")) {
+
+            finderBuilder.withStatusIn(filter.getStringList("status")
+                    .stream()
+                    .map(status->status.toUpperCase())
+                    .map(WebServiceCallOccurrenceStatus::valueOf)
+                    .collect(Collectors.toList()));
+        }
+
+        List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
+
+        if(filter.hasProperty("type")){
+            List<String> typeList = filter.getStringList("type");
+            if (typeList.contains("INBOUND") && !typeList.contains("OUTBOUND")){
+                epocList = epocList.stream().
+                        filter(epoc -> epoc.getEndPointConfiguration().isInbound()).collect(toList());
+
+            } else if  (typeList.contains("OUTBOUND") && !typeList.contains("INBOUND")) {
+                epocList = epocList.stream().
+                        filter(epoc -> !epoc.getEndPointConfiguration().isInbound()).collect(toList());
+            }
+        }
+        return epocList;
+    }
+
+
+
+    private List<EndPointLog> getLogForOccurrence(Optional<WebServiceCallOccurrence> epOcc, JsonQueryParameters queryParameters){
+
+        OccurrenceLogFinderBuilder finderBuilder = webServiceCallOccurrenceService.getOccurrenceLogFinderBuilder();
+
+        if(epOcc.isPresent()){
+            finderBuilder.withOccurrenceId(epOcc.get());
+        }
+
+        return finderBuilder.build().from(queryParameters).find();
     }
 
 }

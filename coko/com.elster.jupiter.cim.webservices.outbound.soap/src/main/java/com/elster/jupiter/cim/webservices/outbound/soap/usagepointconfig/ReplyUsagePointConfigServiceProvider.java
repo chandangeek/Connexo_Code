@@ -218,5 +218,5 @@ public class ReplyUsagePointConfigServiceProvider
     }
 
     @Override
-    public String getApplication(){return "Multisense";}
+    public String getApplication(){return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();}
 }

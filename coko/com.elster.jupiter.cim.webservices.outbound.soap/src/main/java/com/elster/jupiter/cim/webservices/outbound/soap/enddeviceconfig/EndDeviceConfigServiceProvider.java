@@ -249,6 +249,6 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
 
     @Override
     public String getApplication(){
-        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

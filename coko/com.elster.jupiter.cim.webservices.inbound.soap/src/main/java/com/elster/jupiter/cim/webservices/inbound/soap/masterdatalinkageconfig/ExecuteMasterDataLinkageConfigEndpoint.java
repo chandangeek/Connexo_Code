@@ -172,6 +172,6 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
 
     @Override
     public String getApplication(){
-        return WebServiceApplicationName.MULTISENSE.getName();
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

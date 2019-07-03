@@ -202,7 +202,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         //@Override
-        public void send(String message, EndPointConfiguration endPointConfiguration){
+        public void send(String message){
             Class<?> type;
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))

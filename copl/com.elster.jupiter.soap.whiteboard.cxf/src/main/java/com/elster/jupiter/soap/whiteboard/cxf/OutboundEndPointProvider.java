@@ -13,8 +13,6 @@ import java.util.Map;
 public interface OutboundEndPointProvider extends EndPointProvider {
     RequestSender using(String methodName);
 
-    //void retryOccurrence(EndPointConfiguration endPointConfiguration, String method, String payload);
-
     @ProviderType
     interface RequestSender {
         RequestSender toEndpoints(Collection<EndPointConfiguration> endPointConfigurations);
@@ -25,7 +23,7 @@ public interface OutboundEndPointProvider extends EndPointProvider {
 
         Map<EndPointConfiguration, ?> send(Object request);
 
-        void send(String message, EndPointConfiguration endPointConfiguration);
+        void send(String message);
 
     }
 }

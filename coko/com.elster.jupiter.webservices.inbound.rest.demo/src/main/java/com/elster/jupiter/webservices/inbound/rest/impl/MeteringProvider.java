@@ -13,8 +13,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 
+
 @Component(name = "com.elster.jupiter.metering.rest.provider", service = {InboundRestEndPointProvider.class}, immediate = true, property = {"name=GetMeters"})
-public class MeteringProvider implements InboundRestEndPointProvider, ApplicationSpecific {
+public class MeteringProvider implements InboundRestEndPointProvider {
 
     private volatile MeteringService meteringService;
 
@@ -30,9 +31,4 @@ public class MeteringProvider implements InboundRestEndPointProvider, Applicatio
     public Application get() {
         return new MeteringApplication(meteringService);
     }
-
-    @Override
-    public String getApplication(){
-        return WebServiceApplicationName.MULTISENSE.getName();
-    };
 }
