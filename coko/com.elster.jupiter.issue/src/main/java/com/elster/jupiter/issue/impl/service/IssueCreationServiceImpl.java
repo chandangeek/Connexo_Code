@@ -228,6 +228,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
         baseIssue.setPriority(firedRule.getPriority());
+        baseIssue.setType(firedRule.getIssueType());
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         event.getUsagePoint().ifPresent(baseIssue::setUsagePoint);
         baseIssue.save();

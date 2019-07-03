@@ -352,9 +352,10 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));;
-            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));;
+            bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
+            bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(AppService.class).toInstance(mock(AppService.class));
+
         }
 
     }

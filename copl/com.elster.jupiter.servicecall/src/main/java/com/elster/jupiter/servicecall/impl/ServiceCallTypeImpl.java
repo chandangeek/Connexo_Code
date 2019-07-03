@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -87,7 +86,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         version("version"),
         currentLifeCycleState("currentLifeCycleState"),
         customPropertySets("customPropertySets"),
-        handler("serviceCallHandler");
+        handler("serviceCallHandler"),
+        destination("destination");
 
         private final String javaFieldName;
 
@@ -238,13 +238,12 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public String getDestinationName() {
-        return (destination == null) ? SERVICE_CALLS_DESTINATION_NAME : destination;
+        return destination;
     }
 
     @Override
     public void setDestination(String destination) {
         this.destination = destination;
-        Save.UPDATE.save(dataModel, this);
     }
 
     @Override

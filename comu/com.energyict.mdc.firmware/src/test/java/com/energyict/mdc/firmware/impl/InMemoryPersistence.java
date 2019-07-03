@@ -20,6 +20,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
@@ -82,6 +83,7 @@ import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
@@ -93,7 +95,6 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
@@ -135,6 +136,7 @@ public class InMemoryPersistence {
     private HttpService httpService;
     private Thesaurus thesaurus;
     private MeteringZoneService meteringZoneService;
+    private FirmwareCampaignServiceImpl firmwareCampaignService;
 
     public void initializeDatabase(String testName, boolean showSqlLogging) {
         this.initializeMocks(testName);
@@ -177,7 +179,6 @@ public class InMemoryPersistence {
                 new IssuesModule(),
                 new ProtocolApiModule(),
                 new PluggableModule(),
-                new ProtocolPluggableModule(),
                 new SchedulingModule(),
                 new TasksModule(),
                 new MasterDataModule(),
@@ -267,20 +268,30 @@ public class InMemoryPersistence {
             bind(HttpService.class).toInstance(httpService);
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
+            bind(ProtocolPluggableService.class).toInstance(mock(ProtocolPluggableService.class));
+            bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
             bind(AppService.class).toInstance(mock(AppService.class));
-
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_DATA_CONCENTRATOR_MULTICAST_FIRMWARE_UPGRADE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_DATA_CONCENTRATOR_MULTICAST_FIRMWARE_UPGRADE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE);
             doReturn(Optional.empty()).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE);
-            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).when(deviceMessageSpecificationService).getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_URL_AND_ACTIVATE_DATE);
+            doReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE)).when(deviceMessageSpecificationService)
+                    .getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE);
 
             when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenAnswer(invocation -> {
                 Object[] args = invocation.getArguments();
@@ -377,5 +388,9 @@ public class InMemoryPersistence {
         @Override
         public void bind(SqlBuilder builder, Object value) {
         }
+    }
+
+    public <T> T get(Class<T> clazz) {
+        return this.injector.getInstance(clazz);
     }
 }

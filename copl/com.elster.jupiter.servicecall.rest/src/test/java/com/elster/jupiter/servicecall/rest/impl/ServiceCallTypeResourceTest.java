@@ -11,9 +11,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
-
 import com.jayway.jsonpath.JsonModel;
-import org.json.JSONArray;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
@@ -25,7 +23,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -50,38 +50,41 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
     }
 
     @Test
-    public void testChangeLogLevel() throws Exception {
-        mockServiceCallType(1L);
+    public void testUpdateServiceCallType() throws Exception {
+        ServiceCallType serviceCallType = mockServiceCallType(1L);
 
         ServiceCallTypeInfo info = new ServiceCallTypeInfo();
         info.id = 666L; // fake id
         info.version = 1L;
         info.logLevel = new IdWithDisplayValueInfo<>();
         info.logLevel.id = LogLevel.SEVERE.name();
-        info.destination = "newDestination";
+        info.destination = QUEUE_NAME;
         info.priority = 20;
 
         Response response = target("/servicecalltypes/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(serviceCallType).setDestination(QUEUE_NAME);
+        verify(serviceCallType).setPriority(20);
+        verify(serviceCallType).save();
 
     }
 
     @Test
     public void testGetCompatibleQueues() throws Exception {
-        JSONArray queues = new JSONArray();
-        queues.put(QUEUE_NAME);
         mockServiceCallType(1L);
 
-        Response response = target("/servicecalltypes/compatiblequeues/1").request().get();
+        Response response = target("/servicecalltypes/compatiblequeues").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
-        assertThat(jsonModel.getJsonObject().toString()).isEqualTo(queues.toString());
+        assertThat(jsonModel.getJsonObject().toString()).isEqualTo("[{\"isDefault\":true,\"name\":\"testQueue\"}]");
     }
 
     private ServiceCallType mockServiceCallType(long id) {
         List<DestinationSpec> specs = new ArrayList<>();
         DestinationSpec destination = mock(DestinationSpec.class);
         when(destination.getName()).thenReturn(QUEUE_NAME);
+        when(destination.isDefault()).thenReturn(true);
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(destination));
         specs.add(destination);
         ServiceCallType serviceCallType = mock(ServiceCallType.class);
         ServiceCallLifeCycle serviceCallLifeCycle = mock(ServiceCallLifeCycle.class);
@@ -93,7 +96,7 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         Finder<ServiceCallType> serviceCallTypeFinder = mockFinder(Collections.singletonList(serviceCallType));
         when(serviceCallService.getServiceCallTypes()).thenReturn(serviceCallTypeFinder);
         when(serviceCallService.findAndLockServiceCallType(id, 1L)).thenReturn(Optional.of(serviceCallType));
-        when(serviceCallService.getCompatibleQueues4(SERVICE_CALL_TYPE_DESTINATION_NAME)).thenReturn(specs);
+        when(serviceCallService.getCompatibleQueues4()).thenReturn(specs);
         when(serviceCallType.getServiceCallLifeCycle()).thenReturn(serviceCallLifeCycle);
         when(serviceCallType.getLogLevel()).thenReturn(LogLevel.WARNING);
         when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);

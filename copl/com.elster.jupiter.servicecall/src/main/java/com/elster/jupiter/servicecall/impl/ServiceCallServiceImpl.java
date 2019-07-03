@@ -85,7 +85,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
-    static final String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
+    public static final String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
     static final String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
@@ -286,8 +286,13 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel, thesaurus);
+    public List<ServiceCallType> getServiceCallTypes(String destination) {
+        return dataModel.mapper(ServiceCallType.class).find(ServiceCallTypeImpl.Fields.destination.fieldName(), destination);
+    }
+
+    @Override
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String destination) {
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, dataModel, thesaurus);
     }
 
     @Override
@@ -376,8 +381,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public DestinationSpec getServiceCallQueue(String destinationName) {
-        return messageService.getDestinationSpec(destinationName).get();
+    public Optional<DestinationSpec> getServiceCallQueue(String destinationName) {
+        return messageService.getDestinationSpec(destinationName);
     }
 
     @Override
@@ -471,7 +476,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public List<DestinationSpec> getCompatibleQueues4(String destination) {
+    public List<DestinationSpec> getCompatibleQueues4() {
         List<DestinationSpec> destinationSpecs = messageService.findDestinationSpecs();
         String queueTypeName = SERVICE_CALLS_SUBSCRIBER_NAME;
         return destinationSpecs.stream()

@@ -26,6 +26,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME;
 
 /**
  * Created by bvn on 2/4/16.
@@ -90,7 +91,7 @@ public enum TableSpecs {
                     .map(ServiceCallTypeImpl.Fields.currentLifeCycleState.fieldName())
                     .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
-            table.column("DESTINATION").varChar(30).map("destination").since(version(10, 7)).add();
+            table.column("DESTINATION").varChar(30).map("destination").notNull().since(version(10, 7)).installValue("'" + SERVICE_CALLS_DESTINATION_NAME + "'").add();
             table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").since(version(10, 7)).add();
             table.addAuditColumns();
             table.foreignKey("FK_LIFECYCLE")

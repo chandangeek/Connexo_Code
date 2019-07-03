@@ -140,6 +140,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    public List<DestinationSpec> getDestinationSpecs(String queueTypeName) {
+        return dataModel.mapper(DestinationSpec.class).find("queueTypeName", queueTypeName);
+    }
+
+    @Override
     public List<DestinationSpec> findDestinationSpecs() {
         return dataModel.mapper(DestinationSpec.class).find();
     }

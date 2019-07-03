@@ -45,7 +45,7 @@ public enum TableSpecs {
             table.column("ISDEFAULT").bool().map("isDefault").installValue("'Y'").since(version(10, 5)).add();
             table.column("QUEUE_TYPE_NAME").varChar(30).notNull().map("queueTypeName").since(version(10, 5)).installValue("'QUEUE_TYPE_NAME'").add();
             table.column("IS_EXTRA_QUEUE_ENABLED").bool().map("isExtraQueueCreationEnabled").installValue("'N'").since(version(10, 5)).add();
-            table.column("PRIORITIZED").bool().map("isPrioritized").installValue("'N'").since(version(10, 7)).add();
+            table.column("PRIORITIZED").bool().map("prioritized").installValue("'N'").since(version(10, 7)).add();
             table.addAuditColumns();
             table.primaryKey("MSG_PK_DESTINATIONSPEC").on(nameColumn).add();
             table.foreignKey("MSG_FK_DESTINATIONSPEC").references(MSG_QUEUETABLESPEC.name()).onDelete(RESTRICT).map("queueTableSpec").on(queueTableNameColumn).add();
