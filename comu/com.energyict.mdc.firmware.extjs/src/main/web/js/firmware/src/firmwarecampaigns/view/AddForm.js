@@ -374,15 +374,20 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
-            var sendComtaskField = me.down("[name=sendCalendarComTask]");
-            me.down('#fwc-campaign-send-connection-strategy-container').show();
-            sendComtaskField.show();
-            sendComtaskField.getStore().getProxy().setUrl(newValue);
-            sendComtaskField.getStore().load();
-            var validationComTask = me.down("[name=validationComTask]");
-            validationComTask.getStore().getProxy().setUrl(newValue);
-            validationComTask.getStore().load();
+            me.updateComTasksComponents(newValue);
         }
+    },
+
+    updateComTasksComponents: function(deviceTypeId){
+        var me = this;
+        var sendComtaskField = me.down("[name=sendCalendarComTask]");
+        me.down('#fwc-campaign-send-connection-strategy-container').show();
+        sendComtaskField.show();
+        sendComtaskField.getStore().getProxy().setUrl(deviceTypeId);
+        sendComtaskField.getStore().load();
+        var validationComTask = me.down("[name=validationComTask]");
+        validationComTask.getStore().getProxy().setUrl(deviceTypeId);
+        validationComTask.getStore().load();
     },
 
     updateFirmwareType: function (deviceTypeId, callback) {
