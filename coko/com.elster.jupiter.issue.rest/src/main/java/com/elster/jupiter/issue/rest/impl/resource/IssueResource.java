@@ -390,8 +390,7 @@ public class IssueResource extends BaseResource {
             for (IssueGroupInfo info: infos) {
                 String groupName = info.description;
                 if(isNumericValue(groupName)) {
-                    Long locationId = Long.valueOf(groupName);
-                    Optional<Location> location = locationService.findLocationById(locationId); // TODO: rewrite
+                    Optional<Location> location = locationService.findLocationById(Long.valueOf(groupName));
                     if(location.isPresent()) {
                         groupName = location.get().toString();
                     }
