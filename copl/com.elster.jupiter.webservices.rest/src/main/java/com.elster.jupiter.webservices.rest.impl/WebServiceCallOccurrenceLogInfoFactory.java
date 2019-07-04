@@ -43,7 +43,7 @@ public class WebServiceCallOccurrenceLogInfoFactory {
         info.id = endPointLog.getId();
         info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointLog.getEndPointConfiguration(), uriInfo);
         info.stackTrace = endPointLog.getStackTrace();
-        info.occurrenceInfo = webServiceCallOccurrenceInfoFactory.from(endPointLog.getOccurrence().get(), uriInfo);
+        info.occurrenceInfo = webServiceCallOccurrenceInfoFactory.from(endPointLog.getOccurrence().get(), uriInfo, false);
         return info;
     }
 }
