@@ -10,7 +10,6 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
-import com.elster.jupiter.servicecall.issue.ServiceCallIssueFilter;
 
 import com.google.inject.Inject;
 
@@ -61,14 +60,7 @@ public class ServiceCallStateChangedEvent implements IssueEvent {
 
     @Override
     public Optional<? extends OpenIssue> findExistingIssue() {
-        ServiceCallIssueFilter filter = new ServiceCallIssueFilter();
-//        getEndDevice().ifPresent(filter::setDevice);
-//        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-//        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-       // Optional<? extends IssueServiceCall> foundIssue = IssueServiceCallService.findAllDataValidationIssues(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
-//        if (foundIssue.isPresent()) {
-//            return Optional.of((OpenIssue)foundIssue.get());
-//        }
         return Optional.empty();
     }
+
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -47,6 +48,7 @@ public class ServiceCallProcessAssociationProvider implements ProcessAssociation
     public static final String ASSOCIATION_TYPE = "servicecallissue";
     public static final String ISSUE_TYPE = "servicecall";
 
+    private volatile License license;
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
@@ -76,6 +78,11 @@ public class ServiceCallProcessAssociationProvider implements ProcessAssociation
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
+    }
+
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
+    public void setLicense(License license) {
+        this.license = license;
     }
 
     @Override

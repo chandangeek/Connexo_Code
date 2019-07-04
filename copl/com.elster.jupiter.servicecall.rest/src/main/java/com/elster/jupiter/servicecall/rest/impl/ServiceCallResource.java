@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -37,6 +38,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Path("/servicecalls")
 public class ServiceCallResource {
@@ -54,16 +56,18 @@ public class ServiceCallResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
-    public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+    public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallInfoFactory.convertToServiceCallFilter(filter));
         List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
-
-        serviceCalls.stream()
+        AtomicReference key = new AtomicReference<> ("MDC".equals(appKey) ? "MultiSense" : "INS".equals(appKey) ? "Insight" : appKey);
+        serviceCalls.stream().filter(serviceCall -> !serviceCall.getType().reservedByApplication().isPresent() || key.get().equals(serviceCall.getType().reservedByApplication().get()))
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
+
+
 
     @GET
     @Path("/{id}")

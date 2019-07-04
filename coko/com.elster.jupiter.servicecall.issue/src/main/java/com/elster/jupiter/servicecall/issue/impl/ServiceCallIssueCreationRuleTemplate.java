@@ -136,7 +136,6 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
         builder.add(
                 propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory(serviceCallService))
                         .named(TranslationKeys.SERVICE_CALL_TYPE_HANDLER)
-                        .describedAs(TranslationKeys.SERVICE_CALL_TYPE_HANDLER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .markMultiValued(ServiceCallInfoValueFactory.SEPARATOR)
@@ -172,18 +171,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
-        Optional<? extends Issue> issue = event.findExistingIssue();
-//        if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
-//            OpenIssueServiceCall issueDataValidation = (OpenIssueServiceCall) issue.get();
-//            event.apply(issueDataValidation);
-//            if (issueDataValidation.getNotEstimatedBlocks().isEmpty()) {
-//                return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).orElse(null)));
-//            } else {
-//                issueDataValidation.update();
-//                return Optional.of(issueDataValidation);
-//            }
-//        }
-        return issue;
+        return event.findExistingIssue();
     }
 
     @Override

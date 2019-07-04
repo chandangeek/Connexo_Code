@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -108,7 +109,26 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     @Override
     public void createIssue(ServiceCall serviceCall, DefaultState newState) {
         for (CreationRule rule : issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class).select(where("active").isEqualTo(true).and(where("reason.issueType.prefix").isEqualToIgnoreCase(SERVICE_CALL_ISSUE_PREFIX)))) {
-            issueService.getIssueCreationService().processIssueCreationEvent(rule.getId(), new ServiceCallStateChangedEvent(serviceCall, newState));
+            AtomicBoolean handlerMatch = new AtomicBoolean(), stateMatch = new AtomicBoolean();
+            rule.getCreationRuleProperties().forEach(propertie -> {
+                if (TranslationKeys.SERVICE_CALL_TYPE_HANDLER.getKey().equals(propertie.getName())) {
+                    ((List<ServiceCallTypeInfo>) propertie.getValue()).forEach(value -> {
+                        if (value.getId() == serviceCall.getType().getId()) {
+                            handlerMatch.set(true);
+                        }
+                    });
+                }
+                if (TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey().equals(propertie.getName())) {
+                    ((List<DefaultStateInfo>) propertie.getValue()).forEach(state -> {
+                        if (state.getId() == newState.ordinal()) {
+                            handlerMatch.set(true);
+                        }
+                    });
+                }
+            });
+            if (handlerMatch.get() && stateMatch.get()) {
+                issueService.getIssueCreationService().processIssueCreationEvent(rule.getId(), new ServiceCallStateChangedEvent(serviceCall, newState));
+            }
         }
     }
 
