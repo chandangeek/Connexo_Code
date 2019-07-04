@@ -33,6 +33,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
     FirmwareType firmwareType;
     Map<PropertySpec, Object> properties;
+    long calendarUploadComTaskId;
     String calendarUploadConnectionStrategy;
     long validationComTaskId;
     String validationConnectionStrategy;
@@ -89,6 +90,11 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
+    public FirmwareCampaignBuilderImpl withCalendarUploadComTaskId(long calendarUploadComTaskId){
+        this.calendarUploadComTaskId = calendarUploadComTaskId;
+        return this;
+    }
+    @Override
     public FirmwareCampaignBuilderImpl withValidationComTaskId(long validationComTaskId){
         this.validationComTaskId = validationComTaskId;
         return this;
@@ -125,6 +131,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
         firmwareCampaign.setUploadPeriodStart(uploadStart);
         firmwareCampaign.setUploadPeriodEnd(uploadEnd);
         firmwareCampaign.setManagementOption(protocolSupportedFirmwareOptions);
+        firmwareCampaign.setCalendarUploadComTaskId(calendarUploadComTaskId);
         firmwareCampaign.setCalendarUploadConnectionStrategy(calendarUploadConnectionStrategy);
         firmwareCampaign.setValidationComTaskId(validationComTaskId);
         firmwareCampaign.setValidationConnectionStrategy(validationConnectionStrategy);

@@ -38,6 +38,7 @@ public class FirmwareCampaignInfo {
     public TimeDurationInfo validationTimeout;
     public IdWithNameInfo serviceCall;
 
+    public IdWithNameInfo calendarUploadComTaskId;
     public IdWithNameInfo calendarUploadConnectionStrategy;
 
     public IdWithNameInfo validationComTask;

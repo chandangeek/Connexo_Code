@@ -28,6 +28,8 @@ public interface FirmwareCampaignBuilder {
 
     FirmwareCampaignBuilder withManagementOption(ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions);
 
+    FirmwareCampaignBuilder withCalendarUploadComTaskId(long id);
+
     FirmwareCampaignBuilder withValidationComTaskId(long id);
 
     FirmwareCampaignBuilder withCalendarUploadConnectionStrategy(String name);

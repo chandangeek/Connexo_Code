@@ -122,6 +122,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private Instant activationDate;
     private TimeDuration validationTimeout;
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
+    private long calendarUploadComTaskId;
     private String calendarUploadConnectionStrategy;
     private long validationComTaskId;
     private String validationConnectionStrategy;
@@ -174,6 +175,11 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
+    public void setCalendarUploadComTaskId(long calendarUploadComTaskId){
+        this.calendarUploadComTaskId = calendarUploadComTaskId;
+    }
+
+    @Override
     public void setCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy){
         this.calendarUploadConnectionStrategy = calendarUploadConnectionStrategy;
     }
@@ -196,6 +202,11 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     @Override
     public long getValidationComTaskId(){
         return validationComTaskId;
+    }
+
+    @Override
+    public long getCalendarUploadComTaskId(){
+        return calendarUploadComTaskId;
     }
 
     @Override
