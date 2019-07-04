@@ -297,9 +297,10 @@ Ext.define('Apr.controller.TaskManagement', {
             suspendedDataTime = new Date(record.get('suspendedDataTime'));
         }
         else {
-            var tomorrowMidnight = new Date();
-            tomorrowMidnight.setHours(24, 0, 0, 1);
-            suspendedDataTime = tomorrowMidnight;
+            suspendedDataTime = new Date(record.get('nextRun'));   // Lau - last
+            // var tomorrowMidnight = new Date();
+            // tomorrowMidnight.setHours(24, 0, 0, 1);
+            // suspendedDataTime = tomorrowMidnight;
         }
 
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
@@ -353,6 +354,7 @@ Ext.define('Apr.controller.TaskManagement', {
                 recordTask.set('suspendUntilTime', response.suspendUntilTime);
                 recordTask.set('queueStatusDate', response.queueStatusDate);
                 recordTask.set('queueStatus', response.queueStatus);
+                recordTask.set('nextRun',response.nextRun);   // Lau - last
                 recordTask.set('queueStatusString', '');
                 recordTask.commit();
                 operationCompletedSuspend.call(controller, true);
