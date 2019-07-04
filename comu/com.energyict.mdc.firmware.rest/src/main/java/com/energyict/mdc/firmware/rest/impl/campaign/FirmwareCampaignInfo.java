@@ -38,6 +38,11 @@ public class FirmwareCampaignInfo {
     public TimeDurationInfo validationTimeout;
     public IdWithNameInfo serviceCall;
 
+    public IdWithNameInfo calendarUploadConnectionStrategy;
+
+    public IdWithNameInfo validationComTask;
+    public IdWithNameInfo validationConnectionStrategy;
+
     public Optional<PropertyInfo> getPropertyInfo(String key) {
         return this.properties.stream().filter(y -> y.key.equals(key)).findFirst();
     }

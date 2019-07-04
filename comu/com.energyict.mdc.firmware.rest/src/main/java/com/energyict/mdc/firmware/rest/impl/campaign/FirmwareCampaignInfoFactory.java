@@ -141,6 +141,9 @@ public class FirmwareCampaignInfoFactory {
                 .withFirmwareType(firmwareService.getFirmwareVersionById(firmwareVersionId).get().getFirmwareType())
                 .withManagementOption(managementOptions)
                 .withValidationTimeout(info.validationTimeout.asTimeDuration())
+                .withValidationComTaskId(((Number)info.validationComTask.id).longValue())
+                .withCalendarUploadConnectionStrategyId(((Number)info.calendarUploadConnectionStrategy.id).longValue())
+                .withValidationConnectionStrategyId(((Number)info.validationConnectionStrategy.id).longValue())
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id, firmwareVersion);
         String imageIdentifier = firmwareVersion.getImageIdentifier();

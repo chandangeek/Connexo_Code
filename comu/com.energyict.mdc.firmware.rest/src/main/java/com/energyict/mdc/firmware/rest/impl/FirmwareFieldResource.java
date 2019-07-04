@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -13,8 +12,6 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.rest.FieldResource;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -36,8 +33,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -157,7 +152,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Path("/comtasks")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
-    public Response getComTasks(@QueryParam("type") long deviceTypeId, @QueryParam("calendarOrValidation") String calendarOrValidation) {
+    public Response getComTasks(@QueryParam("type") long deviceTypeId) {
 
         Set<IdWithNameInfo> comTasks = new TreeSet<>();
 
@@ -167,9 +162,29 @@ public class FirmwareFieldResource extends FieldResource {
                 .flatMap( cnf -> cnf.getComTaskEnablements().stream())
                 .collect(Collectors.toList())
                 .stream()
-                .filter(cte -> cte.getComTask().isSystemComTask() &&
-                        (calendarOrValidation.equals("calendar") ? cte.getComTask().getName().equals(ServerTaskService.FIRMWARE_COMTASK_NAME) : cte.getComTask().isSystemComTask()))
+                .filter(cte -> cte.getComTask().isSystemComTask())
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
+        return Response.ok(comTasks).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/calendarUploadComTasks")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    public Response getCalendarUploadComTasks(@QueryParam("type") long deviceTypeId) {
+
+        Set<IdWithNameInfo> comTasks = new TreeSet<>();
+
+        firmwareService.getDeviceConfigurationService().findDeviceType(deviceTypeId)
+                .orElseThrow(() -> firmwareService.getExceptionFactory().newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
+                .getConfigurations().stream()
+                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                .collect(Collectors.toList())
+                .stream()
+                .filter(cte -> cte.getComTask().getName().equals(ServerTaskService.FIRMWARE_COMTASK_NAME))
+                .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
+
         return Response.ok(comTasks).build();
     }
 

@@ -122,7 +122,9 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private Instant activationDate;
     private TimeDuration validationTimeout;
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
-
+    private long calendarUploadConnectionStrategyId;
+    private long validationComTaskId;
+    private long validationConnectionStrategyId;
 
     @Inject
     public FirmwareCampaignDomainExtension(Thesaurus thesaurus, FirmwareServiceImpl firmwareService) {
@@ -169,6 +171,36 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     @Override
     public void setManagementOption(ProtocolSupportedFirmwareOptions managementOption) {
         this.managementOption = managementOption;
+    }
+
+    @Override
+    public void setCalendarUploadConnectionStrategyId(long calendarUploadConnectionStrategyId){
+        this.calendarUploadConnectionStrategyId = calendarUploadConnectionStrategyId;
+    }
+
+    @Override
+    public void setValidationComTaskId(long validationComTaskId){
+        this.validationComTaskId = validationComTaskId;
+    }
+
+    @Override
+    public void setValidationConnectionStrategyId(long validationConnectionStrategyId){
+        this.validationConnectionStrategyId = validationConnectionStrategyId;
+    }
+
+    @Override
+    public long getCalendarUploadConnectionStrategyId(){
+        return calendarUploadConnectionStrategyId;
+    }
+
+    @Override
+    public long getValidationComTaskId(){
+        return validationComTaskId;
+    }
+
+    @Override
+    public long getValidationConnectionStrategyId(){
+        return validationConnectionStrategyId;
     }
 
     @Override

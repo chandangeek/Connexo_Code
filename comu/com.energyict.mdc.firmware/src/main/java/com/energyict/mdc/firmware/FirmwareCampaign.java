@@ -81,4 +81,16 @@ public interface FirmwareCampaign extends HasId, HasName {
     Instant getFinishedOn();
 
     List<DeviceInFirmwareCampaign> getDevices();
+
+    void setCalendarUploadConnectionStrategyId(long calendarUploadConnectionStrategyId);
+
+    void setValidationComTaskId(long validationComTaskId);
+
+    void setValidationConnectionStrategyId(long validationConnectionStrategyId);
+
+    long getCalendarUploadConnectionStrategyId();
+
+    long getValidationComTaskId();
+
+    long getValidationConnectionStrategyId();
 }
