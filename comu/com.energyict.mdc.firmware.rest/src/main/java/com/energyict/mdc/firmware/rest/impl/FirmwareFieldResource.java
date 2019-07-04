@@ -157,7 +157,7 @@ public class FirmwareFieldResource extends FieldResource {
         Set<IdWithNameInfo> comTasks = new TreeSet<>();
 
         firmwareService.getDeviceConfigurationService().findDeviceType(deviceTypeId)
-                .orElseThrow(() -> firmwareService.getExceptionFactory().newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
                 .flatMap( cnf -> cnf.getComTaskEnablements().stream())
                 .collect(Collectors.toList())
@@ -177,7 +177,7 @@ public class FirmwareFieldResource extends FieldResource {
         Set<IdWithNameInfo> comTasks = new TreeSet<>();
 
         firmwareService.getDeviceConfigurationService().findDeviceType(deviceTypeId)
-                .orElseThrow(() -> firmwareService.getExceptionFactory().newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
                 .flatMap( cnf -> cnf.getComTaskEnablements().stream())
                 .collect(Collectors.toList())
