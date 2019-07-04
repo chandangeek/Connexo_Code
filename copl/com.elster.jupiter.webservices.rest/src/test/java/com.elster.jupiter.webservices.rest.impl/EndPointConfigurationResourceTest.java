@@ -562,7 +562,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
     public void testRetry() throws Exception {
 
         /* Mock privilege */
-        when(privilege.getName()).thenReturn(Privileges.Constants.VIEW_WEB_SERVICES);
+        when(privilege.getName()).thenReturn(Privileges.Constants.RETRY_WEB_SERVICES);
 
         /* Mock webService*/
         WebService webService = mock(WebService.class);
@@ -577,7 +577,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
         doNothing().when(ecpMock).retryOccurrence(anyString(), anyString(), anyObject());
 
-        WebServiceCallOccurrence occurrence = new WebServiceCallOccurrenceImpl(dataModel);
+        WebServiceCallOccurrenceImpl occurrence = new WebServiceCallOccurrenceImpl(dataModel);
         occurrence.init(
                 Instant.now(),
                 "Request1",

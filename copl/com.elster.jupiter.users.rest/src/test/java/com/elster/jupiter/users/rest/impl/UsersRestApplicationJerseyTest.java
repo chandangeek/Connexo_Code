@@ -10,6 +10,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 
@@ -83,7 +84,13 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         super.setupMocks();
         when(this.nlsService.getPrivilegeThesaurus()).thenReturn(this.privilegeThesaurus);
         when(transactionService.execute(any(Transaction.class))).thenAnswer(
-                invocation -> ((Transaction)invocation.getArguments()[0]).perform());
+                invocation -> {
+                    if (invocation.getArguments()[0] instanceof Transaction) {
+                        return ((Transaction)invocation.getArguments()[0]).perform();
+                    } else {
+                        return ((VoidTransaction)invocation.getArguments()[0]).get();
+                    }
+                });
     }
 
 }

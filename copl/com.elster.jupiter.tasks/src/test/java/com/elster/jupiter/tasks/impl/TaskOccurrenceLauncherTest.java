@@ -10,6 +10,7 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.json.JsonService;
 
 import java.time.Clock;
@@ -78,7 +79,7 @@ public class TaskOccurrenceLauncherTest {
         when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((Transaction) invocationOnMock.getArguments()[0]).perform();
+                return ((VoidTransaction) invocationOnMock.getArguments()[0]).get();
             }
         });
         when(jsonService.serialize(any(TaskOccurrenceMessage.class))).thenAnswer(new Answer<String>() {
