@@ -7,13 +7,10 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
@@ -40,7 +37,6 @@ public class FirmwareModule extends AbstractModule {
         requireBinding(MessageService.class);
         requireBinding(TaskService.class);
         requireBinding(com.elster.jupiter.tasks.TaskService.class);
-        requireBinding(ExceptionFactory.class);
 
         bind(FirmwareService.class).to(FirmwareServiceImpl.class).in(Scopes.SINGLETON);
         bind(FirmwareServiceImpl.class).in(Scopes.SINGLETON);

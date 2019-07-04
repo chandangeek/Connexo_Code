@@ -7,7 +7,6 @@ package com.energyict.mdc.firmware;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -127,5 +126,4 @@ public interface FirmwareService {
 
     DeviceConfigurationService getDeviceConfigurationService();
 
-    ExceptionFactory getExceptionFactory();
 }
