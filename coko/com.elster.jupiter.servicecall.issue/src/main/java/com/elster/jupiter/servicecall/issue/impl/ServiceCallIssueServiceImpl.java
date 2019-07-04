@@ -112,18 +112,10 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
             AtomicBoolean handlerMatch = new AtomicBoolean(), stateMatch = new AtomicBoolean();
             rule.getCreationRuleProperties().forEach(propertie -> {
                 if (TranslationKeys.SERVICE_CALL_TYPE_HANDLER.getKey().equals(propertie.getName())) {
-                    ((List<ServiceCallTypeInfo>) propertie.getValue()).forEach(value -> {
-                        if (value.getId() == serviceCall.getType().getId()) {
-                            handlerMatch.set(true);
-                        }
-                    });
+                    handlerMatch.set(((List<ServiceCallTypeInfo>) propertie.getValue()).stream().anyMatch(value -> value.getId() == serviceCall.getType().getId()));
                 }
                 if (TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey().equals(propertie.getName())) {
-                    ((List<DefaultStateInfo>) propertie.getValue()).forEach(state -> {
-                        if (state.getId() == newState.ordinal()) {
-                            handlerMatch.set(true);
-                        }
-                    });
+                    stateMatch.set(((List<DefaultStateInfo>) propertie.getValue()).stream().anyMatch(state -> state.getId() == newState.ordinal()));
                 }
             });
             if (handlerMatch.get() && stateMatch.get()) {

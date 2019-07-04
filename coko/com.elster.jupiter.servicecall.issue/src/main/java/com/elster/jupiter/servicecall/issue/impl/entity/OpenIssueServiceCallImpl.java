@@ -25,8 +25,8 @@ public class OpenIssueServiceCallImpl extends IssueServiceCallImpl implements Op
     private Reference<OpenIssue> baseIssue = ValueReference.absent();
 
     @Inject
-    public OpenIssueServiceCallImpl(DataModel dataModel, ServiceCallIssueService issueServiceCallService) {
-        super(dataModel, issueServiceCallService);
+    public OpenIssueServiceCallImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override

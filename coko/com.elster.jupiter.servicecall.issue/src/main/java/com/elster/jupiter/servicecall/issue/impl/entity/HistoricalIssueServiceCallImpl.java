@@ -21,8 +21,8 @@ public final class HistoricalIssueServiceCallImpl extends IssueServiceCallImpl i
     private Reference<HistoricalIssue> baseIssue = ValueReference.absent();
 
     @Inject
-    public HistoricalIssueServiceCallImpl(DataModel dataModel, ServiceCallIssueService issueServiceCallService) {
-        super(dataModel, issueServiceCallService);
+    public HistoricalIssueServiceCallImpl(DataModel dataModel) {
+        super(dataModel);
     }
 
     @Override
@@ -35,11 +35,7 @@ public final class HistoricalIssueServiceCallImpl extends IssueServiceCallImpl i
     }
 
     void copy(OpenIssueServiceCall openIssueServiceCall) {
-//        for(NotEstimatedBlock block : openIssueServiceCall.getNotEstimatedBlocks()) {
-//            HistoricalIssueNotEstimatedBlockImpl historicalBlock = getDataModel().getInstance(HistoricalIssueNotEstimatedBlockImpl.class);
-//            historicalBlock.init(this, block);
-//            notEstimatedBlocks.add(historicalBlock);
-//        }
+        setNewState(openIssueServiceCall.getNewState());
+        setServiceCall(openIssueServiceCall.getServiceCall());
     }
-
 }

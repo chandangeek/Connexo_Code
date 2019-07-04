@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -32,7 +33,8 @@ public class IssueServiceCallImpl implements ServiceCallIssue {
 
     public enum Fields {
         BASEISSUE("baseIssue"),
-        NOTESTIMATEDBLOCKS("notEstimatedBlocks"),;
+        SERVICECALL("serviceCall"),
+        STATE("newState");
 
         private final String javaFieldName;
 
@@ -54,14 +56,13 @@ public class IssueServiceCallImpl implements ServiceCallIssue {
     private String userName;
 
     private final DataModel dataModel;
-    private final ServiceCallIssueService issueServiceCallService;
-    private ServiceCall serviceCall;
+    @IsPresent
+    private Reference<ServiceCall> serviceCall = ValueReference.absent();
     private DefaultState newState;
 
     @Inject
-    public IssueServiceCallImpl(DataModel dataModel, ServiceCallIssueService issueServiceCallService) {
+    public IssueServiceCallImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.issueServiceCallService = issueServiceCallService;
     }
 
     Issue getBaseIssue() {
@@ -70,7 +71,7 @@ public class IssueServiceCallImpl implements ServiceCallIssue {
 
     @Override
     public ServiceCall getServiceCall() {
-        return serviceCall;
+        return serviceCall.get();
     }
 
     @Override
@@ -80,7 +81,7 @@ public class IssueServiceCallImpl implements ServiceCallIssue {
 
     @Override
     public void setServiceCall(ServiceCall serviceCall) {
-        this.serviceCall = serviceCall;
+        this.serviceCall.set(serviceCall);
     }
 
     @Override
