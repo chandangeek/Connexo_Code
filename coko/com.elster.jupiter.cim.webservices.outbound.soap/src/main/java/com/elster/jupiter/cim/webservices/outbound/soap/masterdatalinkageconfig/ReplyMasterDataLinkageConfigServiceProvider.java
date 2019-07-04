@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 				"name=" + ReplyMasterDataLinkageConfigWebService.NAME })
 public class ReplyMasterDataLinkageConfigServiceProvider
 		extends AbstractOutboundEndPointProvider<MasterDataLinkageConfigPort>
-		implements ReplyMasterDataLinkageConfigWebService, OutboundSoapEndPointProvider , ApplicationSpecific {
+		implements ReplyMasterDataLinkageConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
 	private static final String NOUN = "MasterDateLinkageConfig";
 	private static final String RESOURCE_WSDL = "/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl";
@@ -170,6 +170,6 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 
 	@Override
 	public String getApplication(){
-		return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
+		return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
 	};
 }

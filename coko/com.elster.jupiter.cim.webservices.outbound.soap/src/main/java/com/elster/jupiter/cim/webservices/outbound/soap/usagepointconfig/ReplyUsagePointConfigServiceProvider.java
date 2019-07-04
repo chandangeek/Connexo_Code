@@ -193,6 +193,6 @@ public class ReplyUsagePointConfigServiceProvider
 
     @Override
     public String getApplication() {
-        return WebServiceApplicationName.INSIGHT.getName();
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

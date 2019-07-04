@@ -37,75 +37,10 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     }
 
     @Override
-    public List<WebServiceCallOccurrence> getEndPointOccurrences(JsonQueryParameters queryParameters,
-                                                                 JsonQueryFilter filter,
-                                                                 Set<String> applicationNames,
-                                                                 Long epId){
-
-
-        WebServiceCallOccurrenceFinderBuilder finderBuilder =  new WebServiceCallOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
-
-        if (applicationNames != null && !applicationNames.isEmpty()){
-            finderBuilder.withApplicationName(applicationNames);
-        }
-
-        if (epId != null){
-            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(epId).get();
-            finderBuilder.withEndPointConfiguration(epc);
-        }
-
-        if (filter.hasProperty("startedOnFrom")) {
-            if (filter.hasProperty("startedOnTo")) {
-                finderBuilder.withStartTimeIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
-            } else {
-                finderBuilder.withStartTimeIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
-            }
-        } else if (filter.hasProperty("startedOnTo")) {
-            finderBuilder.withStartTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
-        }
-        if (filter.hasProperty("finishedOnFrom")) {
-            if (filter.hasProperty("finishedOnTo")) {
-                finderBuilder.withEndTimeIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
-            } else {
-                finderBuilder.withEndTimeIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
-            }
-        } else if (filter.hasProperty("finishedOnTo")) {
-            finderBuilder.withEndTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
-        }
-        /* Find endpoint by ID */
-        if (filter.hasProperty("webServiceEndPoint")) {
-
-            Long endPointId = filter.getLong("webServiceEndPoint");
-            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId).get();
-                    //.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
-
-            finderBuilder.withEndPointConfiguration(epc);
-        }
-
-        if (filter.hasProperty("status")) {
-
-            finderBuilder.withStatusIn(filter.getStringList("status")
-                    .stream()
-                    .map(status->status.toUpperCase())
-                    .map(WebServiceCallOccurrenceStatus::valueOf)
-                    .collect(Collectors.toList()));
-        }
-
-        List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
-
-        if(filter.hasProperty("type")){
-            List<String> typeList = filter.getStringList("type");
-            if (typeList.contains("INBOUND") && !typeList.contains("OUTBOUND")){
-                epocList = epocList.stream().
-                        filter(epoc -> epoc.getEndPointConfiguration().isInbound()).collect(toList());
-
-            } else if  (typeList.contains("OUTBOUND") && !typeList.contains("INBOUND")) {
-                epocList = epocList.stream().
-                        filter(epoc -> !epoc.getEndPointConfiguration().isInbound()).collect(toList());
-            }
-        }
-        return epocList;
+    public WebServiceCallOccurrenceFinderBuilder getWebServiceCallOccurrenceFinderBuilder(){
+        return new WebServiceCallOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
     }
+
 
     @Override
     public Optional<WebServiceCallOccurrence> getEndPointOccurrence(Long id){
@@ -115,17 +50,7 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     }
 
     @Override
-    public List<EndPointLog> getLogForOccurrence(Long id, JsonQueryParameters queryParameters){
-        //DataModel dataModel = ormService.getDataModel(WebServicesService.COMPONENT_NAME).get();
-        Optional<WebServiceCallOccurrence> epOcc = dataModel.mapper(WebServiceCallOccurrence.class)
-                .getUnique("id", id);
-
-        OccurrenceLogFinderBuilder finderBuilder =  new OccurrenceLogFinderBuilderImpl(dataModel, Condition.TRUE);
-
-        if(epOcc.isPresent()){
-            finderBuilder.withOccurrenceId(epOcc.get());
-        }
-
-        return finderBuilder.build().from(queryParameters).find();
+    public OccurrenceLogFinderBuilder getOccurrenceLogFinderBuilder(){
+        return new OccurrenceLogFinderBuilderImpl(dataModel, Condition.TRUE);
     }
 }

@@ -219,6 +219,6 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
 
     @Override
     public String getApplication(){
-        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

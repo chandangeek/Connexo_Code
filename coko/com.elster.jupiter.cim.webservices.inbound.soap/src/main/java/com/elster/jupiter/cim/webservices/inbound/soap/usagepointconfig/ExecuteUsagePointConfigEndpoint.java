@@ -240,6 +240,6 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
 
     @Override
     public String getApplication() {
-        return ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName();
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

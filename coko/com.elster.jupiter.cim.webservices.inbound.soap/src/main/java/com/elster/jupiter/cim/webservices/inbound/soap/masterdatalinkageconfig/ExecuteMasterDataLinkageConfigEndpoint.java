@@ -162,6 +162,6 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
 
     @Override
     public String getApplication(){
-        return WebServiceApplicationName.MULTISENSE.getName();
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }
