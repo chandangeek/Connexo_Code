@@ -82,15 +82,15 @@ public interface FirmwareCampaign extends HasId, HasName {
 
     List<DeviceInFirmwareCampaign> getDevices();
 
-    void setCalendarUploadConnectionStrategyId(long calendarUploadConnectionStrategyId);
+    void setCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy);
 
     void setValidationComTaskId(long validationComTaskId);
 
-    void setValidationConnectionStrategyId(long validationConnectionStrategyId);
+    void setValidationConnectionStrategy(String validationConnectionStrategy);
 
-    long getCalendarUploadConnectionStrategyId();
+    String getCalendarUploadConnectionStrategy();
 
     long getValidationComTaskId();
 
-    long getValidationConnectionStrategyId();
+    String getValidationConnectionStrategy();
 }

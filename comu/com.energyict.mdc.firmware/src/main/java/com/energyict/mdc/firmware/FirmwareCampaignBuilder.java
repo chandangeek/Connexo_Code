@@ -30,9 +30,9 @@ public interface FirmwareCampaignBuilder {
 
     FirmwareCampaignBuilder withValidationComTaskId(long id);
 
-    FirmwareCampaignBuilder withCalendarUploadConnectionStrategyId( long id);
+    FirmwareCampaignBuilder withCalendarUploadConnectionStrategy(String name);
 
-    FirmwareCampaignBuilder withValidationConnectionStrategyId(long id);
+    FirmwareCampaignBuilder withValidationConnectionStrategy(String name);
 
     FirmwareCampaign create();
 

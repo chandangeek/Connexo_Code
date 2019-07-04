@@ -33,9 +33,9 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
     FirmwareType firmwareType;
     Map<PropertySpec, Object> properties;
-    long calendarUploadConnectionStrategyId;
+    String calendarUploadConnectionStrategy;
     long validationComTaskId;
-    long validationConnectionStrategyId;
+    String validationConnectionStrategy;
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel dataModel;
@@ -95,14 +95,14 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withCalendarUploadConnectionStrategyId( long calendarUploadConnectionStrategyId){
-        this.calendarUploadConnectionStrategyId = calendarUploadConnectionStrategyId;
+    public FirmwareCampaignBuilderImpl withCalendarUploadConnectionStrategy( String calendarUploadConnectionStrategy){
+        this.calendarUploadConnectionStrategy = calendarUploadConnectionStrategy;
         return this;
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withValidationConnectionStrategyId(long validationConnectionStrategyId){
-        this.validationConnectionStrategyId = validationConnectionStrategyId;
+    public FirmwareCampaignBuilderImpl withValidationConnectionStrategy(String validationConnectionStrategy){
+        this.validationConnectionStrategy = validationConnectionStrategy;
         return this;
     }
 
@@ -125,9 +125,9 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
         firmwareCampaign.setUploadPeriodStart(uploadStart);
         firmwareCampaign.setUploadPeriodEnd(uploadEnd);
         firmwareCampaign.setManagementOption(protocolSupportedFirmwareOptions);
-        firmwareCampaign.setCalendarUploadConnectionStrategyId(calendarUploadConnectionStrategyId);
+        firmwareCampaign.setCalendarUploadConnectionStrategy(calendarUploadConnectionStrategy);
         firmwareCampaign.setValidationComTaskId(validationComTaskId);
-        firmwareCampaign.setValidationConnectionStrategyId(validationConnectionStrategyId);
+        firmwareCampaign.setValidationConnectionStrategy(validationConnectionStrategy);
         Optional.ofNullable(activationDate).ifPresent(firmwareCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(firmwareCampaign::setValidationTimeout);
         ServiceCall serviceCall = firmwareCampaignService.createServiceCallAndTransition(firmwareCampaign);

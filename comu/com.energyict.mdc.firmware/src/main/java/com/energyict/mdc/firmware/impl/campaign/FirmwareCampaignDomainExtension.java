@@ -122,9 +122,9 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private Instant activationDate;
     private TimeDuration validationTimeout;
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
-    private long calendarUploadConnectionStrategyId;
+    private String calendarUploadConnectionStrategy;
     private long validationComTaskId;
-    private long validationConnectionStrategyId;
+    private String validationConnectionStrategy;
 
     @Inject
     public FirmwareCampaignDomainExtension(Thesaurus thesaurus, FirmwareServiceImpl firmwareService) {
@@ -174,8 +174,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public void setCalendarUploadConnectionStrategyId(long calendarUploadConnectionStrategyId){
-        this.calendarUploadConnectionStrategyId = calendarUploadConnectionStrategyId;
+    public void setCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy){
+        this.calendarUploadConnectionStrategy = calendarUploadConnectionStrategy;
     }
 
     @Override
@@ -184,13 +184,13 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public void setValidationConnectionStrategyId(long validationConnectionStrategyId){
-        this.validationConnectionStrategyId = validationConnectionStrategyId;
+    public void setValidationConnectionStrategy(String validationConnectionStrategy){
+        this.validationConnectionStrategy = validationConnectionStrategy;
     }
 
     @Override
-    public long getCalendarUploadConnectionStrategyId(){
-        return calendarUploadConnectionStrategyId;
+    public String getCalendarUploadConnectionStrategy(){
+        return calendarUploadConnectionStrategy;
     }
 
     @Override
@@ -199,8 +199,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public long getValidationConnectionStrategyId(){
-        return validationConnectionStrategyId;
+    public String getValidationConnectionStrategy(){
+        return validationConnectionStrategy;
     }
 
     @Override
