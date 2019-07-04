@@ -17,4 +17,5 @@ public class RecurrentTaskFilterSpecification {
     public Set<String> queues = new HashSet<>();
     public Instant startedOnFrom;
     public Instant startedOnTo;
+    public Set<String> suspended = new HashSet<>();
 }

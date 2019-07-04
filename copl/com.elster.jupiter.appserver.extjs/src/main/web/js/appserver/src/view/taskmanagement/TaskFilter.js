@@ -8,7 +8,8 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
     alias: 'widget.task-management-filter',
 
     requires: [
-        'Apr.store.QueuesByApplication'
+        'Apr.store.QueuesByApplication',
+        'Apr.store.SuspendedTask'     // Lau - filtru
     ],
 
     initComponent: function () {
@@ -36,6 +37,26 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 dataIndexFrom: 'startedOnFrom',
                 dataIndexTo: 'startedOnTo',
                 text: Uni.I18n.translate('taskManagement.startedBetween', 'APR', 'Started between')
+            },
+            {
+                type: 'combobox',
+                store: 'Apr.store.SuspendedTask',
+                dataIndex: 'suspended',
+                emptyText: Uni.I18n.translate('general.suspended', 'APR', 'Suspended'),  // Lau
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'value',
+                queryMode: 'local',
+                editable:false,
+                listeners:{
+                    beforeselect : function(combo, record, index){
+                        //
+                        combo.suspendEvents();
+                        combo.clearValue();
+                        combo.select(record);
+                        combo.resumeEvents();
+                    }
+                }
             }
         ];
 
