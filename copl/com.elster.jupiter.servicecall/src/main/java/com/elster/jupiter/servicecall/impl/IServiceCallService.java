@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.messaging.DestinationSpec;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Internal usage interface
@@ -20,7 +21,7 @@ public interface IServiceCallService extends ServiceCallService {
 
     void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 
-    DestinationSpec getServiceCallQueue();
+    Optional<DestinationSpec> getServiceCallQueue(String destinationName);
 
     Thesaurus getThesaurus();
 

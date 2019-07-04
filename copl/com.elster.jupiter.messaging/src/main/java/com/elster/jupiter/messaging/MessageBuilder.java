@@ -30,4 +30,6 @@ public interface MessageBuilder {
 
     MessageBuilder withDelay(int delay);
 
+    MessageBuilder withPriority(int priority);
+
 }

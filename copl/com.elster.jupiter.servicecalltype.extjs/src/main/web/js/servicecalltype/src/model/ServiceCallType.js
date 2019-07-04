@@ -15,6 +15,14 @@ Ext.define('Sct.model.ServiceCallType', {
             type: 'int'
         },
         {
+            name: 'priority',
+            type: 'int'
+        },
+        {
+            name: 'destination',
+            type: 'string'
+        },
+        {
             name: 'lifecycle',
             persist: false,
             mapping: function (data) {

@@ -113,7 +113,10 @@ Ext.define('Isu.controller.ApplyIssueAction', {
             issueModel = me.getModel('Idl.model.Issue');
         } else if (issueType == 'task') {
             issueModel = me.getModel('Itk.model.Issue');
-        } else {
+        } else if (issueType == 'manual') {
+            issueModel = me.getModel('Isu.model.ManualIssue');
+        }
+         else {
             issueModel = me.getModel(me.issueModel);
         }
         issueModel.load(issueId, {
@@ -249,6 +252,8 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                             issueModel = me.getModel('Itk.model.Issue');
                         } else if (issueType == 'usagepointdatavalidation') {
                             issueModel = me.getModel('Imt.datavalidation.model.Issue');
+                        }else if (issueType === 'manual') {
+                            issueModel = 'Isu.model.ManualIssue';
                         }
                         else {
                             issueModel = me.issueModel;
@@ -259,7 +264,7 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                                 if (issueType == 'datacollection') {
                                     Ext.ComponentQuery.query('#data-collection-issue-detail-container')[0].down('form').loadRecord(issue);
                                     Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
-                                } else if (issueType == 'datavalidation' || issueType == 'devicelifecycle' || issueType == 'task') {
+                                } else if (issueType == 'datavalidation' || issueType == 'devicelifecycle' || issueType == 'task' || issueType === 'manual') {
                                     Ext.ComponentQuery.query('#issue-detail-form')[0].loadRecord(issue);
                                     Ext.ComponentQuery.query('#issue-detail-action-menu')[0].record = issue;
                                 } else if (issueType == 'usagepointdatavalidation') {

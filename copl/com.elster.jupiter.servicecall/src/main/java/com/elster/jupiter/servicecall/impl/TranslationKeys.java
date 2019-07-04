@@ -43,6 +43,7 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_FROM_REJECT_TO_PENDING(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Retry"),
     TRANSITION_FROM_REJECT_TO_FAILED(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.FAILED.getSymbol(), "Failed"),
     TRANSITION_FROM_PENDING_TO_REJECT(DefaultState.PENDING.getKey() + DefaultCustomStateTransitionEventType.REJECTED.getSymbol(), "Reject"),
+    TRANSITION_FROM_PENDING_TO_SUCCESS(DefaultState.PENDING.getKey() + DefaultCustomStateTransitionEventType.SUCCESSFUL.getSymbol(), "Successful"),
     SERVICE_CALL_DOMAIN_NAME("com.elster.jupiter.servicecall.ServiceCall", "Service call");
 
     private final String key;

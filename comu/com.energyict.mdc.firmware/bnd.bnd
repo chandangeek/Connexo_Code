@@ -2,6 +2,7 @@
 -dsannotations: *
 Private-Package:  \
 	com.energyict.mdc.firmware.impl, \
+	com.energyict.mdc.firmware.impl.campaign, \
 	com.energyict.mdc.firmware.impl.search
 Export-Package:  \
 	com.energyict.mdc.firmware, \

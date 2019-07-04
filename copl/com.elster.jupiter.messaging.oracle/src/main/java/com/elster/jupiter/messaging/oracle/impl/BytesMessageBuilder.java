@@ -66,6 +66,16 @@ class BytesMessageBuilder implements MessageBuilder {
     }
 
     @Override
+    public MessageBuilder withPriority(int priority) {
+        try {
+            getMessageProperties().setPriority(priority);
+            return this;
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    @Override
     public MessageBuilder withDelay(int delay) {
         try {
             getMessageProperties().setDelay(delay);

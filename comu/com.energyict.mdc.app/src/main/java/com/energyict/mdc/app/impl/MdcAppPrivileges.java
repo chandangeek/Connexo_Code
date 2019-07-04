@@ -35,6 +35,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE,
 
                 //issue configuration
                 com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE,
