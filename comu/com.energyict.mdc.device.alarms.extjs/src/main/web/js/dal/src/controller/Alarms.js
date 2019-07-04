@@ -6,11 +6,13 @@ Ext.define('Dal.controller.Alarms', {
     extend: 'Isu.controller.IssuesOverview',
     requires: [
         'Dal.view.AlarmFilter',
+        'Dal.view.Overview',
         'Dal.view.NoAlarmsFoundPanel',
         'Dal.view.Preview',
         'Dal.store.Alarms',
         'Dal.view.Grid',
-        'Dal.view.ActionMenu'
+        'Dal.view.ActionMenu',
+        'Dal.view.AlarmSortingToolbar'
     ],
 
     stores: [
@@ -36,57 +38,61 @@ Ext.define('Dal.controller.Alarms', {
     ],
 
 
+
     constructor: function () {
         var me = this;
         me.refs =
             [
                 {
                     ref: 'preview',
-                    selector: 'issues-overview #alarm-preview'
+                    selector: 'alarm-overview #alarm-preview'
                 },
                 {
                     ref: 'previewStatus',
-                    selector: 'issues-overview #alarms-preview #alarm-status'
+                    selector: 'alarm-overview #alarms-preview #alarm-status'
                 },
                 {
                     ref: 'filterToolbar',
-                    selector: 'issues-overview view-alarms-filter'
+                    selector: 'alarm-overview view-alarms-filter'
                 },
                 {
                     ref: 'groupingToolbar',
-                    selector: 'issues-overview #issues-grouping-toolbar'
+                    selector: 'alarm-overview #issues-grouping-toolbar'
                 },
                 {
                     ref: 'groupGrid',
-                    selector: 'issues-overview #issues-group-grid'
+                    selector: 'alarm-overview #issues-group-grid'
                 },
                 {
                     ref: 'previewContainer',
-                    selector: 'issues-overview #issues-preview-container'
+                    selector: 'alarm-overview #issues-preview-container'
                 },
                 {
                     ref: 'groupingTitle',
-                    selector: 'issues-overview issues-grouping-title'
+                    selector: 'alarm-overview issues-grouping-title'
                 },
                 {
                     ref: 'issuesGrid',
-                    selector: 'issues-overview #alarms-grid'
+                    selector: 'alarm-overview #alarms-grid'
                 },
                 {
                     ref: 'previewActionMenu',
                     selector: '#alarm-preview alarms-action-menu'
                 }
-            ]
+            ];
+        me.views = [
+            'Dal.view.Overview'
+        ];
         me.callParent(arguments);
     },
 
     init: function () {
         var me = this;
         me.control({
-            'issues-overview #alarms-grid': {
+            'alarm-overview #alarms-grid': {
                 select: me.showPreview
             },
-            'issues-overview #alarm-preview #filter-display-button': {
+            'alarm-overview #alarm-preview #filter-display-button': {
                 click: this.setFilterItem
             }
         });
@@ -139,7 +145,7 @@ Ext.define('Dal.controller.Alarms', {
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
             me.getStore('Isu.store.Clipboard').set('latest-issues-filter', queryString);
-            var widget = Ext.widget('issues-overview', {
+            var widget = Ext.widget('alarm-overview', {
                 router: me.getController('Uni.controller.history.Router'),
                 groupingType: queryString.groupingType,
                 filter: {
