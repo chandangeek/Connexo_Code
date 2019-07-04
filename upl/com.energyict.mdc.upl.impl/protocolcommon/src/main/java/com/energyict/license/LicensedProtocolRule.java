@@ -394,7 +394,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     CRYPTO_ELSTER_EMSR50_MBUS(320, "com.energyict.protocolimplv2.nta.esmr50.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
     CRYPTO_GENERIC_ESMR50_MBUS(321, "com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50MbusDevice", FamilyRule.EICT_NTA),
 
-
+    HONEYWELL_AS300N(322, "com.energyict.protocolimplv2.dlms.hon.as300n.AS300N"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
