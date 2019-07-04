@@ -7,6 +7,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 public interface WebServicesDataModelService {
@@ -17,4 +18,6 @@ public interface WebServicesDataModelService {
     WebServicesService getWebServicesService();
 
     EndPointConfigurationService getEndPointConfigurationService();
+
+    WebServiceCallOccurrenceService getWebServiceCallOccurrenceService();
 }

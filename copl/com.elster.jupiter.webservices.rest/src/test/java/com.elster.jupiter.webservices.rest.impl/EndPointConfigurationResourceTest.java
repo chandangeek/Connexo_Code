@@ -274,7 +274,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         verify(inboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
         verify(inboundEndPointConfiguration).setUrl("/srv");
         verify(inboundEndPointConfiguration).save();
-
     }
 
     @Test
@@ -310,7 +309,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         verify(inboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
         verify(inboundEndPointConfiguration).setUrl("/srv");
         verify(inboundEndPointConfiguration).save();
-
     }
 
     @Test
@@ -368,12 +366,10 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         verify(outboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
         verify(outboundEndPointConfiguration).setUrl("/srv");
         verify(outboundEndPointConfiguration).save();
-
     }
 
     @Test
     public void  testGetAllOccurrences() throws Exception {
-
         /* Mock privilege */
         when(privilege.getName()).thenReturn(Privileges.Constants.VIEW_WEB_SERVICES);
 
@@ -423,11 +419,10 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<String>get("$.occurrences[1].status")).isEqualTo(WebServiceCallOccurrenceStatus.SUCCESSFUL.getName());
         assertThat(jsonModel.<String>get("$.occurrences[1].request")).isEqualTo("Request2");
         assertThat(jsonModel.<String>get("$.occurrences[1].applicationName")).isEqualTo(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
-     }
+    }
 
     @Test
     public void testGetOccurrence() throws Exception {
-
         /* Mock privilege */
         when(privilege.getName()).thenReturn(Privileges.Constants.VIEW_WEB_SERVICES);
 
@@ -450,7 +445,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
                 ecpMock
         );
         when(webServiceCallOccurrenceService.getEndPointOccurrence((long) 1)).thenReturn(Optional.of(occurrence));
-
 
         /*Test for "/endpointconfigurations/1/occurrences" resource is the same. So just one test for two resources */
         Response response = target("/endpointconfigurations/occurrences/1").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get();
@@ -483,7 +477,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
 
     @Test
     public void testGetLogs() throws Exception {
-
         /* Mock privilege */
         when(privilege.getName()).thenReturn(Privileges.Constants.VIEW_WEB_SERVICES);
 
@@ -498,9 +491,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
-
-
-
 
         WebServiceCallOccurrence occurrence = createOccurrence(
                 Instant.now(),
@@ -536,7 +526,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
 
         when(webServiceCallOccurrenceService.getLogForOccurrence(anyLong(), anyObject())).thenReturn(logs);
 
-
         Response response = target("/endpointconfigurations/occurrences/1/log").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -547,7 +536,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<Instant>get("$.logs[0].timestamp")).isEqualTo(time.toEpochMilli());
         assertThat(jsonModel.<String>get("$.logs[0].message")).isEqualTo("message1");
         assertThat(jsonModel.<String>get("$.logs[0].stackTrace")).isEqualTo("stackTrace1");
-
 
         assertThat(jsonModel.<Integer>get("$.logs[1].id")).isEqualTo(2);
         assertThat(jsonModel.<Instant>get("$.logs[1].timestamp")).isEqualTo(time.toEpochMilli());

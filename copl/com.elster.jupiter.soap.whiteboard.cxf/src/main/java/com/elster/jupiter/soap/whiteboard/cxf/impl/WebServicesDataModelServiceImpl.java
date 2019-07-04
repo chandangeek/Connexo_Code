@@ -28,7 +28,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.osgi.BundleWaiter;
@@ -220,10 +219,8 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 bind(WebServicesServiceImpl.class).toInstance(webServicesService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(EndPointConfigurationServiceImpl.class).toInstance(endPointConfigurationService);
-
                 bind(WebServiceCallOccurrenceService.class).toInstance(webServiceCallOccurrenceService);
                 bind(WebServiceCallOccurrenceServiceImpl.class).toInstance(webServiceCallOccurrenceService);
-
             }
         };
     }
@@ -250,7 +247,6 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                         V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class,
                         UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class,
                         UpgraderV10_7.VERSION, UpgraderV10_7.class
-
                 ));
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
@@ -349,6 +345,11 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     @Override
     public EndPointConfigurationServiceImpl getEndPointConfigurationService() {
         return endPointConfigurationService;
+    }
+
+    @Override
+    public WebServiceCallOccurrenceServiceImpl getWebServiceCallOccurrenceService() {
+        return webServiceCallOccurrenceService;
     }
 
     @Override
