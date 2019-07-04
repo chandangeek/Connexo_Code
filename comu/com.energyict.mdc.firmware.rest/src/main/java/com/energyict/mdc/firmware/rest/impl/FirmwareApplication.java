@@ -66,7 +66,6 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
     private volatile SecurityManagementService securityManagementService;
-    private volatile ExceptionFactory exceptionFactory;
     private volatile FirmwareCampaignService firmwareCampaignService;
 
     @Override
@@ -84,8 +83,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
                 RestValidationExceptionMapper.class,
                 DeviceStateAccessFeature.class,
                 SecurityAccessorResource.class,
-                DeviceConfigurationService.class,
-                ExceptionFactory.class
+                DeviceConfigurationService.class
         );
     }
 
@@ -102,14 +100,12 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
         protected void configure() {
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
-            bind(exceptionFactory).to(ExceptionFactory.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(DeviceFirmwareVersionInfoFactory.class).to(DeviceFirmwareVersionInfoFactory.class);
             bind(FirmwareCampaignInfoFactory.class).to(FirmwareCampaignInfoFactory.class);
             bind(DeviceInFirmwareCampaignInfoFactory.class).to(DeviceInFirmwareCampaignInfoFactory.class);
-            bind(FirmwareVersionInfoFactory.class).to(FirmwareVersionInfoFactory.class);
-            bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
@@ -173,11 +169,6 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Reference
-    public void setExceptionFactory(ExceptionFactory exceptionFactory) {
-        this.exceptionFactory = exceptionFactory;
     }
 
     @Reference

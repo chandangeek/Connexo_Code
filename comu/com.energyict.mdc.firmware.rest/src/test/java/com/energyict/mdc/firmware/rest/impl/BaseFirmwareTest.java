@@ -63,8 +63,6 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     @Mock
     SecurityManagementService securityManagementService;
     @Mock
-    ExceptionFactory exceptionFactory;
-    @Mock
     FirmwareCampaignService firmwareCampaignService;
 
     @Override
@@ -92,7 +90,6 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setMdcPropertyUtils(mdcPropertyUtils);
         application.setSecurityManagementService(securityManagementService);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
-        application.setExceptionFactory(exceptionFactory);
         return application;
     }
 
