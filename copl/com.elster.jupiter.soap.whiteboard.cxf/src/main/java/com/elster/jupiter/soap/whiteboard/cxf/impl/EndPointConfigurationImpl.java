@@ -14,11 +14,10 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
-import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -434,12 +433,4 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         occurrence.save();
         return occurrence;
     }
-
-    @Override
-    public void retryOccurrence(String method, String payload, WebServiceCallOccurrence occurrence){
-        transactionService.runInIndependentTransaction(()->{this.log(LogLevel.INFO, "Occurrence has been retried",occurrence);});
-        OutboundEndPointProvider provider = (OutboundEndPointProvider)webServicesService.getProvider(webServiceName);
-        provider.using(method).toEndpoints(this).send( payload, this);
-    }
-
 }

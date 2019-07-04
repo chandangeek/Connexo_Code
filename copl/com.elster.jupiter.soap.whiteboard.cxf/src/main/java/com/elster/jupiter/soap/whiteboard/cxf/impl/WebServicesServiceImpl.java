@@ -8,7 +8,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
@@ -370,8 +369,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Override
-    public OutboundEndPointProvider getProvider(String webServiceName){
-        OutboundEndPointProvider provider = (OutboundEndPointProvider) webServices.get(webServiceName).getEndPointProvider();
-        return provider;
+    public Optional<EndPointProvider> getProvider(String webServiceName){
+        return Optional.ofNullable(webServices.get(webServiceName)).map(EndPointFactory::getEndPointProvider);
     }
 }
