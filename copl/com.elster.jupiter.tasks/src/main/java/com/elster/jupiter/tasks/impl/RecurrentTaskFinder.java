@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
 import com.elster.jupiter.tasks.TaskFinder;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -80,8 +81,9 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append(") ");
         builder.append("on RT.ID=TSKID ");
 
-        //add started bewteen conditions
-        if ((filter.startedOnFrom != null) || (filter.startedOnTo != null)) {
+        //add started between conditions
+        boolean isStartedBetweenConditionPresent = (filter.startedOnFrom != null) || (filter.startedOnTo != null);
+        if (isStartedBetweenConditionPresent) {
             builder.append("where exists (select * from TSK_TASK_OCCURRENCE where ");
             if (filter.startedOnFrom != null) {
                 builder.append(" TSK_TASK_OCCURRENCE.STARTDATE >= ");
@@ -97,33 +99,66 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append(") ");
         }
 
-        //add queues filter conditions
-        if ((filter.queues != null) && (!filter.queues.isEmpty())) {
-            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)) {
-                builder.append(" where ( ");
-            } else {
-                builder.append(" and ( ");
+        //add next execution between conditions
+        boolean isNextExecutionBetweenConditionPresent = (filter.nextExecutionFrom != null) || (filter.nextExecutionTo != null);
+        if (isNextExecutionBetweenConditionPresent) {
+            builder.append(isStartedBetweenConditionPresent ? " and ( " : " where ( ");
+            if (filter.nextExecutionFrom != null) {
+                builder.append(" NEXTEXECUTION >= ");
+                builder.addLong(filter.nextExecutionFrom.toEpochMilli());
             }
-            List<String> queues = new ArrayList();
-            queues.addAll(filter.queues);
-            for (int i = 0; i < queues.size(); i++) {
-                builder.append("DESTINATION= ");
-                builder.addObject(queues.get(i));
-                if (i < queues.size() - 1) {
-                    builder.append(" or ");
-                }
+            if ((filter.nextExecutionFrom != null) && (filter.nextExecutionTo != null)) {
+                builder.append(" and ");
+            }
+            if (filter.nextExecutionTo != null) {
+                builder.append(" NEXTEXECUTION <= ");
+                builder.addLong(filter.nextExecutionTo.toEpochMilli());
             }
             builder.append(") ");
         }
 
-        //add queue type filter conditions
-        if ((filter.queueTypes != null) && (!filter.queueTypes.isEmpty())) {
-            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)
-                    && ((filter.queues == null) || filter.queues.isEmpty())) {
-                builder.append(" where ( ");
-            } else {
-                builder.append(" and ( ");
+        //add priority between conditions
+        boolean isPriorityBetweenConditionPresent = (filter.priorityFrom != null) || (filter.priorityTo != null);
+        if (isPriorityBetweenConditionPresent) {
+            builder.append((isStartedBetweenConditionPresent || isNextExecutionBetweenConditionPresent) ? " and ( " : " where ( ");
+            if (filter.priorityFrom != null) {
+                builder.append(" PRIORITY >= ");
+                builder.addInt(filter.priorityFrom);
             }
+            if ((filter.priorityFrom != null) && (filter.priorityTo != null)) {
+                builder.append(" and ");
+            }
+            if (filter.priorityTo != null) {
+                builder.append(" PRIORITY <= ");
+                builder.addInt(filter.priorityTo);
+            }
+            builder.append(") ");
+        }
+
+        //add queues filter conditions
+        boolean isQueueFilterConditionPresent = (filter.queues != null) && !filter.queues.isEmpty();
+        if (isQueueFilterConditionPresent) {
+            builder.append((isStartedBetweenConditionPresent || isNextExecutionBetweenConditionPresent || isPriorityBetweenConditionPresent) ?
+                            " and ( " : " where ( ");
+            List<String> queues = new ArrayList();
+            queues.addAll(filter.queues);
+            builder.append("DESTINATION in ( ");
+            for (int i = 0; i < queues.size(); i++) {
+                builder.addObject(queues.get(i));
+                if (i < queues.size() - 1) {
+                    builder.append(" , ");
+                }
+            }
+            builder.append(")) ");
+        }
+
+        //add queue type filter conditions
+        boolean isQueueTypeConditionPresent = (filter.queueTypes != null) && !filter.queueTypes.isEmpty();
+        if (isQueueTypeConditionPresent) {
+            builder.append((isStartedBetweenConditionPresent || isNextExecutionBetweenConditionPresent
+                            || isPriorityBetweenConditionPresent || isQueueFilterConditionPresent) ?
+                            " and ( " : " where ( ");
+
             List<String> queueTypes = new ArrayList();
             queueTypes.addAll(filter.queueTypes);
             builder.append("QUEUE_TYPE_NAME in (");
@@ -137,24 +172,22 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add application filter conditions
-        if ((filter.applications != null) && (!filter.applications.isEmpty())) {
-            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)
-                    && ((filter.queues == null) || filter.queues.isEmpty())
-                    && ((filter.queueTypes == null) || filter.queueTypes.isEmpty())) {
-                builder.append(" where ( ");
-            } else {
-                builder.append(" and ( ");
-            }
+        boolean isApplicationFilterConditionPresent = (filter.applications != null) && !filter.applications.isEmpty();
+        if (isApplicationFilterConditionPresent) {
+            builder.append((isStartedBetweenConditionPresent || isNextExecutionBetweenConditionPresent
+                            || isPriorityBetweenConditionPresent || isQueueFilterConditionPresent || isQueueTypeConditionPresent) ?
+                           " and ( " : " where ( ");
+
             List<String> applications = new ArrayList();
             applications.addAll(filter.applications);
+            builder.append("APPLICATION in (");
             for (int i = 0; i < applications.size(); i++) {
-                builder.append("APPLICATION= ");
                 builder.addObject(applications.get(i));
                 if (i < applications.size() - 1) {
-                    builder.append(" or ");
+                    builder.append(" , ");
                 }
             }
-            builder.append(") ");
+            builder.append(")) ");
         }
 
         builder.append("order by TSKSTATUS, STARTDATE ");

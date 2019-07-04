@@ -18,4 +18,8 @@ public class RecurrentTaskFilterSpecification {
     public Set<String> queueTypes = new HashSet<>();
     public Instant startedOnFrom;
     public Instant startedOnTo;
+    public Instant nextExecutionFrom;
+    public Instant nextExecutionTo;
+    public Integer priorityFrom;
+    public Integer priorityTo;
 }
