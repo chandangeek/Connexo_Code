@@ -16,9 +16,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallOccurrenceImpl;
@@ -42,9 +44,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -404,7 +403,8 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         occurrenceList.add(occurrence1);
         occurrenceList.add(occurrence2);
 
-        when(webServiceCallOccurrenceService.getEndPointOccurrences(anyObject(), anyObject(), anySet(), anyLong())).thenReturn(occurrenceList);
+        WebServiceCallOccurrenceFinderBuilder builder = FakeBuilder.initBuilderStub(occurrenceList, WebServiceCallOccurrenceFinderBuilder.class, Finder.class);
+        when(webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder()).thenReturn(builder);
         Response response = target("/endpointconfigurations/occurrences").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -524,7 +524,9 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         logs.add(log1);
         logs.add(log2);
 
-        when(webServiceCallOccurrenceService.getLogForOccurrence(anyLong(), anyObject())).thenReturn(logs);
+        OccurrenceLogFinderBuilder builder = FakeBuilder.initBuilderStub(logs, OccurrenceLogFinderBuilder.class, Finder.class);
+        when(webServiceCallOccurrenceService.getOccurrenceLogFinderBuilder()).thenReturn(builder);
+        when(webServiceCallOccurrenceService.getEndPointOccurrence(1L)).thenReturn(Optional.of(occurrence));
 
         Response response = target("/endpointconfigurations/occurrences/1/log").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
