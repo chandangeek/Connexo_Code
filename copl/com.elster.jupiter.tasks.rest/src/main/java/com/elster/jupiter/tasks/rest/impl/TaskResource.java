@@ -70,6 +70,7 @@ public class TaskResource {
             filterSpec.queues.addAll(filter.getStringList("queue"));
             filterSpec.startedOnFrom = filter.getInstant("startedOnFrom");
             filterSpec.startedOnTo = filter.getInstant("startedOnTo");
+            filterSpec.suspended.addAll(filter.getStringList("suspended"));
         }
         TaskFinder finder = taskService.getTaskFinder(filterSpec, params.getStartInt(), params.getLimit() + 1);
 

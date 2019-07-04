@@ -130,9 +130,9 @@ class RecurrentTaskImpl implements RecurrentTask {
         if(suspendUntilTime!=null && suspendUntilTime.isAfter(time)) {
             time = suspendUntilTime;
         }
-        else{
+        //else{
             suspendUntilTime = null;
-        }
+        //}
         ZonedDateTime now = ZonedDateTime.ofInstant(time, ZoneId.systemDefault());
         Optional<ZonedDateTime> nextOccurrence = getScheduleExpression().nextOccurrence(now);
         nextExecution = nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
@@ -307,7 +307,8 @@ class RecurrentTaskImpl implements RecurrentTask {
                 String json = toJson(taskOccurrence);
                 getDestination().message(json).send();
                 if (taskOccurrence.wasScheduled()) {
-                    updateNextExecution();
+                    updateNextExecution();     // Lau vezi sa nu mearga doar la run - simplu
+                    suspendUntilTime = null;  // Lau vezi asta daca merge cu cele recursive normale!!!!!
                     dataModel.mapper(RecurrentTask.class).update(this, "nextExecution","suspendUntilTime");
                 }
                 taskOccurrences.add(taskOccurrence);
