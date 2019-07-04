@@ -87,7 +87,6 @@ public class SecurityAccessorTypeInfoFactory {
 
                 }
         );
-
         TypedProperties typedProperties = TypedProperties.empty();
         Collection<PropertySpec> propertySpecs = new ArrayList<>();
         securityAccessorTypeOnDeviceType
@@ -100,6 +99,18 @@ public class SecurityAccessorTypeInfoFactory {
         if (propertySpecs.size() > 0) {
             info.keyRenewalCommandProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, typedProperties);
         }
+        return info;
+    }
+
+    public SecurityAccessorTypeInfo withSecurityLevels(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
+        SecurityAccessorTypeInfo info = from(securityAccessorTypeOnDeviceType);
+        Set<SecurityAccessorUserAction> allUserActions = EnumSet.allOf(SecurityAccessorUserAction.class);
+        List<Group> groups = userService.getGroups();
+        Set<SecurityAccessorUserAction> keyAccessorTypeUserActions = securityAccessorTypeOnDeviceType.getSecurityAccessorType().getUserActions();
+        info.editLevels = executionLevelInfoFactory.getEditPrivileges(keyAccessorTypeUserActions, groups);
+        info.defaultEditLevels = executionLevelInfoFactory.getEditPrivileges(allUserActions, groups);
+        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(keyAccessorTypeUserActions, groups);
+        info.defaultViewLevels = executionLevelInfoFactory.getViewPrivileges(allUserActions, groups);
         return info;
     }
 
