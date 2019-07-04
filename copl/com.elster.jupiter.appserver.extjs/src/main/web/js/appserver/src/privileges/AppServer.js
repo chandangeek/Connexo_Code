@@ -18,7 +18,7 @@ Ext.define('Apr.privileges.AppServer', {
 
     admin: ['privilege.administrate.appServer'],
 
-    taskOverview: ['privilege.view.ViewTaskOverview'],
+    taskOverview: ['privilege.view.ViewTaskOverview'],  // Lau - last - privilegii
 
     all: function () {
         return Ext.Array.merge(Apr.privileges.AppServer.view);

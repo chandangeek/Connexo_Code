@@ -14,6 +14,7 @@ Ext.define('Mdc.privileges.TaskManagement', {
     singleton: true,
 
     view: ['privilege.view.ViewTaskOverview'],
+    suspendTaskOverview: ['privilege.suspend.SuspendTaskOverview'],  // Lau - last privilegii
 
     //manage: ['privilege.view.ManageTaskOverview'],
 
