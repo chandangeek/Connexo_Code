@@ -11,8 +11,12 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Scopes;
 import org.osgi.service.http.HttpService;
+
+import java.util.function.Function;
 
 /**
  * Created by bvn on 6/7/16.
@@ -23,10 +27,22 @@ public class WebServicesModule extends AbstractModule {
     protected void configure() {
         requireBinding(HttpService.class);
 
-        bind(WebServicesService.class).to(WebServicesServiceImpl.class).in(Scopes.SINGLETON);
-        bind(WebServiceCallOccurrenceService.class).to(WebServiceCallOccurrenceServiceImpl.class).in(Scopes.SINGLETON);
-        bind(EndPointConfigurationService.class).to(EndPointConfigurationServiceImpl.class).in(Scopes.SINGLETON);
-        bind(SoapProviderSupportFactory.class).to(CxfSupportFactory.class).in(Scopes.SINGLETON);
         bind(WebServicesDataModelService.class).to(WebServicesDataModelServiceImpl.class).in(Scopes.SINGLETON);
+        bind(WebServicesService.class).toProvider(provide(WebServicesDataModelService::getWebServicesService)).in(Scopes.SINGLETON);
+        bind(EndPointConfigurationService.class).toProvider(provide(WebServicesDataModelService::getEndPointConfigurationService)).in(Scopes.SINGLETON);
+        bind(SoapProviderSupportFactory.class).to(CxfSupportFactory.class).in(Scopes.SINGLETON);
+        bind(WebServiceCallOccurrenceService.class).toProvider(provide(WebServicesDataModelService::getWebServiceCallOccurrenceService)).in(Scopes.SINGLETON);
+    }
+
+    private static <T> Provider<T> provide(Function<WebServicesDataModelService, T> method) {
+        return new Provider<T>() {
+            @Inject
+            private Provider<WebServicesDataModelService> webServicesDataModelServiceProvider;
+
+            @Override
+            public T get() {
+                return method.apply(webServicesDataModelServiceProvider.get());
+            }
+        };
     }
 }

@@ -3,14 +3,13 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -20,7 +19,6 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -35,7 +33,6 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
@@ -43,66 +40,50 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
-import org.mockito.Mock;
 
-public class WebServiceTest {
+import static org.mockito.Mockito.mock;
 
+public abstract class AbstractWebServiceIT {
     static final String IMPORTER_NAME = "someImporter";
-    InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-    final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
-    Injector injector;
+    static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    static final Instant now = ZonedDateTime.of(2016, 1, 8, 10, 0, 0, 0, ZoneId.of("UTC")).toInstant();
+    static Injector injector;
 
-    NlsService nlsService;
-    TransactionService transactionService;
+    static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    static TransactionService transactionService;
+    static Clock clock;
+    static DataModel dataModel;
+    static WebServicesDataModelService webServicesDataModelService;
+    static WebServicesService webServicesService;
+    static EndPointConfigurationService endPointConfigurationService;
+    static WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(transactionService);
 
-    @Mock
-    BundleContext bundleContext;
-    @Mock
-    EventAdmin eventAdmin;
-    @Mock
-    LogService logService;
-    @Mock
-    MessageInterpolator messageInterpolator;
-    @Mock
-    DataVaultService dataVaultService;
-    @Mock
-    HttpService httpService;
-
-    Clock clock;
-    @Mock
-    Thesaurus thesaurus;
-
-    DataModel dataModel;
-
-    WebServicesDataModelService webServicesDataModelService;
-
-    WebServicesService webServicesService;
-    EndPointConfigurationService endPointConfigurationService;
-    WebServiceCallOccurrenceService webServiceCallOccurrenceService;
-
-    private class MockModule extends AbstractModule {
+    private static class MockModule extends AbstractModule {
 
         @Override
         protected void configure() {
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(MessageInterpolator.class).toInstance(messageInterpolator);
-            bind(DataVaultService.class).toInstance(dataVaultService);
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(MessageInterpolator.class).toInstance(thesaurus);
+            bind(Thesaurus.class).toInstance(thesaurus);
+            bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-            bind(HttpService.class).toInstance(httpService);
+            bind(HttpService.class).toInstance(mock(HttpService.class));
             bind(DataModel.class).toProvider(()-> dataModel);
         }
     }
 
-    @Before
-    public void setUp() {
+    @BeforeClass
+    public static void setUp() {
         clock = new ProgrammableClock(ZoneId.of("UTC"), now);
         try {
             injector = Guice.createInjector(
@@ -125,29 +106,19 @@ public class WebServiceTest {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(new Transaction<Void>() {
-
-
-            private EventService eventService;
-
-            @Override
-            public Void perform() {
-                nlsService = injector.getInstance(NlsService.class);
-                thesaurus = nlsService.getThesaurus(WebServicesServiceImpl.COMPONENT_NAME, Layer.DOMAIN);
-                eventService = injector.getInstance(EventService.class);
-                injector.getInstance(UserService.class);
-                webServicesDataModelService = injector.getInstance(WebServicesDataModelService.class);
-                dataModel = webServicesDataModelService.getDataModel();
-                webServicesService = injector.getInstance(WebServicesService.class);
-                endPointConfigurationService = injector.getInstance(EndPointConfigurationService.class);
-                webServiceCallOccurrenceService = injector.getInstance(WebServiceCallOccurrenceService.class);
-                return null;
-            }
+        transactionService.run(() -> {
+            injector.getInstance(EventService.class);
+            injector.getInstance(UserService.class);
+            webServicesDataModelService = injector.getInstance(WebServicesDataModelService.class);
+            dataModel = webServicesDataModelService.getDataModel();
+            webServicesService = injector.getInstance(WebServicesService.class);
+            endPointConfigurationService = injector.getInstance(EndPointConfigurationService.class);
+            webServiceCallOccurrenceService = injector.getInstance(WebServiceCallOccurrenceService.class);
         });
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
     }
 }
