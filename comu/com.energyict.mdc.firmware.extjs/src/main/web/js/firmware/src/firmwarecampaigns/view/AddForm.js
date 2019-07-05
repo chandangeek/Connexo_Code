@@ -522,8 +522,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.getForm().setValues({
                     calendarUploadComTask: calendarUploadComTask && calendarUploadComTask.id,
                     validationComTask: validationComTask && validationComTask.id,
-                    calendarUploadConnectionStrategy: calendarUploadConnectionStrategy && calendarUploadConnectionStrategy.id,
-                    validationConnectionStrategy: validationConnectionStrategy && validationConnectionStrategy.id
+                    calendarUploadConnectionStrategy: calendarUploadConnectionStrategy && calendarUploadConnectionStrategy.id ? calendarUploadConnectionStrategy.id : null,
+                    validationConnectionStrategy: validationConnectionStrategy && validationConnectionStrategy.id ? validationConnectionStrategy.id : null
                 });
                 me.down('#fwc-campaign-allowed-comtask').setDisabled(true);
                 me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
