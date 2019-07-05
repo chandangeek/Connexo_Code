@@ -95,10 +95,10 @@ public class FirmwareCampaignInfoFactory {
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
 
-        info.calendarUploadComTaskId = new IdWithNameInfo(campaign.getCalendarUploadComTaskId(),firmwareCampaignService.getComTaskById(campaign.getCalendarUploadComTaskId()).getName());
-        info.calendarUploadConnectionStrategy = new IdWithNameInfo(0,"null");
+        info.calendarUploadComTask = new IdWithNameInfo(campaign.getCalendarUploadComTaskId(),firmwareCampaignService.getComTaskById(campaign.getCalendarUploadComTaskId()).getName());
+        info.calendarUploadConnectionStrategy = new IdWithNameInfo(0,campaign.getCalendarUploadConnectionStrategy());
         info.validationComTask = new IdWithNameInfo(campaign.getValidationComTaskId(),firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
-        info.validationConnectionStrategy = new IdWithNameInfo(0,"null");
+        info.validationConnectionStrategy = new IdWithNameInfo(0,campaign.getValidationConnectionStrategy());
 
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
@@ -147,7 +147,7 @@ public class FirmwareCampaignInfoFactory {
                 .withFirmwareType(firmwareService.getFirmwareVersionById(firmwareVersionId).get().getFirmwareType())
                 .withManagementOption(managementOptions)
                 .withValidationTimeout(info.validationTimeout.asTimeDuration())
-                .withCalendarUploadComTaskId(((Number)info.calendarUploadComTaskId.id).longValue())
+                .withCalendarUploadComTaskId(((Number)info.calendarUploadComTask.id).longValue())
                 .withValidationComTaskId(((Number)info.validationComTask.id).longValue())
                 .withCalendarUploadConnectionStrategy(info.calendarUploadConnectionStrategy.name)
                 .withValidationConnectionStrategy(info.validationConnectionStrategy.name)
