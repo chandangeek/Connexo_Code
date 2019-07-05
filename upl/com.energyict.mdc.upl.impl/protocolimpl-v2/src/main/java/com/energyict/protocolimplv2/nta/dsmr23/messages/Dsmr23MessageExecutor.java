@@ -133,7 +133,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
 public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
-    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
+    protected static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.x.24.1.0.255");
     public static final int REMOTE_DISCONNECT = 1;
     public static final int REMOTE_RECONNECT = 2;
 
@@ -159,7 +159,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         for (OfflineDeviceMessage pendingMessage : masterMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
-            getProtocol().journal("Executing message " + pendingMessage.getSpecification().getName());
+            getProtocol().journal("DSMR23 Message executor processing " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
                     doDisconnect();
@@ -327,10 +327,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     private void mbusCommission(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
-        int primaryAddress = getMBusPhysicalAddress(installChannel);
-        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (primaryAddress - 1));
+        int mBusPhysicalAddress = getMBusPhysicalAddress(installChannel);
+        ObisCode mbusClientObisCode = ProtocolTools.setObisCodeField(MBUS_CLIENT_OBISCODE, 1, (byte) (installChannel));
+        getProtocol().journal("Installing slave on channel " + installChannel + " using M-Bus Client obis code "+mbusClientObisCode+" and physical address "+mBusPhysicalAddress);
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(mbusClientObisCode, MbusClientAttributes.VERSION10);
-        mbusClient.installSlave(primaryAddress);
+        mbusClient.installSlave(mBusPhysicalAddress);
     }
 
     protected void mbusReset(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -344,7 +345,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void mBusClientRemoteCommissioning(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
+        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(installChannel).getObisCode(), 9);
         String shortId = getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_mBusClientShortId);
         MbusProvider mbusProvider = new MbusProvider(getCosemObjectFactory(), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId());
         mbusClient.setManufacturerID(mbusProvider.getManufacturerID(shortId));
@@ -357,7 +358,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     private void changeMBusClientAttributes(OfflineDeviceMessage pendingMessage) throws IOException {
         int installChannel = getIntegerAttribute(pendingMessage);
         int physicalAddress = getMBusPhysicalAddress(installChannel);
-        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode();
+        ObisCode mbusClientObisCode = getMeterConfig().getMbusClient(installChannel).getObisCode();
 
         getProtocol().journal("Changing MBus attributes for device installed on channel "+installChannel+" with physical address "+physicalAddress + " with obis code "+mbusClientObisCode);
 

@@ -56,7 +56,7 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if(getOfflineDevice().firmwareVersionManagementAllowed()){
-            CollectedFirmwareVersion firmwareVersions = deviceProtocol.getFirmwareVersions();
+            CollectedFirmwareVersion firmwareVersions = deviceProtocol.getFirmwareVersions(comTaskExecution.getDevice().getSerialNumber());
             firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
             addCollectedDataItem(firmwareVersions);
         }

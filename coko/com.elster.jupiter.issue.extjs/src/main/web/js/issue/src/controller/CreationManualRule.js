@@ -34,7 +34,7 @@ Ext.define('Isu.controller.CreationManualRule', {
         });
     },
 
-    createNewManuallyIssue: function () {
+    createNewManualIssue: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             returnLink = router.getRoute('workspace/issues').buildUrl(),
