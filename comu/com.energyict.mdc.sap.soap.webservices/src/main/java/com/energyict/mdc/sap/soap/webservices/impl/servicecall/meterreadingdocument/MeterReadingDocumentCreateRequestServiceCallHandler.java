@@ -31,7 +31,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
     public static final String NAME = "MeterReadingDocumentCreateRequestServiceCallHandler";
     public static final String VERSION = "v1.0";
-    public static final String APPLICATION = "MultiSense";
+    public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;

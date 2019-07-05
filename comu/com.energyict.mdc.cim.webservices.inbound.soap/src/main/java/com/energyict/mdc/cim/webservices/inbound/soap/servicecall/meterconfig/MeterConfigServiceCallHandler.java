@@ -59,7 +59,7 @@ import java.util.Optional;
 public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigServiceCallHandler";
     public static final String VERSION = "v1.0";
-    public static final String APPLICATION = "MultiSense";
+    public static final String APPLICATION = "MDC";
 
     private volatile BatchService batchService;
     private volatile Clock clock;

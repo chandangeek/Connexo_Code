@@ -58,9 +58,9 @@ public class ServiceCallResource {
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
     public PagedInfoList getAllServiceCalls(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-        Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallInfoFactory.convertToServiceCallFilter(filter));
+        Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallInfoFactory.convertToServiceCallFilter(filter, appKey));
         List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
-        AtomicReference key = new AtomicReference<> ("MDC".equals(appKey) ? "MultiSense" : "INS".equals(appKey) ? "Insight" : appKey);
+        AtomicReference key = new AtomicReference<> (appKey);
         serviceCalls.stream().filter(serviceCall -> !serviceCall.getType().reservedByApplication().isPresent() || key.get().equals(serviceCall.getType().reservedByApplication().get()))
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
@@ -83,13 +83,11 @@ public class ServiceCallResource {
     @Path("/{id}/children")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALLS)
-    public PagedInfoList getChildren(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+    public PagedInfoList getChildren(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         ServiceCall parent = serviceCallService.getServiceCall(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL));
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-
-        List<ServiceCall> serviceCalls = parent.findChildren(serviceCallInfoFactory.convertToServiceCallFilter(filter)).from(queryParameters).find();
-
+        List<ServiceCall> serviceCalls = parent.findChildren(serviceCallInfoFactory.convertToServiceCallFilter(filter, appKey)).from(queryParameters).find();
         serviceCalls.stream()
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 

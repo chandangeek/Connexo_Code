@@ -28,7 +28,7 @@ public class KeyRenewalServiceCallHandler extends AbstractOperationServiceCallHa
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "DeviceKeyRenewalServiceCallHandler";
-    public static final String APPLICATION = "MultiSense";
+    public static final String APPLICATION = "MDC";
 
     public KeyRenewalServiceCallHandler() {
         super();

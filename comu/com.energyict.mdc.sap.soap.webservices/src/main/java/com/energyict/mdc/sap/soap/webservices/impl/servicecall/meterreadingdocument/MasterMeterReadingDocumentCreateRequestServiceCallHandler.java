@@ -39,7 +39,7 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implements ServiceCallHandler {
     public static final String NAME = "MasterMeterReadingDocumentCreateRequestServiceCallHandler";
     public static final String VERSION = "v1.0";
-    public static final String APPLICATION = "MultiSense";
+    public static final String APPLICATION = "MDC";
 
     private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;

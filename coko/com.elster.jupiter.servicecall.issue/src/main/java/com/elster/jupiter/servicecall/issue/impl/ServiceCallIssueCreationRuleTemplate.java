@@ -82,26 +82,17 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public String getContent() {
-        return "package com.energyict.mdc.issue.datavalidation\n" +
-                "import com.energyict.mdc.issue.datavalidation.impl.event.CannotEstimateDataEvent;\n" +
-                "import com.energyict.mdc.issue.datavalidation.impl.event.SuspectDeletedEvent;\n" +
+        return "package com.elster.jupiter.servicecall.issue\n" +
+                "import com.elster.jupiter.servicecall.issue.impl.event.ServiceCallStateChangedEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
-                "rule \"Data validation rule @{ruleId}\"\n" +
+                "rule \"Service call rule @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : CannotEstimateDataEvent(deviceConfigurationId in (@{" + SERVICE_CALL_CONFIGURATIONS + "}))\n" +
+                "\tevent : ServiceCallStateChangedEvent(servicecallconf in (@{" + SERVICE_CALL_CONFIGURATIONS + "}))\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to create issue by datavalidation rule [id = @{ruleId}]\");\n" +
+                "\tLOGGER.info(\"Trying to create issue by servicecall rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
-                "end\n" +
-                "\n" +
-                "rule \"Autoresolution section @{ruleId}\"\n" +
-                "when\n" +
-                "\tevent: SuspectDeletedEvent(deviceConfigurationId in (@{" + SERVICE_CALL_CONFIGURATIONS + "}))\n" +
-                "then\n" +
-                "\tLOGGER.info(\"Trying to resolve issue by datavalidation rule [id = @{ruleId}]\");\n" +
-                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                 "end\n";
     }
 
@@ -176,7 +167,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public void setAppKey(String appKey) {
-        this.appKey = Optional.of("MDC".equals(appKey) ? "MultiSense" : appKey);
+        this.appKey = Optional.of(appKey);
     }
 
 }

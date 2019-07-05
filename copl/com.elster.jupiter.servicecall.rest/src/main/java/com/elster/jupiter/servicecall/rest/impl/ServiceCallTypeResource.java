@@ -62,7 +62,7 @@ public class ServiceCallTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALLS})
     public PagedInfoList getAllServiceCallTypes(@BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
-        AtomicReference key = new AtomicReference<> ("MDC".equals(appKey) ? "MultiSense" : "INS".equals(appKey) ? "Insight" : appKey);
+        AtomicReference key = new AtomicReference<> (appKey);
         List<ServiceCallTypeInfo> serviceCallTypeInfos = serviceCallService.getServiceCallTypes()
                 .from(queryParameters)
                 .stream()

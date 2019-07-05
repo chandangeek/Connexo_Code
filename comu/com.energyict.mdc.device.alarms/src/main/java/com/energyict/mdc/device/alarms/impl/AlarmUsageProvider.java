@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component(service = RelativePeriodUsageProvider.class)
 public class AlarmUsageProvider implements RelativePeriodUsageProvider {
 
-    private static final String APPLICATION_NAME="MultiSense";
+    private static final String APPLICATION_NAME="MDC";
 
     private volatile IssueService issueService;
     private volatile TimeService timeService;

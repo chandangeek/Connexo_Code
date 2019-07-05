@@ -21,5 +21,5 @@ public interface ServiceCallInfoFactory {
 
     ServiceCallInfo summarized(ServiceCall serviceCall);
 
-    ServiceCallFilter convertToServiceCallFilter(JsonQueryFilter filter);
+    ServiceCallFilter convertToServiceCallFilter(JsonQueryFilter filter, String appKey);
 }

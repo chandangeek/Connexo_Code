@@ -27,7 +27,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
 
     public static final String NAME = "MasterMeterReadingDocumentCreateResultServiceCallHandler";
     public static final String VERSION = "v1.0";
-    public static final String APPLICATION = "MultiSense";
+    public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
 

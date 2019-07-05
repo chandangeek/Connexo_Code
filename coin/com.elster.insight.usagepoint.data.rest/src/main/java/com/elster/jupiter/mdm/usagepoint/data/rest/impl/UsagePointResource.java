@@ -1019,11 +1019,12 @@ public class UsagePointResource {
     @Path("{name}/servicecallhistory")
     public PagedInfoList getServiceCallHistoryFor(@PathParam("name") String name,
                                                   @BeanParam JsonQueryParameters queryParameters,
-                                                  @BeanParam JsonQueryFilter jsonQueryFilter) {
+                                                  @BeanParam JsonQueryFilter jsonQueryFilter,
+                                                  @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
-        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter, appKey);
         filter.targetObject = usagePoint;
         serviceCallService.getServiceCallFinder(filter)
                 .from(queryParameters)

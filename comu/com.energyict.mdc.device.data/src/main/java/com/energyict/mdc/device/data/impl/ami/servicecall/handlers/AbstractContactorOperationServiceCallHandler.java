@@ -37,7 +37,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
 
     private volatile DeviceService deviceService;
 
-    public static final String APPLICATION = "MultiSense";
+    public static final String APPLICATION = "MDC";
 
     public AbstractContactorOperationServiceCallHandler() {
     }
