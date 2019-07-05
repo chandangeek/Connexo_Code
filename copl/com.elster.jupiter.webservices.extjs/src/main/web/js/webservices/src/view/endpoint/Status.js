@@ -40,7 +40,8 @@ Ext.define('Wss.view.endpoint.Status', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'wss-endpoint-status-grid'
+                        xtype: 'wss-endpoint-status-grid',
+                        itemId: 'wss-endpoint-status-grid-id'
                     },
                     emptyComponent: {
                         xtype: 'uni-form-empty-message',
