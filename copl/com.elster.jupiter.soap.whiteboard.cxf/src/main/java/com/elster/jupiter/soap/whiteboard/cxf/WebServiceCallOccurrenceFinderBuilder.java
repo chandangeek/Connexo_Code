@@ -12,7 +12,7 @@ import java.util.Set;
 @ProviderType
 public interface WebServiceCallOccurrenceFinderBuilder {
 
-    public WebServiceCallOccurrenceFinderBuilder withApplicationName(Set<String> applicationName);
+    public WebServiceCallOccurrenceFinderBuilder withApplicationNames(Set<String> applicationName);
 
     public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<WebServiceCallOccurrenceStatus> statuses);
 
@@ -23,6 +23,10 @@ public interface WebServiceCallOccurrenceFinderBuilder {
     public WebServiceCallOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval);
 
     public WebServiceCallOccurrenceFinderBuilder withEndTimeIn(Range<Instant> interval);
+
+    public WebServiceCallOccurrenceFinderBuilder onlyInbound();
+
+    public WebServiceCallOccurrenceFinderBuilder onlyOutbound();
 
     public Finder<WebServiceCallOccurrence> build();
 
