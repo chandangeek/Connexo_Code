@@ -39,6 +39,8 @@ import static java.util.stream.Collectors.toList;
 @Path("/servicecalltypes")
 public class ServiceCallTypeResource {
 
+    private static final String ADMIN_APP_KEY = "SYS";
+
     private final ServiceCallService serviceCallService;
     private final ServiceCallTypeInfoFactory serviceCallTypeInfoFactory;
     private final ConcurrentModificationExceptionFactory conflictFactory;
@@ -66,7 +68,7 @@ public class ServiceCallTypeResource {
         List<ServiceCallTypeInfo> serviceCallTypeInfos = serviceCallService.getServiceCallTypes()
                 .from(queryParameters)
                 .stream()
-                .filter(type -> !type.reservedByApplication().isPresent() || key.get().equals(type.reservedByApplication().get()))
+                .filter(type -> ADMIN_APP_KEY.equals(key.get()) || !type.reservedByApplication().isPresent() || key.get().equals(type.reservedByApplication().get()))
                 .map(serviceCallTypeInfoFactory::from)
                 .collect(toList());
 

@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
+    MDC("MDC", "MultiSense"),
+    INS("INS", "Insight")
     ;
 
     private final String key;
