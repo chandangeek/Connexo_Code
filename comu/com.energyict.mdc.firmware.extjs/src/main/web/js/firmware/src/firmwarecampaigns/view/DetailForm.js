@@ -121,7 +121,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                             'FWC',
                             'Send calendar communication task'
                         ),
-                        name: 'calendarUploadComTaskId',
+                        name: 'calendarUploadComTask',
                         renderer: function (item) {
                             if (!item) {
                                 return '-';

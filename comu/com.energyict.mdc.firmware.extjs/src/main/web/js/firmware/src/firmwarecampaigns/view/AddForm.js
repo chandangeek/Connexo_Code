@@ -191,7 +191,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'combobox',
                 itemId: 'fwc-campaign-allowed-comtask',
-                name: 'calendarUploadComTaskId',
+                name: 'calendarUploadComTask',
                 store: 'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
                 fieldLabel: Uni.I18n.translate(
                     'general.calendarUploadComTask',
@@ -360,7 +360,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     updateComTasksComponents: function(deviceTypeId){
         var me = this;
-        var sendComtaskField = me.down("[name=calendarUploadComTaskId]");
+        var sendComtaskField = me.down("[name=calendarUploadComTask]");
         me.down('#fwc-campaign-send-connection-strategy-container').show();
         sendComtaskField.show();
         sendComtaskField.getStore().getProxy().setUrl(deviceTypeId);
@@ -514,13 +514,13 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
                     periodNumber.setValue(validationTimeout.count);
                 }
-                var calendarUploadComTask = campaignRecord.get('calendarUploadComTaskId');
+                var calendarUploadComTask = campaignRecord.get('calendarUploadComTask');
                 var validationComTask = campaignRecord.get('validationComTask');
                 var calendarUploadConnectionStrategy = campaignRecord.get('calendarUploadConnectionStrategy');
                 var validationConnectionStrategy = campaignRecord.get('validationConnectionStrategy');
 
                 me.getForm().setValues({
-                    calendarUploadComTaskId: calendarUploadComTask && calendarUploadComTask.id,
+                    calendarUploadComTask: calendarUploadComTask && calendarUploadComTask.id,
                     validationComTask: validationComTask && validationComTask.id,
                     calendarUploadConnectionStrategy: calendarUploadConnectionStrategy && calendarUploadConnectionStrategy.id,
                     validationConnectionStrategy: validationConnectionStrategy && validationConnectionStrategy.id

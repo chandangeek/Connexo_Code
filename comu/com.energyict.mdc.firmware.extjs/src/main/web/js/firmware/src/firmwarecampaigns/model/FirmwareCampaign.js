@@ -78,7 +78,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             defaultValue: undefined
         },
         {
-            name: 'calendarUploadComTaskId',
+            name: 'calendarUploadComTask',
             type: 'auto',
             useNull: true,
             defaultValue: undefined

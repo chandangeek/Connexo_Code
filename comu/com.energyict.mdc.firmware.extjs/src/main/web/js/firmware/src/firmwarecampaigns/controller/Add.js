@@ -119,11 +119,11 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
 
-        var sendCalendarComTaskField = form.down('[name=calendarUploadComTaskId]');
+        var sendCalendarComTaskField = form.down('[name=calendarUploadComTask]');
         var calendarUploadComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
 
         if (calendarUploadComTask) {
-            record.set('calendarUploadComTaskId', calendarUploadComTask.getData());
+            record.set('calendarUploadComTask', calendarUploadComTask.getData());
         }
 
         var sendCalendarConnectionStrategyField = form.down('[name=calendarUploadConnectionStrategy]');
