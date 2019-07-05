@@ -28,6 +28,14 @@ Ext.define('Apr.model.Task', {
            }
         },
         {
+            name: 'nextRunTimeStamp',
+            type: 'number',
+            defaultValue: null,
+            mapping: function (data) {
+                return data.nextRun;
+            }
+        },
+        {
             name: 'suspendUntilTime',
             type: 'number',
         },

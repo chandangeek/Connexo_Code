@@ -307,8 +307,7 @@ class RecurrentTaskImpl implements RecurrentTask {
                 String json = toJson(taskOccurrence);
                 getDestination().message(json).send();
                 if (taskOccurrence.wasScheduled()) {
-                    updateNextExecution();     // Lau vezi sa nu mearga doar la run - simplu
-                    suspendUntilTime = null;  // Lau vezi asta daca merge cu cele recursive normale!!!!!
+                    updateNextExecution();
                     dataModel.mapper(RecurrentTask.class).update(this, "nextExecution","suspendUntilTime");
                 }
                 taskOccurrences.add(taskOccurrence);

@@ -297,7 +297,7 @@ Ext.define('Apr.controller.TaskManagement', {
             suspendedDataTime = new Date(record.get('suspendedDataTime'));
         }
         else {
-            suspendedDataTime = new Date(record.get('nextRun'));   // Lau - last
+            suspendedDataTime = new Date(record.get('nextRunTimeStamp'));   // Lau - last
             // var tomorrowMidnight = new Date();
             // tomorrowMidnight.setHours(24, 0, 0, 1);
             // suspendedDataTime = tomorrowMidnight;
