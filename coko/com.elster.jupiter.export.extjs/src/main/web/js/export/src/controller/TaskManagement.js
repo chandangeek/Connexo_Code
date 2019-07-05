@@ -16,7 +16,7 @@ Ext.define('Dxp.controller.TaskManagement', {
     },
 
     canAdministrate: function () {
-        return true;  // Lau - (David) // am enable-uit suspend-ul in grid
+        return false;  // Lau - (David) // am enable-uit suspend-ul in grid
     },
 
     canView: function () {

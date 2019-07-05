@@ -53,7 +53,9 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                     var taskType = record.get('queue'),
                         taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
 
-                    return taskManagement == undefined || !taskManagement.controller.canAdministrate();
+                   // return taskManagement == undefined || !taskManagement.controller.canAdministrate();
+                    return !((taskManagement != undefined && taskManagement.controller.canAdministrate())
+                        || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview'));
                 },
                 menu: {
                     xtype: 'task-management-action-menu',
