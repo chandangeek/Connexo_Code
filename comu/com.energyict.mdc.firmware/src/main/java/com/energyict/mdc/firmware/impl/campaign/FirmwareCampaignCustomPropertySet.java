@@ -122,6 +122,26 @@ public class FirmwareCampaignCustomPropertySet implements CustomPropertySet<Serv
                         .timeDurationSpec()
                         .named(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName(), TranslationKeys.VALIDATION_TIMEOUT)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .longSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), TranslationKeys.CALENDAR_UPLOAD_COMTASK_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), TranslationKeys.CALENDAR_UPLOAD_CONNECTIONSTRATEGY)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .longSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName(), TranslationKeys.VALIDATION_COMTASK_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }

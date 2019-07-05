@@ -132,6 +132,24 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .notNull()
                 .installValue(Integer.toString(TimeDuration.TimeUnit.HOURS.getCode()))
                 .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName())
+                .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName())
+                .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.databaseName())
+                .varChar()
+                .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName())
+                .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.databaseName())
+                .varChar()
+                .map(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName())
+                .add();
         table.foreignKey(FK_NAME + "_DT")
                 .on(deviceType)
                 .references(DeviceType.class)

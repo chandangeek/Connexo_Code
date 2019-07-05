@@ -28,6 +28,10 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_MESSAGE_ID("deviceMessageId", "Device message id"),
     FIRMWARE_CAMPAIGN_CPS("FirmwareCampaignCustomPropertySet", "Firmware campaign custom property set"),
     FIRMWARE_CAMPAIGN_ITEM_CPS("FirmwareCampaignItemCustomPropertySet", "Firmware campaign item custom property set"),
+    VALIDATION_COMTASK_ID("validationComTaskId", "Validation comTask Id"),
+    CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "Calendar upload comTask Id"),
+    VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "Validation connection strategy"),
+    CALENDAR_UPLOAD_CONNECTIONSTRATEGY("calendarUploadConnectionStrategy", "Calendar upload connection strategy"),
 //   MANAGEMENT_OPTION("","" )
     ;
 
