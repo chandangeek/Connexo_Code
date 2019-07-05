@@ -55,6 +55,13 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 action: 'setDefaultKeyValue',
                 itemId: 'menu-sa-set-default-value',
                 section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('general.configureKeyRenewal', 'MDC', 'Configure key renewal'),
+                privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
+                action: 'configureKeyRenewal',
+                itemId: 'menu-sa-configure-key-renewal',
+                section: this.SECTION_EDIT
             }
 
 

@@ -73,8 +73,15 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         {
             ref: 'securityAccessorsActionMenu',
             selector: 'security-accessors-action-menu'
+        },
+        {
+            ref: 'previewPropertiesHeader',
+            selector: '#mdc-security-accessors-preview #previewPropertiesHeader'
+        },
+        {
+            ref: 'previewPropertiesForm',
+            selector: '#mdc-security-accessors-preview #previewPropertiesPanel property-form'
         }
-
     ],
 
     fromEditForm: false,
@@ -199,15 +206,40 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     defaultKeyValueToSet: me.defaultKeyValue
                 }).show();
             } break;
+            case 'configureKeyRenewal': {
+                me.goToConfigureKeyRenewal(menu.record);
+            }
+                break;
         }
+    },
+
+    goToConfigureKeyRenewal: function (record) {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('administration/devicetypes/view/securityaccessors/edit').forward({
+            deviceTypeId: encodeURIComponent(router.arguments.deviceTypeId),
+            securityAccessorId: record.get('id')
+        });
+    },
+
+    configurekeyrenewal: function (deviceTypeId, securityAccessorId) {
+        debugger;
     },
 
     recordSelected: function (grid, recordParam) {
         var me = this,
             gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
+            previewPropertiesForm = me.getPreviewPropertiesForm(),
+            previewPropertiesHeader = me.getPreviewPropertiesHeader(),
             processRecord = function (record, defaultKeyValue) {
                 me.selectedRecord = record;
                 me.getPreviewForm().doLoadRecord(record, defaultKeyValue, me.deviceTypeId);
+                if (!Ext.isEmpty(recordParam.get('properties'))) {
+                    previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', recordParam.get('keyRenewalCommandSpecification').name) + '</h3>');
+                    previewPropertiesHeader.show();
+                } else {
+                    previewPropertiesHeader.hide();
+                }
+                previewPropertiesForm.loadRecord(recordParam);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
                 gridMenu.updateMenuItems(record);
                 gridMenu.record = record;

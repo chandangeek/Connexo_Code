@@ -97,7 +97,7 @@ public class SecurityAccessorTypeInfoFactory {
                     propertySpecs.add(attribute.getSpecification());
                 });
         if (propertySpecs.size() > 0) {
-            info.keyRenewalCommandProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, typedProperties);
+            info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, typedProperties);
         }
         return info;
     }

@@ -27,10 +27,32 @@ Ext.define('Mdc.securityaccessors.view.Preview', {
             }
         ];
 
-        me.items = {
-            xtype: 'devicetype-security-accessors-preview-form',
-            itemId: 'mdc-devicetype-security-accessors-preview-form'
-        };
+        me.items = [
+            {
+                xtype: 'devicetype-security-accessors-preview-form',
+                itemId: 'mdc-devicetype-security-accessors-preview-form'
+            },
+            {
+                xtype: 'displayfield',
+                margins: '7 0 10 0',
+                itemId: 'previewPropertiesHeader'
+            },
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                itemId: 'previewPropertiesPanel',
+                items: [
+                    {
+                        xtype: 'property-form',
+                        isEdit: false,
+                        defaults: {
+                            labelWidth: 200,
+                            columnWidth: 0.5
+                        }
+                    }
+                ]
+            }
+        ];
         me.callParent(arguments);
     }
 

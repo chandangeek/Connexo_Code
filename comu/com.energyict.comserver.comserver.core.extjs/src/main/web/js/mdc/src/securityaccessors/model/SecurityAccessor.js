@@ -109,8 +109,16 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
                 }
                 return value;
             }
-        }
+        },
+        'keyRenewalCommandSpecification',
+        'properties'
     ],
+    hasMany: [{
+        name: 'properties',
+        model: 'Uni.property.model.Property'
+    }
+    ],
+
 
     proxy: {
         type: 'rest',

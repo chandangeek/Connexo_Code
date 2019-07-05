@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
@@ -40,6 +41,6 @@ public class SecurityAccessorTypeInfo {
     public String defaultServiceKey;
     public boolean isReversible;
     public IdWithNameInfo keyRenewalCommandSpecification;
-    public List<PropertyInfo> keyRenewalCommandProperties;
+    public List<PropertyInfo> properties;
 
 }
