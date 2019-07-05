@@ -55,6 +55,7 @@ public class AS300N extends AbstractDlmsProtocol implements SerialNumberSupport 
     private AS300NProfileDataReader profileDataReader;
     private AS300NRegisterFactory registerFactory;
     private AS300NFrameCounterHandler frameCounterHandler;
+    private AS300NProperties    as300NProperties;
 
 
     public AS300N(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
@@ -187,6 +188,23 @@ public class AS300N extends AbstractDlmsProtocol implements SerialNumberSupport 
         }
         return dlmsConfigurationSupport;
     }
+
+    @Override
+    public Date getTime() {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            return new Date();  //Don't read out the clock of the mirror logical device, it does not know the actual meter time.
+        } else {
+            Date actualMeterTime = super.getTime();
+            TimeZone configuredTimeZone = getDlmsSessionProperties().getTimeZone();
+            Calendar adjustedMeterTime = Calendar.getInstance(configuredTimeZone);
+            adjustedMeterTime.setTime(actualMeterTime);
+            return adjustedMeterTime.getTime();
+        }
+    }
+
+
+
+
     /**
      * Specific implementation functions
      *
@@ -194,10 +212,10 @@ public class AS300N extends AbstractDlmsProtocol implements SerialNumberSupport 
      */
 
     public AS300NProperties getDlmsSessionProperties() {
-        if (dlmsProperties == null) {
-            dlmsProperties = new AS300NProperties();
+        if (as300NProperties == null) {
+            as300NProperties = new AS300NProperties();
         }
-        return (AS300NProperties) dlmsProperties;
+        return as300NProperties;
     }
 
     private AS300NRegisterFactory getAS300NRegisterFactory() {
