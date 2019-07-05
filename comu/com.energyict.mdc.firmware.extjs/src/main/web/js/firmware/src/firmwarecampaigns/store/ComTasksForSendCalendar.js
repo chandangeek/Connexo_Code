@@ -11,7 +11,7 @@ Ext.define('Fwc.firmwarecampaigns.store.ComTasksForSendCalendar', {
   model: 'Fwc.firmwarecampaigns.model.ComTaskForSendCalendar',
   proxy: {
       type: 'rest',
-      urlTpl: '/api/tou/toucampaigns/comtasks?type={deviceTypeId}',
+      urlTpl: '/api/fwc/field/calendarUploadComTasks?type={deviceTypeId}',
       setUrl: function (deviceTypeId) {
           this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
       },

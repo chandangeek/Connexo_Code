@@ -117,11 +117,11 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         itemId: 'fwc-campaign-allowed-comtask',
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate(
-                            'general.sendCalendarComTask',
+                            'general.calendarUploadComTask',
                             'FWC',
                             'Send calendar communication task'
                         ),
-                        name: 'sendCalendarComTask',
+                        name: 'calendarUploadComTaskId',
                         renderer: function (item) {
                             if (!item) {
                                 return '-';
@@ -137,7 +137,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                             'FWC',
                             'Connection method strategy'
                         ),
-                        name: 'sendCalendarConnectionStrategy',
+                        name: 'calendarUploadConnectionStrategy',
                         renderer: function (item) {
                             if (!item) {
                                 return '-';

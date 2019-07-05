@@ -119,20 +119,20 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
 
-        var sendCalendarComTaskField = form.down('[name=sendCalendarComTask]');
-        var sendCalendarComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
+        var sendCalendarComTaskField = form.down('[name=calendarUploadComTaskId]');
+        var calendarUploadComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
 
-        if (sendCalendarComTask) {
-            record.set('sendCalendarComTask', sendCalendarComTask.getData());
+        if (calendarUploadComTask) {
+            record.set('calendarUploadComTaskId', calendarUploadComTask.getData());
         }
 
-        var sendCalendarConnectionStrategyField = form.down('[name=sendCalendarConnectionStrategy]');
-        var sendCalendarConnectionStrategy = sendCalendarConnectionStrategyField.store.getById(
+        var sendCalendarConnectionStrategyField = form.down('[name=calendarUploadConnectionStrategy]');
+        var calendarUploadConnectionStrategy = sendCalendarConnectionStrategyField.store.getById(
             sendCalendarConnectionStrategyField.value
         );
 
-        if (sendCalendarConnectionStrategy) {
-            record.set('sendCalendarConnectionStrategy', sendCalendarConnectionStrategy.getData());
+        if (calendarUploadConnectionStrategy) {
+            record.set('calendarUploadConnectionStrategy', calendarUploadConnectionStrategy.getData());
         }
 
         if (record.get('managementOption') && (record.get('managementOption').id === "activate"
