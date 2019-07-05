@@ -114,8 +114,9 @@ Ext.define('Isu.controller.CreationManualRule', {
 
        form.updateRecord();
        var record = form.getRecord();
+       var issueReasonIsValid = me.validateIssueReason(record);
 
-       if (!form.isValid() || !me.validateIssueReason(record)) {
+       if (!form.isValid() || !issueReasonIsValid) {
             errorMessage.show();
             return;
        }
