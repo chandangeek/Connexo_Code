@@ -41,6 +41,13 @@ public abstract class AbstractInstaller {
         }
     }
 
+    void updateServiceCallTypes() {
+        for (ServiceCallCommands.ServiceCallTypes serviceCallType : ServiceCallCommands.ServiceCallTypes.values()) {
+            serviceCallService
+                    .findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion()).ifPresent(ServiceCallType::save);
+        }
+    }
+
     void createServiceCallType(ServiceCallCommands.ServiceCallTypes serviceCallType) {
         Optional<ServiceCallType> serviceCallTypeOptional = serviceCallService
                 .findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion());

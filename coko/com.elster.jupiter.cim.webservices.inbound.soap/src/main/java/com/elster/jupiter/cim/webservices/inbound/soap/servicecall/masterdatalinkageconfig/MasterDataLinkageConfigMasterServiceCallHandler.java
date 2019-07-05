@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class MasterDataLinkageConfigMasterServiceCallHandler extends
         AbstractMasterServiceCallHandler<MasterDataLinkageConfigMasterDomainExtension, ReplyMasterDataLinkageConfigWebService> {
     public static final String SERVICE_CALL_HANDLER_NAME = "MasterDataLinkageConfigMasterServiceCallHandler";
-    public static final String APPLICATION = "MultiSense";
+    public static final String APPLICATION = "MDC";
     public static final String VERSION = "v1.0";
 
     private final JsonService jsonService;
