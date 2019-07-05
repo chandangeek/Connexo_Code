@@ -286,21 +286,17 @@ Ext.define('Apr.controller.TaskManagement', {
         var me = this;
         me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).forward(null, me.rootRouteArguments);
     },
-    /* suspend task section */   // Lau
-    //suspendTaskManagement: function (taskManagement, operationStartFunc, operationCompletedFunc, controller)  {  // LAu
-    suspendTaskManagement: function (record, operationStartFunc, operationCompletedFunc, controller)  {  // LAu
-        // if (item.action === "suspendTask") {  // in switch se face direct asta
+
+    /* suspend task section */
+    suspendTaskManagement: function (record, operationStartFunc, operationCompletedFunc, controller)  {
         var me = this,
             suspendedDataTime;
 
-        if (record.get('suspended') == 'suspended') { // ce trebuie adaugat aici ????
+        if (record.get('suspended') == 'suspended') {
             suspendedDataTime = new Date(record.get('suspendedDataTime'));
         }
         else {
-            suspendedDataTime = new Date(record.get('nextRunTimeStamp'));   // Lau - last
-            // var tomorrowMidnight = new Date();
-            // tomorrowMidnight.setHours(24, 0, 0, 1);
-            // suspendedDataTime = tomorrowMidnight;
+            suspendedDataTime = new Date(record.get('nextRunTimeStamp'));
         }
 
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
@@ -354,7 +350,7 @@ Ext.define('Apr.controller.TaskManagement', {
                 recordTask.set('suspendUntilTime', response.suspendUntilTime);
                 recordTask.set('queueStatusDate', response.queueStatusDate);
                 recordTask.set('queueStatus', response.queueStatus);
-                recordTask.set('nextRun',response.nextRun);   // Lau - last
+                recordTask.set('nextRun',response.nextRun);
                 recordTask.set('queueStatusString', '');
                 recordTask.commit();
                 operationCompletedSuspend.call(controller, true);

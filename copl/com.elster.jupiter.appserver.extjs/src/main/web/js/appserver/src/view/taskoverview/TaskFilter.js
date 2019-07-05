@@ -10,7 +10,7 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
     requires:[
         'Apr.store.Applications',
         'Apr.store.Queues',
-        'Apr.store.SuspendedTask'    //Lau - filtru
+        'Apr.store.SuspendedTask'
     ],
 
     initComponent: function () {
@@ -46,7 +46,7 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
                 type: 'combobox',
                 store: 'Apr.store.SuspendedTask',
                 dataIndex: 'suspended',
-                emptyText: Uni.I18n.translate('general.suspended', 'APR', 'Suspended'),  // Lau
+                emptyText: Uni.I18n.translate('general.suspended', 'APR', 'Suspended'),
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'value',
@@ -54,7 +54,6 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
                 editable:false,
                 listeners:{
                     beforeselect : function(combo, record, index){
-                        // Lau - filtru
                         combo.suspendEvents();
                         combo.clearValue();
                         combo.select(record);

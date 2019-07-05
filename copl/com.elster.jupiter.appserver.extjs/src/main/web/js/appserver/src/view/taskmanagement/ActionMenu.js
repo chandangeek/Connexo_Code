@@ -32,7 +32,7 @@ Ext.define('Apr.view.taskmanagement.ActionMenu', {
                 section: this.SECTION_REMOVE
             },
             {
-                itemId: 'suspend-task',    // Lau
+                itemId: 'suspend-task',
                 privileges: ['privilege.suspend.SuspendTaskOverview'],
                 text: Uni.I18n.translate('general.suspend', 'APR', 'Suspend'),
                 action: 'suspendTask',

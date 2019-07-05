@@ -72,7 +72,7 @@ Ext.define('Cfg.controller.TaskManagement', {
         return Cfg.privileges.Validation.canRun();
     },
 
-    canEdit: function () {  // Lau - folosesc canEdit ptr suspend
+    canEdit: function () {
         return Cfg.privileges.Validation.canAdministrate();
     },
 

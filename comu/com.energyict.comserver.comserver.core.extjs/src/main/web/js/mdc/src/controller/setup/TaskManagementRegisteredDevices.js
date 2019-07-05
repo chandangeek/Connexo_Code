@@ -40,7 +40,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
         return false;
     },
 
-    canEdit: function () { // Lau - ptr suspend folosesc canEdit
+    canEdit: function () {
         return Mdc.privileges.RegisteredDevicesKpi.canAdmin();
     },
 

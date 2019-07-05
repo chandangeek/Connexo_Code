@@ -48,7 +48,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
         return false;
     },
 
-    canEdit: function () {   // Lau - folosesc canEdit() ptr suspend
+    canEdit: function () {
         return Mdc.privileges.DataCollectionKpi.canEdit();
     },
 
