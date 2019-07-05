@@ -107,6 +107,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(FirmwareCampaignInfoFactory.class).to(FirmwareCampaignInfoFactory.class);
             bind(DeviceInFirmwareCampaignInfoFactory.class).to(DeviceInFirmwareCampaignInfoFactory.class);
             bind(FirmwareVersionInfoFactory.class).to(FirmwareVersionInfoFactory.class);
+            bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
