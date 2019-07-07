@@ -78,7 +78,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             defaultValue: undefined
         },
         {
-            name: 'sendCalendarComTask',
+            name: 'calendarUploadComTask',
             type: 'auto',
             useNull: true,
             defaultValue: undefined
@@ -88,7 +88,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             useNull: true,
             defaultValue: undefined
         }, {
-            name: 'sendCalendarConnectionStrategy',
+            name: 'calendarUploadConnectionStrategy',
             type: 'auto',
             useNull: true,
             defaultValue: undefined
