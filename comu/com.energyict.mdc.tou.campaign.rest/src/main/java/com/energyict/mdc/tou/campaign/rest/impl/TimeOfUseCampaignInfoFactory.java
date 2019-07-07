@@ -94,7 +94,7 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.id = campaign.getId();
         timeOfUseCampaignInfo.version = campaign.getVersion();
         timeOfUseCampaignInfo.withUniqueCalendarName = campaign.isWithUniqueCalendarName();
-        timeOfUseCampaignInfo.sendCalendarComTask = new IdWithNameInfo(campaign.getSendCalendarComTaskId(),timeOfUseCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
+        timeOfUseCampaignInfo.sendCalendarComTask = new IdWithNameInfo(campaign.getSendCalendarComTaskId(),timeOfUseCampaignService.getComTaskById(campaign.getSendCalendarComTaskId()).getName());
         timeOfUseCampaignInfo.validationComTask = campaign.getValidationComTaskId() == 0 ? null : new IdWithNameInfo(new Long(campaign.getValidationComTaskId()),timeOfUseCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
         timeOfUseCampaignInfo.sendCalendarConnectionStrategy = new IdWithNameInfo(campaign.getSendCalendarConnectionStrategyId(),
                 campaign.getSendCalendarConnectionStrategyId() == 1?
