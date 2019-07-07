@@ -203,7 +203,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
 
     @Override
     public String getCalendarUploadConnectionStrategy(){
-        return calendarUploadConnectionStrategy;
+        return calendarUploadConnectionStrategy==null?"":calendarUploadConnectionStrategy;
     }
 
     @Override
@@ -218,7 +218,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
 
     @Override
     public String getValidationConnectionStrategy(){
-        return validationConnectionStrategy;
+        return validationConnectionStrategy==null?"":validationConnectionStrategy;
     }
 
     @Override

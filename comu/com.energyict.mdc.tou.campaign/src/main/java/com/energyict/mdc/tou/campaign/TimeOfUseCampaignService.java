@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -39,4 +40,6 @@ public interface TimeOfUseCampaignService {
     Optional<TimeOfUseCampaign> findAndLockToUCampaignByIdAndVersion(long id, long version);
 
     Optional<ServiceCall> findAndLockToUItemByIdAndVersion(long id, long version);
+
+    ComTask getComTaskById(long id);
 }

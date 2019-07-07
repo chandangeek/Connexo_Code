@@ -94,12 +94,10 @@ public class FirmwareCampaignInfoFactory {
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
-
         info.calendarUploadComTask = new IdWithNameInfo(campaign.getCalendarUploadComTaskId(),firmwareCampaignService.getComTaskById(campaign.getCalendarUploadComTaskId()).getName());
         info.calendarUploadConnectionStrategy = new IdWithNameInfo(0,campaign.getCalendarUploadConnectionStrategy());
         info.validationComTask = new IdWithNameInfo(campaign.getValidationComTaskId(),firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
         info.validationConnectionStrategy = new IdWithNameInfo(0,campaign.getValidationConnectionStrategy());
-
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
@@ -149,8 +147,8 @@ public class FirmwareCampaignInfoFactory {
                 .withValidationTimeout(info.validationTimeout.asTimeDuration())
                 .withCalendarUploadComTaskId(((Number)info.calendarUploadComTask.id).longValue())
                 .withValidationComTaskId(((Number)info.validationComTask.id).longValue())
-                .withCalendarUploadConnectionStrategy(info.calendarUploadConnectionStrategy.name)
-                .withValidationConnectionStrategy(info.validationConnectionStrategy.name)
+                .withCalendarUploadConnectionStrategy(info.calendarUploadConnectionStrategy==null?"":info.calendarUploadConnectionStrategy.name)
+                .withValidationConnectionStrategy(info.validationConnectionStrategy==null?"":info.validationConnectionStrategy.name)
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint());
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id, firmwareVersion);
         String imageIdentifier = firmwareVersion.getImageIdentifier();

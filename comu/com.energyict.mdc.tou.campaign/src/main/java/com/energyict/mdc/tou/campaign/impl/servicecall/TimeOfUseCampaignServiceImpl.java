@@ -52,8 +52,10 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
@@ -122,6 +124,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
+    private volatile TaskService taskService;
     private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -140,7 +143,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                                         MeteringGroupsService meteringGroupsService, OrmService ormService, Clock clock, DeviceService deviceService,
                                         CalendarService calendarService, DeviceConfigurationService deviceConfigurationService,
                                         DeviceMessageSpecificationService deviceMessageSpecificationService, EventService eventService,
-                                        BundleContext bundleContext) {
+                                        BundleContext bundleContext, TaskService taskService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
@@ -159,6 +162,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         setCalendarService(calendarService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setTaskService(taskService);
         activate(bundleContext);
     }
 
@@ -185,6 +189,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 bind(NlsService.class).toInstance(nlsService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                bind(TaskService.class).toInstance(taskService);
                 bind(TimeOfUseCampaignService.class).toInstance(TimeOfUseCampaignServiceImpl.this);
                 bind(TimeOfUseCampaignServiceImpl.class).toInstance(TimeOfUseCampaignServiceImpl.this);
             }
@@ -225,6 +230,11 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
                 .join(nlsService.getThesaurus(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService){
+        this.taskService = taskService;
     }
 
     @Reference
@@ -643,5 +653,10 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     cte.schedule(campaign.getActivationDate());
                 }
             }));*/
+    }
+
+    @Override
+    public ComTask getComTaskById(long id){
+        return taskService.findComTask(id).get();
     }
 }
