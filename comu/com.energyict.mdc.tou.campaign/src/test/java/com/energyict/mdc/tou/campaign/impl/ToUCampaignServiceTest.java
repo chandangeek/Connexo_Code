@@ -47,6 +47,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignCustomPropertySet;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignDomainExtension;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignServiceImpl;
@@ -55,6 +56,7 @@ import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemPersistenceS
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseSendHelper;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
+import javafx.concurrent.Task;
 import org.osgi.framework.BundleContext;
 
 import java.lang.reflect.Field;
@@ -97,6 +99,7 @@ public class ToUCampaignServiceTest {
     private static DeviceConfigurationService deviceConfigurationService = mock(DeviceConfigurationService.class);
     private static DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
     private static EventService eventService = mock(EventService.class);
+    private static TaskService taskService = mock(TaskService.class);
     private DataModel dataModel = mock(DataModel.class);
     private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static ServiceCallService serviceCallService = mock(ServiceCallService.class);
@@ -117,7 +120,7 @@ public class ToUCampaignServiceTest {
         timeOfUseCampaignService = new TimeOfUseCampaignServiceImpl(threadPrincipalService, transactionService,
                 nlsService, upgradeService, userService, batchService, propertySpecService,
                 serviceCallService, customPropertySetService, meteringGroupsService, ormService, clock, deviceService,
-                calendarService, deviceConfigurationService, deviceMessageSpecificationService, eventService, bundleContext);
+                calendarService, deviceConfigurationService, deviceMessageSpecificationService, eventService, bundleContext, taskService);
         timeOfUseCampaignService = new TimeOfUseCampaignServiceImpl();
         timeOfUseCampaignService.setOrmService(ormService);
         timeOfUseCampaignService.setNlsService(nlsService);
