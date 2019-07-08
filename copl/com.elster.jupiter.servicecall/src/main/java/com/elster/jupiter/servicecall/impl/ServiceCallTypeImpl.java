@@ -55,6 +55,7 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private String appKey;
+    private String retryNowState;
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
@@ -90,6 +91,7 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         customPropertySets("customPropertySets"),
         handler("serviceCallHandler"),
         appKey("appKey"),
+        retryNowState("retryNowState"),
         destination("destination");
 
         private final String javaFieldName;

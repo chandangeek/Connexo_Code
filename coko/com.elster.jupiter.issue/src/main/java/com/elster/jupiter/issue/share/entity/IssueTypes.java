@@ -42,7 +42,7 @@ public enum IssueTypes {
             case "manual" : return IssueTypes.MANUAL;
             case "usagepointdatavalidation" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             case "task" : return  IssueTypes.TASK;
-            case  "servicecall" : return IssueTypes.SERVICE_CALL_ISSUE;
+            case "servicecall" : return IssueTypes.SERVICE_CALL_ISSUE;
             default:return IssueTypes.NA;
         }
     }
