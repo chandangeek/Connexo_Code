@@ -7,7 +7,7 @@ package com.energyict.mdc.bpm.impl.issue.servicecall;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
-    SERVICE_CALL_ISSUE_ASSOCIATION_PROVIDER(ServiceCallProcessAssociationProvider.ASSOCIATION_TYPE, "ServiceCall issue"),
+    SERVICE_CALL_ISSUE_ASSOCIATION_PROVIDER(ServiceCallProcessAssociationProvider.ASSOCIATION_TYPE, "Service call issue"),
     SERVICE_CALL_ISSUE_REASON_TITLE("issueReasons", "Issue reasons"),
     SERVICE_CALL_ISSUE_REASON_COLUMN("issueReason", "Issue reason");
 
