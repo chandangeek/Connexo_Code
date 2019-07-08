@@ -376,4 +376,21 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
     protected boolean isResume(OfflineDeviceMessage pendingMessage) {
         return false;
     }
+
+    @Override
+    protected CollectedMessage upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) {
+        return upgradeFirmwareWithActivationDate(pendingMessage);
+    }
+
+    protected CollectedMessage upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) {
+        try {
+            return doFirmwareUpgrade(pendingMessage, getMBusFUAK());
+        } catch (Exception ex) {
+            CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setFailureInformation(ResultType.Other, createUnsupportedWarning(pendingMessage));
+            collectedMessage.setDeviceProtocolInformation(ex.getLocalizedMessage());
+            return collectedMessage;
+        }
+    }
 }
