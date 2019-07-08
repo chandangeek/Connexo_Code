@@ -7,7 +7,8 @@ package com.elster.jupiter.tasks.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -22,6 +23,7 @@ import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -70,12 +72,12 @@ public class TaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
-    public TaskInfos getTasks(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-
+    public PagedInfoList getTasks(@BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext) {
+        if (!queryParams.getStart().isPresent() || !queryParams.getLimit().isPresent()) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
         RecurrentTaskFilterSpecification filterSpec = new RecurrentTaskFilterSpecification();
-        if (params.get("filter") != null) {
-            JsonQueryFilter filter = new JsonQueryFilter(params.get("filter").get(0));
+        if (filter != null) {
             filterSpec.applications.addAll(filter.getStringList("application"));
             filterSpec.queues.addAll(filter.getStringList("queue"));
             filterSpec.queueTypes.addAll(filter.getStringList("queueType"));
@@ -86,20 +88,14 @@ public class TaskResource {
             filterSpec.priorityFrom = filter.getInteger("priorityFrom");
             filterSpec.priorityTo = filter.getInteger("priorityTo");
         }
-        TaskFinder finder = taskService.getTaskFinder(filterSpec, params.getStartInt(), params.getLimit() + 1);
+        TaskFinder finder = taskService.getTaskFinder(filterSpec, queryParams.getStart().get(), queryParams.getLimit().get() + 1);
 
         List<? extends RecurrentTask> list = finder.find();
         Principal principal = (Principal) securityContext.getUserPrincipal();
-        Locale locale = Locale.getDefault();
-        if (principal instanceof User) {
-            User user = (User) principal;
-            if (user.getLocale().isPresent()) {
-                locale = user.getLocale().get();
-            }
-        }
-        TaskInfos infos = new TaskInfos(params.clipToLimit(list), thesaurus, timeService, locale, clock);
-        infos.total = params.determineTotal(list.size());
-        return infos;
+        Locale locale = determineLocale(principal);
+
+        List<TaskInfo> taskInfos = list.stream().map(t -> new TaskInfo(t, thesaurus, timeService, locale, clock)).collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("tasks", taskInfos, queryParams);
     }
 
     @GET
@@ -108,13 +104,7 @@ public class TaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     public TaskInfo getTask(@PathParam("id") long id, @Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         Principal principal = (Principal) securityContext.getUserPrincipal();
-        Locale locale = Locale.getDefault();
-        if (principal instanceof User) {
-            User user = (User) principal;
-            if (user.getLocale().isPresent()) {
-                locale = user.getLocale().get();
-            }
-        }
+        Locale locale = determineLocale(principal);
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
 
@@ -223,4 +213,14 @@ public class TaskResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    private Locale determineLocale(Principal principal) {
+        Locale locale = Locale.getDefault();
+        if (principal instanceof User) {
+            User user = (User) principal;
+            if (user.getLocale().isPresent()) {
+                locale = user.getLocale().get();
+            }
+        }
+        return locale;
+    }
 }
