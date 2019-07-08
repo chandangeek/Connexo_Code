@@ -12,6 +12,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow',
         'Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue',
         'Mdc.securityaccessors.view.AddSecurityAccessorToDeviceType'
+        'Mdc.securityaccessors.view.AddSecurityAccessorToDeviceType',
+        'Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal'
     ],
 
     stores: [
@@ -23,14 +25,16 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.crlrequest.store.SecurityAccessorsWithPurpose',
         'Mdc.securityaccessors.store.HsmJssKeyTypes',
         'Mdc.securityaccessors.store.HSMLabelEndPoint',
-        'Mdc.securityaccessors.store.HsmCapabilities'
+        'Mdc.securityaccessors.store.HsmCapabilities',
+        'Mdc.securityaccessors.store.SecurityCategoryCommands'
     ],
 
     models: [
         'Mdc.model.DeviceType',
         'Mdc.securityaccessors.model.SecurityAccessor',
         'Mdc.securityaccessors.model.SecurityPreviewProperties',
-        'Mdc.crlrequest.model.SecurityAccessorsWithPurpose'
+        'Mdc.crlrequest.model.SecurityAccessorsWithPurpose',
+        'Mdc.securityaccessors.model.SecurityAccessorsOnDeviceType'
     ],
 
     refs: [
@@ -79,8 +83,32 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             selector: '#mdc-security-accessors-preview #previewPropertiesHeader'
         },
         {
+            ref: 'previewPropertiesPanel',
+            selector: '#mdc-security-accessors-preview #previewPropertiesPanel'
+        },
+        {
             ref: 'previewPropertiesForm',
             selector: '#mdc-security-accessors-preview #previewPropertiesPanel property-form'
+        },
+        {
+            ref: 'keyRenewalPropertiesForm',
+            selector: '#edit-security-accessor-key-renewal #key-renewal-property-form'
+        },
+        {
+            ref: 'keyRenewalPage',
+            selector: '#edit-security-accessor-key-renewal'
+        },
+        {
+            ref: 'keyRenewalForm',
+            selector: '#key-renewal-with-form'
+        },
+        {
+            ref: 'previewNoProperties',
+            selector: '#mdc-security-accessors-preview #previewNoProperties'
+        },
+        {
+            ref: 'keyRenewalPropertyHeader',
+            selector: '#edit-security-accessor-key-renewal #key-renewal-property-header'
         }
     ],
 
@@ -134,7 +162,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#mdc-security-accessor-trust-store-combobox': {
                 change: me.onTrustStoreChange
-            }
+            },
+            '#edit-security-accessor-key-renewal #key-renewal-command-combo': {
+                change: me.keyRenewalCommandChanged
+            },
+            '#edit-security-accessor-key-renewal button[action=save]': {
+                click: this.onSaveKeyRenewal
+            },
         });
     },
 
@@ -222,22 +256,140 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     },
 
     configurekeyrenewal: function (deviceTypeId, securityAccessorId) {
-        debugger;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            view,
+            securityCategoryCommandsStore = me.getStore('Mdc.securityaccessors.store.SecurityCategoryCommands');
+
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                me.deviceType = deviceType;
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                securityCategoryCommandsStore.getProxy().setUrl(deviceTypeId);
+
+                securityCategoryCommandsStore.load({
+                    callback: function (records, operation, success) {
+                        var securityAccessorModel = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessorsOnDeviceType');
+                        securityAccessorModel.getProxy().setUrl(deviceTypeId);
+                        securityAccessorModel.load(securityAccessorId, {
+                            success: function (securityAccessorRecord) {
+                                var view = Ext.widget('editSecurityAccessorKeyRenewal', {
+                                    cancelLink: router.getRoute('administration/devicetypes/view/securityaccessors').buildUrl({deviceTypeId: deviceTypeId}),
+                                    deviceType : deviceType,
+                                    itemId: 'edit-security-accessor-key-renewal',
+                                    securityAccessorRecord: securityAccessorRecord
+                                });
+                                me.getApplication().fireEvent('changecontentevent', view);
+                                me.getApplication().fireEvent('configurekeyrenewal', securityAccessorRecord);
+                                view.down('#edit-security-accessor-key-renewal-panel').setTitle(Uni.I18n.translate('general.editKeyRenewal', 'MDC', "Edit key renewal for '{0}'", securityAccessorRecord.get('name')));
+                                view.down('#key-renewal-radio').setValue({keyRenewal: !Ext.isEmpty(securityAccessorRecord.get('keyRenewalCommandSpecification'))});
+                                if (securityAccessorRecord.get('keyRenewalCommandSpecification')){
+                                    view.down('#key-renewal-command-combo').setValue(securityAccessorRecord.get('keyRenewalCommandSpecification').id);
+                                    view.down('#key-renewal-property-form').loadRecord(securityAccessorRecord);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    },
+
+    keyRenewalCommandChanged: function(combobox, newValue, oldValue){
+        var me = this,
+            propertiesForm = me.getKeyRenewalPropertiesForm(),
+            keyRenewalRecord = combobox.findRecordByValue(newValue),
+            keyRenewalPropertyHeader = me.getKeyRenewalPropertyHeader();
+
+        if (keyRenewalRecord && keyRenewalRecord.properties() && (keyRenewalRecord.properties().getCount() > 0)) {
+            keyRenewalPropertyHeader.show();
+            keyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', keyRenewalRecord.get('name')) + '</h3>');
+        } else {
+            keyRenewalPropertyHeader.hide();
+        }
+        propertiesForm.loadRecord(combobox.findRecordByValue(newValue));
+    },
+
+    onSaveKeyRenewal: function(button){
+        var me = this,
+            keyRenewalPage = me.getKeyRenewalPage(),
+            propertiesForm = me.getKeyRenewalPropertiesForm(),
+            keyRenewalForm = me.getKeyRenewalForm(),
+            securityAccessorRecord = me.getKeyRenewalPage().securityAccessorRecord;
+
+        if (keyRenewalPage.down('#key-renewal-radio').getValue().keyRenewal){
+            if (keyRenewalForm.isValid() && (propertiesForm && propertiesForm.isValid())) {
+                propertiesForm.updateRecord(securityAccessorRecord);
+                securityAccessorRecord.beginEdit();
+                securityAccessorRecord.set('keyRenewalCommandSpecification', {
+                    id: keyRenewalPage.down('#key-renewal-command-combo').getValue()
+                });
+                securityAccessorRecord.propertiesStore = propertiesForm.getRecord().properties();
+                securityAccessorRecord.endEdit();
+                securityAccessorRecord.save({
+                    backUrl: keyRenewalPage.backUrl,
+                    success: function (record) {
+                        location.href = keyRenewalPage.cancelLink;
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('securityAccessor.acknowledgment', 'MDC', 'Security accessor saved'));
+                    },
+                    failure: function (record, operation) {
+                        var json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors) {
+                            keyRenewalPage.getForm().markInvalid(json.errors);
+                            propertiesForm.getForm().markInvalid(json.errors);
+                        }
+                    }
+                });
+            }else {
+                keyRenewalPage.down('#key-renewal-with-key-renewal-error').show();
+            }
+        }
+        else {
+            securityAccessorRecord.beginEdit();
+            securityAccessorRecord.set('keyRenewalCommandSpecification', {});
+            securityAccessorRecord.propertiesStore = undefined;
+            securityAccessorRecord.endEdit();
+            securityAccessorRecord.save({
+                backUrl: keyRenewalPage.backUrl,
+                success: function (record) {
+                    location.href = keyRenewalPage.cancelLink;
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('securityAccessor.acknowledgment', 'MDC', 'Security accessor saved'));
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        keyRenewalPage.getForm().markInvalid(json.errors);
+                        propertiesForm.getForm().markInvalid(json.errors);
+                    }
+                }
+            });
+        }
     },
 
     recordSelected: function (grid, recordParam) {
         var me = this,
             gridMenu = me.getSecurityAccessorsGrid().down('uni-actioncolumn').menu,
+            previewPropertiesPanel = me.getPreviewPropertiesPanel(),
             previewPropertiesForm = me.getPreviewPropertiesForm(),
             previewPropertiesHeader = me.getPreviewPropertiesHeader(),
-            processRecord = function (record, defaultKeyValue) {
+            previewNoProperties = me.getPreviewNoProperties(),
+            processRecord = function (record) {
                 me.selectedRecord = record;
-                me.getPreviewForm().doLoadRecord(record, defaultKeyValue, me.deviceTypeId);
-                if (!Ext.isEmpty(recordParam.get('properties'))) {
+                me.getPreviewForm().doLoadRecord(record);
+                if (!Ext.isEmpty(recordParam.get('keyRenewalCommandSpecification'))) {
                     previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', recordParam.get('keyRenewalCommandSpecification').name) + '</h3>');
                     previewPropertiesHeader.show();
+                    if (!Ext.isEmpty(recordParam.get('properties'))) {
+                        previewNoProperties.hide();
+                        previewPropertiesPanel.show();
+                    }
+                    else{
+                        previewPropertiesPanel.hide();
+                        previewNoProperties.show();
+                    }
                 } else {
                     previewPropertiesHeader.hide();
+                    previewNoProperties.hide();
                 }
                 previewPropertiesForm.loadRecord(recordParam);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
@@ -348,6 +500,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     delete accessorToAdd.data.hsmJssKeySize;
                     delete accessorToAdd.data.isReversible;
                 }
+                delete accessorToAdd.data.keyRenewalCommandSpecification;
+                delete accessorToAdd.data.properties;
                 return accessorToAdd.getData();
             }),
             jsonData = {

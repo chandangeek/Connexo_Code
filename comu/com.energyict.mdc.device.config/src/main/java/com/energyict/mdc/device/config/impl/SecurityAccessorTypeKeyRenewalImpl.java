@@ -6,6 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -22,14 +23,12 @@ import com.energyict.mdc.device.config.exceptions.IllegalDeviceMessageIdExceptio
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.util.stream.Stream;
 
 public class SecurityAccessorTypeKeyRenewalImpl implements SecurityAccessorTypeKeyRenewal {
 
     enum Fields {
         DEVICETYPE("deviceType"),
         SECACCTYPE("securityAccessorType"),
-        DEVICEMESSAGEID("deviceMessageIdDbValue"),
         NAME("name"),
         VALUE("value"),
         SECURITYACCESSORTYPEONDEVICETYPE("securityAccessorTypeOnDeviceType");
@@ -60,7 +59,6 @@ public class SecurityAccessorTypeKeyRenewalImpl implements SecurityAccessorTypeK
     private Object value;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String stringValue = ""; // the string representation of the value
-    private long deviceMessageIdDbValue;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -71,6 +69,7 @@ public class SecurityAccessorTypeKeyRenewalImpl implements SecurityAccessorTypeK
     private Instant modTime;
 
     private final Thesaurus thesaurus;
+    private final DataModel dataModel;
 
     SecurityAccessorTypeKeyRenewalImpl init(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
         this.deviceType.set(deviceType);
@@ -79,21 +78,24 @@ public class SecurityAccessorTypeKeyRenewalImpl implements SecurityAccessorTypeK
     }
 
     @Inject
-    SecurityAccessorTypeKeyRenewalImpl(Thesaurus thesaurus) {
+    SecurityAccessorTypeKeyRenewalImpl(DataModel dataModel, Thesaurus thesaurus) {
+        this.dataModel = dataModel;
         this.thesaurus = thesaurus;
-    }
-
-    @Override
-    public DeviceMessageId getKeyRenewalDeviceMessageId() {
-        return Stream.of(DeviceMessageId.values())
-                .filter(deviceMessage -> deviceMessage.dbValue() == this.deviceMessageIdDbValue)
-                .findAny()
-                .orElseThrow(() -> new IllegalDeviceMessageIdException(this.deviceMessageIdDbValue, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED));
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setValue(String value) {
+        this.stringValue = value;
     }
 
     @Override
@@ -114,6 +116,10 @@ public class SecurityAccessorTypeKeyRenewalImpl implements SecurityAccessorTypeK
 
     protected Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    protected void save() {
+        Save.UPDATE.save(this.dataModel, this, Save.Update.class);
     }
 
 }

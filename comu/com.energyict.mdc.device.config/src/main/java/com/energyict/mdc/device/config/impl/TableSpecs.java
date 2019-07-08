@@ -1030,6 +1030,7 @@ public enum TableSpecs {
                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.fieldName())
                    .since(Version.version(10, 6))
                    .add();
+            table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.KEYRENEWALMESSAGEID.name()).number().conversion(NUMBER2LONG).map("keyRenewalMessageIdIdDbValue").since(version(10, 4, 8)).add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
             table.addAuditColumns();
             table.primaryKey("DTC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn, secAccTypeColumn).add();
@@ -1056,27 +1057,27 @@ public enum TableSpecs {
                     .map(SecurityAccessorTypeKeyRenewalImpl.class);
             Column deviceType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICETYPE.name()).number().notNull().add();
             Column secAccType = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.name()).number().notNull().add();
-            Column deviceMessageId = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICEMESSAGEID.name()).number().conversion(NUMBER2LONG).map("deviceMessageIdDbValue").notNull().add();
             Column name = table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.NAME.name()).varChar().map("name").notNull().add();
             table.column(SecurityAccessorTypeKeyRenewalImpl.Fields.VALUE.name()).varChar().map("stringValue").notNull().add();
             table.setJournalTableName(Constants.DTC_SECACCTYPES_KEYRENEW_CMD_JOURNAL_TABLE);
             table.addAuditColumns();
-            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, deviceMessageId, name).add();
+            table.primaryKey("DTC_PK_SECACCTYPES_KR_CMD").on(deviceType, secAccType, name).add();
             table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_DT")
                     .references(DTC_DEVICETYPE.name())
                     .on(deviceType)
                     .map(SecurityAccessorTypeKeyRenewalImpl.Fields.DEVICETYPE.fieldName())
+                    .add();
+            table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_ST")
+                    .references(SecurityAccessorType.class)
+                    .on(secAccType)
+                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.fieldName())
                     .add();
             table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD")
                     .references(DTC_SECACCTYPES_ON_DEVICETYPE.name())
                     .on(deviceType, secAccType)
                     .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SECURITYACCESSORTYPEONDEVICETYPE.fieldName())
                     .reverseMap("securityAccessorTypeKeyRenewals")
-                    .add();
-            table.foreignKey("DTC_SECACC_FK_KEYRENEW_CMD_ST")
-                    .references(SecurityAccessorType.class)
-                    .on(secAccType)
-                    .map(SecurityAccessorTypeKeyRenewalImpl.Fields.SECACCTYPE.fieldName())
+                    .composition()
                     .add();
         }
     };

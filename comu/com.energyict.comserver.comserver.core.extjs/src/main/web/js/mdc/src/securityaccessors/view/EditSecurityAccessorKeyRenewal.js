@@ -1,51 +1,120 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
 Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.edit-key-renewal-config',
+    alias: 'widget.editSecurityAccessorKeyRenewal',
+    deviceType: null,
+    cancelLink: undefined,
     requires: [
-        'Mdc.securityaccessors.widget.CommandForm',
-        'Uni.property.form.Property',
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Mdc.securityaccessors.store.SecurityCategoryCommands'
     ],
-    device: null,
+
     initComponent: function () {
         var me = this;
-        me.content = [
+
+        me.side = [
             {
-                xtype: 'form',
-                ui: 'large',
-                itemId: 'key-renewal-command-add-panel',
-                title: Uni.I18n.translate('deviceCommand.add.title', 'MDC', 'Add command'),
+                xtype: 'panel',
+                ui: 'medium',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
                 },
                 items: [
                     {
+                        xtype: 'deviceTypeSideMenu',
+                        itemId: 'stepsMenu',
+                        router: this.router,
+                        deviceTypeId: this.deviceType.get('id')
+                    }
+                ]
+            }
+        ];
+
+        me.content = [
+            {
+                xtype: 'panel',
+                ui: 'large',
+                title: Uni.I18n.translate('keyRenewal.edit.title', 'MDC', 'Edit key renewal'),
+                layout: 'vbox',
+                itemId: 'edit-security-accessor-key-renewal-panel',
+                items: [
+                    {
                         xtype: 'uni-form-error-message',
-                        name: 'form-errors',
-                        itemId: 'form-errors',
-                        margin: '0 0 10 0',
-                        maxWidth: 600,
+                        itemId: 'key-renewal-with-key-renewal-error',
+                        width: 550,
                         hidden: true
                     },
                     {
-                        xtype: 'key-renewal-edit-form',
-                        margin: '32 0 0 0',
-                        itemId: 'key-renewal-edit-form'
+                        xtype: 'radiogroup',
+                        fieldLabel: Uni.I18n.translate('keyRenewal.without.keyRenewal', 'MDC', 'Key renewal'),
+                        itemId: 'key-renewal-radio',
+                        columns: 1,
+                        labelWidth: 200,
+                        listeners: {
+                            change: function (field, newValue, oldValue) {
+                                me.down('#key-renewal-command-combo').setDisabled(!newValue.keyRenewal);
+                                me.down('#key-renewal-property-form').setDisabled(!newValue.keyRenewal);
+                            }
+                        },
+                        items: [
+                            {
+                                boxLabel: Uni.I18n.translate('keyRenewal.without.keyRenewal', 'MDC', 'Without key renewal'),
+                                itemId: 'key-renewal-without',
+                                xtype: 'radiofield',
+                                name: 'keyRenewal',
+                                inputValue: false
+                            },
+                            {
+                                boxLabel: Uni.I18n.translate('keyRenewal.with.keyRenewal', 'MDC', 'With key renewal'),
+                                itemId: 'key-renewal-with-key-renewal',
+                                xtype: 'radiofield',
+                                inputValue: true,
+                                name: 'keyRenewal'
+                            }
+                        ]
                     },
                     {
-                        itemId: 'key-renewal-command-add-property-header',
-                        margin: '16 0 0 0'
-                    },
-                    {
-                        itemId: 'key-renewal-command-add-property-form',
-                        xtype: 'property-form',
-                        margin: '16 0 0 0',
-                        defaults: {
-                            labelWidth: 250,
-                            resetButtonHidden: false,
-                            width: 336 // To be aligned with the above
-                        }
+                        xtype: 'form',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        itemId: 'key-renewal-with-form',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                name: 'command',
+                                fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Command'),
+                                itemId: 'key-renewal-command-combo',
+                                emptyText: Uni.I18n.translate('keyRenewal.selectACommand', 'MDC', 'Select a command...'),
+                                store: 'Mdc.securityaccessors.store.SecurityCategoryCommands',
+                                displayField: 'name',
+                                valueField: 'id',
+                                required: true,
+                                allowBlank: false,
+                                editable: false,
+                                queryMode: 'local',
+                                labelWidth: 200,
+                                width: 550
+                            },
+                            {
+                                itemId: 'key-renewal-property-header',
+                                margin: '16 0 0 0'
+                            },
+                            {
+                                xtype: 'property-form',
+                                itemId: 'key-renewal-property-form',
+                                margin: '20 0 0 0',
+                                defaults: {
+                                    labelWidth: 200,
+                                    resetButtonHidden: false,
+                                    width: 334
+                                }
+                            }
+                        ]
                     },
                     {
                         xtype: 'fieldcontainer',
@@ -58,39 +127,24 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                         items: [
                             {
                                 xtype: 'button',
-                                itemId: 'mdc-keyRenewalConfig-add-button',
-                                text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                itemId: 'key-renewal-add-button',
+                                text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                                 ui: 'action',
-                                action: 'add',
-                                deviceId: me.device.get('name')
+                                action: 'save'
                             },
                             {
                                 xtype: 'button',
-                                itemId: 'mdc-keyRenewalConfig-cancel-button',
+                                itemId: 'key-renewal-cancel-button',
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 ui: 'link',
-                                action: 'cancel',
-                                deviceId: me.device.get('name')
+                                href: me.cancelLink,
+                                action: 'cancel'
                             }
                         ]
                     }
                 ]
-            }
-        ];
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'deviceMenu',
-                        itemId: 'stepsMenu',
-                        toggleId: 'deviceCommands',
-                        device: me.device
-                    }
-                ]
-            }
-        ];
+            }];
+
         me.callParent(arguments);
     }
 });

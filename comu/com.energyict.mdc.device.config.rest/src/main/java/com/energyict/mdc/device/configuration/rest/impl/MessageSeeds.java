@@ -66,7 +66,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_TYPE_IN_USE_BY_CREATION_RULE(231, "DeviceTypeInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by alarm creation rule ''{2}''"),
     NO_SUCH_CUSTOMPROPERTYSET(232, "noSuchCPS", "No custom property set with id {0}."),
     DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(233, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''"),
-
+    NO_SUCH_MESSAGE_SPEC(234, "NoSuchMessageSpec", "No such device message specification")
     ;
 
     private final int number;

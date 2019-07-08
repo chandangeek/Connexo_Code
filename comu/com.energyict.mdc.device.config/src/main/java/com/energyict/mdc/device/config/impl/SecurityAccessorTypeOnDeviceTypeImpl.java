@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -24,13 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 
 public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTypeOnDeviceType {
     enum Fields {
         DEVICETYPE("deviceType"),
         SECACCTYPE("securityAccessorType"),
-        DEFAULTKEY("defaultKey");
+        KEYRENEWALMESSAGEID("keyRenewalMessageIdIdDbValue");
 
         private final String javaFieldName;
 
@@ -52,6 +54,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
 
     // associations
     private List<SecurityAccessorTypeKeyRenewal> securityAccessorTypeKeyRenewals = new ArrayList<>();
+    private long keyRenewalMessageIdIdDbValue;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -61,9 +64,9 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    private DeviceMessageSpecificationService deviceMessageSpecificationService;
-
     private final DataModel dataModel;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final Thesaurus thesaurus;
 
     SecurityAccessorTypeOnDeviceTypeImpl init(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
         this.deviceType.set(deviceType);
@@ -72,8 +75,9 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Inject
-    SecurityAccessorTypeOnDeviceTypeImpl(DeviceMessageSpecificationService deviceMessageSpecificationService, DataModel dataModel) {
+    SecurityAccessorTypeOnDeviceTypeImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.thesaurus = thesaurus;
         this.dataModel = dataModel;
     }
 
@@ -89,8 +93,8 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
 
     @Override
     public Optional<DeviceMessageId> getKeyRenewalDeviceMessageId() {
-        return securityAccessorTypeKeyRenewals.stream()
-                .map(SecurityAccessorTypeKeyRenewal::getKeyRenewalDeviceMessageId)
+        return Stream.of(DeviceMessageId.values())
+                .filter(deviceMessage -> deviceMessage.dbValue() == this.keyRenewalMessageIdIdDbValue)
                 .findFirst();
     }
 
@@ -107,6 +111,21 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
+    public void resetKeyRenewal() {
+        keyRenewalMessageIdIdDbValue = 0;
+        securityAccessorTypeKeyRenewals.clear();
+        save();
+    }
+
+
+    @Override
+    public KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId) {
+        keyRenewalMessageIdIdDbValue = deviceMessageId.dbValue();
+        securityAccessorTypeKeyRenewals.clear();
+        return new InternalKeyRenewalBuilder(this);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return this == obj
                 || obj instanceof SecurityAccessorTypeOnDeviceTypeImpl
@@ -117,6 +136,45 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @Override
     public int hashCode() {
         return Objects.hash(getDeviceType(), getSecurityAccessorType());
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
+    }
+
+    protected void save() {
+        Save.UPDATE.save(this.dataModel, this, Save.Update.class);
+        //securityAccessorTypeKeyRenewals.forEach(securityAccessorTypeKeyRenewal -> ((SecurityAccessorTypeKeyRenewalImpl)securityAccessorTypeKeyRenewal).save());
+    }
+
+    private class InternalKeyRenewalBuilder implements KeyRenewalBuilder {
+
+        private final SecurityAccessorTypeOnDeviceTypeImpl securityAccessorTypeOnDeviceType;
+
+        private InternalKeyRenewalBuilder(SecurityAccessorTypeOnDeviceTypeImpl securityAccessorTypeOnDeviceType) {
+            this.securityAccessorTypeOnDeviceType = securityAccessorTypeOnDeviceType;
+        }
+
+        @Override
+        public InternalKeyRenewalBuilder addProperty(String key, Object value) {
+            SecurityAccessorTypeKeyRenewalImpl securityAccessorTypeKeyRenewal = securityAccessorTypeOnDeviceType.getDataModel()
+                    .getInstance(SecurityAccessorTypeKeyRenewalImpl.class)
+                    .init(securityAccessorTypeOnDeviceType.getDeviceType(), securityAccessorTypeOnDeviceType.getSecurityAccessorType());
+            securityAccessorTypeKeyRenewal.setName(key);
+            securityAccessorTypeKeyRenewal.setValue(value.toString());
+            securityAccessorTypeKeyRenewals.add(securityAccessorTypeKeyRenewal);
+            return this;
+        }
+
+        @Override
+        public SecurityAccessorTypeOnDeviceType add() {
+            this.securityAccessorTypeOnDeviceType.save();
+            return this.securityAccessorTypeOnDeviceType;
+        }
     }
 
     public Optional<String> getDefaultKey() {

@@ -326,6 +326,11 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
                 .select(condition);
     }
 
+    @Override
+    public List<DeviceMessageId> findKeyRenewalMessages() {
+        return EndDeviceControlTypeMapping.KEY_RENEWAL.getPossibleDeviceMessageIds();
+    }
+
     private List<DeviceMessage> find(Introspector introspector) throws UnsupportedDeviceMessageIdentifierTypeName {
         if (introspector.getTypeName().equals(IntrospectorTypes.DatabaseId.name())) {
             return this.findDeviceMessageById(Long.valueOf(introspector.getValue(IntrospectorTypes.DatabaseId.roles[0]).toString()))

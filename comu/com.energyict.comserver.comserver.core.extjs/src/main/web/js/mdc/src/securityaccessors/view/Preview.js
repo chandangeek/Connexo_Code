@@ -51,6 +51,15 @@ Ext.define('Mdc.securityaccessors.view.Preview', {
                         }
                     }
                 ]
+            },
+            {
+                xtype: 'displayfield',
+                itemId: 'previewNoProperties',
+                hidden: true,
+                fieldLabel: ' ',
+                renderer: function () {
+                    return '<span style="font-style:italic;color: grey;">' + Uni.I18n.translate('keyRenewal.properties.notAvailable', 'MDC', 'No attributes are available') + '</span>';
+                }
             }
         ];
         me.callParent(arguments);
