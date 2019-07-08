@@ -160,6 +160,23 @@ public class TaskResource {
     }
 
     @GET
+    @Path("/queueTypes")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public List<QueueInfo> getQueueTypes(@Context UriInfo uriInfo) {
+        List<RecurrentTask> tasks = taskService.getRecurrentTasks();
+        List<String> applicationNames = uriInfo.getQueryParameters().get("application");
+        Set<String> queueTypeNamesSet = new HashSet<>();
+        for (RecurrentTask task : tasks) {
+            if (((applicationNames == null) || (applicationNames.size() == 0)) ||
+                    applicationNames.contains(task.getApplication())) {
+                queueTypeNamesSet.add(task.getDestination().getQueueTypeName());
+            }
+        }
+        return queueTypeNamesSet.stream().map(QueueInfo::new).collect(Collectors.toList());
+    }
+
+    @GET
     @Path("/byapplication")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
