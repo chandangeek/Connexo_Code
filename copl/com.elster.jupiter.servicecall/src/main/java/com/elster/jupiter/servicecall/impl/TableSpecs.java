@@ -94,6 +94,11 @@ public enum TableSpecs {
                     .varChar(NAME_LENGTH)
                     .map(ServiceCallTypeImpl.Fields.appKey.fieldName())
                     .add();
+            table.column("RETRY_NOW_STATE")
+                    .since(Version.version(10, 7))
+                    .varChar(NAME_LENGTH)
+                    .map(ServiceCallTypeImpl.Fields.appKey.fieldName())
+                    .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
             table.addAuditColumns();
             table.foreignKey("FK_LIFECYCLE")

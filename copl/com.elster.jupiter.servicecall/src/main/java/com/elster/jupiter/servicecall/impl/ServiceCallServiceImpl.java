@@ -443,8 +443,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
             condition = condition.and(where(ServiceCallImpl.Fields.targetObject.fieldName()).isEqualTo(dataModel.asRefAny(filter.targetObject)));
         }
         if (filter.appKey != null) {
-            condition = condition.and(where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.name.fieldName()).isNull().or(
-                    where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.name.fieldName()).isEqualTo(filter.appKey)
+            condition = condition.and(where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.appKey.fieldName()).isNull().or(
+                    where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.appKey.fieldName()).isEqualTo(filter.appKey)
             ));
         }
         return condition;

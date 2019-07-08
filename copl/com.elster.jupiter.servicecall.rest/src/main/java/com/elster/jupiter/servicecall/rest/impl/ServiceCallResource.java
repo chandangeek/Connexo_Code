@@ -60,10 +60,7 @@ public class ServiceCallResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallInfoFactory.convertToServiceCallFilter(filter, appKey));
         List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
-        AtomicReference key = new AtomicReference<> (appKey);
-        serviceCalls.stream().filter(serviceCall -> !serviceCall.getType().reservedByApplication().isPresent() || key.get().equals(serviceCall.getType().reservedByApplication().get()))
-                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
-
+        serviceCalls.forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
