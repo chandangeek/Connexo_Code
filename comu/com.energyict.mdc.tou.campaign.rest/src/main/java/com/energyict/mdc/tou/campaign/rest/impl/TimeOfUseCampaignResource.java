@@ -19,6 +19,8 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -236,7 +238,7 @@ public class TimeOfUseCampaignResource {
         deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
-                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                 .filter(cte -> cte.getComTask().isSystemComTask())
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 

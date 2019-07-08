@@ -48,7 +48,7 @@ public class TimeOfUseCampaignInfoFactoryTest {
     @BeforeClass
     public static void setUp() {
         timeOfUseCampaignInfoFactory = new TimeOfUseCampaignInfoFactory(timeOfUseCampaignService, clock, thesaurus,
-                deviceConfigurationService, calendarService, exceptionFactory,taskService);
+                deviceConfigurationService, calendarService, exceptionFactory, taskService);
     }
 
     @Test
@@ -133,8 +133,8 @@ public class TimeOfUseCampaignInfoFactoryTest {
         when(timeOfUseCampaign.getSendCalendarConnectionStrategyId()).thenReturn(2L);
         when(timeOfUseCampaign.getValidationConnectionStrategyId()).thenReturn(1L);
         ComTask comtask = mock(ComTask.class);
-        when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
-        when(taskService.findComTask(anyLong()).get().getName()).thenReturn("ctask");
+        when(timeOfUseCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
+        when(timeOfUseCampaignService.getComTaskById(anyLong()).getName()).thenReturn("ctask");
         return timeOfUseCampaign;
     }
 }

@@ -23,6 +23,7 @@ import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInf
 import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfo;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.jayway.jsonpath.JsonModel;
@@ -41,6 +42,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -145,6 +147,10 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<Number>get("$.timeBoundaryEnd")).isEqualTo(((Number) firmwareCampaign.getUploadPeriodEnd().toEpochMilli()).intValue());
         assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number) firmwareCampaign.getDeviceType().getId()).intValue());
         assertThat(jsonModel.<String>get("$.deviceType.localizedValue")).isEqualTo(firmwareCampaign.getDeviceType().getName());
+        assertThat(jsonModel.<Number>get("$.validationComTask.id")).isEqualTo(((Number)firmwareCampaign.getValidationComTaskId()).intValue());
+        assertThat(jsonModel.<Number>get("$.calendarUploadComTask.id")).isEqualTo(((Number)firmwareCampaign.getCalendarUploadComTaskId()).intValue());
+        assertThat(jsonModel.<String>get("$.validationConnectionStrategy.name")).isEqualTo(firmwareCampaign.getValidationConnectionStrategy());
+        assertThat(jsonModel.<String>get("$.calendarUploadConnectionStrategy.name")).isEqualTo(firmwareCampaign.getCalendarUploadConnectionStrategy());
     }
 
     @Test
@@ -185,6 +191,10 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         firmwareCampaignInfo.startedOn = Instant.ofEpochSecond(111);
         firmwareCampaignInfo.finishedOn = null;
         firmwareCampaignInfo.status = new IdWithNameInfo(DefaultState.ONGOING.name(),"Ongoing");
+        firmwareCampaignInfo.validationComTask = new IdWithNameInfo(2L,"comTaskName");
+        firmwareCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(0L,"MC");
+        firmwareCampaignInfo.calendarUploadConnectionStrategy = new IdWithNameInfo(0L,"ASAP");
+        firmwareCampaignInfo.calendarUploadComTask = new IdWithNameInfo(1L,"comTaskName");
         ArrayList<PropertyInfo> propertyInfos = new ArrayList<>();
         propertyInfos.add(new PropertyInfo("Firmware file", "FirmwareDeviceMessage.upgrade.userfile", new PropertyValueInfo<>(8, ""), null, true));
         firmwareCampaignInfo.properties = propertyInfos;
@@ -193,6 +203,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
 
     private FirmwareCampaign createCampaignMock() {
         FirmwareCampaign firmwareCampaign = mock(FirmwareCampaign.class);
+        ComTask comtask = mock(ComTask.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(serviceCall.getCreationTime()).thenReturn(Instant.ofEpochSecond(111));
@@ -222,6 +233,12 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
         when(firmwareCampaign.getFirmwareVersion()).thenReturn(firmwareVersion);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
+        when(firmwareCampaign.getCalendarUploadComTaskId()).thenReturn(1L);
+        when(firmwareCampaign.getCalendarUploadConnectionStrategy()).thenReturn("ASAP");
+        when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
+        when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn("MC");
+        when(comtask.getName()).thenReturn("comTaskName");
+        when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         return firmwareCampaign;
     }
 }

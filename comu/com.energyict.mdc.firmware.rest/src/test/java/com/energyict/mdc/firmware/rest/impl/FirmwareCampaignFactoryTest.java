@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -22,6 +20,7 @@ import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfo;
 import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfoFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.time.Clock;
@@ -35,6 +34,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -50,11 +50,14 @@ public class FirmwareCampaignFactoryTest {
     private static ResourceHelper resourceHelper = mock(ResourceHelper.class);
     private static FirmwareVersionInfoFactory firmwareVersionInfoFactory = mock(FirmwareVersionInfoFactory.class);
     private static FirmwareMessageInfoFactory firmwareMessageInfoFactory = mock(FirmwareMessageInfoFactory.class);
+    private static FirmwareCampaignService firmwareCampaignService = mock(FirmwareCampaignService.class);
 
     private static ExceptionFactory exceptionFactory = mock(ExceptionFactory.class);
 
     @BeforeClass
     public static void setUp() {
+        when(firmwareService.getFirmwareCampaignService()).thenReturn(firmwareCampaignService);
+
         firmwareCampaignInfoFactory = new FirmwareCampaignInfoFactory(thesaurus, deviceConfigurationService,
                 deviceMessageSpecificationService, resourceHelper, firmwareVersionInfoFactory, firmwareMessageInfoFactory,
                 exceptionFactory, clock, firmwareService);
@@ -73,6 +76,10 @@ public class FirmwareCampaignFactoryTest {
         assertEquals(Instant.ofEpochSecond(100), firmwareCampaignInfo.timeBoundaryStart);
         assertEquals(Instant.ofEpochSecond(200), firmwareCampaignInfo.timeBoundaryEnd);
         assertEquals("TestDeviceType", firmwareCampaignInfo.deviceType.localizedValue);
+        assertEquals("ASAP", firmwareCampaignInfo.calendarUploadConnectionStrategy.name);
+        assertEquals("MC", firmwareCampaignInfo.validationConnectionStrategy.name);
+        assertEquals(1L, firmwareCampaignInfo.calendarUploadComTask.id);
+        assertEquals(2L, firmwareCampaignInfo.validationComTask.id);
     }
 
     @Test
@@ -95,6 +102,7 @@ public class FirmwareCampaignFactoryTest {
 
 
     private FirmwareCampaign createMockCampaign() {
+        ComTask comtask = mock(ComTask.class);
         FirmwareCampaign firmwareCampaign = mock(FirmwareCampaign.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
@@ -119,6 +127,12 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
+        when(firmwareCampaign.getCalendarUploadComTaskId()).thenReturn(1L);
+        when(firmwareCampaign.getCalendarUploadConnectionStrategy()).thenReturn("ASAP");
+        when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
+        when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn("MC");
+        when(comtask.getName()).thenReturn("comTaskName");
+        when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         return firmwareCampaign;
     }
 }
