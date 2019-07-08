@@ -15,14 +15,12 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_IS_REQUIRED(1, Keys.FIELD_IS_REQUIRED, "This field is required", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH(2, Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH, "This field''s text length should be between 1 and " + Table.NAME_LENGTH + " symbols", Level.SEVERE),
     NAME_MUST_BE_UNIQUE(3, Keys.NAME_MUST_BE_UNIQUE, "Name must be unique", Level.SEVERE),
-    MAX_FILE_SIZE_EXCEEDED(4, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " MB", Level.SEVERE),
+    MAX_FILE_SIZE_EXCEEDED(4, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE / 1024 / 1024 + " MB", Level.SEVERE),
     STATE_TRANSFER_NOT_ALLOWED(5, Keys.STATE_TRANSFER_NOT_ALLOWED, "Transfer to requested state is not allowed", Level.SEVERE),
     DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE(6, Keys.DEVICE_TYPE_SHOULD_SUPPORT_FIRMWARE_UPGRADE, "Device type should support firmware upgrade", Level.SEVERE),
     FILE_IS_EMPTY(8, Keys.FILE_IS_EMPTY, "Firmware file is empty", Level.SEVERE),
-    NOT_FOUND_CAMPAIGN_FOR_COMTASK_EXECUTION(9 , CampaignForComTaskExecutionExceptions.NO_CAMPAIGN_FOUND_FOR_COMTASKEXECUTION, "No campaign found for comtask {0}", Level.SEVERE),
-    NO_CAMPAIGN_UNAMBIGUOUSLY_DETERMINED_FOR_COMTASK_EXECUTION(10 , CampaignForComTaskExecutionExceptions.CAMPAIGN_NOT_UNAMBIGOUSLY_DETERMINED_FOR_COMTASKEXECUTION, "Campaign could not be determined unambiguously for comtask {0}", Level.SEVERE),
-    FIRMWARE_CAMPAIGN_STATUS_INVALID(11, RetryDeviceInFirmwareCampaignExceptions.CAMPAIGN_IS_NOT_ONGOING, "Cannot change status as campaign is not ongoing", Level.SEVERE),
-    DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_INVALID(12, RetryDeviceInFirmwareCampaignExceptions.DEVICE_IN_FIRMWARE_CAMPAIGN_STATE_CHANGE_TO_PENDING_NOT_ALLOWED, "Cannot change status to {0} from current status {1}.", Level.SEVERE),
+    NOT_FOUND_CAMPAIGN_FOR_COMTASK_EXECUTION(9, CampaignForComTaskExecutionExceptions.NO_CAMPAIGN_FOUND_FOR_COMTASKEXECUTION, "No campaign found for comtask {0}", Level.SEVERE),
+    NO_CAMPAIGN_UNAMBIGUOUSLY_DETERMINED_FOR_COMTASK_EXECUTION(10, CampaignForComTaskExecutionExceptions.CAMPAIGN_NOT_UNAMBIGOUSLY_DETERMINED_FOR_COMTASKEXECUTION, "Campaign could not be determined unambiguously for comtask {0}", Level.SEVERE),
     FIRMWARE_FILE_IO(13, Keys.FIRMWARE_FILE_IO, "Exception while doing IO on firmware file: {0}", Level.SEVERE),
     FIELD_TOO_LONG(14, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
     VETO_SECURITY_ACCESSOR_DELETION(15, "securityAccessorStillInUseByDeviceTypes", "The security accessor couldn''t be removed because it is still used for firmware management on the following device type(s): {0}", Level.SEVERE),
@@ -40,7 +38,34 @@ public enum MessageSeeds implements MessageSeed {
     UPLOADED_FIRMWARE_RANK_BELOW_CURRENT(27, "UploadedFirmwareRankBelowCurrent", "Target firmware version rank is lower than the current firmware rank.", Level.WARNING),
     MASTER_FIRMWARE_NOT_LATEST(28, "MasterFirmwareNotLatest", "Firmware types on the master don''t have the highest level (among firmware types with the acceptable status).", Level.WARNING),
     DEVICE_HAS_GHOST_FIRMWARE(29, "DeviceHasGhostFirmware", "There is firmware with \"Ghost\" status on the device.", Level.WARNING),
-    MASTER_HAS_GHOST_FIRMWARE(30, "MasterHasGhostFirmware", "There is firmware with \"Ghost\" status on the master device.", Level.WARNING);
+    MASTER_HAS_GHOST_FIRMWARE(30, "MasterHasGhostFirmware", "There is firmware with \"Ghost\" status on the master device.", Level.WARNING),
+
+    DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(1001, "DevicesWerentAddedBecausePartOtherCampaign", "''{0}'' devices weren''t added to the campaign because they are a part of another ongoing campaign.", Level.INFO),
+    DEVICE_WAS_ADDED(1002, "DeviceWasAdded", "Device was added", Level.INFO),
+    DEVICES_WERENT_ADDED_BECAUSE_DIFFERENT_TYPE(1003, "DevicesWerentAddedBecauseDifferentType", "''{0}'' devices weren''t added to the campaign because they are of a different type.", Level.INFO),
+    DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND(1004, "DevicesWithGroupAndTypeNotFound", "Devices with group ''{0}'' and type ''{1}'' weren''t found.", Level.INFO),
+    CAMPAIGN_WAS_CANCELED_BECAUSE_DIDNT_RECEIVE_DEVICES(1005, "CampaignWasCancelledBecauseDidNotReceiveDevices", "Campaign was cancelled because it didn''t receive devices.", Level.INFO),
+    DEVICE_GROUP_ISNT_FOUND(1006, "DeviceGroupIsntFound", "Device group ''{0}'' isn''t found.", Level.WARNING),
+    COULDNT_FIND_SERVICE_CALL_TYPE(1007, "CouldntFindServiceCallType", "Couldn''t find a service call type {0} with version {1}.", Level.WARNING),
+    DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND(1008, "DefaultFirmwareManagementTaskCanNotBeFound", "The default firmware management communication task can''t be found", Level.WARNING),
+    DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE(1009, "DefaultFirmwareManagementTaskIsNotActive", "Firmware version cannot be changed because Firmware management communication task isn''t active on device configuration", Level.WARNING),
+
+    CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user.", Level.INFO),
+    RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user.", Level.INFO),
+
+    FIRMWARE_INSTALLATION_FAILED(4001, "FirmwareInstallationFailed", "Firmware installation failed.", Level.WARNING),
+    VERIFICATION_FAILED(4002, "VerificationFailed", "Verification failed.", Level.WARNING),
+    ACTIVE_VERIFICATION_TASK_ISNT_FOUND(4003, "ActiveVerificationTaskIsntFound", "Active verification task isn''t found.", Level.WARNING),
+    FIRMWARE_INSTALLATION_STARTED(4004, "FirmwareInstallationStarted", "Firmware installation started.", Level.INFO),
+    VERIFICATION_COMPLETED(4005, "VerificationCompleted", "Verification completed", Level.INFO),
+    VERIFICATION_SCHEDULED(4006, "VerificationScheduled", "Verification scheduled", Level.INFO),
+    FIRMWARE_INSTALLATION_COMPLETED(4007, "FirmwareInstallationCompleted", "Firmware installation completed.", Level.INFO),
+    VERIFICATION_FAILED_WRONG_FIRMWAREVERSION(4008, "VerificationFailedWrongFirmwareVersion", "Verification failed : wrong firmware version.", Level.WARNING),
+    DEVICE_TYPE_DOES_NOT_ALLOW_FIRMWARE_MANAGEMENT(4009, "DeviceTypeNotAllowFirmwareManagement", "Unable to upgrade firmware version on device ''{0}'' due to check fail: ''Firmware upload is not allowed on the device type ''{1}''", Level.WARNING),
+    DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT(4010, "DeviceConfigurationDoesNotSupportFirmwareManagement", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The firmware management communication task is not present on the device configuration ''{1}''", Level.WARNING),
+    FIRMWARE_UPLOAD_CURRENTLY_ONGOING(4011, "FirmwareUploadOfFirmwareIsCurrentlyOngoing", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Firmware upload of firmware is currently ongoing.", Level.WARNING),
+    PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE(4012, "ProtocolOfTheDeviceTypeDoesNotSupportUploadingFirmware", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The protocol of the device type ''{1}'' doesn''t support uploading firmware.", Level.WARNING),
+    CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY(4013, "ConnectionWindowOutsideOfCampaignTimeBoundary", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Connection window start of the connection method used by the firmware management communication task of the device is outside of the time boundary of the campaign.", Level.WARNING);
 
     private final int number;
     private final String key;
@@ -79,8 +104,8 @@ public enum MessageSeeds implements MessageSeed {
         return level;
     }
 
-    public String format(Thesaurus thesaurus, Object... args){
-        if (thesaurus == null){
+    public String format(Thesaurus thesaurus, Object... args) {
+        if (thesaurus == null) {
             throw new IllegalArgumentException("Thesaurus can't be null");
         }
         return thesaurus.getFormat(this).format(args);

@@ -66,7 +66,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                     {
                         xtype: 'displayfield',
                         name: 'timeBoundaryAsText',
-                        fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary')
+                        fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
+                        renderer: function (value){
+                             return value ? Uni.I18n.translate('general.betweenXandY', 'FWC', 'Between {0} and {1}', value ) : '-';
+                        }
                     },
                     {
                         itemId: 'firmware-type-field',
@@ -89,8 +92,15 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.firmwareTimeout', 'FWC', 'Timeout before validation'),
                         name: 'validationTimeout',
                         renderer: function (value) {
-
                             return value ? Ext.String.format('{0} {1}', value.count, value.localizedTimeUnit) : '-'
+                        }
+                    },
+                    {
+                        itemId: 'firmware-service-call-field',
+                        fieldLabel: Uni.I18n.translate('general.firmwareServiceCall', 'FWC', 'Service call'),
+                        name: 'serviceCall',
+                        renderer: function (value) {
+                            return value ?  '<a href="' + me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id})+ '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
                         }
                     },
                     {
@@ -113,13 +123,13 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.status', 'FWC', 'Status'),
                         name: 'status',
                         renderer: function (value) {
-                            return value ? value.localizedValue : '-';
+                            return value ? value.name : '-';
                         }
                     },
                     {
                         itemId: 'devices-field',
                         fieldLabel: Uni.I18n.translate('general.devices', 'FWC', 'Devices'),
-                        name: 'devicesStatus',
+                        name: 'devices',
                         renderer: function (value, field) {
                             var result = '';
 
@@ -130,24 +140,23 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                             field.addCls('firmware-campaign-status');
                             Ext.Array.each(value, function (devicesStatus, index) {
                                 var iconCls = '';
-
                                 switch (devicesStatus.status.id) {
-                                    case 'failed':
+                                    case 'FAILED':
                                         iconCls = 'icon-cancel-circle';
                                         break;
-                                    case 'success':
+                                    case 'SUCCESSFUL':
                                         iconCls = 'icon-checkmark-circle';
                                         break;
-                                    case 'ongoing':
+                                    case 'ONGOING':
                                         iconCls = 'icon-spinner3';
                                         break;
-                                    case 'pending':
+                                    case 'PENDING':
                                         iconCls = 'icon-forward2';
                                         break;
-                                    case 'configurationError':
+                                    case 'REJECTED':
                                         iconCls = 'icon-notification';
                                         break;
-                                    case 'cancelled':
+                                    case 'CANCELLED':
                                         iconCls = 'icon-blocked';
                                         break;
                                 }
@@ -156,7 +165,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                                     result += '<br>';
                                 }
 
-                                result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status.localizedValue + '"></span>' + devicesStatus.amount;
+                                result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status.name + '"></span>' + devicesStatus.quantity;
                             });
                             return result;
                         }

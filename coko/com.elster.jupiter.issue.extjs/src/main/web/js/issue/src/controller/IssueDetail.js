@@ -10,7 +10,9 @@ Ext.define('Isu.controller.IssueDetail', {
         'Bpm.monitorissueprocesses.store.IssueProcesses',
         'Bpm.monitorissueprocesses.store.AlarmProcesses',
         'Uni.util.FormEmptyMessage',
-        'Isu.view.issues.EditCommentForm'
+        'Isu.view.issues.EditCommentForm',
+        'Isu.view.issues.ManualIssueDetail',
+        'Isu.model.ManualIssue'
     ],
 
     stores: [
@@ -69,7 +71,10 @@ Ext.define('Isu.controller.IssueDetail', {
             widgetXtype = 'task-issue-detail';
             issueModel = 'Itk.model.Issue';
             me.taskStore = 'Itk.store.OccurrenceStore';
-        } else {
+        } else if(issueType ==='manual'){
+            widgetXtype = 'manual-issue-detail';
+            issueModel='Isu.model.ManualIssue';
+         } else {
             widgetXtype = me.widgetXtype;
             issueModel = me.issueModel;
         }
@@ -596,6 +601,8 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel = 'Idl.model.Issue';
         }else if (issueType === 'task') {
             issueModel = 'Itk.model.Issue';
+        }else if (issueType === 'manual') {
+             issueModel = 'Isu.model.ManualIssue';
         }
         else {
             issueModel = me.issueModel;

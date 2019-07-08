@@ -148,7 +148,7 @@ public class AuditTrailTechnicalAttributesDecoder extends AbstractUsagePointAudi
     }
 
     public Optional<AuditLogChange> getAuditLogChangeForBypassStatus(BypassStatus from, BypassStatus to, TranslationKey translationKey) {
-        if (!(to == null ? from == null : to.getDisplayValue(getThesaurus()).equals(from.getDisplayValue(getThesaurus()))))
+        if (!(to == null ? from == null : to.equals(from)))
         {
             AuditLogChange auditLogChange = new AuditLogChangeBuilder();
             auditLogChange.setName(getDisplayName(translationKey));

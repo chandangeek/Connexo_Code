@@ -47,7 +47,7 @@ public class TransientMessageService implements MessageService {
     }
 
     @Override
-    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
+    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
         if (queueTableSpecs.containsKey(name)) {
             throw new IllegalArgumentException();
         }
@@ -109,6 +109,15 @@ public class TransientMessageService implements MessageService {
     @Override
     public List<SubscriberSpec> getNonSystemManagedSubscribers() {
         return getSubscribers();
+    }
+
+    @Override
+    public List<DestinationSpec> getDestinationSpecs(String queueTypeName) {
+        return queueTableSpecs.values().stream()
+                .map(TransientQueueTableSpec::getDestinations)
+                .flatMap(List::stream)
+                .filter(ds -> ds.getQueueTypeName().equals(queueTypeName))
+                .collect(Collectors.toList());
     }
 
     @Override

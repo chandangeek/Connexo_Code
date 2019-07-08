@@ -73,7 +73,6 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile TopologyService topologyService;
     private volatile BpmService bpmService;
     private volatile PropertyValueInfoService propertyValueInfoService;
-    private volatile IssueResourceHelper issueResourceHelper;
     private volatile MeteringGroupsService meteringGroupsService;
 
     public IssueDataCollectionApplication() {
@@ -109,11 +108,6 @@ public class IssueDataCollectionApplication extends Application implements Messa
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
-    }
-
-    @Reference
-    public void setIssueResourceHelper(IssueResourceHelper issueResourceHelper) {
-        this.issueResourceHelper = issueResourceHelper;
     }
 
     @Reference
@@ -232,7 +226,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(appService).to(AppService.class);
             bind(jsonService).to(JsonService.class);
             bind(DataCollectionIssueInfoFactory.class).to(DataCollectionIssueInfoFactory.class);
-            bind(issueResourceHelper).to(IssueResourceHelper.class);
+            bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
