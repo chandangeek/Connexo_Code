@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.servicecall;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collection;
 import java.util.List;
@@ -59,7 +59,7 @@ public interface ServiceCallService {
      * @param name
      * @return
      */
-    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String destination);
+    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination);
 
     /**
      * Creates a new service call type, using provided name, version and life cycle. The default destination is used. This method start a builder.
@@ -69,9 +69,8 @@ public interface ServiceCallService {
      * @param reservedByApplication "MultiSense" or "Insight". NULL for both.
      * @return
      */
-    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication);
-    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
-        return createServiceCallType(name, versionName, serviceCallLifeCycle, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME);
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME);
     }
 
     /**
@@ -92,8 +91,6 @@ public interface ServiceCallService {
      * @return
      */
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
-        return createServiceCallType(name, versionName, null);
-    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
         return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME);
     }
 

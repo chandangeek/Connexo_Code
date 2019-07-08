@@ -37,7 +37,6 @@ import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.servicecall.security.Privileges;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
@@ -256,8 +255,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
-                        version(10, 7), V10_7SimpleUpgrader.class
-                        version(10, 2), UpgraderV10_2.class,
                         version(10, 7), UpgraderV10_7.class
                 ));
     }
@@ -288,16 +285,13 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 .sorted(ServiceCallTypeImpl.Fields.version.fieldName(), true);
     }
 
-    @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, reservedByApplication, (IServiceCallLifeCycle) serviceCallLifeCycle, dataModel, thesaurus);
     public List<ServiceCallType> getServiceCallTypes(String destination) {
         return dataModel.mapper(ServiceCallType.class).find(ServiceCallTypeImpl.Fields.destination.fieldName(), destination);
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String destination) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, dataModel, thesaurus);
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination) {
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, reservedByApplication, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, dataModel, thesaurus);
     }
 
     @Override

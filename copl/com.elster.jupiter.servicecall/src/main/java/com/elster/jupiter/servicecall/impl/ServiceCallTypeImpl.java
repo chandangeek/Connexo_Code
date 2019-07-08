@@ -89,8 +89,7 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         currentLifeCycleState("currentLifeCycleState"),
         customPropertySets("customPropertySets"),
         handler("serviceCallHandler"),
-        appKey("appKey");
-        handler("serviceCallHandler"),
+        appKey("appKey"),
         destination("destination");
 
         private final String javaFieldName;
