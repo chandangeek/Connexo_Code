@@ -488,18 +488,10 @@
      <xsd:element name="UtilitiesAdvancedMeteringSystemID" type="UtilitiesAdvancedMeteringSystemID"/>
     </xsd:sequence>
    </xsd:complexType>
-   <xsd:simpleType name="ConfirmationEndpoint">
-    <xsd:restriction base="xsd:string">
-     <xsd:minLength value="8"/>
-     <xsd:maxLength value="200"/>
-     <xsd:pattern value="https?:\/\/.+"/>
-    </xsd:restriction>
-   </xsd:simpleType>
    <xsd:complexType name="SmrtMtrUtilsConncnStsChgReqERPCrteReqUtilsConncnStsChgReq">
     <xsd:sequence>
      <xsd:element name="ID" type="UtilitiesConnectionStatusChangeRequestID"/>
      <xsd:element name="CategoryCode" type="UtilitiesConnectionStatusChangeRequestCategoryCode"/>
-     <xsd:element name="ConfirmationEndpointURL" type="ConfirmationEndpoint"/>
      <xsd:element name="UtilitiesServiceDisconnectionReasonCode" minOccurs="0" type="UtilitiesServiceDisconnectionReasonCode"/>
      <xsd:element name="PlannedProcessingDateTime" type="GLOBAL_DateTime"/>
      <xsd:element name="ImmediateStatusChangeIndicator" minOccurs="0" type="Indicator"/>

@@ -36,7 +36,6 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
 
     @Before
     public void setUp() {
-        when(outboundMessage.getUrl()).thenReturn(getURL());
         when(outboundMessage.getConfirmationMessage()).thenReturn(confirmationMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }

@@ -91,7 +91,7 @@ public class ServiceCallCommands {
             } else {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, message);
             }
-        } else if (message.getConfirmationEndpointURL() != null) {
+        } else {
             sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message);
         }
     }
@@ -223,7 +223,6 @@ public class ServiceCallCommands {
                 new ConnectionStatusChangeDomainExtension();
         connectionStatusChangeDomainExtension.setId(message.getId());
         connectionStatusChangeDomainExtension.setCategoryCode(message.getCategoryCode());
-        connectionStatusChangeDomainExtension.setConfirmationURL(message.getConfirmationEndpointURL());
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
 
