@@ -55,7 +55,7 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         WebServiceCallOccurrence tmpOccurrence2  = endPointConfiguration.createEndPointOccurrence(clock.instant(), "RequestName2", "Multisense");
 
         List<WebServiceCallOccurrence> epOccList = webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder()
-                .withApplicationName(Collections.singleton("Multisense"))
+                .withApplicationNames(Collections.singleton("Multisense"))
                 .build()
                 .paged(0, 10)
                 .find();
@@ -77,7 +77,7 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         tmpOccurrence2.save();
 
         epOccList = webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder()
-                .withApplicationName(Collections.singleton("Multisense"))
+                .withApplicationNames(Collections.singleton("Multisense"))
                 .build()
                 .paged(0, 10)
                 .find();

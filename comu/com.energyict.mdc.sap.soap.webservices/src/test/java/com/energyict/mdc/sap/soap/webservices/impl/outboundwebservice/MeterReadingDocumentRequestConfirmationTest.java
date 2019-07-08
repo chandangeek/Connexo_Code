@@ -11,14 +11,15 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterRea
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationEOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationEOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.mockito.Mockito.when;
 
@@ -53,7 +54,6 @@ public class MeterReadingDocumentRequestConfirmationTest extends AbstractOutboun
     @Test
     public void testCallWithoutPort() {
         MeterReadingDocumentCreateConfirmationProvider provider = new MeterReadingDocumentCreateConfirmationProvider();
-        provider.setThesaurus(webServiceActivator);
 
         expectedException.expect(SAPWebServiceException.class);
         expectedException.expectMessage(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS.getDefaultFormat());
