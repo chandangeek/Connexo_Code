@@ -22,8 +22,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuil
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.OccurrenceLogFinderBuilderImpl;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallOccurrenceFinderBuilderImpl;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -48,7 +46,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -60,7 +57,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.Range;
 
