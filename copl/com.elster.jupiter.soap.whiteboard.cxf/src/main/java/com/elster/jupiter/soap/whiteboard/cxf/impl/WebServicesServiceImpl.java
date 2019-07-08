@@ -108,7 +108,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                         }
                     }
 
-                    return "Application name was not specified";
+                    return ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName();
                 }
             });
         } else {
@@ -170,7 +170,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                     }
                 }
 
-                return "Application name was not specified";
+                return ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName();
             }
         }).collect(toList());
     }

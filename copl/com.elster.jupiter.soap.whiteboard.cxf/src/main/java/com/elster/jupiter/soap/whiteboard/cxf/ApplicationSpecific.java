@@ -6,7 +6,7 @@ public interface ApplicationSpecific {
         MULTISENSE("Multisense"),
         INSIGHT("Insight"),
         MULTISENSE_INSIGHT("Multisense/Insight"),
-        UNDEFINED("Undefined");
+        UNDEFINED("Application name hasn't been specified");
 
         private String name;
 
@@ -19,7 +19,5 @@ public interface ApplicationSpecific {
         }
     }
 
-    default  String getApplication(){
-        return "Application not specified";
-    };
+    String getApplication();
 }
