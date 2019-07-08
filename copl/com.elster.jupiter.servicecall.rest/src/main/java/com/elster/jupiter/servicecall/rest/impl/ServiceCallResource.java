@@ -64,8 +64,6 @@ public class ServiceCallResource {
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 
-
-
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -85,9 +83,7 @@ public class ServiceCallResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL));
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         List<ServiceCall> serviceCalls = parent.findChildren(serviceCallInfoFactory.convertToServiceCallFilter(filter, appKey)).from(queryParameters).find();
-        serviceCalls.stream()
-                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
-
+        serviceCalls.forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 

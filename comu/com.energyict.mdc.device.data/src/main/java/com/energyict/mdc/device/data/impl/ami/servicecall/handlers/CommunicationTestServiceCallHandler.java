@@ -18,6 +18,7 @@ public class CommunicationTestServiceCallHandler extends AbstractOperationServic
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "TestDeviceCommunicationServiceCallHandler";
+    public static final String APPLICATION = "MDC";
 
     private volatile CompletionOptionsCallBack completionOptionsCallBack;
 

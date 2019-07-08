@@ -33,6 +33,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     // TODO: no way to make names of service call types translatable
     private static final String NAME = TranslationKeys.SERVICE_CALL_TYPE_NAME.getDefaultFormat();
     private static final String VERSION = "1.0";
+    private static final String APPLICATION = "MDC";
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
@@ -59,7 +60,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
             RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)
                     .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_CPS_FOUND).format(WebServiceDataExportCustomPropertySet.CUSTOM_PROPERTY_SET_ID)));
 
-            return serviceCallService.createServiceCallType(NAME, VERSION)
+            return serviceCallService.createServiceCallType(NAME, VERSION, APPLICATION)
                     .handler(WebServiceDataExportServiceCallHandler.NAME)
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(registeredCustomPropertySet)

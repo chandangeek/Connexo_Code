@@ -91,7 +91,7 @@ public interface ServiceCallService {
      * @return
      */
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
-        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME);
+        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), null);
     }
 
     /**
