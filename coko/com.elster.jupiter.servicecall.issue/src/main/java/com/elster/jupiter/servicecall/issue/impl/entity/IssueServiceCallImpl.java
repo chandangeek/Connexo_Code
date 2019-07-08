@@ -21,7 +21,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
-import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
@@ -135,7 +134,7 @@ public class IssueServiceCallImpl implements ServiceCallIssue {
     }
 
     @Override
-    public CreationRule getRule() {
+    public Optional<CreationRule> getRule() {
         return getBaseIssue().getRule();
     }
 
