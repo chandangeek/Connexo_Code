@@ -34,6 +34,8 @@ public class ServiceCallTypeInfoFactory {
         serviceCallType.reservedByApplication().ifPresent(
                 value -> info.reservedByApplication = thesaurus.getFormat(TranslationKeys.from(value)).format()
         );
+        info.destination = serviceCallType.getDestinationName();
+        info.priority = serviceCallType.getPriority();
         info.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus()
                 .getDisplayName(thesaurus));
         info.logLevel = new IdWithDisplayValueInfo<>(serviceCallType.getLogLevel().name(), serviceCallType.getLogLevel()

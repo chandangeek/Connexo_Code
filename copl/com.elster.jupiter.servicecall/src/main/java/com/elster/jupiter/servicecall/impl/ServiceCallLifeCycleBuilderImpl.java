@@ -121,6 +121,7 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         map.put(Pair.of(REJECTED, FAILED), TranslationKeys.TRANSITION_FROM_REJECT_TO_FAILED);
         map.put(Pair.of(REJECTED, PENDING), TranslationKeys.TRANSITION_FROM_REJECT_TO_PENDING);
         map.put(Pair.of(PENDING, REJECTED), TranslationKeys.TRANSITION_FROM_PENDING_TO_REJECT);
+        map.put(Pair.of(PENDING, SUCCESSFUL), TranslationKeys.TRANSITION_FROM_PENDING_TO_SUCCESS);
         return map;
     }
 

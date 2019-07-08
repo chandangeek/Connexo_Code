@@ -12,9 +12,11 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.YellowfinService;
@@ -74,13 +76,13 @@ public class MdcAppInstaller {
                 InstallIdentifier.identifier("MultiSense", "MDA"),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class,
-                        version(10, 3), UpgraderV10_3.class,
-                        version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class,
-                        version(10, 6), UpgraderV10_6.class
-                )
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 2), UpgraderV10_2.class)
+                        .put(version(10, 3), UpgraderV10_3.class)
+                        .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 4, 1),UpgraderV10_4_1.class)
+                        .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 7), UpgraderV10_7.class).build()
         );
     }
 
@@ -211,6 +213,7 @@ public class MdcAppInstaller {
                     com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE,
 
                     //Alarms
                     com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM,

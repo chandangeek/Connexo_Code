@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.rest.resource;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.request.AddIssueRequest;
 import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfo;
 import com.elster.jupiter.issue.rest.request.IssueDueDateInfoAdapter;
@@ -18,6 +19,8 @@ import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.DeviceGroupNotFoundException;
+import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -26,11 +29,13 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.UsagePointGroupNotFoundException;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -45,6 +50,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -234,7 +240,7 @@ public class IssueResourceHelper {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DATA_VALIDATION.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.TASK.getName()).orElse(null));
-                    filter.addIssueType(issueService.findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).orElse(null));
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.MANUAL.getName()).orElse(null));
                 } else if (jsonFilter.getString(IssueRestModuleConst.APPLICATION).compareToIgnoreCase("INS") == 0) {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).orElse(null));
                 }
@@ -276,6 +282,42 @@ public class IssueResourceHelper {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
             }
         }).collect(Collectors.toList());
+    }
+
+    public Issue createNewIssue(AddIssueRequest request) {
+        ManualIssueBuilder issueBuilder = issueService.newIssueBuilder();
+        Instant dueDate = null;
+        if (request.dueDate != null) {
+            if (request.dueDate.getNumber() > 0 ) {
+                dueDate = Instant.ofEpochMilli(DueInType.fromString(request.dueDate.getType()).dueValueFor(request.dueDate.getNumber()));
+            } else {
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "dueDate");
+            }
+        }
+
+        Issue issue = issueBuilder.withReason(getReason(request.reasonId))
+                .withType(getIssueType())
+                .withStatus(issueService.findStatus(request.statusId).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "statusId")))
+                .withPriority(Priority.fromStringValue(request.priority))
+                .withDevice(meteringService.findMeterByName(request.deviceName).orElse(null))
+                .withDueDate(dueDate)
+                .withOverdue(false)
+                .withComment(request.comment)
+                .withAssignToUserAndWorkgroup(request.assignToUserId > 0 ? request.assignToUserId: null, request.assignToWorkgroupId > 0 ? request.assignToWorkgroupId: null)
+                .withAssignComment(request.assignComment)
+                .create();
+        return issue;
+    }
+
+    private IssueReason getReason(String reason) {
+        if (reason == null || reason.isEmpty()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "reasonId");
+        }
+        return issueService.findOrCreateReason(reason, getIssueType());
+    }
+
+    private IssueType getIssueType() {
+        return issueService.findIssueType(IssueTypes.MANUAL.getName()).orElseThrow(() -> new IllegalStateException("Manual issue type is not found"));
     }
 
 }
