@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * Created by bvn on 3/2/16.
@@ -32,7 +33,9 @@ public class ServiceCallTypeInfoFactory {
         info.name = serviceCallType.getName();
         info.versionName = serviceCallType.getVersionName();
         serviceCallType.reservedByApplication().ifPresent(
-                value -> info.reservedByApplication = thesaurus.getFormat(TranslationKeys.from(value)).format()
+                value ->
+                        Optional.ofNullable(TranslationKeys.from(value))
+                                .ifPresent(key -> info.reservedByApplication = thesaurus.getFormat(key).format())
         );
         info.destination = serviceCallType.getDestinationName();
         info.priority = serviceCallType.getPriority();
