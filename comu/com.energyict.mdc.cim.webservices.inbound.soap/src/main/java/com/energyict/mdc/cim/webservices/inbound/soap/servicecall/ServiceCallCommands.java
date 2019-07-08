@@ -266,11 +266,16 @@ public class ServiceCallCommands {
                                                                ScheduleStrategyEnum scheduleStrategy) throws
             ch.iec.tc57._2011.getmeterreadings.FaultMessage {
 
-        Instant start = timePeriod.getStart();
-        Instant end = timePeriod.getEnd();
+        Instant start = null;
+        Instant end = null;
+        if (timePeriod != null) {
+            start = timePeriod.getStart();
+            end = timePeriod.getEnd();
+        }
         String property = bundleContext.getProperty(RECURENT_TASK_READ_OUT_DELAY);
         int delay = property == null ? 1 : Integer.parseInt(property);
         Instant now = clock.instant();
+        Instant actualEnd = getActualEnd(end, now);
 
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.PARENT_GET_METER_READINGS);
         ParentGetMeterReadingsDomainExtension parentGetMeterReadingsDomainExtension = new ParentGetMeterReadingsDomainExtension();
@@ -323,7 +328,7 @@ public class ServiceCallCommands {
                 }
             }
 
-            if (isMeterReadingRequired(source, meter, combinedReadingTypes, timePeriod.getEnd(), now, delay)) {
+            if (isMeterReadingRequired(source, meter, combinedReadingTypes, actualEnd, now, delay)) {
                 //****
 
                 List<ComTaskExecution> existedComTaskExecutions = findComTaskExecutions(device, existedReadingTypes,
@@ -333,8 +338,7 @@ public class ServiceCallCommands {
                         // TODO error?
                     }
                     Instant actualStart = getActualStart(start, comTaskExecution);
-                    Instant actualEnd = getActualEnd(end, now);
-                    /// TODO proper exception
+
                     if (!actualEnd.isAfter(actualStart)) {
                         throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
                                 MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
@@ -385,9 +389,10 @@ public class ServiceCallCommands {
     }
 
     // channels without concrete start or end date / registers with start and end dates
+    /// TODO check case when register reading type start != null && end == null
     private boolean comTaskExecutionRequired(Instant start, Instant end, ComTaskExecution comTaskExecution) {
         return (comTaskExecution.getProtocolTasks().stream()
-                .anyMatch(protocolTask -> LoadProfile.class.isInstance(protocolTask))
+                .anyMatch(protocolTask -> LoadProfilesTask.class.isInstance(protocolTask))
                 && (start == null || end == null))
             || (comTaskExecution.getProtocolTasks().stream()
                 .anyMatch(protocolTask -> RegistersTask.class.isInstance(protocolTask))
@@ -416,14 +421,14 @@ public class ServiceCallCommands {
                 .collect(Collectors.toSet());
 
         device.getLoadProfiles().stream()
-                .filter(loadProfile ->  loadProfile.getChannels().stream()
+                .filter(loadProfile -> loadProfile.getChannels().stream()
                             .anyMatch(channel -> mrids.contains(channel.getReadingType().getMRID()))
                 )
                 .forEach(loadProfile -> device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update());
     }
 
     /// FIXME use load profile next block read start
-    private Instant getActualStart(Instant start, ComTaskExecution comTaskExecution){
+    private Instant getActualStart(Instant start, ComTaskExecution comTaskExecution) {
         if (start == null) {
             return comTaskExecution.getLastSuccessfulCompletionTimestamp();
         }
@@ -665,19 +670,14 @@ public class ServiceCallCommands {
         return null;
     }
 
-    private void scheduleComTaskExecution(ComTaskExecution comTaskExecution, Instant instant) {
-        comTaskExecution.addNewComTaskExecutionTrigger(instant);
-        comTaskExecution.updateNextExecutionTimestamp();
-    }
-
     private boolean isMeterReadingRequired(String source, com.elster.jupiter.metering.Meter meter,
                                            Set<ReadingType> readingTypes, Instant endTime, Instant now, int delay) {
         if (ReadingSourceEnum.METER.getSource().equals(source)) {
             return true;
         }
         if (ReadingSourceEnum.HYBRID.getSource().equals(source)) {
-            boolean inFutireReading = endTime.plus(delay, ChronoUnit.MINUTES).isAfter(now);
-            return inFutireReading || meter.getChannelsContainers().stream()
+            boolean inFutureReading = endTime.plus(delay, ChronoUnit.MINUTES).isAfter(now);
+            return inFutureReading || meter.getChannelsContainers().stream()
                     .anyMatch(container -> isChannelContainerReadOutRequired(container, readingTypes, endTime));
         }
         return false;

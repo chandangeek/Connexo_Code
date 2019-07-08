@@ -235,12 +235,15 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         publishOutboundEndPointConfiguration(replyAddress);
         for (int i = 0; i < readings.size(); ++i) {
             Reading reading = readings.get(i);
-            checkTimeInterval(reading, i, true);
+
+            checkTimeInterval(reading, i, existedReadingTypes, true);
             /// TODO check that connection method exists on device
             String connectionMethod = reading.getConnectionMethod();
             if (connectionMethod != null) {
                 checkIsEmpty(connectionMethod, READING_LIST_ITEM + ".connectionMethod");
-                checkConnectionMethodExists(devices, connectionMethod);
+                for (Device device : devices) {
+                    checkConnectionMethodExists(device, connectionMethod);
+                }
             }
 
             checkIfMissingOrIsEmpty(reading.getScheduleStrategy(), READING_LIST_ITEM + ".scheduleStrategy");
@@ -266,7 +269,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                         existedLoadProfilesNames = existedLoadProfiles.stream()
                                 .map(lpt -> lpt.getName())
                                 .collect(Collectors.toSet());
-                    } else {
+                    } else if (dsTypeName == DataSourceTypeNameEnum.REGISTER_GROUP) {
                         /// TODO not found register groups
                         Set<RegisterGroup> existedRegisterGroups = getExistedRegisterGroups(dsNames);
                         combinerReadingTypes.addAll(existedRegisterGroups.stream()
@@ -282,7 +285,9 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, DATA_SOURCE_NAME).get();
                 }
             }
-            checkDataSources(existedLoadProfilesNames, existedRegisterGroupsNames, existedReadingTypes, reading.getTimePeriod());
+
+            checkDataSources(existedLoadProfilesNames, existedRegisterGroupsNames, existedReadingTypes,
+                             reading.getTimePeriod(), reading.getSource());
 
 
             serviceCallCommands.createParentGetMeterReadingsServiceCall(reading.getSource(), replyAddress, corelationId,
@@ -307,13 +312,30 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
     private void checkDataSources(Set<String> existedLoadProfiles, Set<String> existedRegisterGroups,
                                   List<com.elster.jupiter.metering.ReadingType> existedReadingTypes,
-                                  DateTimeInterval timePeriod) throws FaultMessage {
+                                  DateTimeInterval timePeriod, String source) throws FaultMessage {
         boolean hasLoadProfiles = existedLoadProfiles != null && !existedLoadProfiles.isEmpty();
         boolean hasRegisterGroups = existedRegisterGroups != null && !existedRegisterGroups.isEmpty();
         boolean hasReadingTypes = existedReadingTypes != null && !existedReadingTypes.isEmpty();
-        if (hasLoadProfiles && (timePeriod.getStart() == null || timePeriod.getEnd() == null)) {
-            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.LOAD_PROFILE_WRONG_TIME_PERIOD,
-                    timePeriod.getStart(), timePeriod.getEnd()).get();
+
+        if (hasLoadProfiles) {
+            if (source.equals(ReadingSourceEnum.SYSTEM.getSource())) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES).get();
+            }
+            if (timePeriod == null) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.LOAD_PROFILE_EMPTY_TIME_PERIOD).get();
+            }
+            if (timePeriod.getStart() == null || timePeriod.getEnd() == null) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.LOAD_PROFILE_WRONG_TIME_PERIOD,
+                        timePeriod == null ? null : timePeriod.getStart(), timePeriod.getEnd()).get();
+            }
+        }  else if (hasRegisterGroups) {
+            if (timePeriod == null) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.REGISTER_GROUP_EMPTY_TIME_PERIOD).get();
+            }
+            if (timePeriod.getStart() == null || timePeriod.getEnd() == null) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.REGISTER_GROUP_WRONG_TIME_PERIOD,
+                        timePeriod.getStart(), timePeriod.getEnd()).get();
+            }
         }
         if (!hasLoadProfiles && !hasRegisterGroups && !hasReadingTypes) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_DATA_SOURCES).get();
@@ -325,18 +347,15 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         }
     }
 
-    // TODO reply for each device separetly!
-    private boolean checkConnectionMethodExists(Set<Device> devices, String connectionMethod) throws FaultMessage {
-        for (Device device : devices) {
-            List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-            for (ComTaskExecution cte : comTaskExecutions) {
-                if (checkCommectionMethodForComTaskExecution(cte, connectionMethod)) {
-                    return true;
-                }
+    private boolean checkConnectionMethodExists(Device device, String connectionMethod) throws FaultMessage {
+        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+        for (ComTaskExecution cte : comTaskExecutions) {
+            if (checkCommectionMethodForComTaskExecution(cte, connectionMethod)) {
+                return true;
             }
         }
         throw (faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.CONNECTION_METHOD_NOT_FOUND,
-                connectionMethod)).get();
+                connectionMethod, device.getName())).get();
     }
 
     private boolean checkCommectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws FaultMessage {
@@ -738,25 +757,41 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
     private Range<Instant> getTimeInterval(Reading reading, int index) throws FaultMessage {
-        checkTimeInterval(reading, index, false);
-        Instant end = reading.getTimePeriod().getEnd();
+        checkTimeInterval(reading, index, null,false);
         return Range.openClosed(reading.getTimePeriod().getStart(), reading.getTimePeriod().getEnd());
     }
 
-    private void checkTimeInterval(Reading reading, int index, boolean asyncFlag)  throws FaultMessage {
+    private void checkTimeInterval(Reading reading, int index, List<com.elster.jupiter.metering.ReadingType> existedReadingTypes, boolean asyncFlag) throws FaultMessage {
+        /// HERE check existedReadingTypes doesn't have irregular reading type in case start = end = null
         final String READING_ITEM = READING_LIST_ITEM + '[' + index + ']';
         DateTimeInterval interval = reading.getTimePeriod();
+        if (interval == null) {
+            if (reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                        MessageSeeds.SYSTEM_SOURCE_EMPTY_TIME_PERIOD).get();
+            }
+            checkEmptyInterval(existedReadingTypes);
+        }
         if (interval != null) { //optional
             Instant start = interval.getStart();
             Instant end = interval.getEnd();
             if (!asyncFlag) {
                 if (start == null) {
-                    faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, READING_ITEM + ".timePeriod.start");
+                    throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                            MessageSeeds.MISSING_ELEMENT,
+                            READING_ITEM + ".timePeriod.start").get();
                 }
                 if (end == null) {
                     end = clock.instant();
                     interval.setEnd(end);
                 }
+            }
+            if (start == null && end == null) {
+                if (reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
+                    throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                            MessageSeeds.SYSTEM_SOURCE_EMPTY_TIME_PERIOD).get();
+                }
+                checkEmptyInterval(existedReadingTypes);
             }
             if (start == null && end != null) {
                 throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
@@ -770,6 +805,16 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                         XsdDateTimeConverter.marshalDateTime(start),
                         XsdDateTimeConverter.marshalDateTime(end)).get();
             }
+        }
+
+    }
+
+    /// TODO edit for sync reply
+    private void checkEmptyInterval(List<com.elster.jupiter.metering.ReadingType> existedReadingTypes) throws FaultMessage {
+        if (existedReadingTypes.stream()
+                .anyMatch(readingType -> !readingType.isRegular())) {
+            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                    MessageSeeds.REGISTER_EMPTY_TIME_PERIOD).get();
         }
     }
 

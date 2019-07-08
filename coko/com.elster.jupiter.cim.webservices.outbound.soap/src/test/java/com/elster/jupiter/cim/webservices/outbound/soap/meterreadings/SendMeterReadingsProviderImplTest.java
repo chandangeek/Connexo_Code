@@ -89,7 +89,7 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         provider.addMeterReadingsPort(meterReadingsPort, properties);
 
         when(endPointConfiguration.getUrl()).thenReturn("some_url");
-        assertTrue(provider.call(meterReadings, HeaderType.Verb.CREATED, endPointConfiguration));
+        assertTrue(provider.call(meterReadings, getHeader(HeaderType.Verb.CREATED), endPointConfiguration));
         verify(meterReadingsPort).createdMeterReadings(Mockito.any(MeterReadingsEventMessageType.class));
     }
 
@@ -103,5 +103,12 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
     public void testGet() {
         SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl();
         Assert.assertEquals(provider.get().getClass(), ch.iec.tc57._2011.sendmeterreadings.SendMeterReadings.class);
+    }
+
+    private HeaderType getHeader(HeaderType.Verb requestVerb) {
+        HeaderType header = new HeaderType();
+        header.setVerb(requestVerb);
+        header.setNoun("MeterReadings");
+        return header;
     }
 }

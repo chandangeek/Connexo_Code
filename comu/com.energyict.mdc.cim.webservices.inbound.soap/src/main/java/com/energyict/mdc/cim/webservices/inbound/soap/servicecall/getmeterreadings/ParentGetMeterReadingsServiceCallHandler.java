@@ -5,6 +5,10 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingsBuilder;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
@@ -29,8 +33,12 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,16 +56,19 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
     private final SendMeterReadingsProvider sendMeterReadingsProvider;
     private final Provider<MeterReadingsBuilder> readingBuilderProvider;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final DeviceService deviceService;
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
 
     @Inject
     public ParentGetMeterReadingsServiceCallHandler(MeteringService meteringService, SendMeterReadingsProvider sendMeterReadingsProvider,
                                                     Provider<MeterReadingsBuilder> readingBuilderProvider,
-                                                    EndPointConfigurationService endPointConfigurationService) {
+                                                    EndPointConfigurationService endPointConfigurationService,
+                                                    DeviceService deviceService) {
         this.meteringService = meteringService;
         this.sendMeterReadingsProvider = sendMeterReadingsProvider;
         this.readingBuilderProvider = readingBuilderProvider;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -129,8 +140,14 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         String source = extension.getSource();
         String callbackUrl = extension.getCallbackUrl();
 
-        /// TODO start/end can be not specified
-        RangeSet<Instant> timeRangeSet =  getTimeRangeSet(timePeriodStart, timePeriodEnd);
+        if (timePeriodEnd == null) {
+            timePeriodEnd = calculateEndDateFromChildrenServiceCall(serviceCall);
+        }
+        /// TODO start can be not specified
+        RangeSet<Instant> timeRangeSet = null;
+        if (timePeriodStart != null) {
+            timeRangeSet = getTimeRangeSet(timePeriodStart, timePeriodEnd);
+        }
         Set<Meter> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
         Set<String> readingTypesMRIDs = getSetOfValuesFromString(readingTypesString);
         Set<String> loadProfilesNames = getSetOfValuesFromString(loadProfilesString);
@@ -146,6 +163,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     .withLoadProfiles(loadProfilesNames)
                     .withRegisterGroups(registerGroupsNames)
                     .inTimeIntervals(timeRangeSet)
+                    .withReadingTypesMRIDsTimeRangeMap(createReadingTypesMRIDsTimeRangeMap(endDevices, readingTypesMRIDs, timePeriodStart, timePeriodEnd))
                     .build();
         } catch (FaultMessage faultMessage) {
             serviceCall.requestTransition(FAILED);
@@ -177,6 +195,48 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         serviceCall.log(LogLevel.FINE,
                 MessageFormat.format("Data successfully sent for source ''{0}'', time range {1}",
                         source, timeRangeSet));
+    }
+
+    private Device findDeviceForEndDevice(com.elster.jupiter.metering.Meter meter) {
+        long deviceId = Long.parseLong(meter.getAmrId());
+        return deviceService.findDeviceById(deviceId)
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to find device with id: {0}", deviceId)));
+    }
+
+    private Map<String, RangeSet<Instant>> createReadingTypesMRIDsTimeRangeMap(Set<Meter> meters,
+                                                                               Set<String> readingTypesMRIDs,
+                                                                               Instant start,
+                                                                               Instant end) {
+        if (start != null) { // required only for case when start date is absent
+            return null;
+        }
+        Map<String, RangeSet<Instant>> readingTypesMRIDsTimeRangeMap = new HashMap<>();
+        Set<Device> devices = meters.stream()
+                .map(meter -> findDeviceForEndDevice(meter))
+                .collect(Collectors.toSet());
+        devices.stream()
+                .map(device -> device.getLoadProfiles())
+                .flatMap(Collection::stream)
+                .forEach(loadProfile -> {
+                        loadProfile.getLoadProfileSpec().getLoadProfileType().getChannelTypes().stream()
+                                .map(ct -> ct.getReadingType().getMRID())
+                                .filter(mrid -> readingTypesMRIDs.contains(mrid))
+                                .forEach(mrid ->
+                                        readingTypesMRIDsTimeRangeMap.put(mrid, getTimeRangeSet(loadProfile.getLastReading().toInstant(), end))
+                                );
+                        });
+        return readingTypesMRIDsTimeRangeMap;
+    }
+
+    private Instant calculateEndDateFromChildrenServiceCall(ServiceCall parent) {
+        ServiceCall childServiceCall = parent.findChildren().stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No SubParentServiceCall was found"))
+                .findChildren().stream().findFirst().get();
+        ChildGetMeterReadingsDomainExtension extension = childServiceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for child service call"));
+        return Optional.ofNullable(extension.getActialEndDate())
+                .orElseThrow(() -> new IllegalStateException("Unable to get actual end date for child service call"));
     }
 
     private HeaderType getHeader(String correlationId) {
