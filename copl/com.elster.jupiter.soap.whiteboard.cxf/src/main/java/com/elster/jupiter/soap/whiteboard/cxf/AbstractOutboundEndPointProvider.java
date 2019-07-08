@@ -30,6 +30,7 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -145,6 +146,34 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         @Override
+        public Map<EndPointConfiguration, ?> sendRawXml(String message) {
+            Method method = Arrays.stream(getService().getMethods())
+                    .filter(meth -> meth.getName().equals(methodName))
+                    .filter(meth -> meth.getParameterCount() == 1)
+                    .findAny()
+                    .orElseThrow(() -> new RuntimeException(
+                            new NoSuchMethodException("Couldn't find corresponding public method " + methodName + " in class " + getService().getName())));
+            Class<?> type = method.getParameterTypes()[0];
+
+            try {
+                JAXBContext jaxbContext = JAXBContext.newInstance(type);
+                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                StringReader sReader = new StringReader(message);
+                StreamSource streamSource = new StreamSource(sReader);
+                JAXBElement<?> root = jaxbUnmarshaller.unmarshal(streamSource, type);
+                return doSend(method, root.getValue());
+            } catch (JAXBException e) {
+                getEndpoints().keySet().forEach(endPointConfiguration -> {
+                    long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), message).getId();
+                    webServicesService.failOccurrence(id,
+                            "The provided xml payload can't be sent by means of web service " + getName() + " using request " + methodName + '.',
+                            e);
+                });
+                return Collections.emptyMap();
+            }
+        }
+
+        @Override
         public Map<EndPointConfiguration, ?> send(Object request) {
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
@@ -153,6 +182,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                     .findAny()
                     .orElseThrow(() -> new RuntimeException(
                             new NoSuchMethodException("Couldn't find corresponding public method " + methodName + " in class " + getService().getName())));
+            return doSend(method, request);
+        }
+
+        private Map<EndPointConfiguration, ?> doSend(Method method, Object request) {
             return getEndpoints().entrySet().stream()
                     .map(epcAndEP -> {
                         Object port = epcAndEP.getValue();
@@ -192,31 +225,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
-        }
-
-        //@Override
-        public void send(String message, EndPointConfiguration endPointConfiguration){
-            Class<?> type;
-            Method method = Arrays.stream(getService().getMethods())
-                    .filter(meth -> meth.getName().equals(methodName))
-                    .filter(meth -> meth.getParameterCount() == 1)
-                    .findAny()
-                    .orElseThrow(() -> new RuntimeException(
-                            new NoSuchMethodException("Couldn't find corresponding public method " + methodName + " in class " + getService().getName())));
-            Class[] types = method.getParameterTypes();
-            type = types[0];
-
-            try {
-                JAXBContext jaxbContext = JAXBContext.newInstance(type);
-                Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                StringReader sReader = new StringReader( message);
-                StreamSource streamSource = new StreamSource(sReader);
-                JAXBElement<?>  root = jaxbUnmarshaller.unmarshal(streamSource, type);
-                Object msg = root.getValue();
-                send(msg);
-            } catch (JAXBException e) {
-                e.printStackTrace();
-            }
         }
 
         private String getApplicationName() {

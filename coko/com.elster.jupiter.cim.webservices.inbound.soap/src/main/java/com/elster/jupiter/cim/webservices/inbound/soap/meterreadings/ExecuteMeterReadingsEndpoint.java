@@ -596,7 +596,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
     @Override
     public String getApplication(){
-        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
-
 }

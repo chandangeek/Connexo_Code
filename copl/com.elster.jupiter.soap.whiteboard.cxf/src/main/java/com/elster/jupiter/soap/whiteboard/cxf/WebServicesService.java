@@ -92,5 +92,5 @@ public interface WebServicesService {
 
     WebServiceCallOccurrence getOngoingOccurrence(long id);
 
-    EndPointProvider getProvider(String webServiceName);
+    Optional<EndPointProvider> getProvider(String webServiceName);
 }

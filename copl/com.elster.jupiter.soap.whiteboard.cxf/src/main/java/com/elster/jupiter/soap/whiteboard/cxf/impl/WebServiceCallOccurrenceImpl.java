@@ -4,12 +4,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
 
@@ -18,10 +18,10 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointLogImpl.Fields.occurrence;
-
 public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, HasId {
-    private DataModel dataModel;
+    private final DataModel dataModel;
+    private final TransactionService transactionService;
+    private final WebServicesService webServicesService;
 
     private long id;
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
@@ -54,8 +54,12 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     @Inject
-    public WebServiceCallOccurrenceImpl(DataModel dataModel) {
+    public WebServiceCallOccurrenceImpl(DataModel dataModel,
+                                        TransactionService transactionService,
+                                        WebServicesService webServicesService) {
         this.dataModel = dataModel;
+        this.transactionService = transactionService;
+        this.webServicesService = webServicesService;
     }
 
     public WebServiceCallOccurrenceImpl init(Instant startTime,
@@ -178,8 +182,15 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
 
     @Override
     public void retry() {
-        if (endPointConfiguration.get() instanceof OutboundEndPointConfiguration) {
-            endPointConfiguration.get().retryOccurrence(requestName, payload, this);
+        EndPointConfiguration endPointConfiguration = getEndPointConfiguration();
+        if (!endPointConfiguration.isInbound()) {
+            Optional<EndPointProvider> endPointProviderOptional = webServicesService.getProvider(endPointConfiguration.getWebServiceName());
+            if (endPointProviderOptional.isPresent() && endPointProviderOptional.get() instanceof OutboundEndPointProvider) {
+                log(LogLevel.INFO, "Retrying web service call occurrence.");
+                ((OutboundEndPointProvider) endPointProviderOptional.get()).using(requestName).toEndpoints(endPointConfiguration).sendRawXml(payload);
+            } else {
+                log(LogLevel.SEVERE, "Couldn't retry web service call occurrence: web service is either not registered in the system or doesn't support retry.");
+            }
         }
     }
 }

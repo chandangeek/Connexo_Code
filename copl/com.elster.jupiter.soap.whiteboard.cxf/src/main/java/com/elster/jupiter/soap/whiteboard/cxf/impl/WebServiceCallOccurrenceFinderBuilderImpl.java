@@ -4,10 +4,13 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 
 import com.google.common.collect.Range;
 
@@ -29,7 +32,7 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withApplicationName(Set<String> applicationNames){
+    public WebServiceCallOccurrenceFinderBuilder withApplicationNames(Set<String> applicationNames){
         if (!applicationNames.isEmpty())
         {
             List<String> namesList = new ArrayList<>(applicationNames);
@@ -69,6 +72,20 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     @Override
     public WebServiceCallOccurrenceFinderBuilder withEndTimeIn(Range<Instant> interval) {
         this.condition = this.condition.and(where("endTime").in(interval));
+        return this;
+    }
+
+    @Override
+    public WebServiceCallOccurrenceFinderBuilder onlyInbound() {
+        this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(InboundEndPointConfiguration.class)
+                .asSubquery(Condition.TRUE, "id"), "endPointConfiguration"));
+        return this;
+    }
+
+    @Override
+    public WebServiceCallOccurrenceFinderBuilder onlyOutbound() {
+        this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(OutboundEndPointConfiguration.class)
+                .asSubquery(Condition.TRUE, "id"), "endPointConfiguration"));
         return this;
     }
 

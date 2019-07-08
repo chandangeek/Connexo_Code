@@ -29,7 +29,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence.MESSAGE_CONTEXT_OCCURRENCE_ID;
 import static junit.framework.TestCase.fail;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -84,6 +87,7 @@ public class AuthenticationInInterceptorTest {
         when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
         when(message.get(AuthorizationPolicy.class)).thenReturn(authorizationPolicy);
         when(userService.findUser(anyString())).thenReturn(Optional.empty());
+        when(message.get(MESSAGE_CONTEXT_OCCURRENCE_ID)).thenReturn(1l);
     }
 
     @Test
@@ -111,9 +115,9 @@ public class AuthenticationInInterceptorTest {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
         } catch (Fault se) {
-            // This page left blank intentionally
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(1l, "User admin denied access: invalid credentials");
         }
-        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
 
@@ -131,9 +135,9 @@ public class AuthenticationInInterceptorTest {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
         } catch (Fault se) {
-            // This page left blank intentionally
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(1l, "User admin denied access: not in role");
         }
-        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: not in role");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
 
@@ -164,9 +168,9 @@ public class AuthenticationInInterceptorTest {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
         } catch (Fault se) {
-            // This page left blank intentionally
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(1l, "User admin denied access: invalid credentials");
         }
-        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
 
@@ -184,8 +188,8 @@ public class AuthenticationInInterceptorTest {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
         } catch (Fault se) {
-            // This page left blank intentionally
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(any(Long.class), any(Exception.class));
         }
-        verify(endPointConfiguration).log("Exception while logging in admin:", toBeThrown);
     }
 }

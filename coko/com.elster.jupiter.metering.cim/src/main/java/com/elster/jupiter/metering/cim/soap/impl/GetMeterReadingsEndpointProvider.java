@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.cim.soap.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 
 import org.osgi.service.component.annotations.Activate;
@@ -17,7 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.time.Clock;
 
 @Component(name = "com.elster.jupiter.metering.cim.soap", service = {InboundSoapEndPointProvider.class}, immediate = true, property = {"name=CIM GetMeterReadings"})
-public class GetMeterReadingsEndpointProvider extends AbstractInboundEndPoint implements InboundSoapEndPointProvider {
+public class GetMeterReadingsEndpointProvider extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, ApplicationSpecific {
 
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -52,4 +53,9 @@ public class GetMeterReadingsEndpointProvider extends AbstractInboundEndPoint im
     public void setClock(Clock clock) {
         this.clock = clock;
     }
+
+    @Override
+    public String getApplication(){
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
+    };
 }
