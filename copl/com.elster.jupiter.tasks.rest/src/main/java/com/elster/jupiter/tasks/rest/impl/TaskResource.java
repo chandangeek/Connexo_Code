@@ -163,7 +163,7 @@ public class TaskResource {
     @Path("/queueTypes")
     @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public List<QueueInfo> getQueueTypes(@Context UriInfo uriInfo) {
+    public List<QueueTypeInfo> getQueueTypes(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
         List<String> applicationNames = uriInfo.getQueryParameters().get("application");
         Set<String> queueTypeNamesSet = new HashSet<>();
@@ -173,7 +173,7 @@ public class TaskResource {
                 queueTypeNamesSet.add(task.getDestination().getQueueTypeName());
             }
         }
-        return queueTypeNamesSet.stream().map(QueueInfo::new).collect(Collectors.toList());
+        return queueTypeNamesSet.stream().map(QueueTypeInfo::new).collect(Collectors.toList());
     }
 
     @GET
