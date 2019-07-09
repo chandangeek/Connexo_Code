@@ -147,7 +147,7 @@ public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
 
 
         serviceCallService.findServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION)
-                .orElseGet(() -> serviceCallService.createServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION)
+                .orElseGet(() -> serviceCallService.createServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION, CommunicationTestServiceCallHandler.APPLICATION)
                         .handler(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
                         .customPropertySet(customPropertySet)
                         .customPropertySet(completionOptionsCustomPropertySet)

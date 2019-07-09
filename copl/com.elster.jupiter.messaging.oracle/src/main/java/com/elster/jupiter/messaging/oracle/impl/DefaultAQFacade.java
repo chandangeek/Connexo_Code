@@ -47,11 +47,12 @@ public class DefaultAQFacade implements AQFacade {
     }
 
     private String createSql(QueueTableSpec queueTableSpec) {
-        return
-                "begin dbms_aqadm.create_queue_table(queue_table => ?, queue_payload_type => ? , multiple_consumers => " +
-                        (queueTableSpec.isMultiConsumer() ? "TRUE" : "FALSE") +
-                        "); end;";
+        String statement = "begin dbms_aqadm.create_queue_table(queue_table => ?, queue_payload_type => ? , multiple_consumers => " +
+                (queueTableSpec.isMultiConsumer() ? "TRUE" : "FALSE");
+
+        if (queueTableSpec.isPrioritized()) {
+            statement = statement + ", sort_list => \'PRIORITY, ENQ_TIME\'";
+        }
+        return statement + "); end;";
     }
-
-
 }

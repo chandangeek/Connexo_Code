@@ -51,13 +51,13 @@ public class ServiceCallCommands {
         }
 
         public String getApplication() {
-            return RESERVED_BY_APPLICATION;
+            return APPLICATION;
         }
     }
 
     private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
-    private static final String RESERVED_BY_APPLICATION = "MultiSense";
+    private static final String APPLICATION = "MDC";
 
     private ServiceCallType serviceCallType;
 

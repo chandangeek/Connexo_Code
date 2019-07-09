@@ -53,13 +53,13 @@ public class ServiceCallCommands {
         private final String typeName;
         private final String typeVersion;
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-        private final Optional<String> reservedByApplication;
+        private final String reservedByApplication;
         private final String customPropertySetClass;
 
         ServiceCallTypes(String typeName, String typeVersion, String application, String customPropertySetClass) {
             this.typeName = typeName;
             this.typeVersion = typeVersion;
-            this.reservedByApplication = Optional.ofNullable(application);
+            this.reservedByApplication = application;
             this.customPropertySetClass = customPropertySetClass;
         }
 
@@ -71,7 +71,7 @@ public class ServiceCallCommands {
             return typeVersion;
         }
 
-        public Optional<String> getApplication() {
+        public String getApplication() {
             return reservedByApplication;
         }
 

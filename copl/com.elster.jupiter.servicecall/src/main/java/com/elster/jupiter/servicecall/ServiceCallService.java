@@ -5,10 +5,13 @@
 package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -46,17 +49,32 @@ public interface ServiceCallService {
     Finder<ServiceCallType> getServiceCallTypes();
 
     /**
-     * Creates a new service call type, using provided name, version and life cycle. This method start a builder.
+     * Returns list of service call types with specified destination.
+     * @return List
+     */
+    List<ServiceCallType> getServiceCallTypes(String destination);
+
+    /**
+     * Creates a new service call type, using provided name, version, life cycle and destination. This method start a builder.
+     * @param name
+     * @return
+     */
+    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination);
+
+    /**
+     * Creates a new service call type, using provided name, version and life cycle. The default destination is used. This method start a builder.
      * @param name
      * @param versionName
      * @param serviceCallLifeCycle
      * @param reservedByApplication "MultiSense" or "Insight". NULL for both.
      * @return
      */
-    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication);
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME);
+    }
 
     /**
-     * Creates a new service call type, using provided name and version. The default life cycle is used. This method start a builder.
+     * Creates a new service call type, using provided name and version. The default life cycle is used. The default destination is used. This method start a builder.
      * @param name
      * @param versionName
      * @param reservedByApplication "MultiSense" or "Insight". NULL for both.
@@ -73,7 +91,7 @@ public interface ServiceCallService {
      * @return
      */
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
-        return createServiceCallType(name, versionName, null);
+        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), null);
     }
 
     /**
@@ -158,4 +176,6 @@ public interface ServiceCallService {
     void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 
     Set<DefaultState> nonFinalStates();
+
+    List<DestinationSpec> getCompatibleQueues4();
 }

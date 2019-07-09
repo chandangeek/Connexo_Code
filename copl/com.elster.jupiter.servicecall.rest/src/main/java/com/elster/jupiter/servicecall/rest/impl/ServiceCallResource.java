@@ -60,14 +60,9 @@ public class ServiceCallResource {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         Finder<ServiceCall> serviceCallFinder = serviceCallService.getServiceCallFinder(serviceCallInfoFactory.convertToServiceCallFilter(filter, appKey));
         List<ServiceCall> serviceCalls = serviceCallFinder.from(queryParameters).find();
-        AtomicReference key = new AtomicReference<> (appKey);
-        serviceCalls.stream().filter(serviceCall -> !serviceCall.getType().reservedByApplication().isPresent() || key.get().equals(serviceCall.getType().reservedByApplication().get()))
-                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
-
+        serviceCalls.forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
-
-
 
     @GET
     @Path("/{id}")
@@ -88,9 +83,7 @@ public class ServiceCallResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL));
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         List<ServiceCall> serviceCalls = parent.findChildren(serviceCallInfoFactory.convertToServiceCallFilter(filter, appKey)).from(queryParameters).find();
-        serviceCalls.stream()
-                .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
-
+        serviceCalls.forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
 

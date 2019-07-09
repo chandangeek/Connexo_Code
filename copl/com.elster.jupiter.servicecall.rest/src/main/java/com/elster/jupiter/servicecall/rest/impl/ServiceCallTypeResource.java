@@ -5,6 +5,8 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -33,6 +35,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -46,17 +50,20 @@ public class ServiceCallTypeResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ExceptionFactory exceptionFactory;
+    private final MessageService messageService;
 
     @Inject
     public ServiceCallTypeResource(ServiceCallService serviceCallService,
                                    ServiceCallTypeInfoFactory serviceCallTypeInfoFactory,
                                    ConcurrentModificationExceptionFactory conflictFactory,
                                    CustomPropertySetService customPropertySetService,
+                                   MessageService messageService,
                                    ExceptionFactory exceptionFactory) {
         this.serviceCallService = serviceCallService;
         this.serviceCallTypeInfoFactory = serviceCallTypeInfoFactory;
         this.conflictFactory = conflictFactory;
         this.customPropertySetService = customPropertySetService;
+        this.messageService = messageService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -81,7 +88,7 @@ public class ServiceCallTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
-    public Response changeLogLevel(@PathParam("id") long id, ServiceCallTypeInfo info) {
+    public Response updateServiceCallType(@PathParam("id") long id, ServiceCallTypeInfo info) {
         info.id = id; // oh well
         ServiceCallType type = fetchAndLockServiceCallType(info);
         if (info.logLevel != null) {
@@ -89,8 +96,24 @@ public class ServiceCallTypeResource {
         } else {
             type.setLogLevel(null);
         }
+        DestinationSpec destinationSpec = messageService.getDestinationSpec(info.destination).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DESTINATION));
+        type.setDestination(destinationSpec.getName());
+        type.setPriority(info.priority);
         type.save();
         return Response.ok(serviceCallTypeInfoFactory.from(type)).build();
+    }
+
+    @GET
+    @Path("/compatiblequeues")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALLS})
+    public Response getCompatibleQueues() {
+        List<ServiceCallQueueInfo> queues = serviceCallService.getCompatibleQueues4()
+                .stream()
+                .map(spec -> new ServiceCallQueueInfo(spec.getName(), spec.isDefault()))
+                .collect(Collectors.toList());
+
+        return Response.status(Response.Status.OK).entity(queues).build();
     }
 
     @POST

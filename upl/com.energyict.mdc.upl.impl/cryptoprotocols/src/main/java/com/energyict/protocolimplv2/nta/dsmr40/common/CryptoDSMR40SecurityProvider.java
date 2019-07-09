@@ -18,12 +18,4 @@ public class CryptoDSMR40SecurityProvider extends CryptoDSMR23SecurityProvider {
         super(properties, authenticationLevel);
         setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
     }
-
-    /**
-     * @return the initial frameCounter
-     */
-    public long getInitialFrameCounter() {
-        Random generator = new Random();
-        return generator.nextLong();
-    }
 }
