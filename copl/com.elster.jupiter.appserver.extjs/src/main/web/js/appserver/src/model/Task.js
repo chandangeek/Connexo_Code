@@ -5,7 +5,7 @@
 Ext.define('Apr.model.Task', {
     extend: 'Ext.data.Model',
     fields: [
-        'id', 'name', 'application', 'queue', 'queueStatus', 'queueStatusDate', 'nextRun', 'trigger', 'lastRunStatus', 'lastRunDate', 'isExtraQueueCreationEnabled',
+        'id', 'name', 'application', 'queue', 'queueStatus', 'queueStatusDate', 'queueType', 'nextRun', 'trigger', 'lastRunStatus', 'lastRunDate', 'isExtraQueueCreationEnabled',
         {
             name: 'queueStatusString',
             convert: function (value, record) {

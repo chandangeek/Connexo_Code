@@ -9,12 +9,12 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
 
     requires:[
         'Apr.store.Applications',
-        'Apr.store.Queues'
+        'Apr.store.Queues',
+        'Apr.store.TasksQueueTypes'
     ],
 
     initComponent: function () {
         var me = this;
-
         me.filters = [
             {
                 type: 'combobox',
@@ -24,6 +24,16 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Apr.store.Applications'
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'queueType',
+                emptyText: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                multiSelect: true,
+                displayField: 'queueType',
+                valueField: 'queueTypes',
+                store: 'Apr.store.TasksQueueTypes',
+                matchFieldWidth: false
             },
             {
                 type: 'combobox',
