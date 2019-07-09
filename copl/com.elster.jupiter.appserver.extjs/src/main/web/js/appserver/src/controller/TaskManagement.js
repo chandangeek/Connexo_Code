@@ -358,6 +358,7 @@ Ext.define('Apr.controller.TaskManagement', {
                 recordTask.set('queueStatusDate', response.queueStatusDate);
                 recordTask.set('queueStatus', response.queueStatus);
                 recordTask.set('nextRun',response.nextRun);
+                recordTask.set('nextRunTimeStamp',response.nextRun);
                 recordTask.set('queueStatusString', '');
                 recordTask.commit();
                 operationCompletedSuspend.call(controller, true);
