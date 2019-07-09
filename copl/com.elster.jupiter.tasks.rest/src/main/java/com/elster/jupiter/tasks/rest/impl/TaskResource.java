@@ -27,6 +27,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -39,6 +40,7 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -83,6 +85,7 @@ public class TaskResource {
             filterSpec.queueTypes.addAll(filter.getStringList("queueType"));
             filterSpec.startedOnFrom = filter.getInstant("startedOnFrom");
             filterSpec.startedOnTo = filter.getInstant("startedOnTo");
+            filterSpec.suspended.addAll(filter.getStringList("suspended"));
             filterSpec.nextExecutionFrom = filter.getInstant("nextRunFrom");
             filterSpec.nextExecutionTo = filter.getInstant("nextRunTo");
             filterSpec.priorityFrom = filter.getInteger("priorityFrom");
@@ -231,6 +234,25 @@ public class TaskResource {
         return Response.status(Response.Status.OK).build();
     }
 
+
+    @POST
+    @Path("/tasks/{id}/suspend/{suspendTime}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.SUSPEND_TASK_OVERVIEW})
+    public TaskInfo suspendGeneralTask(@PathParam("id") long id, @PathParam("suspendTime") long suspendTime, @Context SecurityContext securityContext) {
+
+        Principal principal = (Principal) securityContext.getUserPrincipal();
+        Locale locale = determineLocale(principal);
+
+        Instant instant = Instant.ofEpochMilli(suspendTime);
+
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        recurrentTask.setSuspendUntil(instant);
+        TaskInfo taskInfo = new TaskInfo(recurrentTask, thesaurus, timeService, locale, clock);
+        return taskInfo;
+
+    }
     private Locale determineLocale(Principal principal) {
         Locale locale = Locale.getDefault();
         if (principal instanceof User) {

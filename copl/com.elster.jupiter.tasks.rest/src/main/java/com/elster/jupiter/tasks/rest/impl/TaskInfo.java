@@ -39,6 +39,7 @@ public class TaskInfo {
     public Long queueStatusDate;
     public String trigger;
     public Long nextRun;
+    public Long suspendUntilTime;
     public Long currentRunDuration;
     public String lastRunStatus;
     public Long lastRunDate;
@@ -47,7 +48,7 @@ public class TaskInfo {
     public Boolean isQueuePrioritized;
     public Integer priority;
 
-
+    public TaskInfo(){}  // needed for serialization - deserialization
     TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
         id = recurrentTask.getId();
         name = recurrentTask.getName();
@@ -77,6 +78,7 @@ public class TaskInfo {
             setPlannedOn(recurrentTask, null);
         }
         nextRun = recurrentTask.getNextExecution() != null ? recurrentTask.getNextExecution().toEpochMilli() : null;
+        suspendUntilTime = recurrentTask.getSuspendUntil() != null ? recurrentTask.getSuspendUntil().toEpochMilli() : null;
     }
 
     private void setNotScheduled(RecurrentTask recurrentTask, TaskOccurrence lastOccurrence) {

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
@@ -64,6 +65,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String destination;
     private int priority;
     private Instant lastRun;
+    private Instant suspendUntilTime;
     private transient DestinationSpec destinationSpec;
     private int logLevel;
 
@@ -127,7 +129,15 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void updateNextExecution() {
-        ZonedDateTime now = ZonedDateTime.ofInstant(clock.instant(), ZoneId.systemDefault());
+        Instant time = clock.instant();
+
+        if(suspendUntilTime!=null && suspendUntilTime.isAfter(time)) {
+            time = suspendUntilTime;
+        }
+        //else{
+            suspendUntilTime = null;
+        //}
+        ZonedDateTime now = ZonedDateTime.ofInstant(time, ZoneId.systemDefault());
         Optional<ZonedDateTime> nextOccurrence = getScheduleExpression().nextOccurrence(now);
         nextExecution = nextOccurrence.map(ZonedDateTime::toInstant).orElse(null);
     }
@@ -225,6 +235,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public void setNextExecution(Instant nextExecution) {
         this.nextExecution = nextExecution;
+        this.suspendUntilTime = null;
     }
 
     @Override
@@ -309,7 +320,7 @@ class RecurrentTaskImpl implements RecurrentTask {
                 buildMessage(json, taskOccurrence.getRecurrentTask().getPriority()).send();
                 if (taskOccurrence.wasScheduled()) {
                     updateNextExecution();
-                    dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
+                    dataModel.mapper(RecurrentTask.class).update(this, "nextExecution","suspendUntilTime");
                 }
                 taskOccurrences.add(taskOccurrence);
             }
@@ -491,4 +502,15 @@ class RecurrentTaskImpl implements RecurrentTask {
     public void setPriority(int priority) {
         this.priority = priority;
     }
+    @Override
+    public void setSuspendUntil(Instant suspendUntilTime) {
+        this.nextExecution = this.suspendUntilTime = suspendUntilTime;
+        save();
+    }
+
+    @Override
+    public Instant getSuspendUntil(){
+        return suspendUntilTime;
+    }
+
 }

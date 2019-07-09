@@ -219,6 +219,7 @@ class MdcAppPrivileges {
 
                 //tasks
                 com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
+                com.elster.jupiter.tasks.security.Privileges.Constants.SUSPEND_TASK_OVERVIEW,
 
                 // security accessors management
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,

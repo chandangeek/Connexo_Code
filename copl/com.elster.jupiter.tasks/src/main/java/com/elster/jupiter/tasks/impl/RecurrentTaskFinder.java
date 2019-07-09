@@ -49,8 +49,8 @@ public class RecurrentTaskFinder implements TaskFinder {
         DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
         //SqlBuilder builder = mapper.builder("RT");
         SqlBuilder builder = new SqlBuilder();
-        builder.append("select * from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, PRIORITY, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, QUEUE_TYPE_NAME, ROWNUM as rnum from (");
-        builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.PRIORITY, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, DS.QUEUE_TYPE_NAME, ROWNUM as rnum ");
+        builder.append("select * from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, PRIORITY, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, SUSPENDUNTIL, QUEUE_TYPE_NAME, ROWNUM as rnum from (");
+        builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.PRIORITY, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, RT.SUSPENDUNTIL, DS.QUEUE_TYPE_NAME, ROWNUM as rnum ");
         builder.append(" from TSK_RECURRENT_TASK RT ");
         builder.append(" inner join (select NAME, QUEUE_TYPE_NAME from MSG_DESTINATIONSPEC) DS on RT.DESTINATION = DS.NAME ");
         builder.append(" inner join ");
@@ -82,9 +82,9 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append(") ");
         builder.append("on RT.ID=TSKID ");
 
-        //add started between conditions
-        boolean isStartedBetweenConditionPresent = (filter.startedOnFrom != null) || (filter.startedOnTo != null);
-        if (isStartedBetweenConditionPresent) {
+        boolean isFirstCondition = true;
+        //add started bewteen conditions
+        if ((filter.startedOnFrom != null) || (filter.startedOnTo != null)) {
             builder.append("where exists (select * from TSK_TASK_OCCURRENCE where ");
             if (filter.startedOnFrom != null) {
                 builder.append(" TSK_TASK_OCCURRENCE.STARTDATE >= ");
@@ -98,12 +98,13 @@ public class RecurrentTaskFinder implements TaskFinder {
                 builder.addLong(filter.startedOnTo.toEpochMilli());
             }
             builder.append(") ");
+            isFirstCondition = false;
         }
 
         //add next execution between conditions
-        boolean isNextExecutionBetweenConditionPresent = (filter.nextExecutionFrom != null) || (filter.nextExecutionTo != null);
-        if (isNextExecutionBetweenConditionPresent) {
-            builder.append(isStartedBetweenConditionPresent ? " and ( " : " where ( ");
+        if ((filter.nextExecutionFrom != null) || (filter.nextExecutionTo != null)) {
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+            isFirstCondition = false;
             if (filter.nextExecutionFrom != null) {
                 builder.append(" NEXTEXECUTION >= ");
                 builder.addLong(filter.nextExecutionFrom.toEpochMilli());
@@ -119,9 +120,9 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add priority between conditions
-        boolean isPriorityBetweenConditionPresent = (filter.priorityFrom != null) || (filter.priorityTo != null);
-        if (isPriorityBetweenConditionPresent) {
-            builder.append((isStartedBetweenConditionPresent || isNextExecutionBetweenConditionPresent) ? " and ( " : " where ( ");
+        if ((filter.priorityFrom != null) || (filter.priorityTo != null)) {
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+            isFirstCondition = false;
             if (filter.priorityFrom != null) {
                 builder.append(" PRIORITY >= ");
                 builder.addInt(filter.priorityFrom);
@@ -137,10 +138,10 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add queues filter conditions
-        boolean isQueueFilterConditionPresent = (filter.queues != null) && !filter.queues.isEmpty();
-        if (isQueueFilterConditionPresent) {
-            builder.append((isStartedBetweenConditionPresent || isNextExecutionBetweenConditionPresent || isPriorityBetweenConditionPresent) ?
-                            " and ( " : " where ( ");
+        if ((filter.queues != null) && (!filter.queues.isEmpty())) {
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+            isFirstCondition = false;
+
             List<String> queues = new ArrayList();
             queues.addAll(filter.queues);
             builder.append("DESTINATION in ( ");
@@ -152,11 +153,9 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add queue type filter conditions
-        boolean isQueueTypeConditionPresent = (filter.queueTypes != null) && !filter.queueTypes.isEmpty();
-        if (isQueueTypeConditionPresent) {
-            builder.append((isStartedBetweenConditionPresent || isNextExecutionBetweenConditionPresent
-                            || isPriorityBetweenConditionPresent || isQueueFilterConditionPresent) ?
-                            " and ( " : " where ( ");
+        if ((filter.queueTypes != null) && !filter.queueTypes.isEmpty()) {
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+            isFirstCondition = false;
 
             List<String> queueTypes = new ArrayList();
             queueTypes.addAll(filter.queueTypes);
@@ -169,11 +168,9 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add application filter conditions
-        boolean isApplicationFilterConditionPresent = (filter.applications != null) && !filter.applications.isEmpty();
-        if (isApplicationFilterConditionPresent) {
-            builder.append((isStartedBetweenConditionPresent || isNextExecutionBetweenConditionPresent
-                            || isPriorityBetweenConditionPresent || isQueueFilterConditionPresent || isQueueTypeConditionPresent) ?
-                           " and ( " : " where ( ");
+        if ((filter.applications != null) && (!filter.applications.isEmpty())) {
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+            isFirstCondition = false;
 
             List<String> applications = new ArrayList();
             applications.addAll(filter.applications);
@@ -183,6 +180,27 @@ public class RecurrentTaskFinder implements TaskFinder {
                 builder.append((i < applications.size() - 1) ? " , " : "");
             }
             builder.append(")) ");
+        }
+
+        if ((filter.suspended != null) && (!filter.suspended.isEmpty())) {
+
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+
+            List<String> suspended = new ArrayList();
+            suspended.addAll(filter.suspended);
+            for (int i = 0; i < suspended.size(); i++) {
+                if("y".equalsIgnoreCase(suspended.get(i))){
+                    builder.append("(SUSPENDUNTIL IS NOT NULL)");
+                }
+                else if("n".equalsIgnoreCase(suspended.get(i))){
+                    builder.append("(SUSPENDUNTIL IS NULL)");
+                }
+
+                if (i < suspended.size() - 1) {
+                    builder.append(" or ");
+                }
+            }
+            builder.append(") ");
         }
 
         // add sorting conditions

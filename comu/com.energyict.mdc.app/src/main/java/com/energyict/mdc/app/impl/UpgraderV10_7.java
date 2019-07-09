@@ -11,6 +11,7 @@ import com.energyict.mdc.app.MdcAppService;
 import javax.inject.Inject;
 
 import static com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE;
+import static com.elster.jupiter.tasks.security.Privileges.Constants.SUSPEND_TASK_OVERVIEW;
 
 public class UpgraderV10_7 implements Upgrader {
 
@@ -35,7 +36,8 @@ public class UpgraderV10_7 implements Upgrader {
     }
     private String[] getNewMeterExpertPrivileges() {
         return new String[]{
-                CREATE_ISSUE
+                CREATE_ISSUE,
+                SUSPEND_TASK_OVERVIEW
         };
     }
 }

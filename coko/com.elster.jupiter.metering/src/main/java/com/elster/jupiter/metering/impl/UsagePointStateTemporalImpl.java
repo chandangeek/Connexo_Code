@@ -87,4 +87,12 @@ public class UsagePointStateTemporalImpl implements Effectivity {
     public int hashCode() {
         return Objects.hash(this.usagePoint.get(), this.interval.getStart());
     }
+
+    public Instant getModTime(){
+        return modTime;
+    }
+
+    public Instant getCreateTime(){
+        return createTime;
+    }
 }

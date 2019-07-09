@@ -455,7 +455,6 @@ public class UsagePointResource {
         }
 
         usagePoint.setLifeCycle(newLifeCycle);
-        usagePoint.update();
 
         State initialState = usagePoint.getLifeCycle().getStates()
                 .stream()
@@ -463,7 +462,7 @@ public class UsagePointResource {
                 .findFirst()
                 .get();
         usagePoint.setState(initialState, Instant.now());
-
+        usagePoint.update();
         return Response.ok(usagePointInfoFactory.from(usagePoint)).build();
     }
 
