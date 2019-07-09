@@ -83,10 +83,11 @@ public class TaskResource {
             filterSpec.queueTypes.addAll(filter.getStringList("queueType"));
             filterSpec.startedOnFrom = filter.getInstant("startedOnFrom");
             filterSpec.startedOnTo = filter.getInstant("startedOnTo");
-            filterSpec.nextExecutionFrom = filter.getInstant("nextExecutionFrom");
-            filterSpec.nextExecutionTo = filter.getInstant("nextExecutionTo");
+            filterSpec.nextExecutionFrom = filter.getInstant("nextRunFrom");
+            filterSpec.nextExecutionTo = filter.getInstant("nextRunTo");
             filterSpec.priorityFrom = filter.getInteger("priorityFrom");
             filterSpec.priorityTo = filter.getInteger("priorityTo");
+            filterSpec.sortingColumns = queryParams.getSortingColumns();
         }
         TaskFinder finder = taskService.getTaskFinder(filterSpec, queryParams.getStart().get(), queryParams.getLimit().get() + 1);
 

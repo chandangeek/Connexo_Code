@@ -12,6 +12,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
 import com.elster.jupiter.tasks.TaskFinder;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -145,9 +146,7 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append("DESTINATION in ( ");
             for (int i = 0; i < queues.size(); i++) {
                 builder.addObject(queues.get(i));
-                if (i < queues.size() - 1) {
-                    builder.append(" , ");
-                }
+                builder.append((i < queues.size() - 1) ? " , " : "");
             }
             builder.append(")) ");
         }
@@ -164,9 +163,7 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append("QUEUE_TYPE_NAME in (");
             for (int i = 0; i < queueTypes.size(); i++) {
                 builder.addObject(queueTypes.get(i));
-                if (i < queueTypes.size() - 1) {
-                    builder.append(" , ");
-                }
+                builder.append((i < queueTypes.size() - 1) ? " , " : "");
             }
             builder.append(")) ");
         }
@@ -183,14 +180,34 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append("APPLICATION in (");
             for (int i = 0; i < applications.size(); i++) {
                 builder.addObject(applications.get(i));
-                if (i < applications.size() - 1) {
-                    builder.append(" , ");
-                }
+                builder.append((i < applications.size() - 1) ? " , " : "");
             }
             builder.append(")) ");
         }
 
-        builder.append("order by TSKSTATUS, STARTDATE ");
+        // add sorting conditions
+        builder.append("order by ");
+        if (!filter.sortingColumns.isEmpty()) {
+            Order[] order = filter.sortingColumns.toArray(new Order[filter.sortingColumns.size()]);
+            for (int i = 0; i < order.length; i++) {
+                switch (order[i].getName()) {
+                    case "nextRun":
+                        builder.append(" TSKSTATUS, STARTDATE " + order[i].ordering());
+                        builder.append((i < order.length - 1) ? " , " : "");
+                        break;
+                    case "queue":
+                        builder.append(" DESTINATION " + order[i].ordering());
+                        builder.append((i < order.length - 1) ? " , " : "");
+                        break;
+                    case "priority":
+                        builder.append(" PRIORITY " + order[i].ordering());
+                        builder.append((i < order.length - 1) ? " , " : "");
+                        break;
+                }
+            }
+        } else {
+            builder.append("NAME ");
+        }
         builder.append(")) ");
 
         // add pagging
