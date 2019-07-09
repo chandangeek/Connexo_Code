@@ -158,7 +158,6 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
         }
-        /*XROMVYU SEND*/
         using(method)
                 .toEndpoints(endPointConfiguration)
                 .send(message);
