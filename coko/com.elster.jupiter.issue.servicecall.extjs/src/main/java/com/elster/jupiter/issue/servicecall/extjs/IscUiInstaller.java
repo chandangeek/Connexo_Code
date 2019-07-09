@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.issue.extjs", service = TranslationKeyProvider.class,
-        property = {"name=" + ItkUiInstaller.COMPONENT_NAME + "-UI", "app=SYS"}, immediate = true)
-public class IdcUiInstaller implements TranslationKeyProvider {
+        property = {"name=" + IscUiInstaller.COMPONENT_NAME + "-UI", "app=SYS"}, immediate = true)
+public class IscUiInstaller implements TranslationKeyProvider {
     public static final String APP_KEY = "SYS";
     public static final String COMPONENT_NAME = "ISC";
     public static final String HTTP_RESOURCE_ALIAS = "/isc";
@@ -34,7 +34,7 @@ public class IdcUiInstaller implements TranslationKeyProvider {
     private volatile ServiceRegistration<HttpResource> registration;
     private volatile License license;
 
-    public IdcUiInstaller() {
+    public IscUiInstaller() {
 
     }
 
