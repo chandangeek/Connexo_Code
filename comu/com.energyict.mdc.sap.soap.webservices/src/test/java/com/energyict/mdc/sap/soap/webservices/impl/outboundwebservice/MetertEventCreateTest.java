@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -10,6 +11,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.eventmanagement.MeterEventCre
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequest;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequestService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPBulkCrteReqMsg;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +33,7 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
     @Test
     public void testCall() {
         MeterEventCreateRequestProviderImpl meterEventCreateRequestProvider = new MeterEventCreateRequestProviderImpl();
-        meterEventCreateRequestProvider.addSOAUtilitiesSmartMeterEventERPBulkCreateRequest(port);
+        meterEventCreateRequestProvider.addSOAUtilitiesSmartMeterEventERPBulkCreateRequest(port, ImmutableMap.of(AbstractOutboundEndPointProvider.ENDPOINT_CONFIGURATION_ID_PROPERTY, 1));
         meterEventCreateRequestProvider.send(reqMsg);
         Mockito.verify(port).soaUtilitiesSmartMeterEventERPBulkCreateRequest(reqMsg);
     }
@@ -39,7 +42,6 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
     public void testCallWithoutPort() {
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
         MeterEventCreateRequestProviderImpl meterEventCreateRequestProvider = new MeterEventCreateRequestProviderImpl();
-        meterEventCreateRequestProvider.setThesaurus(webServiceActivator);
         expectedException.expect(SAPWebServiceException.class);
         expectedException.expectMessage(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS.getDefaultFormat());
         meterEventCreateRequestProvider.send(reqMsg);
