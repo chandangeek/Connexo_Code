@@ -34,7 +34,7 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel,
             widget;
 
-        if (issueType === 'datacollection' || issueType ==='devicelifecycle' || issueType ==='task') {
+        if (issueType === 'datacollection' || issueType === 'devicelifecycle' || issueType === 'task' || issueType === 'servicecall') {
             processStore.getProxy().setUrl(id);
             processStore.load(function (records) {
             });
@@ -69,6 +69,9 @@ Ext.define('Isu.controller.IssueDetail', {
             widgetXtype = 'task-issue-detail';
             issueModel = 'Itk.model.Issue';
             me.taskStore = 'Itk.store.OccurrenceStore';
+        } else if (issueType === 'servicecall') {
+            widgetXtype = 'servicecall-issue-detail';
+            issueModel = 'Isc.model.Issue';
         } else {
             widgetXtype = me.widgetXtype;
             issueModel = me.issueModel;
@@ -209,7 +212,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && me.canComment());
-                if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task')) {
+                if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall')) {
                     me.loadTimeline(commentsStore);
                 }
                 me.constructComments(commentsView, commentsStore);
@@ -218,7 +221,7 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
         if (router.queryParams.addComment) {
-            if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task')) {
+            if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall')) {
                 this.showCommentForm();
             } else {
                 this.showCommentFormValidation();
@@ -596,6 +599,9 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel = 'Idl.model.Issue';
         }else if (issueType === 'task') {
             issueModel = 'Itk.model.Issue';
+        }
+        else if (issueType === 'servicecall') {
+            issueModel = 'Isc.model.Issue';
         }
         else {
             issueModel = me.issueModel;
