@@ -2008,6 +2008,10 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("state")
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.ordinal())
+                    .domainReferenceColumn("USAGE_POINT")
+                    .build();
         }
     },
     MTR_CALENDAR_ON_USAGEPOINT {
