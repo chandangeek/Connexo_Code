@@ -111,7 +111,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_DATA_SOURCES(7022, "NoDataSources", "At least one of ''GetMeterReadings.ReadingType'' or ''GetMeterReadings.Reading.dataSource'' must be specified in the request"),
     REGISTER_GROUP_NOT_FOUND(7023, "RegisterGroupNotFound", "Couldn''t find register group with name ''{0}''."),
     LOAD_PROFILE_NOT_FOUND(7024, "LoadProfileNotFound", "Couldn''t find load profile with name ''{0}''."),
-    NO_COM_TASK_EXECUTION(7025, "NoCommTaskExecution", "The required communication task execution of type {0} wasn't found on the device {1}."),
+    NO_COM_TASK_EXECUTION(7025, "NoComTaskExecution", "The required communication task execution of type {0} wasn't found on the device {1}."),
     LOAD_PROFILE_WRONG_TIME_PERIOD(7026, "LoadProfileWrongTimePeriod",
             "Wrong time period for load profile data source is provided: start ''{0}'', end ''{1}''."),
     REGISTER_GROUP_WRONG_TIME_PERIOD(7027, "RegisterGroupWrongTimePeriod",
@@ -120,12 +120,12 @@ public enum MessageSeeds implements MessageSeed {
             "Empty time period for load profile data source is provided."),
     REGISTER_GROUP_EMPTY_TIME_PERIOD(7029, "RegisterGroupEmptyTimePeriod",
             "Empty time period for register group data source is provided."),
-    REGISTER_EMPTY_TIME_PERIOD(7030, "RegisterEmptyTimePeriod",
-            "Empty time period for register is provided."),
+    REGISTER_EMPTY_TIME_PERIOD(7030, "RegisterEmptyTimePeriod", "Empty time period for register is provided."),
     SYSTEM_SOURCE_EMPTY_TIME_PERIOD(7031, "SystemSourceEmptyTimePeriod",
             "Empty time period for ''System'' source is provided."),
     SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES(7032, "SystemSourceDoesntSupportLoadProfiles",
             "''System'' source doesn''t support ''Load profile'' data source."),
+    NO_COM_TASK_EXECUTION_FOR_PROTOCOL_TASK(7033, "NoComTaskExecutionForProtocolTask", "No communication task execution have been found for protocol task ''{0}''."),
 
     NO_HEAD_END_INTERFACE_FOUND(8004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     ;

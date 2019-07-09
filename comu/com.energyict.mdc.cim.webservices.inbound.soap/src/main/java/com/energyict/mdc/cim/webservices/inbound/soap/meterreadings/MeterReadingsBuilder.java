@@ -222,7 +222,7 @@ public class MeterReadingsBuilder {
                             .map(this::fetchReadingsFromContainer)
                             .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
                                     .ifPresent(meterReadingsList::add));
-            });
+                    });
         }
         // filled in in scope of wrapInMeterReading
         referencedReadingTypes.stream()

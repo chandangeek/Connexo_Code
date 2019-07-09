@@ -237,7 +237,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             Reading reading = readings.get(i);
 
             checkTimeInterval(reading, i, existedReadingTypes, true);
-            /// TODO check that connection method exists on device
             String connectionMethod = reading.getConnectionMethod();
             if (connectionMethod != null) {
                 checkIsEmpty(connectionMethod, READING_LIST_ITEM + ".connectionMethod");
@@ -248,8 +247,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
             checkIfMissingOrIsEmpty(reading.getScheduleStrategy(), READING_LIST_ITEM + ".scheduleStrategy");
             ScheduleStrategyEnum scheduleStrategy = getScheduleStrategy(reading.getScheduleStrategy());
-            /// TODO check that reading or loadProfile com task exists
-            /// TODO check that register group name or load profile name does exist
             DataSourceTypeNameEnum dsTypeName = getDataSourceNameType(reading.getDataSource());
             Set<String> existedLoadProfilesNames = null;
             Set<String> existedRegisterGroupsNames = null;
@@ -290,9 +287,9 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                              reading.getTimePeriod(), reading.getSource());
 
 
-            serviceCallCommands.createParentGetMeterReadingsServiceCall(reading.getSource(), replyAddress, corelationId,
-                    reading.getTimePeriod(), existedMeters, existedReadingTypes, combinerReadingTypes,
-                    existedLoadProfilesNames, existedRegisterGroupsNames, connectionMethod, scheduleStrategy);
+            serviceCallCommands.createParentGetMeterReadingsServiceCallWithChilds(getMeterReadingsRequestMessage.getHeader(), reading, existedMeters, existedReadingTypes,
+                                                                        combinerReadingTypes, existedLoadProfilesNames,
+                                                                        existedRegisterGroupsNames, scheduleStrategy);
         }
         context.commit();
 
@@ -365,7 +362,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     }
 
 
-    /// TODO
+    /// TODO fill not found of device
     private List<String> getExistedOnDevicesLoadProfilesNames(List<com.elster.jupiter.metering.Meter> existedMeters,
                                                               List<String> existedLoadProfiles) {
         if (existedLoadProfiles != null) {
@@ -383,7 +380,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return null;
     }
 
-    /// TODO
+    /// TODO fill not existed
     private Set<LoadProfileType> getExistedLoadProfiles(List<String> existedLoadProfiles) throws FaultMessage {
         Set<LoadProfileType> loadProfiles = new HashSet<>();
         if (existedLoadProfiles != null) {
@@ -394,7 +391,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return loadProfiles;
     }
 
-    /// TODO
+    /// TODO fill not existed
     private Set<RegisterGroup> getExistedRegisterGroups(List<String> existedRegisterGroups) throws FaultMessage {
         Set<RegisterGroup> registerGroups = new HashSet<>();
         if (existedRegisterGroups != null) {
@@ -426,12 +423,10 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         return dsNameType;
     }
 
-    /// TODO check existance of DataSourceName and throw exception
-    // 15min Electricity A+
     private List<String> getDataSourceNames(List<DataSource> dataSources) {
         List<String> dsNames = new ArrayList<>();
         for (DataSource dataSource : dataSources) {
-            String dsName = dataSource.getName(); // 15min Electricity A+
+            String dsName = dataSource.getName(); // e.g. 15min Electricity A+
             if (!Strings.isNullOrEmpty(dataSource.getName())) {
                 dsNames.add(dsName);
             }

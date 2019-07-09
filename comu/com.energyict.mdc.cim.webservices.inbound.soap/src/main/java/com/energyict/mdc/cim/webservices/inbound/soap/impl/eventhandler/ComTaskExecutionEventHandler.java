@@ -125,12 +125,9 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                 serviceCall.log(LogLevel.INFO, "Device message is confirmed");
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                /// TODO check all cases != Confirmed ?
                 serviceCall.requestTransition(DefaultState.ONGOING);
                 serviceCall.log(LogLevel.SEVERE, "Device message wasn't confirmed");
-                /// FIXME it is temporal workaround
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-//                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
     }

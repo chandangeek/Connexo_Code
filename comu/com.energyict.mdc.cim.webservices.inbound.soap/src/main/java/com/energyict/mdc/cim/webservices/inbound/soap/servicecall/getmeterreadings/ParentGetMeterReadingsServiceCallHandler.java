@@ -49,7 +49,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "ParentGetMeterReadingsServiceCallHandler";
-    /// TODO version update to v2.0 is required?
     public static final String VERSION = "v1.0";
 
     private final MeteringService meteringService;
@@ -143,7 +142,6 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         if (timePeriodEnd == null) {
             timePeriodEnd = calculateEndDateFromChildrenServiceCall(serviceCall);
         }
-        /// TODO start can be not specified
         RangeSet<Instant> timeRangeSet = null;
         if (timePeriodStart != null) {
             timeRangeSet = getTimeRangeSet(timePeriodStart, timePeriodEnd);
