@@ -296,7 +296,14 @@ Ext.define('Apr.controller.TaskManagement', {
             suspendedDataTime = new Date(record.get('suspendedDataTime'));
         }
         else {
-            suspendedDataTime = new Date(record.get('nextRunTimeStamp'));
+            if (record.get('nextRunTimeStamp') == 0){
+                var tomorrowMidnight = new Date();
+                tomorrowMidnight.setHours(24, 0, 0, 1);
+                suspendedDataTime = tomorrowMidnight;
+            }
+            else {
+                suspendedDataTime = new Date(record.get('nextRunTimeStamp'));
+            }
         }
 
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
