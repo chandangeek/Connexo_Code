@@ -168,7 +168,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             },
             '#edit-security-accessor-key-renewal button[action=save]': {
                 click: this.onSaveKeyRenewal
-            },
+            }
         });
     },
 
@@ -278,14 +278,27 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                     deviceType : deviceType,
                                     itemId: 'edit-security-accessor-key-renewal',
                                     securityAccessorRecord: securityAccessorRecord
-                                });
+                                }),
+                                    keyRenewalForm = me.getKeyRenewalForm(),
+                                    commandCombo = keyRenewalForm.down('#key-renewal-command-combo'),
+                                    noCommand = keyRenewalForm.down('#key-renewal-no-command');
+
+                                records.length == 0 && commandCombo.setVisible(false) && noCommand.setVisible(true);
+                                records.length != 0 && commandCombo.setVisible(true) && noCommand.setVisible(false);
                                 me.getApplication().fireEvent('changecontentevent', view);
                                 me.getApplication().fireEvent('configurekeyrenewal', securityAccessorRecord);
                                 view.down('#edit-security-accessor-key-renewal-panel').setTitle(Uni.I18n.translate('general.editKeyRenewal', 'MDC', "Edit key renewal for '{0}'", securityAccessorRecord.get('name')));
                                 view.down('#key-renewal-radio').setValue({keyRenewal: !Ext.isEmpty(securityAccessorRecord.get('keyRenewalCommandSpecification'))});
                                 if (securityAccessorRecord.get('keyRenewalCommandSpecification')){
-                                    view.down('#key-renewal-command-combo').setValue(securityAccessorRecord.get('keyRenewalCommandSpecification').id);
+                                    commandCombo.setValue(securityAccessorRecord.get('keyRenewalCommandSpecification').id);
                                     view.down('#key-renewal-property-form').loadRecord(securityAccessorRecord);
+                                    if (securityAccessorRecord.properties() && (securityAccessorRecord.properties().getCount() > 0)) {
+                                        var keyRenewalPropertyHeader = me.getKeyRenewalPropertyHeader();
+                                        keyRenewalPropertyHeader.show();
+                                        keyRenewalPropertyHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', securityAccessorRecord.get('keyRenewalCommandSpecification').name) + '</h3>');
+                                    } else {
+                                        keyRenewalPropertyHeader.hide();
+                                    }
                                 }
                             }
                         });
@@ -377,6 +390,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 me.selectedRecord = record;
                 me.getPreviewForm().doLoadRecord(record);
                 if (!Ext.isEmpty(recordParam.get('keyRenewalCommandSpecification'))) {
+                    me.getPreviewForm().down('#previewPropertiesCommandName').setValue(recordParam.get('keyRenewalCommandSpecification').name);
                     previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', recordParam.get('keyRenewalCommandSpecification').name) + '</h3>');
                     previewPropertiesHeader.show();
                     if (!Ext.isEmpty(recordParam.get('properties'))) {
@@ -388,6 +402,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         previewNoProperties.show();
                     }
                 } else {
+                    me.getPreviewForm().down('#previewPropertiesCommandName').setValue();
                     previewPropertiesHeader.hide();
                     previewNoProperties.hide();
                 }

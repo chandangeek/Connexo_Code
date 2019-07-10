@@ -8,7 +8,8 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
     cancelLink: undefined,
     requires: [
         'Uni.util.FormErrorMessage',
-        'Mdc.securityaccessors.store.SecurityCategoryCommands'
+        'Mdc.securityaccessors.store.SecurityCategoryCommands',
+        'Uni.view.form.ComboBoxWithEmptyComponent'
     ],
 
     initComponent: function () {
@@ -56,7 +57,10 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                         listeners: {
                             change: function (field, newValue, oldValue) {
                                 me.down('#key-renewal-command-combo').setDisabled(!newValue.keyRenewal);
+                                me.down('#key-renewal-no-command').setDisabled(!newValue.keyRenewal);
+                                me.down('#key-renewal-property-header').setDisabled(!newValue.keyRenewal);
                                 me.down('#key-renewal-property-form').setDisabled(!newValue.keyRenewal);
+                                me.down('#key-renewal-add-button').setDisabled(newValue.keyRenewal && me.down('#key-renewal-no-command').isVisible());
                             }
                         },
                         items: [
@@ -99,6 +103,16 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                                 queryMode: 'local',
                                 labelWidth: 200,
                                 width: 550
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'key-renewal-no-command',
+                                fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Command'),
+                                value: Uni.I18n.translate('keyRenewal.noCommands', 'MDC', 'No commands are available'),
+                                fieldStyle: {
+                                    color: '#EB5642'
+                                },
+                                hidden: true
                             },
                             {
                                 itemId: 'key-renewal-property-header',

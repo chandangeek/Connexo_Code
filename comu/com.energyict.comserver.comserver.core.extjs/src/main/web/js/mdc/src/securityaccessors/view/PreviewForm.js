@@ -62,6 +62,11 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         renderer: function (value) {
                             return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
                         }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Key renewal command'),
+                        itemId: 'previewPropertiesCommandName'
                     }
                 ]
             },
