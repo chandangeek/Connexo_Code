@@ -179,6 +179,9 @@ public class DataExportTaskInfoFactory {
         if (nextExecution != null) {
             info.nextRun = nextExecution;
         }
+
+        info.suspendUntilExport = dataExportTask.getSuspendUntil();
+
         dataExportTask.getLastRun().ifPresent(lastRun -> info.lastRun = lastRun);
         info.version = dataExportTask.getVersion();
         return info;

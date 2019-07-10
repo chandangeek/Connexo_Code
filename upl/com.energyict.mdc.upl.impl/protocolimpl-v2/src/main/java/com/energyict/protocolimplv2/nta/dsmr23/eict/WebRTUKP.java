@@ -251,9 +251,15 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     }
 
     @Override
-    public CollectedFirmwareVersion getFirmwareVersions() {
-        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
 
+        if (serialNumber!=null){
+            if (!serialNumber.equals(getSerialNumber())){
+                return collectSlaveFirmwareVersions(serialNumber);
+            }
+        }
+
+        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
 
         collectFirmwareVersionMeterCore(result);
 

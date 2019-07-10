@@ -5,7 +5,8 @@
 Ext.define('Apr.model.Task', {
     extend: 'Ext.data.Model',
     fields: [
-        'id', 'name', 'application', 'queue', 'queueStatus', 'queueStatusDate', 'queueType', 'nextRun', 'trigger', 'lastRunStatus', 'lastRunDate', 'isExtraQueueCreationEnabled',
+        'id', 'name', 'application', 'queue', 'queueStatus', 'queueStatusDate', 'nextRun', 'trigger', 'lastRunStatus', 'lastRunDate', 'isExtraQueueCreationEnabled',
+         'suspendUntilTime', 'queueType',
         {
             name: 'queueStatusString',
             convert: function (value, record) {
@@ -22,9 +23,21 @@ Ext.define('Apr.model.Task', {
             name: 'nextRun',
             type: 'number',
             defaultValue: null,
-            convert: function(value){
-                return value != null ? Uni.DateTime.formatDateTimeLong(new Date(value)) : Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
+           convert: function(value){
+               return value != null ? Uni.DateTime.formatDateTimeLong(new Date(value)) : Uni.I18n.translate('general.notScheduled', 'APR', 'Not scheduled');
+           }
+        },
+        {
+            name: 'nextRunTimeStamp',
+            type: 'number',
+            defaultValue: null,
+            mapping: function (data) {
+                return data.nextRun;
             }
+        },
+        {
+            name: 'suspendUntilTime',
+            type: 'number',
         },
         {
             name: 'lastRunStatusString',

@@ -163,6 +163,9 @@ Ext.define('Apr.controller.TaskManagement', {
             case 'setTriggers':
                 me.showSetTriggers(record);
                 break;
+            case 'suspendTask':
+                me.suspendTaskManagement(record, me.suspendOperationStart, me.suspendOperationCompleted, this);
+                break;
         }
     },
 
@@ -286,6 +289,115 @@ Ext.define('Apr.controller.TaskManagement', {
     editOperationCompleted: function (status) {
         var me = this;
         me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).forward(null, me.rootRouteArguments);
+    },
+
+    /* suspend task section */
+    suspendTaskManagement: function (record, operationStartFunc, operationCompletedFunc, controller)  {
+        var me = this,
+            suspendedDataTime;
+
+        if (record.get('suspended') == 'suspended') {
+            suspendedDataTime = new Date(record.get('suspendedDataTime'));
+        }
+        else {
+            if (record.get('nextRunTimeStamp') == 0){
+                var tomorrowMidnight = new Date();
+                tomorrowMidnight.setHours(24, 0, 0, 1);
+                suspendedDataTime = tomorrowMidnight;
+            }
+            else {
+                suspendedDataTime = new Date(record.get('nextRunTimeStamp'));
+            }
+        }
+
+        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+            itemId: 'snooze-snoozeConfirmationWindow',
+            confirmText: Uni.I18n.translate('general.suspend', 'APR', 'Suspend'),
+            closeAction: 'destroy',
+            green: true,
+            confirmation: function () {
+                me.suspendTask(record, operationStartFunc, operationCompletedFunc, controller, this);
+            }
+        })
+        ;
+
+        confirmationWindow.insert(1, {
+            xtype: 'snooze-date',
+            itemId: 'issue-sel-snooze-run',
+            defaultDate: suspendedDataTime,
+            padding: '-10 0 0 45'
+        });
+        confirmationWindow.insert(2, {
+            xtype: 'label',
+            margin: '0 0 10 50',  // add "It willl be suspended" in suspended dialog
+            text: Uni.I18n.translate('general.suspend.text', 'APR', 'The next run will start after suspended period'),
+        });
+        confirmationWindow.insert(3, {
+            itemId: 'snooze-now-window-errors',
+            xtype: 'label',
+            margin: '0 0 10 50',
+            hidden: true
+        });
+        confirmationWindow.show({
+            title: Uni.I18n.translate('general.suspendNow', 'APR', "Suspend '{0}'?",
+                record.getData().name, false)
+        });
+    },
+
+    suspendTask : function(recordTask, operationStartSuspend, operationCompletedSuspend, controller, confWindow){
+        var me = this;
+        operationStartSuspend.call(controller);
+
+        var suspendTime = confWindow.down('#issue-snooze-until-date').getValue().getTime();
+
+        Ext.Ajax.request({
+            url: '/api/tsk/task/tasks/' + recordTask.get('id') + '/suspend/' + suspendTime,
+            method: 'POST',
+
+            success: function (operation) {
+                console.log('success');
+                var response = Ext.JSON.decode(operation.responseText);
+                recordTask.set('lastRunDate',response.lastRunDate);
+                recordTask.set('suspendUntilTime', response.suspendUntilTime);
+                recordTask.set('queueStatusDate', response.queueStatusDate);
+                recordTask.set('queueStatus', response.queueStatus);
+                recordTask.set('nextRun',response.nextRun);
+                recordTask.set('nextRunTimeStamp',response.nextRun);
+                recordTask.set('queueStatusString', '');
+                recordTask.commit();
+                operationCompletedSuspend.call(controller, true);
+
+                confWindow.destroy();
+            },
+
+            failure: function (response) {
+                operationCompletedSuspend.call(controller, false);
+                if (response.status === 400) {
+                    var res = Ext.JSON.decode(response.responseText);
+                    confWindow.update(res.errors[0].msg);
+                    confWindow.setVisible(true);
+                }
+                else {
+                    confWindow.destroy();
+                }
+            }
+        });
+    },
+    suspendOperationStart:function() {
+        var me = this;
+        me.getPage() && me.getPage().setLoading(true);
+    },
+
+    suspendOperationCompleted:function(succeeded) {
+        var me = this;
+        me.getPage() && me.getPage().setLoading(false);
+        var grid = me.getTaskManagementGrid();
+        if(grid){
+            var selection = grid.getSelectionModel().getSelection(); // get current item selected
+            grid.getSelectionModel().deselectAll();  // deselect all items
+            grid.getSelectionModel().select(selection); // select current item selected, again.
+            // This will force refresh of details, needed for "Suspended" detail
+        }
     },
 
     /* common section */

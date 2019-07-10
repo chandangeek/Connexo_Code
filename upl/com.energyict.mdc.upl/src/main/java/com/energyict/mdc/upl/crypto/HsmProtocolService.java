@@ -93,4 +93,6 @@ public interface HsmProtocolService {
     MacResponse generateMacMiddleBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] state) throws HsmException;
     MacResponse generateMacLastBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv, byte[] state) throws HsmException;
     MacResponse generateMacSingleBlock(IrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv) throws HsmException;
+
+    byte[] wrapServiceKey(byte[] preparedData, byte[] signature, String verifyKey);
 }

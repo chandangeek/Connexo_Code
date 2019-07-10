@@ -7,12 +7,16 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -180,6 +184,104 @@ public enum TableSpecs {
         }
     },
 
+    FWC_CAMPAIGN { //removed in 10.7
+
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
+
+            Column idColumn = table.addAutoIdColumn();
+            Column name = table.column("CAMPAIGN_NAME").varChar(NAME_LENGTH).map("name").notNull().add();
+            table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").notNull().add();
+            Column deviceType = table.column("DEVICE_TYPE").number().notNull().add();
+            table.column("MANAGEMENT_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("managementOption").notNull().add();
+            table.column("FIRMWARE_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map("firmwareType").notNull().add();
+            table.column("STARTED_ON").number().map("startedOn").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("FINISHED_ON").number().map("finishedOn").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("COMWINDOWSTART").number().conversion(ColumnConversion.NUMBER2INT).map("comWindow.start.millis").add();
+            table.column("COMWINDOWEND").number().conversion(ColumnConversion.NUMBER2INT).map("comWindow.end.millis").add();
+            table.column("NROFDEVICES").number().map("numberOfDevices").conversion(ColumnConversion.NUMBER2INT).add();
+            table.column("VALIDATION_TIMEOUT_VALUE")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map("validationTimeout" + ".count")
+                    .notNull()
+                    .since(version(10, 4, 1))
+                    .installValue("1")
+                    .add();
+            table.column("VALIDATION_TIMEOUT_UNIT")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map("validationTimeout" + ".timeUnitCode")
+                    .notNull()
+                    .since(version(10, 4, 1))
+                    .installValue(Integer.toString(TimeDuration.TimeUnit.HOURS.getCode()))
+                    .add();
+            table.setJournalTableName("FWC_CAMPAIGNJRNL").since(version(10, 2));
+            table.addAuditColumns();
+
+            table.unique("UQ_FWC_CAMPAIGN_NAME").on(name).add();
+            table.foreignKey("FK_FWC_CAMPAIGN_TO_D_TYPE")
+                    .on(deviceType)
+                    .references(DeviceType.class)
+                    .map("deviceType")
+                    .add();
+            table.primaryKey("PK_FWC_CAMPAIGN").on(idColumn).add();
+        }
+    },
+
+    FWC_CAMPAIGN_DEVICES { //removed in 10.7
+
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
+            Column campaign = table.column("CAMPAIGN").number().notNull().add();
+            Column device = table.column("DEVICE").number().notNull().add();
+            Column status = table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
+            table.column("MESSAGE_ID").number().conversion(ColumnConversion.NUMBER2LONGNULLZERO).map("firmwareMessageId").add();
+            table.column("STARTED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map("startedOn").add();
+            Column finishedOn = table.column("FINISHED_ON").number().conversion(ColumnConversion.NUMBER2INSTANT).map("finishedOn").add();
+
+            table.unique("UQ_FWC_DEV_IN_CAMP").on(device, status, finishedOn).add();
+            table.foreignKey("FK_FWC_DEVICE_TO_CAMPAIGN")
+                    .on(campaign)
+                    .references(FWC_CAMPAIGN.name())
+                    .map("campaign")
+                    .add();
+            table.foreignKey("FK_FWC_DEVICE_TO_DEVICE")
+                    .on(device)
+                    .references(Device.class)
+                    .map("device")
+                    .onDelete(CASCADE)
+                    .add();
+            table.primaryKey("PK_FWC_CAMPAIGN_DEVICES").on(campaign, device).add();
+        }
+    },
+
+    FWC_CAMPAIGN_STATUS { //removed in 10.7
+
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
+
+            Column campaign = table.column("CAMPAIGN").number().notNull().add();
+            table.column("ONGOING").number().map("ongoing").conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("SUCCESS").number().map("success").conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("PENDING").number().map("pending").conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("FAILED").number().map("failed").conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("CONFIGURATIONERROR").number().map("configurationError").conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("CANCELLED").number().map("cancelled").conversion(ColumnConversion.NUMBER2LONG).add();
+
+            table.foreignKey("FK_FWC_STATUS_TO_CAMPAIGN")
+                    .on(campaign)
+                    .references(FWC_CAMPAIGN.name())
+                    .map("campaign")
+                    .composition()
+                    .add();
+            table.primaryKey("PK_FWC_CAMPAIGN_STATUS").on(campaign).add();
+        }
+    },
+
     FWC_CAMPAIGN_PROPS {
         @Override
         void addTo(DataModel dataModel) {
@@ -197,7 +299,8 @@ public enum TableSpecs {
                     .add();
             Column cps = table.column("CPS_ID")
                     .number()
-                    .notNull()
+                    //.notNull() can't make not null here; done manually in UpgraderV10_7 and Installer
+                    .since(version(10, 7))
                     .add();
             table.column("VALUE")
                     .varChar(DESCRIPTION_LENGTH)
@@ -209,7 +312,9 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.foreignKey("FK_FWC_PROPS_TO_CAMPAIGN")
                     .on(campaign, cps)
+                    .since(version(10, 7))
                     .references(FirmwareCampaignDomainExtension.class)
+                    .onDelete(CASCADE)
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_PROPS").on(campaign, key).add();

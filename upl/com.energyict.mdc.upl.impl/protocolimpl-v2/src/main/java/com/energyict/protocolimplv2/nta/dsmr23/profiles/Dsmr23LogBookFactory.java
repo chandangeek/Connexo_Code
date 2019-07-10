@@ -144,12 +144,17 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         }  else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus event log on channel "+channel);
-            meterEvents = new MbusLog(dataContainer, channel).getMeterEvents();
+            MbusLog mBusLog = new MbusLog(dataContainer, channel);
+            meterEvents = mBusLog.getMeterEvents();
+            if (mBusLog.getIgnoredEvents()>0){
+                getProtocol().journal("Ignored events: "+mBusLog.getIgnoredEvents());
+            }
         } else {
             getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
             return new ArrayList<>();
         }
 
+        //TODO: check why we have this here?! DSMR 2.3 doesn't have a frame-counter ...
         DlmsSessionProperties props = this.getProtocol().getDlmsSessionProperties();
         if(props instanceof Dsmr23Properties){
             Dsmr23Properties properties = (Dsmr23Properties) props;
@@ -161,6 +166,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
 
+    //TODO: put some CIM codes here
     protected void checkFrameCounterEvents(List<MeterEvent> eventList) {
         SecurityContext securityContext = protocol.getDlmsSession().getAso().getSecurityContext();
 
@@ -176,7 +182,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
     protected void generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, List<MeterEvent> eventList) {
         try {
-            long frameCounterLimit = ((Dsmr23Properties)this.getProtocol().getDlmsSessionProperties()).getFrameCounterLimit();
+            long frameCounterLimit = this.getProtocol().getDlmsSessionProperties().getFrameCounterLimit();
 
             if (frameCounterLimit==0){
                 getProtocol().journal("Frame counter threshold not configured. FYI the current "+name+" is "+frameCounter);

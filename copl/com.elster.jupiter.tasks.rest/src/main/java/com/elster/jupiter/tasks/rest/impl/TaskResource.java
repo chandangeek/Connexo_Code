@@ -21,13 +21,7 @@ import com.elster.jupiter.users.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -36,11 +30,8 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -80,6 +71,7 @@ public class TaskResource {
             filterSpec.queueTypes.addAll(filter.getStringList("queueType"));
             filterSpec.startedOnFrom = filter.getInstant("startedOnFrom");
             filterSpec.startedOnTo = filter.getInstant("startedOnTo");
+            filterSpec.suspended.addAll(filter.getStringList("suspended"));
         }
         TaskFinder finder = taskService.getTaskFinder(filterSpec, params.getStartInt(), params.getLimit() + 1);
 
@@ -227,4 +219,29 @@ public class TaskResource {
         return Response.status(Response.Status.OK).build();
     }
 
+
+    @POST
+    @Path("/tasks/{id}/suspend/{suspendTime}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.SUSPEND_TASK_OVERVIEW})
+    public TaskInfo suspendGeneralTask(@PathParam("id") long id, @PathParam("suspendTime") long suspendTime, @Context SecurityContext securityContext) {
+
+        Principal principal = (Principal) securityContext.getUserPrincipal();
+        Locale locale = Locale.getDefault();
+        if (principal instanceof User) {
+            User user = (User) principal;
+            if (user.getLocale().isPresent()) {
+                locale = user.getLocale().get();
+            }
+        }
+
+        Instant instant = Instant.ofEpochMilli(suspendTime);
+
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        recurrentTask.setSuspendUntil(instant);
+        TaskInfo taskInfo = new TaskInfo(recurrentTask, thesaurus, timeService, locale, clock);
+        return taskInfo;
+
+    }
 }
