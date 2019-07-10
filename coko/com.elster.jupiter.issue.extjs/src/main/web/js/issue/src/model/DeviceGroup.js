@@ -19,19 +19,14 @@ Ext.define('Isu.model.DeviceGroup', {
             name: 'dynamic',
             type: 'boolean',
             defaultValue: true
-        },
-        {
-            name: 'selected',
-            type: 'boolean',
-            defaultValue: false
         }
     ],
-
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devicegroups',
+        url: '/api/ddr/devicegroups/filtered',
         reader: {
-            type: 'json'
+            type: 'json',
+            root: 'devicegroups'
         }
     }
 });

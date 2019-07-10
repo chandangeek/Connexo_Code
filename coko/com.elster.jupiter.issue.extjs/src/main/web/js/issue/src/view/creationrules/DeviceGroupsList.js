@@ -18,12 +18,6 @@ Ext.define('Isu.view.creationrules.DeviceGroupsList', {
     columns: {
         items: [
             {
-                itemId: 'id',
-                header: Uni.I18n.translate('general.id', 'ISU', 'Id'),
-                dataIndex: 'deviceGroupId',
-                flex: 1
-            },
-            {
                 itemId: 'description',
                 header: Uni.I18n.translate('general.name', 'ISU', 'Name'),
                 dataIndex: 'deviceGroupName',

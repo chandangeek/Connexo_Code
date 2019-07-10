@@ -11,16 +11,26 @@ Ext.define('Isu.store.DeviceGroups', {
     autoLoad: false,
     storeId: 'IsuDeviceGroups',
     sorters: [{
-        property: 'id',
+        property: 'name',
         direction: 'ASC'
     }],
     sortOnLoad: true,
+
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devicegroups',
+        urlTpl: '../../api/ddr/devicegroups/filtered',
+        url: '../../api/ddr/devicegroups/filtered',
         reader: {
             type: 'json',
             root: 'devicegroups'
+        },
+        
+        setExcludedGroups: function (exclGroupsIds) {
+            if (exclGroupsIds) {
+                this.url = this.urlTpl.concat('?exclude=', exclGroupsIds);
+            } else {
+                this.url = this.urlTpl;
+            }
         }
     }
 });

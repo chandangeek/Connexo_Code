@@ -339,7 +339,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                     {
                         xtype: 'button',
                         itemId: 'excludeDeviceGroup',
-                        text: Uni.I18n.translate('general.excludeDeviceGroup', 'ISU', 'Exclude device group'),
+                        text: Uni.I18n.translate('general.addDeviceGroup', 'ISU', 'Add device group'),
                         action: 'excludeDeviceGroup',
                         margin: '0 0 0 10'
                     }
@@ -542,7 +542,6 @@ Ext.define('Isu.view.creationrules.EditForm', {
     bindExcludedGroupsStore: function(recStore) {
         var me = this,
             exclGroupsGrid = me.down('issues-creation-rules-excl-device-groups-list');
-            
             exclGroupsGrid.bindStore(recStore);
     },
 

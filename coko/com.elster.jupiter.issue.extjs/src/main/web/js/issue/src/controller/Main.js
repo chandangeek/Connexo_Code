@@ -22,6 +22,7 @@ Ext.define('Isu.controller.Main', {
         'Isu.controller.CreationRules',
         'Isu.controller.CreationRuleEdit',
         'Isu.controller.CreationRuleActionEdit',
+        'Isu.controller.CreationRuleGroupsEdit',
         'Isu.controller.IssuesOverview',
         'Isu.controller.IssueDetail',
         'Isu.controller.ApplyIssueAction',

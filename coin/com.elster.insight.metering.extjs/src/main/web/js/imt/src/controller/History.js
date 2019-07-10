@@ -206,7 +206,7 @@ Ext.define('Imt.controller.History', {
                                     action: 'showServiceCallHistory'
                                 }
                             }
-                        },           			    
+                        },                          
                         device: {
                              title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
                              route: 'device/{deviceId}',
@@ -369,9 +369,9 @@ Ext.define('Imt.controller.History', {
                                 }
                             }
                         }
-           			}
-           		},
-           		device: {
+                    }
+                },
+                device: {
                     title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
                     route: 'device/{deviceId}',
                     controller: 'Imt.devicemanagement.controller.Device',
@@ -457,15 +457,15 @@ Ext.define('Imt.controller.History', {
                                     controller: 'Imt.metrologyconfiguration.controller.ValidationConfiguration',
                                     action: 'showValidationConfiguration',
                                     privileges: Imt.privileges.MetrologyConfig.viewValidation,
-	                                items: {
-	                                	add: {
-	                                        title: Uni.I18n.translate('validation.addRuleSet', 'IMT', 'Add validation rule set'),
-	                                        route: 'add',
-	                                        controller: 'Imt.metrologyconfiguration.controller.ValidationConfiguration',
-	                                        action: 'showAddValidationRuleSets',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('validation.addRuleSet', 'IMT', 'Add validation rule set'),
+                                            route: 'add',
+                                            controller: 'Imt.metrologyconfiguration.controller.ValidationConfiguration',
+                                            action: 'showAddValidationRuleSets',
                                             privileges: Imt.privileges.MetrologyConfig.adminValidation
-	                                    }
-	                                }
+                                        }
+                                    }
                                 },
                                 estimation: {
                                     title: Uni.I18n.translate('usagepoint.estimation.estimationConfiguration', 'IMT', 'Estimation configuration'),
@@ -799,6 +799,12 @@ Ext.define('Imt.controller.History', {
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
                                     action: 'showEdit'
+                                },
+                                addexclgroups: {
+                                    title: Uni.I18n.translate('general.excludeDeviceGroups', 'IMT', 'Add device groups to exclude'),
+                                    route: 'addexclgroups',
+                                    controller: 'Isu.controller.CreationRuleGroupsEdit',
+                                    action: 'showEdit'
                                 }
                             }
                         },
@@ -820,6 +826,12 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('general.addAction', 'IMT', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
+                                    action: 'showEdit'
+                                },
+                                addexclgroups: {
+                                    title: Uni.I18n.translate('general.excludeDeviceGroups', 'IMT', 'Add device groups to exclude'),
+                                    route: 'addexclgroups',
+                                    controller: 'Isu.controller.CreationRuleGroupsEdit',
                                     action: 'showEdit'
                                 }
                             }

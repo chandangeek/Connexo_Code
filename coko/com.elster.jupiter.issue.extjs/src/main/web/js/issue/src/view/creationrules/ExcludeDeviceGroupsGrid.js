@@ -18,24 +18,6 @@ Ext.define('Isu.view.creationrules.ExcludeDeviceGroupsGrid', {
     selModel: {
         mode: 'MULTI',
         checkOnly: true,
-        listeners: {
-            beforeselect: function(grid, record) {
-            if(!grid.getStore())
-                if(record.get('selected') == true) {
-                    return false;
-                } else {
-                    return true;
-                }
-            }
-        },
-        renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-            var me = this;
-            if(record.get('selected') == true) {
-                return '<div>&#160;</div>';
-            } else {
-                return Ext.selection.CheckboxModel.prototype.renderer.call(me);
-            }
-        }
     },
     
     store: 'Isu.store.DeviceGroups',
@@ -44,11 +26,6 @@ Ext.define('Isu.view.creationrules.ExcludeDeviceGroupsGrid', {
         var me = this;
         
         me.columns = [
-            {
-                header: Uni.I18n.translate('general.id', 'ISU', 'Id'),
-                dataIndex: 'id',
-                flex: 1
-            },
             {
                 header: Uni.I18n.translate('general.name', 'ISU', 'Name'),
                 dataIndex: 'name',
