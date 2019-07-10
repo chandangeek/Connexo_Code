@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.jupiter.servicecall.issue.extjs;
+package com.elster.jupiter.issue.servicecall.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
@@ -49,11 +49,6 @@ public class IscUiInstaller implements TranslationKeyProvider {
     @Deactivate
     public void deactivate() {
         registration.unregister();
-    }
-
-    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
-    public void setLicense(License license) {
-        this.license = license;
     }
 
     @Override
