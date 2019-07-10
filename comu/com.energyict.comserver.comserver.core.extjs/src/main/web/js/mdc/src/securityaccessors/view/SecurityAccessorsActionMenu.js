@@ -61,6 +61,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 privileges: Mdc.privileges.SecurityAccessor.canAdmin(),
                 action: 'configureKeyRenewal',
                 itemId: 'menu-sa-configure-key-renewal',
+                hidden: !this.deviceTypeId,
                 section: this.SECTION_EDIT
             }
 
