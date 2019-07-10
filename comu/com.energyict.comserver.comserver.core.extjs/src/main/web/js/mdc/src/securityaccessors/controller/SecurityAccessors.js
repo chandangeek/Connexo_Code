@@ -848,6 +848,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 title: Uni.I18n.translate('general.removeX', 'MDC', "Remove '{0}'?", Ext.htmlEncode(record.get('name')), false),
                 fn: function (state) {
                     if (state === 'confirm') {
+                        delete record.data.keyRenewalCommandSpecification;
+                        delete record.data.properties;
                         record.destroy({
                             success: function () {
                                 me.getSecurityAccessorsGrid().setLoading();
