@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -76,8 +77,8 @@ public class FirmwareCampaignFactoryTest {
         assertEquals(Instant.ofEpochSecond(100), firmwareCampaignInfo.timeBoundaryStart);
         assertEquals(Instant.ofEpochSecond(200), firmwareCampaignInfo.timeBoundaryEnd);
         assertEquals("TestDeviceType", firmwareCampaignInfo.deviceType.localizedValue);
-        assertEquals("ASAP", firmwareCampaignInfo.calendarUploadConnectionStrategy.name);
-        assertEquals("MC", firmwareCampaignInfo.validationConnectionStrategy.name);
+        assertEquals("AS_SOON_AS_POSSIBLE", firmwareCampaignInfo.calendarUploadConnectionStrategy.name);
+        assertEquals("MINIMIZE_CONNECTIONS", firmwareCampaignInfo.validationConnectionStrategy.name);
         assertEquals(1L, firmwareCampaignInfo.calendarUploadComTask.id);
         assertEquals(2L, firmwareCampaignInfo.validationComTask.id);
     }
@@ -128,9 +129,9 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
         when(firmwareCampaign.getCalendarUploadComTaskId()).thenReturn(1L);
-        when(firmwareCampaign.getCalendarUploadConnectionStrategy()).thenReturn("ASAP");
+        when(firmwareCampaign.getCalendarUploadConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
-        when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn("MC");
+        when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(comtask.getName()).thenReturn("comTaskName");
         when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         return firmwareCampaign;
