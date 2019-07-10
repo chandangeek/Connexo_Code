@@ -212,7 +212,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
 
         verify(destination).message(SERIALIZED1);
         verify(builder).send();
-        verify(recurrentTaskFactory).update(recurrentTask, "nextExecution");
+        verify(recurrentTaskFactory).update(recurrentTask, "nextExecution","suspendUntilTime"); //CXO-10238
         assertThat(taskOccurrence.size()).isNotEqualTo(0);
         assertThat(taskOccurrence).isNotNull();
 

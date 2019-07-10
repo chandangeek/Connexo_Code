@@ -61,7 +61,7 @@ public class UpgraderV10_7 implements Upgrader {
     }
 
     private void updateHistoricalIssueType() {
-        execute(dataModel, "UPDATE (SELECT t1.id, t1.TYPE t_type, t2.ISSUE_TYPE r_type FROM ISU_ISSUE_HISTORY t1, ISU_REASON t2 WHERE t1.REASON_ID = t2.KEY) SET t_type = r_type");
+        execute(dataModel, "UPDATE (SELECT t1.ISU_HIST_ISSUE_ID, t1.TYPE t_type, t2.ISSUE_TYPE r_type FROM ISU_ISSUE_HISTORY t1 inner join ISU_REASON t2 on t1.REASON_ID = t2.KEY) SET t_type = r_type");
     }
 
     private void addCloseActionType() {
