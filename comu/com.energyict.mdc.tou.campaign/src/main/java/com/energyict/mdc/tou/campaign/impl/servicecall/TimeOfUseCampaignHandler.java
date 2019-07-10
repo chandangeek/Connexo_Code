@@ -16,13 +16,16 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -292,6 +295,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 .filter(comTaskEnablement -> (timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablement) == null)
                         || (!timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablement).isOnHold()))
                 .findAny();
+        ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get().getServiceCall();
         if (comTaskEnablementOptional.isPresent()) {
             ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
                     .filter(comTaskExecution1 -> comTaskExecution1.getComTask().equals(comTaskEnablementOptional.get().getComTask()))
@@ -299,9 +303,26 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             if (comTaskExecution == null) {
                 comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
             }
-            comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
+            boolean isValidationCTStarted = false;
+            ConnectionStrategy connectionStrategy;
+            TimeOfUseCampaign campaign;
+            Optional<TimeOfUseCampaign> timeOfUseCampaignOptional = timeOfUseCampaignService.getCampaignOn(comTaskExecution);
+            if (timeOfUseCampaignOptional.isPresent()) {
+                campaign = timeOfUseCampaignOptional.get();
+                connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
+                if ((comTaskExecution.getComTask().getId() == campaign.getValidationComTaskId()) &&
+                        (connectionStrategy == (campaign.getValidationConnectionStrategyId() == 1 ? ConnectionStrategy.MINIMIZE_CONNECTIONS : ConnectionStrategy.AS_SOON_AS_POSSIBLE))
+                ) {
+                    comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
+                    isValidationCTStarted = true;
+                }
+            }
+            if(!isValidationCTStarted){
+                serviceCallService.lockServiceCall(serviceCall.getId());
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
+                serviceCall.requestTransition(DefaultState.FAILED);
+            }
         } else {
-            ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get().getServiceCall();
             serviceCallService.lockServiceCall(serviceCall.getId());
             timeOfUseCampaignService.logInServiceCall(serviceCall, MessageSeeds.ACTIVE_VERIFICATION_TASK_ISNT_FOUND, LogLevel.WARNING);
             serviceCall.requestTransition(DefaultState.FAILED);

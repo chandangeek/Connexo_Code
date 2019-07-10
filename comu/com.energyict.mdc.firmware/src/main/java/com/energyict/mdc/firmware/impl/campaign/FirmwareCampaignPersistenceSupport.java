@@ -144,10 +144,12 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .add();
         table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.databaseName())
                 .varChar()
+                .conversion(ColumnConversion.CHAR2ENUM)
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName())
                 .add();
         table.column(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.databaseName())
                 .varChar()
+                .conversion(ColumnConversion.CHAR2ENUM)
                 .map(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName())
                 .add();
         table.foreignKey(FK_NAME + "_DT")

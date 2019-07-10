@@ -489,14 +489,36 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     void setCalendarOnDevice(ServiceCall serviceCall) {
         Device device = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice();
-        try {
-            dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
-        } catch (DeviceMessageNotAllowedException e) {
-            serviceCallService.lockServiceCall(serviceCall.getId());
-            if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
-                serviceCall.requestTransition(DefaultState.REJECTED);
+        TimeOfUseCampaign campaign = serviceCall.getParent()
+                        .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.SERVICE_CALL_PARENT_NOT_FOUND))
+                        .getExtension(TimeOfUseCampaignDomainExtension.class)
+                        .orElse(null);
+
+        boolean isSendCalendarCTStarted = false;
+        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+        ConnectionStrategy connectionStrategy;
+
+        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+            connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
+            if ((comTaskExecution.getComTask().getId() == campaign.getSendCalendarComTaskId()) &&
+                    (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId() == 1 ? ConnectionStrategy.MINIMIZE_CONNECTIONS : ConnectionStrategy.AS_SOON_AS_POSSIBLE))
+            ) {
+                try {
+                    dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
+                } catch (DeviceMessageNotAllowedException e) {
+                    serviceCallService.lockServiceCall(serviceCall.getId());
+                    if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
+                        serviceCall.requestTransition(DefaultState.REJECTED);
+                    }
+                    serviceCall.log(e.getLocalizedMessage(), e);
+                }
+                isSendCalendarCTStarted = true;
             }
-            serviceCall.log(e.getLocalizedMessage(), e);
+        }
+        if(!isSendCalendarCTStarted){
+            serviceCallService.lockServiceCall(serviceCall.getId());
+            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
+            serviceCall.requestTransition(DefaultState.FAILED);
         }
     }
 
@@ -605,54 +627,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     boolean isWithVerification(TimeOfUseCampaign timeOfUseCampaign) {
         String activationOption = timeOfUseCampaign.getActivationOption();
         return (activationOption.equals(TranslationKeys.IMMEDIATELY.getKey()) || activationOption.equals(TranslationKeys.ON_DATE.getKey()));
-    }
-
-    public void startToUCampaignComTasks(TimeOfUseCampaign campaign){
-        boolean sendCalendarCT = false;
-        boolean validationCT = false;
-        List<Device> devices = getDevicesByGroup(campaign.getDeviceGroup());
-        List<ComTaskExecution> comTaskExecutions;
-        ConnectionStrategy connectionStrategy;
-        for(Device device : devices){
-            comTaskExecutions = device.getComTaskExecutions();
-            for(ComTaskExecution comTaskExecution:comTaskExecutions){
-                connectionStrategy = ((ScheduledConnectionTask)comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                if((comTaskExecution.getComTask().getId() == campaign.getSendCalendarComTaskId()) &&
-                        (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId()==1?ConnectionStrategy.MINIMIZE_CONNECTIONS:ConnectionStrategy.AS_SOON_AS_POSSIBLE))
-                ){
-                    comTaskExecution.schedule(campaign.getActivationDate());
-                    sendCalendarCT = true;
-                }
-                if((comTaskExecution.getComTask().getId() == campaign.getValidationComTaskId()) &&
-                        (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId()==1?ConnectionStrategy.MINIMIZE_CONNECTIONS:ConnectionStrategy.AS_SOON_AS_POSSIBLE))
-                ){
-                    comTaskExecution.schedule(campaign.getActivationDate());
-                    validationCT = true;
-                }
-            }
-        }
-        if(!sendCalendarCT) {
-            LOGGER.log(Level.SEVERE, "Unable to schedule send calendar ComTask on a "+campaign.getName());
-        }
-        if(!validationCT) {
-            LOGGER.log(Level.SEVERE, "Unable to schedule validation ComTask on a "+campaign.getName());
-        }
-
-        /*getDevicesByGroup(campaign.getDeviceGroup()).forEach(device ->
-            device.getComTaskExecutions().stream().forEach(cte -> {
-                ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask)cte.getConnectionTask().get()).getConnectionStrategy();
-                if((cte.getComTask().getId() == campaign.getSendCalendarComTaskId()) &&
-                        (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId()==1?ConnectionStrategy.MINIMIZE_CONNECTIONS:ConnectionStrategy.AS_SOON_AS_POSSIBLE))
-                ){
-                    cte.schedule(campaign.getActivationDate());
-
-                }
-                if((cte.getComTask().getId() == campaign.getValidationComTaskId()) &&
-                        (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId()==1?ConnectionStrategy.MINIMIZE_CONNECTIONS:ConnectionStrategy.AS_SOON_AS_POSSIBLE))
-                ){
-                    cte.schedule(campaign.getActivationDate());
-                }
-            }));*/
     }
 
     @Override

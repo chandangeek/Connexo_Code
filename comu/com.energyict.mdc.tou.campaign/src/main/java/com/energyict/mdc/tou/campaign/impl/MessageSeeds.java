@@ -43,6 +43,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_WAS_ADDED(2019, "DeviceWasAdded", "Device was added"),
     TOU_ITEM_WITH_ID_ISNT_FOUND(2020, "TimeOfUseCampaignItemWithIdIsntFound", "Time of use campaign item with id {0} isn''t found."),
     TOU_CAMPAIGN_WITH_ID_ISNT_FOUND(2021, "TimeOfUseCampaignWithIdIsntFound", "Time of use campaign with id {0} isn''t found."),
+    DEVICE_CONFIGURATION_ERROR(4014, "DeviceConfigurationError", "Device configuration error", Level.WARNING),
 
     CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user."),
     RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user.");

@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -95,9 +96,9 @@ public class FirmwareCampaignInfoFactory {
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
         info.calendarUploadComTask = new IdWithNameInfo(campaign.getCalendarUploadComTaskId(),firmwareCampaignService.getComTaskById(campaign.getCalendarUploadComTaskId()).getName());
-        info.calendarUploadConnectionStrategy = new IdWithNameInfo(0,campaign.getCalendarUploadConnectionStrategy());
+        info.calendarUploadConnectionStrategy = new IdWithNameInfo(0,campaign.getCalendarUploadConnectionStrategy().name());
         info.validationComTask = new IdWithNameInfo(campaign.getValidationComTaskId(),firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
-        info.validationConnectionStrategy = new IdWithNameInfo(0,campaign.getValidationConnectionStrategy());
+        info.validationConnectionStrategy = new IdWithNameInfo(0,campaign.getValidationConnectionStrategy().name());
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else

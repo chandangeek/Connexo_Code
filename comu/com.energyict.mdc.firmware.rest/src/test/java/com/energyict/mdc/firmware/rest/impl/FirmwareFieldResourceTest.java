@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.search.SearchBuilder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;

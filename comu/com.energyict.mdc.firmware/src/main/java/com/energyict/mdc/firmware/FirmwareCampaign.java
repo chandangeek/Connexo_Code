@@ -11,6 +11,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
@@ -84,17 +85,17 @@ public interface FirmwareCampaign extends HasId, HasName {
 
     void setCalendarUploadComTaskId(long calendarUploadComTaskId);
 
-    void setCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy);
+    void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy);
 
     void setValidationComTaskId(long validationComTaskId);
 
-    void setValidationConnectionStrategy(String validationConnectionStrategy);
+    void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy);
 
     long getCalendarUploadComTaskId();
 
-    String getCalendarUploadConnectionStrategy();
+    ConnectionStrategy getCalendarUploadConnectionStrategy();
 
     long getValidationComTaskId();
 
-    String getValidationConnectionStrategy();
+    ConnectionStrategy getValidationConnectionStrategy();
 }

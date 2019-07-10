@@ -14,8 +14,10 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
@@ -207,6 +209,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 .filter(comTaskEnablement -> (firmwareCampaignService.findComTaskExecution(device, comTaskEnablement) == null)
                         || (!firmwareCampaignService.findComTaskExecution(device, comTaskEnablement).isOnHold()))
                 .findAny();
+        ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(device).get().getServiceCall();
         if (comTaskEnablementOptional.isPresent()) {
             ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
                     .filter(comTaskExecution1 -> comTaskExecution1.getComTask().equals(comTaskEnablementOptional.get().getComTask()))
@@ -214,9 +217,24 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             if (comTaskExecution == null) {
                 comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
             }
-            comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
+            boolean isValidationCTStarted = false;
+            ConnectionStrategy connectionStrategy;
+            FirmwareCampaign campaign;
+            Optional<FirmwareCampaign> timeOfUseCampaignOptional = firmwareCampaignService.getCampaignOn(comTaskExecution);
+            if (timeOfUseCampaignOptional.isPresent()) {
+                campaign = timeOfUseCampaignOptional.get();
+                connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
+                if ((comTaskExecution.getComTask().getId() == campaign.getValidationComTaskId()) && connectionStrategy == campaign.getValidationConnectionStrategy()) {
+                    comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
+                    isValidationCTStarted = true;
+                }
+            }
+            if(!isValidationCTStarted){
+                serviceCallService.lockServiceCall(serviceCall.getId());
+                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
+                serviceCall.requestTransition(DefaultState.FAILED);
+            }
         } else {
-            ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(device).get().getServiceCall();
             serviceCallService.lockServiceCall(serviceCall.getId());
             serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.ACTIVE_VERIFICATION_TASK_ISNT_FOUND).format());
             serviceCall.requestTransition(DefaultState.FAILED);

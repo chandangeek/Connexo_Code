@@ -26,6 +26,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -129,10 +130,10 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
     private long calendarUploadComTaskId;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String calendarUploadConnectionStrategy;
+    private ConnectionStrategy calendarUploadConnectionStrategy;
     private long validationComTaskId;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String validationConnectionStrategy;
+    private ConnectionStrategy validationConnectionStrategy;
 
     @Inject
     public FirmwareCampaignDomainExtension(Thesaurus thesaurus, FirmwareServiceImpl firmwareService) {
@@ -187,7 +188,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public void setCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy){
+    public void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy){
         this.calendarUploadConnectionStrategy = calendarUploadConnectionStrategy;
     }
 
@@ -197,13 +198,13 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public void setValidationConnectionStrategy(String validationConnectionStrategy){
+    public void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy){
         this.validationConnectionStrategy = validationConnectionStrategy;
     }
 
     @Override
-    public String getCalendarUploadConnectionStrategy(){
-        return calendarUploadConnectionStrategy==null?"":calendarUploadConnectionStrategy;
+    public ConnectionStrategy getCalendarUploadConnectionStrategy(){
+        return calendarUploadConnectionStrategy;
     }
 
     @Override
@@ -217,8 +218,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public String getValidationConnectionStrategy(){
-        return validationConnectionStrategy==null?"":validationConnectionStrategy;
+    public ConnectionStrategy getValidationConnectionStrategy(){
+        return validationConnectionStrategy ;
     }
 
     @Override
@@ -393,9 +394,9 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.setFirmwareType((FirmwareType) propertyValues.getProperty(FieldNames.FIRMWARE_TYPE.javaName()));
         this.setManagementOption((ProtocolSupportedFirmwareOptions) propertyValues.getProperty(FieldNames.MANAGEMENT_OPTION.javaName()));
         this.setCalendarUploadComTaskId((long)propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName()));
-        this.setCalendarUploadConnectionStrategy((String)propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName()));
+        this.setCalendarUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName()));
         this.setValidationComTaskId((long)propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
-        this.setValidationConnectionStrategy((String)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
+        this.setValidationConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
     }
 
     @Override

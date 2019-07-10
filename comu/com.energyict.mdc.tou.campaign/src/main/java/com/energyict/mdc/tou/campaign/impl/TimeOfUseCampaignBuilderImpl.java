@@ -143,7 +143,6 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         Optional.ofNullable(activationDate).ifPresent(timeOfUseCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(timeOfUseCampaign::setValidationTimeout);
         ServiceCall serviceCall = timeOfUseCampaignService.createServiceCallAndTransition(timeOfUseCampaign);
-        //timeOfUseCampaignService.startToUCampaignComTasks(timeOfUseCampaign);
         return timeOfUseCampaignService.getCampaign(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Just created campaign not found."));
     }
 }

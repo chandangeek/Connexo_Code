@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
@@ -34,9 +35,9 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     FirmwareType firmwareType;
     Map<PropertySpec, Object> properties;
     long calendarUploadComTaskId;
-    String calendarUploadConnectionStrategy;
+    ConnectionStrategy calendarUploadConnectionStrategy;
     long validationComTaskId;
-    String validationConnectionStrategy;
+    ConnectionStrategy validationConnectionStrategy;
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel dataModel;
@@ -102,13 +103,25 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
 
     @Override
     public FirmwareCampaignBuilderImpl withCalendarUploadConnectionStrategy( String calendarUploadConnectionStrategy){
-        this.calendarUploadConnectionStrategy = calendarUploadConnectionStrategy;
+        if("As soon as possible".equals(calendarUploadConnectionStrategy)){
+            this.calendarUploadConnectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE;
+        } else if("Minimize connections".equals(calendarUploadConnectionStrategy)){
+            this.calendarUploadConnectionStrategy = ConnectionStrategy.MINIMIZE_CONNECTIONS;
+        } else {
+            this.calendarUploadConnectionStrategy = null;
+        }
         return this;
     }
 
     @Override
     public FirmwareCampaignBuilderImpl withValidationConnectionStrategy(String validationConnectionStrategy){
-        this.validationConnectionStrategy = validationConnectionStrategy;
+        if("As soon as possible".equals(validationConnectionStrategy)){
+            this.validationConnectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE;
+        } else if("Minimize connections".equals(validationConnectionStrategy)){
+            this.validationConnectionStrategy = ConnectionStrategy.MINIMIZE_CONNECTIONS;
+        } else {
+            this.validationConnectionStrategy = null;
+        }
         return this;
     }
 
