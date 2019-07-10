@@ -47,8 +47,7 @@ public class UpgraderV10_7 implements Upgrader {
         executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN", this::makeCampaignAndSC);
         executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN_DEVICES", this::makeDeviceAndSC);
         execute(dataModel, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT PK_FWC_CAMPAIGN_PROPS DROP INDEX",
-                "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN",
-                "DROP INDEX FK_FWC_PROPS_TO_CAMPAIGN");
+                "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
         executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN_PROPS", this::updateProps);
         execute(dataModel, "ALTER TABLE FWC_CAMPAIGN_PROPS ADD CONSTRAINT PK_FWC_CAMPAIGN_PROPS PRIMARY KEY (CAMPAIGN, KEY) USING INDEX");
         dataModelUpgrader.upgrade(dataModel, version(10, 7));
