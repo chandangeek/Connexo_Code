@@ -682,7 +682,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         } else {
             record.set('defaultValue', null);
         }
-
+        delete record.data.keyRenewalCommandSpecification;
+        delete record.data.properties;
         record.endEdit();
 
         record.save({
