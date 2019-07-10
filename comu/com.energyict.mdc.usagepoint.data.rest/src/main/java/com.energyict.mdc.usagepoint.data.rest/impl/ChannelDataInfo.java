@@ -32,7 +32,8 @@ public class ChannelDataInfo {
 
     @JsonProperty("validationRules")
     Set<ValidationRuleInfo> validationRules;
-
+    RegisterDataInfo.java
+    @JsonProperty("validationResult")
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     ValidationStatus validationResult;
 
