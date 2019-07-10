@@ -352,7 +352,7 @@ Ext.define('Wss.controller.Webservices', {
                     msg: Uni.I18n.translate(
                         'webservices.retry.msg',
                         'WSS',
-                        'The response will be resent. The issue will be closed.'
+                        'The response will be resent.'
                     ),
                     fn: function (state) {
                         if (state === 'confirm') {

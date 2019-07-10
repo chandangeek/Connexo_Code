@@ -25,13 +25,7 @@ public class OccurrenceLogFinderBuilderImpl implements OccurrenceLogFinderBuilde
     public OccurrenceLogFinderBuilder withEndPointConfiguration(EndPointConfiguration epc){
 
         this.condition = this.condition.and(where("endPointConfiguration").isEqualTo(epc));
-
         return this;
-        /*return DefaultFinder.of(EndPointLog.class,
-                Where.where(EndPointLogImpl.Fields.endPointConfiguration.fieldName())
-                        .isEqualTo(this), dataModel).sorted(EndPointLogImpl.Fields.timestamp.fieldName(), false);*/
-
-
     }
 
     @Override
@@ -48,10 +42,9 @@ public class OccurrenceLogFinderBuilderImpl implements OccurrenceLogFinderBuilde
 
     };
 
-    public Finder<EndPointLog> build(){
-        return DefaultFinder.of(EndPointLog.class,  condition, dataModel)
-                .defaultSortColumn("timestamp");
-        //return DefaultFinder.of(EndPointLog.class, condition, dataModel/*, ImportSchedule.class*/);
+    public Finder<EndPointLog> build() {
+        return DefaultFinder.of(EndPointLog.class, condition, dataModel)
+                .defaultSortColumn("timestamp", false);
     };
 }
 
