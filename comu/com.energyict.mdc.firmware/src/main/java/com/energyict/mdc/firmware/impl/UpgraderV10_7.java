@@ -52,8 +52,7 @@ public class UpgraderV10_7 implements Upgrader {
         execute(dataModel, "ALTER TABLE FWC_CAMPAIGN_PROPS ADD CONSTRAINT PK_FWC_CAMPAIGN_PROPS PRIMARY KEY (CAMPAIGN, KEY) USING INDEX");
         dataModelUpgrader.upgrade(dataModel, version(10, 7));
         execute(dataModel, "UPDATE FWC_CAMPAIGN_PROPS SET CPS_ID = " + cpsCampaign,
-                "ADD CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN FOREIGN KEY (CAMPAIGN, CPS_ID) REFERENCES FWC_FC1_CAMPAIGN(SERVICECALL,CPS) ON DELETE CASCADE",
-                "CREATE INDEX FK_FWC_PROPS_TO_CAMPAIGN ON FWC_CAMPAIGN_PROPS (CAMPAIGN, CPS_ID)");
+                "ALTER TABLE FWC_CAMPAIGN_PROPS MODIFY CPS_ID NOT NULL");
         execute(dataModel, "DROP TABLE FWC_CAMPAIGN_STATUS");
         execute(dataModel, "DROP TABLE FWC_CAMPAIGN_DEVICES");
         execute(dataModel, "DROP TABLE FWC_CAMPAIGN");
