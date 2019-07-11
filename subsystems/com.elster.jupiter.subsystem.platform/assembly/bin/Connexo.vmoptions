@@ -1,1 +1,2 @@
 -Djava.util.logging.config.file=.\conf\logging.properties
+-Dos.name=Windows XP
