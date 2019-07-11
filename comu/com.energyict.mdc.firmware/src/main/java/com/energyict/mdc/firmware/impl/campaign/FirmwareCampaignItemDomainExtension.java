@@ -361,7 +361,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
                     firmwareComTaskExec.getNextExecutionTimestamp().isAfter(appliedStartDate)) {
 
-                if ((firmwareComTaskExec.getComTask().getId() == campaign.get().getValidationComTaskId()) && connectionStrategy == campaign.get().getValidationConnectionStrategy()){
+                if (connectionStrategy == campaign.get().getCalendarUploadConnectionStrategy() || campaign.get().getCalendarUploadConnectionStrategy() == null){
                     firmwareComTaskExec.schedule(appliedStartDate);
                     isCalendarCTStarted = true;
                 }

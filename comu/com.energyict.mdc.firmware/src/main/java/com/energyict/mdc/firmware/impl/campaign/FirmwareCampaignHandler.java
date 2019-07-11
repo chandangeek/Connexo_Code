@@ -222,7 +222,8 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             Optional<FirmwareCampaign> campaign = firmwareCampaignService.getCampaignOn(comTaskExecution);
             if (campaign.isPresent()) {
                 connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                if ((comTaskExecution.getComTask().getId() == campaign.get().getValidationComTaskId()) && connectionStrategy == campaign.get().getValidationConnectionStrategy()) {
+                if ((comTaskExecution.getComTask().getId() == campaign.get().getValidationComTaskId()) &&
+                        (connectionStrategy == campaign.get().getValidationConnectionStrategy() || campaign.get().getValidationConnectionStrategy() == null )) {
                     comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
                     isValidationCTStarted = true;
                 }
