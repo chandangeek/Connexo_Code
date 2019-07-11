@@ -189,16 +189,9 @@ public class DeviceGroupResource {
             condition = condition.and(where("id").in(Arrays.asList(excludedIds)).not());
         }
         Order order = Order.ascending("upper(name)");
-        List<EndDeviceGroup> endDeviceGroups;
-        if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
-            int from = queryParameters.getStart().get() + 1;
-            int to = from + queryParameters.getLimit().get();
-            endDeviceGroups = query.select(condition, from, to, order);
-        } else {
-            endDeviceGroups = query.select(condition, order);
-        }
+        List<EndDeviceGroup> endDeviceGroups = query.select(condition, order);
         List<DeviceGroupInfo> deviceGroupInfos = deviceGroupInfoFactory.from(endDeviceGroups);
-        return PagedInfoList.fromPagedList("devicegroups", deviceGroupInfos, queryParameters);
+        return PagedInfoList.fromCompleteList("devicegroups", deviceGroupInfos, queryParameters);
     }
 
     @GET

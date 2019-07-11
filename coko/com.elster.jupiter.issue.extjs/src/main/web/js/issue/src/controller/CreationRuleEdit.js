@@ -12,8 +12,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         'Isu.store.DueinTypes',
         'Isu.store.Clipboard',
         'Isu.store.CreationRuleActionPhases',
-        'Isu.store.CreationRuleReasons',
-        'Isu.store.DeviceGroups'
+        'Isu.store.CreationRuleReasons'
     ],
     
     views: [

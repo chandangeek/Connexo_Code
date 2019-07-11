@@ -22,7 +22,7 @@ Ext.define('Isu.view.creationrules.EditGroupsForm', {
             {
                 xtype: 'fieldcontainer',
                 ui: 'actions',
-                fieldLabel: ' ',
+                labelWidth: 0,
                 defaultType: 'button',
                 items: [
                     {

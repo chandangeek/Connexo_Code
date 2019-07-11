@@ -9,13 +9,6 @@ Ext.define('Isu.store.DeviceGroups', {
     ],
     model: 'Isu.model.DeviceGroup',
     autoLoad: false,
-    storeId: 'IsuDeviceGroups',
-    sorters: [{
-        property: 'name',
-        direction: 'ASC'
-    }],
-    sortOnLoad: true,
-
     proxy: {
         type: 'rest',
         urlTpl: '../../api/ddr/devicegroups/filtered',

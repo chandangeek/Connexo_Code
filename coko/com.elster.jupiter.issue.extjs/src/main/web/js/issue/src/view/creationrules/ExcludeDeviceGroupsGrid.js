@@ -49,6 +49,7 @@ Ext.define('Isu.view.creationrules.ExcludeDeviceGroupsGrid', {
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
+                usesExactCount: true,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('deviceGroup.pagingtoolbartop.displayMsg', 'ISU', '{0} - {1} of {2} device groups'),
                 displayMoreMsg: Uni.I18n.translate('deviceGroup.pagingtoolbartop.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} device groups'),
@@ -58,6 +59,7 @@ Ext.define('Isu.view.creationrules.ExcludeDeviceGroupsGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
+                isSecondPagination: true,
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('deviceGroup.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device groups per page')
             }

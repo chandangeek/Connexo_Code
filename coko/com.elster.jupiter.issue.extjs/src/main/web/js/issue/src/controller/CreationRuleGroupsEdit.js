@@ -23,10 +23,6 @@ Ext.define('Isu.controller.CreationRuleGroupsEdit', {
         {
             ref: 'selectGroupsGrid',
             selector: 'issues-creation-rules-edit-groups isu-device-groups-selection-grid'
-        },
-        {
-            ref: 'selectGroupsGridPagingToolbar',
-            selector: 'issues-creation-rules-edit-groups isu-device-groups-selection-grid pagingtoolbarbottom'
         }
     ],
 
@@ -78,9 +74,10 @@ Ext.define('Isu.controller.CreationRuleGroupsEdit', {
                             });
                         }
                         deviceGroups.getProxy().setExcludedGroups(filteredOutGroupIds);
+                        me.getSelectGroupsGrid().down('pagingtoolbartop').resetPaging();
+                        me.getSelectGroupsGrid().down('pagingtoolbarbottom').resetPaging();
                         deviceGroups.load(function (records, operation, success) {
                             if (success == true) {
-                                deviceGroups.loadPage(1);
                                 widget.setLoading(false);
                             }
                         });
@@ -99,10 +96,11 @@ Ext.define('Isu.controller.CreationRuleGroupsEdit', {
                 });
             }
             deviceGroups.getProxy().setExcludedGroups(filteredOutGroupIds);
+            me.getSelectGroupsGrid().down('pagingtoolbartop').resetPaging();
+            me.getSelectGroupsGrid().down('pagingtoolbarbottom').resetPaging();
             deviceGroups.load(function (records, operation, success) {
                 if (success == true) {
                     widget.setLoading(false);
-                    deviceGroups.loadPage(1);
                 }
             });
         }
