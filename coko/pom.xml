@@ -249,7 +249,19 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
-				<artifactId>issue.servicecall.extjs</artifactId>
+				<artifactId>servicecall.issue.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>servicecall.issue</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>servicecall.issue.extjs</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
@@ -437,7 +449,7 @@
 				<module>com.elster.jupiter.slp.importers</module>
 				<module>com.elster.jupiter.servicecall.issue</module>
 				<module>com.elster.jupiter.servicecall.issue.rest</module>
-				<module>com.elster.jupiter.issue.servicecall.extjs</module>
+				<module>com.elster.jupiter.servicecall.issue.extjs</module>
 				<module>com.elster.jupiter.system.app</module>
 				<module>com.elster.jupiter.system.app.help</module>
 				<module>com.elster.jupiter.systemadmin.extjs</module>

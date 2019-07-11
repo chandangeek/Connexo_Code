@@ -1,0 +1,5 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.elster.jupiter.servicecall.issue.extjs
+Export-Package: !com.elster.jupiter.servicecall.issue.extjs
+-include: -../development.bnd

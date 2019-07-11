@@ -29,10 +29,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.issue.task.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/itk", "app=" + IssueServiceCallApplication.APP_KEY, "name=" + IssueServiceCallApplication.ISSUE_SERVICE_CALL_REST_COMPONENT})
+@Component(name = "com.elster.jupiter.issue.servicecall.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/itk", "app=" + IssueServiceCallApplication.APP_KEY, "name=" + IssueServiceCallApplication.ISSUE_SERVICE_CALL_REST_COMPONENT})
 public class IssueServiceCallApplication extends Application {
     public static final String APP_KEY = "SYS";
-    public static final String ISSUE_SERVICE_CALL_REST_COMPONENT = "ISC";
+    public static final String ISSUE_SERVICE_CALL_REST_COMPONENT = "SIR";
 
     private volatile TransactionService transactionService;
     private volatile UserService userService;
@@ -44,7 +44,7 @@ public class IssueServiceCallApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(com.elster.jupiter.issue.servicecall.rest.impl.IssueResource.class);
+        return ImmutableSet.of(IssueResource.class);
     }
 
     @Reference

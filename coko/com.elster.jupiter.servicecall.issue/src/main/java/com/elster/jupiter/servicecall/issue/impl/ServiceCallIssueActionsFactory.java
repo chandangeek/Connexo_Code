@@ -19,6 +19,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.issue.impl.action.FailedAction;
 import com.elster.jupiter.servicecall.issue.impl.action.PartialSucceedAction;
+import com.elster.jupiter.servicecall.issue.impl.action.RetryServiceCallAction;
 import com.elster.jupiter.servicecall.issue.impl.action.StartProcessAction;
 
 import com.google.inject.AbstractModule;
@@ -151,6 +152,7 @@ public class ServiceCallIssueActionsFactory implements IssueActionFactory {
             actionProviders.put(StartProcessAction.class.getName(), injector.getProvider(StartProcessAction.class));
             actionProviders.put(FailedAction.class.getName(), injector.getProvider(FailedAction.class));
             actionProviders.put(PartialSucceedAction.class.getName(), injector.getProvider(PartialSucceedAction.class));
+            actionProviders.put(RetryServiceCallAction.class.getName(), injector.getProvider(RetryServiceCallAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

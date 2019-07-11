@@ -11,9 +11,9 @@
         <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
-    <artifactId>issue.servicecall.extjs</artifactId>
+    <artifactId>servicecall.issue.extjs</artifactId>
     <packaging>bundle</packaging>
-    <name>com.elster.jupiter.issue.servicecall.extjs</name>
+    <name>[Jupiter] servicecall.issue.extjs</name>
 
     <dependencies>
         <dependency>

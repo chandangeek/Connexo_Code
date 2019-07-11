@@ -59,7 +59,7 @@ public interface ServiceCallService {
      * @param name
      * @return
      */
-    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination);
+    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination, DefaultState retryState);
 
     /**
      * Creates a new service call type, using provided name, version and life cycle. The default destination is used. This method start a builder.
@@ -70,7 +70,7 @@ public interface ServiceCallService {
      * @return
      */
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
-        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME);
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, DefaultState.ONGOING);
     }
 
     /**

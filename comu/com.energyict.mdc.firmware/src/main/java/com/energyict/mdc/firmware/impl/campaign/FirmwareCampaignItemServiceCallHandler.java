@@ -15,6 +15,7 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
 
     public static final String NAME = "FirmwareCampaignItemServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
 

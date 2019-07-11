@@ -19,6 +19,8 @@ public enum TranslationKeys implements TranslationKey {
     SERVICE_CALL_TYPE_HANDLER("ServiceCallTypeHandler", "Service call handler name"),
     SERVICE_CALL_TYPE_STATE("ServiceCallTypeState", "Service call state"),
 
+    ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
+
     SERVICE_CALL_ISSUE_RULE_TEMPLATE_NAME("ServiceCallIssueRuleTemplateName", "State change"),
     SERVICE_CALL_ISSUE_RULE_TEMPLATE_DESCRIPTION("ServiceCallIssueRuleTemplateDescription", "State change");
 

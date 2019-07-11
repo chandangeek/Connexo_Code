@@ -13,7 +13,7 @@
 
     <artifactId>servicecall.issue.rest</artifactId>
     <packaging>bundle</packaging>
-    <name>[Jupiter] issue.servicecall.rest</name>
+    <name>[Jupiter] servicecall.issue.rest</name>
 
     <profiles>
         <profile>
@@ -151,6 +151,23 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.common</artifactId>
+            <version>0.0.1-Heracles-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.engine.config</artifactId>
+            <version>0.0.1-Heracles-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

@@ -17,6 +17,7 @@ import com.elster.jupiter.servicecall.issue.ModuleConstants;
 import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
 import com.elster.jupiter.servicecall.issue.impl.action.FailedAction;
 import com.elster.jupiter.servicecall.issue.impl.action.PartialSucceedAction;
+import com.elster.jupiter.servicecall.issue.impl.action.RetryServiceCallAction;
 import com.elster.jupiter.servicecall.issue.impl.action.StartProcessAction;
 import com.elster.jupiter.servicecall.issue.impl.event.ServiceCallEventDescription;
 import com.elster.jupiter.servicecall.issue.impl.i18n.TranslationKeys;
@@ -83,6 +84,7 @@ class Installer implements FullInstaller {
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, FailedAction.class.getName(), serviceCallFailed);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, PartialSucceedAction.class.getName(), serviceCallPartialSucceed);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, StartProcessAction.class.getName(), issueType, CreationRuleActionPhase.CREATE);
+        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, RetryServiceCallAction.class.getName(), issueType);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {

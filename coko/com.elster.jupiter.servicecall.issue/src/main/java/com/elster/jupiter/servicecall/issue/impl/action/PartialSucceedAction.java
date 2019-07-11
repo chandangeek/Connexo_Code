@@ -41,6 +41,11 @@ public class PartialSucceedAction extends AbstractIssueAction {
     }
 
     @Override
+    public boolean isApplicable(Issue issue) {
+        return false;
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
