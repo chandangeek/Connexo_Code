@@ -76,7 +76,6 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile IssueActionService issueActionService;
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile MeteringService meteringService;
-    private volatile MeteringGroupsService meteringGroupsService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
@@ -140,11 +139,6 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     }
 
     @Reference
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
-        this.meteringGroupsService = meteringGroupsService;
-    }
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(ISSUE_REST_COMPONENT, Layer.REST);
@@ -201,7 +195,6 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
-            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(thesaurus).to(Thesaurus.class);
