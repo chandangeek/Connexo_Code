@@ -185,9 +185,10 @@ public enum TableSpecs {
     },
 
     FWC_CAMPAIGN { //removed in 10.7
+
         @Override
         void addTo(DataModel dataModel) {
-            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10,7));
+            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
 
             Column idColumn = table.addAutoIdColumn();
             Column name = table.column("CAMPAIGN_NAME").varChar(NAME_LENGTH).map("name").notNull().add();
@@ -230,9 +231,10 @@ public enum TableSpecs {
     },
 
     FWC_CAMPAIGN_DEVICES { //removed in 10.7
+
         @Override
         void addTo(DataModel dataModel) {
-            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10,7));
+            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
             Column campaign = table.column("CAMPAIGN").number().notNull().add();
             Column device = table.column("DEVICE").number().notNull().add();
             Column status = table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
@@ -257,9 +259,10 @@ public enum TableSpecs {
     },
 
     FWC_CAMPAIGN_STATUS { //removed in 10.7
+
         @Override
         void addTo(DataModel dataModel) {
-            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10,7));
+            Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
 
             Column campaign = table.column("CAMPAIGN").number().notNull().add();
             table.column("ONGOING").number().map("ongoing").conversion(ColumnConversion.NUMBER2LONG).add();
@@ -296,9 +299,8 @@ public enum TableSpecs {
                     .add();
             Column cps = table.column("CPS_ID")
                     .number()
-                    .notNull()
-                    .installValue("'0'")
-                    .since(version(10,7))
+                    //.notNull() can't make not null here; done manually in UpgraderV10_7 and Installer
+                    .since(version(10, 7))
                     .add();
             table.column("VALUE")
                     .varChar(DESCRIPTION_LENGTH)
@@ -310,6 +312,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.foreignKey("FK_FWC_PROPS_TO_CAMPAIGN")
                     .on(campaign, cps)
+                    .since(version(10, 7))
                     .references(FirmwareCampaignDomainExtension.class)
                     .onDelete(CASCADE)
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())
