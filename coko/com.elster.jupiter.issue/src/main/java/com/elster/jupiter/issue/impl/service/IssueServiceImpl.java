@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.impl.ManualIssueBuilderImpl;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
@@ -50,6 +51,7 @@ import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
@@ -58,6 +60,8 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -106,9 +110,9 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -241,18 +245,14 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 InstallIdentifier.identifier("Pulse", COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.copyOf(getUpgradersMap()));
-    }
-
-    private LinkedHashMap<Version, Class<? extends Upgrader>> getUpgradersMap() {
-        LinkedHashMap<Version, Class<? extends Upgrader>> upgraderMap = new LinkedHashMap<>();
-        upgraderMap.put(version(10, 2), UpgraderV10_2.class);
-        upgraderMap.put(version(10, 3), UpgraderV10_3.class);
-        upgraderMap.put(version(10, 4), UpgraderV10_4.class);
-        upgraderMap.put(version(10, 5), UpgraderV10_5.class);
-        upgraderMap.put(version(10, 6), UpgraderV10_6.class);
-        upgraderMap.put(version(10, 7), UpgraderV10_7.class);
-        return upgraderMap;
+                ImmutableMap.<Version, Class<? extends Upgrader >>builder()
+                        .put(version(10, 2), UpgraderV10_2.class)
+                        .put(version(10, 3), UpgraderV10_3.class)
+                        .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 5), UpgraderV10_5.class)
+                        .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 7), UpgraderV10_7.class).build()
+                );
     }
 
     @Reference
@@ -469,6 +469,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             issue = findHistoricalIssue(id);
         }
         return issue.isPresent() && !issue.get().getReason().getIssueType().getPrefix().equals("ALM") ? issue : Optional.empty();
+    }
+
+    @Override
+    public ManualIssueBuilder newIssueBuilder() {
+        return new ManualIssueBuilderImpl((User)threadPrincipalService.getPrincipal(), dataModel);
     }
 
     @Override
@@ -776,6 +781,20 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return eagerClasses;
     }
 
+    private Condition getDeviceGroupSearchCondition(Collection<EndDeviceGroup> endDeviceGroups) {
+        return endDeviceGroups.stream()
+                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), "device"))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
+    }
+
+    private Condition getUsagePointGroupSearchCondition(Collection<UsagePointGroup> usagePointGroups) {
+        return usagePointGroups.stream()
+                .map(usagePointGroup -> ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "usagePoint"))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
+    }
+
     private Condition buildConditionFromFilter(IssueFilter filter) {
         Condition condition = Condition.TRUE;
         //filter by issue id
@@ -820,11 +839,20 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (!filter.getDevices().isEmpty()) {
             condition = condition.and(where("device").in(filter.getDevices()));
         }
-
+        //filter by device group
+        if (!filter.getDeviceGroups().isEmpty()) {
+            condition = condition.and(getDeviceGroupSearchCondition(filter.getDeviceGroups()));
+        }
         //filter by usagepoint
         if (!filter.getUsagePoints().isEmpty()) {
             condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
         }
+
+        //filter by usagepoint
+        if (!filter.getUsagePointGroups().isEmpty()) {
+            condition = condition.and(getUsagePointGroupSearchCondition(filter.getUsagePointGroups()));
+        }
+
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {
             condition = condition.and(where("status").in(filter.getStatuses()));

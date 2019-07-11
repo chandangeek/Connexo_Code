@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.tou.campaign.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -114,6 +115,7 @@ public class ToUCampaignInMemoryPersistence {
             bind(Thesaurus.class).toInstance(NlsModule.FakeThesaurus.INSTANCE);
             bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
             bind(ProtocolPluggableService.class).toInstance(mock(ProtocolPluggableService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 

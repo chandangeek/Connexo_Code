@@ -90,6 +90,10 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>upgrade</artifactId>
     </dependency>
+    <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>appserver</artifactId>
+    </dependency>
 
     <!-- Testing -->
     <dependency>

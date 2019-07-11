@@ -12,7 +12,8 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         'Isu.store.DueinTypes',
         'Isu.store.Clipboard',
         'Isu.store.CreationRuleActionPhases',
-        'Isu.store.CreationRuleReasons'
+        'Isu.store.CreationRuleReasons',
+        'Isu.store.CreationRuleIssueTypes'
     ],
     
     views: [
@@ -22,7 +23,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
     models: [
         'Isu.model.CreationRuleAction',
         'Isu.model.CreationRule',
-        'Isu.model.DeviceGroup',
+        'Isu.model.FilteredDeviceGroup',
         'Isu.model.ExcludedDeviceGroup'
     ],
 
@@ -68,7 +69,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
                 router: router,
                 isEdit: !!id
             }),
-            issueTypesStore = me.getStore('Isu.store.IssueTypes'),
+            issueTypesStore = me.getStore('Isu.store.CreationRuleIssueTypes'),
             dependencesCounter = 3,
             dependenciesOnLoad = function () {
                 dependencesCounter--;

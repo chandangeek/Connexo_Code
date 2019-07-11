@@ -9,8 +9,8 @@ Ext.define('Isu.view.creationrules.ExcludeDeviceGroupsGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Isu.model.DeviceGroup',
-        'Isu.store.DeviceGroups'
+        'Isu.model.FilteredDeviceGroup',
+        'Isu.store.FilteredDeviceGroups'
     ],
 
     selType: 'checkboxmodel',
@@ -20,7 +20,7 @@ Ext.define('Isu.view.creationrules.ExcludeDeviceGroupsGrid', {
         checkOnly: true,
     },
     
-    store: 'Isu.store.DeviceGroups',
+    store: 'Isu.store.FilteredDeviceGroups',
 
     initComponent: function () {
         var me = this;

@@ -22,6 +22,8 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 
 import static com.energyict.mdc.tou.campaign.rest.impl.RestUtil.getCampaignStatus;
@@ -109,7 +111,7 @@ public class TimeOfUseCampaignInfoFactory {
     }
 
     public static Instant getToday(Clock clock) {
-        return Instant.parse(clock.instant().toString().substring(0, 11) + "00:00:00Z");
+        return LocalDate.now(clock).atStartOfDay().toInstant(ZoneOffset.UTC);
     }
 
     public static long getSecondsInDays(int days) {

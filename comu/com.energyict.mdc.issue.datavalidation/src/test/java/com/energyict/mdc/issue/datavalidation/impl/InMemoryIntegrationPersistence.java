@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -336,6 +337,7 @@ public class InMemoryIntegrationPersistence {
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(DataModel.class).toInstance(mock(DataModel.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 

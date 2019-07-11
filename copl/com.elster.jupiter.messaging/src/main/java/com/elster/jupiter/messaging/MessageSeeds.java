@@ -25,7 +25,9 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_QUEUE(1010, Keys.DUPLICATE_QUEUE, "Queue is already defined"),
     QUEUE_NAME_TOO_LONG(1011, Keys.QUEUE_NAME_TOO_LONG, "Queue name is too long."),
     TASKS_NOT_EMPTY(1012, Keys.TASKS_NOT_EMPTY, "Before deleting the queue please remove the corresponding tasks"),
-    ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE(1013, Keys.ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE, "Before deleting the queue please delete the corresponding message service");
+    ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE(1013, Keys.ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE, "Before deleting the queue please delete the corresponding message service"),
+    SERVICE_CALL_TYPES_NOT_EMPTY(1014, Keys.SERVICE_CALL_TYPES_NOT_EMPTY, "Before deleting the queue please remove the corresponding service call types."),
+    RESERVED_QUEUE_NAME(1015, Keys.RESERVED_QUEUE_NAME, "Queue name is a reserved word and can''t be used as the name of a table.");
 
     private final int number;
     private final String key;
@@ -87,6 +89,8 @@ public enum MessageSeeds implements MessageSeed {
         String QUEUE_NAME_TOO_LONG = "queue.name.too.long";
         String TASKS_NOT_EMPTY = "queue.delete.tasks.not.empty";
         String ACTIVE_SUBSCRIBER_DEFINED_FOR_QUEUE = "queue.subscribers.active";
+        String SERVICE_CALL_TYPES_NOT_EMPTY = "queue.delete.service.call.types.not.empty";
+        String RESERVED_QUEUE_NAME = "queue.name.reserved";
     }
 
 }

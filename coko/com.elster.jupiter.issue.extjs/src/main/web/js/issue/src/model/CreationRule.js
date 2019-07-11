@@ -7,7 +7,7 @@ Ext.define('Isu.model.CreationRule', {
     requires: [
         'Isu.model.CreationRuleAction',
         'Uni.property.model.Property',
-        'Isu.model.IssueType',
+        'Isu.model.CreationRuleIssueType',
         'Isu.model.CreationRuleTemplate',
         'Isu.model.IssueReason',
         'Isu.model.ExcludedDeviceGroup'
@@ -92,7 +92,7 @@ Ext.define('Isu.model.CreationRule', {
         },
         {
             type: 'hasOne',
-            model: 'Isu.model.IssueType',
+            model: 'Isu.model.CreationRuleIssueType',
             associatedName: 'issueType',
             associationKey: 'issueType',
             getterName: 'getIssueType',

@@ -3,27 +3,25 @@
  */
 
 Ext.define('Isu.model.DeviceGroup', {
-    extend: 'Uni.model.Version',
+    extend: 'Ext.data.Model',
+    requires: [
+        'Ext.data.proxy.Rest'
+    ],
+
     fields: [
         {
             name: 'id',
-            type: 'int',
-            useNull: true
+            type: 'auto'
         },
         {
             name: 'name',
-            type: 'string',
-            useNull: true
-        },
-        {
-            name: 'dynamic',
-            type: 'boolean',
-            defaultValue: true
+            type: 'string'
         }
     ],
+
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devicegroups/filtered',
+        url: '/api/isu/devicegroups',
         reader: {
             type: 'json',
             root: 'devicegroups'

@@ -25,7 +25,6 @@ import java.util.List;
 import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
-import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS;
 
 public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
 
@@ -34,15 +33,12 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
      */
     public static final CipheringType DEFAULT_CIPHERING_TYPE = CipheringType.GLOBAL;
 
+    public static final String DLMS_WAN_KEK = "DlmsWanKEK";
     public static final String AARQ_TIMEOUT_PROPERTY = "AARQTimeout";
     public static final String AARQ_RETRIES_PROPERTY = "AARQRetries";
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
     public static final String POLLING_DELAY = "PollingDelay";
     public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
-    public static final String USE_METER_IN_TRANSPARENT_MODE = "UseMeterInTransparentMode";
-    public static final String TRANSP_CONNECT_TIME = "TransparentConnectTime";
-    public static final String PASSWORD = "IEC1107Password";
-    public static final String METER_SECURITY_LEVEL = "SecurityLevel";
     public static final String REQUEST_AUTHENTICATED_FRAME_COUNTER = "RequestAuthenticatedFrameCounter";
     public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
     public static final String VALIDATE_CACHED_FRAMECOUNTER = "ValidateCachedFrameCounterAndFallback";
@@ -51,19 +47,9 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String IP_V4_ADDRESS = "IPv4Address";
     public static final String IP_V6_ADDRESS = "IPv6Address";
     public static final String SHORT_ADDRESS_PAN = "ShortAddressPAN";
-    public static final String DEFAULT_TRANSPARENT_PASSWORD = "00000000";
-    public static final String DEFAULT_TRANSPARENT_SECURITY_LEVEL = "1:0";
     public static final String READCACHE_PROPERTY = "ReadCache";
     public static final String MIRROR_LOGICAL_DEVICE_ID = "MirrorLogicalDeviceId";
     public static final String GATEWAY_LOGICAL_DEVICE_ID = "GatewayLogicalDeviceId";
-    public static final String LIMIT_MAX_NR_OF_DAYS_PROPERTY = "LimitMaxNrOfDays";
-
-    /**
-     * Indicates whether the meter supports hundreths or not.
-     * <p/>
-     * For example SAG meters will generate an other-reason if this field is included.
-     */
-    public static final String SUPPORTS_HUNDRETHS_TIMEFIELD = "SupportsHundredthsTimeField";
 
     /**
      * Indicates whether the meter does not accept a time deviation other than undefined. (SAG again).
@@ -71,24 +57,9 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
     public static final String USE_UNDEFINED_AS_TIME_DEVIATION = "UseUndefinedAsTimeDeviation";
 
     /**
-     * Indicates whether the meter will accept anything else but undefined as clock status.
-     */
-    public static final String USE_UNDEFINED_AS_CLOCK_STATUS = "UseUndefinedAsClockStatus";
-
-    /**
      * Indicates whether or not to skip the authentication tag validation.
      */
     public static final String SKIP_FC_AUTH_TAG_VALIDATION = "SkipFrameCounterAuthenticationTag";
-
-    /**
-     * Indicates whether or not to use a static object list.
-     */
-    public static final String USE_FIXED_OBJECT_LIST = "UseFixedObjectList";
-
-    /**
-     * Skips slave devices.
-     */
-    public static final String SKIP_SLAVE_DEVICES = "SkipSlaveDevices";
 
     /**
      * The default max-apdu-size when using G3.
@@ -116,7 +87,6 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
                 this.bulkRequestPropertySpec(),
                 this.timeZonePropertySpec(),
                 this.validateInvokeIdPropertySpec(),
-                this.limitMaxNrOfDaysPropertySpec(),
                 this.readCachePropertySpec(),
                 this.callingAPTitlePropertySpec(),
                 this.callHomeIdPropertySpec(),
@@ -124,6 +94,7 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
                 this.mirrorLogicalDeviceIdPropertySpec(),
                 this.actualLogicalDeviceIdPropertySpec(),
                 this.nodeAddressPropertySpec(),
+                this.dlmsWANKEKPropertySpec(),
                 this.pskPropertySpec(),
                 this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
                 this.aarqTimeoutPropertySpec(),
@@ -131,10 +102,6 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
                 this.aarqRetriesPropertySpec(),
                 this.pollingDelayPropertySpec(),
                 this.initialFrameCounter(),
-                this.useMeterInTransparentMode(),
-                this.transparentConnectTime(),
-                this.transparentSecurityLevel(),
-                this.transparentPassword(),
                 this.requestAuthenticatedFrameCounter(),
                 this.useCachedFrameCounter(),
                 this.validateCachedFrameCounter(),
@@ -143,13 +110,8 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
                 this.deviceSystemTitlePropertySpec(),
                 this.useGeneralBlockTransferPropertySpec(),
                 this.generalBlockTransferWindowSizePropertySpec(),
-                this.supportsHundrethsTimeField(),
-                this.useUndefinedForClockStatus(),
                 this.useUndefinedForTimeDeviation(),
                 this.skipFramecounterAuthenticationTagValidation(),
-                this.useFixedObjectList(),
-                this.skipSlaveDevices(),
-                this.validateLoadProfileChannelsPropertySpec(),
                 this.cipheringTypePropertySpec(),
                 this.ipV4Address(),
                 this.ipV6Address(),
@@ -201,17 +163,6 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     /**
-     * Returns the "SupportsHundrethsTimefield" property spec.
-     *
-     * @return The property specification.
-     */
-    private final PropertySpec supportsHundrethsTimeField() {
-        return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.SUPPORTS_HUNDRETHS_TIMEFIELD, false, PropertyTranslationKeys.V2_SUPPORTS_HUNDRETHS_TIMEFIELD, getPropertySpecService()::booleanSpec)
-                .setDefaultValue(false)
-                .finish();
-    }
-
-    /**
      * Returns the "SkipFrameCounterAuthenticationTag" property spec.
      *
      * @return The property specification.
@@ -223,28 +174,6 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
     }
 
     /**
-     * Returns the "SkipSlaveDecives" property spec.
-     *
-     * @return The property specification.
-     */
-    private final PropertySpec skipSlaveDevices() {
-        return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.SKIP_SLAVE_DEVICES, false, PropertyTranslationKeys.V2_SKIP_SLAVE_DEVICES, getPropertySpecService()::booleanSpec)
-                .setDefaultValue(true)
-                .finish();
-    }
-
-    /**
-     * Returns the "UseUndefinedAsClockStatus" property spec.
-     *
-     * @return The property specification.
-     */
-    private final PropertySpec useUndefinedForClockStatus() {
-        return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_CLOCK_STATUS, getPropertySpecService()::booleanSpec)
-                .setDefaultValue(true)
-                .finish();
-    }
-
-    /**
      * Returns the "UseUndefinedAsTimeDeviation" property spec.
      *
      * @return The property specification.
@@ -252,17 +181,6 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
     private final PropertySpec useUndefinedForTimeDeviation() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_TIME_DEVIATION, getPropertySpecService()::booleanSpec)
                 .setDefaultValue(true)
-                .finish();
-    }
-
-    /**
-     * Indicates whether or not to use a fixed object list.
-     *
-     * @return Whether or not to use a fixed object list.
-     */
-    private final PropertySpec useFixedObjectList() {
-        return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.USE_FIXED_OBJECT_LIST, false, PropertyTranslationKeys.V2_USE_FIXED_OBJECT_LIST, getPropertySpecService()::booleanSpec)
-                .setDefaultValue(false)
                 .finish();
     }
 
@@ -289,6 +207,10 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
         return this.durationSpec(POLLING_DELAY, false, Duration.ofSeconds(0), PropertyTranslationKeys.V2_DLMS_POLLING_DELAY);
     }
 
+    private PropertySpec dlmsWANKEKPropertySpec() {
+        return this.keyAccessorTypeReferenceSpec(DLMS_WAN_KEK, PropertyTranslationKeys.V2_EICT_DLMS_WAN_KEK);
+    }
+
     private PropertySpec pskPropertySpec() {
         return keyAccessorTypeReferencePropertySpec(G3Properties.PSK, PropertyTranslationKeys.V2_DLMS_PSK);
     }
@@ -296,10 +218,6 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
     protected PropertySpec nodeAddressPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), false, PropertyTranslationKeys.V2_DLMS_NODEID, this.getPropertySpecService()::bigDecimalSpec)
                 .finish();
-    }
-
-    protected PropertySpec limitMaxNrOfDaysPropertySpec() {
-        return this.bigDecimalSpec(LIMIT_MAX_NR_OF_DAYS_PROPERTY, BigDecimal.ZERO, PropertyTranslationKeys.V2_DLMS_LIMIT_MAX_NR_OF_DAYS);
     }
 
     protected PropertySpec readCachePropertySpec() {
@@ -347,28 +265,6 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
 
     private PropertySpec initialFrameCounter() {
         return UPLPropertySpecFactory.specBuilder(INITIAL_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_INITIAL_FRAME_COUNTER, this.getPropertySpecService()::positiveBigDecimalSpec).finish();
-    }
-
-    private PropertySpec useMeterInTransparentMode() {
-        return UPLPropertySpecFactory.specBuilder(USE_METER_IN_TRANSPARENT_MODE, false, PropertyTranslationKeys.V2_DLMS_USE_METER_IN_TRANSPARENT_MODE, this.getPropertySpecService()::booleanSpec)
-                .setDefaultValue(false)
-                .finish();
-    }
-
-    private PropertySpec transparentConnectTime() {
-        return this.bigDecimalSpec(TRANSP_CONNECT_TIME, false, PropertyTranslationKeys.V2_DLMS_TRANSP_CONNECT_TIME, BigDecimal.valueOf(10));
-    }
-
-    private PropertySpec transparentPassword() {
-        return UPLPropertySpecFactory.specBuilder(PASSWORD, false, PropertyTranslationKeys.V2_DLMS_PASSWORD, this.getPropertySpecService()::stringSpec)
-                .setDefaultValue(DEFAULT_TRANSPARENT_PASSWORD)
-                .finish();
-    }
-
-    private PropertySpec transparentSecurityLevel() {
-        return UPLPropertySpecFactory.specBuilder(METER_SECURITY_LEVEL, false, PropertyTranslationKeys.V2_DLMS_METER_SECURITY_LEVEL, this.getPropertySpecService()::stringSpec)
-                .setDefaultValue(DEFAULT_TRANSPARENT_SECURITY_LEVEL)
-                .finish();
     }
 
     private PropertySpec stringSpec(String name, TranslationKey translationKey) {
@@ -420,10 +316,6 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
      */
     protected final PropertySpec maxRecPduSizePropertySpec() {
         return this.bigDecimalSpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE, PropertyTranslationKeys.V2_DLMS_MAX_REC_PDU_SIZE);
-    }
-
-    protected PropertySpec validateLoadProfileChannelsPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(VALIDATE_LOAD_PROFILE_CHANNELS, false, PropertyTranslationKeys.V2_VALIDATE_LOAD_PROFILE_CHANNELS, getPropertySpecService()::booleanSpec).finish();
     }
 
     /**

@@ -7,7 +7,7 @@ Ext.define('Isu.controller.CreationRuleGroupsEdit', {
 
     stores: [
         'Isu.store.CreationRules',
-        'Isu.store.DeviceGroups',
+        'Isu.store.FilteredDeviceGroups',
         'Isu.store.Clipboard'
     ],
 
@@ -28,7 +28,7 @@ Ext.define('Isu.controller.CreationRuleGroupsEdit', {
 
     models: [
         'Isu.model.CreationRule',
-        'Isu.model.DeviceGroup',
+        'Isu.model.FilteredDeviceGroup',
         'Isu.model.ExcludedDeviceGroup'
     ],
 
@@ -50,7 +50,7 @@ Ext.define('Isu.controller.CreationRuleGroupsEdit', {
             }),
             exclGroups = null,
             filteredOutGroupIds = '',
-            deviceGroups = me.getStore('Isu.store.DeviceGroups');
+            deviceGroups = me.getStore('Isu.store.FilteredDeviceGroups');
 
         Ext.util.History.on('change', this.checkRoute, me);
 

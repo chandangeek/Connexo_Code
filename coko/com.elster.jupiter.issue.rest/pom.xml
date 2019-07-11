@@ -106,7 +106,6 @@
         	<groupId>com.elster.jupiter</groupId>
     		<artifactId>search</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
@@ -169,6 +168,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

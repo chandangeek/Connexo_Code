@@ -113,7 +113,7 @@ public class UsagePointIssueDataValidationImpl implements UsagePointIssueDataVal
     }
 
     @Override
-    public CreationRule getRule() {
+    public Optional<CreationRule> getRule() {
         return getBaseIssue().getRule();
     }
 

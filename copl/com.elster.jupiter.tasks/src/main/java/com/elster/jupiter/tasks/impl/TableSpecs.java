@@ -44,6 +44,7 @@ enum TableSpecs {
             table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn).upTo(Version.version(10,2)).add();
             table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn, destination).since(Version.version(10,2)).add();
             table.column("LOGLEVEL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("logLevel").since(Version.version(10,3)).installValue("900").add();
+            table.column("SUSPENDUNTIL").number().conversion(NUMBER2INSTANT).map("suspendUntilTime").since(Version.version(10,7)).add();
         }
     },
     TSK_NEXT_RECURRENT_TASK {

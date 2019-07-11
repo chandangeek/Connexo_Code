@@ -31,7 +31,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
@@ -39,7 +38,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
     protected static final ObisCode POWER_FAILURE_LOG =   ObisCode.fromString("1.0.99.97.0.255");
     protected static final ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
     protected static final ObisCode CONTROL_LOG =         ObisCode.fromString("0.0.99.98.2.255");
-    protected static final ObisCode MBUS_EVENT_LOG =      ObisCode.fromString("0.x.99.98.3.255");
+    protected static final ObisCode MBUS_EVENT_LOG =      ObisCode.fromString("0.0.99.98.3.255");
     protected static final ObisCode MBUS_CONTROL_LOG =    ObisCode.fromString("0.x.24.5.0.255");
     protected AbstractDlmsProtocol protocol;
 
@@ -145,12 +144,17 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         }  else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus event log on channel "+channel);
-            meterEvents = new MbusLog(dataContainer, channel).getMeterEvents();
+            MbusLog mBusLog = new MbusLog(dataContainer, channel);
+            meterEvents = mBusLog.getMeterEvents();
+            if (mBusLog.getIgnoredEvents()>0){
+                getProtocol().journal("Ignored events: "+mBusLog.getIgnoredEvents());
+            }
         } else {
             getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
             return new ArrayList<>();
         }
 
+        //TODO: check why we have this here?! DSMR 2.3 doesn't have a frame-counter ...
         DlmsSessionProperties props = this.getProtocol().getDlmsSessionProperties();
         if(props instanceof Dsmr23Properties){
             Dsmr23Properties properties = (Dsmr23Properties) props;
@@ -162,6 +166,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
 
+    //TODO: put some CIM codes here
     protected void checkFrameCounterEvents(List<MeterEvent> eventList) {
         SecurityContext securityContext = protocol.getDlmsSession().getAso().getSecurityContext();
 
@@ -177,7 +182,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
     protected void generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, List<MeterEvent> eventList) {
         try {
-            long frameCounterLimit = ((Dsmr23Properties)this.getProtocol().getDlmsSessionProperties()).getFrameCounterLimit();
+            long frameCounterLimit = this.getProtocol().getDlmsSessionProperties().getFrameCounterLimit();
 
             if (frameCounterLimit==0){
                 getProtocol().journal("Frame counter threshold not configured. FYI the current "+name+" is "+frameCounter);

@@ -35,6 +35,7 @@ public final class DatabaseConst {
     public static final String ISSUE_COLUMN_PRIORITY = "PRIORITYTOTAL";
     public static final String ISSUE_CREATEDATETIME = "CREATEDATETIME";
     public static final String ISSUE_SNOOZEDATETIME = "SNOOZEDATETIME";
+    public static final String ISSUE_COLUMN_TYPE = "TYPE";
 
     public static final String OPEN_ISSUE_PK_NAME = "ISU_OPEN_PK_ISSUE";
     public static final String OPEN_ISSUE_FK_TO_DEVICE = "ISU_OPEN_FK_TO_DEVICE";
@@ -53,6 +54,9 @@ public final class DatabaseConst {
     public static final String ISSUE_FK_TO_USER = "ISU_FK_TO_USER";
     public static final String ISSUE_FK_TO_WORKGROUP = "ISU_FK_TO_WORKGROUP";
     public static final String ISSUE_FK_TO_RULE = "ISU_FK_TO_RULE";
+    public static final String ISSUE_FK_TO_ISSUE_TYPE = "ISU_FK_TO_ISSUE_TYPE";
+    public static final String OPEN_ISSUE_FK_TO_ISSUE_TYPE = "ISU_OPEN_FK_TO_ISSUE_TYPE";
+    public static final String ISSUE_HIST_FK_TO_ISSUE_TYPE = "ISU_HIST_FK_TO_ISSUE_TYPE";
 
     // Issue Reason table
     public static final String ISSUE_REASON_COLUMN_KEY = "KEY";

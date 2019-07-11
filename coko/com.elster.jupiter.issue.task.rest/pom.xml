@@ -125,6 +125,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>tasks</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
@@ -164,6 +168,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.config</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -21,10 +21,12 @@ Ext.define('Imt.controller.Main', {
         'Imt.dynamicprivileges.UsagePoint',
         'Imt.dynamicprivileges.Stores',
         'Imt.processes.controller.MonitorProcesses',
+        'Imt.processes.controller.WorkspaceProcesses',
         'Imt.servicecalls.controller.ServiceCalls',
         'Imt.metrologyconfiguration.controller.View',
         'Imt.usagepointsetup.controller.MetrologyConfig',
         'Cfg.privileges.Validation',
+        'Cfg.privileges.Audit',
         'Imt.processes.view.MetrologyConfigurationOutputs',
         'Imt.processes.view.LinkedMeterActivations',
         'Imt.processes.view.AvailableMeters',
@@ -63,6 +65,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointhistory.controller.CasVersionEdit',
         'Imt.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
         'Imt.processes.controller.MonitorProcesses',
+        'Imt.processes.controller.WorkspaceProcesses',
         'Imt.usagepointmanagement.controller.Attributes',
         'Imt.usagepointsetup.controller.MetrologyConfig',
         'Imt.purpose.controller.Purpose',
@@ -97,7 +100,8 @@ Ext.define('Imt.controller.Main', {
         'Isu.controller.Overview',
         'Isu.controller.BulkChangeIssues',
         'Isu.controller.SetPriority',
-        'Imt.datavalidation.controller.Main'
+        'Imt.datavalidation.controller.Main',
+        'Cfg.audit.controller.Audit'
     ],
     stores: [
         'Imt.customattributesonvaluesobjects.store.MetrologyConfigurationCustomAttributeSets',
@@ -125,7 +129,6 @@ Ext.define('Imt.controller.Main', {
         var me = this;
 
         me.getController('Apr.controller.CustomTask');
-        //me.getController('Imt.issue.controller.Main');
         me.getController('Imt.controller.History');
         me.getController('Imt.controller.Dashboard');
         me.getController('Cfg.controller.Validation');
@@ -186,32 +189,32 @@ Ext.define('Imt.controller.Main', {
             issuemanagement = null,
             issuemanagementItems = [];
 
-    	if (Imt.privileges.UsagePoint.canAdministrate()) {
-	        var menuItem = Ext.create('Uni.model.MenuItem', {
-	            text: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
-	            href: 'usagepoints',
-	            portal: 'usagepoints',
-	            glyph: 'usagepoints',
-	            index: 20
-	        });
-	
-	        Uni.store.MenuItems.add(menuItem);
-	
-	        var portalItem1 = Ext.create('Uni.model.PortalItem', {
+        if (Imt.privileges.UsagePoint.canAdministrate()) {
+            var menuItem = Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
+                href: 'usagepoints',
+                portal: 'usagepoints',
+                glyph: 'usagepoints',
+                index: 20
+            });
+    
+            Uni.store.MenuItems.add(menuItem);
+    
+            var portalItem1 = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.usagePointLifecycleManagement', 'IMT', 'Usage point lifecycle management'),
-	            portal: 'usagepoints',
-	            items: [
-	                {
-	                    text: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
-	                    href: '#/usagepoints/add',
-	                    itemId: 'add-usagepoints'
+                portal: 'usagepoints',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
+                        href: '#/usagepoints/add',
+                        itemId: 'add-usagepoints'
                     }
-	            ]
-	        });
-	
-	        Uni.store.PortalItems.add(
-	            portalItem1
-	        );
+                ]
+            });
+    
+            Uni.store.PortalItems.add(
+                portalItem1
+            );
 
             if (Imt.privileges.UsagePointGroup.canView()) {
                 Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
@@ -226,7 +229,7 @@ Ext.define('Imt.controller.Main', {
                     ]
                 }));
             }
-    	}
+        }
 
         if (Imt.privileges.MetrologyConfig.canView()) {
             Uni.store.PortalItems.add(Ext.create('Uni.model.PortalItem', {
@@ -290,6 +293,31 @@ Ext.define('Imt.controller.Main', {
                 ]
             }));
         }
+        
+        if (Bpm.privileges.BpmManagement.canViewProcesses()){
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                        text: Uni.I18n.translate('general.workspace', 'IMT', 'Workspace'),
+                        glyph: 'workspace',
+                        portal: 'workspace',
+                        index: 30
+                    }));
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.allprocesses', 'IMT', 'Processes'),
+                portal: 'workspace',
+                route: 'insightprocesses',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.allprocesses', 'IMT', 'Processes'),
+                        itemId: 'insight-workspace-all-processes',
+                        privileges: Bpm.privileges.BpmManagement.viewProcesses,
+                        href: '#/workspace/insightprocesses',
+                        route: 'insightprocesses'
+                    }
+                ]
+                })
+            );
+        }
 
         if (Imt.privileges.TaskManagement.canView()) {
             var taskManagement = Ext.create('Uni.model.PortalItem', {
@@ -309,7 +337,7 @@ Ext.define('Imt.controller.Main', {
         }
 
         me.initIssues();
-
+        me.initAudit();
     },
 
     initIssues: function () {
@@ -392,5 +420,25 @@ Ext.define('Imt.controller.Main', {
                 me.getController('Isu.controller.BulkChangeIssues').dataValidationActivated = true;
             }
         });
+    },
+
+    initAudit: function(){
+        if (Cfg.privileges.Audit.canViewAuditLog()) {
+
+            Uni.store.PortalItems.add(
+                Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.auditTrail', 'IMT', 'Audit trail'),
+                    portal: 'workspace',
+                    route: 'audit',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('title.auditTrail', 'IMT', 'Audit trail'),
+                            itemId: 'workspace-audit-trail-link',
+                            href: '#/workspace/audit'
+                        }
+                    ]
+                })
+            );
+        }
     }
 });
