@@ -489,11 +489,6 @@ public enum TableSpecs {
                     .installValue("25")
                     .add()
                     .since(Version.version(10, 3));
-            table.column(ISSUE_COLUMN_OVERDUE).map("overdue").number().conversion(NUMBER2BOOLEAN).notNull().add();
-            Column ruleRefIdColumn = table.column(ISSUE_COLUMN_RULE_ID).number().conversion(NUMBER2LONG).notNull()
-                    .add();
-            Column urgencyColumn = table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number()
-                    .conversion(NUMBER2INT).notNull().installValue("25").add().since(Version.version(10, 3));
             Column impactColumn = table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number()
                     .conversion(NUMBER2INT).notNull().installValue("25").add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_PRIORITY).number().conversion(NUMBER2INT).notNull()
