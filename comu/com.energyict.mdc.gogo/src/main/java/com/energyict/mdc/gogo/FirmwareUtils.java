@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.gogo;
 
-import com.elster.jupiter.nls.Thesaurus;
+//import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.LogLevel;
-import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallService;
+//import com.elster.jupiter.servicecall.LogLevel;
+//import com.elster.jupiter.servicecall.ServiceCall;
+//import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -21,18 +21,18 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
+//import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignService;
+//import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+//import com.energyict.mdc.device.lifecycle.config.DefaultState;
+//import com.energyict.mdc.firmware.FirmwareCampaign;
+//import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.impl.MessageSeeds;
-import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
+//import com.energyict.mdc.firmware.impl.MessageSeeds;
+//import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -53,7 +53,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.List;
+//import java.util.List;
 import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.gogo.FirmwareUtils", service = FirmwareUtils.class,
@@ -76,9 +76,9 @@ public class FirmwareUtils {
     private volatile UserService userService;
     private volatile TaskService taskService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
-    private volatile ServiceCallService serviceCallService;
-    private Thesaurus thesaurus;
+    //private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
+    //private volatile ServiceCallService serviceCallService;
+    //private Thesaurus thesaurus;
 
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
@@ -105,17 +105,17 @@ public class FirmwareUtils {
         this.clock = clock;
     }
 
-    @Reference
+   /* @Reference
     public void setThesaurus(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
-    }
+    }*/
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
-    @Reference
+    /*@Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
     }
@@ -123,7 +123,7 @@ public class FirmwareUtils {
     @Reference
     public void setFirmwareCampaignService(FirmwareCampaignServiceImpl firmwareCampaignService) {
         this.firmwareCampaignService = firmwareCampaignService;
-    }
+    }*/
 
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
@@ -253,7 +253,7 @@ public class FirmwareUtils {
                         System.out.println("Reusing existing FirmwareComTaskExecution");
                         ComTaskExecution firmwareComTaskExecution = existingFirmwareComTaskExecution.get();
 
-                        Optional<FirmwareCampaign> campaign = firmwareCampaignService.getCampaignOn(existingFirmwareComTaskExecution.get());
+                        /*(Optional<FirmwareCampaign> campaign = firmwareCampaignService.getCampaignOn(existingFirmwareComTaskExecution.get());
                         ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) existingFirmwareComTaskExecution.get().getConnectionTask().get()).getConnectionStrategy();
                         if(campaign.get().getValidationConnectionStrategy() == null || connectionStrategy == campaign.get().getValidationConnectionStrategy()){
                             firmwareComTaskExecution.runNow();
@@ -262,7 +262,8 @@ public class FirmwareUtils {
                             serviceCallService.lockServiceCall(serviceCall.getId());
                             serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
                             serviceCall.requestTransition(com.elster.jupiter.servicecall.DefaultState.FAILED);
-                        }
+                        }*/
+                        firmwareComTaskExecution.runNow();
                         System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
                     } else {
                         System.out.println("Creating a new FirmwareComTaskExecution based on the enablement of the config");

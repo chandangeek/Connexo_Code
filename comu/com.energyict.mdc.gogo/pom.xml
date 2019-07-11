@@ -93,10 +93,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
