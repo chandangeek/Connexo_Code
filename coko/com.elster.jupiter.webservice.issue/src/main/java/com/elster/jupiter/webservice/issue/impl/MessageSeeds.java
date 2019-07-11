@@ -14,7 +14,11 @@ public enum MessageSeeds implements MessageSeed {
     UNABLE_TO_CREATE_EVENT(1, "WebServiceIssueUnableToMapEvent", "Unable to create event from event payload: {0}", Level.INFO),
     UNABLE_TO_CREATE_ISSUE_MISSING_WSC_OCCURRENCE(2, "WebServiceIssueUnableToFindWSCOccurrence", "Unable to create issue: couldn''t find web service call occurrence with id {0}.", Level.WARNING),
 
-    END_POINT_CONFIG_IN_USE(1001, "EndPointConfigInUseByIssueCreationRule", "Web service end point ''{0}'' is in use by an issue creation rule.", Level.SEVERE);
+    END_POINT_CONFIG_IN_USE(1001, "EndPointConfigInUseByIssueCreationRule", "Web service end point ''{0}'' is in use by an issue creation rule.", Level.SEVERE),
+
+    CLOSE_ACTION_WRONG_STATUS(2001, "action.wrong.status", "You are trying to apply the incorrect status", Level.SEVERE),
+    CLOSE_ACTION_ISSUE_CLOSED(2002, "action.issue.closed", "Issue closed", Level.INFO),
+    CLOSE_ACTION_ISSUE_ALREADY_CLOSED(2003, "action.issue.already.closed", "Issue already closed", Level.SEVERE);
 
     private final int number;
     private final String key;

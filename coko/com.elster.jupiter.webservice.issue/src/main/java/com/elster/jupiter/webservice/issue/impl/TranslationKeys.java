@@ -7,6 +7,8 @@ package com.elster.jupiter.webservice.issue.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.webservice.issue.WebServiceIssueService;
+import com.elster.jupiter.webservice.issue.impl.actions.CloseIssueAction;
+import com.elster.jupiter.webservice.issue.impl.actions.StartProcessWebServiceIssueAction;
 import com.elster.jupiter.webservice.issue.impl.event.WebServiceEventHandlerFactory;
 import com.elster.jupiter.webservice.issue.impl.template.AuthFailureIssueCreationRuleTemplate;
 import com.elster.jupiter.webservice.issue.impl.template.BadAcknowledgementIssueCreationRuleTemplate;
@@ -29,10 +31,10 @@ public enum TranslationKeys implements TranslationKey {
     END_POINT_CONFIGURATIONS_PROPERTY(AuthFailureIssueCreationRuleTemplate.END_POINT_CONFIGURATIONS, "Web services"),
     SUBSCRIBER(WebServiceEventHandlerFactory.WEB_SERVICE_EVENT_SUBSCRIBER, "Create web service issues"),
     ACTION_START_PROCESS("ActionStartProcess", "Start process"),
-    CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
-    CLOSE_ACTION_ISSUE_CLOSED("action.issue.closed", "Issue closed"),
-    CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
-    CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue");
+    ACTION_START_PROCESS_PROPERTY_PROCESS(StartProcessWebServiceIssueAction.START_PROCESS, "Process"),
+    ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
+    ACTION_CLOSE_PROPERTY_CLOSE_STATUS(CloseIssueAction.CLOSE_STATUS, "Close status"),
+    ACTION_CLOSE_PROPERTY_COMMENT(CloseIssueAction.COMMENT, "Comment");
 
     private final String key;
     private final String defaultFormat;

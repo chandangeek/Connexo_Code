@@ -50,7 +50,7 @@ public class RemoveEndPointConfigurationTopicHandler implements TopicHandler {
                 .filter(Where.where("rule.reason.issueType.key").isEqualTo(WebServiceIssueService.ISSUE_TYPE_NAME))
                 .filter(Where.where("name").isEqualTo(AuthFailureIssueCreationRuleTemplate.END_POINT_CONFIGURATIONS))
                 .anyMatch(Where.where("value").matches("^(?:.*,)?" + endPointConfiguration.getId() + "(?:,.*)?$", ""));
-        // any sub-list can be before or after the checked id, but if present, it must be separated with comma.
+        // the checked id can be at the beginning, middle or end, but if present, it must be separated with comma.
 
         if (isUsed) {
             throw new VetoEndPointConfigurationDeleteException(webServiceIssueService.thesaurus(), endPointConfiguration);
