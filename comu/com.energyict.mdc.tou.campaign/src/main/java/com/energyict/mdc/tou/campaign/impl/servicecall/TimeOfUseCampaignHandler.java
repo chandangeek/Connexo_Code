@@ -320,7 +320,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
             if(!isValidationCTStarted){
                 serviceCallService.lockServiceCall(serviceCall.getId());
                 serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
-                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.requestTransition(DefaultState.REJECTED);
             }
         } else {
             serviceCallService.lockServiceCall(serviceCall.getId());

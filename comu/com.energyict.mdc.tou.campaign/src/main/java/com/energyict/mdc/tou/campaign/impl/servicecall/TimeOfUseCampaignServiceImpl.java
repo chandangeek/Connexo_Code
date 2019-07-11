@@ -518,7 +518,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         if(!isSendCalendarCTStarted){
             serviceCallService.lockServiceCall(serviceCall.getId());
             serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
-            serviceCall.requestTransition(DefaultState.FAILED);
+            serviceCall.requestTransition(DefaultState.REJECTED);
         }
     }
 

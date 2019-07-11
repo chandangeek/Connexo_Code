@@ -219,12 +219,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             }
             boolean isValidationCTStarted = false;
             ConnectionStrategy connectionStrategy;
-            FirmwareCampaign campaign;
-            Optional<FirmwareCampaign> timeOfUseCampaignOptional = firmwareCampaignService.getCampaignOn(comTaskExecution);
-            if (timeOfUseCampaignOptional.isPresent()) {
-                campaign = timeOfUseCampaignOptional.get();
+            Optional<FirmwareCampaign> campaign = firmwareCampaignService.getCampaignOn(comTaskExecution);
+            if (campaign.isPresent()) {
                 connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                if ((comTaskExecution.getComTask().getId() == campaign.getValidationComTaskId()) && connectionStrategy == campaign.getValidationConnectionStrategy()) {
+                if ((comTaskExecution.getComTask().getId() == campaign.get().getValidationComTaskId()) && connectionStrategy == campaign.get().getValidationConnectionStrategy()) {
                     comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
                     isValidationCTStarted = true;
                 }
@@ -232,7 +230,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             if(!isValidationCTStarted){
                 serviceCallService.lockServiceCall(serviceCall.getId());
                 serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
-                serviceCall.requestTransition(DefaultState.FAILED);
+                serviceCall.requestTransition(DefaultState.REJECTED);
             }
         } else {
             serviceCallService.lockServiceCall(serviceCall.getId());

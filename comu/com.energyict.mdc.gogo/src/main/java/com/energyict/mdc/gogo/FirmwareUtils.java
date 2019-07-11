@@ -28,11 +28,14 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 //import com.energyict.mdc.device.lifecycle.config.DefaultState;
 //import com.energyict.mdc.firmware.FirmwareCampaign;
 //import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 //import com.energyict.mdc.firmware.impl.MessageSeeds;
 //import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
+import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -76,9 +79,6 @@ public class FirmwareUtils {
     private volatile UserService userService;
     private volatile TaskService taskService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
-    //private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
-    //private volatile ServiceCallService serviceCallService;
-    //private Thesaurus thesaurus;
 
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
@@ -105,25 +105,10 @@ public class FirmwareUtils {
         this.clock = clock;
     }
 
-   /* @Reference
-    public void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
-    }*/
-
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
-
-    /*@Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        this.serviceCallService = serviceCallService;
-    }
-
-    @Reference
-    public void setFirmwareCampaignService(FirmwareCampaignServiceImpl firmwareCampaignService) {
-        this.firmwareCampaignService = firmwareCampaignService;
-    }*/
 
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
@@ -252,17 +237,6 @@ public class FirmwareUtils {
                     if (existingFirmwareComTaskExecution.isPresent()) {
                         System.out.println("Reusing existing FirmwareComTaskExecution");
                         ComTaskExecution firmwareComTaskExecution = existingFirmwareComTaskExecution.get();
-
-                        /*(Optional<FirmwareCampaign> campaign = firmwareCampaignService.getCampaignOn(existingFirmwareComTaskExecution.get());
-                        ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) existingFirmwareComTaskExecution.get().getConnectionTask().get()).getConnectionStrategy();
-                        if(campaign.get().getValidationConnectionStrategy() == null || connectionStrategy == campaign.get().getValidationConnectionStrategy()){
-                            firmwareComTaskExecution.runNow();
-                        }else {
-                            ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(device.get()).get().getServiceCall();
-                            serviceCallService.lockServiceCall(serviceCall.getId());
-                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
-                            serviceCall.requestTransition(com.elster.jupiter.servicecall.DefaultState.FAILED);
-                        }*/
                         firmwareComTaskExecution.runNow();
                         System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
                     } else {
