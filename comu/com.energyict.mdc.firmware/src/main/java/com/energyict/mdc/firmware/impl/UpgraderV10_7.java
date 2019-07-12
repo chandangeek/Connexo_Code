@@ -4,27 +4,37 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
 
 public class UpgraderV10_7 implements Upgrader {
     private final DataModel dataModel;
+    private final DataModel dataModelEvt;
+    private final OrmService ormService;
     private final FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller;
-    Map<Long, Long> campaignIds = new HashMap<>();
+    private final EventService eventService;
+    private final Logger logger = Logger.getLogger(UpgraderV10_7.class.getName());
+    Map<Long, Pair> campaignIds = new HashMap<>();
     Map<Long, Long> campaignStates = new HashMap<>();
     Map<Long, Long> deviceStates = new HashMap<>();
     long currentId;
@@ -32,17 +42,29 @@ public class UpgraderV10_7 implements Upgrader {
     long scsCampaignItemTypeId;
     long cpsCampaign;
     long cpsCampaignItem;
-    static final long SECONDSINDAY = 86400;
+    static final long MILLISINDAY = 86400000;
 
     @Inject
-    UpgraderV10_7(DataModel dataModel, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller) {
-        this.dataModel = dataModel;
+    UpgraderV10_7(OrmService ormService, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller,
+                  EventService eventService) {
+        this.ormService = ormService;
+        this.dataModel = ormService.getDataModel("FWC").get();
+        this.dataModelEvt = ormService.getDataModel("EVT").get();
         this.firmwareCampaignServiceCallLifeCycleInstaller = firmwareCampaignServiceCallLifeCycleInstaller;
+        this.eventService = eventService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         firmwareCampaignServiceCallLifeCycleInstaller.createServiceCallTypes();
+        execute(dataModelEvt, "DELETE FROM EVT_EVENTTYPE WHERE COMPONENT = 'FWC'");
+        for (EventType eventType : EventType.values()) {
+            try {
+                eventType.createIfNotExists(eventService);
+            } catch (Exception e) {
+                this.logger.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
         initVariables();
         executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN", this::makeCampaignAndSC);
         executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN_DEVICES", this::makeDeviceAndSC);
@@ -60,7 +82,7 @@ public class UpgraderV10_7 implements Upgrader {
 
     private Boolean updateProps(ResultSet resultSet) throws SQLException {
         while (resultSet.next()) {
-            execute(dataModel, "UPDATE FWC_CAMPAIGN_PROPS SET CAMPAIGN = " + campaignIds.get(resultSet.getLong(1)) + " WHERE CAMPAIGN=" + resultSet.getLong(1));
+            execute(dataModel, "UPDATE FWC_CAMPAIGN_PROPS SET CAMPAIGN = " + campaignIds.get(resultSet.getLong(1)).getFirst() + " WHERE CAMPAIGN=" + resultSet.getLong(1));
         }
         return true;
     }
@@ -95,7 +117,7 @@ public class UpgraderV10_7 implements Upgrader {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         List<FirmwareCampaignInfo> firmwareCampaignInfos = new ArrayList<>();
         while (resultSet.next()) {
-            campaignIds.put(resultSet.getLong(1), ++currentId);
+            campaignIds.put(resultSet.getLong(1),  Pair.of(++currentId, resultSet.getLong(15)));
             serviceCallInfos.add(makeCampaignSC(resultSet));
             firmwareCampaignInfos.add(makeCampaign(resultSet));
         }
@@ -203,7 +225,7 @@ public class UpgraderV10_7 implements Upgrader {
     private ServiceCallInfo makeDeviceSC(ResultSet resultSet) throws SQLException {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
         serviceCallInfo.id = currentId;
-        serviceCallInfo.parent = campaignIds.get(resultSet.getLong(1));
+        serviceCallInfo.parent = (Long) campaignIds.get(resultSet.getLong(1)).getFirst();
         serviceCallInfo.lastCompletedTime = null;
         serviceCallInfo.state = deviceStates.get(resultSet.getLong(3));
         serviceCallInfo.origin = null;
@@ -216,7 +238,7 @@ public class UpgraderV10_7 implements Upgrader {
         serviceCallInfo.targetId = deviceId;
         serviceCallInfo.serviceCallType = scsCampaignItemTypeId;
         serviceCallInfo.versionCount = 1L;
-        serviceCallInfo.createTime = resultSet.getLong(5);
+        serviceCallInfo.createTime = resultSet.getLong(5) == 0 ? (Long) campaignIds.get(resultSet.getLong(1)).getLast() : resultSet.getLong(5);
         serviceCallInfo.modTime = resultSet.getLong(6);
         serviceCallInfo.username = "batch executor";
         return serviceCallInfo;
@@ -234,7 +256,10 @@ public class UpgraderV10_7 implements Upgrader {
         firmwareCampaignInfo.deviceGroup = " ";
         firmwareCampaignInfo.managementOption = resultSet.getLong(5);
         firmwareCampaignInfo.firmwareType = resultSet.getLong(6);
-        long dayOfStart = LocalDate.ofEpochDay(firmwareCampaignInfo.createTime / SECONDSINDAY).atStartOfDay().toInstant(ZoneOffset.UTC).getEpochSecond() * 1000;
+        long dayOfStart = LocalDate.ofEpochDay(firmwareCampaignInfo.createTime / MILLISINDAY)
+                .atStartOfDay()
+                .toInstant(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()))
+                .getEpochSecond() * 1000;
         firmwareCampaignInfo.activationStart = dayOfStart + resultSet.getLong(9);
         firmwareCampaignInfo.activationEnd = dayOfStart + resultSet.getLong(10);
         firmwareCampaignInfo.deviceType = resultSet.getLong(4);
@@ -253,7 +278,7 @@ public class UpgraderV10_7 implements Upgrader {
         firmwareCampaignItemInfo.createTime = resultSet.getLong(5);
         firmwareCampaignItemInfo.modTime = resultSet.getLong(6);
         firmwareCampaignItemInfo.username = "batch executor";
-        firmwareCampaignItemInfo.parent = campaignIds.get(resultSet.getLong(1));
+        firmwareCampaignItemInfo.parent = (Long) campaignIds.get(resultSet.getLong(1)).getFirst();
         firmwareCampaignItemInfo.device = resultSet.getLong(2);
         firmwareCampaignItemInfo.deviceMessage = resultSet.getObject(4) == null ? null : resultSet.getLong(4);
         return firmwareCampaignItemInfo;
