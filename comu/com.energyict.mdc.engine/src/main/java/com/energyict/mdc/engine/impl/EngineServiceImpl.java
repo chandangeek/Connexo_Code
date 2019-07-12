@@ -67,6 +67,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -99,7 +100,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
                 "osgi.command.function=stopComServer",
                 "osgi.command.function=lcs",
                 "osgi.command.function=scs"},
-        immediate = true)
+                immediate = true)
 public class EngineServiceImpl implements ServerEngineService, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMSERVER_USER = "comserver";
@@ -189,7 +190,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setFirmwareService(firmwareService);
         setSecurityManagementService(securityManagementService);
         setUpgradeService(upgradeService);
-        activate(componentContext);
+        activate(componentContext.getBundleContext());
     }
 
     @Override
@@ -440,13 +441,13 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Activate
-    public void activate(ComponentContext componentContext) {
+    public void activate(BundleContext bundleContext) {
         try{
             dataModel.register(this.getModule());
             upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
-            setEngineProperty(SERVER_NAME_PROPERTY_NAME, componentContext.getBundleContext().getProperty(SERVER_NAME_PROPERTY_NAME));
-            setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(componentContext.getBundleContext().getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
+            setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
+            setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
 
             this.tryStartComServer();
 
