@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -92,6 +93,8 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         listReadingInfo.add(readingInfo);
         when(readingStorer.getReadings()).thenReturn(listReadingInfo);
         mockIntervalReadings();
+        when(endPointConfiguration.isActive()).thenReturn(true);
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(Arrays.asList(endPointConfiguration));
 
         provider.call(listReadingInfo, HeaderType.Verb.CREATED);
 
