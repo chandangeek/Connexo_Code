@@ -55,42 +55,42 @@ public class IssueResource {
         return Response.ok(serviceCallIssueInfoFactory.asInfo(issue, DeviceInfo.class)).build();
     }
 
-//    @GET
-//    @Transactional
-//    @Path("/{" + ID + "}/processes")
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
-//    public IssueProcessInfos getTimeine(@PathParam(ID) long id, @BeanParam StandardParametersBean params, @HeaderParam("Authorization") String auth) {
-//        String jsonContent;
-//        IssueProcessInfos issueProcessInfos = new IssueProcessInfos();
-//        JSONArray arr = null;
-//        if (params.get("variableid") != null && params.get("variablevalue") != null) {
-//            try {
-//                String rest = "/rest/tasks/allprocesses?";
-//                rest += "variableid=" + params.get("variableid").get(0);
-//                rest += "&variablevalue=" + params.get("variablevalue").get(0);
-//                jsonContent = bpmService.getBpmServer().doGet(rest, auth);
-//                if (!"".equals(jsonContent)) {
-//                    JSONObject obj = new JSONObject(jsonContent);
-//                    arr = obj.getJSONArray("processInstances");
-//                }
-//            } catch (JSONException e) {
-//                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-//                        .entity(getThesaurus().getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}."))
-//                        .build());
-//            } catch (RuntimeException e) {
-//                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-//                        .entity(String.format(getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version."), e.getMessage()))
-//                        .build());
-//            }
-//            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
-//            issueProcessInfos = new IssueProcessInfos(arr);
-//            issueProcessInfos.processes = issueProcessInfos.processes.stream()
-//                    .filter(s -> !s.status.equals("1") || activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
-//                    .collect(Collectors.toList());
-//        }
-//        return issueProcessInfos;
-//    }
+    @GET
+    @Transactional
+    @Path("/{" + ID + "}/processes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
+    public IssueProcessInfos getTimeine(@PathParam(ID) long id, @BeanParam StandardParametersBean params, @HeaderParam("Authorization") String auth) {
+        String jsonContent;
+        IssueProcessInfos issueProcessInfos = new IssueProcessInfos();
+        JSONArray arr = null;
+        if (params.get("variableid") != null && params.get("variablevalue") != null) {
+            try {
+                String rest = "/rest/tasks/allprocesses?";
+                rest += "variableid=" + params.get("variableid").get(0);
+                rest += "&variablevalue=" + params.get("variablevalue").get(0);
+                jsonContent = bpmService.getBpmServer().doGet(rest, auth);
+                if (!"".equals(jsonContent)) {
+                    JSONObject obj = new JSONObject(jsonContent);
+                    arr = obj.getJSONArray("processInstances");
+                }
+            } catch (JSONException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(getThesaurus().getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}."))
+                        .build());
+            } catch (RuntimeException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(String.format(getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version."), e.getMessage()))
+                        .build());
+            }
+            List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
+            issueProcessInfos = new IssueProcessInfos(arr);
+            issueProcessInfos.processes = issueProcessInfos.processes.stream()
+                    .filter(s -> !s.status.equals("1") || activeProcesses.stream().anyMatch(a -> s.name.equals(a.getProcessName()) && s.version.equals(a.getVersion())))
+                    .collect(Collectors.toList());
+        }
+        return issueProcessInfos;
+    }
 
     @PUT
     @Transactional
