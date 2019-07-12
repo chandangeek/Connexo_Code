@@ -175,7 +175,7 @@ public class Installer implements FullInstaller {
     }
 
     void createPrioritizedMessageHandlers() {
-        QueueTableSpec prioritizedDefaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
+        QueueTableSpec prioritizedDefaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE).get();
         this.createMessageHandler(prioritizedDefaultQueueTableSpec, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CRL_REQUEST_TASK_SUBSCRIBER, true);
         this.createMessageHandler(prioritizedDefaultQueueTableSpec, DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION, SubscriberTranslationKeys.DATA_COLLECTION_KPI_CALCULATOR, true);
     }

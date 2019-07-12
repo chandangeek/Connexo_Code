@@ -35,8 +35,8 @@ public class InstallerImpl implements FullInstaller {
         logger.log(Level.INFO, "Created QueueTable MSG_RAWQUEUETABLE");
         messageService.createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
         logger.log(Level.INFO, "Created QueueTable MSG_RAWQUEUETABLE");
-        messageService.createQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE, "RAW", false, true);
-        logger.log(Level.INFO, "Created QueueTable " + MessageService.PRIORITIZED_ROW_QUEUE_TABLE);
+        messageService.createQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE, "RAW", false, true);
+        logger.log(Level.INFO, "Created QueueTable " + MessageService.PRIORITIZED_RAW_QUEUE_TABLE);
     }
 
 }

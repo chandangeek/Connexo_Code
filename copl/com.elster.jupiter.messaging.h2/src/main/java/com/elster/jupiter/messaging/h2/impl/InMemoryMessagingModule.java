@@ -14,7 +14,7 @@ public class InMemoryMessagingModule extends AbstractModule {
         TransientMessageService instance = new TransientMessageService();
         instance.createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
         instance.createQueueTableSpec("MSG_RAWTOPICTABLE", "RAW", true);
-        instance.createQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE, "RAW", false, true);
+        instance.createQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE, "RAW", false, true);
         bind(MessageService.class).toInstance(instance);
     }
     

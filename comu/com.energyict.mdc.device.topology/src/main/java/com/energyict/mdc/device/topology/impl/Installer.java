@@ -65,7 +65,7 @@ public class Installer implements FullInstaller {
     }
 
     void createMessageHandlers() {
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE).get();
         this.createMessageHandler(defaultQueueTableSpec, RegisteredDevicesKpiCalculatorFactory.TASK_DESTINATION, TranslationKeys.REGISTERED_DEVICES_KPI_CALCULATOR);
     }
 

@@ -114,7 +114,7 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
     }
 
     void createDestinationAndSubscriber() {
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE).get();
+        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE).get();
         destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, DEFAULT_RETRY_DELAY_IN_SECONDS, ENABLE_EXTRA_QUEUE_CREATION, MAKE_QUEUE_PRIORITIZED);
         destinationSpec.save();
         destinationSpec.activate();

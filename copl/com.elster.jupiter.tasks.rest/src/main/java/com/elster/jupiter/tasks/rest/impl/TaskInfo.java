@@ -45,7 +45,7 @@ public class TaskInfo {
     public Long lastRunDate;
     public Long lastRunDuration;
     public Boolean isExtraQueueCreationEnabled;
-    public Boolean isQueuePrioritized;
+    public Boolean queuePrioritized;
     public Integer priority;
 
     public TaskInfo(){}  // needed for serialization - deserialization
@@ -56,7 +56,7 @@ public class TaskInfo {
         queue = recurrentTask.getDestination().getName();
         queueType = recurrentTask.getDestination().getQueueTypeName();
         isExtraQueueCreationEnabled = recurrentTask.getDestination().isExtraQueueCreationEnabled();
-        isQueuePrioritized = recurrentTask.getDestination().isPrioritized();
+        queuePrioritized = recurrentTask.getDestination().isPrioritized();
         priority = recurrentTask.getPriority();
         trigger = Never.NEVER.equals(recurrentTask.getScheduleExpression()) ? thesaurus.getFormat(TranslationKeys.NOTSCHEDULED).format() :
                 thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService, locale) + ")";

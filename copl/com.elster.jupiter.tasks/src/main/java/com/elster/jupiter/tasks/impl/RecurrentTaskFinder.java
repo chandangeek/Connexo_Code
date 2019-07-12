@@ -20,6 +20,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @LiteralSql
 public class RecurrentTaskFinder implements TaskFinder {
@@ -142,13 +143,14 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append(isFirstCondition ? " where ( " : " and ( ");
             isFirstCondition = false;
 
-            List<String> queues = new ArrayList();
-            queues.addAll(filter.queues);
+            //List<String> queues = new ArrayList();
+            //queues.addAll(filter.queues);
             builder.append("DESTINATION in ( ");
-            for (int i = 0; i < queues.size(); i++) {
+            builder.append(filter.queues.stream().collect(Collectors.joining(" , ")));
+            /*for (int i = 0; i < queues.size(); i++) {
                 builder.addObject(queues.get(i));
                 builder.append((i < queues.size() - 1) ? " , " : "");
-            }
+            }*/
             builder.append(")) ");
         }
 
@@ -157,13 +159,14 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append(isFirstCondition ? " where ( " : " and ( ");
             isFirstCondition = false;
 
-            List<String> queueTypes = new ArrayList();
-            queueTypes.addAll(filter.queueTypes);
+            //List<String> queueTypes = new ArrayList();
+            //queueTypes.addAll(filter.queueTypes);
             builder.append("QUEUE_TYPE_NAME in (");
-            for (int i = 0; i < queueTypes.size(); i++) {
+            builder.append(filter.queueTypes.stream().collect(Collectors.joining(" , ")));
+            /*for (int i = 0; i < queueTypes.size(); i++) {
                 builder.addObject(queueTypes.get(i));
                 builder.append((i < queueTypes.size() - 1) ? " , " : "");
-            }
+            }*/
             builder.append(")) ");
         }
 
@@ -172,13 +175,14 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append(isFirstCondition ? " where ( " : " and ( ");
             isFirstCondition = false;
 
-            List<String> applications = new ArrayList();
-            applications.addAll(filter.applications);
+            //List<String> applications = new ArrayList();
+            //applications.addAll(filter.applications);
             builder.append("APPLICATION in (");
-            for (int i = 0; i < applications.size(); i++) {
+            builder.append(filter.applications.stream().collect(Collectors.joining(" , ")));
+            /*for (int i = 0; i < applications.size(); i++) {
                 builder.addObject(applications.get(i));
                 builder.append((i < applications.size() - 1) ? " , " : "");
-            }
+            }*/
             builder.append(")) ");
         }
 

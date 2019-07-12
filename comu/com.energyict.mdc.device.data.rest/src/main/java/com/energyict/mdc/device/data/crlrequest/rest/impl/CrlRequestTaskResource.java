@@ -185,7 +185,7 @@ public class CrlRequestTaskResource {
 
     private DestinationSpec getCrlRequestDestination() {
         return messageService.getDestinationSpec(CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME).orElseGet(() ->
-                messageService.getQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE)
+                messageService.getQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE)
                         .get()
                         .createDestinationSpec(CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, CrlRequestHandlerFactory.DEFAULT_RETRY_DELAY_IN_SECONDS, false, true));
     }

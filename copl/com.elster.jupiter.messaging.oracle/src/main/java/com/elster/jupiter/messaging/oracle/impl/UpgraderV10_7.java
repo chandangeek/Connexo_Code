@@ -26,7 +26,7 @@ class UpgraderV10_7 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
-        messageService.createQueueTableSpec(MessageService.PRIORITIZED_ROW_QUEUE_TABLE, "RAW", false, true);
+        messageService.createQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE, "RAW", false, true);
     }
 
 }
