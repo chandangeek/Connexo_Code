@@ -6,9 +6,10 @@ package com.elster.jupiter.issue.servicecall.impl.action;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
+import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
-import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
 import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -19,24 +20,32 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class StartProcessAction extends AbstractIssueAction {
 
-    private static final String NAME = "StartProcessAction";
+    private static final String NAME = "servicecallissue";
+    private static final String START_PROCESS = NAME + ".startprocess";
 
     private final IssueService issueService;
     private final BpmService bpmService;
@@ -50,8 +59,42 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public IssueActionResult execute(Issue issue) {
-        DefaultActionResult result = new DefaultActionResult();
-        //todo
+        IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
+        Object value = properties.get(START_PROCESS);
+        if(value != null) {
+            String jsonContent;
+            JSONArray arr = null;
+            String errorInvalidMessage = getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
+            String errorNotFoundMessage = getThesaurus().getString("error.flow.unavailable", "Connexo Flow is not available.");
+            try {
+                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                if (!"".equals(jsonContent)) {
+                    JSONObject jsnobject = new JSONObject(jsonContent);
+                    arr = jsnobject.getJSONArray("processDefinitionList");
+                }
+            } catch (JSONException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(errorInvalidMessage)
+                        .build());
+            } catch (RuntimeException e) {
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(errorNotFoundMessage)
+                        .build());
+            }
+            ProcessDefinitionInfos bpmProcessDefinitions = new ProcessDefinitionInfos(arr);
+            @SuppressWarnings({"unchecked", "OptionalGetWithoutIsPresent"})
+            Long processId = Long.valueOf(getPropertySpec(START_PROCESS).get().getValueFactory().toStringValue(value));
+            Optional<BpmProcessDefinition> connexoProcess = bpmService.getActiveBpmProcessDefinitions()
+                    .stream()
+                    .filter(proc -> proc.getId() == processId)
+                    .findFirst();
+            Map<String, Object> expectedParams = new HashMap<>();
+            expectedParams.put("issueId", issue.getId());
+            connexoProcess.ifPresent(bpmProcessDefinition -> bpmProcessDefinitions.processes.stream()
+                    .filter(proc -> proc.name.equals(bpmProcessDefinition.getProcessName()) && proc.version.equals(bpmProcessDefinition
+                            .getVersion()))
+                    .forEach(p -> bpmService.startProcess(p.deploymentId, p.processId, expectedParams)));
+        }
         return result;
     }
 

@@ -22,23 +22,17 @@ import java.util.List;
 
 public class RetryServiceCallAction extends AbstractIssueAction {
 
-    private IssueService issueService;
-
     @Inject
-    public RetryServiceCallAction(DataModel dataModel, Thesaurus thesaurus, IssueService issueService, PropertySpecService propertySpecService) {
+    public RetryServiceCallAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(dataModel, thesaurus, propertySpecService);
-        this.issueService = issueService;
     }
 
     @Override
     public IssueActionResult execute(Issue issue) {
         DefaultActionResult result = new DefaultActionResult();
         if (isApplicable(issue)){
-//            issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-//            issue.update();
-//            ScheduledConnectionTask task = (ScheduledConnectionTask)((IssueDataCollection) issue).getConnectionTask().get();
-//            task.scheduleNow();
-//            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_CONNECTION_SUCCESS).format());
+            ServiceCallIssue scIssue = (ServiceCallIssue) issue;
+            scIssue.getServiceCall().requestTransition(scIssue.getServiceCall().getType().getRetryState());
         }
         return result;
     }

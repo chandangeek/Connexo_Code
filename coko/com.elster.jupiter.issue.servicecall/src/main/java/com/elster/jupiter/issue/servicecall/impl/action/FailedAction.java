@@ -20,8 +20,6 @@ import java.util.List;
 public class FailedAction extends AbstractIssueAction {
 
     private static final String NAME = "FailedServiceCallAction";
-    public static final String CLOSE_STATUS = NAME + ".status";
-    public static final String COMMENT = NAME + ".comment";
 
     @Inject
     public FailedAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
@@ -35,9 +33,7 @@ public class FailedAction extends AbstractIssueAction {
 
     @Override
     public IssueActionResult execute(Issue issue) {
-        IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
-        //todo
-        return result;
+        return new IssueActionResult.DefaultActionResult();
     }
 
     @Override
