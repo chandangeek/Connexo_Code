@@ -4,9 +4,10 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
-import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import ch.iec.tc57._2011.schema.message.ErrorType;
 
 import java.text.DecimalFormat;
 import java.util.logging.Level;
@@ -53,7 +54,7 @@ public enum MessageSeeds implements MessageSeed {
     EXCEPTION_OCCURRED_DURING_KEY_IMPORT(1024, "ExceptionOccurredDuringKeyImport", "Exception occurred during key import for device ''{0}'' and security accessor ''{1}''"),
     NO_DEFAULT_DEVICE_CONFIGURATION(1025, "NoDefaultDeviceConfiguration", "No default device configuration"),
     NO_DEVICE_WITH_SERIAL_NUMBER(1026, "NoDeviceWithSerialNumber", "No device found with serial number ''{0}''"),
-	SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS(1027, "SecurityKeyUpdateForbidden", "Security key update is forbidden for device ''{0}'' because it is in state ''{1}''"),
+    SECURITY_KEY_UPDATE_FORBIDDEN_FOR_DEVICE_STATUS(1027, "SecurityKeyUpdateForbidden", "Security key update is forbidden for device ''{0}'' because it is in state ''{1}''"),
     NO_CUSTOM_ATTRIBUTE_VERSION(1028, "NoCustomAttributeVersion", "Custom attribute set version with start date {0} is not found"),
     START_DATE_LOWER_CREATED_DATE(1029, "StartDateLowerCreatedDate", "Start date must be greater or equal to created date of device {0}"),
     GET_DEVICE_IDENTIFIER_MISSING(1030, "GetDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
@@ -101,31 +102,30 @@ public enum MessageSeeds implements MessageSeed {
     READING_TYPES_NOT_FOUND_ON_DEVICE(7012, "ReadingTypesNotFoundOnDevice", "Reading type(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
     NO_USAGE_POINT_WITH_MRID(7013, "NoUsagePointWithMRID", "No usage point is found by MRID ''{0}''."),
     NO_USAGE_POINT_WITH_NAME(7014, "NoUsagePointWithName", "No usage point is found by name ''{0}''."),
-    WRONG_TIME_PERIOD_COMBINATION(7015, "WrongTimePeriodCombination", "Can''t construct a valid time period: provided start ''{0}'' and the end ''{1}''."),
-    DIFFERENT_DATA_SOURCES(7016, "DifferentDataSources", "The request contains data sources of different types."),
-    SCHEDULE_STRATEGY_NOT_FOUND(7017, "ScheduleStrategyNotFound", "Schedule strategy ''{0}'' is not found in the system."),
-    NO_CONNECTION_TASK(7018, "NoConnectionTask", "No connection task have been found for communication task execution of communocation task ''{0}''."),
-    CONNECTION_METHOD_NOT_FOUND(7019, "ConnectionMethodNotFound", "The required connection method ''{0}'' wasn't found on the device {1}."),
-    DATA_SOURCE_NOT_FOUND(7020, "DataSourceNotFound", "Data source ''{0}'' is not found in the system."),
-    DATA_SOURCE_NAME_TYPE_NOT_FOUND(7021, "DataSourceNameTypeNotFound", "Data source name type ''{0}'' is not found. Possible values: Load Profile or Register Group."),
-    NO_DATA_SOURCES(7022, "NoDataSources", "At least one of ''GetMeterReadings.ReadingType'' or ''GetMeterReadings.Reading.dataSource'' must be specified in the request"),
-    REGISTER_GROUP_NOT_FOUND(7023, "RegisterGroupNotFound", "Couldn''t find register group with name ''{0}''."),
-    LOAD_PROFILE_NOT_FOUND(7024, "LoadProfileNotFound", "Couldn''t find load profile with name ''{0}''."),
-    NO_COM_TASK_EXECUTION(7025, "NoComTaskExecution", "The required communication task execution of type {0} wasn't found on the device {1}."),
-    LOAD_PROFILE_WRONG_TIME_PERIOD(7026, "LoadProfileWrongTimePeriod",
-            "Wrong time period for load profile data source is provided: start ''{0}'', end ''{1}''."),
-    REGISTER_GROUP_WRONG_TIME_PERIOD(7027, "RegisterGroupWrongTimePeriod",
-            "Wrong time period for register group data source is provided: start ''{0}'', end ''{1}''."),
-    LOAD_PROFILE_EMPTY_TIME_PERIOD(7028, "LoadProfileEmptyTimePeriod",
-            "Empty time period for load profile data source is provided."),
-    REGISTER_GROUP_EMPTY_TIME_PERIOD(7029, "RegisterGroupEmptyTimePeriod",
-            "Empty time period for register group data source is provided."),
-    REGISTER_EMPTY_TIME_PERIOD(7030, "RegisterEmptyTimePeriod", "Empty time period for register is provided."),
-    SYSTEM_SOURCE_EMPTY_TIME_PERIOD(7031, "SystemSourceEmptyTimePeriod",
-            "Empty time period for ''System'' source is provided."),
-    SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES(7032, "SystemSourceDoesntSupportLoadProfiles",
-            "''System'' source doesn''t support ''Load profile'' data source."),
-    NO_COM_TASK_EXECUTION_FOR_PROTOCOL_TASK(7033, "NoComTaskExecutionForProtocolTask", "No communication task execution have been found for protocol task ''{0}''."),
+    WRONG_TIME_PERIOD_COMBINATION(7015, "WrongTimePeriodCombination", "Can''t construct a valid time period: provided start ''{0}'' and the end ''{1}''.", Level.WARNING),
+    DIFFERENT_DATA_SOURCES(7016, "DifferentDataSources", "The request contains data sources of different types under element ''{0}''."),
+    SCHEDULE_STRATEGY_NOT_FOUND(7017, "ScheduleStrategyNotFound", "Schedule strategy ''{0}'' is not found in the system. Default value ''Run now'' will be used.", Level.WARNING),
+    NO_CONNECTION_TASK(7018, "NoConnectionTask", "No connection task have been found for communication task execution of communication task ''{0}''."),
+    CONNECTION_METHOD_NOT_FOUND_ON_DEVICE(7019, "ConnectionMethodNotFoundOnDevice", "The required connection method ''{0}'' wasn''t found on the device ''{1}''.", Level.WARNING),
+    //CONNECTION_METHOD_NOT_FOUND(7020, "ConnectionMethodNotFound", "The required connection method ''{0}'' wasn''t found for requested devices."),
+    CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK(7021, "ConnectionMethodNotFoundForComTask", "The required connection method ''{0}'' wasn''t found for communication task ''{0}''.", Level.WARNING),
+    //DATA_SOURCE_NOT_FOUND(7022, "DataSourceNotFound", "Data source ''{0}'' is not found in the system."),
+    DATA_SOURCE_NAME_TYPE_NOT_FOUND(7023, "DataSourceNameTypeNotFound", "Data source name type ''{0}'' is not found in the element ''{1}''. Possible values: Load Profile or Register Group."),
+    NO_DATA_SOURCES(7024, "NoDataSources", "At least one correct ''GetMeterReadings.ReadingType'' or ''GetMeterReadings.Reading.dataSource'' must be specified in the request under element ''{0}''", Level.WARNING),
+    REGISTER_GROUP_NOT_FOUND(7025, "RegisterGroupNotFound", "Couldn''t find register group with name ''{0}'' under element ''{1}''.", Level.WARNING),
+    LOAD_PROFILE_NOT_FOUND(7026, "LoadProfileNotFound", "Couldn''t find load profile with name ''{0}'' under element ''{1}''.", Level.WARNING),
+    NO_COM_TASK_EXECUTION(7027, "NoComTaskExecution", "The required communication task execution of type {0} wasn't found on the device {1}.", Level.WARNING),
+    LOAD_PROFILE_WRONG_TIME_PERIOD(7028, "LoadProfileWrongTimePeriod", "Wrong time period for load profile data source is provided under element ''{0}'': start ''{1}'', end ''{2}''.", Level.WARNING),
+    REGISTER_GROUP_WRONG_TIME_PERIOD(7029, "RegisterGroupWrongTimePeriod", "Wrong time period for register group data source is provided under element ''{0}'': start ''{1}'', end ''{2}''.", Level.WARNING),
+    LOAD_PROFILE_EMPTY_TIME_PERIOD(7030, "LoadProfileEmptyTimePeriod", "Empty time period for load profile data source is provided under element ''{0}''.", Level.WARNING),
+    REGISTER_GROUP_EMPTY_TIME_PERIOD(7031, "RegisterGroupEmptyTimePeriod", "Empty time period for register group data source is provided under element ''{0}''.", Level.WARNING),
+    REGISTER_EMPTY_TIME_PERIOD(7032, "RegisterEmptyTimePeriod", "Empty time period for register is provided under element ''{0}''.", Level.WARNING),
+    SYSTEM_SOURCE_EMPTY_TIME_PERIOD(7033, "SystemSourceEmptyTimePeriod", "Empty time period for ''System'' source is provided.", Level.WARNING),
+    SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES(7034, "SystemSourceDoesntSupportLoadProfiles", "''System'' source doesn''t support ''Load profile'' data source. Element ''{0}''.", Level.WARNING),
+    NO_COM_TASK_EXECUTION_FOR_PROTOCOL_TASK(7035, "NoComTaskExecutionForProtocolTask", "No communication task execution have been found for protocol task ''{0}''."),
+    LOAD_PROFILES_NOT_FOUND_ON_DEVICE(7036, "LoadProfilesNotFoundOnDevice", "LoadProfile(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
+    NO_READINGS_TO_READ(7037, "NoReadingsToRead", "Couldn''t find any correct  ''GetMeterReadings.Reading'' to read."),
+    READING_NOT_APPLICABLE(7038, "ReadingNotApplicable", "''{0}'' will be skipped due to issue in the element ''{1}''.", Level.WARNING),
 
     NO_HEAD_END_INTERFACE_FOUND(8004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     ;
