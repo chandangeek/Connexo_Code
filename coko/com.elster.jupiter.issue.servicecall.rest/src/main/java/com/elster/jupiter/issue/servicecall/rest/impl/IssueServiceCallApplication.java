@@ -82,8 +82,7 @@ public class IssueServiceCallApplication extends Application {
 
     @Override
     public Set<Object> getSingletons() {
-        Set<Object> hashSet = new HashSet<>();
-        hashSet.addAll(super.getSingletons());
+        Set<Object> hashSet = new HashSet<>(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
     }
