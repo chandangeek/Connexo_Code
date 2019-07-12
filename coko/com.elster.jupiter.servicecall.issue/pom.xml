@@ -10,9 +10,9 @@
         <artifactId>kore</artifactId>
         <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
-    <artifactId>servicecall.issue</artifactId>
+    <artifactId>issue.servicecall</artifactId>
     <packaging>bundle</packaging>
-    <name>[Jupiter] servicecall.issue</name>
+    <name>[Jupiter] issue.servicecall</name>
     <description>
         Contains servicecall issue templates
     </description>

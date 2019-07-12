@@ -11,9 +11,9 @@
         <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
-    <artifactId>servicecall.issue.rest</artifactId>
+    <artifactId>issue.servicecall.rest</artifactId>
     <packaging>bundle</packaging>
-    <name>[Jupiter] servicecall.issue.rest</name>
+    <name>[Jupiter] issue.servicecall.rest</name>
 
     <profiles>
         <profile>
@@ -103,7 +103,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall.issue</artifactId>
+            <artifactId>issue.servicecall</artifactId>
         </dependency>
 
         <!--Test-->

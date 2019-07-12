@@ -7,7 +7,7 @@ package com.elster.jupiter.issue.servicecall.rest.impl;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.servicecall.issue.ServiceCallIssue;
+import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
 
 import java.util.List;
 

@@ -4,18 +4,16 @@
 
 package com.elster.jupiter.issue.servicecall.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.servicecall.issue.ServiceCallIssueService;
+import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 
@@ -29,7 +27,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.issue.servicecall.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/itk", "app=" + IssueServiceCallApplication.APP_KEY, "name=" + IssueServiceCallApplication.ISSUE_SERVICE_CALL_REST_COMPONENT})
+@Component(name = "com.elster.jupiter.servicecall.issue.rest", service = {Application.class}, immediate = true, property = {"alias=/isc", "app=" + IssueServiceCallApplication.APP_KEY, "name=" + IssueServiceCallApplication.ISSUE_SERVICE_CALL_REST_COMPONENT})
 public class IssueServiceCallApplication extends Application {
     public static final String APP_KEY = "SYS";
     public static final String ISSUE_SERVICE_CALL_REST_COMPONENT = "SIR";
@@ -41,6 +39,7 @@ public class IssueServiceCallApplication extends Application {
     private volatile IssueActionService issueActionService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile BpmService bpmService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -69,15 +68,16 @@ public class IssueServiceCallApplication extends Application {
     }
 
     @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(ServiceCallIssueService.COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(ISSUE_SERVICE_CALL_REST_COMPONENT, Layer.REST);
         this.thesaurus = domainThesaurus.join(restThesaurus);
-    }
-
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
     }
 
     @Override
@@ -103,6 +103,7 @@ public class IssueServiceCallApplication extends Application {
             bind(ServiceCallIssueInfoFactory.class).to(ServiceCallIssueInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
+            bind(bpmService).to(BpmService.class);
         }
     }
 }
