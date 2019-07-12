@@ -318,6 +318,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.extendedLocation = new LocationInfo();
         info.geoCoordinates = "";
         info.location = "";
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints").queryParam("validate", true).queryParam("step", 1).request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(202);
@@ -353,6 +354,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.location = "";
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints").queryParam("validate", true).queryParam("step", 2).request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(202);
@@ -386,6 +388,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.location = "";
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
@@ -429,6 +432,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
         info.customPropertySets = Collections.singletonList(casInfo);
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         ArgumentCaptor<CustomPropertySetValues> valueCaptor = ArgumentCaptor.forClass(CustomPropertySetValues.class);
         Response response = target("usagepoints/1").request().put(Entity.json(info));
@@ -469,6 +473,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
         info.customPropertySets = Collections.singletonList(casInfo);
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
@@ -513,6 +518,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
         info.customPropertySets = Collections.singletonList(casInfo);
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
@@ -1082,6 +1088,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         calendarOnUsagePointInfo.immediately = true;
         calendarOnUsagePointInfo.usagePointId = 1L;
         usagePointInfo.calendars = Collections.singletonList(calendarOnUsagePointInfo);
+        usagePointInfo.serviceCategory = ServiceKind.ELECTRICITY.name();
         return usagePointInfo;
     }
 
@@ -1129,6 +1136,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.calendars = Collections.singletonList(calendarOnUsagePointInfo);
         info.lifeCycle = new UsagePointLifeCycleInfo();
         info.lifeCycle.name = "LifeCycleName";
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
         return info;
     }
 }
