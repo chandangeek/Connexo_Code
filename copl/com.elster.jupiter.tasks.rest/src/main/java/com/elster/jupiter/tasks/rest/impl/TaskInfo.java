@@ -44,7 +44,7 @@ public class TaskInfo {
     public String lastRunStatus;
     public Long lastRunDate;
     public Long lastRunDuration;
-    public Boolean isExtraQueueCreationEnabled;
+    public Boolean extraQueueCreationEnabled;
     public Boolean queuePrioritized;
     public Integer priority;
 
@@ -55,7 +55,7 @@ public class TaskInfo {
         application = new IdWithNameInfo(recurrentTask.getApplication(), thesaurus.getString(recurrentTask.getApplication(), recurrentTask.getApplication()));
         queue = recurrentTask.getDestination().getName();
         queueType = recurrentTask.getDestination().getQueueTypeName();
-        isExtraQueueCreationEnabled = recurrentTask.getDestination().isExtraQueueCreationEnabled();
+        extraQueueCreationEnabled = recurrentTask.getDestination().isExtraQueueCreationEnabled();
         queuePrioritized = recurrentTask.getDestination().isPrioritized();
         priority = recurrentTask.getPriority();
         trigger = Never.NEVER.equals(recurrentTask.getScheduleExpression()) ? thesaurus.getFormat(TranslationKeys.NOTSCHEDULED).format() :
