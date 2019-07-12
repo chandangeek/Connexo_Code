@@ -194,6 +194,11 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     }
 
     @Override
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
+        return deviceProtocol.getFirmwareVersions(serialNumber);
+    }
+
+    @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return deviceProtocol.fetchLoadProfileConfiguration(loadProfilesToRead);
     }

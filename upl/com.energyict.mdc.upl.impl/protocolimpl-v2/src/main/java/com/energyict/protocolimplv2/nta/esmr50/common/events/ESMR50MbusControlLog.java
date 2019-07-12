@@ -9,6 +9,8 @@ import java.util.*;
 
 public class ESMR50MbusControlLog extends AbstractEvent {
 
+    private int ignoredEvents;
+
     public ESMR50MbusControlLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
     }
@@ -17,21 +19,43 @@ public class ESMR50MbusControlLog extends AbstractEvent {
     public ESMR50MbusControlLog(DataContainer dc, int mBusChannel) {
         super(dc);
         this.mBusChannel = mBusChannel;
+        this.ignoredEvents = 0;
+    }
+
+    /**
+     *  Select only event ids that correspond to MBus channel, as requested by ENEXIS:
+     *	    Event 255 will always be of interest for the slave device, so independent of the channel
+     *	    Events 100 t/m 109 will only be of interest for the slave device if it is installed on channel 1
+     *	    Events 110 t/m 119 will only be of interest for the slave device if it is installed on channel 2
+     *	    Events 120 t/m 129 will only be of interest for the slave device if it is installed on channel 3
+     *	    Events 130 t/m 139 will only be of interest for the slave device if it is installed on channel 4
+     *	    All other events will be ignored.
+     *
+     * @param eventId
+     * @return
+     */
+    private boolean checkEventInChannelRange(int eventId) {
+        if (eventId == 255){
+            // always include event code 255
+            return true;
+        }
+
+        final int lowerLimit = 90 + mBusChannel * 10;   // 100, 110, 120, 130
+        final int upperLimit = lowerLimit + 9;          // 109, 119, 129, 139
+
+        return (lowerLimit <= eventId) && (eventId <= upperLimit);
     }
 
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
-        //select only event ids that correspond to mbus channel
-        //channel 1: 160 .. 169
-        //channel 2: 170 .. 179
-        //channel 3: 180 .. 189
-        //channel 4: 190 .. 199
-        int clonedEventId = eventId;
-        //if outside range, consider it an unknown event
-        if (eventId != 255 && eventId < (150 + mBusChannel * 10) && eventId > (159 + mBusChannel * 10))
-            clonedEventId = 0;
 
-        switch (clonedEventId) {
+        if (!checkEventInChannelRange(eventId)){
+            //if outside range ignore it
+            ignoredEvents++;
+            return;
+        }
+
+        switch (eventId) {
             //channel 1
             case 160:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MANUAL_DISCONNECTION_MBUS, eventId, "Manual disconnection M-Bus channel 1"));
@@ -103,5 +127,9 @@ public class ESMR50MbusControlLog extends AbstractEvent {
             default:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
         }
+    }
+
+    public int getIgnoredEvents() {
+        return ignoredEvents;
     }
 }

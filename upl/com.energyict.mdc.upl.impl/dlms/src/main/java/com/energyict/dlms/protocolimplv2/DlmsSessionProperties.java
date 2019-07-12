@@ -241,4 +241,10 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * This could be used to prevent that all LP intervals have a flag during the summer time.
      */
     boolean isIgnoreDstStatusCode();
+
+    /**
+     * Used to generate an event if the frame-counter is above a specific threshold.
+     * @return
+     */
+    long getFrameCounterLimit();
 }

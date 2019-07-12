@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -114,6 +115,7 @@ public class ServiceCallLogIT {
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 

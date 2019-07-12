@@ -47,8 +47,8 @@ public class RecurrentTaskFinder implements TaskFinder {
         DataMapper<RecurrentTaskImpl> mapper = dataModel.mapper(RecurrentTaskImpl.class);
         //SqlBuilder builder = mapper.builder("RT");
         SqlBuilder builder = new SqlBuilder();
-        builder.append("select * from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, ROWNUM as rnum from (");
-        builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, ROWNUM as rnum ");
+        builder.append("select * from (select ID, APPLICATION, NAME, CRONSTRING, NEXTEXECUTION, PAYLOAD, DESTINATION, LASTRUN, VERSIONCOUNT, CREATETIME, MODTIME, USERNAME, LOGLEVEL, SUSPENDUNTIL, ROWNUM as rnum from (");
+        builder.append("select RT.ID, RT.APPLICATION, RT.NAME, RT.CRONSTRING, RT.NEXTEXECUTION, RT.PAYLOAD, RT.DESTINATION, RT.LASTRUN, RT.VERSIONCOUNT, RT.CREATETIME, RT.MODTIME, RT.USERNAME, RT.LOGLEVEL, RT.SUSPENDUNTIL, ROWNUM as rnum ");
         builder.append(" from TSK_RECURRENT_TASK RT ");
         builder.append(" inner join ");
         builder.append("(select * from ");
@@ -79,6 +79,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append(") ");
         builder.append("on RT.ID=TSKID ");
 
+        boolean isFirstCondition = true;
         //add started bewteen conditions
         if ((filter.startedOnFrom != null) || (filter.startedOnTo != null)) {
             builder.append("where exists (select * from TSK_TASK_OCCURRENCE where ");
@@ -94,15 +95,19 @@ public class RecurrentTaskFinder implements TaskFinder {
                 builder.addLong(filter.startedOnTo.toEpochMilli());
             }
             builder.append(") ");
+            isFirstCondition = false;
         }
 
         //add queues filter conditions
         if ((filter.queues != null) && (!filter.queues.isEmpty())) {
-            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)) {
-                builder.append(" where ( ");
-            } else {
-                builder.append(" and ( ");
-            }
+
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+            isFirstCondition = false;
+//            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)) {
+//                builder.append(" where ( ");
+//            } else {
+//                builder.append(" and ( ");
+//            }
             List<String> queues = new ArrayList();
             queues.addAll(filter.queues);
             for (int i = 0; i < queues.size(); i++) {
@@ -117,17 +122,41 @@ public class RecurrentTaskFinder implements TaskFinder {
 
         //add application filter conditions
         if ((filter.applications != null) && (!filter.applications.isEmpty())) {
-            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null) && ((filter.queues == null) || (filter.queues.isEmpty()))) {
-                builder.append(" where ( ");
-            } else {
-                builder.append(" and ( ");
-            }
+//            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null) && ((filter.queues == null) || (filter.queues.isEmpty()))) {
+//                builder.append(" where ( ");
+//            } else {
+//                builder.append(" and ( ");
+//            }
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+            isFirstCondition = false;
+
             List<String> applications = new ArrayList();
             applications.addAll(filter.applications);
             for (int i = 0; i < applications.size(); i++) {
                 builder.append("APPLICATION= ");
                 builder.addObject(applications.get(i));
                 if (i < applications.size() - 1) {
+                    builder.append(" or ");
+                }
+            }
+            builder.append(") ");
+        }
+
+        if ((filter.suspended != null) && (!filter.suspended.isEmpty())) {
+
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+
+            List<String> suspended = new ArrayList();
+            suspended.addAll(filter.suspended);
+            for (int i = 0; i < suspended.size(); i++) {
+                if("y".equalsIgnoreCase(suspended.get(i))){
+                    builder.append("(SUSPENDUNTIL IS NOT NULL)");
+                }
+                else if("n".equalsIgnoreCase(suspended.get(i))){
+                    builder.append("(SUSPENDUNTIL IS NULL)");
+                }
+
+                if (i < suspended.size() - 1) {
                     builder.append(" or ");
                 }
             }

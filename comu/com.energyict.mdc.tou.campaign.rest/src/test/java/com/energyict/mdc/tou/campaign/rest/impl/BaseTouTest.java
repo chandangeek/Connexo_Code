@@ -13,8 +13,11 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.time.ZoneId;
 
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.when;
 
 public abstract class BaseTouTest extends FelixRestApplicationJerseyTest {
     @Mock
@@ -40,6 +43,7 @@ public abstract class BaseTouTest extends FelixRestApplicationJerseyTest {
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setNlsService(nlsService);
         application.setCalendarService(calendarService);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         return application;
     }
 }
