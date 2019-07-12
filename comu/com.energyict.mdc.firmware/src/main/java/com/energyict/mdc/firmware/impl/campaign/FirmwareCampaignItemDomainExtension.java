@@ -145,10 +145,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     @Override
     public Instant getFinishedOn() {
         ServiceCall serviceCall = getServiceCall();
-        return (serviceCall.getState().equals(DefaultState.CANCELLED)
-                || serviceCall.getState().equals(DefaultState.SUCCESSFUL)
-                || serviceCall.getState().equals(DefaultState.REJECTED)
-                || serviceCall.getState().equals(DefaultState.FAILED)) ? serviceCall.getLastModificationTime() : null;
+        return serviceCall.getState().isOpen() ? null : serviceCall.getLastModificationTime();
     }
 
     @Override
