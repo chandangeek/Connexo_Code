@@ -243,25 +243,19 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
-				<artifactId>servicecall.issue</artifactId>
+				<artifactId>issue.servicecall</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
-				<artifactId>servicecall.issue.rest</artifactId>
+				<artifactId>issue.servicecall.rest</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
-				<artifactId>servicecall.issue</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.elster.jupiter</groupId>
-				<artifactId>servicecall.issue.extjs</artifactId>
+				<artifactId>issue.servicecall.extjs</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
