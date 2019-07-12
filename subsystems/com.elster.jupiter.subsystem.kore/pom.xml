@@ -292,15 +292,15 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall.issue</artifactId>
+            <artifactId>issue.servicecall</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall.issue.rest</artifactId>
+            <artifactId>issue.servicecall.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall.issue.extjs</artifactId>
+            <artifactId>issue.servicecall.extjs</artifactId>
         </dependency>
     </dependencies>
 
