@@ -272,10 +272,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue.task.extjs</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>issue.servicecall.extjs</artifactId>
-        </dependency>
     </dependencies>
 
     <properties>
