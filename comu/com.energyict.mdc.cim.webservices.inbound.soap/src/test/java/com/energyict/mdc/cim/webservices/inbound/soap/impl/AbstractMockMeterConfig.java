@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -37,6 +38,8 @@ import ch.iec.tc57._2011.meterconfigmessage.ObjectFactory;
 import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
@@ -104,6 +107,12 @@ public abstract class AbstractMockMeterConfig extends AbstractMockActivator {
     private CIMLifecycleDates lifecycleDates;
     @Mock
     protected MeterConfig meterConfig;
+    @Mock
+    protected WebServiceContext webServiceContext;
+    @Mock
+    protected MessageContext messageContext;
+    @Mock
+    protected WebServiceCallOccurrence webServiceCallOccurrence;
 
     protected void mockDeviceType() {
         when(deviceType.getName()).thenReturn(DEVICE_TYPE_NAME);

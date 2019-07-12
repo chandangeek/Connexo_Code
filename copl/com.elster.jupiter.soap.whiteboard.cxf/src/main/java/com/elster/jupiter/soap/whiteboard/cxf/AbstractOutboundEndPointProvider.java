@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointException;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageSeeds;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.transaction.TransactionService;
@@ -134,7 +136,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         .filter(EndPointConfiguration::isActive)
                         .collect(Collectors.toSet());
                 if (endPointConfigurations.isEmpty()) {
-                    LOGGER.severe(thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS).format(getName()));
+                    throw new EndPointException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS, getName());
                 }
             }
             return endPointConfigurations.stream()

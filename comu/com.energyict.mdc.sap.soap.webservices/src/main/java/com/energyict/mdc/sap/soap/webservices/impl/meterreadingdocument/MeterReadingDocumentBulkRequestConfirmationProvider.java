@@ -60,7 +60,7 @@ public class MeterReadingDocumentBulkRequestConfirmationProvider extends Abstrac
     @Override
     public void call(MeterReadingDocumentRequestConfirmationMessage confirmationMessage) {
         using("smartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut")
-                .send(confirmationMessage);
+                .send(confirmationMessage.getBulkConfirmationMessage());
     }
 
     @Override
