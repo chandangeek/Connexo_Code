@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
@@ -38,19 +37,17 @@ public class TimeOfUseCampaignInfoFactory {
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
     private final Thesaurus thesaurus;
-    private final TaskService taskService;
 
     @Inject
     public TimeOfUseCampaignInfoFactory(TimeOfUseCampaignService timeOfUseCampaignService, Clock clock, Thesaurus thesaurus,
                                         DeviceConfigurationService deviceConfigurationService, CalendarService calendarService,
-                                        ExceptionFactory exceptionFactory, TaskService taskService) {
+                                        ExceptionFactory exceptionFactory) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.deviceConfigurationService = deviceConfigurationService;
         this.calendarService = calendarService;
         this.exceptionFactory = exceptionFactory;
-        this.taskService = taskService;
     }
 
     public TimeOfUseCampaign build(TimeOfUseCampaignInfo timeOfUseCampaignInfo) {
@@ -72,10 +69,10 @@ public class TimeOfUseCampaignInfoFactory {
                 .withValidationTimeout(timeOfUseCampaignInfo.validationTimeout)
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint())
                 .withUniqueCalendarName(timeOfUseCampaignInfo.withUniqueCalendarName)
-                .withSendCalendarComTaskId(((Number)timeOfUseCampaignInfo.sendCalendarComTask.id).longValue())
+                .withCalendarUploadComTaskId(((Number)timeOfUseCampaignInfo.sendCalendarComTask.id).longValue())
                 .withValidationComTaskId(((Number)timeOfUseCampaignInfo.validationComTask.id).longValue())
-                .withSendCalendarConnectionStrategyId(((Number)timeOfUseCampaignInfo.sendCalendarConnectionStrategy.id).longValue())
-                .withValidationConnectionStrategyId(((Number)timeOfUseCampaignInfo.validationConnectionStrategy.id).longValue());
+                .withCalendarUploadConnectionStrategy(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.name)
+                .withValidationConnectionStrategy(timeOfUseCampaignInfo.validationConnectionStrategy==null?"":timeOfUseCampaignInfo.validationConnectionStrategy.name);
         return timeOfUseCampaignBuilder.create();
     }
 
@@ -94,16 +91,10 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.id = campaign.getId();
         timeOfUseCampaignInfo.version = campaign.getVersion();
         timeOfUseCampaignInfo.withUniqueCalendarName = campaign.isWithUniqueCalendarName();
-        timeOfUseCampaignInfo.sendCalendarComTask = new IdWithNameInfo(campaign.getSendCalendarComTaskId(),timeOfUseCampaignService.getComTaskById(campaign.getSendCalendarComTaskId()).getName());
+        timeOfUseCampaignInfo.sendCalendarComTask = new IdWithNameInfo(campaign.getCalendarUploadComTaskId(),timeOfUseCampaignService.getComTaskById(campaign.getCalendarUploadComTaskId()).getName());
         timeOfUseCampaignInfo.validationComTask = campaign.getValidationComTaskId() == 0 ? null : new IdWithNameInfo(new Long(campaign.getValidationComTaskId()),timeOfUseCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
-        timeOfUseCampaignInfo.sendCalendarConnectionStrategy = new IdWithNameInfo(campaign.getSendCalendarConnectionStrategyId(),
-                campaign.getSendCalendarConnectionStrategyId() == 1?
-                        TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
-                        TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
-        timeOfUseCampaignInfo.validationConnectionStrategy = campaign.getValidationConnectionStrategyId() == 0 ? null : new IdWithNameInfo(campaign.getValidationConnectionStrategyId(),
-                campaign.getValidationConnectionStrategyId() == 1?
-                        TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat():
-                        TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
+        timeOfUseCampaignInfo.sendCalendarConnectionStrategy = new IdWithNameInfo(0,timeOfUseCampaignService.getCalendarUploadConnectionStrategyTranslation(campaign.getCalendarUploadConnectionStrategy()));
+        timeOfUseCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(0,timeOfUseCampaignService.getValidationConnectionStrategyTranslation(campaign.getValidationConnectionStrategy()));
         return timeOfUseCampaignInfo;
     }
 

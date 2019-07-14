@@ -77,8 +77,8 @@ public class FirmwareCampaignFactoryTest {
         assertEquals(Instant.ofEpochSecond(100), firmwareCampaignInfo.timeBoundaryStart);
         assertEquals(Instant.ofEpochSecond(200), firmwareCampaignInfo.timeBoundaryEnd);
         assertEquals("TestDeviceType", firmwareCampaignInfo.deviceType.localizedValue);
-        assertEquals("AS_SOON_AS_POSSIBLE", firmwareCampaignInfo.calendarUploadConnectionStrategy.name);
-        assertEquals("MINIMIZE_CONNECTIONS", firmwareCampaignInfo.validationConnectionStrategy.name);
+        assertEquals("As soon as possible", firmwareCampaignInfo.calendarUploadConnectionStrategy.name);
+        assertEquals("Minimize connections", firmwareCampaignInfo.validationConnectionStrategy.name);
         assertEquals(1L, firmwareCampaignInfo.calendarUploadComTask.id);
         assertEquals(2L, firmwareCampaignInfo.validationComTask.id);
     }
@@ -134,6 +134,8 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(comtask.getName()).thenReturn("comTaskName");
         when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
+        when(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name())).thenReturn("As soon as possible");
+        when(firmwareCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS.name())).thenReturn("Minimize connections");
         return firmwareCampaign;
     }
 }

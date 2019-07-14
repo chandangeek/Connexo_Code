@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tasks.ComTask;
@@ -20,7 +21,6 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Optional;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class TimeOfUseCampaignInfoFactoryTest {
     @BeforeClass
     public static void setUp() {
         timeOfUseCampaignInfoFactory = new TimeOfUseCampaignInfoFactory(timeOfUseCampaignService, clock, thesaurus,
-                deviceConfigurationService, calendarService, exceptionFactory, taskService);
+                deviceConfigurationService, calendarService, exceptionFactory);
     }
 
     @Test
@@ -73,11 +73,9 @@ public class TimeOfUseCampaignInfoFactoryTest {
         assertEquals(timeOfUseCampaignInfo.sendCalendarComTask.name, "ctask");
         assertEquals(timeOfUseCampaignInfo.sendCalendarComTask.id, 1L);
         assertEquals(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.name, "As soon as possible");
-        assertEquals(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.id, 2L);
         assertEquals(timeOfUseCampaignInfo.validationComTask.name, "ctask");
         assertEquals(timeOfUseCampaignInfo.validationComTask.id, 1L);
         assertEquals(timeOfUseCampaignInfo.validationConnectionStrategy.name, "Minimize connections");
-        assertEquals(timeOfUseCampaignInfo.validationConnectionStrategy.id, 1L);
     }
 
     @Test
@@ -128,13 +126,15 @@ public class TimeOfUseCampaignInfoFactoryTest {
         when(timeOfUseCampaign.getActivationOption()).thenReturn("immediately");
         when(timeOfUseCampaign.getActivationDate()).thenReturn(Instant.ofEpochSecond(100));
         when(timeOfUseCampaign.getValidationTimeout()).thenReturn(120L);
-        when(timeOfUseCampaign.getSendCalendarComTaskId()).thenReturn(1L);
+        when(timeOfUseCampaign.getCalendarUploadComTaskId()).thenReturn(1L);
         when(timeOfUseCampaign.getValidationComTaskId()).thenReturn(1L);
-        when(timeOfUseCampaign.getSendCalendarConnectionStrategyId()).thenReturn(2L);
-        when(timeOfUseCampaign.getValidationConnectionStrategyId()).thenReturn(1L);
+        when(timeOfUseCampaign.getCalendarUploadConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(timeOfUseCampaign.getValidationConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         ComTask comtask = mock(ComTask.class);
         when(timeOfUseCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         when(timeOfUseCampaignService.getComTaskById(anyLong()).getName()).thenReturn("ctask");
+        when(timeOfUseCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name())).thenReturn("As soon as possible");
+        when(timeOfUseCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS.name())).thenReturn("Minimize connections");
         return timeOfUseCampaign;
     }
 }

@@ -145,7 +145,7 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .finish(),
                 propertySpecService
                         .longSpec()
-                        .named(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_COMTASK_ID.javaName(), TranslationKeys.SEND_CALENDAR_COMTASK_ID)
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), TranslationKeys.CALENDAR_UPLOAD_COMTASK_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
@@ -154,13 +154,13 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
-                        .longSpec()
-                        .named(TimeOfUseCampaignDomainExtension.FieldNames.SEND_CALENDAR_CONNECTIONSTRATEGY_ID.javaName(), TranslationKeys.SEND_CALENDAR_CONNECTIONSTRATEGY_ID)
+                        .stringSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), TranslationKeys.CALENDAR_UPLOAD_CONNECTIONSTRATEGY)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
-                        .longSpec()
-                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY_ID.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY_ID)
+                        .stringSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY)
                         .fromThesaurus(thesaurus)
                         .finish()
         );

@@ -26,6 +26,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -40,6 +41,7 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.EventType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.tasks.ComTask;
@@ -111,6 +113,32 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     @Override
     public ComTask getComTaskById(long id){
         return taskService.findComTask(id).get();
+    }
+
+    @Override
+    public String getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy connectionStrategy){
+        if(connectionStrategy == null) {
+            return null;
+        } else if(connectionStrategy.name().equals("AS_SOON_AS_POSSIBLE")){
+            return TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
+        }else if (connectionStrategy.name().equals("MINIMIZE_CONNECTIONS")){
+            return TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String getValidationConnectionStrategyTranslation(ConnectionStrategy connectionStrategy){
+        if(connectionStrategy == null) {
+            return null;
+        } else if(connectionStrategy.name().equals("AS_SOON_AS_POSSIBLE")){
+            return TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
+        }else if (connectionStrategy.name().equals("MINIMIZE_CONNECTIONS")){
+            return TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat();
+        } else {
+            return null;
+        }
     }
 
     @Override

@@ -352,25 +352,21 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         ComTaskExecution firmwareComTaskExec = getFirmwareComTaskExec();
         Instant appliedStartDate = parent.get().getExtension(FirmwareCampaignDomainExtension.class).get().getUploadPeriodStart();
 
-        boolean isCalendarCTStarted = false;
         Optional<FirmwareCampaign> campaign = firmwareCampaignService.getCampaignOn(firmwareComTaskExec);
         ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(device.get()).get().getServiceCall();
         ConnectionStrategy connectionStrategy;
         if (campaign.isPresent()) {
-            connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
             if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
                     firmwareComTaskExec.getNextExecutionTimestamp().isAfter(appliedStartDate)) {
-
-                if (connectionStrategy == campaign.get().getCalendarUploadConnectionStrategy() || campaign.get().getCalendarUploadConnectionStrategy() == null){
+                connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
+                if (connectionStrategy == campaign.get().getCalendarUploadConnectionStrategy()
+                        || campaign.get().getCalendarUploadConnectionStrategy() == null){
                     firmwareComTaskExec.schedule(appliedStartDate);
-                    isCalendarCTStarted = true;
-                }
-                if(!isCalendarCTStarted){
+                }else{
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
                     serviceCall.requestTransition(DefaultState.REJECTED);
                 }
-
             }
         }
     }

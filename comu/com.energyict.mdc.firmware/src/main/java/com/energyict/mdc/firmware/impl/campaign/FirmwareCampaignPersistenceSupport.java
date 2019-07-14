@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 
@@ -21,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.orm.Version.version;
 
 public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<ServiceCall, FirmwareCampaignDomainExtension> {
 
@@ -143,12 +141,12 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .map(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName())
                 .add();
         table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.databaseName())
-                .varChar()
+                .varChar(Table.NAME_LENGTH)
                 .conversion(ColumnConversion.CHAR2ENUM)
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName())
                 .add();
         table.column(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.databaseName())
-                .varChar()
+                .varChar(Table.NAME_LENGTH)
                 .conversion(ColumnConversion.CHAR2ENUM)
                 .map(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName())
                 .add();

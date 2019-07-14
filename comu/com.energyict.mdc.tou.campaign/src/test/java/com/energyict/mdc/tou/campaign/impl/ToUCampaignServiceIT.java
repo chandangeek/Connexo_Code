@@ -23,6 +23,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallStateChangeTopicHandler;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
@@ -199,10 +200,10 @@ public class ToUCampaignServiceIT {
                 .withUpdateType(updateType)
                 .withValidationTimeout(timeValidation)
                 .withUniqueCalendarName(false)
-                .withSendCalendarComTaskId(1L)
+                .withCalendarUploadComTaskId(1L)
                 .withValidationComTaskId(1L)
-                .withSendCalendarConnectionStrategyId(2L)
-                .withValidationConnectionStrategyId(1L)
+                .withCalendarUploadConnectionStrategy("As soon as possible")
+                .withValidationConnectionStrategy("Minimize connections")
                 .create();
         assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
         assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
@@ -213,10 +214,10 @@ public class ToUCampaignServiceIT {
         assertThat(timeOfUseCampaign1.getActivationOption()).isEqualTo(activationOption);
         assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
         assertThat(timeOfUseCampaign1.getValidationTimeout()).isEqualTo(timeValidation);
-        assertThat(timeOfUseCampaign1.getSendCalendarComTaskId()).isEqualTo(1L);
+        assertThat(timeOfUseCampaign1.getCalendarUploadComTaskId()).isEqualTo(1L);
         assertThat(timeOfUseCampaign1.getValidationComTaskId()).isEqualTo(1L);
-        assertThat(timeOfUseCampaign1.getSendCalendarConnectionStrategyId()).isEqualTo(2L);
-        assertThat(timeOfUseCampaign1.getValidationConnectionStrategyId()).isEqualTo(1L);
+        assertThat(timeOfUseCampaign1.getCalendarUploadConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        assertThat(timeOfUseCampaign1.getValidationConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
     }
 
     @Test

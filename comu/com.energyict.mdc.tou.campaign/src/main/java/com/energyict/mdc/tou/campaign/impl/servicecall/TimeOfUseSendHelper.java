@@ -63,7 +63,7 @@ public class TimeOfUseSendHelper {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
     }
 
-    public void setCalendarOnDevice(Device device, ServiceCall serviceCall) {
+    public void setCalendarOnDevice(Device device, ServiceCall serviceCall, ComTaskExecution comTaskExecution) {
         timeOfUseCampaignService.revokeCalendarsCommands(device);
         TimeOfUseCampaign timeOfUseCampaign =
                 serviceCall.getParent()
@@ -98,10 +98,6 @@ public class TimeOfUseSendHelper {
                     .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_ALLOWED_CALENDAR_DEVICE_MESSAGE));
             DeviceMessage deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar, deviceMessageSpecificationService);
             device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
-            ComTaskExecution comTaskExecution = timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablementOptional.get());
-            if (comTaskExecution == null) {
-                comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
-            }
             if (comTaskExecution.getConnectionTask().isPresent()) {
                 scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
                 TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();

@@ -496,15 +496,12 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
         boolean isSendCalendarCTStarted = false;
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-        ConnectionStrategy connectionStrategy;
 
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-            if ((comTaskExecution.getComTask().getId() == campaign.getSendCalendarComTaskId()) &&
-                    (connectionStrategy == (campaign.getSendCalendarConnectionStrategyId() == 1 ? ConnectionStrategy.MINIMIZE_CONNECTIONS : ConnectionStrategy.AS_SOON_AS_POSSIBLE))
-            ) {
+            ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
+            if (comTaskExecution.getComTask().getId() == campaign.getCalendarUploadComTaskId() && connectionStrategy == campaign.getCalendarUploadConnectionStrategy()){
                 try {
-                    dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
+                    dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall, comTaskExecution);
                 } catch (DeviceMessageNotAllowedException e) {
                     serviceCallService.lockServiceCall(serviceCall.getId());
                     if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
@@ -632,5 +629,31 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     @Override
     public ComTask getComTaskById(long id){
         return taskService.findComTask(id).get();
+    }
+
+    @Override
+    public String getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy connectionStrategy){
+        if(connectionStrategy == null) {
+            return null;
+        } else if(connectionStrategy.name().equals("AS_SOON_AS_POSSIBLE")){
+            return TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
+        }else if (connectionStrategy.name().equals("MINIMIZE_CONNECTIONS")){
+            return TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public String getValidationConnectionStrategyTranslation(ConnectionStrategy connectionStrategy){
+        if(connectionStrategy == null) {
+            return null;
+        } else if(connectionStrategy.name().equals("AS_SOON_AS_POSSIBLE")){
+            return TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
+        }else if (connectionStrategy.name().equals("MINIMIZE_CONNECTIONS")){
+            return TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat();
+        } else {
+            return null;
+        }
     }
 }

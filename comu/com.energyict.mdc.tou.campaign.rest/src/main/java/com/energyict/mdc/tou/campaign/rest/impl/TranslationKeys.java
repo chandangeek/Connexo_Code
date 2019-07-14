@@ -14,8 +14,6 @@ public enum TranslationKeys implements TranslationKey {
     IMMEDIATELY("immediately", "Immediately"),
     WITHOUT_ACTIVATION("withoutActivation", "Without activation"),
     ON_DATE("onDate", "On date"),
-    MINIMIZE_CONNECTIONS("MinimizeConnections", "Minimize connections"),
-    AS_SOON_AS_POSSIBLE("AsSoonAsPossible", "As soon as possible"),
     ;
 
 

@@ -23,7 +23,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -74,7 +73,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         ACTIVATION_DATE("activationDate", "activation_date"),
         VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
         PROPERTIES("properties", "properties"),
-
         VALIDATION_COMTASK_ID("validationComTaskId", "VALIDATION_COMTASK_ID"),
         CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "CALENDAR_UPLOAD_COMTASK_ID"),
         VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
@@ -129,10 +127,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private TimeDuration validationTimeout;
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
     private long calendarUploadComTaskId;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private ConnectionStrategy calendarUploadConnectionStrategy;
     private long validationComTaskId;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private ConnectionStrategy validationConnectionStrategy;
 
     @Inject

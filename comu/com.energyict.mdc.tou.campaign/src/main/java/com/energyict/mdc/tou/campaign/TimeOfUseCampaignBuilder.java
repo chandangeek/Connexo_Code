@@ -25,13 +25,13 @@ public interface TimeOfUseCampaignBuilder {
 
     TimeOfUseCampaignBuilder withUniqueCalendarName(boolean withCalendarNameValidation);
 
-    TimeOfUseCampaignBuilder withSendCalendarComTaskId(long sendCalendarComTaskId);
+    TimeOfUseCampaignBuilder withCalendarUploadComTaskId(long calendarUploadComTaskId);
 
     TimeOfUseCampaignBuilder withValidationComTaskId(long validationComTaskId);
 
-    TimeOfUseCampaignBuilder withSendCalendarConnectionStrategyId(long sendCalendarConnectionStrategyId);
+    TimeOfUseCampaignBuilder withCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy);
 
-    TimeOfUseCampaignBuilder withValidationConnectionStrategyId(long validationConnectionStrategyId);
+    TimeOfUseCampaignBuilder withValidationConnectionStrategy(String validationConnectionStrategy);
 
     TimeOfUseCampaign create();
 }

@@ -150,8 +150,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<String>get("$.deviceType.localizedValue")).isEqualTo(firmwareCampaign.getDeviceType().getName());
         assertThat(jsonModel.<Number>get("$.validationComTask.id")).isEqualTo(((Number)firmwareCampaign.getValidationComTaskId()).intValue());
         assertThat(jsonModel.<Number>get("$.calendarUploadComTask.id")).isEqualTo(((Number)firmwareCampaign.getCalendarUploadComTaskId()).intValue());
-        assertThat(jsonModel.<String>get("$.validationConnectionStrategy.name")).isEqualTo(firmwareCampaign.getValidationConnectionStrategy());
-        assertThat(jsonModel.<String>get("$.calendarUploadConnectionStrategy.name")).isEqualTo(firmwareCampaign.getCalendarUploadConnectionStrategy());
+        assertThat(jsonModel.<String>get("$.validationConnectionStrategy.name")).isEqualTo(firmwareCampaignService.getValidationConnectionStrategyTranslation(firmwareCampaign.getValidationConnectionStrategy().name()));
+        assertThat(jsonModel.<String>get("$.calendarUploadConnectionStrategy.name")).isEqualTo(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(firmwareCampaign.getCalendarUploadConnectionStrategy().name()));
     }
 
     @Test
@@ -193,8 +193,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         firmwareCampaignInfo.finishedOn = null;
         firmwareCampaignInfo.status = new IdWithNameInfo(DefaultState.ONGOING.name(),"Ongoing");
         firmwareCampaignInfo.validationComTask = new IdWithNameInfo(2L,"comTaskName");
-        firmwareCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(0L,"MINIMIZE_CONNECTIONS");
-        firmwareCampaignInfo.calendarUploadConnectionStrategy = new IdWithNameInfo(0L,"AS_SOON_AS_POSSIBLE");
+        firmwareCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(0L,"Minimize connections");
+        firmwareCampaignInfo.calendarUploadConnectionStrategy = new IdWithNameInfo(0L,"As soon as possible");
         firmwareCampaignInfo.calendarUploadComTask = new IdWithNameInfo(1L,"comTaskName");
         ArrayList<PropertyInfo> propertyInfos = new ArrayList<>();
         propertyInfos.add(new PropertyInfo("Firmware file", "FirmwareDeviceMessage.upgrade.userfile", new PropertyValueInfo<>(8, ""), null, true));
@@ -240,6 +240,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(comtask.getName()).thenReturn("comTaskName");
         when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
+        when(firmwareCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS.name())).thenReturn("Minimize connections");
+        when(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name())).thenReturn("As soon as possible");
         return firmwareCampaign;
     }
 }
