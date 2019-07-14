@@ -150,8 +150,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<String>get("$.deviceType.localizedValue")).isEqualTo(firmwareCampaign.getDeviceType().getName());
         assertThat(jsonModel.<Number>get("$.validationComTask.id")).isEqualTo(((Number)firmwareCampaign.getValidationComTaskId()).intValue());
         assertThat(jsonModel.<Number>get("$.calendarUploadComTask.id")).isEqualTo(((Number)firmwareCampaign.getCalendarUploadComTaskId()).intValue());
-        assertThat(jsonModel.<String>get("$.validationConnectionStrategy.name")).isEqualTo(firmwareCampaignService.getValidationConnectionStrategyTranslation(firmwareCampaign.getValidationConnectionStrategy().name()));
-        assertThat(jsonModel.<String>get("$.calendarUploadConnectionStrategy.name")).isEqualTo(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(firmwareCampaign.getCalendarUploadConnectionStrategy().name()));
+        assertThat(jsonModel.<String>get("$.validationConnectionStrategy.name")).isEqualTo(firmwareCampaignService.getValidationConnectionStrategyTranslation(firmwareCampaign.getValidationConnectionStrategy()));
+        assertThat(jsonModel.<String>get("$.calendarUploadConnectionStrategy.name")).isEqualTo(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(firmwareCampaign.getCalendarUploadConnectionStrategy()));
     }
 
     @Test
@@ -240,8 +240,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(comtask.getName()).thenReturn("comTaskName");
         when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
-        when(firmwareCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS.name())).thenReturn("Minimize connections");
-        when(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name())).thenReturn("As soon as possible");
+        when(firmwareCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS)).thenReturn("Minimize connections");
+        when(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE)).thenReturn("As soon as possible");
         return firmwareCampaign;
     }
 }

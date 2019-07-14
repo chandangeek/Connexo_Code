@@ -134,8 +134,8 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(comtask.getName()).thenReturn("comTaskName");
         when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
-        when(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name())).thenReturn("As soon as possible");
-        when(firmwareCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS.name())).thenReturn("Minimize connections");
+        when(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE)).thenReturn("As soon as possible");
+        when(firmwareCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS)).thenReturn("Minimize connections");
         return firmwareCampaign;
     }
 }

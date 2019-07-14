@@ -133,8 +133,8 @@ public class TimeOfUseCampaignInfoFactoryTest {
         ComTask comtask = mock(ComTask.class);
         when(timeOfUseCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         when(timeOfUseCampaignService.getComTaskById(anyLong()).getName()).thenReturn("ctask");
-        when(timeOfUseCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name())).thenReturn("As soon as possible");
-        when(timeOfUseCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS.name())).thenReturn("Minimize connections");
+        when(timeOfUseCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE)).thenReturn("As soon as possible");
+        when(timeOfUseCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS)).thenReturn("Minimize connections");
         return timeOfUseCampaign;
     }
 }
