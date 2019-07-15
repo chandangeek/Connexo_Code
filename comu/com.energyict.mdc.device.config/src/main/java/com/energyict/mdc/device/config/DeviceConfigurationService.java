@@ -210,6 +210,8 @@ public interface DeviceConfigurationService {
      */
     Optional<RegisterSpec> findRegisterSpec(long id);
 
+    Optional<RegisterSpec> findAndLockRegisterSpecById(long id);
+
     Optional<RegisterSpec> findAndLockRegisterSpecByIdAndVersion(long id, long version);
 
     /**

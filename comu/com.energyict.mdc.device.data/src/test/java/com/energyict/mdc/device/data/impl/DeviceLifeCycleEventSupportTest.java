@@ -196,6 +196,40 @@ public class DeviceLifeCycleEventSupportTest {
     }
 
     @Test
+    public void extractFromComTaskExecutionCompletionEvent() {
+        com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+        when(eventType.getTopic()).thenReturn(EventType.COMTASKEXECUTION_COMPLETION.topic());
+        LocalEvent localEvent = mock(LocalEvent.class);
+        when(localEvent.getType()).thenReturn(eventType);
+        when(localEvent.getSource()).thenReturn(this.comTaskExecution);
+
+        // Business method
+        Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.finiteStateMachine);
+
+        // Asserts
+        assertThat(extracted.isPresent()).isTrue();
+        CurrentStateExtractor.CurrentState currentState = extracted.get();
+        assertThat(currentState.sourceId).isEqualTo(String.valueOf(DEVICE_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
+        assertThat(currentState.name).isEqualTo(STATE_NAME);
+    }
+
+    @Test
+    public void extractFromComTaskExecutionCompletionEventWithOtherLifeCycle() {
+        com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+        when(eventType.getTopic()).thenReturn(EventType.COMTASKEXECUTION_COMPLETION.topic());
+        LocalEvent localEvent = mock(LocalEvent.class);
+        when(localEvent.getType()).thenReturn(eventType);
+        when(localEvent.getSource()).thenReturn(this.comTaskExecution);
+
+        // Business method
+        Optional<CurrentStateExtractor.CurrentState> extracted = this.getTestInstance().extractFrom(localEvent, this.otherFiniteStateMachine);
+
+        // Asserts
+        assertThat(extracted.isPresent()).isFalse();
+    }
+
+    @Test
     public void extractFromComTaskExecutionDeletedEvent() {
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(EventType.COMTASKEXECUTION_DELETED.topic());

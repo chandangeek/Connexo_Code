@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.Device;
 
 import com.google.inject.Module;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -86,13 +87,26 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(
+        return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
                         .named(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), TranslationKeys.CPS_DEVICE_IDENTIFIER)
                         .describedAs(TranslationKeys.CPS_DEVICE_IDENTIFIER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
-                        .finish());
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), TranslationKeys.CPS_DEVICE_LOCATION)
+                        .describedAs(TranslationKeys.CPS_DEVICE_LOCATION_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), TranslationKeys.CPS_POINT_OF_DELIVERY)
+                        .describedAs(TranslationKeys.CPS_POINT_OF_DELIVERY_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish()
+        );
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, DeviceSAPInfoDomainExtension> {
@@ -149,6 +163,14 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                     .previously(deviceIdColumn)
                     .add();
             table.index(IDX).on(deviceIdColumnString).add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.databaseName())
+                    .varChar(80)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName())
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.databaseName())
+                    .varChar(80)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName())
+                    .add();
         }
 
         @Override

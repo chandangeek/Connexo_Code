@@ -119,5 +119,10 @@ public enum DefaultMicroCheck {
     /**
      * Checks that there is at least one zone linked to this device.
      */
-    AT_LEAST_ONE_ZONE_LINKED
+    AT_LEAST_ONE_ZONE_LINKED,
+
+    /**
+     * Check if at least one successful communication task has been executed on the device.
+     */
+    AT_LEAST_ONE_SUCCESSFUL_COMMUNICATION_TASK_EXECUTED,
 }

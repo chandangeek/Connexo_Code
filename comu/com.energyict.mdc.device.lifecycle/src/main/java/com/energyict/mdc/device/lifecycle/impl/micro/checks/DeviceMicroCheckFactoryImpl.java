@@ -65,6 +65,7 @@ public class DeviceMicroCheckFactoryImpl implements DeviceMicroCheckFactory {
         addMicroCheckMapping(DefaultMicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID, SecurityPropertiesAreValid.class);
         addMicroCheckMapping(DefaultMicroCheck.AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE, SharedScheduledCommunicationTaskAvailable.class);
         addMicroCheckMapping(DefaultMicroCheck.SLAVE_DEVICE_HAS_GATEWAY, SlaveDeviceHasGateway.class);
+        addMicroCheckMapping(DefaultMicroCheck.AT_LEAST_ONE_SUCCESSFUL_COMMUNICATION_TASK_EXECUTED, SuccessfulCommunicationTaskExecuted.class);
         addMicroCheckMapping(DefaultMicroCheck.AT_LEAST_ONE_ZONE_LINKED, ZonesLinkedToDevice.class);
     }
 

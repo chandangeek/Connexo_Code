@@ -319,6 +319,11 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
+    public Optional<Device> findAndLockDeviceById(long id) {
+        return Optional.ofNullable(getDeviceMapper().lock(id));
+    }
+
+    @Override
     public Optional<Device> findAndLockDeviceByNameAndVersion(String name, long version) {
         DataMapper<Device> mapper = getDeviceMapper();
         return mapper.getUnique(DeviceFields.NAME.fieldName(), name).flatMap(device -> mapper.lockObjectIfVersion(version, device.getId()));

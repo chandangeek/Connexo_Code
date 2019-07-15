@@ -792,6 +792,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
         updateForScheduling(true);
         getBehavior().comTaskCompleted();
+        this.notifyCompleted();
     }
 
     @Override

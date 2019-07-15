@@ -256,7 +256,6 @@ public enum TableSpecs {
             table.map(ConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.setJournalTableName("DDC_CONNECTIONTASKJRNL", true).since(version(10, 6));
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
             Column device = table.column("DEVICE").number().notNull().add();
@@ -384,7 +383,6 @@ public enum TableSpecs {
             table.map(ComTaskExecutionImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.setJournalTableName("DDC_COMTASKEXECJRNL", true).since(version(10, 6));
             table.column("DISCRIMINATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.COMTASKEXECTYPE.fieldName()).notNull().add();
             Column device = table.column("DEVICE").number().notNull().add();
             Column comTask = table.column("COMTASK").number().add();

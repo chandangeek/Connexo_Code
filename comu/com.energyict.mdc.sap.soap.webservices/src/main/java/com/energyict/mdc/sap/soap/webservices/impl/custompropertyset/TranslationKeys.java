@@ -18,6 +18,10 @@ public enum TranslationKeys implements TranslationKey {
     CPS_LOGICAL_REGISTER_NUMBER("device.cps.properties.logicalNumberIdentifier", "Logical register number"),
     CPS_DEVICE_CHANNEL_IDENTIFIER_DESCRIPTION("device.cps.properties.deviceChannelIdentifier.description", "Device channel identifier in SAP."),
     CPS_DEVICE_REGISTER_IDENTIFIER_DESCRIPTION("device.cps.properties.deviceRegisterIdentifier.description", "Device register identifier in SAP."),
+    CPS_DEVICE_LOCATION("device.cps.properties.deviceLocationIdentifier", "Device location"),
+    CPS_DEVICE_LOCATION_DESCRIPTION("device.cps.properties.deviceLocationIdentifier.description", "Device location in SAP"),
+    CPS_POINT_OF_DELIVERY("device.cps.properties.pod", "Point of delivery identifier"),
+    CPS_POINT_OF_DELIVERY_DESCRIPTION("device.cps.properties.pod.description", "Point of delivery identifier in SAP"),
 
     ;
 

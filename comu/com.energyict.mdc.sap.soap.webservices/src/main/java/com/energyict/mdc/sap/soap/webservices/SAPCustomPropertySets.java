@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Register;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -18,6 +19,8 @@ public interface SAPCustomPropertySets {
     Optional<String> getSapDeviceId(Device device);
 
     Optional<String> getSapDeviceId(String deviceName);
+
+    void addSapDeviceId(Device device, String sapDeviceId);
 
     Optional<Device> getDevice(String sapDeviceId);
 
@@ -36,5 +39,13 @@ public interface SAPCustomPropertySets {
      */
     Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Register register, Range<Instant> range);
 
+    void setLrn(Register register, String lrn, Instant startDateTime, Instant endDateTime);
+
+    boolean isAnyLrn(long deviceId);
+
     Optional<Channel> getChannel(String lrn, Instant when);
+
+    void setLocation(Device device, String locationId);
+
+    void setPod(Device device, String podId);
 }

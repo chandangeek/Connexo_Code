@@ -77,6 +77,10 @@ public abstract class PersistentIdObject<D> {
         this.eventService.postEvent(this.updateEventType().topic(), this);
     }
 
+    public void notifyCompleted() {
+        this.eventService.postEvent(EventType.COMTASKEXECUTION_COMPLETION.topic(), this);
+    }
+
     protected void postEvent(EventType eventType) {
         this.eventService.postEvent(eventType.topic(), this);
     }

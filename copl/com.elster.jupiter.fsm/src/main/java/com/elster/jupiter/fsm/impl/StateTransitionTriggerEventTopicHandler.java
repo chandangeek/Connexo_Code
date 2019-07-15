@@ -163,16 +163,23 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
     private void executeWebServiceCall(String id, String source, ActualState currentState, ActualState newState, Instant effectiveDate) {
         if (source.equals("com.energyict.mdc.device.data.Device")) {
-            List<Long> endPointConfigurationIds = currentState.getOnExitEndPointConfigurations().stream()
-                    .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
-                    .map(EndPointConfiguration::getId)
-                    .collect(Collectors.toList());
-            endPointConfigurationIds.addAll(newState.getOnEntryEndPointConfigurations().stream()
-                    .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
-                    .map(EndPointConfiguration::getId)
-                    .collect(Collectors.toList()));
             stateTransitionWebServiceClients.forEach(stateTransitionWebServiceClient -> {
-                stateTransitionWebServiceClient.call(Long.valueOf(id), endPointConfigurationIds, newState.getName(), effectiveDate);
+                String nameService = stateTransitionWebServiceClient.getWebServiceName();
+
+                List<Long> endPointConfigurationIds = currentState.getOnExitEndPointConfigurations().stream()
+                        .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                        .filter(endPoint->endPoint.getWebServiceName().equals(nameService))
+                        .map(EndPointConfiguration::getId)
+                        .collect(Collectors.toList());
+                endPointConfigurationIds.addAll(newState.getOnEntryEndPointConfigurations().stream()
+                        .map(EndPointConfigurationReference::getStateChangeEndPointConfiguration)
+                        .filter(endPoint->endPoint.getWebServiceName().equals(nameService))
+                        .map(EndPointConfiguration::getId)
+                        .collect(Collectors.toList()));
+
+                if(!endPointConfigurationIds.isEmpty()) {
+                    stateTransitionWebServiceClient.call(Long.valueOf(id), endPointConfigurationIds, newState.getName(), effectiveDate);
+                }
             });
         }
     }

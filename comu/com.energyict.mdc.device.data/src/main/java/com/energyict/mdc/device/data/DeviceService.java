@@ -85,6 +85,8 @@ public interface DeviceService {
      */
     Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
 
+    Optional<Device> findAndLockDeviceById(long id);
+
     Optional<Device> findAndLockDeviceByNameAndVersion(String name, long version);
 
     Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version);

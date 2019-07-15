@@ -42,7 +42,6 @@ public class TransitionEndPointConfigurationResource {
                 .stream()
                 .filter(EndPointConfiguration::isActive)
                 .filter(outbound -> !outbound.isInbound())
-                .filter(endPointConfiguration -> endPointConfiguration.getWebServiceName().equals(StateTransitionWebServiceClient.NAME))
                 .map(transitionEndPointConfigurationInfoFactory::from)
                 .sorted((e1, e2) -> e1.name.compareToIgnoreCase(e2.name))
                 .collect(Collectors.toList());

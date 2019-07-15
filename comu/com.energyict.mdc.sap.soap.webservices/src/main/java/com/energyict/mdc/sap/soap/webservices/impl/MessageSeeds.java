@@ -15,6 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message already exists"),
     NO_WEB_SERVICE_ENDPOINTS(3, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
     UNEXPECTED_CONFIRMATION_MESSAGE(4, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
+    INTERVAL_INVALID(5, "wrongInterval", "Invalid interval [{0},{1})"),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
@@ -27,6 +28,7 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_ACTIVE_CPS(2002, "CouldNotFindActiveCPS", "Couldn''t find active custom property set {0}."),
     COULD_NOT_FIND_DOMAIN_EXTENSION(2003, "CouldNotFindDEForSC", "Couldn''t find domain extension for service call."),
     INVALID_READING_REASON_CODE(2004, "InvalidReadingReasonCode", "Invalid reading reason code {0}."),
+    SERVICE_CALL_WAS_CANCELLED(2005, "ServiceCallWasCancelled", "Service call was cancelled"),
 
     // Web services
     NO_REPLY_ADDRESS(3001, "NoReplyAddress", "Reply address is required"),
@@ -38,13 +40,22 @@ public enum MessageSeeds implements MessageSeed {
     NO_DEVICE_FOUND_BY_SAP_ID(4001, "NoDeviceFoundBySapId", "No device found with id ''{0}''"),
     NO_HEAD_END_INTERFACE_FOUND(4002, "NoHeadEndInterfaceFound", "No head end interface found for device with id ''{0}''"),
     LRN_NOT_FOUND_FOR_CHANNEL(4003, "LRNNotFoundForChannel", "Logical Register Number isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
+    NO_DEVICE_FOUND_BY_SERIAL_ID(4004, "NoDeviceFoundBySerialId", "No device found with serial id ''{0}''"),
+    SEVERAL_DEVICES(4005, "SeveralDevices", "There are several devices with serial id ''{0}''"),
+    DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with serial id ''{0}'' already has SAP identifier"),
+    REGISTER_NOT_FOUND(4007, "RegisterNotFound", "Register not found"),
+    REGISTER_HAS_LRN_YET(4008, "RegisterHasLrnYet", "Register ''{0}'' has LRN yet (range is ''{1}'')."),
+    FAILED_REGISTER(4009, "FailedRegister", "The following registers are failed: ''{0}'' (no register found, register has LRN yet or something else)"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid meter reading document"),
-    UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "[MeterReadingDocumentId: {0}] Unsupported reason code or reason code does not support bulk request");
+    UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "[MeterReadingDocumentId: {0}] Unsupported reason code or reason code does not support bulk request"),
+
+    //Micro checks
+    AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "At least one LRN was set on the device");
 
     private final int number;
     private final String key;

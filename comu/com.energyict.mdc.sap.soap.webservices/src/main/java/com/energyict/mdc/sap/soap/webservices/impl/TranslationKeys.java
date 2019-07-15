@@ -47,6 +47,11 @@ public enum TranslationKeys implements TranslationKey {
     CATEGORY_CODE("categoryCode", "Category code"),
     REASON_CODE("reasonCode", "Reason code"),
     PROCESS_DATE("processDate", "Planned processing date"),
+    REGISTER_ID("registerId","Register Code"),
+    START_DATE("startDate","Time slice start date"),
+    END_DATE("endDate","Time slice end date"),
+    RETURN_CODE("returnCode", "Return code"),
+    SERIAL_ID("serialId", "Serial id"),
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
 
@@ -59,6 +64,10 @@ public enum TranslationKeys implements TranslationKey {
     CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.connection.status.change",
             ConnectionStatusChangeCustomPropertySet.class.getSimpleName()),
 
+    //Micro checks
+    COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
+    AT_LEAST_ONE_LRN_WAS_SET("sap.microchecks.AtLeastOneLrnWasSet", "At least one LRN was set"),
+    AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one LRN was set on the device"),
     ;
 
     private final String key;

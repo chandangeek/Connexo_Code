@@ -50,8 +50,8 @@ public class MicroCheckFactoryImplTest {
         DeviceMicroCheckFactoryImpl factory = this.getTestInstance();
         Set<? extends MicroCheck> microChecks = factory.getAllChecks();
 
-        verify(dataModel, times(18)).getInstance(any());
-        assertThat(microChecks).hasSize(18);
+        verify(dataModel, times(19)).getInstance(any());
+        assertThat(microChecks).hasSize(19);
     }
 
     @Test

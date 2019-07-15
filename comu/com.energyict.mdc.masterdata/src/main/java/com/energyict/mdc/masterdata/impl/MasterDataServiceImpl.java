@@ -163,6 +163,11 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
     }
 
     @Override
+    public Optional<RegisterType> findAndLockRegisterTypeById(long id) {
+        return Optional.ofNullable(this.getDataModel().mapper(RegisterType.class).lock( id));
+    }
+
+    @Override
     public Optional<ChannelType> findChannelTypeById(long id) {
         return this.getDataModel().mapper(ChannelType.class).getUnique("id", id);
     }

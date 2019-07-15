@@ -48,6 +48,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                 EventType.COMTASKEXECUTION_CREATED,
                 EventType.COMTASKEXECUTION_UPDATED,
                 EventType.COMTASKEXECUTION_DELETED,
+                EventType.COMTASKEXECUTION_COMPLETION,
                 EventType.CONNECTIONTASK_CREATED,
                 EventType.CONNECTIONTASK_UPDATED,
                 EventType.CONNECTIONTASK_DELETED,
@@ -96,7 +97,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
             }
         },
 
-        COMTASKEXECUTION_CRUD(EnumSet.of(EventType.COMTASKEXECUTION_CREATED, EventType.COMTASKEXECUTION_UPDATED, EventType.COMTASKEXECUTION_DELETED)) {
+        COMTASKEXECUTION_CRUD(EnumSet.of(EventType.COMTASKEXECUTION_CREATED, EventType.COMTASKEXECUTION_UPDATED, EventType.COMTASKEXECUTION_DELETED, EventType.COMTASKEXECUTION_COMPLETION)) {
             @Override
             public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine) {
                 return this.extractFrom((ComTaskExecution) event.getSource(), finiteStateMachine);

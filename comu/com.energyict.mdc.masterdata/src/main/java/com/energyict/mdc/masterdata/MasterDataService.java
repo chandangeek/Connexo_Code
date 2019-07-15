@@ -91,6 +91,8 @@ public interface MasterDataService {
 
     Optional<RegisterType> findAndLockRegisterTypeByIdAndVersion(long id, long version);
 
+    Optional<RegisterType> findAndLockRegisterTypeById(long id);
+
     public Optional<ChannelType> findChannelTypeById(long id);
 
 

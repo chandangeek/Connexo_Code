@@ -27,6 +27,13 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.CategoryCode;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
@@ -35,6 +42,11 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterRea
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateRequestMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentRequestConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateConfirmationRequestMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultDomainExtension;
@@ -105,6 +117,42 @@ public class ServiceCallCommands {
                 getServiceCallType(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST).ifPresent(serviceCallType -> {
                     try (TransactionContext context = transactionService.getContext()) {
                         sendMessage(createServiceCall(serviceCallType, message), message.isBulk());
+                        context.commit();
+                    }
+                });
+            }
+        } else {
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+        }
+    }
+
+    public void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
+        setSecurityContext();
+        if (message.isValid()) {
+            if (hasUtilDeviceRequestServiceCall(message.getRequestID())) {
+                sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
+            } else {
+                getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST).ifPresent(serviceCallType -> {
+                    try (TransactionContext context = transactionService.getContext()) {
+                        createServiceCall(serviceCallType, message);
+                        context.commit();
+                    }
+                });
+            }
+        } else {
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+        }
+    }
+
+    public void createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage message) {
+        setSecurityContext();
+        if (message.isValid()) {
+            if(hasUtilDeviceRegisterRequestServiceCall(message.getRequestID())){
+                sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
+            }else {
+                getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST).ifPresent(serviceCallType -> {
+                    try (TransactionContext context = transactionService.getContext()) {
+                        createServiceCall(serviceCallType, message);
                         context.commit();
                     }
                 });
@@ -218,6 +266,57 @@ public class ServiceCallCommands {
         serviceCallBuilder.create();
     }
 
+    private void createChildServiceCall(ServiceCall parent, UtilitiesDeviceCreateMessage message) {
+        ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_CREATE_REQUEST);
+
+        UtilitiesDeviceCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceCreateRequestDomainExtension();
+        childDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
+        childDomainExtension.setSerialId(message.getSerialId());
+        childDomainExtension.setDeviceId(message.getDeviceId());
+
+
+        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
+                .extendedWith(childDomainExtension);
+        sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
+        serviceCallBuilder.create();
+    }
+
+    private void createChildServiceCall(ServiceCall parent, UtilitiesDeviceRegisterCreateMessage message) {
+        ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.SUB_MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST);
+
+        SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension childDomainExtension = new SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension();
+        childDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
+        childDomainExtension.setDeviceId(message.getDeviceId());
+
+        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
+                .extendedWith(childDomainExtension);
+        sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
+        ServiceCall serviceCall = serviceCallBuilder.create();
+
+        message.getUtilitiesDeviceRegisterMessage()
+                .forEach(bodyMessage -> {
+                    if (bodyMessage.isValid()) {
+                        createSecondChildServiceCall(serviceCall, bodyMessage, message.getDeviceId());
+                    }
+                });
+    }
+
+    private void createSecondChildServiceCall(ServiceCall parent, UtilitiesDeviceRegisterMessage bodyMessage, String deviceId) {
+        ServiceCallType serviceCallType = getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_REGISTER_CREATE_REQUEST);
+
+        UtilitiesDeviceRegisterCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceRegisterCreateRequestDomainExtension();
+        childDomainExtension.setDeviceId(deviceId);
+        childDomainExtension.setLrn(bodyMessage.getLrn());
+        childDomainExtension.setRegisterId(bodyMessage.getOBIS());
+        childDomainExtension.setStartDate(bodyMessage.getStartDate());
+        childDomainExtension.setEndDate(bodyMessage.getEndDate());
+
+        ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
+                .extendedWith(childDomainExtension);
+        sapCustomPropertySets.getDevice(bodyMessage.getOBIS()).ifPresent(serviceCallBuilder::targetObject);
+        serviceCallBuilder.create();
+    }
+
     private void createServiceCall(ServiceCallType serviceCallType, StatusChangeRequestCreateMessage message) {
         ConnectionStatusChangeDomainExtension connectionStatusChangeDomainExtension =
                 new ConnectionStatusChangeDomainExtension();
@@ -271,6 +370,54 @@ public class ServiceCallCommands {
                 .build();
     }
 
+    private void createServiceCall(ServiceCallType serviceCallType, UtilitiesDeviceCreateRequestMessage requestMessage) {
+        MasterUtilitiesDeviceCreateRequestDomainExtension masterUtilitiesDeviceCreateRequestDomainExtension =
+                new MasterUtilitiesDeviceCreateRequestDomainExtension();
+        masterUtilitiesDeviceCreateRequestDomainExtension.setRequestID(requestMessage.getRequestID());
+
+        ServiceCall serviceCall = serviceCallType.newServiceCall()
+                .origin(APPLICATION_NAME)
+                .extendedWith(masterUtilitiesDeviceCreateRequestDomainExtension)
+                .create();
+
+        requestMessage.getUtilitiesDeviceCreateMessages()
+                .forEach(bodyMessage -> {
+                    if (bodyMessage.isValid()) {
+                        createChildServiceCall(serviceCall, bodyMessage);
+                    }
+                });
+        if (serviceCall.findChildren().stream().count() > 0) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+        } else {
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+        }
+    }
+
+    private void createServiceCall(ServiceCallType serviceCallType, UtilitiesDeviceRegisterCreateRequestMessage requestMessage) {
+        MasterUtilitiesDeviceRegisterCreateRequestDomainExtension masterUtilitiesDeviceRegisterCreateRequestDomainExtension =
+                new MasterUtilitiesDeviceRegisterCreateRequestDomainExtension();
+        masterUtilitiesDeviceRegisterCreateRequestDomainExtension.setRequestID(requestMessage.getRequestID());
+        masterUtilitiesDeviceRegisterCreateRequestDomainExtension.setBulk(requestMessage.isBulk());
+
+        ServiceCall serviceCall = serviceCallType.newServiceCall()
+                .origin(APPLICATION_NAME)
+                .extendedWith(masterUtilitiesDeviceRegisterCreateRequestDomainExtension)
+                .create();
+
+        requestMessage.getUtilitiesDeviceRegisterCreateMessages()
+                .forEach(bodyMessage -> {
+                    if (bodyMessage.isValid()) {
+                        createChildServiceCall(serviceCall, bodyMessage);
+                    }
+                });
+
+        if (serviceCall.findChildren().stream().count() > 0) {
+            serviceCall.requestTransition(DefaultState.PENDING);
+        } else {
+            sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
+        }
+    }
+
     private Optional<ServiceCallType> getServiceCallType(ServiceCallTypes serviceCallType) {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion());
     }
@@ -299,6 +446,24 @@ public class ServiceCallCommands {
                 .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
     }
 
+    private boolean hasUtilDeviceRequestServiceCall(String id) {
+        return findAvailableServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceCreateRequestDomainExtension.class))
+                .filter(Objects::nonNull)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+    }
+
+    private boolean hasUtilDeviceRegisterRequestServiceCall(String id) {
+        return findAvailableServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class))
+                .filter(Objects::nonNull)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+    }
+
     private void sendMessage(StatusChangeRequestCreateConfirmationMessage statusChangeRequestCreateConfirmationMessage) {
         WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS
                 .forEach(service -> service.call(statusChangeRequestCreateConfirmationMessage));
@@ -310,6 +475,21 @@ public class ServiceCallCommands {
                     .forEach(service -> service.call(confirmationMessage));
         } else {
             WebServiceActivator.METER_READING_DOCUMENT_REQUEST_CONFIRMATIONS
+                    .forEach(service -> service.call(confirmationMessage));
+        }
+    }
+
+    private void sendMessage(UtilitiesDeviceCreateConfirmationMessage confirmationMessage) {
+        WebServiceActivator.UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION
+                .forEach(service -> service.call(confirmationMessage));
+    }
+
+    private void sendMessage(UtilitiesDeviceRegisterCreateConfirmationMessage confirmationMessage, boolean bulk) {
+        if (bulk) {
+            WebServiceActivator.UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION
+                    .forEach(service -> service.call(confirmationMessage));
+        } else {
+            WebServiceActivator.UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION
                     .forEach(service -> service.call(confirmationMessage));
         }
     }
@@ -336,6 +516,23 @@ public class ServiceCallCommands {
                         .from(message, exceptionCode, exceptionInfo)
                         .build();
         sendMessage(confirmationMessage);
+    }
+
+    private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed) {
+        UtilitiesDeviceCreateConfirmationMessage confirmationMessage =
+                UtilitiesDeviceCreateConfirmationMessage.builder()
+                        .from(message, messageSeed, clock.instant())
+                        .build();
+        sendMessage(confirmationMessage);
+    }
+
+    private void sendProcessError(UtilitiesDeviceRegisterCreateRequestMessage message, MessageSeeds messageSeed) {
+        UtilitiesDeviceRegisterCreateConfirmationMessage confirmationMessage = null;
+        confirmationMessage =
+                UtilitiesDeviceRegisterCreateConfirmationMessage.builder()
+                        .from(message, messageSeed, clock.instant())
+                        .build();
+        sendMessage(confirmationMessage, message.isBulk());
     }
 
     private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message,

@@ -348,6 +348,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<RegisterSpec> findAndLockRegisterSpecById(long id) {
+        return Optional.ofNullable(this.getDataModel().mapper((RegisterSpec.class)).lock(id));
+    }
+
+    @Override
     public Optional<RegisterSpec> findAndLockRegisterSpecByIdAndVersion(long id, long version) {
         return this.getDataModel().mapper((RegisterSpec.class)).lockObjectIfVersion(version, id);
     }

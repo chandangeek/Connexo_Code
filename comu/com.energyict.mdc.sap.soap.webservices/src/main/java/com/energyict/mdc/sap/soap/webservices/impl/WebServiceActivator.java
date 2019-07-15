@@ -39,6 +39,14 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryAssignedNotification;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryBulkAssignedNotification;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceLocationBulkNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceLocationNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateBulkEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateEndpoint;
@@ -74,7 +82,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -98,6 +105,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String COMPONENT_NAME = "SAP";
     public static final String URL_PROPERTY = "url";
     public static final String APPLICATION_NAME = "MultiSense";
+    public static final String METERING_SYSTEM_ID = "CXO";
     public static final Map<AdditionalProperties, Integer> SAP_PROPERTIES = new HashMap<>();
     public static final List<SAPMeterReadingDocumentReason> METER_READING_REASONS = new CopyOnWriteArrayList<>();
     public static final List<StatusChangeRequestCreateConfirmation> STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
@@ -105,6 +113,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final List<MeterReadingDocumentBulkRequestConfirmation> METER_READING_DOCUMENT_BULK_REQUEST_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentResult> METER_READING_DOCUMENT_RESULTS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentBulkResult> METER_READING_DOCUMENT_BULK_RESULTS = new CopyOnWriteArrayList<>();
+    public static final List<UtilitiesDeviceCreateConfirmation> UTILITIES_DEVICE_CREATE_CONFIRMATION = new CopyOnWriteArrayList<>();
+    public static final List<UtilitiesDeviceBulkCreateConfirmation> UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION = new CopyOnWriteArrayList<>();
+    public static final List<UtilitiesDeviceRegisterBulkCreateConfirmation> UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION = new CopyOnWriteArrayList<>();
+    public static final List<UtilitiesDeviceRegisterCreateConfirmation> UTILITIES_DEVICE_REGISTER_CREATE_CONFIRMATION = new CopyOnWriteArrayList<>();
+    public static final List<UtilitiesDeviceRegisteredNotification> UTILITIES_DEVICE_REGISTERED_NOTIFICATION = new CopyOnWriteArrayList<>();
+    public static final List<UtilitiesDeviceRegisteredBulkNotification> UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION = new CopyOnWriteArrayList<>();
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -269,6 +283,30 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(MeterReadingDocumentResultBulkCreateConfirmationEndpoint.class),
                 InboundServices.SAP_METER_READING_BULK_RESULT_CONFIRMATION.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(UtilitiesDeviceCreateRequestEndpoint.class),
+                InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_CREATE_REQUEST_C_IN.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(UtilitiesDeviceBulkCreateRequestEndpoint.class),
+                InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_BULK_CREATE_REQUEST_C_IN.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(UtilitiesDeviceRegisterCreateRequestEndpoint.class),
+                InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTER_CREATE_REQUEST_C_IN.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(UtilitiesDeviceRegisterBulkCreateRequestEndpoint.class),
+                InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTER_BULK_CREATE_REQUEST_C_IN.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(UtilitiesDeviceLocationNotificationEndpoint.class),
+                InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_LOCATION_NOTIFICATION_C_IN.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(UtilitiesDeviceLocationBulkNotificationEndpoint.class),
+                InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_LOCATION_BULK_NOTIFICATION_C_IN.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(PointOfDeliveryAssignedNotification.class),
+                InboundServices.SAP_POINT_OF_DELIVERY_ASSIGNED_NOTIFICATION_C_IN.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(PointOfDeliveryBulkAssignedNotification.class),
+                InboundServices.SAP_POINT_OF_DELIVERY_BULK_ASSIGNED_NOTIFICATION_C_IN.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -330,6 +368,61 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeMeterReadingDocumentBulkResult(MeterReadingDocumentBulkResult bulkResult) {
         METER_READING_DOCUMENT_BULK_RESULTS.remove(bulkResult);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUtilitiesDeviceCreateConfirmation(UtilitiesDeviceCreateConfirmation result) {
+        UTILITIES_DEVICE_CREATE_CONFIRMATION.add(result);
+    }
+
+    public void removeUtilitiesDeviceCreateConfirmation(UtilitiesDeviceCreateConfirmation result) {
+        UTILITIES_DEVICE_CREATE_CONFIRMATION.remove(result);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUtilitiesDeviceBulkCreateConfirmation(UtilitiesDeviceBulkCreateConfirmation result) {
+        UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION.add(result);
+    }
+
+    public void removeUtilitiesDeviceBulkCreateConfirmation(UtilitiesDeviceBulkCreateConfirmation result) {
+        UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION.remove(result);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUtilitiesDeviceRegisterCreateConfirmation(UtilitiesDeviceRegisterCreateConfirmation result) {
+        UTILITIES_DEVICE_REGISTER_CREATE_CONFIRMATION.add(result);
+    }
+
+    public void removeUtilitiesDeviceRegisterCreateConfirmation(UtilitiesDeviceRegisterCreateConfirmation result) {
+        UTILITIES_DEVICE_REGISTER_CREATE_CONFIRMATION.remove(result);
+    }
+
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUtilitiesDeviceRegisterBulkCreateConfirmation(UtilitiesDeviceRegisterBulkCreateConfirmation result) {
+        UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION.add(result);
+    }
+
+    public void removeUtilitiesDeviceRegisterBulkCreateConfirmation(UtilitiesDeviceRegisterBulkCreateConfirmation result) {
+        UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION.remove(result);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUtilitiesDeviceRegisteredNotification(UtilitiesDeviceRegisteredNotification result) {
+        UTILITIES_DEVICE_REGISTERED_NOTIFICATION.add(result);
+    }
+
+    public void removeUtilitiesDeviceRegisteredNotification(UtilitiesDeviceRegisteredNotification result) {
+        UTILITIES_DEVICE_REGISTERED_NOTIFICATION.remove(result);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUtilitiesDeviceRegisteredBulkNotification(UtilitiesDeviceRegisteredBulkNotification result) {
+        UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.add(result);
+    }
+
+    public void removeUtilitiesDeviceRegisteredBulkNotification(UtilitiesDeviceRegisteredBulkNotification result) {
+        UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.remove(result);
     }
 
     @Reference
