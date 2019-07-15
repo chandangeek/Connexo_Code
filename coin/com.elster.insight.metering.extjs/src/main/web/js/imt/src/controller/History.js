@@ -912,6 +912,13 @@ Ext.define('Imt.controller.History', {
                             privileges: Isu.privileges.Issue.closeOrAssing,
                             controller: 'Isu.controller.BulkChangeIssues'
                         },
+                        usagepointgroup: {
+                            title: 'Add usage point group',
+                            route: 'usagepointgroup',
+                            controller: 'Imt.usagepointgroupsfromissues.controller.AddUsagePointGroupFromIssues',
+                            privileges: Isu.privileges.Issue.closeOrAssing,
+                            action: 'showUsagePointGroupWizard',
+                        },
                         view: {
                             title: Uni.I18n.translate('general.issueDetails', 'IMT', 'Issue details'),
                             route: '{issueId}',
