@@ -110,12 +110,12 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     public void createIssue(ServiceCall serviceCall, DefaultState newState) {
         for (CreationRule rule : issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class).select(where("active").isEqualTo(true).and(where("reason.issueType.prefix").isEqualToIgnoreCase(SERVICE_CALL_ISSUE_PREFIX)))) {
             AtomicBoolean handlerMatch = new AtomicBoolean(), stateMatch = new AtomicBoolean();
-            rule.getCreationRuleProperties().forEach(propertie -> {
-                if (TranslationKeys.SERVICE_CALL_TYPE_HANDLER.getKey().equals(propertie.getName())) {
-                    handlerMatch.set(((List<ServiceCallTypeInfo>) propertie.getValue()).stream().anyMatch(value -> value.getId() == serviceCall.getType().getId()));
+            rule.getCreationRuleProperties().forEach(property -> {
+                if (TranslationKeys.SERVICE_CALL_TYPE_HANDLER.getKey().equals(property.getName())) {
+                    handlerMatch.set(((List<ServiceCallTypeInfo>) property.getValue()).stream().anyMatch(value -> value.getId() == serviceCall.getType().getId()));
                 }
-                if (TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey().equals(propertie.getName())) {
-                    stateMatch.set(((List<DefaultStateInfo>) propertie.getValue()).stream().anyMatch(state -> state.getId() == newState.ordinal()));
+                if (TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey().equals(property.getName())) {
+                    stateMatch.set(((List<DefaultStateInfo>) property.getValue()).stream().anyMatch(state -> state.getId() == newState.ordinal()));
                 }
             });
             if (handlerMatch.get() && stateMatch.get()) {

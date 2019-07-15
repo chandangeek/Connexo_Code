@@ -26,7 +26,7 @@ public class DefaultDeviceServiceCallHandler extends AbstractOperationServiceCal
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "DefaultDeviceServiceCallHandler";
-    public static final String APPLICATION = null;
+    public static final String APPLICATION = "MDC";
 
     public DefaultDeviceServiceCallHandler() {
         super();

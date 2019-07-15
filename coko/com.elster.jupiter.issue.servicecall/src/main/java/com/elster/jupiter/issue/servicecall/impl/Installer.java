@@ -81,10 +81,10 @@ class Installer implements FullInstaller {
         IssueReason serviceCallPartialSucceed = issueService.createReason(ModuleConstants.REASON_PARTIAL_SUCCEED, issueType,
                 TranslationKeys.SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON, TranslationKeys.SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON_DESCRIPTION);
 
-        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, FailedAction.class.getName(), serviceCallFailed);
-        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, PartialSucceedAction.class.getName(), serviceCallPartialSucceed);
+        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, FailedAction.class.getName(), serviceCallFailed, CreationRuleActionPhase.NOT_APPLICABLE);
+        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, PartialSucceedAction.class.getName(), serviceCallPartialSucceed, CreationRuleActionPhase.NOT_APPLICABLE);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, StartProcessAction.class.getName(), issueType, CreationRuleActionPhase.CREATE);
-        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, RetryServiceCallAction.class.getName(), issueType);
+        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, RetryServiceCallAction.class.getName(), issueType, CreationRuleActionPhase.NOT_APPLICABLE);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {
