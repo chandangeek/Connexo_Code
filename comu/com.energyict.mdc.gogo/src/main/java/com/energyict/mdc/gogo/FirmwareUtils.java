@@ -4,38 +4,23 @@
 
 package com.energyict.mdc.gogo;
 
-//import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-//import com.elster.jupiter.servicecall.LogLevel;
-//import com.elster.jupiter.servicecall.ServiceCall;
-//import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-//import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-//import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-//import com.energyict.mdc.device.lifecycle.config.DefaultState;
-//import com.energyict.mdc.firmware.FirmwareCampaign;
-//import com.energyict.mdc.firmware.FirmwareCampaignService;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-//import com.energyict.mdc.firmware.impl.MessageSeeds;
-//import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
-import com.energyict.mdc.firmware.impl.MessageSeeds;
-import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -56,7 +41,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Clock;
-//import java.util.List;
 import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.gogo.FirmwareUtils", service = FirmwareUtils.class,

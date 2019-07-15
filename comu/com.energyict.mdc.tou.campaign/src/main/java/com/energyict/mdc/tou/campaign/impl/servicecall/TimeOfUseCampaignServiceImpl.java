@@ -92,8 +92,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -127,8 +125,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     private volatile TaskService taskService;
     private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
-
-    private volatile Logger LOGGER = Logger.getLogger(TimeOfUseCampaignService.class.getName());
 
 
     public TimeOfUseCampaignServiceImpl() {
