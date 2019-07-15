@@ -31,7 +31,6 @@ public class StatusChangeRequestCreateConfirmationMessage {
     private final Optional<SAPCustomPropertySets> sapCustomPropertySets;
 
     private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg confirmationMessage;
-    private String url;
 
     private StatusChangeRequestCreateConfirmationMessage() {
         this.sapCustomPropertySets = Optional.empty();
@@ -43,10 +42,6 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
     public SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg getConfirmationMessage() {
         return confirmationMessage;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public static Builder builder() {
@@ -121,7 +116,6 @@ public class StatusChangeRequestCreateConfirmationMessage {
             parent.getExtension(ConnectionStatusChangeDomainExtension.class).ifPresent(domainExtension -> {
                 messageBody.getID().setValue(domainExtension.getId());
                 messageBody.getCategoryCode().setValue(domainExtension.getCategoryCode());
-                StatusChangeRequestCreateConfirmationMessage.this.url = domainExtension.getConfirmationURL();
             });
 
             childs.forEach(serviceCall -> messageBody.getDeviceConnectionStatus()
@@ -135,7 +129,6 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
             messageBody.getID().setValue(message.getId());
             messageBody.getCategoryCode().setValue(message.getCategoryCode());
-            StatusChangeRequestCreateConfirmationMessage.this.url = message.getConfirmationEndpointURL();
 
             return messageBody;
         }

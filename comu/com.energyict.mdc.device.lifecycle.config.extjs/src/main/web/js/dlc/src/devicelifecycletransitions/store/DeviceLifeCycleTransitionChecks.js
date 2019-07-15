@@ -16,10 +16,9 @@ Ext.define('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionChecks
             type: 'json',
             root: 'microChecks'
         },
-        setUrl: function (params, fromState, toState, isSystemContext) {
+        setUrl: function (params, fromState, toState) {
             this.url = this.urlTpl.replace('{id}', params.deviceLifeCycleId);
             this.extraParams = {fromState: {id: fromState}, toState: {id: toState}};
-            if (isSystemContext) this.extraParams['isSystemContext'] = isSystemContext;
         }
     }
 });

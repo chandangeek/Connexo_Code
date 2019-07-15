@@ -96,10 +96,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/SmartMeterMeterReadingDocumentERPCreateConfirmation_C_OutService.wsdl
+                                    sap/SmartMeterMeterReadingDocumentERPCreateConfirmation_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/SmartMeterMeterReadingDocumentERPCreateConfirmation_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/SmartMeterMeterReadingDocumentERPCreateConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation
                             </packageName>
@@ -113,10 +113,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/SmartMeterMeterReadingDocumentERPBulkCreateConfirmation_C_OutService.wsdl
+                                    sap/SmartMeterMeterReadingDocumentERPBulkCreateConfirmation_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/SmartMeterMeterReadingDocumentERPBulkCreateConfirmation_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/SmartMeterMeterReadingDocumentERPBulkCreateConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation
                             </packageName>
@@ -130,10 +130,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/MeterReadingDocumentERPResultCreateRequest_C_OutService.wsdl
+                                    sap/MeterReadingDocumentERPResultCreateRequest_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/MeterReadingDocumentERPResultCreateRequest_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/MeterReadingDocumentERPResultCreateRequest_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest
                             </packageName>
@@ -147,10 +147,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/MeterReadingDocumentERPResultBulkCreateRequest_C_OutService.wsdl
+                                    sap/MeterReadingDocumentERPResultBulkCreateRequest_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/MeterReadingDocumentERPResultBulkCreateRequest_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/MeterReadingDocumentERPResultBulkCreateRequest_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest
                             </packageName>
@@ -216,10 +216,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesTimeSeriesERPItemBulkCreateRequest_C_OutService.wsdl
+                                    sap/UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesTimeSeriesERPItemBulkCreateRequest_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest
                             </packageName>
@@ -250,12 +250,46 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesTimeSeriesERPItemBulkChangeRequest_C_OutService.wsdl
+                                    sap/UtilitiesTimeSeriesERPItemBulkChangeRequest_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesTimeSeriesERPItemBulkChangeRequest_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesTimeSeriesERPItemBulkChangeRequest_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangerequest
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation
                             </packageName>
                         </configuration>
                     </execution>
@@ -285,10 +319,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_C_OutService.wsdl
+                                    sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation
                             </packageName>
@@ -303,10 +337,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesSmartMeterEventERPBulkCreateRequest_C_OutService.wsdl
+                                    sap/UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesSmartMeterEventERPBulkCreateRequest_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice
                             </packageName>
@@ -338,10 +372,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesDeviceERPSmartMeterCreateConfirmation_C_OutService.wsdl
+                                    sap/UtilitiesDeviceERPSmartMeterCreateConfirmation_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterCreateConfirmation_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterCreateConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation
                             </packageName>
@@ -372,10 +406,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesDeviceERPSmartMeterBulkCreateConfirmation_C_OutService.wsdl
+                                    sap/UtilitiesDeviceERPSmartMeterBulkCreateConfirmation_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterBulkCreateConfirmation_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterBulkCreateConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation
                             </packageName>
@@ -406,10 +440,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesDeviceERPSmartMeterRegisterCreateConfirmation_C_OutService.wsdl
+                                    sap/UtilitiesDeviceERPSmartMeterRegisterCreateConfirmation_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterCreateConfirmation_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterCreateConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation
                             </packageName>
@@ -440,10 +474,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_C_OutService.wsdl
+                                    sap/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation
                             </packageName>
@@ -491,10 +525,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesDeviceERPSmartMeterRegisteredNotification_C_OutService.wsdl
+                                    sap/UtilitiesDeviceERPSmartMeterRegisteredNotification_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisteredNotification_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisteredNotification_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification
                             </packageName>

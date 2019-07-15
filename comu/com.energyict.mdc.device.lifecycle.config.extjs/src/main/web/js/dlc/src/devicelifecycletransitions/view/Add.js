@@ -34,10 +34,10 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
             fromComboValue = me.down('#transition-from-combo').getValue(),
             toComboValue = me.down('#transition-to-combo').getValue();
 
-        if (!!fromComboValue && !!toComboValue) {
-            var isSystemContext = eventContext && eventContext === 'System';
-            me.fillActions(fromComboValue, toComboValue, isSystemContext);
-            me.fillChecks(fromComboValue, toComboValue, isSystemContext);
+        if (!!fromComboValue && !!toComboValue
+            && eventContext && eventContext != 'System') {
+            me.fillActions(fromComboValue, toComboValue);
+            me.fillChecks(fromComboValue, toComboValue);
         } else {
             Ext.suspendLayouts();
             autoActionsContainer.removeAll();
@@ -48,12 +48,12 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
         }
     },
 
-    fillActions: function (fromComboValue, toComboValue, isSystemContext) {
+    fillActions: function (fromComboValue, toComboValue) {
         var me = this,
             autoActionsContainer = me.down('#autoActionsContainer'),
             store = Ext.create('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionAutoActions');
 
-        store.getProxy().setUrl(me.router.arguments, fromComboValue, toComboValue, isSystemContext);
+        store.getProxy().setUrl(me.router.arguments, fromComboValue, toComboValue);
 
         store.load(
             function () {
@@ -73,12 +73,12 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
         );
     },
 
-    fillChecks: function (fromComboValue, toComboValue, isSystemContext) {
+    fillChecks: function (fromComboValue, toComboValue) {
         var me = this,
             pretransitionChecksContainer = this.down('#pretansitionsContainer'),
             store = Ext.create('Dlc.devicelifecycletransitions.store.DeviceLifeCycleTransitionChecks');
 
-        store.getProxy().setUrl(me.router.arguments, fromComboValue, toComboValue, isSystemContext);
+        store.getProxy().setUrl(me.router.arguments, fromComboValue, toComboValue);
 
         store.load(
             function () {
