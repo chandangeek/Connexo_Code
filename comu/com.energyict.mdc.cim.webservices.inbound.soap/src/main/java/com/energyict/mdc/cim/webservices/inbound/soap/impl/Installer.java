@@ -31,10 +31,10 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class Installer implements FullInstaller {
-    static final String RECURENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurenttaskfrequency";
-    static final String RECURENT_TASK_NAME = "CheckConfirmationTimeoutTask";
-    static final String RECURENT_TASK_SCHEDULE = "0 0/5 * 1/1 * ? *";
-    static final int RECURENT_TASK_RETRY_DELAY = 60;
+    public static final String RECURENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurenttaskfrequency";
+    public static final String RECURENT_TASK_NAME = "CheckConfirmationTimeoutTask";
+    public static final String RECURENT_TASK_SCHEDULE = "0 0/5 * 1/1 * ? *";
+    public static final int RECURENT_TASK_RETRY_DELAY = 60;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
     private final MessageService messageService;

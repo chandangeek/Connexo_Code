@@ -99,12 +99,8 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             case PARTIAL_SUCCESS:
             case CANCELLED:
             case FAILED:
-                switch (parentServiceCall.getState()) {
-                    case PENDING:
-                    case ONGOING:
-                    case WAITING:
-                        ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
-                        break;
+                if (parentServiceCall.getState() == DefaultState.WAITING) {
+                    ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
                 }
                 break;
         }

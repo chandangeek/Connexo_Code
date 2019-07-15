@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.cim.webservices.inbound.soap.impl;
+package com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -16,6 +16,9 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.Upgrader;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.Installer;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 
 import org.osgi.framework.BundleContext;
@@ -29,7 +32,7 @@ import java.util.List;
 import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes.PARENT_GET_METER_READINGS;
 import static com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_ID;
 
-class UpgraderV10_6_1 implements Upgrader {
+public class UpgraderV10_7 implements Upgrader {
 
     private final DataModel dataModel;
     private final ServiceCallService serviceCallService;
@@ -39,8 +42,8 @@ class UpgraderV10_6_1 implements Upgrader {
     private final TaskService taskService;
 
     @Inject
-    UpgraderV10_6_1(DataModel dataModel, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
-                    BundleContext bundleContext, MessageService messageService, TaskService taskService) {
+    UpgraderV10_7(DataModel dataModel, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
+                  BundleContext bundleContext, MessageService messageService, TaskService taskService) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;

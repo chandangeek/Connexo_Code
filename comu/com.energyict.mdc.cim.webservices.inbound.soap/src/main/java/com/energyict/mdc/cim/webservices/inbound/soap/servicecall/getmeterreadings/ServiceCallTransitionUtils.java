@@ -18,7 +18,7 @@ public class ServiceCallTransitionUtils {
 
     public static void resultTransition(ServiceCall serviceCall, boolean trickyLogic) {
         List<ServiceCall> childs = findAllChildren(serviceCall);
-        if (isLastChild(childs)) {
+        if (isLastChild(childs) && serviceCall.getState() == DefaultState.WAITING) {
             if (hasAllChildrenStates(childs, DefaultState.SUCCESSFUL)) {
                 if (trickyLogic) {
                     transitServiceCallToResultState(serviceCall, DefaultState.PAUSED);
@@ -53,7 +53,8 @@ public class ServiceCallTransitionUtils {
                 .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED)
                         || sc.getState().equals(DefaultState.FAILED)
                         || sc.getState().equals(DefaultState.REJECTED)
-                        || sc.getState().equals(DefaultState.SUCCESSFUL));
+                        || sc.getState().equals(DefaultState.SUCCESSFUL)
+                        || sc.getState().equals(DefaultState.PARTIAL_SUCCESS));
     }
 
     private static void transitServiceCallToResultState(ServiceCall serviceCall, DefaultState finalState) {
