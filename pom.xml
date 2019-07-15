@@ -39,7 +39,7 @@
              will be set to false by the release profile for releases -->
 		<include.source>false</include.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<baseline>1.0.0</baseline>
+		<baseline>1.0.0-Nessus</baseline>
 		<commercial.version>10.7.0</commercial.version>
 	</properties>
 
