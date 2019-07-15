@@ -14,12 +14,19 @@ Ext.define('Wss.view.webservice.HistoryForm', {
     loadRecord: function(record) {
         this.callParent(arguments);
         var endpoint = record.getEndpoint();
+        var duration;
+        if (record.get('endTime')){
+            duration = record.get('endTime') - record.get('startTime');
+        }else{
+            duration = "-"
+        }
 
         this.getForm().setValues({
             endpoint: endpoint,
             webServiceName: endpoint.get('webServiceName'),
             direction: endpoint.get('direction'),
-            logLevel: endpoint.get('logLevel')
+            logLevel: endpoint.get('logLevel'),
+            duration: duration
         });
     },
 
@@ -82,7 +89,19 @@ Ext.define('Wss.view.webservice.HistoryForm', {
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 }
+            },
+            {
+                name: 'duration',
+                fieldLabel: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
+                renderer: function (value) {
+                    if (value && value !== "-") {
+                        return Uni.util.String.formatDuration(value) ;
+                    }
+
+                    return '-';
+                }
             }
+
         ];
 
         me.callParent(arguments);
