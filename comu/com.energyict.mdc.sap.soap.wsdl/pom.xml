@@ -542,10 +542,10 @@
                         <configuration>
                             <wsdlFiles>
                                 <wsdlFile>
-                                    sap/UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_OutService.wsdl
+                                    sap/UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out.wsdl
                                 </wsdlFile>
                             </wsdlFiles>
-                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_OutService.wsdl</wsdlLocation>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification
                             </packageName>
