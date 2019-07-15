@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
@@ -12,6 +11,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -23,7 +23,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         DOMAIN("serviceCall", "SERVICE_CALL"),
         SOURCE("source", "SOURCE"),
         CALLBACK_URL("callbackUrl", "CALLBACK_URL"),
-        CORRELATION_ID("corelationId", "CORRELATION_ID"),
+        CORRELATION_ID("correlationId", "CORRELATION_ID"),
         TIME_PERIOD_START("timePeriodStart", "TIME_PERIOD_START"),
         TIME_PERIOD_END("timePeriodEnd", "TIME_PERIOD_END"),
         READING_TYPES("readingTypes", "READING_TYPES"),
@@ -58,7 +58,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackUrl;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String corelationId;
+    private String correlationId;
     private Instant timePeriodStart;
     private Instant timePeriodEnd;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -100,12 +100,12 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         this.callbackUrl = callbackUrl;
     }
 
-    public String getCorelationId() {
-        return corelationId;
+    public String getCorrelationId() {
+        return correlationId;
     }
 
-    public void setCorelationId(String corelationId) {
-        this.corelationId = corelationId;
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
     }
 
     public Instant getTimePeriodStart() {
@@ -169,7 +169,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         this.serviceCall.set(serviceCall);
         this.setSource((String) propertyValues.getProperty(FieldNames.SOURCE.javaName()));
         this.setCallbackUrl((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
-        this.setCorelationId((String) propertyValues.getProperty(FieldNames.CORRELATION_ID.javaName()));
+        this.setCorrelationId((String) propertyValues.getProperty(FieldNames.CORRELATION_ID.javaName()));
         this.setTimePeriodStart((Instant) propertyValues.getProperty(FieldNames.TIME_PERIOD_START.javaName()));
         this.setTimePeriodEnd((Instant) propertyValues.getProperty(FieldNames.TIME_PERIOD_END.javaName()));
         this.setReadingTypes((String) propertyValues.getProperty(FieldNames.READING_TYPES.javaName()));
@@ -183,7 +183,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.SOURCE.javaName(), this.getSource());
         propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), this.getCallbackUrl());
-        propertySetValues.setProperty(FieldNames.CORRELATION_ID.javaName(), this.getCorelationId());
+        propertySetValues.setProperty(FieldNames.CORRELATION_ID.javaName(), this.getCorrelationId());
         propertySetValues.setProperty(FieldNames.TIME_PERIOD_START.javaName(), this.getTimePeriodStart());
         propertySetValues.setProperty(FieldNames.TIME_PERIOD_END.javaName(), this.getTimePeriodEnd());
         propertySetValues.setProperty(FieldNames.READING_TYPES.javaName(), this.getReadingTypes());

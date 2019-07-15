@@ -69,6 +69,7 @@ import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.google.common.collect.Range;
+import org.apache.commons.collections.CollectionUtils;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
@@ -271,7 +272,7 @@ public class ServiceCallCommands {
         ParentGetMeterReadingsDomainExtension parentGetMeterReadingsDomainExtension = new ParentGetMeterReadingsDomainExtension();
         parentGetMeterReadingsDomainExtension.setSource(source);
         parentGetMeterReadingsDomainExtension.setCallbackUrl(header.getReplyAddress());
-        parentGetMeterReadingsDomainExtension.setCorelationId(header.getCorrelationID());
+        parentGetMeterReadingsDomainExtension.setCorrelationId(header.getCorrelationID());
         parentGetMeterReadingsDomainExtension.setTimePeriodStart(timePeriod == null ? null : timePeriod.getStart());
         parentGetMeterReadingsDomainExtension.setTimePeriodEnd(timePeriod == null ? null : timePeriod.getEnd());
         parentGetMeterReadingsDomainExtension.setReadingTypes(getReadingTypesString(syncReplyIssue.getExistedReadingTypes()));
@@ -328,7 +329,10 @@ public class ServiceCallCommands {
         ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
 
         Set<String> existedLoadProfiles = syncReplyIssue.getReadingExistedLoadProfilesMap().get(index);
-        if (existedLoadProfiles != null && !existedLoadProfiles.isEmpty()) {
+//        if (existedLoadProfiles != null && !existedLoadProfiles.isEmpty()) {
+        if (start != null && end != null
+                && (CollectionUtils.isNotEmpty(existedLoadProfiles)
+                    || (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes())))) {
             processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, end, now, delay, scheduleStrategy);
         }
 
@@ -381,12 +385,14 @@ public class ServiceCallCommands {
         return meterReadingRunning;
     }
 
-
     private void processLoadProfiles(ServiceCall subParentServiceCall, Device device, int index, SyncReplyIssue syncReplyIssue,
                                      Instant start, Instant end, Instant now, int delay, ScheduleStrategyEnum scheduleStrategy) {
         Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, index, syncReplyIssue);
+        Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
+        loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
+
         ComTaskExecution deviceMessagesComTaskExecution;
-        if (loadProfiles != null && !loadProfiles.isEmpty()) {// load profiles case
+        if (CollectionUtils.isNotEmpty(loadProfiles)) {
 
             Optional<ComTaskExecution> deviceMessagesComTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
             if (!deviceMessagesComTaskExecutionOptional.isPresent()) {
@@ -450,7 +456,6 @@ public class ServiceCallCommands {
                 .forEach(loadProfile -> device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update());
     }
 
-    /// FIXME use load profile next block read start
     private Instant getActualStart(Instant start, ComTaskExecution comTaskExecution) {
         if (start == null) {
             return comTaskExecution.getLastSuccessfulCompletionTimestamp();
@@ -469,11 +474,11 @@ public class ServiceCallCommands {
             ch.iec.tc57._2011.getmeterreadings.FaultMessage {
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         Set<ReadingType> existedReadingTypes = syncReplyIssue.getExistedReadingTypes();
-        if (existedReadingTypes != null && !existedReadingTypes.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(existedReadingTypes)) {
             comTaskExecutions.addAll(getSupportedReadingTypeExecutionMapping(device, existedReadingTypes).keySet());
         }
         Set<String> existedRegisterGroups = syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index);
-        if (existedRegisterGroups != null && !existedRegisterGroups.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(existedRegisterGroups)) {
             comTaskExecutions.addAll(getSupportedReadingTypeExecutionMapping(device, masterDataService.findAllRegisterGroups().stream()
                     .filter(rg -> existedRegisterGroups.contains(rg.getName()))
                     .map(RegisterGroup::getRegisterTypes)
@@ -599,15 +604,33 @@ public class ServiceCallCommands {
         return existedOnDeviceLoadProfiles;
     }
 
+    private Set<LoadProfile> getLoadProfilesForReadingTypes(Device device, Set<ReadingType> readingTypes) {
+        return device.getLoadProfiles().stream()
+                .filter(lp ->  lp.getLoadProfileSpec().getChannelSpecs().stream()
+                        .anyMatch(c -> readingTypes.contains(c.getReadingType()))
+                )
+                .collect(Collectors.toSet());
+    }
+
+    private Set<ReadingType> getExistedOnDeviceReadingTypes(Device device, SyncReplyIssue syncReplyIssue) {
+        Set<String> notFoundReadingTypesMrids = syncReplyIssue.getNotFoundReadingTypesOnDevices().get(device.getName());
+        if (CollectionUtils.isEmpty(notFoundReadingTypesMrids)) {
+            return syncReplyIssue.getExistedReadingTypes();
+        }
+        return syncReplyIssue.getExistedReadingTypes().stream()
+            .filter(rt -> !notFoundReadingTypesMrids.contains(rt.getMRID()))
+            .collect(Collectors.toSet());
+    }
+
     private List<DeviceMessage> createDeviceMessages(Device device, Set<LoadProfile> loadProfiles,
                                                      Instant releaseDate, Instant start, Instant end) {
         return loadProfiles.stream()
-                .map(loadProfile -> createLoadProfilMessage(device, loadProfile, releaseDate, start, end, DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST))
+                .map(loadProfile -> createLoadProfileMessage(device, loadProfile, releaseDate, start, end, DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST))
                 .collect(Collectors.toList());
     }
 
-    private DeviceMessage createLoadProfilMessage(Device device, LoadProfile loadProfile, Instant releaseDate,
-                                                  Instant start, Instant end, DeviceMessageId deviceMessageId) {
+    private DeviceMessage createLoadProfileMessage(Device device, LoadProfile loadProfile, Instant releaseDate,
+                                                   Instant start, Instant end, DeviceMessageId deviceMessageId) {
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId)
 //                .setTrackingId(Long.toString(serviceCall.getId()))
                 .setReleaseDate(releaseDate);

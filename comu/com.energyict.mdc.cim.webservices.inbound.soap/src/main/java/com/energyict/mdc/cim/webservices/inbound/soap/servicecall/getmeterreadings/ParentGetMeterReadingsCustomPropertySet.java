@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -22,6 +20,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Component;
@@ -44,6 +44,7 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
+
     // For OSGi framework
     public ParentGetMeterReadingsCustomPropertySet() {
     }

@@ -52,6 +52,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -153,14 +154,11 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             // -EndDevice
             List<EndDevice> endDevices = getMeterReadings.getEndDevice();
             MeterReadingsBuilder builder = readingBuilderProvider.get();
-            if (endDevices != null && !endDevices.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(endDevices)) {
                 fillMetersInfo(endDevices.stream().limit(1).collect(Collectors.toList()));
                 builder.withEndDevices(syncReplyIssue.getExistedMeters());
-
                 fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), async);
-
-                if (!async && (syncReplyIssue.getExistedReadingTypes() == null || syncReplyIssue.getExistedReadingTypes()
-                        .isEmpty())) {
+                if (!async && (CollectionUtils.isEmpty(syncReplyIssue.getExistedReadingTypes()))) {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES)
                             .get();
                 }
@@ -200,9 +198,9 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
     private MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage,
                                                           TransactionContext context) throws FaultMessage {
-        String corelationId = getMeterReadingsRequestMessage.getHeader().getCorrelationID();
-        if (corelationId != null) {
-            checkIsEmpty(corelationId, GET_METER_READINGS_ITEM + ".Header.CorrelationID");
+        String correlationId = getMeterReadingsRequestMessage.getHeader().getCorrelationID();
+        if (correlationId != null) {
+            checkIsEmpty(correlationId, GET_METER_READINGS_ITEM + ".Header.CorrelationID");
         }
         String replyAddress = getMeterReadingsRequestMessage.getHeader().getReplyAddress();
         checkIfMissingOrIsEmpty(replyAddress, GET_METER_READINGS_ITEM + ".Header.ReplyAddress");
@@ -238,49 +236,20 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             if (reading.getScheduleStrategy() != null) {
                 checkIsEmpty(reading.getScheduleStrategy(), readingItem + ".scheduleStrategy");
             }
-            Set<String> existedLoadProfilesNames = null;
-            Set<String> existedRegisterGroupsNames = null;
             // readingTypes from readingTypes + loadProfiles + registerGroups
             Set<com.elster.jupiter.metering.ReadingType> combinerReadingTypes = new HashSet<>(syncReplyIssue.getExistedReadingTypes());
             if (reading.getDataSource() != null && !reading.getDataSource().isEmpty()) {
                 DataSourceTypeNameEnum dsTypeName = getDataSourceNameType(reading.getDataSource(), i);
                 List<String> dsNames = getDataSourceNames(reading.getDataSource(), i);
                 if (dsTypeName != null && !dsNames.isEmpty()) {
-                    if (dsTypeName == DataSourceTypeNameEnum.LOAD_PROFILE) {
-                        Set<LoadProfileType> existedLoadProfiles = getExistedLoadProfiles(dsNames, i);
-                        syncReplyIssue.addReadingsExistedLoadProfilesMap(i, existedLoadProfiles.stream()
-                                .map(lpt -> lpt.getName())
-                                .collect(Collectors.toSet()));
-                        combinerReadingTypes.addAll(existedLoadProfiles.stream()
-                                .map(LoadProfileType::getChannelTypes)
-                                .flatMap(Collection::stream)
-                                .map(channelType -> channelType.getReadingType())
-                                .collect(Collectors.toSet()));
-                        existedLoadProfilesNames = existedLoadProfiles.stream()
-                                .map(lpt -> lpt.getName())
-                                .collect(Collectors.toSet());
-                    } else if (dsTypeName == DataSourceTypeNameEnum.REGISTER_GROUP) {
-                        Set<RegisterGroup> existedRegisterGroups = getExistedRegisterGroups(dsNames, i);
-                        syncReplyIssue.addReadingExistedRegisterGroupMap(i, existedRegisterGroups.stream()
-                                .map(rg -> rg.getName())
-                                .collect(Collectors.toSet()));
-                        combinerReadingTypes.addAll(existedRegisterGroups.stream()
-                                .map(RegisterGroup::getRegisterTypes)
-                                .flatMap(Collection::stream)
-                                .map(registerType -> registerType.getReadingType())
-                                .collect(Collectors.toSet()));
-                        existedRegisterGroupsNames = existedRegisterGroups.stream()
-                                .map(rg -> rg.getName())
-                                .collect(Collectors.toSet());
-                    }
+                    fillDataSource(dsTypeName, dsNames, i, combinerReadingTypes);
                 } else {
                     syncReplyIssue.addNotUsedReadingsDueToDataSources(i);
                     continue;
                 }
             }
 
-            if (!checkDataSources(existedLoadProfilesNames, existedRegisterGroupsNames, reading.getTimePeriod(), reading
-                    .getSource(), i)) {
+            if (!checkDataSources(reading.getTimePeriod(), reading.getSource(), i)) {
                 syncReplyIssue.addNotUsedReadingsDueToDataSources(i);
                 continue;
             }
@@ -293,7 +262,32 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
 
         // no meter readings on sync reply! It's built in parent service call
         MeterReadings meterReadings = null;
-        return createMeterReadingsResponseMessageType(meterReadings, syncReplyIssue.getResultErrorTypes(), corelationId);
+        return createMeterReadingsResponseMessageType(meterReadings, syncReplyIssue.getResultErrorTypes(), correlationId);
+    }
+
+    private void fillDataSource(DataSourceTypeNameEnum dsTypeName, List<String> dsNames, int index,
+                                Set<com.elster.jupiter.metering.ReadingType> combinerReadingTypes) throws FaultMessage {
+        if (dsTypeName == DataSourceTypeNameEnum.LOAD_PROFILE) {
+            Set<LoadProfileType> existedLoadProfiles = getExistedLoadProfiles(dsNames, index);
+            syncReplyIssue.addReadingsExistedLoadProfilesMap(index, existedLoadProfiles.stream()
+                    .map(lpt -> lpt.getName())
+                    .collect(Collectors.toSet()));
+            combinerReadingTypes.addAll(existedLoadProfiles.stream()
+                    .map(LoadProfileType::getChannelTypes)
+                    .flatMap(Collection::stream)
+                    .map(channelType -> channelType.getReadingType())
+                    .collect(Collectors.toSet()));
+        } else if (dsTypeName == DataSourceTypeNameEnum.REGISTER_GROUP) {
+            Set<RegisterGroup> existedRegisterGroups = getExistedRegisterGroups(dsNames, index);
+            syncReplyIssue.addReadingExistedRegisterGroupMap(index, existedRegisterGroups.stream()
+                    .map(rg -> rg.getName())
+                    .collect(Collectors.toSet()));
+            combinerReadingTypes.addAll(existedRegisterGroups.stream()
+                    .map(RegisterGroup::getRegisterTypes)
+                    .flatMap(Collection::stream)
+                    .map(registerType -> registerType.getReadingType())
+                    .collect(Collectors.toSet()));
+        }
     }
 
     private boolean checkConnectionMethod(String connectionMethod, String readingItem, Set<Device> devices) throws
@@ -325,12 +319,13 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                 .collect(Collectors.toSet());
     }
 
-    private boolean checkDataSources(Set<String> existedLoadProfiles, Set<String> existedRegisterGroups,
-                                     DateTimeInterval timePeriod, String source, int index) throws FaultMessage {
-        boolean hasLoadProfiles = existedLoadProfiles != null && !existedLoadProfiles.isEmpty();
-        boolean hasRegisterGroups = existedRegisterGroups != null && !existedRegisterGroups.isEmpty();
-        boolean hasReadingTypes = syncReplyIssue.getExistedReadingTypes() != null && !syncReplyIssue.getExistedReadingTypes()
-                .isEmpty();
+    private boolean checkDataSources(DateTimeInterval timePeriod, String source, int index) {
+        Set<String> existedLoadProfiles = syncReplyIssue.getReadingExistedLoadProfilesMap().get(index);
+        Set<String> existedRegisterGroups = syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index);
+
+        boolean hasLoadProfiles = CollectionUtils.isNotEmpty(existedLoadProfiles);
+        boolean hasRegisterGroups = CollectionUtils.isNotEmpty(existedRegisterGroups);
+        boolean hasReadingTypes = CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes());
 
         if (hasLoadProfiles) {
             if (source.equals(ReadingSourceEnum.SYSTEM.getSource())) {
@@ -613,7 +608,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             FaultMessage {
         List<com.elster.jupiter.metering.EndDevice> existedEndDevices = meteringService.getEndDeviceQuery()
                 .select(where("mRID").in(new ArrayList<>(mRIDs)).or(where("name").in(new ArrayList<>(names))));
-        if (existedEndDevices == null || existedEndDevices.isEmpty()) {
+        if (CollectionUtils.isEmpty(existedEndDevices)) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICES).get();
         }
         Set<com.elster.jupiter.metering.Meter> existedMeters = new HashSet<>();
@@ -634,7 +629,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         filter.addCondition(condition);
         Set<com.elster.jupiter.metering.ReadingType> readingTypes = meteringService.findReadingTypes(filter).stream()
                 .collect(Collectors.toSet());
-        if (!asyncFlag && (readingTypes == null || readingTypes.isEmpty())) {
+        if (!asyncFlag && (CollectionUtils.isEmpty(readingTypes))) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES).get();
         }
         return readingTypes;

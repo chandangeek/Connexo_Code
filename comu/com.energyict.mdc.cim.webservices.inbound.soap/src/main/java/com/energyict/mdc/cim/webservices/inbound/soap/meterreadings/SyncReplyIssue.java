@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class SyncReplyIssue {
     private static final String READING = "GetMeterReadings.Reading";
     private static final String READING_ITEM = READING + "[%s]";
-    private static final String TIMEPERIOD = READING + ".timePeriod";
+    private static final String TIME_PERIOD = READING + ".timePeriod";
     private static final String CONNECTION_METHOD = READING + ".connectionMethod";
     private static final String DATA_SOURCE = READING + ".dataSource";
 
@@ -303,7 +303,7 @@ public class SyncReplyIssue {
 
         if (!getNotUsedReadingsDueToTimeStamp().isEmpty()) {
             errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
-                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToTimeStamp())), TIMEPERIOD));
+                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToTimeStamp())), TIME_PERIOD));
         }
 
         if (!getNotUsedReadingsDueToConnectionMethod().isEmpty()) {

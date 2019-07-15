@@ -21,17 +21,17 @@ public class ServiceCallTransitionUtils {
         if (isLastChild(childs)) {
             if (hasAllChildrenStates(childs, DefaultState.SUCCESSFUL)) {
                 if (trickyLogic) {
-                    transitserviceCallToResultState(serviceCall, DefaultState.PAUSED);
-                    transitserviceCallToResultState(serviceCall, DefaultState.ONGOING);
+                    transitServiceCallToResultState(serviceCall, DefaultState.PAUSED);
+                    transitServiceCallToResultState(serviceCall, DefaultState.ONGOING);
                 } else {
-                    transitserviceCallToResultState(serviceCall, DefaultState.SUCCESSFUL);
+                    transitServiceCallToResultState(serviceCall, DefaultState.SUCCESSFUL);
                 }
             } else if (hasAllChildrenStates(childs, DefaultState.CANCELLED)) {
-                transitserviceCallToResultState(serviceCall, DefaultState.CANCELLED);
+                transitServiceCallToResultState(serviceCall, DefaultState.CANCELLED);
             } else if (hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
-                transitserviceCallToResultState(serviceCall, DefaultState.PARTIAL_SUCCESS);
+                transitServiceCallToResultState(serviceCall, DefaultState.PARTIAL_SUCCESS);
             } else {
-                transitserviceCallToResultState(serviceCall, DefaultState.FAILED);
+                transitServiceCallToResultState(serviceCall, DefaultState.FAILED);
             }
         }
     }
@@ -56,7 +56,7 @@ public class ServiceCallTransitionUtils {
                         || sc.getState().equals(DefaultState.SUCCESSFUL));
     }
 
-    private static void transitserviceCallToResultState(ServiceCall serviceCall, DefaultState finalState) {
+    private static void transitServiceCallToResultState(ServiceCall serviceCall, DefaultState finalState) {
         if (serviceCall.getState() != finalState) {
             if (serviceCall.getState() != DefaultState.ONGOING) {
                 serviceCall.requestTransition(DefaultState.ONGOING);
