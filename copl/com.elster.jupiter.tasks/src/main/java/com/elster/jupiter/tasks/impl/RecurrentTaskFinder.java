@@ -81,7 +81,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append("on RT.ID=TSKID ");
 
         boolean isFirstCondition = true;
-        //add started bewteen conditions
+        //add started between conditions
         if ((filter.startedOnFrom != null) || (filter.startedOnTo != null)) {
             builder.append("where exists (select * from TSK_TASK_OCCURRENCE where ");
             if (filter.startedOnFrom != null) {
@@ -101,14 +101,9 @@ public class RecurrentTaskFinder implements TaskFinder {
 
         //add queues filter conditions
         if ((filter.queues != null) && (!filter.queues.isEmpty())) {
-
             builder.append(isFirstCondition ? " where ( " : " and ( ");
             isFirstCondition = false;
-//            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)) {
-//                builder.append(" where ( ");
-//            } else {
-//                builder.append(" and ( ");
-//            }
+
             List<String> queues = new ArrayList();
             queues.addAll(filter.queues);
             for (int i = 0; i < queues.size(); i++) {
@@ -123,12 +118,9 @@ public class RecurrentTaskFinder implements TaskFinder {
 
         //add queue type filter conditions
         if ((filter.queueTypes != null) && (!filter.queueTypes.isEmpty())) {
-            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)
-                    && ((filter.queues == null) || filter.queues.isEmpty())) {
-                builder.append(" where ( ");
-            } else {
-                builder.append(" and ( ");
-            }
+            builder.append(isFirstCondition ? " where ( " : " and ( ");
+            isFirstCondition = false;
+
             List<String> queueTypes = new ArrayList();
             queueTypes.addAll(filter.queueTypes);
             builder.append("QUEUE_TYPE_NAME in (");
@@ -143,11 +135,6 @@ public class RecurrentTaskFinder implements TaskFinder {
 
         //add application filter conditions
         if ((filter.applications != null) && (!filter.applications.isEmpty())) {
-//            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null) && ((filter.queues == null) || (filter.queues.isEmpty()))) {
-//                builder.append(" where ( ");
-//            } else {
-//                builder.append(" and ( ");
-//            }
             builder.append(isFirstCondition ? " where ( " : " and ( ");
             isFirstCondition = false;
 
