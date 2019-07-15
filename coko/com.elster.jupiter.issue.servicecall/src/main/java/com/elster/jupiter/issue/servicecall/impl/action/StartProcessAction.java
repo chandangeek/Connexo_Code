@@ -7,12 +7,12 @@ package com.elster.jupiter.issue.servicecall.impl.action;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
+import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -113,7 +113,7 @@ public class StartProcessAction extends AbstractIssueAction {
     }
 
     private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition){
-        return true;
+        return NAME.equals(processDefinition.getAssociation());
     }
 
     @Override
@@ -123,7 +123,10 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(Issue issue) {
-        return super.isApplicable(issue) && (IssueStatus.OPEN.equals(issue.getStatus().getKey()) || IssueStatus.SNOOZED.equals(issue.getStatus().getKey()));
+        if (issue.getRule().isPresent()) {
+            return issue.getRule().get().getActions().stream().anyMatch(creationRuleAction -> ServiceCallIssueService.SERVICE_CALL_ISSUE_PREFIX.equals(creationRuleAction.getAction().getIssueType().getPrefix()));
+        }
+        return false;
     }
 
     @Override
