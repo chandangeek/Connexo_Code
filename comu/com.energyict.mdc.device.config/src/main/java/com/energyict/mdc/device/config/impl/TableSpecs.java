@@ -1047,7 +1047,7 @@ public enum TableSpecs {
                     .on(secAccTypeColumn)
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName())
                     .add();
-            table.foreignKey("DTC_FK_WRAPPINGSECACTYPEONDEVTYPE2SAT")
+            table.foreignKey("DTC_FK_WRPSECACTYDEVTYPE2SAT")
                     .references(SecurityAccessorType.class)
                     .on(wrappingSecAccTypeColumn)
                     .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.WRAPPINGSECACCTYPE.fieldName())
