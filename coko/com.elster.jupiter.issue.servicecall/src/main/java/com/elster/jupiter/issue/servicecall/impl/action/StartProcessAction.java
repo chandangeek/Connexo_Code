@@ -13,7 +13,6 @@ import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.HasIdAndName;
@@ -42,25 +41,25 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys.START_PROCESS_ACTION_PROCESS;
+
 public class StartProcessAction extends AbstractIssueAction {
 
-    private static final String NAME = "servicecallissue";
-    private static final String START_PROCESS = NAME + ".startprocess";
+    private static final String NAME = START_PROCESS_ACTION_PROCESS.getKey();
+    private static final String ASSOCIATION = "servicecallissue";
 
-    private final IssueService issueService;
     private final BpmService bpmService;
 
     @Inject
-    protected StartProcessAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, BpmService bpmService) {
+    protected StartProcessAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, BpmService bpmService) {
         super(dataModel, thesaurus, propertySpecService);
-        this.issueService = issueService;
         this.bpmService = bpmService;
     }
 
     @Override
     public IssueActionResult execute(Issue issue) {
         IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
-        Object value = properties.get(START_PROCESS);
+        Object value = properties.get(NAME);
         if(value != null) {
             String jsonContent;
             JSONArray arr = null;
@@ -83,7 +82,7 @@ public class StartProcessAction extends AbstractIssueAction {
             }
             ProcessDefinitionInfos bpmProcessDefinitions = new ProcessDefinitionInfos(arr);
             @SuppressWarnings({"unchecked", "OptionalGetWithoutIsPresent"})
-            Long processId = Long.valueOf(getPropertySpec(START_PROCESS).get().getValueFactory().toStringValue(value));
+            Long processId = Long.valueOf(getPropertySpec(NAME).get().getValueFactory().toStringValue(value));
             Optional<BpmProcessDefinition> connexoProcess = bpmService.getActiveBpmProcessDefinitions()
                     .stream()
                     .filter(proc -> proc.getId() == processId)
@@ -93,7 +92,8 @@ public class StartProcessAction extends AbstractIssueAction {
             connexoProcess.ifPresent(bpmProcessDefinition -> bpmProcessDefinitions.processes.stream()
                     .filter(proc -> proc.name.equals(bpmProcessDefinition.getProcessName()) && proc.version.equals(bpmProcessDefinition
                             .getVersion()))
-                    .forEach(p -> bpmService.startProcess(p.deploymentId, p.processId, expectedParams)));
+                    .forEach(p -> bpmService.startProcess(p.deploymentId, p.processId, expectedParams))
+            );
         }
         return result;
     }
@@ -104,7 +104,7 @@ public class StartProcessAction extends AbstractIssueAction {
         List<HasIdAndName> processInfos = bpmService.getBpmProcessDefinitions().stream().filter(this::getBpmProcessDefinitionFilter).map(ProcessInfo::new).collect(Collectors.toList());
         builder.add(
                 getPropertySpecService().specForValuesOf(new ProcessInfoValueFactory())
-                        .named(TranslationKeys.START_PROCESS_ACTION_PROCESS)
+                        .named(START_PROCESS_ACTION_PROCESS)
                         .fromThesaurus(getThesaurus())
                         .markRequired()
                         .addValues(processInfos)
@@ -113,7 +113,7 @@ public class StartProcessAction extends AbstractIssueAction {
     }
 
     private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition){
-        return NAME.equals(processDefinition.getAssociation());
+        return ASSOCIATION.equals(processDefinition.getAssociation());
     }
 
     @Override

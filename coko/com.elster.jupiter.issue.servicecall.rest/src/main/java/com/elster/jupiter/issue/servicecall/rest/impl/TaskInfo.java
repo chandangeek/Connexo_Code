@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.issue.servicecall.rest.impl;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 

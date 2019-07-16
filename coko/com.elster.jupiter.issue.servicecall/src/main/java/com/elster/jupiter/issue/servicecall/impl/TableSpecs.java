@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.issue.servicecall.impl;
 
-import com.elster.jupiter.issue.servicecall.HistoricalIssueServiceCall;
-import com.elster.jupiter.issue.servicecall.OpenIssueServiceCall;
+import com.elster.jupiter.issue.servicecall.HistoricalServiceCallIssue;
+import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.impl.entity.HistoricalIssueServiceCallImpl;
 import com.elster.jupiter.issue.servicecall.impl.entity.IssueServiceCallImpl;
 import com.elster.jupiter.issue.servicecall.impl.entity.OpenIssueServiceCallImpl;
@@ -25,7 +25,7 @@ public enum TableSpecs {
     ISC_ISSUE_OPEN() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<OpenIssueServiceCall> table = dataModel.addTable(name(), OpenIssueServiceCall.class);
+            Table<OpenServiceCallIssue> table = dataModel.addTable(name(), OpenServiceCallIssue.class);
             table.map(OpenIssueServiceCallImpl.class);
             table.setJournalTableName(name() + "JRNL");
 
@@ -62,7 +62,7 @@ public enum TableSpecs {
     ISC_ISSUE_HISTORY() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<HistoricalIssueServiceCall> table = dataModel.addTable(name(), HistoricalIssueServiceCall.class);
+            Table<HistoricalServiceCallIssue> table = dataModel.addTable(name(), HistoricalServiceCallIssue.class);
             table.map(HistoricalIssueServiceCallImpl.class);
             table.setJournalTableName(name() + "JRNL");
 
@@ -99,7 +99,7 @@ public enum TableSpecs {
     ISC_ISSUE_ALL() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<OpenIssueServiceCall> table = dataModel.addTable(name(), OpenIssueServiceCall.class);
+            Table<OpenServiceCallIssue> table = dataModel.addTable(name(), OpenServiceCallIssue.class);
             table.map(OpenIssueServiceCallImpl.class);
             table.doNotAutoInstall();//because it is mapped to view
 

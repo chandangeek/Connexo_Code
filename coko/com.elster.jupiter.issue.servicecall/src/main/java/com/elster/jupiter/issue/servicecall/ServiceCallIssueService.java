@@ -22,11 +22,11 @@ public interface ServiceCallIssueService {
 
     Optional<? extends ServiceCallIssue> findIssue(long id);
 
-    OpenIssueServiceCall createIssue(OpenIssue baseIssue, IssueEvent issueEvent);
+    OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent);
 
-    Optional<OpenIssueServiceCall> findOpenIssue(long id);
+    Optional<OpenServiceCallIssue> findOpenIssue(long id);
 
-    Optional<HistoricalIssueServiceCall> findHistoricalIssue(long id);
+    Optional<HistoricalServiceCallIssue> findHistoricalIssue(long id);
 
     void createIssue(ServiceCall isuIssueType, DefaultState newState);
 

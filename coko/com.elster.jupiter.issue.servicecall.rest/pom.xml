@@ -105,6 +105,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue.servicecall</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
 
         <!--Test-->
         <dependency>
@@ -153,21 +157,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.common</artifactId>
-            <version>0.0.1-Heracles-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.engine.config</artifactId>
-            <version>0.0.1-Heracles-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>bpm</artifactId>
-            <scope>compile</scope>
+            <artifactId>appserver</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

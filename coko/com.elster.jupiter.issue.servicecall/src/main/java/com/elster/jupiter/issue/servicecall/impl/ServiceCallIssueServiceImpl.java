@@ -6,9 +6,9 @@ package com.elster.jupiter.issue.servicecall.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.servicecall.HistoricalIssueServiceCall;
+import com.elster.jupiter.issue.servicecall.HistoricalServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.MessageSeeds;
-import com.elster.jupiter.issue.servicecall.OpenIssueServiceCall;
+import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.impl.entity.OpenIssueServiceCallImpl;
 import com.elster.jupiter.issue.servicecall.impl.event.ServiceCallStateChangedEvent;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
@@ -126,7 +126,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
 
     @Override
     public Optional<? extends ServiceCallIssue> findIssue(long id) {
-        Optional<OpenIssueServiceCall> issue = findOpenIssue(id);
+        Optional<OpenServiceCallIssue> issue = findOpenIssue(id);
         if (issue.isPresent()) {
             return issue;
         }
@@ -134,13 +134,13 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Override
-    public Optional<OpenIssueServiceCall> findOpenIssue(long id) {
-        return find(OpenIssueServiceCall.class, id, OpenIssue.class);
+    public Optional<OpenServiceCallIssue> findOpenIssue(long id) {
+        return find(OpenServiceCallIssue.class, id, OpenIssue.class);
     }
 
     @Override
-    public Optional<HistoricalIssueServiceCall> findHistoricalIssue(long id) {
-        return find(HistoricalIssueServiceCall.class, id, HistoricalIssue.class);
+    public Optional<HistoricalServiceCallIssue> findHistoricalIssue(long id) {
+        return find(HistoricalServiceCallIssue.class, id, HistoricalIssue.class);
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object key, Class<?>... eagers) {
@@ -148,7 +148,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Override
-    public OpenIssueServiceCall createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+    public OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
         OpenIssueServiceCallImpl issue = dataModel.getInstance(OpenIssueServiceCallImpl.class);
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);
@@ -216,12 +216,12 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
 
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
-        return issue instanceof OpenIssueServiceCall ? Optional.of(issue) : findOpenIssue(issue.getId());
+        return issue instanceof OpenServiceCallIssue ? Optional.of(issue) : findOpenIssue(issue.getId());
     }
 
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
-        return issue instanceof HistoricalIssueServiceCall ? Optional.of(issue) : findHistoricalIssue(issue.getId());
+        return issue instanceof HistoricalServiceCallIssue ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
 
     public Thesaurus thesaurus() {

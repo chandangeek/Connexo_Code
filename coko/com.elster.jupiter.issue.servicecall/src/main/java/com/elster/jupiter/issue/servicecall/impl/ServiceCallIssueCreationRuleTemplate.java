@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.issue.servicecall.impl;
 
-import com.elster.jupiter.issue.servicecall.OpenIssueServiceCall;
+import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -156,7 +156,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     @Override
-    public OpenIssueServiceCall createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+    public OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
         return issueServiceCallService.createIssue(baseIssue, issueEvent);
     }
 

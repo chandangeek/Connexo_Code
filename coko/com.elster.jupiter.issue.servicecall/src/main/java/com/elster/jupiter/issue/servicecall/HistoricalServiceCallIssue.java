@@ -9,6 +9,6 @@ import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface HistoricalIssueServiceCall extends HistoricalIssue, ServiceCallIssue {
+public interface HistoricalServiceCallIssue extends HistoricalIssue, ServiceCallIssue {
 
 }
