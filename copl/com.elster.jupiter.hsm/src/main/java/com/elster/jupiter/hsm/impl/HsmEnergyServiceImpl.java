@@ -60,6 +60,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.net.ssl.X509KeyManager;
+import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -617,6 +618,31 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         }
     }
 
+    @Override
+    public byte[] wrapServiceKey(byte[] preparedData, byte[] signature, String verifyKey) throws HsmBaseException {
+        ServiceKeyInjectionResponse serviceKeyInjectionResponse;
+
+        try {
+            serviceKeyInjectionResponse = Energy.serviceKeyInjection(preparedData, signature, new KeyLabel(verifyKey));
+        } catch (FunctionFailedException e) {
+            throw new HsmBaseException("HSM Function serviceKeyInjection failed: " + e.getMessage());
+        }
+
+        if (serviceKeyInjectionResponse == null) {
+            throw new HsmBaseException("Incorrect signature, cannot write the service key");
+        }
+
+        String warning = serviceKeyInjectionResponse.getWarning();
+        if (warning != null) {
+            throw new HsmBaseException("Warning from the Cryptoserver because of time difference between prepare and inject: " + warning);
+        }
+
+        byte[] serviceKey = serviceKeyInjectionResponse.getServiceKey();
+        if (serviceKey == null) {
+            throw new HsmBaseException("Incorrect signature, cannot write the service key");
+        }
+        return serviceKey;
+    }
 
 
     private SecuritySuite getAtosSecuritySuite(int securitySuite) throws HsmBaseException {

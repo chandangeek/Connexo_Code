@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.1.0-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>fsm</artifactId>
     <packaging>bundle</packaging>
@@ -82,6 +82,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -92,11 +96,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>messaging</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

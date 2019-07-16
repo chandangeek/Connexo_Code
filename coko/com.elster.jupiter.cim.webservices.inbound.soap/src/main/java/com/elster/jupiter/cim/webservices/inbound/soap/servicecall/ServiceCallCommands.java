@@ -41,7 +41,6 @@ import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigR
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;

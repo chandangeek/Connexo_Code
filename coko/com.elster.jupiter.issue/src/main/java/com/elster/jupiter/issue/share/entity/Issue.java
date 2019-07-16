@@ -49,7 +49,7 @@ public interface Issue extends Entity {
 
     void setOverdue(boolean overdue);
 
-    CreationRule getRule();
+    Optional<CreationRule> getRule();
 
     void setRule(CreationRule rule);
 
@@ -81,4 +81,11 @@ public interface Issue extends Entity {
 
     void clearSnooze();
 
+    default IssueType getType() {
+        return getReason().getIssueType();
+    }
+
+    default void setType(IssueType type) {
+        // none
+    }
 }

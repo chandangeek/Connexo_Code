@@ -100,6 +100,12 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     protected NumberLookupExtractor getNumberLookupExtractor () {return numberLookupExtractor;}
     protected LoadProfileExtractor getLoadProfileExtractor () {return loadProfileExtractor;}
 
+
+    @Override
+    public void journal(String message) {
+        super.journal("[WebRTUKP] " + message);
+    }
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.comChannel = comChannel;
@@ -237,6 +243,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         return result;
     }
 
+    // NTA-related protocols don't support CA version, this is for tesitng purposes only
     // TODO: 19.03.2018 for testing purposes
     @Override
     public boolean supportsCaConfigImageVersion() {
@@ -244,41 +251,29 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     }
 
     @Override
-    public CollectedFirmwareVersion getFirmwareVersions() {
-        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
 
-        ObisCode coreActiveFirmwareVersionObisCode = ObisCode.fromString("1.0.0.2.8.255");
-        try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreActiveFirmwareVersionObisCode).getValueAttr();
-            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
-            result.setActiveMeterFirmwareVersion(fwVersion);
-        } catch (IOException e) {
-            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(coreActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
-                result.setFailureInformation(ResultType.InCompatible, problem);
-            }   //Else a communication exception is thrown
+        if (serialNumber!=null){
+            if (!serialNumber.equals(getSerialNumber())){
+                return collectSlaveFirmwareVersions(serialNumber);
+            }
         }
 
+        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+
+        collectFirmwareVersionMeterCore(result);
+
+        collectFirmwareVersionCommunicationModule(result);
+
+        // NTA-related protocols don't support CA version, this is for tesitng purposes only
         // TODO: 19.03.2018 for testing purposes
         try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreActiveFirmwareVersionObisCode).getValueAttr();
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(FIRMWARE_VERSION_METER_CORE).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveCaConfigImageVersion(fwVersion);
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(coreActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
-                result.setFailureInformation(ResultType.InCompatible, problem);
-            }   //Else a communication exception is thrown
-        }
-
-        ObisCode moduleActiveFirmwareVersionObisCode = ObisCode.fromString("1.1.0.2.8.255");
-        try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(moduleActiveFirmwareVersionObisCode).getValueAttr();
-            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
-            result.setActiveCommunicationFirmwareVersion(fwVersion);
-        } catch (IOException e) {
-            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
-                Issue problem = this.getIssueFactory().createProblem(moduleActiveFirmwareVersionObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                Issue problem = this.getIssueFactory().createProblem(FIRMWARE_VERSION_METER_CORE, "issue.protocol.readingOfFirmwareFailed", e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }   //Else a communication exception is thrown
         }
@@ -338,31 +333,5 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         return null;
     }
 
-    /**
-     * Return a B-Field corrected ObisCode.
-     *
-     * @param obisCode     the ObisCode to correct
-     * @param serialNumber the serialNumber of the device for which this ObisCode must be corrected
-     * @return the corrected ObisCode
-     */
-    @Override
-    public ObisCode getPhysicalAddressCorrectedObisCode(final ObisCode obisCode, final String serialNumber) {
-        int address;
-
-        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
-            address = 0;
-        } else {
-            address = getPhysicalAddressFromSerialNumber(serialNumber);
-        }
-
-        if ((address == 0 && obisCode.getB() != -1 && obisCode.getB() != 128)) { // then don't correct the obisCode
-            return obisCode;
-        }
-
-        if (address != -1) {
-            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
-        }
-        return null;
-    }
 
 }

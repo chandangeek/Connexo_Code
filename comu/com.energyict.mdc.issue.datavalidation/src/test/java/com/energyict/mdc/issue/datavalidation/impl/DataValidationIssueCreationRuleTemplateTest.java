@@ -241,7 +241,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
         assertThat(issues.get(0).getDevice().getId()).isEqualTo(meter.getId());
-        assertThat(issues.get(0).getRule().getId()).isEqualTo(rule.getId());
+        assertThat(issues.get(0).getRule().get().getId()).isEqualTo(rule.getId());
     }
 
     @Test

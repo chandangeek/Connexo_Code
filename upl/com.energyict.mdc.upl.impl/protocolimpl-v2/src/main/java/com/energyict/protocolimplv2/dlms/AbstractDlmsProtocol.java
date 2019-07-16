@@ -9,6 +9,8 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.protocol.api.ProtocolJournal;
+import com.energyict.mdc.protocol.api.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -22,7 +24,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ProtocolLoggingSupport;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.exceptions.DataEncryptionException;
@@ -51,7 +52,7 @@ import java.util.logging.Logger;
  * Time: 13:30
  * Author: khe
  */
-public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumberSupport, ProtocolLoggingSupport {
+public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumberSupport {
 
     protected DlmsProperties dlmsProperties;
     protected AbstractMeterTopology meterTopology;
@@ -72,6 +73,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
      */
     private boolean hasBreaker = true;
     private Logger logger;
+    private ProtocolJournal protocolJournal;
 
     public AbstractDlmsProtocol(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         this.propertySpecService = propertySpecService;
@@ -83,7 +85,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         return propertySpecService;
     }
 
-    protected CollectedDataFactory getCollectedDataFactory() {
+    public CollectedDataFactory getCollectedDataFactory() {
         return collectedDataFactory;
     }
 
@@ -235,7 +237,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
                 }
                 return;
             } catch (ProtocolRuntimeException e) {
-                getLogger().log(Level.WARNING, e.getMessage(), e);
+                journal(Level.WARNING, e.getMessage(), e);
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;    // Throw real errors, e.g. unsupported security mechanism, wrong password...
                 } else if (e instanceof ConnectionCommunicationException) {
@@ -250,10 +252,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
 
             // Release and retry the AARQ in case of ACSE exception
             if (++tries > dlmsSession.getProperties().getRetries()) {
-                getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
+                journal(Level.SEVERE, "Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
                 throw CommunicationException.protocolConnectFailed(exception);
             } else {
-                getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                journal("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
                 } catch (ProtocolRuntimeException e) {
@@ -274,18 +276,18 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
             if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null) { // the dlmsCache exists
                 getDlmsSession().getMeterConfig().setInstantiatedObjectList(this.dlmsCache.getObjectList());
 
-                getLogger().info("Checking the configuration parameters.");
+                journal("Checking the configuration parameters.");
                 configNumber = getMeterInfo().getConfigurationChanges();
 
                 if (this.dlmsCache.getConfProgChange() != configNumber) {
-                    getLogger().info("Meter configuration has changed, configuration is forced to be read.");
+                    journal("Meter configuration has changed, configuration is forced to be read.");
                     readObjectList();
                     changed = true;
                 }
 
             } else { // cache does not exist
                 this.dlmsCache = new DLMSCache();
-                getLogger().info("Cache does not exist, configuration is forced to be read.");
+                journal("Cache does not exist, configuration is forced to be read.");
                 readObjectList();
                 configNumber = getMeterInfo().getConfigurationChanges();
                 changed = true;
@@ -417,6 +419,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         return dlmsConfigurationSupport;
     }
 
+     /**
+     * In Connexo logging is not visible on the web-gui
+     *
+     * @deprecated use {@link #journal(String)}  instead.
+     */
+    @Deprecated
     public Logger getLogger() {
         if (logger == null) {
             logger = Logger.getLogger(this.getClass().getName());
@@ -425,13 +433,43 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     }
 
     @Override
-    public void setProtocolLogger(Logger protocolLogger) {
-        if (protocolLogger != null) {
-            this.logger = protocolLogger;
-            getLogger().finest("Protocol logger initialized");
+    public void setProtocolJournaling(ProtocolJournal protocolJournal){
+        this.protocolJournal = protocolJournal;
+    }
+
+    @Override
+    public void journal(String message){
+        if (protocolJournal!=null){
+            try {
+                protocolJournal.addToJournal(message);
+            } catch(Exception x){
+                //swallow
+            }
+        }
+        try {
+            Logger.getLogger(this.getClass().getName()).fine(message);
+        } catch (Exception x){
+            //swallow
         }
     }
 
+    /**
+     * Internal wrapper for non-info log messages
+     * @param level
+     * @param message
+     */
+    public void journal(Level level, String message) {
+        journal("["+level.getLocalizedName()+"]: "+message);
+    }
+
+
+    public void journal(Level level, String message, Throwable e) {
+        try {
+            journal(level, message + "\n" + e.getStackTrace().toString());
+        } catch (Throwable ex){
+            journal(level, message);
+        }
+    }
     public OfflineDevice getOfflineDevice() {
         return offlineDevice;
     }
@@ -448,8 +486,17 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         CollectedCalendar result = this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
         try {
             ActivityCalendar activityCalendar = getDlmsSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
-            result.setActiveCalendar(activityCalendar.readCalendarNameActive().stringValue());
-            result.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
+
+            journal("Reading active calendar name from "+DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+            String nameActive = activityCalendar.readCalendarNameActive().stringValue();
+            journal("Active calendar name is "+nameActive);
+            result.setActiveCalendar(nameActive);
+
+            journal("Reading passive calendar name from "+DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+            String namePassive = activityCalendar.readCalendarNamePassive().stringValue();
+            journal("Passive calendar name is "+namePassive);
+            result.setPassiveCalendar(namePassive);
+
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
                 Issue problem = this.issueFactory.createProblem(
@@ -457,6 +504,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
                         "issue.protocol.readingOfCalendarFailed",
                         e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
+                journal(Level.WARNING, "Error while reading calendar information: "+e.getLocalizedMessage());
             } //Else, a communication timeout is thrown
         }
         return result;

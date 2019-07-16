@@ -37,10 +37,12 @@ public class CryptoESMR50ConfigurationSupport extends ESMR50ConfigurationSupport
         return UPLPropertySpecFactory.specBuilder(CRYPTOSERVER_HLS_SECRET, false, PropertyTranslationKeys.V2_NTA_CRYPTO_SERVER_HLSSECRET, getPropertySpecService()::stringSpec).finish();
     }
 
+    @Deprecated
     private PropertySpec cryptoServerInitializeProperty(){
         return UPLPropertySpecFactory.specBuilder(PROPERTY_INITIALIZE_CRYPTO_SERVER, false, PropertyTranslationKeys.V2_NTA_CRYPTO_SERVER_INIT, getPropertySpecService()::stringSpec).finish();
     }
 
+    @Deprecated
     private PropertySpec cryptoServerConfigFileProperty(){
         return UPLPropertySpecFactory.specBuilder(PROPERTY_CRYPTO_SERVER_CONFIG_FILE, false, PropertyTranslationKeys.V2_NTA_CRYPTO_SERVER_CONFIG_FILE, getPropertySpecService()::stringSpec).finish();
     }

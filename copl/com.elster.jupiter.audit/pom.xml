@@ -9,21 +9,15 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.1.0-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>audit</artifactId>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.audit</name>
 
-    <!-- This is needed for new module definition, however after first release this needs removed. This is needed by bundle plugin which cannot resolve with fixed version and fails
-        yet with this settings it is able to assume that this is first release -->
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
-
     <dependencies>
         <dependency>
+
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>

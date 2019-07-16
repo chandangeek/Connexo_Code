@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.1.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdm.usagepoint.data.rest</artifactId>
@@ -202,7 +202,15 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver.rest</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>audit.rest</artifactId>
+        </dependency>
+
         <!-- test dependencies -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>

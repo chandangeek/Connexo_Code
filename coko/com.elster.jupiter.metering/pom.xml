@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.1.0-Heracles-SNAPSHOT</version>
 
     </parent>
     <artifactId>metering</artifactId>
@@ -129,6 +129,11 @@
             <artifactId>audit</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -188,5 +193,6 @@
             <artifactId>soap.whiteboard.cxf</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 </project>

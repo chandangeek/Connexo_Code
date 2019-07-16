@@ -422,6 +422,99 @@ public class BpmResource {
         }
         return jsnobject != null ? new ProcessInstanceNodeInfos(jsnobject, thesaurus) : new ProcessInstanceNodeInfos();
     }
+    
+    @GET
+    @Path("/process/instance/{processInstanceId}/parent")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK,
+            Privileges.Constants.EXECUTE_TASK })
+    public ProcessInstance getProcessInfo(@Context UriInfo uriInfo, @HeaderParam("Authorization") String auth,
+            @PathParam("processInstanceId") long processInstanceId) {
+        String jsonContent;
+        try {
+            final String getUrl = "/rest/history/instance/" + processInstanceId;
+            jsonContent = bpmService.getBpmServer().doGet(getUrl, auth);
+            if (jsonContent != null && !"".equals(jsonContent)) {
+                JSONObject jsonObject = new JSONObject(jsonContent);
+                long parentProcessInstanceId = jsonObject.getLong("parentProcessInstanceId");
+                if (parentProcessInstanceId > 0) {
+                    final String getParentUrl = "/rest/history/instance/" + parentProcessInstanceId;
+                    final String parentProcessJson = bpmService.getBpmServer().doGet(getParentUrl, auth);
+                    JSONObject parentJsonObject = new JSONObject(parentProcessJson);
+                    if (parentJsonObject != null) {
+                        return new ProcessInstance(parentJsonObject);
+                    }
+                }
+            }
+            return null;
+        } catch (JSONException e) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
+        } catch (RuntimeException e) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorNotFoundMessage).build());
+        }
+    }
+
+    @GET
+    @Path("/process/instance/{processInstanceId}/children")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_BPM)
+    public ChildProcessInstanceLogList getChildProcesses(@Context UriInfo uriInfo,
+            @HeaderParam("Authorization") String auth, @PathParam("processInstanceId") long processInstanceId) {
+        JSONObject jsnobject = null;
+        String jsonContent;
+        try {
+            jsonContent = bpmService.getBpmServer().doGet("/rest/history/instance/" + processInstanceId + "/child",
+                    auth);
+            if (jsonContent != null && !"".equals(jsonContent)) {
+                jsnobject = new JSONObject(jsonContent);
+            }
+        } catch (JSONException e) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
+        } catch (RuntimeException e) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorNotFoundMessage).build());
+        }
+        return jsnobject != null ? new ChildProcessInstanceLogList(jsnobject) : new ChildProcessInstanceLogList();
+    }
+
+    @GET
+    @Path("/process/instance/{processInstanceId}/nodeswithsubprocessinfo")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_BPM)
+    public ProcessInstanceNodeInfoWithSubprocessList getNodesMatchedToSubProcesses(@Context UriInfo uriInfo,
+            @HeaderParam("Authorization") String auth, @PathParam("processInstanceId") long processInstanceId) {
+        ProcessInstanceNodeInfos nodeInfoList = null;
+        ChildProcessInstanceLogList childInstanceList = null;
+        JSONObject jsnobject = null;
+        String jsonContent;
+        try {
+            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/" + processInstanceId + "/node",
+                    auth);
+            if (jsonContent != null && !"".equals(jsonContent)) {
+                jsnobject = new JSONObject(jsonContent);
+                nodeInfoList = new ProcessInstanceNodeInfos(jsnobject, thesaurus);
+                jsonContent = bpmService.getBpmServer().doGet("/rest/history/instance/" + processInstanceId + "/child",
+                        auth);
+                if (jsonContent != null && !"".equals(jsonContent)) {
+                    jsnobject = new JSONObject(jsonContent);
+                    childInstanceList = new ChildProcessInstanceLogList(jsnobject);
+                    Collections.sort(childInstanceList.childProcessInstanceLogList,
+                            (x, y) -> Long.compare(y.childProcessInstanceId, x.childProcessInstanceId));
+                    return new ProcessInstanceNodeInfoWithSubprocessList(nodeInfoList, childInstanceList);
+                }
+            }
+        } catch (JSONException e) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
+        } catch (RuntimeException e) {
+            throw new WebApplicationException(
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorNotFoundMessage).build());
+        }
+        return new ProcessInstanceNodeInfoWithSubprocessList();
+    }
 
     @GET
     @Path("/processes")
@@ -1524,5 +1617,4 @@ public class BpmResource {
         List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions(appKey);
         return (filterProperties.get("type") != null) ? filterProcesses(activeProcesses, filterProperties.get("type").get(0), auth) : filterProcesses(activeProcesses, null, auth);
     }
-
 }

@@ -9,13 +9,8 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.1.0-Heracles-SNAPSHOT</version>
     </parent>
-
-    <properties>
-        <!-- TODO: remove after release 10.6 -->
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <artifactId>mdc.tou.campaign.rest</artifactId>
     <packaging>bundle</packaging>
@@ -182,6 +177,11 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -15,7 +15,6 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.Upgrader;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.Installer;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;

@@ -34,7 +34,35 @@ public class IssueTypeResource extends BaseResource {
         return entity(issueTypes, IssueTypeInfo.class).build();
     }
 
+    @GET
+    @Path("/notmanual")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
+    public Response getNotManualIssueTypes(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
+        List<IssueType> issueTypes = getSupportedIssueTypesWithoutManual(appKey);
+        return entity(issueTypes, IssueTypeInfo.class).build();
+    }
+
     private List<IssueType> getSupportedIssueTypes(String appKey) {
+        List<IssueType> issueTypes = new ArrayList<>();
+        if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
+            issueTypes = getIssueService().query(IssueType.class)
+                    .select(where(KEY).isEqualTo(IssueTypes.USAGEPOINT_DATA_VALIDATION
+                            .getName()));
+        } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
+            issueTypes = getIssueService().query(IssueType.class)
+                    .select(where(KEY).in(new ArrayList<String>() {{
+                        add(IssueTypes.DATA_COLLECTION.getName());
+                        add(IssueTypes.DATA_VALIDATION.getName());
+                        add(IssueTypes.DEVICE_LIFECYCLE.getName());
+                        add(IssueTypes.TASK.getName());
+                        add(IssueTypes.MANUAL.getName());
+                    }}));
+        }
+        return issueTypes;
+    }
+
+    private List<IssueType> getSupportedIssueTypesWithoutManual(String appKey) {
         List<IssueType> issueTypes = new ArrayList<>();
         if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
             issueTypes = getIssueService().query(IssueType.class)
@@ -51,5 +79,4 @@ public class IssueTypeResource extends BaseResource {
         }
         return issueTypes;
     }
-
 }

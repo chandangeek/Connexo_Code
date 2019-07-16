@@ -2,5 +2,4 @@
 -dsannotations: *
 
 Private-Package: com.energyict.mdc.cim.webservices.inbound.soap.*
-
 Export-Package: com.energyict.mdc.cim.webservices.inbound.soap
