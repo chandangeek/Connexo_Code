@@ -308,7 +308,7 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             preview = me.getHistoryPreview(),
             previewForm = preview.down('webservices-webservice-history-form');
-
+            
         previewForm.loadRecord(record);
     },
 
