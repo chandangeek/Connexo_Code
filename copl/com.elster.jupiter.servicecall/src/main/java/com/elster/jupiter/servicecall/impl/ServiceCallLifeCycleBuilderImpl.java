@@ -93,6 +93,12 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         return graph;
     }
 
+    public DiGraph<DefaultState> buildRetryGraph(DefaultState toState) {
+        DiGraph<DefaultState> graph = new DiGraph<>();
+        Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen()).forEach(finalState -> graph.addEdge(finalState, toState));
+        return graph;
+    }
+
     private Map<Pair<DefaultState, DefaultState>, TranslationKey> transitionTranslations() {
         Map<Pair<DefaultState, DefaultState>, TranslationKey> map = new HashMap<>();
         map.put(Pair.of(CREATED, SCHEDULED), TranslationKeys.TRANSITION_FROM_CREATED_TO_SCHEDULED);
