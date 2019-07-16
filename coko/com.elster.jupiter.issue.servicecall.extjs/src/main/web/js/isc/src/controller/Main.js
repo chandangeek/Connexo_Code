@@ -69,9 +69,8 @@ Ext.define('Isc.controller.Main', {
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
                 });
             servicecallIssue = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.servicecall.issues','ISC','Service calls issues'),
+                title: Uni.I18n.translate('general.servicecall.issues','ISC','Service calls'),
                 portal: 'workspace',
-                route: 'servicecall',
                 items:  items
             });
 

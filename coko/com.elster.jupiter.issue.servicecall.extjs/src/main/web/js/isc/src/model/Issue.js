@@ -10,7 +10,6 @@ Ext.define('Isc.model.Issue', {
         url: '/api/isc/issues',
         reader: {
             type: 'json',
-            root: 'data'
         }
     }
 });
