@@ -25,6 +25,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.*;
 import java.util.logging.Level;
@@ -84,9 +85,11 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     private void MailImpl(Issue issue) {
         Transport transport = null;
+        int totalPriority= issue.getPriority().getImpact() + issue.getPriority().getUrgency();
         String receivers = getRecipientFromParameters(properties);
-        String content = "Object Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
-                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + issue.getUserName() + "\n" + "Creation Date : " + issue.getCreateDateTime();
+        Timestamp current = Timestamp.from(issue.getCreateDateTime());
+        String content = "Alarm Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
+                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + issue.getUserName() + "\n" + "Priority : " + totalPriority + "\n" + "Creation Date : " + current;
 
         Properties prop = getMailProperties();
         Session session = Session.getInstance(prop, null);
