@@ -25,8 +25,10 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -87,7 +89,12 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         Transport transport = null;
         int totalPriority= issue.getPriority().getImpact() + issue.getPriority().getUrgency();
         String receivers = getRecipientFromParameters(properties);
-        Timestamp current = Timestamp.from(issue.getCreateDateTime());
+        final DateTimeFormatter formatter  =  DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss");
+        final long unixTime = issue.getCreateDateTime().getEpochSecond();
+        final String current = Instant.ofEpochSecond(unixTime)
+                .atZone(ZoneId.of("GMT-4"))
+                .format(formatter);
+        
         String content = "Alarm Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
                 "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + issue.getUserName() + "\n" + "Priority : " + totalPriority + "\n" + "Creation Date : " + current;
 
