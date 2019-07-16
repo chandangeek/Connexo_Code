@@ -13,7 +13,7 @@
 
     <artifactId>issue.servicecall.extjs</artifactId>
     <packaging>bundle</packaging>
-    <name>com.elster.jupiter.issue.servicecall.extjs</name>
+    <name>[Jupiter] issue.servicecall.extjs</name>
 
     <dependencies>
         <dependency>

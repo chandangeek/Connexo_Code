@@ -17,14 +17,15 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.issue.servicecall.extjs.IscUiInstaller.APP_KEY;
+
 @Component(name = "com.elster.jupiter.issue.extjs", service = TranslationKeyProvider.class,
-        property = {"name=" + IscUiInstaller.COMPONENT_NAME + "-UI", "app=SYS"}, immediate = true)
+        property = {"name=" + IscUiInstaller.COMPONENT_NAME + "-UI", "app=" + APP_KEY}, immediate = true)
 public class IscUiInstaller implements TranslationKeyProvider {
     public static final String APP_KEY = "SYS";
     public static final String COMPONENT_NAME = "ISC";

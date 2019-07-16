@@ -98,8 +98,9 @@ public enum TableSpecs {
                     .add();
             table.column("RETRY_NOW_STATE")
                     .since(Version.version(10, 7))
-                    .varChar(NAME_LENGTH)
-                    .map(ServiceCallTypeImpl.Fields.retryNowState.fieldName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map(ServiceCallTypeImpl.Fields.retryState.fieldName())
                     .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
             table.column("DESTINATION").varChar(30).map("destination").notNull().since(version(10, 7)).installValue("'" + SERVICE_CALLS_DESTINATION_NAME + "'").add();

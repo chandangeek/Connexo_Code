@@ -290,8 +290,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, reservedByApplication, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, dataModel, thesaurus);
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination, DefaultState retryState) {
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, reservedByApplication, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, retryState, dataModel, thesaurus);
     }
 
     @Override

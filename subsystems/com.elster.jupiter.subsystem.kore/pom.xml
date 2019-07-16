@@ -166,10 +166,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>issue.servicecall.extjs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>kore.api.rest</artifactId>
         </dependency>
         <dependency>
@@ -296,7 +292,15 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall.issue</artifactId>
+            <artifactId>issue.servicecall</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.servicecall.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.servicecall.extjs</artifactId>
         </dependency>
     </dependencies>
 
