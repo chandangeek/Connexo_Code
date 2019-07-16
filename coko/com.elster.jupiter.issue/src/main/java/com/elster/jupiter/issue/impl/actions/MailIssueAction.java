@@ -27,6 +27,9 @@ import javax.mail.internet.MimeMessage;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class MailIssueAction extends AbstractIssueAction {
@@ -78,7 +81,6 @@ public class MailIssueAction extends AbstractIssueAction {
     }
 
     public void sendMail(Issue issue) {
-
         Transport transport = null;
         String recipients = getAssigneeFromParameters(properties);
 
@@ -92,13 +94,11 @@ public class MailIssueAction extends AbstractIssueAction {
         InternetAddress[] recipientAddress = new InternetAddress[recipientList.length];
         int counter = 0;
         String mailContent = getContent(issue);
-
         try {
             for (String recipient : recipientList) {
                 recipientAddress[counter] = new InternetAddress(recipient.trim());
                 counter++;
             }
-
             a = new InternetAddress(fromAddress);
             msg.setContent(mailContent, "text/plain");
             msg.setFrom(a);
@@ -113,7 +113,6 @@ public class MailIssueAction extends AbstractIssueAction {
                     Transport.send(msg, msg.getAllRecipients());
             } catch (MessagingException e) {
                 rootException = e;
-                // TODO
                 throw new RuntimeException(e);
             } finally {
                 if (transport != null) {
@@ -123,7 +122,6 @@ public class MailIssueAction extends AbstractIssueAction {
                         if (rootException != null) {
                             rootException.addSuppressed(e);
                         } else {
-                            // TODO
                             throw new RuntimeException(e);
                         }
                     }
@@ -152,12 +150,17 @@ public class MailIssueAction extends AbstractIssueAction {
     }
 
     private String getContent(Issue issue) {
-        Optional<String> user = Optional.ofNullable(Optional.ofNullable(issue.getAssignee().getUser().getName()).orElse("Undefined"));
-        return "ID:" + issue.getIssueId() + "\n" +
-                "Issue reason: " + issue.getReason().getName() + "\n" +
-                "Issue type: " + issue.getReason().getIssueType().getName() + "\n" +
-                "User: " + user.get() + "\n" +
-                "Creation Time: " + issue.getCreateDateTime();
+        int totalPriority = issue.getPriority().getImpact() + issue.getPriority().getUrgency();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss");
+        long unixTime = issue.getCreateDateTime().getEpochSecond();
+        String formattedDtm = Instant.ofEpochSecond(unixTime)
+                .atZone(ZoneId.of("GMT-4"))
+                .format(formatter);
+        Optional<String> user = Optional.ofNullable(
+                Optional.ofNullable(issue.getAssignee().getUser().getName()).orElse("Unassigned"));
+        return "ID:" + issue.getIssueId() + "\n" + "Issue reason: " + issue.getReason().getName() + "\n" +
+                "Issue type: " + issue.getReason().getIssueType().getName() + "\n" + "User: " + user.get() + "\n" +
+                "Priority: " + totalPriority + "\n" + "Creation Time: " + formattedDtm + "\n";
     }
 
     @SuppressWarnings("unchecked")
