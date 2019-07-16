@@ -61,8 +61,9 @@ public class SecurityAccessorTypeInfoFactory {
             info.renewCapability = securityAccessorType.getHsmKeyType().getRenewCapability();
             info.keySize =  securityAccessorType.getHsmKeyType().getKeySize();
             info.isReversible = securityAccessorType.getHsmKeyType().isReversible();
-            info.isReversible = securityAccessorType.getHsmKeyType().isReversible();
         }
+        info.isWrapper = securityAccessorType.isWrapper();
+
         return info;
     }
 
@@ -106,7 +107,7 @@ public class SecurityAccessorTypeInfoFactory {
         SecurityAccessorTypeInfo info = from(securityAccessorTypeOnDeviceType);
         Set<SecurityAccessorUserAction> allUserActions = EnumSet.allOf(SecurityAccessorUserAction.class);
         List<Group> groups = userService.getGroups();
-        Set<SecurityAccessorUserAction> keyAccessorTypeUserActions = securityAccessorTypeOnDeviceType.getSecurityAccessorType().getUserActions();
+        Set<SecurityAccessorUserAction> keyAccessorTypeUserActions = securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().getSecurityAccessor().getUserActions();
         info.editLevels = executionLevelInfoFactory.getEditPrivileges(keyAccessorTypeUserActions, groups);
         info.defaultEditLevels = executionLevelInfoFactory.getEditPrivileges(allUserActions, groups);
         info.viewLevels = executionLevelInfoFactory.getViewPrivileges(keyAccessorTypeUserActions, groups);
@@ -121,4 +122,5 @@ public class SecurityAccessorTypeInfoFactory {
     public SecurityAccessorType.Purpose purposeFromInfo(IdWithNameInfo info) {
         return SecurityAccessorType.Purpose.valueOf(info.id.toString());
     }
+
 }

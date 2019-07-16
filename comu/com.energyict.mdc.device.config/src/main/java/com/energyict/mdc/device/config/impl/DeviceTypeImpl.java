@@ -340,17 +340,17 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public List<SecurityAccessorType> getSecurityAccessorTypes() {
+    public List<DeviceSecurityAccessorType> getDeviceSecurityAccessor() {
         return securityAccessorTypes.stream()
-                .map(SecurityAccessorTypeOnDeviceTypeImpl::getSecurityAccessorType)
+                .map(SecurityAccessorTypeOnDeviceTypeImpl::getDeviceSecurityAccessorType)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public boolean addSecurityAccessorTypes(SecurityAccessorType... securityAccessorTypesToAdd) {
-        Set<SecurityAccessorType> toAdd = Arrays.stream(securityAccessorTypesToAdd).collect(Collectors.toSet());
+    public boolean addDeviceSecurityAccessor(DeviceSecurityAccessorType... securityAccessorTypesToAdd) {
+        Set<DeviceSecurityAccessorType> toAdd = Arrays.stream(securityAccessorTypesToAdd).collect(Collectors.toSet());
         securityAccessorTypes.stream()
-                .map(SecurityAccessorTypeOnDeviceTypeImpl::getSecurityAccessorType)
+                .map(SecurityAccessorTypeOnDeviceTypeImpl::getDeviceSecurityAccessorType)
                 .forEach(toAdd::remove);
         if (toAdd.isEmpty()) {
             return false;
@@ -366,10 +366,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType) {
+    public boolean removeDeviceSecurityAccessor(DeviceSecurityAccessorType securityAccessorType) {
         return securityAccessorTypes.stream()
                 .filter(securityAccessorTypeOnDeviceType ->
-                        securityAccessorTypeOnDeviceType.getSecurityAccessorType().equals(securityAccessorType))
+                        securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().equals(securityAccessorType))
                 .peek(this::validateSecurityAccessorTypeRemoval)
                 .findAny()
                 .map(securityAccessorTypes::remove)
@@ -382,7 +382,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .join(DeviceConfiguration.class)
                 .filter(Where.where("securityPropertySet.deviceConfiguration.deviceType").isEqualTo(this))
                 .filter(Where.where("securityPropertySet.deviceConfiguration.active").isEqualTo(true))
-                .filter(Where.where("keyAccessorType").isEqualTo(securityAccessorTypeOnDeviceType.getSecurityAccessorType()))
+                .filter(Where.where("keyAccessorType").isEqualTo(securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().getSecurityAccessor()))
                 .findAny()
                 .isPresent()) {
             throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
@@ -682,6 +682,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void update() {
         super.save();
         this.deviceProtocolPluggableClassChanged = false;
+    }
+
+    @Override
+    public List<SecurityAccessorType> getSecurityAccessorTypes() {
+        List<DeviceSecurityAccessorType> deviceSecurityAccessorType = getDeviceSecurityAccessor();
+        return deviceSecurityAccessorType.stream().map(DeviceSecurityAccessorType::getSecurityAccessor).collect(Collectors.toList());
     }
 
     private void addSingleLoadProfileType(LoadProfileType loadProfileType) {

@@ -10,7 +10,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SecurityAccessorsForDeviceTypeInfo {
-    public String name;
-    public long version;
-    public List<SecurityAccessorTypeInfo> securityAccessors;
+    public String deviceName;
+    public long deviceVersion;
+    public List<DeviceSecurityAccessorTypeInfo> securityAccessors;
 }

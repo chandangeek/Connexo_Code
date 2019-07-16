@@ -53,7 +53,7 @@ public class SecurityAccessorRemovalFromDeviceTypeEventHandler implements TopicH
         if (deviceDataModelService.dataModel().stream(SecurityAccessor.class)
                 .join(Device.class)
                 .filter(Where.where(AbstractDeviceSecurityAccessorImpl.Fields.DEVICE.fieldName() + ".deviceType").isEqualTo(source.getDeviceType()))
-                .filter(Where.where(AbstractDeviceSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName()).isEqualTo(source.getSecurityAccessorType()))
+                .filter(Where.where(AbstractDeviceSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName()).isEqualTo(source.getDeviceSecurityAccessorType()))
                 .findAny()
                 .isPresent()) {
             throw new LocalizedException(thesaurus, MessageSeeds.VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE) {};

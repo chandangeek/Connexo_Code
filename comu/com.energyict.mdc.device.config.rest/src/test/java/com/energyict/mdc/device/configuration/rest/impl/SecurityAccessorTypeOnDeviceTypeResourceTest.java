@@ -12,6 +12,7 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Group;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 
@@ -197,16 +198,17 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         SecurityAccessorType securityAccessorType2 = mockCertificateAccessorType(2, 1, "Namew", "Epic description2");
         when(securityManagementService.findAndLockSecurityAccessorType(1, 2)).thenReturn(Optional.of(securityAccessorType1));
         when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(securityAccessorType2));
-        when(deviceType.addSecurityAccessorTypes(anyVararg())).thenReturn(true);
+        when(deviceType.addDeviceSecurityAccessor(anyVararg())).thenReturn(true);
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.name = deviceType.getName();
-        info.version = 13;
-        info.securityAccessors = Arrays.asList(info1, info2);
+        info.deviceName = deviceType.getName();
+        info.deviceVersion = 13;
+        DeviceSecurityAccessorTypeInfo deviceSecurityAccessorTypeInfo = new DeviceSecurityAccessorTypeInfo(info1, info2);
+        info.securityAccessors = Arrays.asList(deviceSecurityAccessorTypeInfo);
 
         Response response = target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(deviceType).addSecurityAccessorTypes(securityAccessorType1, securityAccessorType2);
+        verify(deviceType).addDeviceSecurityAccessor(new DeviceSecurityAccessorType(securityAccessorType1, securityAccessorType2));
         verify(deviceType).update();
     }
 
@@ -240,9 +242,9 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         info2.id = 2;
         info2.version = 1;
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.name = deviceType.getName();
-        info.version = 13;
-        info.securityAccessors = Arrays.asList(info1, info2);
+        info.deviceName = deviceType.getName();
+        info.deviceVersion = 13;
+        info.securityAccessors = Arrays.asList(new DeviceSecurityAccessorTypeInfo(info1, info2));
 
         Response response = target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -250,7 +252,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("device type 1 has changed");
         assertThat(model.<Number>get("$.version")).isEqualTo(24);
-        verify(deviceType, never()).addSecurityAccessorTypes(anyVararg());
+        verify(deviceType, never()).addDeviceSecurityAccessor(anyVararg());
         verify(deviceType, never()).update();
     }
 
@@ -273,9 +275,9 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(securityManagementService.findSecurityAccessorTypeById(2)).thenReturn(Optional.empty());
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.name = deviceType.getName();
-        info.version = 13;
-        info.securityAccessors = Arrays.asList(info1, info2);
+        info.deviceName = deviceType.getName();
+        info.deviceVersion = 13;
+        info.securityAccessors = Arrays.asList(new DeviceSecurityAccessorTypeInfo(info1, info2));
 
         Response response = target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -283,7 +285,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("Certificate has changed");
         assertThat(model.<Number>get("$.version")).isNull();
-        verify(deviceType, never()).addSecurityAccessorTypes(anyVararg());
+        verify(deviceType, never()).addDeviceSecurityAccessor(anyVararg());
         verify(deviceType, never()).update();
     }
 
@@ -293,15 +295,16 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceConfigurationService.findAndLockDeviceType(66, 13)).thenReturn(Optional.of(deviceType));
         SecurityAccessorType securityAccessorType = mockKeyAccessorType(1, 1, "Name", "Epic description");
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(securityAccessorType));
-        when(deviceType.removeSecurityAccessorType(securityAccessorType)).thenReturn(true);
+        DeviceSecurityAccessorType deviceSecurityAccessorType = new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType);
+        when(deviceType.removeDeviceSecurityAccessor(deviceSecurityAccessorType)).thenReturn(true);
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.name = deviceType.getName();
-        info.version = 13;
+        info.deviceName = deviceType.getName();
+        info.deviceVersion = 13;
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        verify(deviceType).removeSecurityAccessorType(securityAccessorType);
+        verify(deviceType).removeDeviceSecurityAccessor(deviceSecurityAccessorType);
         verify(deviceType).update();
     }
 
@@ -312,12 +315,12 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.emptyList());
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.name = deviceType.getName();
-        info.version = 13;
+        info.deviceName = deviceType.getName();
+        info.deviceVersion = 13;
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceType, never()).removeSecurityAccessorType(any(SecurityAccessorType.class));
+        verify(deviceType, never()).removeDeviceSecurityAccessor(any(DeviceSecurityAccessorType.class));
         verify(deviceType, never()).update();
     }
 
@@ -328,8 +331,8 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.name = deviceType.getName();
-        info.version = 13;
+        info.deviceName = deviceType.getName();
+        info.deviceVersion = 13;
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -337,7 +340,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("device type 1 has changed");
         assertThat(model.<Number>get("$.version")).isEqualTo(24);
-        verify(deviceType, never()).removeSecurityAccessorType(any(SecurityAccessorType.class));
+        verify(deviceType, never()).removeDeviceSecurityAccessor(any(DeviceSecurityAccessorType.class));
         verify(deviceType, never()).update();
     }
 

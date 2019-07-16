@@ -19,6 +19,7 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SecurityAccessorTypeInfo {
+
     public long id;
     public long version;
     public String name;
@@ -42,5 +43,7 @@ public class SecurityAccessorTypeInfo {
     public boolean isReversible;
     public IdWithNameInfo keyRenewalCommandSpecification;
     public List<PropertyInfo> properties;
+    public boolean isWrapper;
+
 
 }

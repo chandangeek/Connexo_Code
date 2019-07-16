@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.AliasParameterFilter;
 import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -72,9 +73,11 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_6SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_8SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
@@ -108,6 +111,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -326,16 +330,19 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         dataModel = ormService.newDataModel(COMPONENTNAME, "Private Key Infrastructure");
         Stream.of(TableSpecs.values()).forEach(tableSpecs -> tableSpecs.addTo(dataModel, dataVaultService));
         dataModel.register(this.getModule());
+        Map<Version, Class<? extends Upgrader>> upgraders = new HashMap<>();
+        upgraders.put(version(10, 4), UpgraderV10_4.class);
+        upgraders.put(version(10, 4, 1), UpgraderV10_4_1.class);
+        upgraders.put(version(10, 4, 2), V10_4_2SimpleUpgrader.class);
+        upgraders.put(version(10, 4, 3), V10_4_3SimpleUpgrader.class);
+        upgraders.put(version(10, 4, 4), V10_4_6SimpleUpgrader.class);
+        upgraders.put(version(10, 4, 8), V10_4_8SimpleUpgrader.class);
+
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        version(10, 4), UpgraderV10_4.class,
-                        version(10, 4, 1), UpgraderV10_4_1.class,
-                        version(10, 4, 2), V10_4_2SimpleUpgrader.class,
-                        version(10, 4, 3), V10_4_3SimpleUpgrader.class,
-                        version(10,4,4), V10_4_6SimpleUpgrader.class));
+                upgraders);
     }
 
     private AbstractModule getModule() {

@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeKeyRenewal;
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
@@ -32,7 +33,9 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     enum Fields {
         DEVICETYPE("deviceType"),
         SECACCTYPE("securityAccessorType"),
-        KEYRENEWALMESSAGEID("keyRenewalMessageIdIdDbValue");
+        WRAPPINGSECACCTYPE("securityAccessorType"),
+        KEYRENEWALMESSAGEID("keyRenewalMessageIdIdDbValue"),
+        DEFAULTKEY("defaultKey");
 
         private final String javaFieldName;
 
@@ -47,6 +50,8 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = Reference.empty();
+
+    private Reference<SecurityAccessorType> wrappingSecurityAccessor = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<SecurityAccessorType> securityAccessorType = Reference.empty();
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -68,9 +73,10 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final Thesaurus thesaurus;
 
-    SecurityAccessorTypeOnDeviceTypeImpl init(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
+    SecurityAccessorTypeOnDeviceTypeImpl init(DeviceType deviceType, DeviceSecurityAccessorType securityAccessorType) {
         this.deviceType.set(deviceType);
-        this.securityAccessorType.set(securityAccessorType);
+        setWrappingAccessor(securityAccessorType);
+        this.securityAccessorType.set(securityAccessorType.getSecurityAccessor());
         return this;
     }
 
@@ -84,6 +90,11 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @Override
     public DeviceType getDeviceType() {
         return deviceType.orNull();
+    }
+
+    @Override
+    public DeviceSecurityAccessorType getDeviceSecurityAccessorType() {
+        return new DeviceSecurityAccessorType(wrappingSecurityAccessor.orNull(), securityAccessorType.orNull());
     }
 
     @Override
@@ -118,6 +129,12 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
 
+    private void setWrappingAccessor(DeviceSecurityAccessorType securityAccessorType) {
+        if (securityAccessorType != null && securityAccessorType.getWrappingSecurityAccessor() != null && securityAccessorType.getWrappingSecurityAccessor().isPresent()) {
+            this.wrappingSecurityAccessor.set(securityAccessorType.getWrappingSecurityAccessor().get());
+        }
+    }
+
     @Override
     public KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId) {
         keyRenewalMessageIdIdDbValue = deviceMessageId.dbValue();
@@ -130,12 +147,12 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
         return this == obj
                 || obj instanceof SecurityAccessorTypeOnDeviceTypeImpl
                 && getDeviceType().equals(((SecurityAccessorTypeOnDeviceTypeImpl) obj).getDeviceType())
-                && getSecurityAccessorType().equals(((SecurityAccessorTypeOnDeviceTypeImpl) obj).getSecurityAccessorType());
+                && getDeviceSecurityAccessorType().equals(((SecurityAccessorTypeOnDeviceTypeImpl) obj).getDeviceSecurityAccessorType());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getDeviceType(), getSecurityAccessorType());
+        return Objects.hash(getDeviceType(), getDeviceSecurityAccessorType());
     }
 
     protected Thesaurus getThesaurus() {

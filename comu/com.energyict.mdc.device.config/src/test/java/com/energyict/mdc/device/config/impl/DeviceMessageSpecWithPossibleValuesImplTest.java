@@ -14,6 +14,7 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.energyict.mdc.common.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
@@ -158,13 +159,19 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
 
     @Test
     public void oneKeyAccessorTypeSpecWithPossibleValues() {
+        DeviceSecurityAccessorType deviceSecurityAccessorType1 = mock(DeviceSecurityAccessorType.class);
         SecurityAccessorType securityAccessorType1 = mock(SecurityAccessorType.class);
+        when(deviceSecurityAccessorType1.getSecurityAccessor()).thenReturn(securityAccessorType1);
         when(securityAccessorType1.getName()).thenReturn("A");
         SecurityAccessorType securityAccessorType2 = mock(SecurityAccessorType.class);
+        DeviceSecurityAccessorType deviceSecurityAccessorType2 = mock(DeviceSecurityAccessorType.class);
+        when(deviceSecurityAccessorType2.getSecurityAccessor()).thenReturn(securityAccessorType2);
         when(securityAccessorType2.getName()).thenReturn("C");
         SecurityAccessorType securityAccessorType3 = mock(SecurityAccessorType.class);
+        DeviceSecurityAccessorType deviceSecurityAccessorType3 = mock(DeviceSecurityAccessorType.class);
+        when(deviceSecurityAccessorType3.getSecurityAccessor()).thenReturn(securityAccessorType3);
         when(securityAccessorType3.getName()).thenReturn("B");
-        when(this.deviceType.getSecurityAccessorTypes()).thenReturn(Arrays.asList(securityAccessorType1, securityAccessorType2, securityAccessorType3));
+        when(this.deviceType.getDeviceSecurityAccessor()).thenReturn(Arrays.asList(deviceSecurityAccessorType1, deviceSecurityAccessorType2, deviceSecurityAccessorType3));
         PropertySpec propertySpec = this.propertySpecService
                 .referenceSpec(SecurityAccessorType.class)
                 .named("AK", "Authentication key")
