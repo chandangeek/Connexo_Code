@@ -79,7 +79,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
@@ -137,11 +140,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bpm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

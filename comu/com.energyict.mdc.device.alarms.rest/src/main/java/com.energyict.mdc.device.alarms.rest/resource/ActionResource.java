@@ -26,8 +26,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,12 +46,12 @@ public class ActionResource extends BaseAlarmResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ALARM,Privileges.Constants.ASSIGN_ALARM,Privileges.Constants.CLOSE_ALARM,Privileges.Constants.COMMENT_ALARM,Privileges.Constants.ACTION_ALARM})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getAllActionTypes(@QueryParam("reason") String reasonParam,
                                            @QueryParam("phase") String phaseParam,
                                            @QueryParam("createdActions") List<Long> createdActionTypeIds,
-                                           @BeanParam JsonQueryParameters params){
+                                           @BeanParam JsonQueryParameters params) {
         Optional<IssueType> issueType = getIssueService().findIssueType("devicealarm");
         Optional<IssueReason> issueReason = getIssueService().findReason(reasonParam);
         Optional<CreationRuleActionPhase> phase = Optional.ofNullable(CreationRuleActionPhase.fromString(phaseParam));
@@ -64,6 +66,7 @@ public class ActionResource extends BaseAlarmResource {
                 .filter(issueActionType -> issueActionType.getIssueType() != null)
                 .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
                 .filter(issueActionType -> isStartProcessApplicable(issueReason, issueActionType))
+                .filter(issueActionType -> additionalRestrictionOnActions(issueActionType, createdActionTypeIds))
                 .map(i-> actionInfoFactory.asInfo(i, issueReason.isPresent() ? issueReason.get().getName() : null))
                 .filter(item -> !(phaseParam.equals("OVERDUE") && item.name.equals("Email")))
                 .sorted(Comparator.comparing(a -> a.name))
@@ -71,16 +74,45 @@ public class ActionResource extends BaseAlarmResource {
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
     }
 
-    private boolean isStartProcessApplicable(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<IssueReason> issueReason, IssueActionType actionType){
-        return actionType.createIssueAction().map(i -> i.isApplicable(issueReason.isPresent() ? issueReason.get().getName() : null))
+    private boolean isStartProcessApplicable(@SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<IssueReason> issueReason, IssueActionType actionType) {
+        return actionType.createIssueAction().map(i -> i.isApplicable(issueReason.map(IssueReason::getName).orElse(null)))
                 .orElse(true);
     }
 
+    private String getCreatedActionTypeClassName(final Long createdActionTypeId) {
+        final Optional<IssueActionType> issueActionType = getIssueActionService().findActionType(createdActionTypeId);
+        return issueActionType.map(IssueActionType::getClassName).orElse(null);
+    }
+
+    private Map<Long, String> getCreatedActionTypeClassNames(final List<Long> createdActionTypeIds) {
+        final Map<Long, String> resultMap = new HashMap<>();
+        createdActionTypeIds.forEach(id -> resultMap.put(id, getCreatedActionTypeClassName(id)));
+        return resultMap;
+    }
+
+    private boolean additionalRestrictionOnActions(final IssueActionType issueActionType, final List<Long> createdActionTypeIds) {
+
+        final Map<Long, String> createdActionTypeClassNames = getCreatedActionTypeClassNames(createdActionTypeIds);
+
+        final String actionTypeClassName = issueActionType.getClassName();
+
+        if (actionTypeClassName.equals("com.energyict.mdc.device.alarms.impl.actions.WebServiceNotificationAlarmAction")) {
+            final boolean anyMatch = createdActionTypeClassNames.containsValue("com.energyict.mdc.device.alarms.impl.actions.StartProcessAlarmAction");
+            return !anyMatch;
+        }
+
+        if (actionTypeClassName.equals("com.energyict.mdc.device.alarms.impl.actions.StartProcessAlarmAction")) {
+            final boolean anyMatch = createdActionTypeClassNames.containsValue("com.energyict.mdc.device.alarms.impl.actions.WebServiceNotificationAlarmAction");
+            return !anyMatch;
+        }
+
+        return true;
+    }
 
     @GET
     @Path("/phases")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_ALARM,Privileges.Constants.ASSIGN_ALARM,Privileges.Constants.CLOSE_ALARM,Privileges.Constants.COMMENT_ALARM,Privileges.Constants.ACTION_ALARM})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ALARM, Privileges.Constants.ASSIGN_ALARM, Privileges.Constants.CLOSE_ALARM, Privileges.Constants.COMMENT_ALARM, Privileges.Constants.ACTION_ALARM})
     public PagedInfoList getAllActionPhases(@BeanParam JsonQueryParameters queryParameters) {
         List<CreationRuleActionPhaseInfo> infos = Arrays.asList(CreationRuleActionPhase.values()).stream().map(phase -> new CreationRuleActionPhaseInfo(phase, getThesaurus())).collect(Collectors
                 .toList());

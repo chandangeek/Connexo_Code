@@ -6,13 +6,13 @@ package com.elster.jupiter.issue.impl.database;
 
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.MailIssueAction;
+import com.elster.jupiter.issue.impl.actions.ProcessAction;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
@@ -76,7 +76,9 @@ public class UpgraderV10_7 implements Upgrader {
 
     private void addCloseActionType() {
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), issueService.findIssueType(IssueService.MANUAL_ISSUE_TYPE).get());
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, ProcessAction.class.getName(), (IssueType) null);
     }
+
     private void createActionTypesIfNotPresent() {
         IssueType type = null;
         Condition classNameCondition = buildCondition("className", Optional.of(MailIssueAction.class.getName()));

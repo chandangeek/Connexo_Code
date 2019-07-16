@@ -1,20 +1,14 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bpm.BpmService;
-import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
-import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
-import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
-import com.elster.jupiter.issue.impl.actions.ProcessAction;
-import com.elster.jupiter.issue.impl.actions.MailIssueAction;
-import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
-import com.elster.jupiter.issue.share.IssueAction;
-import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.impl.actions.webelements.factories.AssigneeElementGroupFactory;
+import com.elster.jupiter.issue.impl.actions.webelements.factories.CloseIssueFormFactory;
+import com.elster.jupiter.issue.impl.actions.webelements.factories.EndPointDropdownFactory;
+import com.elster.jupiter.issue.impl.actions.webelements.factories.ProcessComboxFactory;
 import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
-import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
+import com.elster.jupiter.issue.share.PropertyFactory;
+import com.elster.jupiter.issue.share.entity.WebElementFactoryNotFound;
+import com.elster.jupiter.issue.share.entity.PropertyType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -37,14 +31,17 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.MessageInterpolator;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.issue.actions.factory", service = IssueActionFactory.class, immediate = true)
-public class IssueDefaultActionsFactory implements IssueActionFactory {
-    private static final Logger LOG = Logger.getLogger(IssueDefaultActionsFactory.class.getName());
-    public static final String ID = IssueDefaultActionsFactory.class.getName();
+@Component(name = "com.elster.jupiter.issue.webelements.factory", service = PropertyFactoriesProvider.class, immediate = true)
+public class PropertyFactoriesProviderImpl implements PropertyFactoriesProvider {
+
+    private static final Logger LOG = Logger.getLogger(PropertyFactoriesProviderImpl.class.getName());
+    private static final String ID = PropertyFactoriesProviderImpl.class.getName();
+
+    private final Map<PropertyType, Provider<? extends PropertyFactory>> propertyFactoriesProvider = new ConcurrentHashMap<>();
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -54,17 +51,22 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
     private volatile DataModel dataModel;
-    private volatile PropertyFactoriesProvider propertyFactoriesProvider;
     private volatile BpmService bpmService;
 
     private Injector injector;
-    private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
 
-    public IssueDefaultActionsFactory() {
+    /**
+     * OSGi framework needs a default constructor in order to create this component
+     */
+    @SuppressWarnings("unused")
+    public PropertyFactoriesProviderImpl() {
     }
 
+    /**
+     * We need this constructor for testing purposes
+     */
     @Inject
-    public IssueDefaultActionsFactory(NlsService nlsService, UserService userService, IssueService issueService, ThreadPrincipalService threadPrincipalService, OrmService ormService, PropertySpecService propertySpecService, EndPointConfigurationService endPointConfigurationService, PropertyFactoriesProvider propertyFactoriesProvider, BpmService bpmService) {
+    public PropertyFactoriesProviderImpl(final NlsService nlsService, final UserService userService, final IssueService issueService, final ThreadPrincipalService threadPrincipalService, final OrmService ormService, final PropertySpecService propertySpecService, final EndPointConfigurationService endPointConfigurationService, final BpmService bpmService) {
         setThesaurus(nlsService);
         setUserService(userService);
         setIssueService(issueService);
@@ -72,7 +74,6 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
         setOrmService(ormService);
         setPropertySpecService(propertySpecService);
         setEndPointConfigurationService(endPointConfigurationService);
-        setPropertyFactoriesProvider(propertyFactoriesProvider);
         setBpmService(bpmService);
         activate();
     }
@@ -90,26 +91,28 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
-                bind(PropertySpecService.class).toInstance(propertySpecService);
-                bind(PropertyFactoriesProvider.class).toInstance(propertyFactoriesProvider);
                 bind(BpmService.class).toInstance(bpmService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         });
-
-        addDefaultActions();
-    }
-
-    public IssueAction createIssueAction(String issueActionClassName) {
-        Provider<? extends IssueAction> provider = actionProviders.get(issueActionClassName);
-        if (provider == null) {
-            throw new IssueActionClassLoadFailedException(thesaurus, issueActionClassName);
-        }
-        return provider.get();
+        addDefaultWebElementFactories();
     }
 
     @Override
     public String getId() {
         return ID;
+    }
+
+    @Override
+    public PropertyFactory getFactory(PropertyType type) {
+
+        final Provider<? extends PropertyFactory> provider = propertyFactoriesProvider.get(type);
+
+        if (provider == null) {
+            throw new WebElementFactoryNotFound(thesaurus, type.toString());
+        }
+
+        return provider.get();
     }
 
     @Reference
@@ -144,8 +147,8 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
     }
 
     @Reference
-    public void setPropertyFactoriesProvider(final PropertyFactoriesProvider propertyFactoriesProvider) {
-        this.propertyFactoriesProvider = propertyFactoriesProvider;
+    public void setBpmService(final BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference
@@ -153,19 +156,12 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
         this.dataModel = ormService.getDataModel(IssueService.COMPONENT_NAME).orElse(null);
     }
 
-    @Reference
-    public void setBpmService(final BpmService bpmService) {
-        this.bpmService = bpmService;
-    }
-
-    private void addDefaultActions() {
+    private void addDefaultWebElementFactories() {
         try {
-            actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
-            actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
-            actionProviders.put(WebServiceNotificationAction.class.getName(), injector.getProvider(WebServiceNotificationAction.class));
-            actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
-            actionProviders.put(ProcessAction.class.getName(), injector.getProvider(ProcessAction.class));
-            actionProviders.put(MailIssueAction.class.getName(), injector.getProvider(MailIssueAction.class));
+            propertyFactoriesProvider.put(PropertyType.ENDPOINT_COMBOBOX, injector.getProvider(EndPointDropdownFactory.class));
+            propertyFactoriesProvider.put(PropertyType.PROCESS_COMBOBOX, injector.getProvider(ProcessComboxFactory.class));
+            propertyFactoriesProvider.put(PropertyType.ASSIGN_ISSUE_FORM, injector.getProvider(AssigneeElementGroupFactory.class));
+            propertyFactoriesProvider.put(PropertyType.CLOSE_ISSUE_FORM, injector.getProvider(CloseIssueFormFactory.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

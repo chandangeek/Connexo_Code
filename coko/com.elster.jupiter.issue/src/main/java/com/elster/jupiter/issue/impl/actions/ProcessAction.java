@@ -1,13 +1,9 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-package com.energyict.mdc.device.alarms.impl.actions;
+package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
-import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -21,11 +17,10 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
-import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -35,42 +30,35 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-public class StartProcessAlarmAction extends AbstractIssueAction {
+public class ProcessAction extends AbstractIssueAction {
 
-    private static final String NAME = "StartProcessAlarm";
-    private static final String PROCESSES_COMBOBOX = NAME + ".processCombobox";
-    private static final String ASSIGN_ISSUE_FORM = "AssignAlarmForm";
-    private static final String CLOSE_ISSUE_FORM = "CloseAlarmForm";
+    private static final String NAME = "ProcessAction";
+    private static final String PROCESSES_COMBOBOX = NAME + ".processesCombobox";
+    private static final String ASSIGN_ISSUE_FORM = "AssignIssueForm";
+    private static final String CLOSE_ISSUE_FORM = "CloseIssueForm";
 
     private final BpmService bpmService;
     private final PropertyFactoriesProvider propertyFactoriesProvider;
     private final ThreadPrincipalService threadPrincipalService;
     private final IssueService issueService;
 
-    private String reasonKey;
-
     @Inject
-    public StartProcessAlarmAction(final DataModel dataModel,
-                                   final Thesaurus thesaurus,
-                                   final PropertySpecService propertySpecService,
-                                   final IssueService issueService,
-                                   final BpmService bpmService,
-                                   final PropertyFactoriesProvider propertyFactoriesProvider,
-                                   final ThreadPrincipalService threadPrincipalService1) {
+    public ProcessAction(final DataModel dataModel,
+                         final Thesaurus thesaurus,
+                         final PropertySpecService propertySpecService,
+                         final IssueService issueService,
+                         final ThreadPrincipalService threadPrincipalService,
+                         final BpmService bpmService,
+                         final PropertyFactoriesProvider propertyFactoriesProvider) {
         super(dataModel, thesaurus, propertySpecService);
         this.bpmService = bpmService;
         this.propertyFactoriesProvider = propertyFactoriesProvider;
-        this.threadPrincipalService = threadPrincipalService1;
+        this.threadPrincipalService = threadPrincipalService;
         this.issueService = issueService;
     }
 
     @Override
-    public String getDisplayName() {
-        return getThesaurus().getFormat(TranslationKeys.ACTION_START_ALARM_START_PROCESS).format();
-    }
-
-    @Override
-    public IssueActionResult execute(Issue issue) {
+    public IssueActionResult execute(final Issue issue) {
         final IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
 
         final Optional<ProcessValue> processCombobox = getProcessCombobox();
@@ -87,11 +75,11 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
                 final BpmProcessDefinition processDefinition = bpmProcessDefinition.get();
 
                 final Map<String, Object> processInputParameters = new HashMap<>();
-                processInputParameters.put("alarmId", issue.getId());
+                processInputParameters.put("issueId", issue.getId());
 
                 if (bpmService.startProcess(processDefinition, processInputParameters)) {
-                    assignAlarmSubAction(issue);
-                    closeAlarmSubAction(issue);
+                    assignIssueSubAction(issue);
+                    closeIssueSubAction(issue);
                     result.success(getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION_SUCCESS).format());
                 } else {
                     result.fail(getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION_FAIL).format());
@@ -106,13 +94,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         return result;
     }
 
-    @Override
-    public IssueAction setReasonKey(String reasonKey) {
-        this.reasonKey = reasonKey;
-        return this;
-    }
-
-    private void assignAlarmSubAction(final Issue issue) {
+    private void assignIssueSubAction(final Issue issue) {
         final Optional<AssignIssueFormValue> assignIssueForm = getAssignIssueForm();
         assignIssueForm.ifPresent(aif -> {
             final Boolean checkboxValue = aif.getCheckbox().orElse(Boolean.FALSE);
@@ -128,7 +110,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
         });
     }
 
-    private void closeAlarmSubAction(final Issue issue) {
+    private void closeIssueSubAction(final Issue issue) {
         final Optional<CloseIssueFormValue> closeIssueForm = getCloseIssueForm();
         closeIssueForm.ifPresent(cif -> {
             final Boolean checkboxValue = cif.getCheckbox().orElse(Boolean.FALSE);
@@ -174,24 +156,23 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+        final ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
         final PropertySpec processCombobox = propertyFactoriesProvider
                 .getFactory(PropertyType.PROCESS_COMBOBOX)
-                .getElement(PROCESSES_COMBOBOX, TranslationKeys.ACTION_START_ALARM_PROCESS, TranslationKeys.ACTION_START_ALARM_PROCESS);
+                .getElement(PROCESSES_COMBOBOX, TranslationKeys.PROCESS_ACTION, TranslationKeys.PROCESS_ACTION);
 
         final PropertySpec assigneeElementsGroup = propertyFactoriesProvider
                 .getFactory(PropertyType.ASSIGN_ISSUE_FORM)
-                .getElement(ASSIGN_ISSUE_FORM, TranslationKeys.ACTION_ASSIGN_ALARM, TranslationKeys.ACTION_ASSIGN_ALARM);
+                .getElement(ASSIGN_ISSUE_FORM, TranslationKeys.ACTION_ASSIGN_ISSUE, TranslationKeys.ACTION_ASSIGN_ISSUE);
 
         final PropertySpec closeIssueForm = propertyFactoriesProvider
                 .getFactory(PropertyType.CLOSE_ISSUE_FORM)
-                .getElement(CLOSE_ISSUE_FORM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ALARM);
+                .getElement(CLOSE_ISSUE_FORM, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE, TranslationKeys.ACTION_WEBSERVICE_NOTIFICATION_CLOSE_ISSUE);
 
         builder.add(processCombobox);
         builder.add(assigneeElementsGroup);
         builder.add(closeIssueForm);
-
 
         return builder.build();
     }
@@ -199,9 +180,16 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
     @Override
     public String getFormattedProperties(Map<String, Object> props) {
         Object value = props.get(PROCESSES_COMBOBOX);
-        if (value != null) {
-            return ((ProcessValue) value).getName();
+
+        if (value == null) {
+            return "";
         }
-        return "";
+
+        return ((ProcessValue) value).getName();
+    }
+
+    @Override
+    public String getDisplayName() {
+        return getThesaurus().getFormat(TranslationKeys.PROCESS_ACTION).format();
     }
 }
