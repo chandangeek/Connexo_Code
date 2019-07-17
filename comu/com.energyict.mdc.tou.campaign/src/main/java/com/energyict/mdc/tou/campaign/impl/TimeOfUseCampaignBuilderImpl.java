@@ -82,6 +82,10 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
 
     @Override
     public TimeOfUseCampaignBuilder withValidationConnectionStrategy(String validationConnectionStrategy){
+        if(validationConnectionStrategy == null){
+            this.validationConnectionStrategy = null;
+            return this;
+        }
         this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy.toUpperCase().replace(' ', '_'));
         return this;
     }

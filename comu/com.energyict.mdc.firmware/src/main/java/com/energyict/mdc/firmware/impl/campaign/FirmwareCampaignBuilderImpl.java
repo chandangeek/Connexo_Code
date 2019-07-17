@@ -103,13 +103,21 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
 
     @Override
     public FirmwareCampaignBuilderImpl withFirmwareUploadConnectionStrategy(String firmwareUploadConnectionStrategy){
-        this.firmwareUploadConnectionStrategy = ConnectionStrategy.valueOf(firmwareUploadConnectionStrategy);
+        if(firmwareUploadConnectionStrategy == null){
+            this.firmwareUploadConnectionStrategy = null;
+            return this;
+        }
+        this.firmwareUploadConnectionStrategy = ConnectionStrategy.valueOf(firmwareUploadConnectionStrategy.toUpperCase().replace(' ', '_'));
         return this;
     }
 
     @Override
     public FirmwareCampaignBuilderImpl withValidationConnectionStrategy(String validationConnectionStrategy){
-        this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy);
+        if(validationConnectionStrategy == null){
+            this.validationConnectionStrategy = null;
+            return this;
+        }
+        this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy.toUpperCase().replace(' ', '_'));
         return this;
     }
 
