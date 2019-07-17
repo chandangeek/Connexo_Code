@@ -29,6 +29,9 @@ import java.util.stream.Collectors;
 
 public class RetryServiceCallAction extends AbstractIssueAction {
 
+    public static final String FIRMWARE_CAMPAIGN_NAME = "FirmwareCampaignServiceCallHandler";
+    public static final String FIRMWARE_ITEM_NAME = "FirmwareCampaignItemServiceCallHandler";
+
     @Inject
     public RetryServiceCallAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(dataModel, thesaurus, propertySpecService);
@@ -71,7 +74,11 @@ public class RetryServiceCallAction extends AbstractIssueAction {
     public boolean isApplicable(Issue issue) {
         if (issue != null && !issue.getStatus().isHistorical() && issue instanceof ServiceCallIssue){
             ServiceCallIssue scIssue = (ServiceCallIssue) issue;
-            return !scIssue.getStatus().isHistorical() && scIssue.getServiceCall() != null && !scIssue.getServiceCall().getState().isOpen();
+            if (FIRMWARE_CAMPAIGN_NAME.equals(scIssue.getServiceCall().getType().getName()) ||
+                    FIRMWARE_ITEM_NAME.equals(scIssue.getServiceCall().getType().getName())) {
+                return !scIssue.getStatus().isHistorical() && scIssue.getServiceCall() != null && !scIssue.getServiceCall().getState().isOpen();
+            }
+            return false;
         }
         return false;
     }

@@ -93,12 +93,6 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         return graph;
     }
 
-    public DiGraph<DefaultState> buildRetryGraph(DefaultState toState) {
-        DiGraph<DefaultState> graph = new DiGraph<>();
-        Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen()).forEach(finalState -> graph.addEdge(finalState, toState));
-        return graph;
-    }
-
     private Map<Pair<DefaultState, DefaultState>, TranslationKey> transitionTranslations() {
         Map<Pair<DefaultState, DefaultState>, TranslationKey> map = new HashMap<>();
         map.put(Pair.of(CREATED, SCHEDULED), TranslationKeys.TRANSITION_FROM_CREATED_TO_SCHEDULED);
@@ -128,6 +122,12 @@ public class ServiceCallLifeCycleBuilderImpl implements ServiceCallLifeCycleBuil
         map.put(Pair.of(REJECTED, PENDING), TranslationKeys.TRANSITION_FROM_REJECT_TO_PENDING);
         map.put(Pair.of(PENDING, REJECTED), TranslationKeys.TRANSITION_FROM_PENDING_TO_REJECT);
         map.put(Pair.of(PENDING, SUCCESSFUL), TranslationKeys.TRANSITION_FROM_PENDING_TO_SUCCESS);
+
+        map.put(Pair.of(SUCCESSFUL, ONGOING), TranslationKeys.TRANSITION_FROM_SUCCESSFUL_TO_ONGOING);
+        map.put(Pair.of(REJECTED, ONGOING), TranslationKeys.TRANSITION_FROM_REJECT_TO_ONGOING);
+        map.put(Pair.of(FAILED, ONGOING), TranslationKeys.TRANSITION_FROM_FAILED_TO_ONGOING);
+        map.put(Pair.of(PARTIAL_SUCCESS, ONGOING), TranslationKeys.TRANSITION_FROM_PARTIAL_SUCCESS_TO_ONGOING);
+        map.put(Pair.of(CANCELLED, ONGOING), TranslationKeys.TRANSITION_FROM_CANCELLED_TO_ONGOING);
         return map;
     }
 

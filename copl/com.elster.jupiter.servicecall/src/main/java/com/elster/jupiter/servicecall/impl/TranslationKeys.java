@@ -44,6 +44,12 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_FROM_REJECT_TO_FAILED(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.FAILED.getSymbol(), "Failed"),
     TRANSITION_FROM_PENDING_TO_REJECT(DefaultState.PENDING.getKey() + DefaultCustomStateTransitionEventType.REJECTED.getSymbol(), "Reject"),
     TRANSITION_FROM_PENDING_TO_SUCCESS(DefaultState.PENDING.getKey() + DefaultCustomStateTransitionEventType.SUCCESSFUL.getSymbol(), "Successful"),
+
+    TRANSITION_FROM_FAILED_TO_ONGOING(DefaultState.FAILED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
+    TRANSITION_FROM_PARTIAL_SUCCESS_TO_ONGOING(DefaultState.PARTIAL_SUCCESS.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
+    TRANSITION_FROM_SUCCESSFUL_TO_ONGOING(DefaultState.SUCCESSFUL.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
+    TRANSITION_FROM_REJECT_TO_ONGOING(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
+    TRANSITION_FROM_CANCELLED_TO_ONGOING(DefaultState.CANCELLED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
     SERVICE_CALL_DOMAIN_NAME("com.elster.jupiter.servicecall.ServiceCall", "Service call");
 
     private final String key;
