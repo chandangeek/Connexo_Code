@@ -357,8 +357,8 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         addRegisterCustomPropertySetVersioned(register, registerInfo.getId(), DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
     }
 
-    /*TODO: Is LRN needed?
-    private boolean isAnyChannelLrn(long deviceId){
+
+    private boolean isAnyRegisterLrn(long deviceId){
         return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .join(RegisterSpec.class)
@@ -366,9 +366,10 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .findAny()
                 .isPresent();
-    }*/
+    }
 
-    private boolean isAnyRegisterLrn(long deviceId){
+    /*TODO: Is LRN needed?
+    private boolean isAnyChannelLrn(long deviceId){
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
@@ -376,7 +377,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
                 .findAny()
                 .isPresent();
-    }
+    }*/
 
     private Range<Instant> getTimeInterval(Instant startDateTime, Instant endDateTime) {
         Range<Instant> range;
@@ -430,7 +431,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId);
         }
-        customPropertySetService.findActiveCustomPropertySet(cpsId);
+
         CustomPropertySetValues customPropertySetValues = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device);
         customPropertySetValues.setProperty(property, value);
         customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, customPropertySetValues);
@@ -443,7 +444,14 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
             throw new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId);
         }
 
-        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.emptyDuring(range);
+        CustomPropertySetValues customPropertySetValues;
+
+        if (!range.hasLowerBound()) {
+            customPropertySetValues = CustomPropertySetValues.empty();
+        }else{
+            customPropertySetValues = CustomPropertySetValues.emptyDuring(range);
+        }
+
         customPropertySetValues.setProperty(property, value);
 
         CustomPropertySetValues savedCustomPropertySetValues = CustomPropertySetValues.empty();
@@ -454,17 +462,27 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                         register.getRegisterSpec(), register.getDevice().getId());
 
         for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
-            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
+            if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_DELETE)) {
+                throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.REGISTER_HAS_LRN_YET)
+                        .format(register.getObisCode(), range.toString()));
+            } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
                 customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
                         register.getRegisterSpec(), CustomPropertySetValues.empty(), conflict.getConflictingRange(), register.getDevice().getId());
-
             } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
                 customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
                         register.getRegisterSpec(), CustomPropertySetValues.empty(), conflict.getConflictingRange(), register.getDevice().getId());
+            }else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START)) {
+                if(conflict.getValues().getEffectiveRange().hasLowerBound()){
+                        throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.REGISTER_HAS_LRN_YET)
+                                .format(register.getObisCode(), range.toString()));
+                }
             }else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)) {
                 if(conflict.getValues().getEffectiveRange().hasLowerBound()){
-                    throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.REGISTER_HAS_LRN_YET)
-                            .format(register.getObisCode(), range.toString()));
+                    if(conflict.getValues().getEffectiveRange().hasUpperBound() &&
+                            (!conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty())) {
+                        throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.REGISTER_HAS_LRN_YET)
+                                .format(register.getObisCode(), range.toString()));
+                    }
                 }else{
                     Instant endTime;
                     if(conflict.getValues().getEffectiveRange().hasUpperBound())

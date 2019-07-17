@@ -79,7 +79,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         } else {
-            extension.setError(MessageSeeds.SEVERAL_DEVICES, serialId);
+            extension.setError(MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID, serialId);
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         }

@@ -107,5 +107,4 @@ public class UtilitiesDeviceRegisterMessage {
                     .orElse(null);
         }
     }
-
 }

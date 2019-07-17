@@ -8,7 +8,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredBulkNotification;
-import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.ObjectFactory;
@@ -37,7 +36,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Component(name = UtilitiesDeviceRegisteredBulkNotification.SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTERED_BULK_NOTIFICATION_C_OUT,
-        service = {UtilitiesDeviceRegisteredNotification.class, OutboundSoapEndPointProvider.class},
+        service = {UtilitiesDeviceRegisteredBulkNotification.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceRegisteredBulkNotification.SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTERED_BULK_NOTIFICATION_C_OUT})
 public class UtilitiesDeviceRegisteredBulkNotificationProvider implements UtilitiesDeviceRegisteredBulkNotification,
@@ -155,5 +154,4 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider implements Utilit
 
         return device;
     }
-
 }

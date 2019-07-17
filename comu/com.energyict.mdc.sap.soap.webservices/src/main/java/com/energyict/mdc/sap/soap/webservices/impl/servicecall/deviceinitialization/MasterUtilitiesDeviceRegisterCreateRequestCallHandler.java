@@ -95,15 +95,16 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
 
 
         //check device active and send registered notification
-        List<String> deviceIds = createActiveAndAnyLrnListDeviceIds(children);
-        if (!deviceIds.isEmpty()) {
-            if (extension.isBulk()) {
-                WebServiceActivator.UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.forEach(sender -> sender.call(deviceIds));
-            } else {
-                WebServiceActivator.UTILITIES_DEVICE_REGISTERED_NOTIFICATION.forEach(sender -> sender.call(deviceIds.get(0)));
+        try {
+            List<String> deviceIds = createActiveAndAnyLrnListDeviceIds(children);
+            if (!deviceIds.isEmpty()) {
+                if (extension.isBulk()) {
+                    WebServiceActivator.UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.forEach(sender -> sender.call(deviceIds));
+                } else {
+                    WebServiceActivator.UTILITIES_DEVICE_REGISTERED_NOTIFICATION.forEach(sender -> sender.call(deviceIds.get(0)));
+                }
             }
-        }
-
+        }catch(Exception ex){}
     }
 
     private List<String> createActiveAndAnyLrnListDeviceIds(List<ServiceCall> children) {
@@ -113,7 +114,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
             String deviceId = extension.getDeviceId();
             Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
             if (device.isPresent() && device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey()) &&
-                    (child.getState() == DefaultState.SUCCESSFUL || child.getState() == DefaultState.PARTIAL_SUCCESS)) {
+                    (child.getState() == DefaultState.SUCCESSFUL || hasAnyChildState(findChildren(child), DefaultState.SUCCESSFUL))) {
                 deviceIds.add(deviceId);
             }
         });

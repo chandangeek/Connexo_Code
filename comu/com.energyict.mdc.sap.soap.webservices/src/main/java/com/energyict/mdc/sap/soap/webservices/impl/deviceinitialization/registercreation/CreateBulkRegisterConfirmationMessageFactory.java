@@ -99,19 +99,36 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
         confirmationMessage.setMessageHeader(createChildHeader(now));
         confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
+
+        List<ServiceCall> children = findChildren(childServiceCall);
         if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
-            confirmationMessage.setLog(createSuccessfulLog());
-        } else if (childServiceCall.getState() == DefaultState.PARTIAL_SUCCESS) {
-            List<ServiceCall> children = findChildren(childServiceCall);
-            List<String> failedRegister = children.stream()
-                    .map(child -> child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get())
-                    .map(ext -> ext.getRegisterId())
-                    .collect(Collectors.toList());
-            confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegister.toString())));
+            if (hasAllChildState(children, DefaultState.SUCCESSFUL)) {
+                confirmationMessage.setLog(createSuccessfulLog());
+            } else {
+                List<String> failedRegister = findFailedRegister(children);
+                if(!failedRegister.isEmpty()) {
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegister.toString())));
+                }else{
+                    confirmationMessage.setLog(createFailedLog());
+                }
+            }
         } else if (childServiceCall.getState() == DefaultState.FAILED) {
-            confirmationMessage.setLog(createFailedLog());
+            List<String> failedRegister = findFailedRegister(children);
+            if(!failedRegister.isEmpty()) {
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegister.toString())));
+            }else{
+                confirmationMessage.setLog(createFailedLog());
+            }
         }
         return confirmationMessage;
+    }
+
+    private List<String> findFailedRegister(List<ServiceCall> serviceCalls){
+        return serviceCalls.stream()
+                .filter(child->child.getState() == DefaultState.FAILED)
+                .map(child->child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get())
+                .map(ext->ext.getRegisterId())
+                .collect(Collectors.toList());
     }
 
     private UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce createChildBody(String sapDeviceId) {

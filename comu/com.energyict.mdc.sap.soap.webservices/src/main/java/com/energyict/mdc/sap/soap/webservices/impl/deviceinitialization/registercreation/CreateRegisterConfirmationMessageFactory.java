@@ -38,56 +38,62 @@ public class CreateRegisterConfirmationMessageFactory {
     public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(ServiceCall parent, List<ServiceCall> children, Instant now) {
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
-        UtilsDvceERPSmrtMtrRegCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
+        UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
+        confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), now));
 
-        bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), now));
+        ServiceCall deviceServiceCall = children.get(0);
         if (parent.getState().equals(DefaultState.CANCELLED)) {
-            bulkConfirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
+            confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
         } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
-            bulkConfirmationMessage.setLog(createSuccessfulLog());
+            confirmationMessage.setLog(createSuccessfulLog());
         } else if (parent.getState().equals(DefaultState.FAILED)) {
-            bulkConfirmationMessage.setLog(createFailedLog());
+            List<ServiceCall> registerServiceCalls = findChildren(deviceServiceCall);
+            if (deviceServiceCall.getState() == DefaultState.SUCCESSFUL) {
+                if (hasAllChildState(registerServiceCalls, DefaultState.SUCCESSFUL)) {
+                    confirmationMessage.setLog(createSuccessfulLog());
+                } else {
+                    List<String> failedRegister = findFailedRegister(registerServiceCalls);
+                    if(!failedRegister.isEmpty()) {
+                        confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegister.toString())));
+                    }else{
+                        confirmationMessage.setLog(createFailedLog());
+                    }
+                }
+            } else if (deviceServiceCall.getState() == DefaultState.FAILED) {
+                List<String> failedRegister = findFailedRegister(registerServiceCalls);
+                if(!failedRegister.isEmpty()) {
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegister.toString())));
+                }else{
+                    confirmationMessage.setLog(createFailedLog());
+                }
+            }
         }
 
-        createBody(bulkConfirmationMessage, children, now);
+        createBody(confirmationMessage, children.get(0), now);
 
-        return bulkConfirmationMessage;
+        return confirmationMessage;
     }
 
     public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(UtilitiesDeviceRegisterCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
-        UtilsDvceERPSmrtMtrRegCrteConfMsg bulkConfirmationMessage =  objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), now));
-        bulkConfirmationMessage.setLog(objectFactory.createLog());
-        bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeed));
-        return bulkConfirmationMessage;
-    }
-
-    private void createBody(UtilsDvceERPSmrtMtrRegCrteConfMsg bulkConfirmationMessage,
-                            List<ServiceCall> children, Instant now) {
-                createChildMessage(children.get(0), now);
-    }
-
-    private UtilsDvceERPSmrtMtrRegCrteConfMsg createChildMessage(ServiceCall childServiceCall, Instant now) {
-        SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = childServiceCall.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-
-        UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
-        confirmationMessage.setMessageHeader(createChildHeader(now));
-        confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
-        if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
-            List<ServiceCall> children = findChildren(childServiceCall);
-            if (hasAllChildState(children, DefaultState.SUCCESSFUL)) {
-                confirmationMessage.setLog(createSuccessfulLog());
-            } else {
-                List<String> failedRegister = children.stream()
-                        .map(child->child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get())
-                        .map(ext->ext.getRegisterId())
-                        .collect(Collectors.toList());
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegister.toString())));
-            }
-        } else if (childServiceCall.getState() == DefaultState.FAILED) {
-            confirmationMessage.setLog(createFailedLog());
-        }
+        UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage =  objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
+        confirmationMessage.setMessageHeader(createHeader(requestMessage.getRequestID(), now));
+        confirmationMessage.setLog(objectFactory.createLog());
+        confirmationMessage.getLog().getItem().add(createLogItem(messageSeed));
         return confirmationMessage;
+    }
+
+    private void createBody(UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage,
+                            ServiceCall serviceCall, Instant now) {
+        SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
+        confirmationMessage.setUtilitiesDevice(createUtilsDvce(extension.getDeviceId()));
+    }
+
+    private List<String> findFailedRegister(List<ServiceCall> serviceCalls){
+        return serviceCalls.stream()
+                .filter(child->child.getState() == DefaultState.FAILED)
+                .map(child->child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get())
+                .map(ext->ext.getRegisterId())
+                .collect(Collectors.toList());
     }
 
     private BusinessDocumentMessageHeader createHeader(String requestId, Instant now) {
@@ -101,7 +107,7 @@ public class CreateRegisterConfirmationMessageFactory {
         return header;
     }
 
-    private UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce createChildBody(String sapDeviceId) {
+    private UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce createUtilsDvce(String sapDeviceId) {
         UtilitiesDeviceID deviceId = objectFactory.createUtilitiesDeviceID();
         deviceId.setValue(sapDeviceId);
 

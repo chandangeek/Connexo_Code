@@ -488,7 +488,7 @@ public class ServiceCallCommands {
             WebServiceActivator.UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION
                     .forEach(service -> service.call(confirmationMessage));
         } else {
-            WebServiceActivator.UTILITIES_DEVICE_REGISTER_BULK_CREATE_CONFIRMATION
+            WebServiceActivator.UTILITIES_DEVICE_REGISTER_CREATE_CONFIRMATION
                     .forEach(service -> service.call(confirmationMessage));
         }
     }

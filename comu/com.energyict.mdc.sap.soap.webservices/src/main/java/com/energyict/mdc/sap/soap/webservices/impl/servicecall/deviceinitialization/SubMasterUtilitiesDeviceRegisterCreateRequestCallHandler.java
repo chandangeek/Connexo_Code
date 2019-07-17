@@ -79,8 +79,6 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
                 parent.requestTransition(DefaultState.ONGOING);
             } else if (hasAllChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
-                parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
             } else if (parent.canTransitionTo(DefaultState.FAILED)) {
                 parent.requestTransition(DefaultState.FAILED);
             }
@@ -97,10 +95,6 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
 
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
-    }
-
-    private boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
     }
 
     @Reference
