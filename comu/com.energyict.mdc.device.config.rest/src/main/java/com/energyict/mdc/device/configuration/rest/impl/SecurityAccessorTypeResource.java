@@ -313,7 +313,7 @@ public class SecurityAccessorTypeResource {
             updater.keySize(securityAccessorTypeInfo.keySize);
             updater.reversible(securityAccessorTypeInfo.isReversible);
         }
-        updater.isWrapper(securityAccessorType.isWrapper());
+        updater.isWrapper(securityAccessorTypeInfo.isWrapper);
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));
         } else {

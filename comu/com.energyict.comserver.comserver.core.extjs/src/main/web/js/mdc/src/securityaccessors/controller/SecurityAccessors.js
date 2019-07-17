@@ -151,6 +151,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             '#mdc-security-accessor-key-type-combobox': {
                 change: me.keyTypeChanged
             },
+            '#mdc-security-accessor-purpose-radio': {
+                change: me.purposeChanged
+            },
             '#mdc-security-accessors-privileges-edit-window-save': {
                 click: me.saveSecurityAccessor
             },
@@ -792,6 +795,11 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         view.down('form').loadRecord(record);
                         if (record.get('keyType').isKey) {
                             view.down('#mdc-security-accessor-key').setValue(true);
+                            if (record.get('purpose').id != 'FILE_OPERATIONS') {
+                                view.down('#mdc-security-accessor-isWrapper-checkbox').setVisible(true);
+                                view.down('#mdc-security-accessor-isWrapper-checkbox').setDisabled(false);
+                                view.down('#mdc-security-accessor-isWrapper-checkbox').setValue(record.get('isWrapper'));
+                            }
                         } else {
                             view.down('#mdc-security-accessor-certificate').setValue(true);
                         }
@@ -902,6 +910,17 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
     },
 
+    purposeChanged:function (combobox, newValue, oldValue) {
+        var form = combobox.up('form'),
+            isWrapper = form.down('#mdc-security-accessor-isWrapper-checkbox'),
+            purposeRadio = form.down('#mdc-security-accessor-purpose-radio');
+        if (purposeRadio.getValue().purpose.id != 'FILE_OPERATIONS') {
+            isWrapper.setVisible(true);
+        } else {
+            isWrapper.setVisible(false);
+        }
+    },
+
     keyTypeChanged: function (combobox, newValue, oldValue) {
         var me = this,
             form = combobox.up('form'),
@@ -918,6 +937,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             labelEndPointCombo = form.down('#mdc-security-accessor-label-end-point-combobox'),
             keySizeFieldInput = form.down('#mdc-security-accessor-key-size'),
             isReversibleCheckBox = form.down('#mdc-security-accessor-isReversible-checkbox'),
+            isWrapper = form.down('#mdc-security-accessor-isWrapper-checkbox'),
 
             requiresDuration = newValue && newValue.requiresDuration,
             requiresKeyEncryptionMethod = newValue && newValue.requiresKeyEncryptionMethod;
@@ -944,6 +964,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         if (!(purposeRadio.getValue().purpose.id === 'FILE_OPERATIONS' && !keyRadio.getValue().key)) {
             manageCentrallyCheckbox.enable();
+        }
+
+        if (purposeRadio.getValue().purpose.id != 'FILE_OPERATIONS') {
+            isWrapper.setVisible(true);
+        } else {
+            isWrapper.setVisible(false);
         }
 
         if (manageCentrallyCheckbox.getValue()
