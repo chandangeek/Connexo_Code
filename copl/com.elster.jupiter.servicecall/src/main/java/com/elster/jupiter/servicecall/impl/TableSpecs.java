@@ -96,7 +96,7 @@ public enum TableSpecs {
                     .varChar(NAME_LENGTH)
                     .map(ServiceCallTypeImpl.Fields.appKey.fieldName())
                     .add();
-            table.column("RETRY_NOW_STATE")
+            table.column("RETRY_STATE")
                     .since(Version.version(10, 7))
                     .number()
                     .conversion(ColumnConversion.NUMBER2ENUM)

@@ -109,16 +109,15 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name> <log level> <handler> [life cycle name] <cps ids> ] \n" +
-                "Usage: createServiceCallType <name> <version name> <log level> <handler> <life cycle name> [application name] <cps ids>");
+        System.out.println("Usage: createServiceCallType <name> <version name> <log level> <handler> <application name> [life cycle name] <cps ids>");
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, String handler, Long... cpsIds) {
+    public void createServiceCallType(String name, String versionName, String logLevel, String handler, String appKey, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallTypeBuilder builder = serviceCallService
-                    .createServiceCallType(name, versionName, null)
+                    .createServiceCallType(name, versionName, appKey)
                     .handler(handler)
                     .logLevel(LogLevel.valueOf(logLevel));
 

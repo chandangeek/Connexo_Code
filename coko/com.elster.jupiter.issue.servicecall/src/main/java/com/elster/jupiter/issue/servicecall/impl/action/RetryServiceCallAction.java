@@ -45,7 +45,7 @@ public class RetryServiceCallAction extends AbstractIssueAction {
             ServiceCall serviceCall = scIssue.getServiceCall();
             validateState(serviceCall);
             if (serviceCall.getParent().isPresent()) {
-                serviceCall.requestTransition(serviceCall.getType().getRetryState());
+                serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
                 serviceCall.getParent().get().requestTransition(DefaultState.ONGOING);
             } else {
                 ServiceCallFilter filter = new ServiceCallFilter();
@@ -55,7 +55,7 @@ public class RetryServiceCallAction extends AbstractIssueAction {
                             .entity("Some child service call not in final state")
                             .build());
                 } else {
-                    serviceCall.requestTransition(serviceCall.getType().getRetryState());
+                    serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
                 }
             }
         }
@@ -76,7 +76,9 @@ public class RetryServiceCallAction extends AbstractIssueAction {
             ServiceCallIssue scIssue = (ServiceCallIssue) issue;
             if (FIRMWARE_CAMPAIGN_NAME.equals(scIssue.getServiceCall().getType().getName()) ||
                     FIRMWARE_ITEM_NAME.equals(scIssue.getServiceCall().getType().getName())) {
-                return !scIssue.getStatus().isHistorical() && scIssue.getServiceCall() != null && !scIssue.getServiceCall().getState().isOpen();
+                return !scIssue.getStatus().isHistorical() && scIssue.getServiceCall() != null
+                        && scIssue.getServiceCall().getType().getRetryState().isPresent()
+                        && !scIssue.getServiceCall().getState().isOpen();
             }
             return false;
         }

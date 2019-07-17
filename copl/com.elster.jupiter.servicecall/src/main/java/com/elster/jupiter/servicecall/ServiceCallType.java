@@ -44,7 +44,7 @@ public interface ServiceCallType extends HasId, HasName {
 
     Optional<String> reservedByApplication();
 
-    DefaultState getRetryState();
+    Optional<DefaultState> getRetryState();
 
     /**
      * Returns the RegisteredCustomPropertySets linked to this ServiceCallType
