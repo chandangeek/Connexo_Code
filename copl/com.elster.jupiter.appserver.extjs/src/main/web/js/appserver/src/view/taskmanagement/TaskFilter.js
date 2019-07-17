@@ -28,7 +28,7 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 emptyText: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
                 multiSelect: true,
                 displayField: 'queueType',
-                valueField: 'queueTypes',
+                valueField: 'queueType',
                 store: me.queueTypesStore,
                 matchFieldWidth: false
             },
