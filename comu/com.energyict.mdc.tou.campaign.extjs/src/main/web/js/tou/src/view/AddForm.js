@@ -245,6 +245,8 @@ Ext.define('Tou.view.AddForm', {
                 xtype: 'fieldcontainer',
                 layout: 'hbox',
                 itemId: 'tou-campaign-send-connection-strategy-container',
+                hidden: true,
+                disabled: true,
                 fieldLabel: Uni.I18n.translate(
                     'general.connectionMethodStrategy',
                     'TOU',
@@ -279,7 +281,7 @@ Ext.define('Tou.view.AddForm', {
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: true
+                        hidden: false
                     }
                 ]
             },
