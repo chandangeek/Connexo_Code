@@ -156,8 +156,11 @@ public class MailIssueAction extends AbstractIssueAction {
         String formattedDtm = Instant.ofEpochSecond(unixTime)
                 .atZone(ZoneId.of("GMT-4"))
                 .format(formatter);
-        Optional<String> user = Optional.ofNullable(
-                Optional.ofNullable(issue.getAssignee().getUser().getName()).orElse("Unassigned"));
+        Optional<String> user = Optional.of("Unassigned");
+        if(issue.getAssignee().getUser() != null){
+            user = Optional.of(issue.getAssignee().getUser().getName());
+        }
+
         return "ID:" + issue.getIssueId() + "\n" + "Issue reason: " + issue.getReason().getName() + "\n" +
                 "Issue type: " + issue.getReason().getIssueType().getName() + "\n" + "User: " + user.get() + "\n" +
                 "Priority: " + totalPriority + "\n" + "Creation Time: " + formattedDtm + "\n";
