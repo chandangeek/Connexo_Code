@@ -74,7 +74,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     @Override
     public IssueActionResult execute(Issue issue) {
-        this.MailImpl(issue);
+        this.SendMail(issue);
         IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
         result.success(getThesaurus().getFormat(TranslationKeys.ACTION_MAIL_NOTIFY).format());
         return result;
@@ -85,19 +85,9 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         return this;
     }
 
-    private void MailImpl(Issue issue) {
+    private void SendMail(Issue issue) {
         Transport transport = null;
-        int totalPriority= issue.getPriority().getImpact() + issue.getPriority().getUrgency();
         String receivers = getRecipientFromParameters(properties);
-        final DateTimeFormatter formatter  =  DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss");
-        final long unixTime = issue.getCreateDateTime().getEpochSecond();
-        final String current = Instant.ofEpochSecond(unixTime)
-                .atZone(ZoneId.of("GMT-4"))
-                .format(formatter);
-        
-        String content = "Alarm Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
-                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + issue.getUserName() + "\n" + "Priority : " + totalPriority + "\n" + "Creation Date : " + current;
-
         Properties prop = getMailProperties();
         Session session = Session.getInstance(prop, null);
         MimeMessage message = new MimeMessage(session);
@@ -105,6 +95,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         String[] receiverList = receivers.split(";");
         InternetAddress[] receiverAddress = new InternetAddress[receiverList.length];
         int index = 0;
+        String content= getContent(issue);
         try {
             for (String recipient : receiverList) {
                 receiverAddress[index] = new InternetAddress(recipient.trim());
@@ -164,6 +155,19 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         return "";
     }
 
+    private String getContent(Issue issue) {
+        int totalPriority= issue.getPriority().getImpact() + issue.getPriority().getUrgency();
+        DateTimeFormatter formatter  =  DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss");
+        long unixTime = issue.getCreateDateTime().getEpochSecond();
+        String current = Instant.ofEpochSecond(unixTime)
+                .atZone(ZoneId.of("GMT-4"))
+                .format(formatter);
+        Optional<String> user = Optional.ofNullable(
+                Optional.ofNullable(issue.getAssignee().getUser().getName()).orElse("Unassigned"));
+        String content = "Alarm Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
+                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + issue.getAssignee().getUser().getName()+ "\n" + "Priority : " + totalPriority + "\n" + "Creation Date : " + current;
+        return content;
+    }
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
