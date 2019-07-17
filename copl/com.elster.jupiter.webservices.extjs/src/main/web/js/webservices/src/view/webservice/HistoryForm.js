@@ -15,6 +15,7 @@ Ext.define('Wss.view.webservice.HistoryForm', {
         this.callParent(arguments);
         var endpoint = record.getEndpoint();
         var duration;
+        var time = Uni.DateTime.formatDateTimeShort(record.get('startTime'));
         if (record.get('endTime')){
             duration = record.get('endTime') - record.get('startTime');
         }else{
