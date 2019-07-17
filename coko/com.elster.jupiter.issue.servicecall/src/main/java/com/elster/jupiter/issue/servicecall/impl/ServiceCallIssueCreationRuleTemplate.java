@@ -41,6 +41,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     static final String NAME = "ServiceCallIssueCreationRuleTemplate";
 
     public static final String SERVICE_CALL_CONFIGURATIONS = NAME + ".serviceCallConfigurations";
+    public static final String AUTORESOLUTION = NAME + ".autoresolution";
 
     private volatile ServiceCallIssueService issueServiceCallService;
     private volatile IssueService issueService;
@@ -141,6 +142,12 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
                 .markMultiValued(ServiceCallStateInfoValueFactory.SEPARATOR)
                 .addValues(Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen()).map(defaultState -> new DefaultStateInfo(defaultState, thesaurus)).collect(Collectors.toList()))
                 .markExhaustive(PropertySelectionMode.LIST)
+                .finish());
+        builder.add(propertySpecService
+                .booleanSpec()
+                .named(AUTORESOLUTION, TranslationKeys.PARAMETER_AUTO_RESOLUTION)
+                .fromThesaurus(thesaurus)
+                .setDefaultValue(true)
                 .finish());
         return builder.build();
     }
