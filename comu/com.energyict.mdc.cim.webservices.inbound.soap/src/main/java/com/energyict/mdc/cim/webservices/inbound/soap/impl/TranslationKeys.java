@@ -6,7 +6,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
     LOGBOOK_OBIS_CODE("endDeviceEvents.obisCode", "Logbook OBIS code"),
@@ -45,8 +44,6 @@ public enum TranslationKeys implements TranslationKey {
     PGMR_NAME("GM1.name", "Parent get meter readings"),
     SGMR_NAME("GM2.name", "SubParent get meter readings"),
     CGMR_NAME("GM3.name", "Child get meter readings"),
-    READ_METER_CHANGE_MESSAGE_HANDLER(ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER,
-                                      ReadMeterChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
     FUTURE_COM_TASK_EXECUTION_NAME(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_SUBSCRIBER,
                                                FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
     ;

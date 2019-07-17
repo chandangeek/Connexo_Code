@@ -22,11 +22,6 @@ public enum TranslationKeys implements TranslationKey {
     CALLS_EXPECTED("callsExpected", "Expected calls counter"),
     FROM_DATE("fromDate", "From date"),
     TO_DATE("toDate", "To date"),
-    SOURCE("source", "Source"),
-    TIME_PERIOD_START("timePeriodStart", "Time period start"),
-    TIME_PERIOD_END("timePeriodEnd", "Time period end"),
-    READING_TYPES("readingTypes", "Reading Types"),
-    END_DEVICES("endDevices", "End Devices")
     ;
 
     private final String key;

@@ -9,7 +9,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -20,7 +19,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 
 import org.osgi.framework.BundleContext;
 

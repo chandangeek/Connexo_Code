@@ -41,7 +41,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -168,8 +167,6 @@ public abstract class AbstractMockActivator {
         when(builder.extendedWith(any())).thenReturn(builder);
         when(builder.create()).thenReturn(serviceCall);
         when(serviceCallType.newServiceCall()).thenReturn(builder);
-        when(messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION)).thenReturn(Optional.of(destinationSpec));
-        when(messageService.getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME)).thenReturn(Optional.of(queueTableSpec));
         when(ormService.newDataModel(InboundSoapEndpointsActivator.COMPONENT_NAME, "Multisense SOAP webservices")).thenReturn(upgradeService.newNonOrmDataModel());
 
     }
