@@ -19,7 +19,7 @@ import java.sql.Types;
 public class ServiceCallStateInfoValueFactory implements ValueFactory<HasIdAndName>, ServiceCallStateInfoPropertyFactory {
 
     private Thesaurus thesaurus;
-    static final String SEPARATOR = ":";
+    static final String SEPARATOR = ",";
 
     ServiceCallStateInfoValueFactory (Thesaurus thesaurus) {
         this.thesaurus = thesaurus;

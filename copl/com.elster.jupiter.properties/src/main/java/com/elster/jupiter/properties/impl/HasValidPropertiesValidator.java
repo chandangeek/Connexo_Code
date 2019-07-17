@@ -23,6 +23,8 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     private static final String TRIGGERING_EVENTS = "BasicDeviceAlarmRuleTemplate.triggeringEvents";
     private static final String LIFECYCLE_IN_DEVICE_TYPES = "DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes";
     private static final String ALARMS_LIFECYCLE_IN_DEVICE_TYPES = "BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes";
+    private static final String SERVICE_CALL_STATE = "ServiceCallTypeState";
+    private static final String SERVICE_CALL_TYPE = "ServiceCallTypeHandler";
 
     private HasValidProperties annotation;
     private boolean valid;
@@ -83,14 +85,15 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
              * This will have been reported by validateRequiredPropertiesArePresent
              * but we still get there to gather as many validation errors as possible. */
             if (propertySpec != null) {
-                if(propertySpec.getName().equals(TRIGGERING_EVENTS)){
+                if (propertySpec.getName().equals(TRIGGERING_EVENTS)){
                     if(propertySpec.isRequired()){
                         //noinspection unchecked
                         if( !((ArrayList<HasIdAndName>) propertyValue).isEmpty() && ((ArrayList<HasIdAndName>) propertyValue).get(0).getId().equals("-1:-1")){
                             throwThisFieldIsRequired(propertySpec, context);
                         }
                     }
-                } else if(propertySpec.getName().equals(LIFECYCLE_IN_DEVICE_TYPES) || propertySpec.getName().equals(ALARMS_LIFECYCLE_IN_DEVICE_TYPES)){
+                } else if(propertySpec.getName().equals(LIFECYCLE_IN_DEVICE_TYPES) || propertySpec.getName().equals(ALARMS_LIFECYCLE_IN_DEVICE_TYPES)
+                        || SERVICE_CALL_STATE.equals(propertySpec.getName()) || SERVICE_CALL_TYPE.equals(propertySpec.getName())) {
                     if(propertySpec.isRequired()){
                         if(propertyValue == Collections.emptyList()){
                             throwThisFieldIsRequired(propertySpec, context);

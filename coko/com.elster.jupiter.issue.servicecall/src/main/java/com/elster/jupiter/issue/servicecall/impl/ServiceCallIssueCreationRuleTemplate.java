@@ -83,14 +83,15 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public String getContent() {
-        return "package com.elster.jupiter.servicecall.issue\n" +
-                "import ServiceCallStateChangedEvent;\n" +
+        return "package com.elster.jupiter.issue.servicecall\n" +
+                "import com.elster.jupiter.issue.servicecall.impl.event.ServiceCallStateChangedEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Service call rule @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : ServiceCallStateChangedEvent(servicecallconf in (@{" + SERVICE_CALL_CONFIGURATIONS + "}))\n" +
+                "\tevent : ServiceCallStateChangedEvent(stateId in (@{" + TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey() + "}), " +
+                " serviceCallTypeId in (@{" + TranslationKeys.SERVICE_CALL_TYPE.getKey() + "}))\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by servicecall rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
@@ -127,7 +128,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
                 propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory(serviceCallService))
-                        .named(TranslationKeys.SERVICE_CALL_TYPE_HANDLER)
+                        .named(TranslationKeys.SERVICE_CALL_TYPE)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .markMultiValued(ServiceCallInfoValueFactory.SEPARATOR)
@@ -153,8 +154,8 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     private boolean getServiceCallTypeFilter(ServiceCallType serviceCallType) {
-        return appKey.map(s -> !serviceCallType.reservedByApplication().isPresent() ||
-                s.equals(serviceCallType.reservedByApplication().get())).orElse(true);
+        return appKey.map(s -> !serviceCallType.getReservedByApplication().isPresent() ||
+                s.equals(serviceCallType.getReservedByApplication().get())).orElse(true);
     }
 
     @Override

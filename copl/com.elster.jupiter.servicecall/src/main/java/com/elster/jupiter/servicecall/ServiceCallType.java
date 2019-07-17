@@ -42,7 +42,7 @@ public interface ServiceCallType extends HasId, HasName {
 
     ServiceCallLifeCycle getServiceCallLifeCycle();
 
-    Optional<String> reservedByApplication();
+    Optional<String> getReservedByApplication();
 
     Optional<DefaultState> getRetryState();
 

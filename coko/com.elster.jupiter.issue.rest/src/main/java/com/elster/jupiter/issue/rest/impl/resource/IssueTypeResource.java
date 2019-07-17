@@ -47,9 +47,8 @@ public class IssueTypeResource extends BaseResource {
         List<IssueType> issueTypes = new ArrayList<>();
         if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
             issueTypes = getIssueService().query(IssueType.class)
-                    .select(where(KEY).in(new ArrayList<String>() {{
-                        add(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName());
-                    }}));
+                    .select(where(KEY).isEqualTo(IssueTypes.USAGEPOINT_DATA_VALIDATION
+                            .getName()));
         } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
             issueTypes = getIssueService().query(IssueType.class)
                     .select(where(KEY).in(new ArrayList<String>() {{

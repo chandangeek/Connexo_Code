@@ -12,7 +12,8 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by bvn on 3/2/16.
@@ -20,6 +21,7 @@ import java.util.Optional;
 public class ServiceCallTypeInfoFactory {
 
     private final Thesaurus thesaurus;
+    private Map<String, String> applications = initApplicationsMap();
 
     @Inject
     public ServiceCallTypeInfoFactory(Thesaurus thesaurus) {
@@ -32,11 +34,8 @@ public class ServiceCallTypeInfoFactory {
         info.version = serviceCallType.getVersion();
         info.name = serviceCallType.getName();
         info.versionName = serviceCallType.getVersionName();
-        serviceCallType.reservedByApplication().ifPresent(
-                value ->
-                        Optional.ofNullable(TranslationKeys.from(value))
-                                .ifPresent(key -> info.reservedByApplication = thesaurus.getFormat(key).format())
-        );
+        serviceCallType.getReservedByApplication().ifPresent(
+                key -> info.reservedByApplication = applications.get(key));
         info.destination = serviceCallType.getDestinationName();
         info.priority = serviceCallType.getPriority();
         info.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus()
@@ -51,6 +50,13 @@ public class ServiceCallTypeInfoFactory {
                 .getCustomPropertySets()
                 .forEach(cps -> info.customPropertySets.add(new ServiceCallTypeCustomPropertySetInfo(cps)));
         return info;
+    }
+
+    private Map<String, String> initApplicationsMap() {
+        Map<String, String> map = new HashMap<>();
+        map.put("MDC", "MultiSense");
+        map.put("INS", "Insight");
+        return map;
     }
 
 }

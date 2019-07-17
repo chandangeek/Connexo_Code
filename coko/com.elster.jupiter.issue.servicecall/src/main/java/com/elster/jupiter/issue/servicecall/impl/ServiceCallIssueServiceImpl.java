@@ -24,6 +24,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -67,6 +68,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     private volatile EventService eventService;
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
+    private volatile MessageService messageService;
 
     private volatile DataModel dataModel;
 
@@ -75,13 +77,16 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Inject
-    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, UpgradeService upgradeService, QueryService queryService) {
+    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService,
+                                       EventService eventService, UpgradeService upgradeService, QueryService queryService,
+                                       MessageService messageService) {
         setOrmService(ormService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
         setQueryService(queryService);
+        setMessageService(messageService);
         activate();
     }
 
@@ -96,6 +101,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
                 bind(IssueActionService.class).toInstance(issueActionService);
                 bind(ServiceCallIssueService.class).toInstance(ServiceCallIssueServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
+                bind(MessageService.class).toInstance(messageService);
             }
         });
         upgradeService.register(
@@ -104,24 +110,6 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
                 Installer.class,
                 Collections.emptyMap()
                 );
-    }
-
-    @Override
-    public void createIssue(ServiceCall serviceCall, DefaultState newState) {
-        for (CreationRule rule : issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class).select(where("active").isEqualTo(true).and(where("reason.issueType.prefix").isEqualToIgnoreCase(SERVICE_CALL_ISSUE_PREFIX)))) {
-            AtomicBoolean handlerMatch = new AtomicBoolean(), stateMatch = new AtomicBoolean();
-            rule.getCreationRuleProperties().forEach(property -> {
-                if (TranslationKeys.SERVICE_CALL_TYPE_HANDLER.getKey().equals(property.getName())) {
-                    handlerMatch.set(((List<ServiceCallTypeInfo>) property.getValue()).stream().anyMatch(value -> value.getId() == serviceCall.getType().getId()));
-                }
-                if (TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey().equals(property.getName())) {
-                    stateMatch.set(((List<DefaultStateInfo>) property.getValue()).stream().anyMatch(state -> state.getId() == newState.ordinal()));
-                }
-            });
-            if (handlerMatch.get() && stateMatch.get()) {
-                issueService.getIssueCreationService().processIssueCreationEvent(rule.getId(), new ServiceCallStateChangedEvent(serviceCall, newState));
-            }
-        }
     }
 
     @Override
@@ -191,6 +179,11 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     @Reference
     public final void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Reference

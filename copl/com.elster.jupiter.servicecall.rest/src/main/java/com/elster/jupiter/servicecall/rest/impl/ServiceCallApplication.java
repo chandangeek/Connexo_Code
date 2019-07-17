@@ -90,7 +90,6 @@ public class ServiceCallApplication extends Application implements TranslationKe
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
         translationKeys.addAll(Arrays.asList(LogLevel.values()));
         translationKeys.addAll(Arrays.asList(Status.values()));
         return translationKeys;

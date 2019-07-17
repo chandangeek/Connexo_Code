@@ -171,7 +171,7 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(
                         version("1.1"), Upgrader.class,
-                        version(10, 7), ServiceCallTypeUpgrader.class));
+                        version(10, 7), UpgraderV10_7.class));
         registerHandlers(bundleContext);
         registerServices(bundleContext);
     }
