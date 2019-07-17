@@ -26,6 +26,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.nta.esmr50.common.attributes.ESMR50MbusClientAttributes;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.*;
@@ -37,13 +38,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 
 public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     //Firmware
-    protected static final ObisCode ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE = ObisCode.fromString("1.0.0.2.0.255");
-    protected static final ObisCode ACTIVE_MODEM_FIRMWARE_VERSION_OBISCODE = ObisCode.fromString("1.2.0.2.0.255");
+    protected static final ObisCode ACTIVE_CORE_METER_FIRMWARE_VERSION_OBISCODE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_METER_CORE;
+    public static final ObisCode ACTIVE_MODEM_FIRMWARE_VERSION_OBISCODE = ObisCode.fromString("1.2.0.2.0.255");
+
     protected static final ObisCode MODEM_FIRMWARE_SIGNATURE_OBISCODE = ObisCode.fromString("1.2.0.2.8.255");
     protected static final ObisCode ACTIVE_FIRMWARE_SIGNATURE_OBISCODE = ObisCode.fromString("1.0.0.2.8.255");
+
     protected static final ObisCode AUXILIARY_FIRMWARE_VERSION = ObisCode.fromString("1.4.0.2.0.255");
     //Security
     protected static final ObisCode SECURITY_SETUP_OBISCODE = ObisCode.fromString("0.0.43.0.0.255");
@@ -492,7 +496,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 if (configurationObject.isDecoded()){
                     return new RegisterValue(register, new Quantity(configurationObject.getFlags(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.toString());
                 } else {
-                    protocol.getLogger().finest(configurationObject.getErrorMessage());
+                    protocol.journal(configurationObject.getErrorMessage());
                     return new RegisterValue(register, abstractDataType.toString());
                 }
             }
@@ -605,7 +609,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 if (configurationObject.isDecoded()){
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getContent());
                 } else {
-                    protocol.getLogger().finest(configurationObject.getErrorMessage());
+                    protocol.journal(configurationObject.getErrorMessage());
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION value:" +abstractDataType.toString()));
                 }
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_METEROLOGICAL_FIRMWARE)) {
@@ -613,7 +617,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 if (configurationObject.isDecoded()){
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getMeterologicalFirmware());
                 } else {
-                    protocol.getLogger().finest(configurationObject.getErrorMessage());
+                    protocol.journal(configurationObject.getErrorMessage());
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, abstractDataType.toString());
                 }
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE)) {
@@ -621,7 +625,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 if (configurationObject.isDecoded()){
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getOperationalFirmware());
                 } else {
-                    protocol.getLogger().finest(configurationObject.getErrorMessage());
+                    protocol.journal(configurationObject.getErrorMessage());
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION_OPERATIONAL_FIRMWARE value:" +abstractDataType.toString()));
                 }
             }else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE)) {
@@ -629,7 +633,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 if (configurationObject.isDecoded()){
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, configurationObject.getAdditionalFirmware());
                 } else {
-                    protocol.getLogger().finest(configurationObject.getErrorMessage());
+                    protocol.journal(configurationObject.getErrorMessage());
                     return new RegisterValue(register, new Quantity(1, Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_DEVICE_CONFIGURATION_ADDITIONAL_FIRMWARE value:" +abstractDataType.toString()));
                 }
             }else if (rObisCode.equals(LTE_FW_UPGRADE_STATUS)) {
@@ -667,9 +671,9 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 return new RegisterValue(register, ltePingAddress.toString());
             }
 
-            protocol.getLogger().finest(" > register " + register.getObisCode() + " for " + register.getSerialNumber() + " was translated as " + rObisCode.toString() + " and could not be handled by ESMR5 register factory. Asking ancestors.");
+            protocol.journal(" > register " + register.getObisCode() + " for " + register.getSerialNumber() + " was translated as " + rObisCode.toString() + " and could not be handled by ESMR5 register factory. Asking ancestors.");
         }catch (Exception ex){
-            protocol.getLogger().warning(" Error while interpreting value for " + register.getObisCode() + ": " + ex.getMessage());
+            protocol.journal(Level.WARNING, " Error while interpreting value for " + register.getObisCode() + ": " + ex.getMessage());
         }
 
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
@@ -707,7 +711,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
 
                     dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                     dlmsAttributes.add(composedRegister.getRegisterCaptureTime());
-                    protocol.getLogger().finest(" - register will be handled as composed: " + register.getObisCode());
+                    protocol.journal(" - register will be handled as composed: " + register.getObisCode());
                     this.getComposedRegisterMap().put(register, composedRegister);
                 }else if (rObisCode.equals(EMETER_CONFIGURATION_OBJECT)) {
                     this.registerMap.put(register, new DLMSAttribute(rObisCode, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA.getClassId()));
@@ -941,13 +945,13 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 }
             } // for - registers
 
-            protocol.getLogger().finest("Finished adding attributes to read for ESMR5, asking parents to do for: "+registersForSuper.toString());
+            protocol.journal("Finished adding attributes to read for ESMR5, asking parents to do for: "+registersForSuper.toString());
             ComposedCosemObject sRegisterList = super.constructComposedObjectFromRegisterList(registersForSuper, supportsBulkRequest);
             if (sRegisterList != null) {
                 dlmsAttributes.addAll(Arrays.asList(sRegisterList.getDlmsAttributesList()));
             }
 
-            protocol.getLogger().finest("Composed registers: "+this.getComposedRegisterMap().toString());
+            protocol.journal("Composed registers: "+this.getComposedRegisterMap().toString());
             return new ComposedCosemObject(protocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
         }
         return null;
@@ -969,9 +973,9 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
         if (register.getObisCode().equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
             ScalerUnit su = new ScalerUnit(Unit.get(70)); // dbm = 70;
             try {
-                protocol.getLogger().finest("Handling MBUS Diagnostic: "+register.getObisCode().toString());
+                protocol.journal("Handling MBUS Diagnostic: "+register.getObisCode().toString());
                 DLMSAttribute registerCaptureTime = this.getComposedRegisterMap().get(register).getRegisterCaptureTime();
-                protocol.getLogger().finest("  > fetching capture_time :"+registerCaptureTime.toString());
+                protocol.journal("  > fetching capture_time :"+registerCaptureTime.toString());
                 AbstractDataType attribute = registerComposedCosemObject.getAttribute(registerCaptureTime);
                 if (attribute.isStructure()) {
                     Structure structure = attribute.getStructure();
@@ -984,26 +988,26 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                         SimpleDateFormat sdf = new SimpleDateFormat(format);
                         sdf.setTimeZone(protocol.getDlmsSession().getTimeZone());
                         Date deviceTime = new Date(sdf.format(capturedTime));
-                        protocol.getLogger().finest("  > decoded captured time = " + capturedTime.toString());
+                        protocol.journal("  > decoded captured time = " + capturedTime.toString());
                         return new RegisterValue(
                                 register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
                                         su.getEisUnit()), deviceTime);
                     } else {
-                        protocol.getLogger().finest("Structure attribute is not date_time: " + ProtocolTools.getHexStringFromBytes(captureStructure.getBEREncodedByteArray()));
-                        protocol.getLogger().finest("Creating register without timestamp.");
+                        protocol.journal("Structure attribute is not date_time: " + ProtocolTools.getHexStringFromBytes(captureStructure.getBEREncodedByteArray()));
+                        protocol.journal("Creating register without timestamp.");
                         return new RegisterValue(
                                 register,
                                 new Quantity(registerComposedCosemObject.getAttribute(this.getComposedRegisterMap().get(register).getRegisterValueAttribute()).toBigDecimal(),
                                         su.getEisUnit()));
                     }
                 } else {
-                    protocol.getLogger().warning("Data in MBus Diagnostic object from attribute #"+registerCaptureTime.getAttribute()+" of "+register.getObisCode()+" is not a structure, as expected from specs. The capture time will be current date/time.");
+                    protocol.journal(Level.WARNING, "Data in MBus Diagnostic object from attribute #"+registerCaptureTime.getAttribute()+" of "+register.getObisCode()+" is not a structure, as expected from specs. The capture time will be current date/time.");
                 }
 
 
             } catch (Exception ex){
-                protocol.getLogger().warning("Could not handle composed register MBusDiagnostic "+register.getObisCode()+": "+ex.getMessage());
+                protocol.journal(Level.WARNING, "Could not handle composed register MBusDiagnostic "+register.getObisCode()+": "+ex.getMessage());
             }
 
         } else {

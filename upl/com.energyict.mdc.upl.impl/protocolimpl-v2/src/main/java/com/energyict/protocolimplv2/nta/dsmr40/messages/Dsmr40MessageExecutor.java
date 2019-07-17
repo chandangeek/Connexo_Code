@@ -40,6 +40,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -234,8 +235,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
+        getProtocol().journal("Writing null activation date - i.e. activate now");
         activityCalendarController.writeCalendarActivationTime(null);   //Activate now
     }
 
@@ -247,10 +251,13 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
+        getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);
+        getProtocol().journal("Writing calendar content");
         activityCalendarController.writeCalendar(); //Does not activate it yet
         Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
         activationCal.setTimeInMillis(Long.parseLong(epoch));
+        getProtocol().journal("Writing calendar activation date:"+activationCal.getTime().toString());
         activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
     }
 
@@ -357,11 +364,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                 e.printStackTrace();
             }
             if (profileGeneric == null) {
-                getProtocol().getLogger().log(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " is null");
+                getProtocol().journal(Level.SEVERE, "Profile for obis code " + ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE.toString() + " is null");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             }
             if(capturedObjectDefinitions.isEmpty()){
-                getProtocol().getLogger().log(Level.INFO, "Failed to set definable load profile capture objects.");
+                getProtocol().journal( "Failed to set definable load profile capture objects.");
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             }
             Array capturedObjects = new Array();
@@ -379,15 +386,15 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     definition.addDataType(new Unsigned16(dataIndex));
                     capturedObjects.addDataType(definition);
                 } catch (Exception e) {
-                    getProtocol().getLogger().log(Level.SEVERE, e.getMessage());
+                    getProtocol().journal(Level.SEVERE, e.getMessage());
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 }
             }
             profileGeneric.setCaptureObjectsAttr(capturedObjects);
-            getProtocol().getLogger().log(Level.INFO, "Successfully set definable load profile capture objects.");
+            getProtocol().journal("Successfully set definable load profile capture objects.");
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } else {
-            getProtocol().getLogger().log(Level.INFO, "Failed to set definable load profile capture objects.");
+            getProtocol().journal("Failed to set definable load profile capture objects.");
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         }
         return collectedMessage;
@@ -396,9 +403,18 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     protected CollectedMessage writeCapturePeriod(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         ObisCode obisCode = ESMR50LoadProfileBuilder.DEFINABLE_LOAD_PROFILE;
-        int period  =Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue());
-        getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(obisCode).setCapturePeriodAttr(new Unsigned32(period));
-        getProtocol().getLogger().log(Level.INFO, "Successfully set definable load profile capture period to " + period);
+        String messageAttribute = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.capturePeriodAttributeName).getValue();
+        Duration duration = Duration.parse(messageAttribute);
+        int period  = (int) duration.getSeconds();
+        getProtocol().journal("Writing load profile capture period " + messageAttribute + " - parsed as "+period+" seconds");
+        try {
+            getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(obisCode).setCapturePeriodAttr(new Unsigned32(period));
+            getProtocol().journal("Successfully set definable load profile capture period to " + period);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        } catch (Exception ex){
+            getProtocol().journal(Level.SEVERE, "Cannot write load profile capture period to "+period+": "+ ex.getLocalizedMessage());
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        }
         return collectedMessage;
     }
 }

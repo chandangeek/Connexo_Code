@@ -41,11 +41,4 @@ public class Dsmr40SecurityProvider extends NTASecurityProvider {
         }
     }
 
-    /**
-     * @return the initial frameCounter
-     */
-    public long getInitialFrameCounter() {
-        Random generator = new Random();
-        return generator.nextLong();
-    }
 }
