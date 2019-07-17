@@ -17,7 +17,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<jetty-server.version>7.6.3.v20120416</jetty-server.version>
+		<jetty-server.version>9.3.9.v20160517</jetty-server.version>
 		<serialio.version>10.0.4.2</serialio.version>
 		<org.rxtx.version>2.2pre2</org.rxtx.version>
 		<json.version>20090211</json.version>
@@ -567,7 +567,7 @@
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-websocket</artifactId>
-				<version>${jetty-server.version}</version>
+				<version>8.2.0.v20160908</version>
 				<scope>provided</scope>
 			</dependency>
 		</dependencies>
