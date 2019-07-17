@@ -33,7 +33,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     enum Fields {
         DEVICETYPE("deviceType"),
         SECACCTYPE("securityAccessorType"),
-        WRAPPINGSECACCTYPE("securityAccessorType"),
+        WRAPPINGSECACCTYPE("wrappingSecurityAccessorType"),
         KEYRENEWALMESSAGEID("keyRenewalMessageIdIdDbValue"),
         DEFAULTKEY("defaultKey");
 
@@ -51,7 +51,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = Reference.empty();
 
-    private Reference<SecurityAccessorType> wrappingSecurityAccessor = Reference.empty();
+    private Reference<SecurityAccessorType> wrappingSecurityAccessorType = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<SecurityAccessorType> securityAccessorType = Reference.empty();
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -94,7 +94,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
 
     @Override
     public DeviceSecurityAccessorType getDeviceSecurityAccessorType() {
-        return new DeviceSecurityAccessorType(wrappingSecurityAccessor.orNull(), securityAccessorType.orNull());
+        return new DeviceSecurityAccessorType(wrappingSecurityAccessorType.orNull(), securityAccessorType.orNull());
     }
 
     @Override
@@ -131,7 +131,7 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
 
     private void setWrappingAccessor(DeviceSecurityAccessorType securityAccessorType) {
         if (securityAccessorType != null && securityAccessorType.getWrappingSecurityAccessor() != null && securityAccessorType.getWrappingSecurityAccessor().isPresent()) {
-            this.wrappingSecurityAccessor.set(securityAccessorType.getWrappingSecurityAccessor().get());
+            this.wrappingSecurityAccessorType.set(securityAccessorType.getWrappingSecurityAccessor().get());
         }
     }
 
