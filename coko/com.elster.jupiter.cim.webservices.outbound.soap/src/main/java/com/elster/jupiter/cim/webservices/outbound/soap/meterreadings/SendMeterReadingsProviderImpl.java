@@ -130,7 +130,7 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     private boolean sendMeterReadingsPortResponse(MeterReadingsPort meterReadingsPort, MeterReadings meterReadings, HeaderType header) {
         MeterReadingsResponseMessageType meterReadingsResponseMessageType;
         try {
-            if (header.getVerb().equals(HeaderType.Verb.CREATED)) {
+            if (header.getVerb().equals(HeaderType.Verb.CREATED) || header.getVerb().equals(HeaderType.Verb.REPLY)) {
                 meterReadingsResponseMessageType = meterReadingsPort.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, header));
             } else if (header.getVerb().equals(HeaderType.Verb.CHANGED)) {
                 meterReadingsResponseMessageType = meterReadingsPort.changedMeterReadings(createMeterReadingsEventMessage(meterReadings, header));

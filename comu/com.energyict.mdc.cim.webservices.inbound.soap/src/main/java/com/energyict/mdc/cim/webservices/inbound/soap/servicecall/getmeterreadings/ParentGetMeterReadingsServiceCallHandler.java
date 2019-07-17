@@ -231,7 +231,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
     private HeaderType getHeader(String correlationId) {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setVerb(HeaderType.Verb.CREATED);
+        header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun("MeterReadings");
         header.setCorrelationID(correlationId);
         return header;
