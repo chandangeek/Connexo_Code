@@ -246,7 +246,6 @@ Ext.define('Tou.view.AddForm', {
                 layout: 'hbox',
                 itemId: 'tou-campaign-send-connection-strategy-container',
                 hidden: true,
-                disabled: true,
                 fieldLabel: Uni.I18n.translate(
                     'general.connectionMethodStrategy',
                     'TOU',

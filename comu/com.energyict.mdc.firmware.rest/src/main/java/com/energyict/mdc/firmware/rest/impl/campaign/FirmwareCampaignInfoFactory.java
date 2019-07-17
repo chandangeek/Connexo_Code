@@ -95,9 +95,9 @@ public class FirmwareCampaignInfoFactory {
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
         info.calendarUploadComTask = new IdWithNameInfo(campaign.getFirmwareUploadComTaskId(),firmwareCampaignService.getComTaskById(campaign.getFirmwareUploadComTaskId()).getName());
-        info.calendarUploadConnectionStrategy = new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy(), thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().name(), campaign.getFirmwareUploadConnectionStrategy().name()));
+        info.calendarUploadConnectionStrategy = campaign.getFirmwareUploadConnectionStrategy()==null?null:new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy(), thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().name(), campaign.getFirmwareUploadConnectionStrategy().name()));
         info.validationComTask = new IdWithNameInfo(campaign.getValidationComTaskId(),firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
-        info.validationConnectionStrategy = new IdWithNameInfo(campaign.getValidationConnectionStrategy(),thesaurus.getString(campaign.getValidationConnectionStrategy().name(), campaign.getValidationConnectionStrategy().name()));
+        info.validationConnectionStrategy = campaign.getValidationConnectionStrategy()==null?null:new IdWithNameInfo(campaign.getValidationConnectionStrategy(),thesaurus.getString(campaign.getValidationConnectionStrategy().name(), campaign.getValidationConnectionStrategy().name()));
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
