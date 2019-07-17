@@ -26,6 +26,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.BeforeClass;
@@ -46,7 +47,7 @@ public class FirmwareCampaignFactoryTest {
     private static Clock clock = mock(Clock.class);
     private static DeviceConfigurationService deviceConfigurationService = mock(DeviceConfigurationService.class);
     private static FirmwareCampaignInfoFactory firmwareCampaignInfoFactory;
-    private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    private static Thesaurus thesaurus = NlsModule.SimpleThesaurus.from(Arrays.asList(TranslationKeys.values()));
     private static DeviceMessageSpecificationService deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
     private static ResourceHelper resourceHelper = mock(ResourceHelper.class);
     private static FirmwareVersionInfoFactory firmwareVersionInfoFactory = mock(FirmwareVersionInfoFactory.class);
@@ -128,14 +129,12 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
-        when(firmwareCampaign.getCalendarUploadComTaskId()).thenReturn(1L);
-        when(firmwareCampaign.getCalendarUploadConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(firmwareCampaign.getFirmwareUploadComTaskId()).thenReturn(1L);
+        when(firmwareCampaign.getFirmwareUploadConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(comtask.getName()).thenReturn("comTaskName");
         when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
-        when(firmwareCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE)).thenReturn("As soon as possible");
-        when(firmwareCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS)).thenReturn("Minimize connections");
         return firmwareCampaign;
     }
 }

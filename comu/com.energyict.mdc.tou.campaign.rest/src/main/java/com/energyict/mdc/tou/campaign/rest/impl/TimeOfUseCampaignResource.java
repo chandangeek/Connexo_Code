@@ -47,6 +47,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -233,7 +234,7 @@ public class TimeOfUseCampaignResource {
     @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
     public Response getComTasks(@QueryParam("type") long deviceTypeId) {
 
-        Set<IdWithNameInfo> comTasks = new TreeSet<>();
+        Set<IdWithNameInfo> comTasks = new TreeSet<>(Comparator.comparing(IdWithNameInfo::getName));
 
         deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId))

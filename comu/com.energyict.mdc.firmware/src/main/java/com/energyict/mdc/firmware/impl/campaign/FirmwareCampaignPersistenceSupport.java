@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -134,21 +135,25 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .number()
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName())
+                .since(Version.version(10, 7))
                 .add();
-        table.column(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.databaseName())
+        table.column(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2LONG)
-                .map(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName())
+                .map(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName())
+                .since(Version.version(10, 7))
                 .add();
         table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.databaseName())
                 .varChar(Table.NAME_LENGTH)
                 .conversion(ColumnConversion.CHAR2ENUM)
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName())
+                .since(Version.version(10, 7))
                 .add();
-        table.column(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.databaseName())
+        table.column(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.databaseName())
                 .varChar(Table.NAME_LENGTH)
                 .conversion(ColumnConversion.CHAR2ENUM)
-                .map(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName())
+                .map(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName())
+                .since(Version.version(10, 7))
                 .add();
         table.foreignKey(FK_NAME + "_DT")
                 .on(deviceType)

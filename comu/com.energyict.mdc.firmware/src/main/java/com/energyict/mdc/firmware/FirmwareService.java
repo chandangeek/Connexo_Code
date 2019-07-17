@@ -123,7 +123,4 @@ public interface FirmwareService {
 
     Optional<DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
                                                        FirmwareVersion firmwareVersion);
-
-    DeviceConfigurationService getDeviceConfigurationService();
-
 }

@@ -279,7 +279,7 @@ Ext.define('Tou.view.AddForm', {
                         },
                         scope: me,
                         margin: '0 0 0 10',
-                        hidden: false
+                        hidden: true
                     }
                 ]
             },
@@ -314,9 +314,9 @@ Ext.define('Tou.view.AddForm', {
                 hidden: true,
                 disabled: true,
                 fieldLabel: Uni.I18n.translate(
-                    'general.validationMethodStrategy',
+                    'general.connectionMethodStrategy',
                     'TOU',
-                    'Validation method strategy'
+                    'Connection method strategy'
                 ),
                 items: [
                     {

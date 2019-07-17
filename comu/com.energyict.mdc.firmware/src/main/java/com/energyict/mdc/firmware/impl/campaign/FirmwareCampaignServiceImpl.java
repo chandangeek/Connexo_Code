@@ -116,32 +116,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     }
 
     @Override
-    public String getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy connectionStrategy){
-        if(connectionStrategy == null) {
-            return null;
-        } else if(connectionStrategy.name().equals("AS_SOON_AS_POSSIBLE")){
-            return TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
-        }else if (connectionStrategy.name().equals("MINIMIZE_CONNECTIONS")){
-            return TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public String getValidationConnectionStrategyTranslation(ConnectionStrategy connectionStrategy){
-        if(connectionStrategy == null) {
-            return null;
-        } else if(connectionStrategy.name().equals("AS_SOON_AS_POSSIBLE")){
-            return TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
-        }else if (connectionStrategy.name().equals("MINIMIZE_CONNECTIONS")){
-            return TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
     public Optional<FirmwareCampaign> getFirmwareCampaignById(long id) {
         return streamAllCampaigns().join(ServiceCall.class)
                 .filter(Where.where("serviceCall.id").isEqualTo(id)).findAny().map(FirmwareCampaign.class::cast);

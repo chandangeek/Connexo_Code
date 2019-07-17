@@ -5,10 +5,14 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 
 public enum TranslationKeys implements TranslationKey {
     STATUS_COMPLETED("completed", "Completed"),
     STATUS_CONFIGURATION_ERROR("configurationError", "Configuration error"),
+    FIRMWARE_COMTASK_NAME("firmwareComTaskName","Firmware management"),
+    MINIMIZE_CONNECTIONS(ConnectionStrategy.MINIMIZE_CONNECTIONS.name(), "Minimize connections"),
+    AS_SOON_AS_POSSIBLE(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name(), "As soon as possible"),
     ;
 
     private final String key;

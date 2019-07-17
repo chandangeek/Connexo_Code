@@ -83,17 +83,17 @@ public interface FirmwareCampaign extends HasId, HasName {
 
     List<DeviceInFirmwareCampaign> getDevices();
 
-    void setCalendarUploadComTaskId(long calendarUploadComTaskId);
+    void setFirmwareUploadComTaskId(long firmwareUploadComTaskId);
 
-    void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy);
+    void setFirmwareUploadConnectionStrategy(ConnectionStrategy firmwareUploadConnectionStrategy);
 
     void setValidationComTaskId(long validationComTaskId);
 
     void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy);
 
-    long getCalendarUploadComTaskId();
+    long getFirmwareUploadComTaskId();
 
-    ConnectionStrategy getCalendarUploadConnectionStrategy();
+    ConnectionStrategy getFirmwareUploadConnectionStrategy();
 
     long getValidationComTaskId();
 

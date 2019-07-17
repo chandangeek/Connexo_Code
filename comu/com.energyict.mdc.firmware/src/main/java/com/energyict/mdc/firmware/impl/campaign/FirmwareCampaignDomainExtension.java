@@ -74,9 +74,9 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
         PROPERTIES("properties", "properties"),
         VALIDATION_COMTASK_ID("validationComTaskId", "VALIDATION_COMTASK_ID"),
-        CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "CALENDAR_UPLOAD_COMTASK_ID"),
+        FIRMWARE_UPLOAD_COMTASK_ID("firmwareUploadComTaskId", "FIRMWARE_UPLOAD_COMTASK_ID"),
         VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
-        CALENDAR_UPLOAD_CONNECTIONSTRATEGY("calendarUploadConnectionStrategy", "CALENDAR_UPLOAD_CONSTRATEGY"),
+        FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "FIRMWARE_UPLOAD_CONSTRATEGY"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -126,8 +126,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private Instant activationDate;
     private TimeDuration validationTimeout;
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
-    private long calendarUploadComTaskId;
-    private ConnectionStrategy calendarUploadConnectionStrategy;
+    private long firmwareUploadComTaskId;
+    private ConnectionStrategy firmwareUploadConnectionStrategy;
     private long validationComTaskId;
     private ConnectionStrategy validationConnectionStrategy;
 
@@ -179,13 +179,13 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public void setCalendarUploadComTaskId(long calendarUploadComTaskId){
-        this.calendarUploadComTaskId = calendarUploadComTaskId;
+    public void setFirmwareUploadComTaskId(long firmwareUploadComTaskId){
+        this.firmwareUploadComTaskId = firmwareUploadComTaskId;
     }
 
     @Override
-    public void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy){
-        this.calendarUploadConnectionStrategy = calendarUploadConnectionStrategy;
+    public void setFirmwareUploadConnectionStrategy(ConnectionStrategy firmwareUploadConnectionStrategy){
+        this.firmwareUploadConnectionStrategy = firmwareUploadConnectionStrategy;
     }
 
     @Override
@@ -199,8 +199,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public ConnectionStrategy getCalendarUploadConnectionStrategy(){
-        return calendarUploadConnectionStrategy;
+    public ConnectionStrategy getFirmwareUploadConnectionStrategy(){
+        return firmwareUploadConnectionStrategy;
     }
 
     @Override
@@ -209,8 +209,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public long getCalendarUploadComTaskId(){
-        return calendarUploadComTaskId;
+    public long getFirmwareUploadComTaskId(){
+        return firmwareUploadComTaskId;
     }
 
     @Override
@@ -389,8 +389,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.setValidationTimeout((TimeDuration) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setFirmwareType((FirmwareType) propertyValues.getProperty(FieldNames.FIRMWARE_TYPE.javaName()));
         this.setManagementOption((ProtocolSupportedFirmwareOptions) propertyValues.getProperty(FieldNames.MANAGEMENT_OPTION.javaName()));
-        this.setCalendarUploadComTaskId((long)propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName()));
-        this.setCalendarUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName()));
+        this.setFirmwareUploadComTaskId((long)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName()));
+        this.setFirmwareUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName()));
         this.setValidationComTaskId((long)propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
         this.setValidationConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
     }
@@ -406,8 +406,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
         propertySetValues.setProperty(FieldNames.FIRMWARE_TYPE.javaName(), this.getFirmwareType());
         propertySetValues.setProperty(FieldNames.MANAGEMENT_OPTION.javaName(), this.getFirmwareManagementOption());
-        propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), this.getCalendarUploadComTaskId());
-        propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getCalendarUploadConnectionStrategy());
+        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(), this.getFirmwareUploadComTaskId());
+        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getFirmwareUploadConnectionStrategy());
         propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
         propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy());
 

@@ -125,12 +125,12 @@ public class FirmwareCampaignCustomPropertySet implements CustomPropertySet<Serv
                         .finish(),
                 propertySpecService
                         .longSpec()
-                        .named(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), TranslationKeys.CALENDAR_UPLOAD_COMTASK_ID)
+                        .named(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(), TranslationKeys.FIRMWARE_UPLOAD_COMTASK_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
                         .stringSpec()
-                        .named(FirmwareCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), TranslationKeys.CALENDAR_UPLOAD_CONNECTIONSTRATEGY)
+                        .named(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(), TranslationKeys.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService

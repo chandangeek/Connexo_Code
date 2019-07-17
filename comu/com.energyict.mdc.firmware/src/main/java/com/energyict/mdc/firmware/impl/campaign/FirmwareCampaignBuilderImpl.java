@@ -34,8 +34,8 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
     FirmwareType firmwareType;
     Map<PropertySpec, Object> properties;
-    long calendarUploadComTaskId;
-    ConnectionStrategy calendarUploadConnectionStrategy;
+    long firmwareUploadComTaskId;
+    ConnectionStrategy firmwareUploadConnectionStrategy;
     long validationComTaskId;
     ConnectionStrategy validationConnectionStrategy;
 
@@ -91,8 +91,8 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withCalendarUploadComTaskId(long calendarUploadComTaskId){
-        this.calendarUploadComTaskId = calendarUploadComTaskId;
+    public FirmwareCampaignBuilderImpl withFirmwareUploadComTaskId(long firmwareUploadComTaskId){
+        this.firmwareUploadComTaskId = firmwareUploadComTaskId;
         return this;
     }
     @Override
@@ -102,26 +102,14 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
-    public FirmwareCampaignBuilderImpl withCalendarUploadConnectionStrategy( String calendarUploadConnectionStrategy){
-        if("As soon as possible".equals(calendarUploadConnectionStrategy)){
-            this.calendarUploadConnectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE;
-        } else if("Minimize connections".equals(calendarUploadConnectionStrategy)){
-            this.calendarUploadConnectionStrategy = ConnectionStrategy.MINIMIZE_CONNECTIONS;
-        } else {
-            this.calendarUploadConnectionStrategy = null;
-        }
+    public FirmwareCampaignBuilderImpl withFirmwareUploadConnectionStrategy(String firmwareUploadConnectionStrategy){
+        this.firmwareUploadConnectionStrategy = ConnectionStrategy.valueOf(firmwareUploadConnectionStrategy);
         return this;
     }
 
     @Override
     public FirmwareCampaignBuilderImpl withValidationConnectionStrategy(String validationConnectionStrategy){
-        if("As soon as possible".equals(validationConnectionStrategy)){
-            this.validationConnectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE;
-        } else if("Minimize connections".equals(validationConnectionStrategy)){
-            this.validationConnectionStrategy = ConnectionStrategy.MINIMIZE_CONNECTIONS;
-        } else {
-            this.validationConnectionStrategy = null;
-        }
+        this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy);
         return this;
     }
 
@@ -144,8 +132,8 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
         firmwareCampaign.setUploadPeriodStart(uploadStart);
         firmwareCampaign.setUploadPeriodEnd(uploadEnd);
         firmwareCampaign.setManagementOption(protocolSupportedFirmwareOptions);
-        firmwareCampaign.setCalendarUploadComTaskId(calendarUploadComTaskId);
-        firmwareCampaign.setCalendarUploadConnectionStrategy(calendarUploadConnectionStrategy);
+        firmwareCampaign.setFirmwareUploadComTaskId(firmwareUploadComTaskId);
+        firmwareCampaign.setFirmwareUploadConnectionStrategy(firmwareUploadConnectionStrategy);
         firmwareCampaign.setValidationComTaskId(validationComTaskId);
         firmwareCampaign.setValidationConnectionStrategy(validationConnectionStrategy);
         Optional.ofNullable(activationDate).ifPresent(firmwareCampaign::setActivationDate);

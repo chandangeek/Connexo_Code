@@ -47,7 +47,4 @@ public interface FirmwareCampaignService {
 
     ComTask getComTaskById(long id);
 
-    String getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy connectionStrategy);
-
-    String getValidationConnectionStrategyTranslation(ConnectionStrategy connectionStrategy);
 }

@@ -44,7 +44,4 @@ public interface TimeOfUseCampaignService {
 
     ComTask getComTaskById(long id);
 
-    String getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy connectionStrategy);
-
-    String getValidationConnectionStrategyTranslation(ConnectionStrategy connectionStrategy);
 }

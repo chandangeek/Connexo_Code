@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Created by bvn on 8/12/14.
  */
-public class IdWithNameInfo implements Comparable<IdWithNameInfo>{
+public class IdWithNameInfo {
     public Object id;
     public String name;
 
@@ -38,6 +38,12 @@ public class IdWithNameInfo implements Comparable<IdWithNameInfo>{
             return false;
         }
         IdWithNameInfo that = (IdWithNameInfo) obj;
+        if (this.id == null && that.id == null) {
+            return true;
+        }
+        if(this.id == null && that.id != null) {
+            return false;
+        }
         return this.id.equals(that.id);
     }
 
@@ -46,11 +52,7 @@ public class IdWithNameInfo implements Comparable<IdWithNameInfo>{
         return Objects.hash(id);
     }
 
-   @Override
-    public int compareTo(IdWithNameInfo other){
-        if (other == null) {
-            return 1;
-        }
-        return ((Number)this.id).intValue() - ((Number)other.id).intValue();
+    public String getName() {
+        return name;
     }
 }

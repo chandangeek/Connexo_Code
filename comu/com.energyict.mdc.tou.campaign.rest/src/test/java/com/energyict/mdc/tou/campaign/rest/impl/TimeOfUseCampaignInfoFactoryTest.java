@@ -41,7 +41,7 @@ public class TimeOfUseCampaignInfoFactoryTest {
     private static DeviceConfigurationService deviceConfigurationService = mock(DeviceConfigurationService.class);
     private static CalendarService calendarService = mock(CalendarService.class);
     private static TimeOfUseCampaignInfoFactory timeOfUseCampaignInfoFactory;
-    private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    private static Thesaurus thesaurus = NlsModule.SimpleThesaurus.from(new TimeOfUseApplication().getKeys());
     private static TaskService taskService  = mock(TaskService.class);
     private static ExceptionFactory exceptionFactory = mock(ExceptionFactory.class);
 
@@ -133,8 +133,6 @@ public class TimeOfUseCampaignInfoFactoryTest {
         ComTask comtask = mock(ComTask.class);
         when(timeOfUseCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         when(timeOfUseCampaignService.getComTaskById(anyLong()).getName()).thenReturn("ctask");
-        when(timeOfUseCampaignService.getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy.AS_SOON_AS_POSSIBLE)).thenReturn("As soon as possible");
-        when(timeOfUseCampaignService.getValidationConnectionStrategyTranslation(ConnectionStrategy.MINIMIZE_CONNECTIONS)).thenReturn("Minimize connections");
         return timeOfUseCampaign;
     }
 }

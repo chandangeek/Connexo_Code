@@ -351,23 +351,29 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private void scheduleFirmwareTask() {
         ComTaskExecution firmwareComTaskExec = getFirmwareComTaskExec();
         Instant appliedStartDate = parent.get().getExtension(FirmwareCampaignDomainExtension.class).get().getUploadPeriodStart();
-
-        Optional<FirmwareCampaign> campaign = firmwareCampaignService.getCampaignOn(firmwareComTaskExec);
-        ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(device.get()).get().getServiceCall();
+        Optional<? extends FirmwareCampaign> campaign = getServiceCall().getParent().get().getExtension(FirmwareCampaignDomainExtension.class);
         ConnectionStrategy connectionStrategy;
+        boolean isFirmwareComTaskStart = false;
         if (campaign.isPresent()) {
             if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
                     firmwareComTaskExec.getNextExecutionTimestamp().isAfter(appliedStartDate)) {
                 connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
-                if (connectionStrategy == campaign.get().getCalendarUploadConnectionStrategy()
-                        || campaign.get().getCalendarUploadConnectionStrategy() == null){
+                if (connectionStrategy == campaign.get().getFirmwareUploadConnectionStrategy()
+                        || campaign.get().getFirmwareUploadConnectionStrategy() == null){
                     firmwareComTaskExec.schedule(appliedStartDate);
+                    isFirmwareComTaskStart = true;
                 }else{
-                    serviceCallService.lockServiceCall(serviceCall.getId());
-                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
-                    serviceCall.requestTransition(DefaultState.REJECTED);
+                    serviceCallService.lockServiceCall(getServiceCall().getId());
+                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.get().getFirmwareUploadConnectionStrategy().name(), firmwareComTaskExec.getComTask().getName()));
+                    getServiceCall().requestTransition(DefaultState.REJECTED);
+                    return;
                 }
             }
+        }
+        if(!isFirmwareComTaskStart){
+            serviceCallService.lockServiceCall(getServiceCall().getId());
+            getServiceCall().log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format(firmwareComTaskExec.getComTask().getName()));
+            getServiceCall().requestTransition(DefaultState.REJECTED);
         }
     }
 

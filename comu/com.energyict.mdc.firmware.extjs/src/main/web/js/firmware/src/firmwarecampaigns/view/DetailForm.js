@@ -166,9 +166,9 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         itemId: 'fwc-campaign-validation-connection-strategy',
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate(
-                            'general.validationMethodStrategy',
+                            'general.connectionMethodStrategy',
                             'FWC',
-                            'Validation method strategy'
+                            'Connection method strategy'
                         ),
                         name: 'validationConnectionStrategy',
                         renderer: function (item) {

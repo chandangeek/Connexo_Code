@@ -288,22 +288,47 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
 
     private void scheduleVerification(Device device, long validationTimeout) {
         ServiceCall serviceCall = timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(device).get().getServiceCall();
-        Optional<TimeOfUseCampaign> campaignOptional = timeOfUseCampaignService.getCampaignOn(device.getComTaskExecutions().get(0));
+        Optional<? extends TimeOfUseCampaign> campaignOptional = serviceCall.getParent().get().getExtension(TimeOfUseCampaignDomainExtension.class);
+        boolean isVerificationComTaskStart = false;
         if (campaignOptional.isPresent()) {
             TimeOfUseCampaign campaign = campaignOptional.get();
-            if(campaign.getValidationComTaskId() != 0) {
-                ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
-                        .filter(cte -> cte.getComTask().getId() == campaign.getValidationComTaskId())
-                        .findFirst().orElse(null);
-                ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                if (connectionStrategy == campaign.getValidationConnectionStrategy()) {
-                    comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
-                } else {
-                    serviceCallService.lockServiceCall(serviceCall.getId());
-                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
-                    serviceCall.requestTransition(DefaultState.REJECTED);
+            Optional<ComTaskEnablement> comTaskEnablementOptional = device.getDeviceConfiguration().getComTaskEnablements().stream()
+                    .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
+                            .anyMatch(task -> task instanceof StatusInformationTask))
+                    .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
+                    .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
+                            .noneMatch(protocolTask -> protocolTask instanceof MessagesTask))
+                    .filter(comTaskEnablement ->  comTaskEnablement.getComTask().getId() == campaign.getValidationComTaskId())
+                    .filter(comTaskEnablement -> (timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablement) == null)
+                            || (!timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablement).isOnHold()))
+                    .findAny();
+            if (comTaskEnablementOptional.isPresent()) {
+                if (campaign.getValidationComTaskId() != 0) {
+                    ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
+                            .filter(cte -> cte.getComTask().equals(comTaskEnablementOptional.get().getComTask()))
+                            .findAny().orElse(null);
+                    if (comTaskExecution == null) {
+                        comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
+                    }
+                    if (comTaskExecution.getConnectionTask().isPresent()) {
+                        ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
+                        if (connectionStrategy == campaign.getValidationConnectionStrategy()) {
+                            comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
+                            isVerificationComTaskStart = true;
+                        } else {
+                            serviceCallService.lockServiceCall(serviceCall.getId());
+                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.getValidationConnectionStrategy().name(), comTaskExecution.getComTask().getName()));
+                            serviceCall.requestTransition(DefaultState.REJECTED);
+                            return;
+                        }
+                    }
                 }
             }
+        }
+        if (!isVerificationComTaskStart) {
+            serviceCallService.lockServiceCall(serviceCall.getId());
+            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+            serviceCall.requestTransition(DefaultState.REJECTED);
         }
     }
 }

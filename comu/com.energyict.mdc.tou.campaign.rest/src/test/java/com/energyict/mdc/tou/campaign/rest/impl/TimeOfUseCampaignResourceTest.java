@@ -274,9 +274,9 @@ public class TimeOfUseCampaignResourceTest extends BaseTouTest {
         ComTaskEnablement cte = mock(ComTaskEnablement.class);
 
         ComTask comTask = mock(ComTask.class);
-        comTask.setName("comTask");
         when(comTask.getId()).thenReturn(1L);
         when(comTask.isSystemComTask()).thenReturn(true);
+        when(comTask.getName()).thenReturn("comTask");
 
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("devType");

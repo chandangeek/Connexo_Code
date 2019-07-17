@@ -75,26 +75,14 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy) {
-        if("As soon as possible".equals(calendarUploadConnectionStrategy)){
-            this.calendarUploadConnectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE;
-        } else if("Minimize connections".equals(calendarUploadConnectionStrategy)){
-            this.calendarUploadConnectionStrategy = ConnectionStrategy.MINIMIZE_CONNECTIONS;
-        } else {
-            this.calendarUploadConnectionStrategy = null;
-        }
+    public TimeOfUseCampaignBuilder withCalendarUploadConnectionStrategy(String firmwareUploadConnectionStrategy){
+        this.calendarUploadConnectionStrategy = ConnectionStrategy.valueOf(firmwareUploadConnectionStrategy.toUpperCase().replace(' ', '_'));
         return this;
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withValidationConnectionStrategy(String validationConnectionStrategy) {
-        if("As soon as possible".equals(validationConnectionStrategy)){
-            this.validationConnectionStrategy = ConnectionStrategy.AS_SOON_AS_POSSIBLE;
-        } else if("Minimize connections".equals(validationConnectionStrategy)){
-            this.validationConnectionStrategy = ConnectionStrategy.MINIMIZE_CONNECTIONS;
-        } else {
-            this.validationConnectionStrategy = null;
-        }
+    public TimeOfUseCampaignBuilder withValidationConnectionStrategy(String validationConnectionStrategy){
+        this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy.toUpperCase().replace(' ', '_'));
         return this;
     }
 

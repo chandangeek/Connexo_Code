@@ -82,8 +82,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
                 MultiPartFeature.class,
                 RestValidationExceptionMapper.class,
                 DeviceStateAccessFeature.class,
-                SecurityAccessorResource.class,
-                DeviceConfigurationService.class
+                SecurityAccessorResource.class
         );
     }
 

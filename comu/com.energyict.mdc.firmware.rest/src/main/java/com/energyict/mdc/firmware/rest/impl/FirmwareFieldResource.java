@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -33,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -46,15 +48,17 @@ public class FirmwareFieldResource extends FieldResource {
     private final ResourceHelper resourceHelper;
     private final FirmwareMessageInfoFactory firmwareMessageInfoFactory;
     private final ExceptionFactory exceptionFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     @Inject
     public FirmwareFieldResource(Thesaurus thesaurus, FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareMessageInfoFactory firmwareMessageInfoFactory,
-                                 ExceptionFactory exceptionFactory) {
+                                 ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService) {
         super(thesaurus);
         this.firmwareService = firmwareService;
         this.resourceHelper = resourceHelper;
         this.firmwareMessageInfoFactory = firmwareMessageInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @GET
@@ -154,9 +158,9 @@ public class FirmwareFieldResource extends FieldResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getComTasks(@QueryParam("type") long deviceTypeId) {
 
-        Set<IdWithNameInfo> comTasks = new TreeSet<>();
+        Set<IdWithNameInfo> comTasks = new TreeSet<>(Comparator.comparing(IdWithNameInfo::getName));
 
-        firmwareService.getDeviceConfigurationService().findDeviceType(deviceTypeId)
+        deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
                 .flatMap( cnf -> cnf.getComTaskEnablements().stream())
@@ -168,14 +172,14 @@ public class FirmwareFieldResource extends FieldResource {
 
     @GET
     @Transactional
-    @Path("/calendarUploadComTasks")
+    @Path("/firmwareuploadcomtasks")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendarUploadComTasks(@QueryParam("type") long deviceTypeId) {
 
-        Set<IdWithNameInfo> comTasks = new TreeSet<>();
+        Set<IdWithNameInfo> comTasks = new TreeSet<>(Comparator.comparing(IdWithNameInfo::getName));
 
-        firmwareService.getDeviceConfigurationService().findDeviceType(deviceTypeId)
+        deviceConfigurationService.findDeviceType(deviceTypeId)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
                 .flatMap( cnf -> cnf.getComTaskEnablements().stream())

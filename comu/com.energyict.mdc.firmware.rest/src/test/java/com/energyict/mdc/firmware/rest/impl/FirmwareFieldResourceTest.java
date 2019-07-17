@@ -31,9 +31,9 @@ public class FirmwareFieldResourceTest extends BaseFirmwareTest{
         ComTaskEnablement cte = mock(ComTaskEnablement.class);
 
         ComTask comTask = mock(ComTask.class);
-        comTask.setName("comTask");
         when(comTask.getId()).thenReturn(1L);
         when(comTask.isSystemComTask()).thenReturn(true);
+        when(comTask.getName()).thenReturn("comTask");
 
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("devType");
@@ -44,13 +44,12 @@ public class FirmwareFieldResourceTest extends BaseFirmwareTest{
         List<ComTaskEnablement> cteList = new ArrayList<>();
         cteList.add(cte);
 
-        when(firmwareService.getDeviceConfigurationService()).thenReturn(deviceConfigurationService);
         when(deviceConfigurationService.findDeviceType(anyLong())).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(configsList);
         when(deviceConfig.getComTaskEnablements()).thenReturn(cteList);
         when(cte.getComTask()).thenReturn(comTask);
 
-        String json = target("/field/comtasks").queryParam("type", 1).request().get(String.class);
+        String json = target("field/comtasks").queryParam("type", 1).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.[0].id")).isEqualTo(((Number) comTask.getId()).intValue());
         assertThat(jsonModel.<String>get("$.[0].name")).isEqualTo(comTask.getName());
@@ -75,13 +74,12 @@ public class FirmwareFieldResourceTest extends BaseFirmwareTest{
         List<ComTaskEnablement> cteList = new ArrayList<>();
         cteList.add(cte);
 
-        when(firmwareService.getDeviceConfigurationService()).thenReturn(deviceConfigurationService);
         when(deviceConfigurationService.findDeviceType(anyLong())).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(configsList);
         when(deviceConfig.getComTaskEnablements()).thenReturn(cteList);
         when(cte.getComTask()).thenReturn(comTask);
 
-        String json = target("/field/calendarUploadComTasks").queryParam("type", 1).request().get(String.class);
+        String json = target("/field/firmwareuploadcomtasks").queryParam("type", 1).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.[0].id")).isEqualTo(((Number) comTask.getId()).intValue());
         assertThat(jsonModel.<String>get("$.[0].name")).isEqualTo(comTask.getName());

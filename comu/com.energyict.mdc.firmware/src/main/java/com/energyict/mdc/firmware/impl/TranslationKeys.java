@@ -5,6 +5,7 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 
 /**
  * Insert your comments here.
@@ -28,12 +29,12 @@ public enum TranslationKeys implements TranslationKey {
     DEVICE_MESSAGE_ID("deviceMessageId", "Device message id"),
     FIRMWARE_CAMPAIGN_CPS("FirmwareCampaignCustomPropertySet", "Firmware campaign custom property set"),
     FIRMWARE_CAMPAIGN_ITEM_CPS("FirmwareCampaignItemCustomPropertySet", "Firmware campaign item custom property set"),
-    VALIDATION_COMTASK_ID("validationComTaskId", "Validation comTask Id"),
-    CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "Calendar upload comTask Id"),
+    VALIDATION_COMTASK_ID("validationComTaskId", "Validation communication task id"),
+    FIRMWARE_UPLOAD_COMTASK_ID("firmwareUploadComTaskId", "Firmware upload communication task id"),
     VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "Validation connection strategy"),
-    CALENDAR_UPLOAD_CONNECTIONSTRATEGY("calendarUploadConnectionStrategy", "Calendar upload connection strategy"),
-    MINIMIZE_CONNECTIONS("MinimizeConnections", "Minimize connections"),
-    AS_SOON_AS_POSSIBLE("AsSoonAsPossible", "As soon as possible"),
+    FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "Firmware upload connection strategy"),
+    MINIMIZE_CONNECTIONS(ConnectionStrategy.MINIMIZE_CONNECTIONS.name(), "Minimize connections"),
+    AS_SOON_AS_POSSIBLE(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name(), "As soon as possible"),
 //   MANAGEMENT_OPTION("","" )
     ;
 

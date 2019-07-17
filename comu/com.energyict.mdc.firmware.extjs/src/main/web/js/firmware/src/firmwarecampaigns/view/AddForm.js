@@ -276,9 +276,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 hidden: true,
                 disabled: true,
                 fieldLabel: Uni.I18n.translate(
-                    'general.validationMethodStrategy',
+                    'general.connectionMethodStrategy',
                     'FWC',
-                    'Validation method strategy'
+                    'Connection method strategy'
                 ),
                 items: [
                     {

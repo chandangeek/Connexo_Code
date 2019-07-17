@@ -233,9 +233,9 @@ Ext.define('Tou.view.DetailForm', {
                         itemId: 'tou-campaign-validation-connection-strategy',
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate(
-                            'general.validationMethodStrategy',
+                            'general.connectionMethodStrategy',
                             'TOU',
-                            'Validation method strategy'
+                            'Connection method strategy'
                         ),
                         hidden: true,
                         name: 'validationConnectionStrategy',

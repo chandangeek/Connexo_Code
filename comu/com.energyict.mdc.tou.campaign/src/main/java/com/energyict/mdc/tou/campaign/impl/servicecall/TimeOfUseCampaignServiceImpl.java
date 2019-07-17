@@ -485,35 +485,17 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     void setCalendarOnDevice(ServiceCall serviceCall) {
         Device device = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().getDevice();
-        TimeOfUseCampaign campaign = serviceCall.getParent()
-                        .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.SERVICE_CALL_PARENT_NOT_FOUND))
-                        .getExtension(TimeOfUseCampaignDomainExtension.class)
-                        .orElse(null);
-
-        boolean isSendCalendarCTStarted = false;
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-            if (comTaskExecution.getComTask().getId() == campaign.getCalendarUploadComTaskId() && connectionStrategy == campaign.getCalendarUploadConnectionStrategy()){
-                try {
-                    dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall, comTaskExecution);
-                } catch (DeviceMessageNotAllowedException e) {
-                    serviceCallService.lockServiceCall(serviceCall.getId());
-                    if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
-                        serviceCall.requestTransition(DefaultState.REJECTED);
-                    }
-                    serviceCall.log(e.getLocalizedMessage(), e);
-                }
-                isSendCalendarCTStarted = true;
-            }
-        }
-        if(!isSendCalendarCTStarted){
+        try {
+            dataModel.getInstance(TimeOfUseSendHelper.class).setCalendarOnDevice(device, serviceCall);
+        } catch (DeviceMessageNotAllowedException e) {
             serviceCallService.lockServiceCall(serviceCall.getId());
-            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.DEVICE_CONFIGURATION_ERROR).format());
-            serviceCall.requestTransition(DefaultState.REJECTED);
+            if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
+                serviceCall.requestTransition(DefaultState.REJECTED);
+            }
+            serviceCall.log(e.getLocalizedMessage(), e);
         }
     }
+
 
     void revokeCalendarsCommands(Device device) {
         device.getMessages().stream()
@@ -625,31 +607,5 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     @Override
     public ComTask getComTaskById(long id){
         return taskService.findComTask(id).get();
-    }
-
-    @Override
-    public String getCalendarUploadConnectionStrategyTranslation(ConnectionStrategy connectionStrategy){
-        if(connectionStrategy == null) {
-            return null;
-        } else if(connectionStrategy.name().equals("AS_SOON_AS_POSSIBLE")){
-            return TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
-        }else if (connectionStrategy.name().equals("MINIMIZE_CONNECTIONS")){
-            return TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public String getValidationConnectionStrategyTranslation(ConnectionStrategy connectionStrategy){
-        if(connectionStrategy == null) {
-            return null;
-        } else if(connectionStrategy.name().equals("AS_SOON_AS_POSSIBLE")){
-            return TranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat();
-        }else if (connectionStrategy.name().equals("MINIMIZE_CONNECTIONS")){
-            return TranslationKeys.MINIMIZE_CONNECTIONS.getDefaultFormat();
-        } else {
-            return null;
-        }
     }
 }
