@@ -162,11 +162,11 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         String current = Instant.ofEpochSecond(unixTime)
                 .atZone(ZoneId.of("GMT-4"))
                 .format(formatter);
-        Optional<String> user = Optional.ofNullable(
-                Optional.ofNullable(issue.getAssignee().getUser().getName()).orElse("Unassigned"));
-        String content = "Alarm Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
-                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + issue.getAssignee().getUser().getName()+ "\n" + "Priority : " + totalPriority + "\n" + "Creation Date : " + current;
-        return content;
+        Optional<String> user=Optional.of("Unassigned");
+        if(issue.getAssignee().getUser() != null)
+            user = Optional.of(issue.getAssignee().getUser().getName());
+        return "Alarm Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
+                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + user.get()+ "\n" + "Priority : " + totalPriority + "\n" + "Creation Date : " + current;
     }
     @Override
     public List<PropertySpec> getPropertySpecs() {
