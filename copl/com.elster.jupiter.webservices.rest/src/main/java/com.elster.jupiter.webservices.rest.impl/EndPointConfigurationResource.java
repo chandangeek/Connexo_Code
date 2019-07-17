@@ -5,6 +5,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -73,7 +74,6 @@ public class EndPointConfigurationResource {
     private final WebServiceCallOccurrenceLogInfoFactory endpointConfigurationLogInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
     private final WebServiceCallOccurrenceInfoFactory endpointConfigurationOccurrenceInfoFactorty;
-    private final OrmService ormService;
     private final ThreadPrincipalService threadPrincipalService;
     private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
@@ -85,7 +85,6 @@ public class EndPointConfigurationResource {
                                          WebServiceCallOccurrenceLogInfoFactory endpointConfigurationLogInfoFactory,
                                          ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
                                          WebServiceCallOccurrenceInfoFactory endpointConfigurationOccurrenceInfoFactorty,
-                                         OrmService ormService,
                                          ThreadPrincipalService threadPrincipalService,
                                          WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
         this.endPointConfigurationService = endPointConfigurationService;
@@ -95,7 +94,6 @@ public class EndPointConfigurationResource {
         this.endpointConfigurationLogInfoFactory = endpointConfigurationLogInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
         this.endpointConfigurationOccurrenceInfoFactorty = endpointConfigurationOccurrenceInfoFactorty;
-        this.ormService = ormService;
         this.threadPrincipalService = threadPrincipalService;
         this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
     }

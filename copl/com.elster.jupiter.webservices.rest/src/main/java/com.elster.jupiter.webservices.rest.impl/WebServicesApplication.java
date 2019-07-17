@@ -18,7 +18,9 @@ import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -34,6 +36,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.servicecall.rest",
         service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true,
@@ -79,7 +84,8 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(WebServicesService.COMPONENT_NAME, Layer.DOMAIN)));
     }
 
     @Reference
