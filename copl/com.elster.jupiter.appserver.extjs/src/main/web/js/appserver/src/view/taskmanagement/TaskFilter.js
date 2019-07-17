@@ -31,7 +31,7 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 valueField: 'queueType',
                 store: me.queueTypesStore,
                 matchFieldWidth: false,
-                itemid: 'task-queue-type'
+                itemId: 'task-queue-type'
             },
             {
                 type: 'combobox',
