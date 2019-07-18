@@ -43,9 +43,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_DEVICE_FOUND_BY_SERIAL_ID(4004, "NoDeviceFoundBySerialId", "No device found with serial id ''{0}''"),
     SEVERAL_DEVICES(4005, "SeveralDevices", "There are several devices with serial id ''{0}''"),
     DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with serial id ''{0}'' already has SAP identifier"),
-    REGISTER_NOT_FOUND(4007, "RegisterNotFound", "Register not found"),
-    REGISTER_HAS_LRN_YET(4008, "RegisterHasLrnYet", "Register ''{0}'' has LRN yet (range is ''{1}'')."),
-    FAILED_REGISTER(4009, "FailedRegister", "The following registers are failed: ''{0}'' (no register found, register has LRN yet or something else)"),
+    REGISTER_NOT_FOUND(4007, "RegisterNotFound", "Register ''{0}'' not found"),
+    REGISTER_HAS_LRN_YET(4008, "RegisterHasLrnYet", "Register ''{0}'' has LRN yet (range is ''{1}'')"),
+    FAILED_REGISTER(4009, "FailedRegister", "The following registers are failed: ''{0}''"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),

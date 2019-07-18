@@ -21,6 +21,7 @@ import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -58,6 +59,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -98,6 +100,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     private volatile BundleContext bundleContext;
     private volatile MessageService messageService;
 
+    private final List<StateTransitionWebServiceClient> stateTransitionWebServiceClients = new CopyOnWriteArrayList<>();
     private final RegistrationHandler registrationHandler = new DelayedRegistrationHandler();
 
     // For OSGi purposes
@@ -239,6 +242,19 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addStateTransitionWebServiceClient(StateTransitionWebServiceClient stateTransitionWebServiceClient) {
+        stateTransitionWebServiceClients.add(stateTransitionWebServiceClient);
+    }
+
+    public void removeStateTransitionWebServiceClient(StateTransitionWebServiceClient stateTransitionWebServiceClient) {
+        stateTransitionWebServiceClients.remove(stateTransitionWebServiceClient);
+    }
+
+    public List<StateTransitionWebServiceClient> getStateTransitionWebServiceClients() {
+        return Collections.unmodifiableList(this.stateTransitionWebServiceClients);
     }
 
     @Override

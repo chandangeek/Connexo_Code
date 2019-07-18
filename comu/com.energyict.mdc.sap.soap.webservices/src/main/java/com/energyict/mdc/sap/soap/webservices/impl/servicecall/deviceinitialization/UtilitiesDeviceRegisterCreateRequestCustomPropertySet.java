@@ -150,10 +150,23 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                         .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.END_DATE.javaName(), TranslationKeys.END_DATE)
                         .describedAs(TranslationKeys.END_DATE)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
+                        .describedAs(TranslationKeys.ERROR_CODE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
+                        .describedAs(TranslationKeys.ERROR_MESSAGE)
+                        .fromThesaurus(thesaurus)
                         .finish()
 
         );
     }
+
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, UtilitiesDeviceRegisterCreateRequestDomainExtension> {
         private final String TABLE_NAME = "SAP_CPS_UD1";
         private final String FK = "FK_SAP_CPS_UD1";
@@ -219,6 +232,14 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.END_DATE.javaName())
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
+                    .varChar(80)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName())
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
+                    .varChar(4000)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
                     .add();
         }
 

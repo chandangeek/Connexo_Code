@@ -11,6 +11,8 @@ import com.energyict.mdc.device.data.Device;
 
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
@@ -46,17 +48,29 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
 
     private void processServiceCall(ServiceCall serviceCall) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
+
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
         if (device.isPresent()) {
             //TODO: we can set LRN for channels
             Optional<Register> register = device.get().getRegisterWithDeviceObisCode(ObisCode.fromString(extension.getRegisterId()));
             if(register.isPresent()){
-                sapCustomPropertySets.setLrn(register.get(), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
+                try {
+                    sapCustomPropertySets.setLrn(register.get(), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
+                } catch (SAPWebServiceException ex) {
+                    extension.setError(ex.getMessageSeed(), ex.getMessageArgs());
+                    serviceCall.update(extension);
+                    serviceCall.requestTransition(DefaultState.FAILED);
+                    return;
+                }
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
+                extension.setError(MessageSeeds.REGISTER_NOT_FOUND, extension.getRegisterId() );
+                serviceCall.update(extension);
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         } else {
+            extension.setError(MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID, extension.getDeviceId());
+            serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
     }

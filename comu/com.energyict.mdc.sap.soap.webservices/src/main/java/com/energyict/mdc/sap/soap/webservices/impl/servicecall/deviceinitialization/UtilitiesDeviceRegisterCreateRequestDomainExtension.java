@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
@@ -27,6 +28,10 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         LRN("lrn", "lrn"),
         START_DATE("startDate", "startDate"),
         END_DATE("endDate", "endDate"),
+
+        //returned
+        ERROR_CODE("errorCode", "errorCode"),
+        ERROR_MESSAGE("errorMessage", "errorMessage"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -62,6 +67,12 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
 
     private Instant startDate;
     private Instant endDate;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String errorCode;
+
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String errorMessage;
 
     public String getRegisterId() {
         return registerId;
@@ -103,6 +114,27 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.endDate = endDate;
     }
 
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public void setError(MessageSeed messageSeed, Object... args ){
+        setErrorCode(String.valueOf(messageSeed.getNumber()));
+        setErrorMessage(((MessageSeeds)messageSeed).getDefaultFormat(args));
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -111,6 +143,8 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setStartDate((Instant) propertyValues.getProperty(FieldNames.START_DATE.javaName()));
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
+        this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
+        this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
 
     @Override
@@ -120,6 +154,8 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         propertySetValues.setProperty(FieldNames.LRN.javaName(), this.getLrn());
         propertySetValues.setProperty(FieldNames.START_DATE.javaName(), this.getStartDate());
         propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
+        propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
+        propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }
 
     @Override

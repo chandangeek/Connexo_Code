@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("unused")
 public class StateTriggerEventTopicHandler extends StateTransitionTriggerEventTopicHandler {
 
-    private final List<StateTransitionWebServiceClient> stateTransitionWebServiceClients = new ArrayList<>();
+
     private Logger logger = Logger.getLogger(StateTriggerEventTopicHandler.class.getName());
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile EventService eventService;
@@ -84,18 +84,6 @@ public class StateTriggerEventTopicHandler extends StateTransitionTriggerEventTo
         this.finiteStateMachineService = finiteStateMachineService;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addStateTransitionWebServiceClient(StateTransitionWebServiceClient stateTransitionWebServiceClient) {
-        stateTransitionWebServiceClients.add(stateTransitionWebServiceClient);
-    }
-
-    public void removeStateTransitionWebServiceClient(StateTransitionWebServiceClient stateTransitionWebServiceClient) {
-        stateTransitionWebServiceClients.remove(stateTransitionWebServiceClient);
-    }
-
-    public List<StateTransitionWebServiceClient> getStateTransitionWebServiceClients() {
-        return Collections.unmodifiableList(this.stateTransitionWebServiceClients);
-    }
 
     @Override
     public void handle(LocalEvent localEvent) {
@@ -108,7 +96,7 @@ public class StateTriggerEventTopicHandler extends StateTransitionTriggerEventTo
         finiteStateMachineService.findFiniteStateById(Long.parseLong(stateId))
                 .ifPresent(state -> {
                     new StateTransitionTriggerEventTopicHandler.StartExternalProcessesOnEntry(bpmService, usagePointProvider, state.getOnEntryProcesses(), sourceId, state, sourceType).startAll();
-                    new StateTransitionTriggerEventTopicHandler.CallWebServiceClientOnEntry(stateTransitionWebServiceClients, state.getOnEntryEndPointConfigurations(), sourceId, state, sourceType).callAll();
+                    new StateTransitionTriggerEventTopicHandler.CallWebServiceClientOnEntry(finiteStateMachineService.getStateTransitionWebServiceClients(), state.getOnEntryEndPointConfigurations(), sourceId, state, sourceType).callAll();
 
                 });
             }

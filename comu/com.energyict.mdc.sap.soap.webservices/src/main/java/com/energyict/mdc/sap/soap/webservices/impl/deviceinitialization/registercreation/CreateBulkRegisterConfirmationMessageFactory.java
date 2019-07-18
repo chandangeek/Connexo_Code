@@ -11,6 +11,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.BusinessDocumentMessageID;
@@ -102,33 +103,42 @@ public class CreateBulkRegisterConfirmationMessageFactory {
 
         List<ServiceCall> children = findChildren(childServiceCall);
         if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
-            if (hasAllChildState(children, DefaultState.SUCCESSFUL)) {
-                confirmationMessage.setLog(createSuccessfulLog());
+            confirmationMessage.setLog(createSuccessfulLog());
+        } else if (childServiceCall.getState() == DefaultState.FAILED) {
+            if (isDeviceNotFoundError(children)) {
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID.code(), MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID.getDefaultFormat(extension.getDeviceId())));
             } else {
-                List<String> failedRegister = findFailedRegister(children);
-                if(!failedRegister.isEmpty()) {
-                    confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegister.toString())));
-                }else{
+                String failedRegisterError = createRegisterError(children);
+                if (!failedRegisterError.isEmpty()) {
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegisterError)));
+                } else {
                     confirmationMessage.setLog(createFailedLog());
                 }
-            }
-        } else if (childServiceCall.getState() == DefaultState.FAILED) {
-            List<String> failedRegister = findFailedRegister(children);
-            if(!failedRegister.isEmpty()) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegister.toString())));
-            }else{
-                confirmationMessage.setLog(createFailedLog());
             }
         }
         return confirmationMessage;
     }
 
-    private List<String> findFailedRegister(List<ServiceCall> serviceCalls){
+    private boolean isDeviceNotFoundError(List<ServiceCall> serviceCalls) {
         return serviceCalls.stream()
-                .filter(child->child.getState() == DefaultState.FAILED)
-                .map(child->child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get())
-                .map(ext->ext.getRegisterId())
-                .collect(Collectors.toList());
+                .filter(child -> child.getState() == DefaultState.FAILED)
+                .map(child -> child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get())
+                .anyMatch(each -> each.getErrorCode().equals(MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID.code()));
+    }
+
+    private String createRegisterError(List<ServiceCall> serviceCalls) {
+        StringBuffer message = new StringBuffer();
+        for (ServiceCall child : serviceCalls) {
+            if (child.getState() == DefaultState.FAILED) {
+                UtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
+                String startMsg = "";
+                if (message.length() != 0) {
+                    startMsg = "; ";
+                }
+                message.append(startMsg +  extension.getErrorMessage());
+            }
+        }
+        return message.toString();
     }
 
     private UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce createChildBody(String sapDeviceId) {

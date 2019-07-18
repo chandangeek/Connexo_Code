@@ -463,8 +463,8 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
         for (ValuesRangeConflict conflict : overlapCalculatorBuilder.whenCreating(range)) {
             if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_DELETE)) {
-                throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.REGISTER_HAS_LRN_YET)
-                        .format(register.getObisCode(), range.toString()));
+                throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_HAS_LRN_YET,
+                        register.getObisCode(), range.toString());
             } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)) {
                 customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
                         register.getRegisterSpec(), CustomPropertySetValues.empty(), conflict.getConflictingRange(), register.getDevice().getId());
@@ -473,15 +473,15 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                         register.getRegisterSpec(), CustomPropertySetValues.empty(), conflict.getConflictingRange(), register.getDevice().getId());
             }else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START)) {
                 if(conflict.getValues().getEffectiveRange().hasLowerBound()){
-                        throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.REGISTER_HAS_LRN_YET)
-                                .format(register.getObisCode(), range.toString()));
+                        throw new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_HAS_LRN_YET,
+                                register.getObisCode(), range.toString());
                 }
             }else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)) {
                 if(conflict.getValues().getEffectiveRange().hasLowerBound()){
                     if(conflict.getValues().getEffectiveRange().hasUpperBound() &&
                             (!conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty())) {
-                        throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.REGISTER_HAS_LRN_YET)
-                                .format(register.getObisCode(), range.toString()));
+                        throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_HAS_LRN_YET,
+                                register.getObisCode(), range.toString());
                     }
                 }else{
                     Instant endTime;
@@ -496,8 +496,8 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                     {
                         startTime = conflict.getConflictingRange().upperEndpoint();
                     }else{
-                        throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.REGISTER_HAS_LRN_YET)
-                                .format(register.getObisCode(), range.toString()));
+                        throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_HAS_LRN_YET,
+                                register.getObisCode(), range.toString());
                     }
 
                     savedCustomPropertySetValues = CustomPropertySetValues.emptyDuring(getTimeInterval(startTime, endTime));

@@ -1,11 +1,12 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionEndPointConfigurationInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionEndPointConfigurationInfoFactory;
 
@@ -25,12 +26,15 @@ public class TransitionEndPointConfigurationResource {
 
     private final EndPointConfigurationService endPointConfigurationService;
     private final TransitionEndPointConfigurationInfoFactory transitionEndPointConfigurationInfoFactory;
+    private final FiniteStateMachineService finiteStateMachineService;
 
     @Inject
     public TransitionEndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService,
-                                                   TransitionEndPointConfigurationInfoFactory transitionEndPointConfigurationInfoFactory) {
+                                                   TransitionEndPointConfigurationInfoFactory transitionEndPointConfigurationInfoFactory,
+                                                   FiniteStateMachineService finiteStateMachineService) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.transitionEndPointConfigurationInfoFactory = transitionEndPointConfigurationInfoFactory;
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @GET
@@ -38,8 +42,13 @@ public class TransitionEndPointConfigurationResource {
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getAvailableStateChangeEndpoints(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParams) {
-        List<TransitionEndPointConfigurationInfo> transitionEndPointConfigurationInfos = endPointConfigurationService.findEndPointConfigurations()
+        List<String> serviceNames = finiteStateMachineService.getStateTransitionWebServiceClients()
                 .stream()
+                .map(webservice->webservice.getWebServiceName())
+                .collect(Collectors.toList());
+
+        List<TransitionEndPointConfigurationInfo> transitionEndPointConfigurationInfos = endPointConfigurationService.streamEndPointConfigurations()
+                .filter(Where.where("webServiceName").in(serviceNames))
                 .filter(EndPointConfiguration::isActive)
                 .filter(outbound -> !outbound.isInbound())
                 .map(transitionEndPointConfigurationInfoFactory::from)

@@ -122,6 +122,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -187,11 +191,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>orm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

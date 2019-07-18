@@ -11,6 +11,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
@@ -57,11 +58,11 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
-    private final List<StateTransitionWebServiceClient> stateTransitionWebServiceClients = new ArrayList<>();
     private Logger logger = Logger.getLogger(StateTransitionTriggerEventTopicHandler.class.getName());
     private volatile EventService eventService;
     private volatile BpmService bpmService;
     private volatile StateTransitionPropertiesProvider usagePointProvider;
+    private volatile FiniteStateMachineService finiteStateMachineService;
 
     // For OSGi purposes
     public StateTransitionTriggerEventTopicHandler() {
@@ -71,11 +72,13 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     // For testing purposes
     @Inject
     public StateTransitionTriggerEventTopicHandler(EventService eventService, BpmService bpmService,
-                                                   StateTransitionPropertiesProvider usagePointProvider) {
+                                                   StateTransitionPropertiesProvider usagePointProvider,
+                                                   FiniteStateMachineService finiteStateMachineService) {
         this();
         this.setEventService(eventService);
         this.setBpmService(bpmService);
         this.usagePointProvider = usagePointProvider;
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @Reference
@@ -93,17 +96,9 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         this.usagePointProvider = usagePointProvider;
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addStateTransitionWebServiceClient(StateTransitionWebServiceClient stateTransitionWebServiceClient) {
-        stateTransitionWebServiceClients.add(stateTransitionWebServiceClient);
-    }
-
-    public void removeStateTransitionWebServiceClient(StateTransitionWebServiceClient stateTransitionWebServiceClient) {
-        stateTransitionWebServiceClients.remove(stateTransitionWebServiceClient);
-    }
-
-    public List<StateTransitionWebServiceClient> getStateTransitionWebServiceClients() {
-        return Collections.unmodifiableList(this.stateTransitionWebServiceClients);
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @Override
@@ -119,7 +114,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     private void handle(StateTransitionTriggerEvent triggerEvent) {
         Optional<State> currentState = triggerEvent.getFiniteStateMachine().getState(triggerEvent.getSourceCurrentStateName());
         if (currentState.isPresent()) {
-            this.handle(triggerEvent, currentState.get(), bpmService, usagePointProvider, getStateTransitionWebServiceClients());
+            this.handle(triggerEvent, currentState.get(), bpmService, usagePointProvider, finiteStateMachineService.getStateTransitionWebServiceClients());
         } else {
             this.logger.fine(ignoreEventMessageSupplier(triggerEvent));
         }
@@ -163,7 +158,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
     private void executeWebServiceCall(String id, String source, ActualState currentState, ActualState newState, Instant effectiveDate) {
         if (source.equals("com.energyict.mdc.device.data.Device")) {
-            stateTransitionWebServiceClients.forEach(stateTransitionWebServiceClient -> {
+            finiteStateMachineService.getStateTransitionWebServiceClients().forEach(stateTransitionWebServiceClient -> {
                 String nameService = stateTransitionWebServiceClient.getWebServiceName();
 
                 List<Long> endPointConfigurationIds = currentState.getOnExitEndPointConfigurations().stream()

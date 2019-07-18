@@ -163,4 +163,11 @@ public interface FiniteStateMachineService {
     Optional<State> findFiniteStateById(long id);
 
     Optional<State> findAndLockStateByIdAndVersion(long id, long version);
+
+    /**
+     * Gets all the {@link StateTransitionWebServiceClient} that have been defined in the system.
+     *
+     * @return The List of StateTransitionWebServiceClient
+     */
+    List<StateTransitionWebServiceClient> getStateTransitionWebServiceClients();
 }
