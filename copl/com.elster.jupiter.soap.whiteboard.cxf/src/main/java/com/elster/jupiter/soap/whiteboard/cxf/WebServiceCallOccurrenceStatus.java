@@ -1,9 +1,9 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 
-@ProviderType
-public enum WebServiceCallOccurrenceStatus {
+public enum WebServiceCallOccurrenceStatus implements TranslationKey {
     ONGOING("Ongoing"),
     FAILED("Failed"),
     SUCCESSFUL("Successful");
@@ -17,4 +17,24 @@ public enum WebServiceCallOccurrenceStatus {
     WebServiceCallOccurrenceStatus(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
+
+    @Override
+    public String getKey() {
+        return "com.elster.jupiter.soap.whiteboard.cxf." + name();
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return name;
+    }
+
+    public String getDisplayName(Thesaurus thesaurus) {
+        return thesaurus.getFormat(this).format();
+    }
+
 }
