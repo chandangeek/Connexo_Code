@@ -24,6 +24,17 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
             },
             {
                 type: 'combobox',
+                dataIndex: 'queueType',
+                emptyText: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                multiSelect: true,
+                displayField: 'queueType',
+                valueField: 'queueType',
+                store: me.queueTypesStore,
+                matchFieldWidth: false,
+                itemId: 'task-queue-type'
+            },
+            {
+                type: 'combobox',
                 dataIndex: 'queue',
                 emptyText: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
                 multiSelect: true,
