@@ -171,7 +171,7 @@ public class StartProcessWebServiceIssueAction extends AbstractIssueAction {
 
         @Override
         public String getName() {
-            return bpmProcess.getProcessName();
+            return bpmProcess.getProcessName() + ':' + bpmProcess.getVersion();
         }
     }
 

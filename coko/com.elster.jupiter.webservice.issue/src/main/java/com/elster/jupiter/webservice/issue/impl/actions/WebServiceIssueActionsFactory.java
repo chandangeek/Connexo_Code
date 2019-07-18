@@ -110,7 +110,8 @@ public class WebServiceIssueActionsFactory implements IssueActionFactory {
     @Reference
     public final void setThesaurus(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(WebServiceIssueService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(WebServiceIssueService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(BpmService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
