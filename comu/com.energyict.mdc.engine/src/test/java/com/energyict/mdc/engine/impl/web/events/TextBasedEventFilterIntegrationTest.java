@@ -27,7 +27,9 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
 
 import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketClient;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
 
 import java.io.IOException;
@@ -37,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -128,10 +131,15 @@ public class TextBasedEventFilterIntegrationTest {
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
         EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
         webServer.start();
-        WebSocketClientFactory factory = new WebSocketClientFactory();
-        factory.start();
-        WebSocketClient webSocketClient = factory.newWebSocketClient();
-        webSocketClient.open(new URI(eventRegistrationURL), webSocket, 5, TimeUnit.SECONDS);
+        //WebSocketClientFactory factory = new WebSocketClientFactory();
+        //factory.start();
+        WebSocketClient webSocketClient = new WebSocketClient();
+        webSocketClient.setConnectTimeout(TimeUnit.SECONDS.toMillis(5));
+        webSocketClient.start();
+        ClientUpgradeRequest request = new ClientUpgradeRequest();
+        Future<Session> future = webSocketClient.connect(webSocket, new URI(eventRegistrationURL), request);
+        future.get();
+        //webSocketClient.open(new URI(eventRegistrationURL), webSocket, 5, TimeUnit.SECONDS);
 
         try {
             assertThat(webSocket.isOpen()).isTrue();
@@ -173,10 +181,14 @@ public class TextBasedEventFilterIntegrationTest {
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
         EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
         webServer.start();
-        WebSocketClientFactory factory = new WebSocketClientFactory();
-        factory.start();
-        WebSocketClient webSocketClient = factory.newWebSocketClient();
-        webSocketClient.open(new URI(eventRegistrationURL), webSocket, 5, TimeUnit.SECONDS);
+       // WebSocketClientFactory factory = new WebSocketClientFactory();
+        //factory.start();
+        WebSocketClient webSocketClient = new WebSocketClient();
+        webSocketClient.setConnectTimeout(TimeUnit.SECONDS.toMillis(5));
+        webSocketClient.start();
+        ClientUpgradeRequest request = new ClientUpgradeRequest();
+        Future<Session> future = webSocketClient.connect(webSocket, new URI(eventRegistrationURL), request);
+        future.get();
 
         try {
             assertThat(webSocket.isOpen()).isTrue();
@@ -216,12 +228,23 @@ public class TextBasedEventFilterIntegrationTest {
         RegisterAndReceiveAllEventCategories webSocket2 = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch2);
         EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
         webServer.start();
-        WebSocketClientFactory factory = new WebSocketClientFactory();
-        factory.start();
-        WebSocketClient webSocketClient1 = factory.newWebSocketClient();
-        webSocketClient1.open(new URI(eventRegistrationURL), webSocket1, 5, TimeUnit.HOURS);
-        WebSocketClient webSocketClient2 = factory.newWebSocketClient();
-        webSocketClient2.open(new URI(eventRegistrationURL), webSocket2, 5, TimeUnit.HOURS);
+        //WebSocketClientFactory factory = new WebSocketClientFactory();
+        //factory.start();
+        WebSocketClient webSocketClient1 = new WebSocketClient();
+        webSocketClient1.setConnectTimeout(TimeUnit.SECONDS.toMillis(5));
+        webSocketClient1.start();
+        ClientUpgradeRequest request1 = new ClientUpgradeRequest();
+        Future<Session> future1 = webSocketClient1.connect(webSocket1, new URI(eventRegistrationURL), request1);
+        future1.get();
+
+        WebSocketClient webSocketClient2 = new WebSocketClient();
+        webSocketClient2.setConnectTimeout(TimeUnit.SECONDS.toMillis(5));
+        webSocketClient2.start();
+        ClientUpgradeRequest request2 = new ClientUpgradeRequest();
+        Future<Session> future2 = webSocketClient1.connect(webSocket2, new URI(eventRegistrationURL), request2);
+        future2.get();
+
+
 
         try {
             assertThat(webSocket1.isOpen()).isTrue();
@@ -269,10 +292,14 @@ public class TextBasedEventFilterIntegrationTest {
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
         EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
         webServer.start();
-        WebSocketClientFactory factory = new WebSocketClientFactory();
-        factory.start();
-        WebSocketClient webSocketClient = factory.newWebSocketClient();
-        webSocketClient.open(new URI(eventRegistrationURL), webSocket, 5, TimeUnit.SECONDS);
+        //WebSocketClientFactory factory = new WebSocketClientFactory();
+        //factory.start();
+        WebSocketClient webSocketClient = new WebSocketClient();
+        webSocketClient.setConnectTimeout(TimeUnit.SECONDS.toMillis(5));
+        webSocketClient.start();
+        ClientUpgradeRequest request = new ClientUpgradeRequest();
+        Future<Session> future = webSocketClient.connect(webSocket, new URI(eventRegistrationURL), request);
+        future.get();
 
         try {
             assertThat(webSocket.isOpen()).isTrue();

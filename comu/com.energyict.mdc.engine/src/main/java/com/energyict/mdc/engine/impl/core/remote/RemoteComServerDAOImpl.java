@@ -35,8 +35,9 @@ import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketClient;
-import org.eclipse.jetty.websocket.WebSocketClientFactory;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -591,10 +592,13 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     @Override
     public void start () {
         try {
-            WebSocketClientFactory factory = new WebSocketClientFactory();
-            factory.start();
-            WebSocketClient webSocketClient = factory.newWebSocketClient();
-            webSocketClient.open(new URI(this.queryAPIPostUri), this.webSocket, 5, TimeUnit.SECONDS);
+            WebSocketClient webSocketClient = new WebSocketClient();
+            webSocketClient.setConnectTimeout(TimeUnit.SECONDS.toMillis( 5));
+            webSocketClient.start();
+            ClientUpgradeRequest request = new ClientUpgradeRequest();
+            Future<Session> future = webSocketClient.connect(webSocket, new URI(queryAPIPostUri), request);
+            future.get();
+
             this.status = ServerProcessStatus.STARTED;
         }
         catch (URISyntaxException e) {

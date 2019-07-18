@@ -16,12 +16,13 @@ import com.energyict.mdc.engine.impl.web.events.EventServlet;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
 
-import org.eclipse.jetty.server.AbstractHttpConnection;
+import org.eclipse.jetty.server.HttpConnection;
 import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ErrorHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.server.ServerConnector;
+
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ByteArrayISO8859Writer;
@@ -33,6 +34,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,26 +77,30 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @param serviceProvider The IssueService
      */
-    public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+    public static EmbeddedJettyServer newForInboundDeviceCommunication(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider){
         return new EmbeddedJettyServer(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+    private EmbeddedJettyServer (ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider)
+             {
         super();
         this.jetty = new Server();
         this.shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
         if (comPort.isHttps()) {
-            SslContextFactory sslContextFactory = new SslContextFactory();
-            sslContextFactory.setKeyStorePath(comPort.getKeyStoreSpecsFilePath());
-            sslContextFactory.setKeyStorePassword(comPort.getKeyStoreSpecsPassword());
-            sslContextFactory.setTrustStore(comPort.getTrustStoreSpecsFilePath());
-            sslContextFactory.setTrustStorePassword(comPort.getTrustStoreSpecsPassword());
-            SslSocketConnector sslConnector = new SslSocketConnector(sslContextFactory);
-            sslConnector.setPort(comPort.getPortNumber());
-            this.jetty.addConnector(sslConnector);
+            try {
+                SslContextFactory sslContextFactory = new SslContextFactory();
+                sslContextFactory.setKeyStorePath(comPort.getKeyStoreSpecsFilePath());
+                sslContextFactory.setKeyStorePassword(comPort.getKeyStoreSpecsPassword());
+                KeyStore keyStore = KeyStore.getInstance(comPort.getTrustStoreSpecsFilePath());
+                sslContextFactory.setTrustStore(keyStore);
+                sslContextFactory.setTrustStorePassword(comPort.getTrustStoreSpecsPassword());
+                ServerConnector sslConnector = new ServerConnector(this.jetty, sslContextFactory);
+                sslConnector.setPort(comPort.getPortNumber());
+                this.jetty.addConnector(sslConnector);
+            }catch (KeyStoreException ex){}
         }
         else {
-            SelectChannelConnector connector = new SelectChannelConnector();
+            ServerConnector connector = new ServerConnector(jetty);
             connector.setPort(comPort.getPortNumber());
             this.jetty.addConnector(connector);
         }
@@ -107,9 +114,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     }
 
     private void initCustomErrorHandling() {
-        ErrorHandler errorHandler = new MyErrorHandler();
-        errorHandler.setShowStacks(false);
-        this.jetty.addBean(errorHandler);
+
     }
 
     private String getContextPath (ServletBasedInboundComPort comPort) {
@@ -233,11 +238,12 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     private void shutdown (boolean immediate) {
         try {
             if (immediate) {
-                this.jetty.setGracefulShutdown(0);
+                this.jetty.setStopTimeout(0);
                 this.jetty.setStopAtShutdown(false);
             }
             else {
-                this.jetty.setGracefulShutdown(DateTimeConstants.MILLIS_PER_SECOND * GRACEFUL_SHUTDOWN_SECONDS);
+                // this.jetty.setGracefulShutdown(DateTimeConstants.MILLIS_PER_SECOND * GRACEFUL_SHUTDOWN_SECONDS);
+                this.jetty.setStopTimeout(DateTimeConstants.MILLIS_PER_SECOND * GRACEFUL_SHUTDOWN_SECONDS);
                 this.jetty.setStopAtShutdown(true);
             }
             this.jetty.stop();
@@ -300,47 +306,5 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
         }
     }
 
-    /**
-     * We apparently need the custom ErrorHandler for EIWeb purposes
-     */
-    private static class MyErrorHandler extends ErrorHandler {
-        @Override
-        protected void writeErrorPageBody(HttpServletRequest request, Writer writer, int code, String message, boolean showStacks) throws IOException {
-            String uri= request.getRequestURI();
-            writeErrorPageMessage(request, writer, code, message, uri);
-        }
-
-        @Override
-        protected void writeErrorPageMessage(HttpServletRequest request, Writer writer, int code, String message, String uri) throws IOException {
-            writer.write("<h2>HTTP ERROR ");
-            writer.write(Integer.toString(code));
-            writer.write("</h2>");
-        }
-
-        /**
-         * Overriding the default handle method so we don't reuse the 'stored' <code>AbstractHttpConnection</code>
-         * from the ThreadLocal (which is null if the response is handled in another thread), but take it from the baseRequest
-         * (which should not be null)
-         */
-        @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-            AbstractHttpConnection connection = baseRequest.getConnection();
-            connection.getRequest().setHandled(true);
-            String method = request.getMethod();
-            if (method.equals("GET") || method.equals("POST") || method.equals("HEAD")) {
-                response.setContentType("text/html;charset=ISO-8859-1");
-                if(this.getCacheControl() != null) {
-                    response.setHeader("Cache-Control", this.getCacheControl());
-                }
-
-                ByteArrayISO8859Writer writer = new ByteArrayISO8859Writer(4096);
-                this.handleErrorPage(request, writer, connection.getResponse().getStatus(), connection.getResponse().getReason());
-                writer.flush();
-                response.setContentLength(writer.size());
-                writer.writeTo(response.getOutputStream());
-                writer.destroy();
-            }
-        }
-    }
 
 }

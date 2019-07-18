@@ -62,7 +62,7 @@ public class EmbeddedJettyServerTest {
             this.embeddedJettyServer.shutdownImmediate();
         }
         if (this.jettyServer!= null) {
-            this.jettyServer.setGracefulShutdown(0);
+            this.jettyServer.setStopTimeout(0);
             this.jettyServer.setStopAtShutdown(false);
             try {
                 this.jettyServer.stop();
