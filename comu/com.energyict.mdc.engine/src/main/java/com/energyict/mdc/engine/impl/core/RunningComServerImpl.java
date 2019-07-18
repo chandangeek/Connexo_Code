@@ -386,7 +386,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     }
 
     private void startEventMechanism() {
-        this.eventMechanism.start();
+
     }
 
     private void startDeviceCommandExecutor() {
@@ -441,8 +441,10 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private void doShutdown() {
         this.status = ServerProcessStatus.SHUTTINGDOWN;
-        this.continueRunning.set(false);
-        self.interrupt();   // in case the thread was sleeping between detecting changes
+        if(this.continueRunning != null)
+            this.continueRunning.set(false);
+        if (self != null)
+            self.interrupt();   // in case the thread was sleeping between detecting changes
     }
 
     private void shutdownTimeOutMonitor(boolean immediate) {
@@ -550,7 +552,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                 sleepAfterDatabaseException();
             }
         }
-        self.interrupt();
+        if(self != null)
+            self.interrupt();
         this.status = ServerProcessStatus.SHUTDOWN;
     }
 

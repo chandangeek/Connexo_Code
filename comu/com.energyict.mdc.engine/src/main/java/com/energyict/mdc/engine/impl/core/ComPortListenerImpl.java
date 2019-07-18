@@ -166,7 +166,8 @@ abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         this.status = ServerProcessStatus.SHUTTINGDOWN;
         this.unregisterAsMBean();
         this.continueRunning.set(false);
-        this.self.interrupt();
+        if(self != null)
+            this.self.interrupt();
     }
 
     @Override

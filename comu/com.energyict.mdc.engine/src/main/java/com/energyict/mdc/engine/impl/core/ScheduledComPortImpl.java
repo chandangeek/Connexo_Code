@@ -184,7 +184,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         if (this.isStarted()) {
             this.status = ServerProcessStatus.SHUTTINGDOWN;
             this.continueRunning.set(false);
-            self.interrupt();
+            if(self != null)
+                self.interrupt();
         }
     }
 

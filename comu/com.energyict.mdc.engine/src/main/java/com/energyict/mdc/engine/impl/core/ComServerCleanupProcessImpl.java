@@ -76,8 +76,10 @@ class ComServerCleanupProcessImpl implements Runnable, ComServerCleanupProcess {
 
     private void doShutdown() {
         this.status = ServerProcessStatus.SHUTTINGDOWN;
-        this.continueRunning.set(false);
-        self.interrupt();   // in case the thread was sleeping between detecting changes
+        if(this.continueRunning != null)
+            this.continueRunning.set(false);
+        if(self != null)
+            self.interrupt();   // in case the thread was sleeping between detecting changes
     }
 
     @Override
