@@ -6,9 +6,6 @@ package com.elster.jupiter.webservice.issue.impl.actions.process;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-/**
- * Created by dragos on 2/18/2016.
- */
 public enum TranslationKeys implements TranslationKey {
     WEBSERVICE_ISSUE_ASSOCIATION_PROVIDER(WebServiceIssueProcessAssociationProvider.ASSOCIATION_TYPE, "Web service issue"),
     WEBSERVICE_ISSUE_REASON_TITLE(WebServiceIssueProcessAssociationProvider.PROPERTY_REASONS, "Issue reasons"),
