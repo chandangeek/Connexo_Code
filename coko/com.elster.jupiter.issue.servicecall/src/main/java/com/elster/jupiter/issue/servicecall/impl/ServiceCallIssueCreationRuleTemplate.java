@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.issue.servicecall.impl;
 
-import com.elster.jupiter.issue.servicecall.OpenIssueServiceCall;
+import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -41,6 +41,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     static final String NAME = "ServiceCallIssueCreationRuleTemplate";
 
     public static final String SERVICE_CALL_CONFIGURATIONS = NAME + ".serviceCallConfigurations";
+    public static final String AUTORESOLUTION = NAME + ".autoresolution";
 
     private volatile ServiceCallIssueService issueServiceCallService;
     private volatile IssueService issueService;
@@ -82,14 +83,15 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public String getContent() {
-        return "package com.elster.jupiter.servicecall.issue\n" +
-                "import ServiceCallStateChangedEvent;\n" +
+        return "package com.elster.jupiter.issue.servicecall\n" +
+                "import com.elster.jupiter.issue.servicecall.impl.event.ServiceCallStateChangedEvent;\n" +
                 "global java.util.logging.Logger LOGGER;\n" +
                 "global com.elster.jupiter.events.EventService eventService;\n" +
                 "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                 "rule \"Service call rule @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : ServiceCallStateChangedEvent(servicecallconf in (@{" + SERVICE_CALL_CONFIGURATIONS + "}))\n" +
+                "\tevent : ServiceCallStateChangedEvent(stateId in (@{" + TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey() + "}), " +
+                " serviceCallTypeId in (@{" + TranslationKeys.SERVICE_CALL_TYPE.getKey() + "}))\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by servicecall rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
@@ -126,7 +128,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
                 propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory(serviceCallService))
-                        .named(TranslationKeys.SERVICE_CALL_TYPE_HANDLER)
+                        .named(TranslationKeys.SERVICE_CALL_TYPE)
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .markMultiValued(ServiceCallInfoValueFactory.SEPARATOR)
@@ -142,12 +144,18 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
                 .addValues(Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen()).map(defaultState -> new DefaultStateInfo(defaultState, thesaurus)).collect(Collectors.toList()))
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
+        builder.add(propertySpecService
+                .booleanSpec()
+                .named(AUTORESOLUTION, TranslationKeys.PARAMETER_AUTO_RESOLUTION)
+                .fromThesaurus(thesaurus)
+                .setDefaultValue(true)
+                .finish());
         return builder.build();
     }
 
     private boolean getServiceCallTypeFilter(ServiceCallType serviceCallType) {
-        return appKey.map(s -> !serviceCallType.reservedByApplication().isPresent() ||
-                s.equals(serviceCallType.reservedByApplication().get())).orElse(true);
+        return appKey.map(s -> !serviceCallType.getReservedByApplication().isPresent() ||
+                s.equals(serviceCallType.getReservedByApplication().get())).orElse(true);
     }
 
     @Override
@@ -156,7 +164,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     @Override
-    public OpenIssueServiceCall createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+    public OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
         return issueServiceCallService.createIssue(baseIssue, issueEvent);
     }
 

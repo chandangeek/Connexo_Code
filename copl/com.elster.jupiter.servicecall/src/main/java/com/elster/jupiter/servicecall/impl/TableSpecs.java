@@ -27,7 +27,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
-import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME;
+import static com.elster.jupiter.servicecall.ServiceCallService.SERVICE_CALLS_DESTINATION_NAME;
 
 /**
  * Created by bvn on 2/4/16.
@@ -96,7 +96,7 @@ public enum TableSpecs {
                     .varChar(NAME_LENGTH)
                     .map(ServiceCallTypeImpl.Fields.appKey.fieldName())
                     .add();
-            table.column("RETRY_NOW_STATE")
+            table.column("RETRY_STATE")
                     .since(Version.version(10, 7))
                     .number()
                     .conversion(ColumnConversion.NUMBER2ENUM)

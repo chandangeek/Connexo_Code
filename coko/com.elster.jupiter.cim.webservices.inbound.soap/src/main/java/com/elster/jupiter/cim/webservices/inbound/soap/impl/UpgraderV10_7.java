@@ -12,13 +12,13 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ServiceCallTypeUpgrader extends AbstractInstaller implements com.elster.jupiter.upgrade.Upgrader {
+public class UpgraderV10_7 extends AbstractInstaller implements com.elster.jupiter.upgrade.Upgrader {
 
     private final Logger logger = Logger.getLogger("upgrade");
 
     @Inject
-    public ServiceCallTypeUpgrader(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
-                                   MessageService messageService) {
+    public UpgraderV10_7(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
+                         MessageService messageService) {
         super(serviceCallService, customPropertySetService, messageService);
     }
 

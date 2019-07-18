@@ -14,46 +14,51 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "ServiceCallEventHandlerFactory",
+@Component(name = "ServiceCallMessageHandlerFactory",
            service = MessageHandlerFactory.class,
            property = {
-                        "subscriber=" + ServiceCallEventHandlerFactory.AQ_SERVICE_CALL_EVENT_SUBSCRIBER,
-                        "destination=" + EventService.JUPITER_EVENTS
+                        "subscriber=" + ServiceCallMessageHandlerFactory.AQ_SERVICE_CALL_EVENT_SUBSCRIBER,
+                        "destination=" + ServiceCallService.SERVICE_CALLS_DESTINATION_NAME
                       },
            immediate = true)
-public class ServiceCallEventHandlerFactory implements MessageHandlerFactory {
+public class ServiceCallMessageHandlerFactory implements MessageHandlerFactory {
 
-    public static final String AQ_SERVICE_CALL_EVENT_SUBSCRIBER = "IssueCreationSC";
+    public static final String AQ_SERVICE_CALL_EVENT_SUBSCRIBER = "ServiceCalls";
 
     private volatile JsonService jsonService;
     private volatile IssueCreationService issueCreationService;
     private volatile IssueService issueService;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
-//    private volatile DeviceService deviceService;
     private volatile ServiceCallIssueService issueServiceCallService;
+    private volatile ServiceCallService serviceCallService;
 
     //for OSGI
-    public ServiceCallEventHandlerFactory() {
+    public ServiceCallMessageHandlerFactory() {
     }
 
     @Inject
-    public ServiceCallEventHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService, MeteringService meteringService, ServiceCallIssueService issueServiceCallService) {
+    public ServiceCallMessageHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService,
+                                            MeteringService meteringService, ServiceCallIssueService issueServiceCallService,
+                                            ServiceCallService serviceCallService
+    ) {
         setJsonService(jsonService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
-//        setDeviceService(deviceService);
         setIssueServiceCallService(issueServiceCallService);
+        setServiceCallService(serviceCallService);
     }
     
     @Override
@@ -67,9 +72,10 @@ public class ServiceCallEventHandlerFactory implements MessageHandlerFactory {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ServiceCallIssueService.class).toInstance(issueServiceCallService);
+                bind(ServiceCallService.class).toInstance(serviceCallService);
             }
         });
-        return new ServiceCallEventHandler(injector);
+        return new ServiceCallMessageHandler(injector);
     }
     
     @Reference
@@ -92,14 +98,14 @@ public class ServiceCallEventHandlerFactory implements MessageHandlerFactory {
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
-    
-//    @Reference
-//    public void setDeviceService(DeviceService deviceService) {
-//        this.deviceService = deviceService;
-//    }
-    
+
     @Reference
     public void setIssueServiceCallService(ServiceCallIssueService issueServiceCallService) {
         this.issueServiceCallService = issueServiceCallService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 }

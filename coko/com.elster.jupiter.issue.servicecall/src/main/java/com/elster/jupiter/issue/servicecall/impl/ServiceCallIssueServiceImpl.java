@@ -6,9 +6,9 @@ package com.elster.jupiter.issue.servicecall.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.servicecall.HistoricalIssueServiceCall;
+import com.elster.jupiter.issue.servicecall.HistoricalServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.MessageSeeds;
-import com.elster.jupiter.issue.servicecall.OpenIssueServiceCall;
+import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.impl.entity.OpenIssueServiceCallImpl;
 import com.elster.jupiter.issue.servicecall.impl.event.ServiceCallStateChangedEvent;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
@@ -24,6 +24,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -67,6 +68,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     private volatile EventService eventService;
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
+    private volatile MessageService messageService;
 
     private volatile DataModel dataModel;
 
@@ -75,13 +77,16 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Inject
-    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, UpgradeService upgradeService, QueryService queryService) {
+    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService,
+                                       EventService eventService, UpgradeService upgradeService, QueryService queryService,
+                                       MessageService messageService) {
         setOrmService(ormService);
         setIssueService(issueService);
         setNlsService(nlsService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
         setQueryService(queryService);
+        setMessageService(messageService);
         activate();
     }
 
@@ -96,6 +101,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
                 bind(IssueActionService.class).toInstance(issueActionService);
                 bind(ServiceCallIssueService.class).toInstance(ServiceCallIssueServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
+                bind(MessageService.class).toInstance(messageService);
             }
         });
         upgradeService.register(
@@ -107,26 +113,8 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Override
-    public void createIssue(ServiceCall serviceCall, DefaultState newState) {
-        for (CreationRule rule : issueService.getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class).select(where("active").isEqualTo(true).and(where("reason.issueType.prefix").isEqualToIgnoreCase(SERVICE_CALL_ISSUE_PREFIX)))) {
-            AtomicBoolean handlerMatch = new AtomicBoolean(), stateMatch = new AtomicBoolean();
-            rule.getCreationRuleProperties().forEach(property -> {
-                if (TranslationKeys.SERVICE_CALL_TYPE_HANDLER.getKey().equals(property.getName())) {
-                    handlerMatch.set(((List<ServiceCallTypeInfo>) property.getValue()).stream().anyMatch(value -> value.getId() == serviceCall.getType().getId()));
-                }
-                if (TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey().equals(property.getName())) {
-                    stateMatch.set(((List<DefaultStateInfo>) property.getValue()).stream().anyMatch(state -> state.getId() == newState.ordinal()));
-                }
-            });
-            if (handlerMatch.get() && stateMatch.get()) {
-                issueService.getIssueCreationService().processIssueCreationEvent(rule.getId(), new ServiceCallStateChangedEvent(serviceCall, newState));
-            }
-        }
-    }
-
-    @Override
     public Optional<? extends ServiceCallIssue> findIssue(long id) {
-        Optional<OpenIssueServiceCall> issue = findOpenIssue(id);
+        Optional<OpenServiceCallIssue> issue = findOpenIssue(id);
         if (issue.isPresent()) {
             return issue;
         }
@@ -134,13 +122,13 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Override
-    public Optional<OpenIssueServiceCall> findOpenIssue(long id) {
-        return find(OpenIssueServiceCall.class, id, OpenIssue.class);
+    public Optional<OpenServiceCallIssue> findOpenIssue(long id) {
+        return find(OpenServiceCallIssue.class, id, OpenIssue.class);
     }
 
     @Override
-    public Optional<HistoricalIssueServiceCall> findHistoricalIssue(long id) {
-        return find(HistoricalIssueServiceCall.class, id, HistoricalIssue.class);
+    public Optional<HistoricalServiceCallIssue> findHistoricalIssue(long id) {
+        return find(HistoricalServiceCallIssue.class, id, HistoricalIssue.class);
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object key, Class<?>... eagers) {
@@ -148,7 +136,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Override
-    public OpenIssueServiceCall createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+    public OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
         OpenIssueServiceCallImpl issue = dataModel.getInstance(OpenIssueServiceCallImpl.class);
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);
@@ -194,6 +182,11 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
@@ -216,12 +209,12 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
 
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
-        return issue instanceof OpenIssueServiceCall ? Optional.of(issue) : findOpenIssue(issue.getId());
+        return issue instanceof OpenServiceCallIssue ? Optional.of(issue) : findOpenIssue(issue.getId());
     }
 
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
-        return issue instanceof HistoricalIssueServiceCall ? Optional.of(issue) : findHistoricalIssue(issue.getId());
+        return issue instanceof HistoricalServiceCallIssue ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
 
     public Thesaurus thesaurus() {

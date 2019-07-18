@@ -95,13 +95,13 @@ public class ServiceCallCommands {
 
         private final String typeName;
         private final String typeVersion;
-        private final Optional<String> reservedByApplication;
+        private final String reservedByApplication;
         private final String customPropertySetClass;
 
         ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass) {
             this.typeName = typeName;
             this.typeVersion = typeVersion;
-            this.reservedByApplication = Optional.ofNullable(reservedByApplication);
+            this.reservedByApplication = reservedByApplication;
             this.customPropertySetClass = customPropertySetClass;
         }
 
@@ -114,7 +114,7 @@ public class ServiceCallCommands {
         }
 
         public Optional<String> getApplication() {
-            return reservedByApplication;
+            return Optional.ofNullable(reservedByApplication);
         }
 
         public String getCustomPropertySetClass() {

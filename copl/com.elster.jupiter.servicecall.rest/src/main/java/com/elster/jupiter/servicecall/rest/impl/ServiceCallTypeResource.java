@@ -34,8 +34,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -71,11 +69,10 @@ public class ServiceCallTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALLS})
     public PagedInfoList getAllServiceCallTypes(@BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
-        AtomicReference key = new AtomicReference<> (appKey);
         List<ServiceCallTypeInfo> serviceCallTypeInfos = serviceCallService.getServiceCallTypes()
                 .from(queryParameters)
                 .stream()
-                .filter(type -> ADMIN_APP_KEY.equals(key.get()) || !type.reservedByApplication().isPresent() || key.get().equals(type.reservedByApplication().get()))
+                .filter(type -> ADMIN_APP_KEY.equals(appKey) || !type.getReservedByApplication().isPresent() || appKey.equals(type.getReservedByApplication().get()))
                 .map(serviceCallTypeInfoFactory::from)
                 .collect(toList());
 

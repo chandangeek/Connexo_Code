@@ -63,7 +63,7 @@ public class IssueServiceCallApplication extends Application {
     }
 
     @Reference
-    public void setIssueServiceCallService(ServiceCallIssueService serviceCallIssueService) {
+    public void setServiceCallIssueService(ServiceCallIssueService serviceCallIssueService) {
         this.serviceCallIssueService = serviceCallIssueService;
     }
 

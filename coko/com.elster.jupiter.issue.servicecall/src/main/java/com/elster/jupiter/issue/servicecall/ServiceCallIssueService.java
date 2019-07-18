@@ -6,8 +6,6 @@ package com.elster.jupiter.issue.servicecall;
 
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.ServiceCall;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -22,12 +20,10 @@ public interface ServiceCallIssueService {
 
     Optional<? extends ServiceCallIssue> findIssue(long id);
 
-    OpenIssueServiceCall createIssue(OpenIssue baseIssue, IssueEvent issueEvent);
+    OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent);
 
-    Optional<OpenIssueServiceCall> findOpenIssue(long id);
+    Optional<OpenServiceCallIssue> findOpenIssue(long id);
 
-    Optional<HistoricalIssueServiceCall> findHistoricalIssue(long id);
-
-    void createIssue(ServiceCall isuIssueType, DefaultState newState);
+    Optional<HistoricalServiceCallIssue> findHistoricalIssue(long id);
 
 }

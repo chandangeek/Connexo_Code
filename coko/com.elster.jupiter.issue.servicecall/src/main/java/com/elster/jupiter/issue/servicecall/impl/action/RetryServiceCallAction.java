@@ -29,6 +29,9 @@ import java.util.stream.Collectors;
 
 public class RetryServiceCallAction extends AbstractIssueAction {
 
+    public static final String FIRMWARE_CAMPAIGN_NAME = "FirmwareCampaignServiceCallHandler";
+    public static final String FIRMWARE_ITEM_NAME = "FirmwareCampaignItemServiceCallHandler";
+
     @Inject
     public RetryServiceCallAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(dataModel, thesaurus, propertySpecService);
@@ -42,17 +45,17 @@ public class RetryServiceCallAction extends AbstractIssueAction {
             ServiceCall serviceCall = scIssue.getServiceCall();
             validateState(serviceCall);
             if (serviceCall.getParent().isPresent()) {
-                serviceCall.requestTransition(serviceCall.getType().getRetryState());
+                serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
                 serviceCall.getParent().get().requestTransition(DefaultState.ONGOING);
             } else {
                 ServiceCallFilter filter = new ServiceCallFilter();
                 filter.states = Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).collect(Collectors.toList());
-                if (serviceCall.findChildren(filter).count() > 0) {
+                if (serviceCall.findChildren(filter).stream().findFirst().isPresent()) {
                     throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
                             .entity("Some child service call not in final state")
                             .build());
                 } else {
-                    serviceCall.requestTransition(serviceCall.getType().getRetryState());
+                    serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
                 }
             }
         }
@@ -71,7 +74,13 @@ public class RetryServiceCallAction extends AbstractIssueAction {
     public boolean isApplicable(Issue issue) {
         if (issue != null && !issue.getStatus().isHistorical() && issue instanceof ServiceCallIssue){
             ServiceCallIssue scIssue = (ServiceCallIssue) issue;
-            return !scIssue.getStatus().isHistorical() && scIssue.getServiceCall() != null && !scIssue.getServiceCall().getState().isOpen();
+            if (FIRMWARE_CAMPAIGN_NAME.equals(scIssue.getServiceCall().getType().getName()) ||
+                    FIRMWARE_ITEM_NAME.equals(scIssue.getServiceCall().getType().getName())) {
+                return !scIssue.getStatus().isHistorical() && scIssue.getServiceCall() != null
+                        && scIssue.getServiceCall().getType().getRetryState().isPresent()
+                        && !scIssue.getServiceCall().getState().isOpen();
+            }
+            return false;
         }
         return false;
     }

@@ -20,6 +20,7 @@ import java.util.Set;
 public interface ServiceCallService {
 
     String COMPONENT_NAME = "SCS";
+    String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
 
     /**
      * Get all known service call life cycles in tghe system, support paging.

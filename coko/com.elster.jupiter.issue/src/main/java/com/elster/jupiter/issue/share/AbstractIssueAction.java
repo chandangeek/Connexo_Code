@@ -26,16 +26,13 @@ import java.util.Map;
                     propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
 public abstract class AbstractIssueAction implements IssueAction {
 
-    private DataModel dataModel;
-    private PropertySpecService propertySpecService;
-    private Thesaurus thesaurus;
+    private final DataModel dataModel;
+    private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
     
     protected Map<String, Object> properties = new HashMap<>();
 
-    public AbstractIssueAction() {
-    }
-
-    public AbstractIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    protected AbstractIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;

@@ -10,8 +10,8 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface OpenIssueServiceCall extends OpenIssue, ServiceCallIssue {
+public interface OpenServiceCallIssue extends OpenIssue, ServiceCallIssue {
     
-    HistoricalIssueServiceCall close(IssueStatus status);
+    HistoricalServiceCallIssue close(IssueStatus status);
 
 }

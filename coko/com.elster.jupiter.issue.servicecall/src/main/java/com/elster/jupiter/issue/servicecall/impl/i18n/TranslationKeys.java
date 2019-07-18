@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.issue.servicecall.impl.i18n;
 
+import com.elster.jupiter.issue.servicecall.impl.ServiceCallIssueCreationRuleTemplate;
+import com.elster.jupiter.issue.servicecall.impl.event.ServiceCallMessageHandlerFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
@@ -16,8 +18,10 @@ public enum TranslationKeys implements TranslationKey {
     SERVICE_CALL_ISSUE_FAILED_REASON_DESCRIPTION("ServiceCallIssueFailedReasonDescription", "Service call failed"),
     SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON("ServiceCallIssuePartialSucceedReason", "Service call partially succeeded"),
     SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON_DESCRIPTION("ServiceCallIssuePartialSucceedReasonDescription", "Service call partially succeeded"),
-    SERVICE_CALL_TYPE_HANDLER("ServiceCallTypeHandler", "Service call handler name"),
+    SERVICE_CALL_TYPE("ServiceCallType", "Service call type name"),
     SERVICE_CALL_TYPE_STATE("ServiceCallTypeState", "Service call state"),
+    PARAMETER_AUTO_RESOLUTION(ServiceCallIssueCreationRuleTemplate.AUTORESOLUTION, "Auto resolution"),
+    AQ_SUBSCRIBER(ServiceCallMessageHandlerFactory.AQ_SERVICE_CALL_EVENT_SUBSCRIBER, "Create service call issues"),
 
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
 

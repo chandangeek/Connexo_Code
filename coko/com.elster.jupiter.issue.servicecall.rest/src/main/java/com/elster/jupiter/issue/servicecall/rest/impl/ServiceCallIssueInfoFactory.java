@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
@@ -80,10 +81,14 @@ public class ServiceCallIssueInfoFactory implements InfoFactory<ServiceCallIssue
 
 
     private void addServiceCallIssueInfo(ServiceCallIssueInfo<?> info, ServiceCallIssue issue) throws LocalizedFieldValidationException {
-        info.journals = issue.getServiceCall().getLogs().stream().map(this::asServiceCallLogInfo).collect(Collectors.toList());
-        info.serviceCall = new IdWithNameInfo(issue.getServiceCall().getId(), issue.getServiceCall().getNumber());
-        info.parentServiceCall = issue.getServiceCall().getParent().isPresent() ? new IdWithNameInfo(issue.getServiceCall().getParent().get().getId(), issue.getServiceCall().getParent().get().getNumber()) : null;
+        ServiceCall serviceCall = issue.getServiceCall();
+        info.journals = serviceCall.getLogs().stream().map(this::asServiceCallLogInfo).collect(Collectors.toList());
+        info.serviceCall = new IdWithNameInfo(serviceCall.getId(), serviceCall.getNumber());
+        info.parentServiceCall = serviceCall.getParent().isPresent() ? new IdWithNameInfo(serviceCall.getParent().get().getId(), serviceCall.getParent().get().getNumber()) : null;
         info.onState = new IdWithNameInfo(issue.getNewState().ordinal(), issue.getNewState().name());
+        info.serviceCallType = new IdWithNameInfo(serviceCall.getType());
+        info.receivedTime = serviceCall.getCreationTime();
+        info.lastModifyTime = serviceCall.getLastModificationTime();
     }
 
     private JournalEntryInfo asServiceCallLogInfo(ServiceCallLog serviceCallLog) {

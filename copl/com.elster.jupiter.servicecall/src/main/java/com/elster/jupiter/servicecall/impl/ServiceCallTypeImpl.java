@@ -190,8 +190,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     }
 
     @Override
-    public DefaultState getRetryState() {
-        return retryState;
+    public Optional<DefaultState> getRetryState() {
+        return Optional.ofNullable(retryState);
     }
 
     public void setAppKey(String appKey) {
@@ -199,7 +199,7 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     }
 
     @Override
-    public Optional<String> reservedByApplication() {
+    public Optional<String> getReservedByApplication() {
         return Optional.ofNullable(appKey);
     }
 
