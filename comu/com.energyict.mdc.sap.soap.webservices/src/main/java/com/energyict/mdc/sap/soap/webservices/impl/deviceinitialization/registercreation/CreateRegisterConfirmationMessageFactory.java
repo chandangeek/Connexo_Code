@@ -55,7 +55,7 @@ public class CreateRegisterConfirmationMessageFactory {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else if (deviceServiceCall.getState() == DefaultState.FAILED) {
                 if (isDeviceNotFoundError(registerServiceCalls)) {
-                    confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID.code(), MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID.getDefaultFormat(subExtension.getDeviceId())));
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.code(), MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.getDefaultFormat(subExtension.getDeviceId())));
                 } else {
                     String failedRegisterError = createRegisterError(registerServiceCalls);
                     if (!failedRegisterError.isEmpty()) {
@@ -90,7 +90,7 @@ public class CreateRegisterConfirmationMessageFactory {
         return serviceCalls.stream()
                 .filter(child -> child.getState() == DefaultState.FAILED)
                 .map(child -> child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get())
-                .anyMatch(each -> each.getErrorCode().equals(MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID.code()));
+                .anyMatch(each -> each.getErrorCode().equals(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.code()));
     }
 
     private String createRegisterError(List<ServiceCall> serviceCalls) {

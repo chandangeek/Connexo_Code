@@ -69,7 +69,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         } else {
-            extension.setError(MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID, extension.getDeviceId());
+            extension.setError(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
