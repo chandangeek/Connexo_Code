@@ -10,11 +10,11 @@ Ext.define('Wss.view.webservice.SortMenu', {
     shadow: false,
     items: [
         {
-            text: Uni.I18n.translate('importService.history.startedOn', 'FIM', 'Started on'),
+            text: Uni.I18n.translate('importService.history.startedOn', 'WSS', 'Started on'),
             name: 'startTime'
         },
         {
-            text: Uni.I18n.translate('general.status', 'FIM', 'Status'),
+            text: Uni.I18n.translate('general.status', 'WSS', 'Status'),
             name: 'status'
         }
     ]
