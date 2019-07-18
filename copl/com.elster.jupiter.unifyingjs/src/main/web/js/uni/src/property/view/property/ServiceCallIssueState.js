@@ -31,7 +31,7 @@ Ext.define('Uni.property.view.property.ServiceCallIssueState', {
                         editable: false,
                         multiSelect: true,
                         msgTarget: 'under',
-                        required: true,
+                        required: me.property.get('required'),
                         emptyText: Uni.I18n.translate('serviceCall.state.empty', 'UNI', 'Select a state...')
                     }
                 ]

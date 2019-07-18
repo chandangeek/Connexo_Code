@@ -30,6 +30,7 @@ Ext.define('Isu.model.Issue', {
         {name: 'userAssignee', type: 'auto'},
         {name: 'reason', type: 'auto'},
         {name: 'snoozedDateTime', type:'auto'},
+        {name: 'serviceCall', type: 'auto'},
         {
             name: 'statusDetail',
             convert: function (value, rec) {

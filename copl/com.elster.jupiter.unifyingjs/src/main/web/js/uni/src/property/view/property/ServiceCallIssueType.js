@@ -31,19 +31,7 @@ Ext.define('Uni.property.view.property.ServiceCallIssueType', {
                         msgTarget: 'under',
                         editable: false,
                         matchFieldWidth: false,
-                        required: me.property.get('required'),
-                        listeners: {
-                            change: function (combo, newValue, oldValue) {
-                                var serviceCallStateCombo = Ext.ComponentQuery.query('#service-call-state')[0];
-                                
-                                if (newValue.length !== 0) {
-                                    serviceCallStateCombo.setDisabled(false);
-                                } else {
-                                    serviceCallStateCombo.clearValue();
-                                    serviceCallStateCombo.setDisabled(true);
-                                }
-                            }
-                        }
+                        required: me.property.get('required')
                     }
                 ]
             }

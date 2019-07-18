@@ -8,6 +8,7 @@ Ext.define('Isc.controller.Detail', {
     stores: [
         'Isu.store.IssueActions',
         'Isu.store.Clipboard',
+        'Isc.store.Logs'
     ],
 
     models: [
@@ -16,8 +17,11 @@ Ext.define('Isc.controller.Detail', {
 
     views: [
         'Isc.view.Detail',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Isc.view.ServiceCallDetails'
     ],
+
+    serviceCallLogStore: 'Isc.store.Logs',
 
     constructor: function () {
         var me = this;
