@@ -123,7 +123,7 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(Issue issue) {
-        return isApplicable(issue.getReason().getName());
+        return true;
     }
 
     @Override
