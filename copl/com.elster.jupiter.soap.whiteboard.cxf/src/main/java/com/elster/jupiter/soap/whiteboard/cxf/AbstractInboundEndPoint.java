@@ -23,6 +23,14 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Basic abstract class for implementation of inbound endpoints that should be provided with {@link InboundSoapEndPointProvider} and (in the future) {@link InboundRestEndPointProvider}.
+ * Contains methods to wrap web service methods logic with or without DB transaction and track with web service call occurrences.
+ * Creation of related web service call occurrences and (if needed) web service issues is implemented in message interceptors for SOAP web services,
+ * but their states are tracked in this abstract class.
+ * <b>NB:</b> During the implementation please don't forget to introduce explicit dependency on {@link WebServicesService} in the provider of the subclass,
+ * otherwise the provider may not register on whiteboard and thus the inbound endpoint may work incorrectly (e.g. some fields below won't be injected).
+ */
 @ConsumerType
 public abstract class AbstractInboundEndPoint {
     private static final String BATCH_EXECUTOR_USER_NAME = "batch executor";

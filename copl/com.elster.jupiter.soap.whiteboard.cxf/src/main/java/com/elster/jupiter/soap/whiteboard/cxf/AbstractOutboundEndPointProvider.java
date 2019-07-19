@@ -40,6 +40,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Basic abstract class for implementation of {@link OutboundSoapEndPointProvider}s and (in the future) {@link OutboundRestEndPointProvider}s.
+ * Acts as a container of injected web service endpoints and provides unified interface {@link OutboundEndPointProvider} for simple sending of outbound requests.
+ * Creation of related web service call occurrences and (if needed) web service issues is implemented inside.
+ * <b>NB:</b> During the implementation please don't forget to introduce explicit dependency on {@link WebServicesService} in the subclass,
+ * otherwise the provider may not register on whiteboard and thus may work incorrectly (e.g. some fields below won't be injected).
+ * @param <EP> The type of web service endpoint (port).
+ */
 @ConsumerType
 public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEndPointProvider {
     public static final String URL_PROPERTY = "url";
@@ -48,8 +56,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     /**
      * Attention: These fields are injectable by hardcoded names via {@link AbstractEndPointInitializer}.
-     * Not for usage in subclasses.
-     * Don't forget to explicitly inject WebServicesService to each subclass so that all providers will be registered in WebServicesService.
      */
     private volatile Thesaurus thesaurus;
     private volatile EndPointConfigurationService endPointConfigurationService;
@@ -167,7 +173,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             return endPointConfigurations.stream()
                     .map(epc -> Pair.of(epc, getEndpoint(epc)))
                     .filter(Pair::hasLast)
-                    .collect(HashMap::new, (m, p) -> m.put(p.getFirst(), p.getLast()), HashMap::putAll); // to avoid NPE in case response is null
+                    .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
         }
 
         @Override
@@ -250,7 +256,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         }
                     })
                     .filter(Objects::nonNull)
-                    .collect(HashMap::new, (map, pair) -> map.put(pair.getFirst(), pair.getLast()), Map::putAll);
+                    .collect(HashMap::new, (map, pair) -> map.put(pair.getFirst(), pair.getLast()), Map::putAll); // to avoid NPE in case response is null
         }
 
         private String getApplicationName() {
