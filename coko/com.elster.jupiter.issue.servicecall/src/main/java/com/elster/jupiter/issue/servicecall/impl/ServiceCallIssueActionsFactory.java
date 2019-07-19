@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.servicecall.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.issue.servicecall.impl.action.CloseIssueAction;
 import com.elster.jupiter.issue.servicecall.impl.action.FailedAction;
 import com.elster.jupiter.issue.servicecall.impl.action.PartialSucceedAction;
 import com.elster.jupiter.issue.servicecall.impl.action.StartProcessAction;
@@ -152,6 +153,7 @@ public class ServiceCallIssueActionsFactory implements IssueActionFactory {
             actionProviders.put(StartProcessAction.class.getName(), injector.getProvider(StartProcessAction.class));
             actionProviders.put(FailedAction.class.getName(), injector.getProvider(FailedAction.class));
             actionProviders.put(PartialSucceedAction.class.getName(), injector.getProvider(PartialSucceedAction.class));
+            actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
             actionProviders.put(RetryServiceCallAction.class.getName(), injector.getProvider(RetryServiceCallAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());

@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.servicecall.impl;
 
 import com.elster.jupiter.issue.servicecall.ModuleConstants;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
+import com.elster.jupiter.issue.servicecall.impl.action.CloseIssueAction;
 import com.elster.jupiter.issue.servicecall.impl.action.FailedAction;
 import com.elster.jupiter.issue.servicecall.impl.action.PartialSucceedAction;
 import com.elster.jupiter.issue.servicecall.impl.action.RetryServiceCallAction;
@@ -16,9 +17,7 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -71,6 +70,7 @@ class Installer implements FullInstaller {
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, PartialSucceedAction.class.getName(), serviceCallPartialSucceed, CreationRuleActionPhase.NOT_APPLICABLE);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, StartProcessAction.class.getName(), issueType, CreationRuleActionPhase.CREATE);
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, RetryServiceCallAction.class.getName(), issueType, CreationRuleActionPhase.NOT_APPLICABLE);
+        issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.NOT_APPLICABLE);
     }
 
     private void run(Runnable runnable, String explanation, Logger logger) {
