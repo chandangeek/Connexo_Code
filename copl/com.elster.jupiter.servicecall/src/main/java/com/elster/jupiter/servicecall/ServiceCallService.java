@@ -20,7 +20,8 @@ import java.util.Set;
 public interface ServiceCallService {
 
     String COMPONENT_NAME = "SCS";
-    String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
+    String SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME = "ServiceCallIssues";
+    String SERVICE_CALLS_ISSUE_DESTINATION_NAME = "ServiceCallIssues";
 
     /**
      * Get all known service call life cycles in tghe system, support paging.
@@ -72,6 +73,10 @@ public interface ServiceCallService {
      */
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
         return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, DefaultState.ONGOING);
+    }
+
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, DefaultState retryState) {
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, retryState);
     }
 
     /**

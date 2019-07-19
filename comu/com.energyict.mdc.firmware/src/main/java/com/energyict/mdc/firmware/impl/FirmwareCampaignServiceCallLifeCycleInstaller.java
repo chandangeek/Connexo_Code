@@ -43,7 +43,8 @@ class FirmwareCampaignServiceCallLifeCycleInstaller {
                             MessageFormat.format("Could not find active custom property set {0}",
                                     serviceCallTypeMapping.getCustomPropertySetClass())));
 
-            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), createServiceCallLifeCycle(serviceCallTypeMapping), serviceCallTypeMapping.getReservedByApplication())
+            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), createServiceCallLifeCycle(serviceCallTypeMapping),
+                    serviceCallTypeMapping.getReservedByApplication(), serviceCallTypeMapping.getRetryState())
                     .handler(serviceCallTypeMapping.getTypeName())
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(customPropertySet)

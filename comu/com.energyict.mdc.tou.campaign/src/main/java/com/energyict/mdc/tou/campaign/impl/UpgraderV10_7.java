@@ -12,12 +12,12 @@ import javax.inject.Inject;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ServiceCallTypeUpgrader implements com.elster.jupiter.upgrade.Upgrader {
+public class UpgraderV10_7 implements com.elster.jupiter.upgrade.Upgrader {
 
     private final ServiceCallService serviceCallService;
 
     @Inject
-    public ServiceCallTypeUpgrader(ServiceCallService serviceCallService) {
+    public UpgraderV10_7(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
     }
 

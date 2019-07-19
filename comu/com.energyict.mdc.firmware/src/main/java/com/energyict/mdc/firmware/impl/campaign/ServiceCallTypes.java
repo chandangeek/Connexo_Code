@@ -3,6 +3,8 @@
  */
 package com.energyict.mdc.firmware.impl.campaign;
 
+import com.elster.jupiter.servicecall.DefaultState;
+
 public enum ServiceCallTypes {
 
     FIRMWARE_CAMPAIGN(
@@ -16,7 +18,8 @@ public enum ServiceCallTypes {
             FirmwareCampaignItemServiceCallHandler.VERSION,
             FirmwareCampaignItemServiceCallHandler.APPLICATION,
             FirmwareCampaignItemCustomPropertySet.class.getSimpleName(),
-            FirmwareCampaignItemDomainExtension.class.getName()),
+            FirmwareCampaignItemDomainExtension.class.getName(),
+            DefaultState.PENDING),
     ;
 
     private final String typeName;
@@ -24,13 +27,19 @@ public enum ServiceCallTypes {
     private final String reservedByApplication;
     private final String customPropertySetClass;
     private final String persistenceSupportClass;
+    private final DefaultState retryState;
 
     ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass, String persistenceSupportClass) {
+        this(typeName, typeVersion, reservedByApplication, customPropertySetClass, persistenceSupportClass, DefaultState.ONGOING);
+    }
+
+    ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass, String persistenceSupportClass, DefaultState retryState) {
         this.typeName = typeName;
         this.typeVersion = typeVersion;
         this.reservedByApplication = reservedByApplication;
         this.customPropertySetClass = customPropertySetClass;
         this.persistenceSupportClass = persistenceSupportClass;
+        this.retryState = retryState;
     }
 
     public String getTypeName() {
@@ -51,5 +60,9 @@ public enum ServiceCallTypes {
 
     public String getPersistenceSupportClass() {
         return persistenceSupportClass;
+    }
+
+    public DefaultState getRetryState() {
+        return retryState;
     }
 }

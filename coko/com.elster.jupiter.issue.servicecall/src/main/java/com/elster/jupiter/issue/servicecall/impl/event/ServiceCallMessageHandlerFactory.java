@@ -29,12 +29,12 @@ import org.osgi.service.component.annotations.Reference;
            service = MessageHandlerFactory.class,
            property = {
                         "subscriber=" + ServiceCallMessageHandlerFactory.AQ_SERVICE_CALL_EVENT_SUBSCRIBER,
-                        "destination=" + ServiceCallService.SERVICE_CALLS_DESTINATION_NAME
+                        "destination=" + ServiceCallService.SERVICE_CALLS_ISSUE_DESTINATION_NAME
                       },
            immediate = true)
 public class ServiceCallMessageHandlerFactory implements MessageHandlerFactory {
 
-    public static final String AQ_SERVICE_CALL_EVENT_SUBSCRIBER = "ServiceCalls";
+    public static final String AQ_SERVICE_CALL_EVENT_SUBSCRIBER = ServiceCallService.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME;
 
     private volatile JsonService jsonService;
     private volatile IssueCreationService issueCreationService;
@@ -51,8 +51,7 @@ public class ServiceCallMessageHandlerFactory implements MessageHandlerFactory {
     @Inject
     public ServiceCallMessageHandlerFactory(JsonService jsonService, IssueService issueService, NlsService nlsService,
                                             MeteringService meteringService, ServiceCallIssueService issueServiceCallService,
-                                            ServiceCallService serviceCallService
-    ) {
+                                            ServiceCallService serviceCallService) {
         setJsonService(jsonService);
         setIssueService(issueService);
         setNlsService(nlsService);

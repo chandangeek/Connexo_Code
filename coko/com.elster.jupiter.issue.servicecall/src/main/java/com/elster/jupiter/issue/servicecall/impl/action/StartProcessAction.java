@@ -122,11 +122,14 @@ public class StartProcessAction extends AbstractIssueAction {
     }
 
     @Override
-    public boolean isApplicable(Issue issue) {
-        if (issue.getRule().isPresent()) {
-            return issue.getRule().get().getActions().stream().anyMatch(creationRuleAction -> ServiceCallIssueService.SERVICE_CALL_ISSUE_PREFIX.equals(creationRuleAction.getAction().getIssueType().getPrefix()));
-        }
-        return false;
+    public boolean isApplicable(String reasonName){
+        return bpmService.getActiveBpmProcessDefinitions().stream()
+                .filter(this::getBpmProcessDefinitionFilter)
+                .filter(f -> List.class.isInstance(f.getProperties().get("issueReasons")))
+                .anyMatch(s -> ((List<Object>) s.getProperties().get("issueReasons"))
+                        .stream()
+                        .filter(HasIdAndName.class::isInstance)
+                        .anyMatch(v -> ((HasIdAndName) v).getId().toString().equals(reasonName)));
     }
 
     @Override

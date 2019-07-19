@@ -36,40 +36,58 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        switch (newState) {
-            case PENDING:
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                break;
-            case FAILED:
-                break;
-            case ONGOING:
-                firmwareCampaignService.createItemsOnCampaign(serviceCall);
-                break;
-            case CANCELLED:
-                firmwareCampaignService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED, serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get());
-                break;
-            case SUCCESSFUL:
-                serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
-                break;
-            default:
-                break;
+        if (!oldState.isOpen()) {
+            retryParent(serviceCall, newState);
+        } else {
+            switch (newState) {
+                case PENDING:
+                    serviceCall.requestTransition(DefaultState.ONGOING);
+                    break;
+                case FAILED:
+                    break;
+                case ONGOING:
+                    firmwareCampaignService.createItemsOnCampaign(serviceCall);
+                    break;
+                case CANCELLED:
+                    firmwareCampaignService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED, serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get());
+                    break;
+                case SUCCESSFUL:
+                    serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     public void onChildStateChange(ServiceCall parent, ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        switch (newState) {
-            case CANCELLED:
-                firmwareCampaignService.handleFirmwareUploadCancellation(serviceCall);
-            case FAILED:
-            case REJECTED:
-            case SUCCESSFUL:
-                complete(parent);
-                parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was " +
-                        newState.getDefaultFormat().toLowerCase(), serviceCall.getId(), serviceCall.getType().getName()));
-                break;
-            default:
-                break;
+        if (!oldState.isOpen()) {
+            retryChild(serviceCall, newState);
+        } else {
+            switch (newState) {
+                case CANCELLED:
+                    firmwareCampaignService.handleFirmwareUploadCancellation(serviceCall);
+                case FAILED:
+                case REJECTED:
+                case SUCCESSFUL:
+                    complete(parent);
+                    parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was " +
+                            newState.getDefaultFormat().toLowerCase(), serviceCall.getId(), serviceCall.getType().getName()));
+                    break;
+                default:
+                    break;
+            }
         }
+    }
+
+    private void retryParent(ServiceCall serviceCall, DefaultState newState) {
+        if (DefaultState.ONGOING != serviceCall.getState()) {
+            serviceCall.requestTransition(DefaultState.ONGOING);
+        }
+    }
+
+    private void retryChild(ServiceCall serviceCall, DefaultState newState) {
+        serviceCall.requestTransition(DefaultState.PENDING);
     }
 
     private void complete(ServiceCall parent) {

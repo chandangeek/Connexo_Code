@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.servicecall.impl.i18n;
 
 import com.elster.jupiter.issue.servicecall.impl.ServiceCallIssueCreationRuleTemplate;
+import com.elster.jupiter.issue.servicecall.impl.action.CloseIssueAction;
 import com.elster.jupiter.issue.servicecall.impl.event.ServiceCallMessageHandlerFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -22,6 +23,13 @@ public enum TranslationKeys implements TranslationKey {
     SERVICE_CALL_TYPE_STATE("ServiceCallTypeState", "Service call state"),
     PARAMETER_AUTO_RESOLUTION(ServiceCallIssueCreationRuleTemplate.AUTORESOLUTION, "Auto resolution"),
     AQ_SUBSCRIBER(ServiceCallMessageHandlerFactory.AQ_SERVICE_CALL_EVENT_SUBSCRIBER, "Create service call issues"),
+
+    CLOSE_ACTION_PROPERTY_CLOSE_STATUS(CloseIssueAction.CLOSE_STATUS, "Close status"),
+    CLOSE_ACTION_PROPERTY_COMMENT(CloseIssueAction.COMMENT, "Comment"),
+    CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
+    CLOSE_ACTION_ISSUE_CLOSED("action.issue.closed", "Issue closed"),
+    CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
+    CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
 
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
 
