@@ -11,13 +11,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
-import com.elster.jupiter.issue.impl.database.DatabaseConst;
-import com.elster.jupiter.issue.impl.database.TableSpecs;
-import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
-import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
-import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
-import com.elster.jupiter.issue.impl.database.UpgraderV10_5;
-import com.elster.jupiter.issue.impl.database.UpgraderV10_6;
+import com.elster.jupiter.issue.impl.database.*;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -63,16 +57,14 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -235,13 +227,16 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 InstallIdentifier.identifier("Pulse", COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.of(
-                        version(10, 2), UpgraderV10_2.class,
-                        version(10, 3), UpgraderV10_3.class,
-                        version(10, 4), UpgraderV10_4.class,
-                        version(10, 5), UpgraderV10_5.class,
-                        version(10, 6), UpgraderV10_6.class
-                ));
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(Version.version(10, 2), UpgraderV10_2.class)
+                        .put(Version.version(10, 3), UpgraderV10_3.class)
+                        .put(Version.version(10, 4), UpgraderV10_4.class)
+                        .put(Version.version(10, 5), UpgraderV10_5.class)
+                        .put(Version.version(10, 6), UpgraderV10_6.class)
+                        .put(Version.version(10, 7), UpgraderV10_7.class)
+                        .build()
+        );
+
     }
 
     @Reference
