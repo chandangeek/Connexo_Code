@@ -14,13 +14,13 @@ import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
 
 import javax.inject.Inject;
 
-public final class HistoricalIssueServiceCallImpl extends IssueServiceCallImpl implements HistoricalServiceCallIssue {
+public final class HistoricalServiceCallIssueImpl extends ServiceCallIssueImpl implements HistoricalServiceCallIssue {
 
     @IsPresent
     private Reference<HistoricalIssue> baseIssue = ValueReference.absent();
 
     @Inject
-    public HistoricalIssueServiceCallImpl(DataModel dataModel) {
+    public HistoricalServiceCallIssueImpl(DataModel dataModel) {
         super(dataModel);
     }
 
@@ -34,7 +34,7 @@ public final class HistoricalIssueServiceCallImpl extends IssueServiceCallImpl i
     }
 
     void copy(OpenServiceCallIssue openIssueServiceCall) {
-        setNewState(openIssueServiceCall.getNewState());
+        setNewState(openIssueServiceCall.getStateCausedIssue());
         setServiceCall(openIssueServiceCall.getServiceCall());
     }
 }

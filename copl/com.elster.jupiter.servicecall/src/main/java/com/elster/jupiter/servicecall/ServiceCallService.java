@@ -50,6 +50,8 @@ public interface ServiceCallService {
      */
     Finder<ServiceCallType> getServiceCallTypes();
 
+    Optional<ServiceCallType> findServiceCallType(long id);
+
     /**
      * Returns list of service call types with specified destination.
      * @return List
@@ -72,7 +74,7 @@ public interface ServiceCallService {
      * @return
      */
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
-        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, DefaultState.ONGOING);
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, null);
     }
 
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, DefaultState retryState) {

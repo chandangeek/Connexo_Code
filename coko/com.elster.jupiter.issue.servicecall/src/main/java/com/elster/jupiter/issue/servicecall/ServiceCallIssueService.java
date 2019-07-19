@@ -18,6 +18,9 @@ public interface ServiceCallIssueService {
     String ISSUE_TYPE_NAME = "servicecall";
     String SERVICE_CALL_ISSUE_PREFIX = "SCI";
 
+    String REASON_FAILED = "reason.servicecall.failed";
+    String REASON_PARTIAL_SUCCEED = "reason.servicecall.partialsucceed";
+
     Optional<? extends ServiceCallIssue> findIssue(long id);
 
     OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent);

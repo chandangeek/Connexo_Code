@@ -49,11 +49,15 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
+        <!-- Jupiter modules -->
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
         </dependency>
-        <!-- Jupiter modules -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
@@ -125,6 +129,10 @@
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
@@ -217,10 +225,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

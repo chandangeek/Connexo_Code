@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -18,6 +19,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
@@ -48,7 +50,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private volatile ServiceCallService serviceCallService;
-    private Optional<String> appKey = Optional.empty();
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     //for OSGI
     public ServiceCallIssueCreationRuleTemplate() {
@@ -100,7 +102,8 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(ServiceCallIssueService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(ServiceCallIssueService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -123,15 +126,20 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
         this.serviceCallService = serviceCallService;
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
         builder.add(
-                propertySpecService.specForValuesOf(new ServiceCallInfoValueFactory(serviceCallService))
+                propertySpecService.specForValuesOf(new ServiceCallTypeInfoValueFactory(serviceCallService))
                         .named(TranslationKeys.SERVICE_CALL_TYPE)
                         .fromThesaurus(thesaurus)
                         .markRequired()
-                        .markMultiValued(ServiceCallInfoValueFactory.SEPARATOR)
+                        .markMultiValued(ServiceCallTypeInfoValueFactory.SEPARATOR)
                         .addValues(serviceCallService.getServiceCallTypes().stream().filter(this::getServiceCallTypeFilter).map(ServiceCallTypeInfo::new).toArray(ServiceCallTypeInfo[]::new))
                         .markExhaustive(PropertySelectionMode.LIST)
                         .finish());
@@ -154,8 +162,10 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     private boolean getServiceCallTypeFilter(ServiceCallType serviceCallType) {
-        return appKey.map(s -> !serviceCallType.getReservedByApplication().isPresent() ||
-                s.equals(serviceCallType.getReservedByApplication().get())).orElse(true);
+        if (serviceCallType.getReservedByApplication().isPresent()) {
+           return threadPrincipalService.getApplicationName().equals(serviceCallType.getReservedByApplication().get());
+        }
+        return true;
     }
 
     @Override
@@ -170,12 +180,13 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     @Override
     public Optional<? extends Issue> resolveIssue(IssueEvent event) {
-        return event.findExistingIssue();
-    }
-
-    @Override
-    public void setAppKey(String appKey) {
-        this.appKey = Optional.of(appKey);
+        Optional<? extends Issue> issue = event.findExistingIssue();
+        if (issue.isPresent() && !issue.get().getStatus().isHistorical()) {
+            OpenIssue openIssue = (OpenIssue) issue.get();
+            issue = Optional.of(openIssue.close(issueService.findStatus(IssueStatus.RESOLVED)
+                    .get()));
+        }
+        return issue;
     }
 
 }

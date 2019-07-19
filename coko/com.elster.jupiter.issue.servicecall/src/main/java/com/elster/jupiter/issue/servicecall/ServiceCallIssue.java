@@ -15,9 +15,5 @@ public interface ServiceCallIssue extends Issue {
 
     ServiceCall getServiceCall();
 
-    DefaultState getNewState();
-
-    void setServiceCall(ServiceCall serviceCall);
-
-    void setNewState(DefaultState newState);
+    DefaultState getStateCausedIssue();
 }

@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.bpm.impl.issue.servicecall;
+package com.elster.jupiter.issue.servicecall.impl.provider;
 
 import com.elster.jupiter.nls.TranslationKey;
 

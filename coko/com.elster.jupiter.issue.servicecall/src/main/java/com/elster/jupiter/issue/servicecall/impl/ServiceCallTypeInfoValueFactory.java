@@ -6,7 +6,7 @@ package com.elster.jupiter.issue.servicecall.impl;
 
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.rest.ServiceCallInfoPropertyFactory;
+import com.elster.jupiter.properties.rest.ServiceCallTypeInfoPropertyFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -16,19 +16,19 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
-class ServiceCallInfoValueFactory implements ValueFactory<HasIdAndName>, ServiceCallInfoPropertyFactory {
+class ServiceCallTypeInfoValueFactory implements ValueFactory<HasIdAndName>, ServiceCallTypeInfoPropertyFactory {
 
     private ServiceCallService serviceCallService;
     static final String SEPARATOR = ",";
 
-    ServiceCallInfoValueFactory (ServiceCallService serviceCallService) {
+    ServiceCallTypeInfoValueFactory(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
     }
 
     @Override
     public HasIdAndName fromStringValue(String stringValue) {
-        return serviceCallService.getServiceCallTypes().stream().filter(serviceCallType -> String.valueOf(serviceCallType.getId()).equals(stringValue))
-                .map(ServiceCallTypeInfo::new).findFirst().orElse(null);
+        return serviceCallService.findServiceCallType(Long.valueOf(stringValue))
+                .map(ServiceCallTypeInfo::new).orElse(null);
     }
 
     @Override
@@ -87,17 +87,6 @@ class ServiceCallTypeInfo extends HasIdAndName {
     @Override
     public String getName() {
         return serviceCallType.getName();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this != o) {
-            return false;
-        }
-        if (getClass() != o.getClass()) {
-            return false;
-        }
-        return super.equals(o);
     }
 
     @Override

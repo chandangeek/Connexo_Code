@@ -2,13 +2,12 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.bpm.impl.issue.servicecall;
+package com.elster.jupiter.issue.servicecall.impl.provider;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -43,12 +42,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
         service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
         property = "name=ServiceCallProcessAssociationProvider", immediate = true)
 public class ServiceCallProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
-    public static final String APP_KEY = "MDC";
+    public static final String APP_KEY = "SYS";
     public static final String COMPONENT_NAME = "BPM";
     public static final String ASSOCIATION_TYPE = "servicecallissue";
     public static final String ISSUE_TYPE = "servicecall";
-
-    private volatile License license;
+    
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
@@ -78,11 +76,6 @@ public class ServiceCallProcessAssociationProvider implements ProcessAssociation
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
-    }
-
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-        this.license = license;
     }
 
     @Override

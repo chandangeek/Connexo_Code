@@ -12,14 +12,15 @@ public enum ServiceCallTypes {
             FirmwareCampaignServiceCallHandler.VERSION,
             FirmwareCampaignServiceCallHandler.APPLICATION,
             FirmwareCampaignCustomPropertySet.class.getSimpleName(),
-            FirmwareCampaignDomainExtension.class.getName()),
+            FirmwareCampaignDomainExtension.class.getName(),
+            FirmwareCampaignServiceCallHandler.RETRY_STATE),
     FIRMWARE_CAMPAIGN_ITEM(
             FirmwareCampaignItemServiceCallHandler.NAME,
             FirmwareCampaignItemServiceCallHandler.VERSION,
             FirmwareCampaignItemServiceCallHandler.APPLICATION,
             FirmwareCampaignItemCustomPropertySet.class.getSimpleName(),
             FirmwareCampaignItemDomainExtension.class.getName(),
-            DefaultState.PENDING),
+            FirmwareCampaignItemServiceCallHandler.RETRY_STATE),
     ;
 
     private final String typeName;
@@ -28,10 +29,6 @@ public enum ServiceCallTypes {
     private final String customPropertySetClass;
     private final String persistenceSupportClass;
     private final DefaultState retryState;
-
-    ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass, String persistenceSupportClass) {
-        this(typeName, typeVersion, reservedByApplication, customPropertySetClass, persistenceSupportClass, DefaultState.ONGOING);
-    }
 
     ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass, String persistenceSupportClass, DefaultState retryState) {
         this.typeName = typeName;

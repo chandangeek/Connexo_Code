@@ -7,18 +7,13 @@ package com.elster.jupiter.issue.servicecall.impl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.servicecall.HistoricalServiceCallIssue;
-import com.elster.jupiter.issue.servicecall.MessageSeeds;
 import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
-import com.elster.jupiter.issue.servicecall.impl.entity.OpenIssueServiceCallImpl;
-import com.elster.jupiter.issue.servicecall.impl.event.ServiceCallStateChangedEvent;
+import com.elster.jupiter.issue.servicecall.impl.entity.OpenServiceCallIssueImpl;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -33,8 +28,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -52,11 +45,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-@Component(name = "com.elster.jupiter.servicecall.issue.impl.IssueServiceCallServiceImpl",
+@Component(name = "com.elster.jupiter.issue.servicecall.impl.ServiceCallIssueServiceImpl",
            service = { TranslationKeyProvider.class, MessageSeedProvider.class, ServiceCallIssueService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
            property = "name=" + ServiceCallIssueService.COMPONENT_NAME,
            immediate = true)
@@ -137,7 +127,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
 
     @Override
     public OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
-        OpenIssueServiceCallImpl issue = dataModel.getInstance(OpenIssueServiceCallImpl.class);
+        OpenServiceCallIssueImpl issue = dataModel.getInstance(OpenServiceCallIssueImpl.class);
         issue.setIssue(baseIssue);
         issueEvent.apply(issue);
         issue.save();

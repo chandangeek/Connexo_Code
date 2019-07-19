@@ -286,6 +286,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 .sorted(ServiceCallTypeImpl.Fields.version.fieldName(), true);
     }
 
+    @Override
+    public Optional<ServiceCallType> findServiceCallType(long id) {
+        return dataModel.stream(ServiceCallType.class).filter(type ->id == type.getId()).findFirst();
+    }
+
     public List<ServiceCallType> getServiceCallTypes(String destination) {
         return dataModel.mapper(ServiceCallType.class).find(ServiceCallTypeImpl.Fields.destination.fieldName(), destination);
     }

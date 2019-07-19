@@ -21,7 +21,7 @@ public class ServiceCallIssueInfo<T extends DeviceInfo> extends IssueInfo<T, Ser
     public Instant receivedTime;
     public Instant lastModifyTime;
     public IdWithNameInfo serviceCallType;
-    public List<JournalEntryInfo> journals;
+    public List<ServiceCallLogEntryInfo> logs;
 
     public ServiceCallIssueInfo(ServiceCallIssue issue, Class<T> deviceInfoClass) {
         super(issue, deviceInfoClass);

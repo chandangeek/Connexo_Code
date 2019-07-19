@@ -28,7 +28,9 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-public class IssueServiceCallImpl implements ServiceCallIssue {
+public class ServiceCallIssueImpl implements ServiceCallIssue {
+
+    private final DataModel dataModel;
 
     public enum Fields {
         BASEISSUE("baseIssue"),
@@ -54,13 +56,12 @@ public class IssueServiceCallImpl implements ServiceCallIssue {
     private Instant modTime;
     private String userName;
 
-    private final DataModel dataModel;
     @IsPresent
     private Reference<ServiceCall> serviceCall = ValueReference.absent();
     private DefaultState newState;
 
     @Inject
-    public IssueServiceCallImpl(DataModel dataModel) {
+    public ServiceCallIssueImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
@@ -74,16 +75,14 @@ public class IssueServiceCallImpl implements ServiceCallIssue {
     }
 
     @Override
-    public DefaultState getNewState() {
+    public DefaultState getStateCausedIssue() {
         return newState;
     }
 
-    @Override
     public void setServiceCall(ServiceCall serviceCall) {
         this.serviceCall.set(serviceCall);
     }
 
-    @Override
     public void setNewState(DefaultState newState) {
         this.newState = newState;
     }
@@ -291,11 +290,11 @@ public class IssueServiceCallImpl implements ServiceCallIssue {
         if (this == o) {
             return true;
         }
-        if (o == null || !(o instanceof IssueServiceCallImpl)) {
+        if (o == null || !(o instanceof ServiceCallIssueImpl)) {
             return false;
         }
 
-        IssueServiceCallImpl that = (IssueServiceCallImpl) o;
+        ServiceCallIssueImpl that = (ServiceCallIssueImpl) o;
 
         return Objects.equals(this.getBaseIssue(), that.getBaseIssue());
     }

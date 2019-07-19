@@ -10,6 +10,8 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
+import com.google.common.collect.ImmutableMap;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +23,7 @@ import java.util.Map;
 public class ServiceCallTypeInfoFactory {
 
     private final Thesaurus thesaurus;
-    private Map<String, String> applications = initApplicationsMap();
+    private static Map<String, String> APPS = ImmutableMap.of("MDC", "MultiSense", "INS", "Insight");
 
     @Inject
     public ServiceCallTypeInfoFactory(Thesaurus thesaurus) {
@@ -35,7 +37,7 @@ public class ServiceCallTypeInfoFactory {
         info.name = serviceCallType.getName();
         info.versionName = serviceCallType.getVersionName();
         serviceCallType.getReservedByApplication().ifPresent(
-                key -> info.reservedByApplication = applications.get(key));
+                key -> info.reservedByApplication = APPS.get(key));
         info.destination = serviceCallType.getDestinationName();
         info.priority = serviceCallType.getPriority();
         info.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus()
@@ -51,12 +53,4 @@ public class ServiceCallTypeInfoFactory {
                 .forEach(cps -> info.customPropertySets.add(new ServiceCallTypeCustomPropertySetInfo(cps)));
         return info;
     }
-
-    private Map<String, String> initApplicationsMap() {
-        Map<String, String> map = new HashMap<>();
-        map.put("MDC", "MultiSense");
-        map.put("INS", "Insight");
-        return map;
-    }
-
 }

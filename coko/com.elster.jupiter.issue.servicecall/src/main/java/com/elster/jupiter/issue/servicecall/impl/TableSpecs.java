@@ -6,9 +6,10 @@ package com.elster.jupiter.issue.servicecall.impl;
 
 import com.elster.jupiter.issue.servicecall.HistoricalServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
-import com.elster.jupiter.issue.servicecall.impl.entity.HistoricalIssueServiceCallImpl;
-import com.elster.jupiter.issue.servicecall.impl.entity.IssueServiceCallImpl;
-import com.elster.jupiter.issue.servicecall.impl.entity.OpenIssueServiceCallImpl;
+import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
+import com.elster.jupiter.issue.servicecall.impl.entity.HistoricalServiceCallIssueImpl;
+import com.elster.jupiter.issue.servicecall.impl.entity.OpenServiceCallIssueImpl;
+import com.elster.jupiter.issue.servicecall.impl.entity.ServiceCallIssueImpl;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -26,21 +27,21 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<OpenServiceCallIssue> table = dataModel.addTable(name(), OpenServiceCallIssue.class);
-            table.map(OpenIssueServiceCallImpl.class);
+            table.map(OpenServiceCallIssueImpl.class);
             table.setJournalTableName(name() + "JRNL");
 
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
-            Column serviceCallColRef = table.column(IssueServiceCallImpl.Fields.SERVICECALL.name())
+            Column serviceCallColRef = table.column(ServiceCallIssueImpl.Fields.SERVICECALL.name())
                     .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
 
-            table.column(IssueServiceCallImpl.Fields.STATE.name())
+            table.column(ServiceCallIssueImpl.Fields.STATE.name())
                     .number()
                     .notNull()
                     .conversion(NUMBER2ENUM)
-                    .map(IssueServiceCallImpl.Fields.STATE.fieldName())
+                    .map(ServiceCallIssueImpl.Fields.STATE.fieldName())
                     .add();
 
             table.addAuditColumns();
@@ -49,12 +50,12 @@ public enum TableSpecs {
                 .foreignKey("ISC_ISSUE_OPEN_FK_TO_ISSUE")
                 .on(issueColRef)
                 .references(OpenIssue.class)
-                .map(OpenIssueServiceCallImpl.Fields.BASEISSUE.fieldName())
+                .map(OpenServiceCallIssueImpl.Fields.BASEISSUE.fieldName())
                 .add();
             table.foreignKey("ISC_ISSUE_OPEN_FK_TO_SC")
                     .on(serviceCallColRef)
                     .references(ServiceCall.class)
-                    .map(IssueServiceCallImpl.Fields.SERVICECALL.fieldName())
+                    .map(ServiceCallIssueImpl.Fields.SERVICECALL.fieldName())
                     .add();
         }
     },
@@ -63,21 +64,21 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<HistoricalServiceCallIssue> table = dataModel.addTable(name(), HistoricalServiceCallIssue.class);
-            table.map(HistoricalIssueServiceCallImpl.class);
+            table.map(HistoricalServiceCallIssueImpl.class);
             table.setJournalTableName(name() + "JRNL");
 
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
-            Column serviceCallColRef = table.column(IssueServiceCallImpl.Fields.SERVICECALL.name())
+            Column serviceCallColRef = table.column(ServiceCallIssueImpl.Fields.SERVICECALL.name())
                     .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
 
-            table.column(IssueServiceCallImpl.Fields.STATE.name())
+            table.column(ServiceCallIssueImpl.Fields.STATE.name())
                     .number()
                     .notNull()
                     .conversion(NUMBER2ENUM)
-                    .map(IssueServiceCallImpl.Fields.STATE.fieldName())
+                    .map(ServiceCallIssueImpl.Fields.STATE.fieldName())
                     .add();
 
             table.addAuditColumns();
@@ -86,12 +87,12 @@ public enum TableSpecs {
                 .foreignKey("ISC_ISSUE_HIST_FK_TO_ISSUE")
                 .on(issueColRef)
                 .references(HistoricalIssue.class)
-                .map(HistoricalIssueServiceCallImpl.Fields.BASEISSUE.fieldName())
+                .map(HistoricalServiceCallIssueImpl.Fields.BASEISSUE.fieldName())
                 .add();
             table.foreignKey("ISC_ISSUE_HIST_FK_TO_SC")
                     .on(serviceCallColRef)
                     .references(ServiceCall.class)
-                    .map(IssueServiceCallImpl.Fields.SERVICECALL.fieldName())
+                    .map(ServiceCallIssueImpl.Fields.SERVICECALL.fieldName())
                     .add();
         }
     },
@@ -99,22 +100,22 @@ public enum TableSpecs {
     ISC_ISSUE_ALL() {
         @Override
         void addTo(DataModel dataModel) {
-            Table<OpenServiceCallIssue> table = dataModel.addTable(name(), OpenServiceCallIssue.class);
-            table.map(OpenIssueServiceCallImpl.class);
+            Table<ServiceCallIssue> table = dataModel.addTable(name(), ServiceCallIssue.class);
+            table.map(ServiceCallIssueImpl.class);
             table.doNotAutoInstall();//because it is mapped to view
 
             Column issueColRef = table.column("ISSUE").number().conversion(NUMBER2LONG).notNull().add();
-            Column serviceCallColRef = table.column(IssueServiceCallImpl.Fields.SERVICECALL.name())
+            Column serviceCallColRef = table.column(ServiceCallIssueImpl.Fields.SERVICECALL.name())
                     .number()
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
 
-            table.column(IssueServiceCallImpl.Fields.STATE.name())
+            table.column(ServiceCallIssueImpl.Fields.STATE.name())
                     .number()
                     .notNull()
                     .conversion(NUMBER2ENUM)
-                    .map(IssueServiceCallImpl.Fields.STATE.fieldName())
+                    .map(ServiceCallIssueImpl.Fields.STATE.fieldName())
                     .add();
             table.addAuditColumns();
             table.primaryKey("ISC_ISSUE_PK").on(issueColRef).add();
@@ -122,12 +123,12 @@ public enum TableSpecs {
                 .foreignKey("ISC_ISSUE_FK_TO_ISSUE")
                 .on(issueColRef)
                 .references(IssueService.COMPONENT_NAME, "ISU_ISSUE_ALL")
-                .map(OpenIssueServiceCallImpl.Fields.BASEISSUE.fieldName())
+                .map(ServiceCallIssueImpl.Fields.BASEISSUE.fieldName())
                 .add();
             table.foreignKey("ISC_ISSUE_FK_TO_SERVICECALL")
                     .on(serviceCallColRef)
                     .references(ServiceCall.class)
-                    .map(IssueServiceCallImpl.Fields.SERVICECALL.fieldName())
+                    .map(ServiceCallIssueImpl.Fields.SERVICECALL.fieldName())
                     .add();
         }
     };

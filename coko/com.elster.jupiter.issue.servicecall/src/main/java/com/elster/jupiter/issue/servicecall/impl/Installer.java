@@ -61,9 +61,9 @@ class Installer implements FullInstaller {
     }
 
     private void createIssueTypeAndReasons(IssueType issueType) {
-        IssueReason serviceCallFailed = issueService.createReason(ModuleConstants.REASON_FAILED, issueType,
+        IssueReason serviceCallFailed = issueService.createReason(ServiceCallIssueService.REASON_FAILED, issueType,
                 TranslationKeys.SERVICE_CALL_ISSUE_FAILED_REASON, TranslationKeys.SERVICE_CALL_ISSUE_FAILED_REASON_DESCRIPTION);
-        IssueReason serviceCallPartialSucceed = issueService.createReason(ModuleConstants.REASON_PARTIAL_SUCCEED, issueType,
+        IssueReason serviceCallPartialSucceed = issueService.createReason(ServiceCallIssueService.REASON_PARTIAL_SUCCEED, issueType,
                 TranslationKeys.SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON, TranslationKeys.SERVICE_CALL_ISSUE_PARTIAL_SUCCEED_REASON_DESCRIPTION);
 
         issueActionService.createActionType(ServiceCallIssueActionsFactory.ID, FailedAction.class.getName(), serviceCallFailed, CreationRuleActionPhase.NOT_APPLICABLE);
