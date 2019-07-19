@@ -48,15 +48,7 @@ public class RetryServiceCallAction extends AbstractIssueAction {
                 serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
                 serviceCall.getParent().get().requestTransition(DefaultState.ONGOING);
             } else {
-                ServiceCallFilter filter = new ServiceCallFilter();
-                filter.states = Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).collect(Collectors.toList());
-                if (serviceCall.findChildren(filter).stream().findFirst().isPresent()) {
-                    throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
-                            .entity("Some child service call not in final state")
-                            .build());
-                } else {
-                    serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
-                }
+                serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
             }
         }
         return result;

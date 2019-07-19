@@ -28,8 +28,6 @@ import com.google.inject.Inject;
 
 import java.util.logging.Logger;
 
-import static com.elster.jupiter.servicecall.ServiceCallService.SERVICE_CALLS_DESTINATION_NAME;
-
 class Installer implements FullInstaller {
 
     private final IssueService issueService;
@@ -57,22 +55,7 @@ class Installer implements FullInstaller {
             IssueType issueType = setSupportedIssueType();
             createIssueTypeAndReasons(issueType);
         }, "issue reasons and action types", logger);
-//        doTry(
-//                "Create event subscriber",
-//                this::setAQSubscriber,
-//                logger
-//        );
     }
-
-
-    private void setAQSubscriber() {
-        DestinationSpec destinationSpec = messageService.getDestinationSpec(SERVICE_CALLS_DESTINATION_NAME).get();
-        destinationSpec.subscribe(
-                TranslationKeys.AQ_SUBSCRIBER,
-                ServiceCallIssueService.COMPONENT_NAME,
-                Layer.DOMAIN);
-    }
-
 
     private IssueType setSupportedIssueType() {
         return issueService.createIssueType(ServiceCallIssueService.ISSUE_TYPE_NAME, TranslationKeys.SERVICE_CALL_ISSUE_TYPE, ServiceCallIssueService.SERVICE_CALL_ISSUE_PREFIX);

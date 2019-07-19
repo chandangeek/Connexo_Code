@@ -65,7 +65,9 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT(4010, "DeviceConfigurationDoesNotSupportFirmwareManagement", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The firmware management communication task is not present on the device configuration ''{1}''", Level.WARNING),
     FIRMWARE_UPLOAD_CURRENTLY_ONGOING(4011, "FirmwareUploadOfFirmwareIsCurrentlyOngoing", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Firmware upload of firmware is currently ongoing.", Level.WARNING),
     PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE(4012, "ProtocolOfTheDeviceTypeDoesNotSupportUploadingFirmware", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The protocol of the device type ''{1}'' doesn''t support uploading firmware.", Level.WARNING),
-    CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY(4013, "ConnectionWindowOutsideOfCampaignTimeBoundary", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Connection window start of the connection method used by the firmware management communication task of the device is outside of the time boundary of the campaign.", Level.WARNING);
+    CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY(4013, "ConnectionWindowOutsideOfCampaignTimeBoundary", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Connection window start of the connection method used by the firmware management communication task of the device is outside of the time boundary of the campaign.", Level.WARNING),
+    SERVICE_CALL_NOT_IN_FINAL_STATE(4014, "ServiceCallNotInFinalState", "The service call is not in the final state", Level.SEVERE);
+
 
     private final int number;
     private final String key;

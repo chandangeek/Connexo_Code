@@ -15,10 +15,13 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.servicecall.topichandler", service = TopicHandler.class)
@@ -66,16 +69,20 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
         TransitionNotification transitionNotification = new TransitionNotification(serviceCall, currentState, newState);
 
-        Optional<DestinationSpec> serviceCallQueue = serviceCallService.getServiceCallQueue(serviceCall.getType().getDestinationName());
-        if (serviceCallQueue.isPresent()) {
+        List<DestinationSpec> specs = new ArrayList<>();
+        serviceCallService.getServiceCallQueue(serviceCall.getType().getDestinationName()).ifPresent(specs::add);
+        if (!newState.isOpen()) {
+            serviceCallService.getServiceCallQueue(ServiceCallService.SERVICE_CALLS_ISSUE_DESTINATION_NAME).ifPresent(specs::add);
+        }
+        for (DestinationSpec serviceCallQueue : specs) {
             int priority = serviceCall.getType().getPriority();
 
             if (DefaultState.CANCELLED.equals(newState)) {
-                serviceCallQueue.get().purgeCorrelationId(serviceCall.getNumber());
+                serviceCallQueue.purgeCorrelationId(serviceCall.getNumber());
                 serviceCall.findChildren().stream().filter(sc -> sc.canTransitionTo(DefaultState.CANCELLED)).forEach(ServiceCall::cancel);
             }
 
-            serviceCallQueue.get().message(jsonService.serialize(transitionNotification))
+            serviceCallQueue.message(jsonService.serialize(transitionNotification))
                     .withCorrelationId(serviceCall.getNumber())
                     .withPriority(priority)
                     .send();

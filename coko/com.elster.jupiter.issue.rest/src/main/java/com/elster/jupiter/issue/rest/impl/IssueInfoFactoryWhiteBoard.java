@@ -33,10 +33,15 @@ public class IssueInfoFactoryWhiteBoard implements IssueInfoFactoryService {
     @Override
     public InfoFactory getInfoFactoryFor(Issue issue) {
         return factories.stream().
-                filter(fac -> isApplicable(issue, fac)).
-                findFirst().
-                orElseThrow(() -> new IllegalStateException("No registered factory for issue type " + issue.getReason()
+                filter(fac -> isApplicable(issue, fac))
+                .max(this::factoriesComparator)
+                .orElseThrow(() -> new IllegalStateException("No registered factory for issue type " + issue.getReason()
                         .getIssueType()));
+    }
+
+    private int factoriesComparator(InfoFactory infoFactoryFirst, InfoFactory infoFactorySecond) {
+        return infoFactoryFirst.getDomainClass() == infoFactorySecond.getDomainClass() ? 0 :
+                infoFactoryFirst.getDomainClass().isAssignableFrom(infoFactorySecond.getDomainClass()) ? -1 : 1;
     }
 
     private boolean isApplicable(Issue issue, InfoFactory infoFactory) {
