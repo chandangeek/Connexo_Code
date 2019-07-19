@@ -6,8 +6,10 @@ package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.metering.ReadingInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
@@ -32,7 +34,7 @@ import java.util.logging.Logger;
         service = {SendMeterReadingsProvider.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + SendMeterReadingsProvider.NAME})
-public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvider<MeterReadingsPort> implements SendMeterReadingsProvider, OutboundSoapEndPointProvider {
+public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvider<MeterReadingsPort> implements SendMeterReadingsProvider, OutboundSoapEndPointProvider, ApplicationSpecific {
     private static final Logger LOGGER = Logger.getLogger(SendMeterReadingsProviderImpl.class.getName());
 
     private static final QName QNAME = new QName("http://iec.ch/TC57/2011/SendMeterReadings", "SendMeterReadings");
@@ -53,6 +55,11 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
 
     public void removeMeterReadingsPort(MeterReadingsPort out) {
         super.doRemoveEndpoint(out);
+    }
+
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     @Override
@@ -130,5 +137,10 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String getApplication() {
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

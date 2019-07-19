@@ -66,8 +66,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
 
     @Inject
     public EndDeviceConfigServiceProvider(MeteringService meteringService,
-                                          EndPointConfigurationService endPointConfigurationService,
-                                          WebServicesService webServicesService) {
+                                          EndPointConfigurationService endPointConfigurationService) {
         this();
         setMeteringService(meteringService);
         setEndPointConfigurationService(endPointConfigurationService);
@@ -95,6 +94,11 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addEndDeviceAttributesProvider(EndDeviceAttributesProvider endDeviceAttributesProvider) {
         this.endDeviceAttributesProviders.add(endDeviceAttributesProvider);
+    }
+
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     public void removeEndDeviceAttributesProvider(EndDeviceAttributesProvider endDeviceAttributesProvider) {

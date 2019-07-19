@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
@@ -64,6 +65,11 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
 
     public void removeReplyEndDeviceEvents(EndDeviceEventsPort events) {
         super.doRemoveEndpoint(events);
+    }
+
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     @Override

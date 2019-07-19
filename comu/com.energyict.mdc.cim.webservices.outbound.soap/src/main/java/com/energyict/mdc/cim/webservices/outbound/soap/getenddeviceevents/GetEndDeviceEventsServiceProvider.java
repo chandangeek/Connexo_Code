@@ -58,6 +58,11 @@ public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointP
         super.doRemoveEndpoint(port);
     }
 
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
+    }
+
     @Override
     public Service get() {
         return new GetEndDeviceEvents_Service(this.getClass().getResource(RESOURCE_WSDL));
