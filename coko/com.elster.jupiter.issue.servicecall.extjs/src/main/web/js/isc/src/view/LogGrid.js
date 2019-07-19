@@ -27,8 +27,8 @@ Ext.define('Isc.view.LogGrid', {
             }
         },
         {
-            text: Uni.I18n.translate('general.message', 'ISC', 'Message'),
-            dataIndex: 'message',
+            text: Uni.I18n.translate('general.details', 'ISC', 'Message'),
+            dataIndex: 'details',
             flex: 3,
             renderer: function (value) {
                 return value ? Ext.String.htmlEncode(value) : '';

@@ -8,6 +8,7 @@ Ext.define('Isc.view.Detail', {
     requires: [
         'Isu.view.issues.DetailTop',
         'Isc.view.DetailForm',
+        'Isc.view.ServiceCallDetails',
         'Isu.view.issues.CommentsList',
         'Uni.view.toolbar.PreviousNextNavigation',
         'Isc.view.LogGrid'
@@ -49,6 +50,18 @@ Ext.define('Isc.view.Detail', {
                 xtype: 'servicecall-isssue-detail-form',
                 itemId: 'issue-detail-form',
                 router: me.router
+            },
+            {   xtype: 'panel',
+                itemId: 'servicecall-details-panel',
+                ui: 'medium',
+                title: Uni.I18n.translate('general.servicecall.details.title', 'ISC', 'Service call details'),
+                items:[
+                    {
+                        xtype: 'servicecall-details-form',
+                        itemId: 'servicecall-details-form',
+                        router: me.router
+                    }
+                 ]
             },
             {   xtype: 'panel',
                 itemId: 'servicecall-issue-log-grid',

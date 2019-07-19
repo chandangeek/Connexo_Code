@@ -74,6 +74,7 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if (issueType === 'servicecall') {
             widgetXtype = 'servicecall-issue-detail';
             issueModel = 'Isc.model.Issue';
+            me.serviceCallLogStore = 'Isc.store.Logs'
         } else if(issueType ==='manual'){
             widgetXtype = 'manual-issue-detail';
             issueModel='Isu.model.ManualIssue';
@@ -132,6 +133,9 @@ Ext.define('Isu.controller.IssueDetail', {
         }
         if ((issueType === 'task')) {
             me.addTaskOccurrenceWidget(widget);
+        }
+        if ((issueType === 'servicecall')) {
+            me.addServiceCallIssueLogs(widget);
         }
     },
 
@@ -587,6 +591,44 @@ Ext.define('Isu.controller.IssueDetail', {
         });
     },
 
+    addServiceCallIssueLogs: function(widget) {
+        var me = this;
+
+        me.getApplication().on('issueLoad', function (rec) {
+            var panel = widget.down('#servicecall-issue-detail-log'),
+            detailsForm = widget.down('#servicecall-details-form');
+
+            if (rec.raw.journals && panel) {
+                var data = [],
+                    store;
+
+                rec.raw.journals.map(function (journal) {
+                    data.push(Ext.apply({}, {
+                        timestamp: journal.timestamp,
+                        details: journal.details,
+                        logLevel: journal.logLevel,
+                    }, journal))
+                });
+                if (data.length) {
+                    store = Ext.create(me.serviceCallLogStore, {
+                        data: data,
+                        sorters: [
+                            {
+                                property: 'timestamp',
+                                direction: 'DESC'
+                            }
+                        ],});
+                    panel.getView().bindStore(store);
+                }
+            }
+            
+            detailsForm.loadRecord(rec);
+
+        }, me, {
+            single: true
+        });
+    },
+
     refreshGrid: function (widget) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -649,6 +691,9 @@ Ext.define('Isu.controller.IssueDetail', {
         }
         if ((issueType === 'task')) {
             me.addTaskOccurrenceWidget(widget);
+        }
+        if ((issueType === 'servicecall')) {
+            me.addServiceCallIssueLogs(widget);
         }
     },
 
