@@ -201,10 +201,9 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceType.addDeviceSecurityAccessor(anyVararg())).thenReturn(true);
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.deviceName = deviceType.getName();
-        info.deviceVersion = 13;
-        DeviceSecurityAccessorTypeInfo deviceSecurityAccessorTypeInfo = new DeviceSecurityAccessorTypeInfo(info1, info2);
-        info.securityAccessors = Arrays.asList(deviceSecurityAccessorTypeInfo);
+        info.name = deviceType.getName();
+        info.version = 13;
+        info.securityAccessors = Arrays.asList(info1, info2);
 
         Response response = target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -242,9 +241,9 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         info2.id = 2;
         info2.version = 1;
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.deviceName = deviceType.getName();
-        info.deviceVersion = 13;
-        info.securityAccessors = Arrays.asList(new DeviceSecurityAccessorTypeInfo(info1, info2));
+        info.name = deviceType.getName();
+        info.version = 13;
+        info.securityAccessors = Arrays.asList(info1, info2);
 
         Response response = target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -275,9 +274,9 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(securityManagementService.findSecurityAccessorTypeById(2)).thenReturn(Optional.empty());
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.deviceName = deviceType.getName();
-        info.deviceVersion = 13;
-        info.securityAccessors = Arrays.asList(new DeviceSecurityAccessorTypeInfo(info1, info2));
+        info.name = deviceType.getName();
+        info.version = 13;
+        info.securityAccessors = Arrays.asList(info1, info2);
 
         Response response = target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -299,8 +298,8 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceType.removeDeviceSecurityAccessor(deviceSecurityAccessorType)).thenReturn(true);
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.deviceName = deviceType.getName();
-        info.deviceVersion = 13;
+        info.name = deviceType.getName();
+        info.version = 13;
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
@@ -315,8 +314,8 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.emptyList());
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.deviceName = deviceType.getName();
-        info.deviceVersion = 13;
+        info.name = deviceType.getName();
+        info.version = 13;
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
@@ -331,8 +330,8 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         when(deviceConfigurationService.findDeviceType(66)).thenReturn(Optional.of(deviceType));
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
-        info.deviceName = deviceType.getName();
-        info.deviceVersion = 13;
+        info.name = deviceType.getName();
+        info.version = 13;
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
