@@ -68,7 +68,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
     public void testCallWithoutPort() {
         inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
         when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(new ArrayList());
-        provider.setThesaurus(webServiceActivator);
+        provider.setWebServiceActivator(webServiceActivator);
 
         expectedException.expect(LocalizedException.class);
         expectedException.expectMessage("No web service endpoints are available to send the request using 'SapMeterReadingResult'.");

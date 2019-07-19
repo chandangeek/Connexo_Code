@@ -66,7 +66,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         this.timestamp = timestamp;
         this.logLevel = logLevel;
         this.endPointConfiguration.set(endPointConfiguration);
-        this.message = message;
+        this.message = message == null ? "null" : message;
         return this;
     }
 

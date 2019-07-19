@@ -5,10 +5,8 @@ package com.elster.jupiter.cim.webservices.outbound.soap.usagepointconfig;
 
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.ws.Service;
 
@@ -25,6 +23,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.replyusagepointconfig.ReplyUsagePointConfig;
 import ch.iec.tc57._2011.replyusagepointconfig.UsagePointConfigPort;
@@ -52,8 +51,6 @@ public class ReplyUsagePointConfigServiceProvider
 
     private volatile Clock clock;
 
-    private final Map<String, UsagePointConfigPort> usagePointConfigPorts = new ConcurrentHashMap<>();
-
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final ch.iec.tc57._2011.schema.message.ObjectFactory headerTypeFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private UsagePointConfigFactory usagePointConfigFactory;
@@ -73,6 +70,11 @@ public class ReplyUsagePointConfigServiceProvider
         super.doAddEndpoint(usagePointConfigPort, properties);
     }
 
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
+    }
+
     @Activate
     public void onActivate() {
         usagePointConfigFactory = new UsagePointConfigFactory(clock, customPropertySetService);
@@ -80,10 +82,6 @@ public class ReplyUsagePointConfigServiceProvider
 
     public void removeUsagePointConfigPort(UsagePointConfigPort usagePointConfigPort) {
         super.doRemoveEndpoint(usagePointConfigPort);
-    }
-
-    public Map<String, UsagePointConfigPort> getUsagePointConfigPorts() {
-        return Collections.unmodifiableMap(usagePointConfigPorts);
     }
 
     @Override
@@ -193,6 +191,6 @@ public class ReplyUsagePointConfigServiceProvider
 
     @Override
     public String getApplication() {
-        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
+        return WebServiceApplicationName.INSIGHT.getName();
     }
 }

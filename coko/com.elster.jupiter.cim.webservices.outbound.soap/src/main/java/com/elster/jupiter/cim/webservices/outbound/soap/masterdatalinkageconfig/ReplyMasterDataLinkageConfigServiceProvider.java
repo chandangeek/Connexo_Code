@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
@@ -59,6 +60,11 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 
 	public void removeMasterDataLinkageConfigPort(MasterDataLinkageConfigPort masterDataLinkageConfigPort) {
 		super.doRemoveEndpoint(masterDataLinkageConfigPort);
+	}
+
+	@Reference
+	public void addWebServicesService(WebServicesService webServicesService) {
+		// Just to inject WebServicesService
 	}
 
 	@Override

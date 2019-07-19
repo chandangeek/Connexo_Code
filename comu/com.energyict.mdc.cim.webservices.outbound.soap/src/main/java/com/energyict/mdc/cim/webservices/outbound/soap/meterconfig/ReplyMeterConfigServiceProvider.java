@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
@@ -80,6 +81,11 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     public void removeMeterConfigPort(MeterConfigPort meterConfigPort) {
         super.doRemoveEndpoint(meterConfigPort);
+    }
+
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

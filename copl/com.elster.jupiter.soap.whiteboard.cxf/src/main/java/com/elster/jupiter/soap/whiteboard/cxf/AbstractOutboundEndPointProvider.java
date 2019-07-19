@@ -48,6 +48,8 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     /**
      * Attention: These fields are injectable by hardcoded names via {@link AbstractEndPointInitializer}.
+     * Not for usage in subclasses.
+     * Don't forget to explicitly inject WebServicesService to each subclass so that all providers will be registered in WebServicesService.
      */
     private volatile Thesaurus thesaurus;
     private volatile EndPointConfigurationService endPointConfigurationService;
@@ -248,7 +250,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         }
                     })
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
+                    .collect(HashMap::new, (map, pair) -> map.put(pair.getFirst(), pair.getLast()), Map::putAll);
         }
 
         private String getApplicationName() {
