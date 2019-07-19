@@ -33,7 +33,7 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
         instance.setServiceCallLifeCycle(serviceCallLifeCycle);
         instance.setDestination(destination);
         instance.setLogLevel(LogLevel.WARNING);
-        instance.setAppKey(reservedByApplication);
+        instance.setApplication(reservedByApplication);
         instance.setRetryState(retryState);
     }
 
