@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.issue.servicecall.impl;
 
-import com.elster.jupiter.issue.servicecall.ModuleConstants;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 import com.elster.jupiter.issue.servicecall.impl.action.CloseIssueAction;
 import com.elster.jupiter.issue.servicecall.impl.action.FailedAction;
