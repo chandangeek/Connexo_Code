@@ -49,6 +49,9 @@ public abstract class AbstractInboundEndPoint {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Sets the "batch executor" principal for further operations. Principal can be required for DB transaction support, checking privileges etc.
+     */
     protected void setSecurityContext() {
         if (threadPrincipalService.getPrincipal() == null) {
             userService.findUser(BATCH_EXECUTOR_USER_NAME, userService.getRealm())
@@ -56,6 +59,15 @@ public abstract class AbstractInboundEndPoint {
         }
     }
 
+    /**
+     * Wraps the {@code supplier} into a try/catch block and creates a {@link WebServiceCallOccurrence} for this operation.
+     * At the end of execution the occurrence is passed unless any exception is caught; otherwise the occurrence is failed, and all exceptions are rethrown.
+     * @param supplier The operation to execute in scope of the web service call occurrence.
+     * @param <RES> The type of result returned by the {@code supplier}.
+     * @param <E> The type of {@link Fault} exception thrown from the {@code supplier}.
+     * @return The result (response) object returned by the {@code supplier}.
+     * @throws E The exception thrown from the {@code supplier}.
+     */
     protected <RES, E extends Exception> RES runWithOccurrence(ExceptionThrowingSupplier<RES, E> supplier) throws E {
         long id = MessageUtils.getOccurrenceId(webServiceContext);
         try {
@@ -95,6 +107,16 @@ public abstract class AbstractInboundEndPoint {
         }
     }
 
+    /**
+     * Wraps the {@code supplier} into a transaction performed under user "batch executor" and creates a {@link WebServiceCallOccurrence} for this operation.
+     * At the end of execution the occurrence is passed unless any exception is caught; otherwise the occurrence is failed, and all exceptions are rethrown.
+     * The same as {@link #setSecurityContext()} and {@link #runWithOccurrence(ExceptionThrowingSupplier)} with supplier wrapped into a transaction.
+     * @param supplier The operation to execute in scope of the web service call occurrence.
+     * @param <RES> The type of result returned by the {@code supplier}.
+     * @param <E> The type of {@link Fault} exception thrown from the {@code supplier}.
+     * @return The result (response) object returned by the {@code supplier}.
+     * @throws E The exception thrown from the {@code supplier}.
+     */
     protected <RES, E extends Exception> RES runInTransactionWithOccurrence(ExceptionThrowingSupplier<RES, E> supplier) throws E {
         setSecurityContext();
         return runWithOccurrence(() -> transactionService.execute(supplier));
