@@ -199,8 +199,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public ConnectionStrategy getFirmwareUploadConnectionStrategy(){
-        return firmwareUploadConnectionStrategy;
+    public Optional<ConnectionStrategy> getFirmwareUploadConnectionStrategy(){
+        return Optional.of(firmwareUploadConnectionStrategy);
     }
 
     @Override
@@ -214,8 +214,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public ConnectionStrategy getValidationConnectionStrategy(){
-        return validationConnectionStrategy ;
+    public Optional<ConnectionStrategy> getValidationConnectionStrategy(){
+        return Optional.of(validationConnectionStrategy);
     }
 
     @Override
@@ -407,9 +407,9 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         propertySetValues.setProperty(FieldNames.FIRMWARE_TYPE.javaName(), this.getFirmwareType());
         propertySetValues.setProperty(FieldNames.MANAGEMENT_OPTION.javaName(), this.getFirmwareManagementOption());
         propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(), this.getFirmwareUploadComTaskId());
-        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getFirmwareUploadConnectionStrategy());
+        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getFirmwareUploadConnectionStrategy().get());
         propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
-        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy());
+        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().get());
 
     }
 

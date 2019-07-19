@@ -95,9 +95,9 @@ public class FirmwareCampaignInfoFactory {
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
         info.calendarUploadComTask = new IdWithNameInfo(campaign.getFirmwareUploadComTaskId(),firmwareCampaignService.getComTaskById(campaign.getFirmwareUploadComTaskId()).getName());
-        info.calendarUploadConnectionStrategy = campaign.getFirmwareUploadConnectionStrategy()==null?null:new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy(), thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().name(), campaign.getFirmwareUploadConnectionStrategy().name()));
+        info.calendarUploadConnectionStrategy = campaign.getFirmwareUploadConnectionStrategy().isPresent()?new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy().get(), thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().get().name(), campaign.getFirmwareUploadConnectionStrategy().get().name())):null;
         info.validationComTask = new IdWithNameInfo(campaign.getValidationComTaskId(),firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
-        info.validationConnectionStrategy = campaign.getValidationConnectionStrategy()==null?null:new IdWithNameInfo(campaign.getValidationConnectionStrategy(),thesaurus.getString(campaign.getValidationConnectionStrategy().name(), campaign.getValidationConnectionStrategy().name()));
+        info.validationConnectionStrategy = campaign.getValidationConnectionStrategy().isPresent()?new IdWithNameInfo(campaign.getValidationConnectionStrategy().get(),thesaurus.getString(campaign.getValidationConnectionStrategy().get().name(), campaign.getValidationConnectionStrategy().get().name())):null;
         Optional<DeviceMessageSpec> firmwareMessageSpec = campaign.getFirmwareMessageSpec();
         if (firmwareMessageSpec.isPresent()) {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else

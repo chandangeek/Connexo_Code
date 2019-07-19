@@ -218,18 +218,15 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             if (comTaskEnablementOptional.isPresent()) {
                 ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
                         .filter(cte -> cte.getComTask().equals(comTaskEnablementOptional.get().getComTask()))
-                        .findAny().orElse(null);
-                if (comTaskExecution == null) {
-                    comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
-                }
+                        .findAny().orElseGet(() -> device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add());
                 if (comTaskExecution.getConnectionTask().isPresent()) {
                     ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                    if ((connectionStrategy == campaign.getValidationConnectionStrategy() || campaign.getValidationConnectionStrategy() == null)) {
+                    if ((connectionStrategy == campaign.getValidationConnectionStrategy().get() || !campaign.getValidationConnectionStrategy().isPresent())) {
                         comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
                         isValidationComTaskStart = true;
                     }else{
                         serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.getValidationConnectionStrategy().name(), comTaskExecution.getComTask().getName()));
+                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.getValidationConnectionStrategy().get().name(), comTaskExecution.getComTask().getName()));
                         serviceCall.requestTransition(DefaultState.REJECTED);
                         return;
                     }

@@ -104,6 +104,7 @@ public class TimeOfUseSendHelper {
 
             boolean isSendCalendarCTStarted = false;
             List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
+
             ConnectionStrategy connectionStrategy;
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 if (comTaskExecution.getConnectionTask().isPresent()) {

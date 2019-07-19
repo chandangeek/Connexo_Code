@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 public interface TimeOfUseCampaign {
 
@@ -67,7 +68,7 @@ public interface TimeOfUseCampaign {
 
     ConnectionStrategy getCalendarUploadConnectionStrategy();
 
-    ConnectionStrategy getValidationConnectionStrategy();
+    Optional<ConnectionStrategy> getValidationConnectionStrategy();
 
     void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy);
 

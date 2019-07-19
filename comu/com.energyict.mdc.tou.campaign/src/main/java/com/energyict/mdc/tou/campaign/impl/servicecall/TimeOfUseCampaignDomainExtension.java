@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseCampaign {
@@ -207,8 +208,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public ConnectionStrategy getValidationConnectionStrategy() {
-        return validationConnectionStrategy;
+    public Optional<ConnectionStrategy> getValidationConnectionStrategy() {
+        return Optional.of(validationConnectionStrategy);
     }
 
     @Override
@@ -325,7 +326,7 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
         propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
         propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), this.getCalendarUploadComTaskId());
-        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy());
+        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().get());
         propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getCalendarUploadConnectionStrategy());
     }
 

@@ -130,9 +130,9 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
         when(firmwareCampaign.getFirmwareUploadComTaskId()).thenReturn(1L);
-        when(firmwareCampaign.getFirmwareUploadConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(firmwareCampaign.getFirmwareUploadConnectionStrategy().get()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
-        when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        when(firmwareCampaign.getValidationConnectionStrategy().get()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(comtask.getName()).thenReturn("comTaskName");
         when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         return firmwareCampaign;

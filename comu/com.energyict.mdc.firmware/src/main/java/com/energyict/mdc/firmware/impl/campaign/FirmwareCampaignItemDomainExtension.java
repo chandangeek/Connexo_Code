@@ -358,13 +358,13 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
                     firmwareComTaskExec.getNextExecutionTimestamp().isAfter(appliedStartDate)) {
                 connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
-                if (connectionStrategy == campaign.get().getFirmwareUploadConnectionStrategy()
-                        || campaign.get().getFirmwareUploadConnectionStrategy() == null){
+                if (connectionStrategy == campaign.get().getFirmwareUploadConnectionStrategy().get()
+                        || !campaign.get().getFirmwareUploadConnectionStrategy().isPresent()){
                     firmwareComTaskExec.schedule(appliedStartDate);
                     isFirmwareComTaskStart = true;
                 }else{
                     serviceCallService.lockServiceCall(getServiceCall().getId());
-                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.get().getFirmwareUploadConnectionStrategy().name(), firmwareComTaskExec.getComTask().getName()));
+                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.get().getFirmwareUploadConnectionStrategy().get().name(), firmwareComTaskExec.getComTask().getName()));
                     getServiceCall().requestTransition(DefaultState.REJECTED);
                     return;
                 }

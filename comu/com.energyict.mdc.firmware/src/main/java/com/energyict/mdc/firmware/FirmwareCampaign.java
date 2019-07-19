@@ -93,9 +93,9 @@ public interface FirmwareCampaign extends HasId, HasName {
 
     long getFirmwareUploadComTaskId();
 
-    ConnectionStrategy getFirmwareUploadConnectionStrategy();
+    Optional<ConnectionStrategy> getFirmwareUploadConnectionStrategy();
 
     long getValidationComTaskId();
 
-    ConnectionStrategy getValidationConnectionStrategy();
+    Optional<ConnectionStrategy> getValidationConnectionStrategy();
 }

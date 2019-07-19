@@ -306,18 +306,15 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                 if (campaign.getValidationComTaskId() != 0) {
                     ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
                             .filter(cte -> cte.getComTask().equals(comTaskEnablementOptional.get().getComTask()))
-                            .findAny().orElse(null);
-                    if (comTaskExecution == null) {
-                        comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
-                    }
+                            .findAny().orElseGet(() -> device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add());
                     if (comTaskExecution.getConnectionTask().isPresent()) {
                         ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                        if (connectionStrategy == campaign.getValidationConnectionStrategy()) {
+                        if (connectionStrategy == campaign.getValidationConnectionStrategy().get()) {
                             comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
                             isVerificationComTaskStart = true;
                         } else {
                             serviceCallService.lockServiceCall(serviceCall.getId());
-                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.getValidationConnectionStrategy().name(), comTaskExecution.getComTask().getName()));
+                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.getValidationConnectionStrategy().get().name(), comTaskExecution.getComTask().getName()));
                             serviceCall.requestTransition(DefaultState.REJECTED);
                             return;
                         }
