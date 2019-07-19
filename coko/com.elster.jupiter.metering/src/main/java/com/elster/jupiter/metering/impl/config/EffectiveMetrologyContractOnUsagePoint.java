@@ -29,4 +29,6 @@ public interface EffectiveMetrologyContractOnUsagePoint extends HasId, Effectivi
     ChannelsContainer getChannelsContainer();
 
     void close(Instant closingDate);
+
+    long getVersion();
 }

@@ -78,6 +78,11 @@ public enum PropertyTranslationKeys implements TranslationKey {
     USAGEPOINT_TYPE_OF_USAGE_POINT("usagepoint.typeOf", "Type of usage point"),
     USAGEPOINT_GENERAL_INFORMATION("usagepoint.general.info", "General information"),
     USAGEPOINT_TECHNICAL_INFORMATION("usagepoint.technical.info", "Technical information"),
+    USAGEPOINT_METROLOGY_START_DATE("usagepoint.metrology.startDate", "Metrology start date"),
+    USAGEPOINT_METROLOGY_END_DATE("usagepoint.metrology.endDate", "Metrology end date"),
+    USAGEPOINT_METROLOGY_PURPOSE_NAME("usagepoint.metrology.purpose.name", "Purpose ame"),
+    USAGEPOINT_METROLOGY_PURPOSE_START_DATE("usagepoint.metrology.purpose", "Purpose start date"),
+    USAGEPOINT_METROLOGY_PURPOSE_END_DATE("usagepoint.metrology.purpose", "Purpose end date"),
     ;
 
     private String key;

@@ -42,13 +42,13 @@ public abstract class AbstractUsagePointAuditDecoder extends AbstractAuditDecode
         usagePoint = meteringService.findUsagePointById(getAuditTrailReference().getPkDomain());
     }
 
-    public ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long id) {
+    protected ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByJournalClauses(Long id) {
         return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
     }
 
-    public ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long id) {
+    protected ImmutableSetMultimap<Operator, Pair<String, Object>> getHistoryByModTimeClauses(Long id) {
         return ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("ID", id),
                 Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
                 Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));

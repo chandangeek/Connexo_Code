@@ -48,4 +48,6 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
     List<ReadingTypeRequirement> getReadingTypeRequirements();
 
     boolean isComplete(MetrologyContract metrologyContract);
+
+    long getVersion();
 }

@@ -235,6 +235,11 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     }
 
     @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
     public boolean isComplete(MetrologyContract metrologyContract) {
         UsagePointMetrologyConfiguration configuration = this.metrologyConfiguration.get();
         ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
