@@ -8,8 +8,7 @@ Ext.define('Isu.view.issues.Preview', {
         'Uni.form.field.FilterDisplay',
         'Isu.view.issues.ActionMenu',
         'Isu.privileges.Issue',
-        'Isu.privileges.Device',
-        'Scs.privileges.ServiceCall'
+        'Isu.privileges.Device'
     ],
     alias: 'widget.issues-preview',
     layout: 'column',
