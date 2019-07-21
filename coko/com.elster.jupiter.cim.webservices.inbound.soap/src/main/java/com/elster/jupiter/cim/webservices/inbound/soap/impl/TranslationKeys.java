@@ -11,6 +11,7 @@ public enum TranslationKeys implements TranslationKey {
 
     DOMAIN_NAME("serviceCall", "Service call"),
     CALLBACK_URL("callbackUrl", "Callback URL"),
+    CORRELATION_ID("correlationId", "Correlation id"),
     METER_INFO("meterInfo", "Meter info"),
     USAGE_POINT_INFO("usagePointInfo", "Usage point info"),
     CONFIGURATION_EVENT("configurationEvent", "Configuration event"),

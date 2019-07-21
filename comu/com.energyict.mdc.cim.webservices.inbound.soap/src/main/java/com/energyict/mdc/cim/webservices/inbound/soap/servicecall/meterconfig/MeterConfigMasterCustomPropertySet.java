@@ -145,6 +145,12 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                         .named(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(), TranslationKeys.CALL_BACK_URL)
                         .describedAs(TranslationKeys.CALL_BACK_URL)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.javaName(), TranslationKeys.CORRELATION_ID)
+                        .describedAs(TranslationKeys.CORRELATION_ID)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
