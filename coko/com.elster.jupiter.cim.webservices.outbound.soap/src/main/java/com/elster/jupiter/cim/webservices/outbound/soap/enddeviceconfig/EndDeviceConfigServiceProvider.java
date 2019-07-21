@@ -231,6 +231,7 @@ public class EndDeviceConfigServiceProvider implements TopicHandler, StateTransi
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
+        /*TO-DO HERE ADD UIID GENERATION EndDeviceConfig webservice*/
         endDeviceConfigEventMessageType.setHeader(header);
 
         // set reply

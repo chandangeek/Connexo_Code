@@ -142,6 +142,8 @@ public class ServiceCallCommands {
         domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
         domainExtension.setExpectedNumberOfCalls(
                 BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()));
+        domainExtension.setCorrelationId(config.getHeader().getCorrelationID());
+
         if (endPointConfiguration.isPresent()) {
             domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
         }

@@ -82,7 +82,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	@Override
 	public void call(EndPointConfiguration endPointConfiguration, String operation,
 			List<LinkageOperation> successfulLinkages, List<FailedLinkageOperation> failedLinkages,
-			BigDecimal expectedNumberOfCalls) {
+			BigDecimal expectedNumberOfCalls, String correlationId) {
 		publish(endPointConfiguration);
 		try {
 			Optional.ofNullable(getMasterDataLinkageConfigPorts().get(endPointConfiguration.getUrl()))
@@ -94,12 +94,12 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 							case "CREATE":
 								service.createdMasterDataLinkageConfig(createResponseMessage(
 										createMasterDataLinkageConfig(successfulLinkages), failedLinkages,
-										expectedNumberOfCalls.intValue(), HeaderType.Verb.CREATED));
+										expectedNumberOfCalls.intValue(), HeaderType.Verb.CREATED, correlationId));
 								break;
 							case "CLOSE":
 								service.closedMasterDataLinkageConfig(createResponseMessage(
 										createMasterDataLinkageConfig(successfulLinkages), failedLinkages,
-										expectedNumberOfCalls.intValue(), HeaderType.Verb.CLOSED));
+										expectedNumberOfCalls.intValue(), HeaderType.Verb.CLOSED, correlationId));
 								break;
 							}
 						} catch (FaultMessage faultMessage) {
@@ -153,11 +153,12 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	}
 
 	private MasterDataLinkageConfigEventMessageType createResponseMessage(
-			MasterDataLinkageConfig masterDataLinkageConfig, HeaderType.Verb verb) {
+			MasterDataLinkageConfig masterDataLinkageConfig, HeaderType.Verb verb, String correlationId) {
 		MasterDataLinkageConfigEventMessageType response = new MasterDataLinkageConfigEventMessageType();
 		HeaderType header = headerTypeFactory.createHeaderType();
 		header.setNoun(NOUN);
 		header.setVerb(verb);
+		header.setCorrelationID(correlationId);
 		response.setHeader(header);
 		ReplyType replyType = headerTypeFactory.createReplyType();
 		replyType.setResult(ReplyType.Result.OK);
@@ -170,8 +171,8 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 
 	private MasterDataLinkageConfigEventMessageType createResponseMessage(
 			MasterDataLinkageConfig masterDataLinkageConfig, List<FailedLinkageOperation> failedLinkages,
-			int expectedNumberOfCalls, HeaderType.Verb verb) {
-		MasterDataLinkageConfigEventMessageType response = createResponseMessage(masterDataLinkageConfig, verb);
+			int expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
+		MasterDataLinkageConfigEventMessageType response = createResponseMessage(masterDataLinkageConfig, verb, correlationId);
 		final ReplyType replyType = headerTypeFactory.createReplyType();
 		if (expectedNumberOfCalls == masterDataLinkageConfig.getMeter().size()) {
 			replyType.setResult(ReplyType.Result.OK);

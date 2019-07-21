@@ -69,7 +69,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
             MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
         return process(message, MasterDataLinkageAction.CREATE, context -> {
             MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
-                    .forMessage(message).createLinkage();
+                    .forMessage(message).createLinkage(message.getHeader().getCorrelationID());
             context.commit();
             return response;
         });
@@ -80,7 +80,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
             MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
         return process(message, MasterDataLinkageAction.CLOSE, context -> {
             MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
-                    .forMessage(message).closeLinkage();
+                    .forMessage(message).closeLinkage(message.getHeader().getCorrelationID());
             context.commit();
             return response;
         });
@@ -118,7 +118,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
         createServiceCallAndTransition(message, outboundEndPointConfiguration, action);
         context.commit();
         return masterDataLinkageHandlerProvider.get().forMessage(message)
-                .createQuickResponseMessage(HeaderType.Verb.REPLY);
+                .createQuickResponseMessage(HeaderType.Verb.REPLY, message.getHeader().getCorrelationID());
     }
 
     @Override

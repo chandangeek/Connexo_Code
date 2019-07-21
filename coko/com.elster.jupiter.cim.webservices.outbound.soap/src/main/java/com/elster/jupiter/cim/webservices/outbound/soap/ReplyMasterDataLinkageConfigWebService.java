@@ -23,8 +23,9 @@ public interface ReplyMasterDataLinkageConfigWebService {
 	 * @param successfulLinkages    - the list of successfully created linkages between usagePoints and meters
 	 * @param failedLinkages        - the list of failed linkage creation attempts (between usagePoints and meters) with error message code and description
 	 * @param expectedNumberOfCalls - the expected number of child calls
+	 * @param correlationId - correlationId received in inbound request
 	 */
 	void call(EndPointConfiguration endPointConfiguration, String operation,
 			List<LinkageOperation> successfulLinkages, List<FailedLinkageOperation> failedLinkages,
-			BigDecimal expectedNumberOfCalls);
+			BigDecimal expectedNumberOfCalls, String correlationId);
 }

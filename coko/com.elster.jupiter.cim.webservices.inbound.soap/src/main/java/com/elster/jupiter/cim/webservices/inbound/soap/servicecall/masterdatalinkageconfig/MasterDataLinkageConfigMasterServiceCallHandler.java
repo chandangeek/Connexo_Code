@@ -60,7 +60,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandler extends
                 .getExtension(MasterDataLinkageConfigDomainExtension.class).get();
         replyWebService.call(endPointConfiguration, extensionForChild.getOperation(),
                 getSuccessfulLinkages(serviceCall), getFailedLinkages(serviceCall),
-                extension.getExpectedNumberOfCalls());
+                extension.getExpectedNumberOfCalls(), extension.getCorrelationId());
     }
 
     private List<FailedLinkageOperation> getFailedLinkages(ServiceCall serviceCall) {
