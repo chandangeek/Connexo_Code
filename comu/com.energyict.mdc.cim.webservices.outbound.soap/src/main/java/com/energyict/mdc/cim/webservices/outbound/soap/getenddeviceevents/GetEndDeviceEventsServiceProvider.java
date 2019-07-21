@@ -92,7 +92,7 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
     }
 
     @Override
-    public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents) {
+    public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents, String correlationId) {
         publish(endPointConfiguration);
         try {
             getGetEndDeviceEventsPorts().stream()
@@ -100,7 +100,7 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
                     .findFirst()
                     .ifPresent(portService -> {
                         try {
-                            portService.getEndDeviceEvents(createResponseMessage(createEndDeviceEvents(endDeviceEvents)));
+                            portService.getEndDeviceEvents(createResponseMessage(createEndDeviceEvents(endDeviceEvents), correlationId));
                         } catch (FaultMessage faultMessage) {
                             endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                         }
@@ -110,13 +110,14 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         }
     }
 
-    private GetEndDeviceEventsRequestMessageType createResponseMessage(EndDeviceEvents endDeviceEvents) {
+    private GetEndDeviceEventsRequestMessageType createResponseMessage(EndDeviceEvents endDeviceEvents, String correlationId) {
         GetEndDeviceEventsRequestMessageType responseMessage = getEndDeviceEventsMessageObjectFactory.createGetEndDeviceEventsRequestMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun(NOUN);
+        header.setCorrelationID(correlationId);
         responseMessage.setHeader(header);
 
         // set payload

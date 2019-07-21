@@ -130,6 +130,8 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.CREATED);
         header.setNoun(END_DEVICE_EVENTS);
+        /* TO-DO XROMVYU !!!!!!!!!!!!!!*/
+        header.setCorrelationID("GENERATE IT AS UIID");
         responseMessage.setHeader(header);
 
         // set payload
@@ -177,6 +179,8 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.CREATED);
         header.setNoun(END_DEVICE_EVENTS);
+        /* TO-DO XROMVYU !!!!!!!!!!!!!!*/
+        header.setCorrelationID("GENERATE IT AS UIID");
         responseMessage.setHeader(header);
 
         // set payload

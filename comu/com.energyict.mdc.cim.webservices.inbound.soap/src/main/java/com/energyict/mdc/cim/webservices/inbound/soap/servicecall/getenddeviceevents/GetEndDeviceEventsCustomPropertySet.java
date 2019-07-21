@@ -220,6 +220,10 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
                     .map(GetEndDeviceEventsDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .notNull()
                     .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.CORRELATION_ID.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.CORRELATION_ID.javaName())
+                    .add();
         }
 
         @Override
