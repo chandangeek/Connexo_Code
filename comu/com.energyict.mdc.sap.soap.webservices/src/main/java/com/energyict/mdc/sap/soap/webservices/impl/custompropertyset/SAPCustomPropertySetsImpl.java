@@ -394,12 +394,12 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 range = Range.closedOpen(startDateTime, endDateTime);
             }
         } catch (IllegalArgumentException e) {
-            throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.INTERVAL_INVALID)
-                    .format(startDateTime.toString(), endDateTime.toString()));
+            throw new SAPWebServiceException(thesaurus,MessageSeeds.INTERVAL_INVALID,
+                                                startDateTime.toString(), endDateTime.toString());
         }
         if (range.isEmpty()) {
-            throw new IllegalStateException(thesaurus.getFormat(MessageSeeds.INTERVAL_INVALID)
-                    .format(startDateTime.toString(), endDateTime.toString()));
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.INTERVAL_INVALID,
+                                                startDateTime.toString(), endDateTime.toString());
         }
         return range;
     }
@@ -496,8 +496,9 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                     {
                         startTime = conflict.getConflictingRange().upperEndpoint();
                     }else{
-                        throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_HAS_LRN_YET,
-                                register.getObisCode(), range.toString());
+                        //throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_HAS_LRN_YET,
+                        //        register.getObisCode(), range.toString());
+                        continue;
                     }
 
                     savedCustomPropertySetValues = CustomPropertySetValues.emptyDuring(getTimeInterval(startTime, endTime));

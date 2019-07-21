@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -10,6 +11,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageID;
@@ -26,20 +29,26 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class PointOfDeliveryBulkAssignedNotification implements SmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryBulkAssignedNotificationCIn {
+
+    private static final Logger LOGGER = Logger.getLogger(PointOfDeliveryBulkAssignedNotification.class.getName());
 
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
     private final TransactionService transactionService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    PointOfDeliveryBulkAssignedNotification(SAPCustomPropertySets sapCustomPropertySets, ThreadPrincipalService threadPrincipalService, UserService userService, TransactionService transactionService) {
+    PointOfDeliveryBulkAssignedNotification(SAPCustomPropertySets sapCustomPropertySets, ThreadPrincipalService threadPrincipalService,
+                                            UserService userService, TransactionService transactionService, Thesaurus thesaurus) {
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
         this.transactionService = transactionService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -65,11 +74,17 @@ public class PointOfDeliveryBulkAssignedNotification implements SmartMeterUtilit
                         Optional<Device> device = sapCustomPropertySets.getDevice(message.deviceId);
                         if (device.isPresent()) {
                             sapCustomPropertySets.setPod(device.get(), message.podId);
+                        }else{
+                            LOGGER.severe("No device found with SAP id " + message.deviceId);
                         }
                         context.commit();
                     }
+                }else{
+                    LOGGER.severe("Invalid message format");
                 }
             });
+        }else{
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 

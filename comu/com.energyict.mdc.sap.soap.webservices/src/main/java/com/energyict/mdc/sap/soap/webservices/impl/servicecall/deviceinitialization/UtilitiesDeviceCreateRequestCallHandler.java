@@ -49,10 +49,19 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
             case ONGOING:
                 processServiceCall(serviceCall);
                 break;
+            case CANCELLED:
+                cancelServiceCall(serviceCall);
+                break;
             default:
                 // No specific action required for these states
                 break;
         }
+    }
+
+    private void cancelServiceCall(ServiceCall serviceCall) {
+        UtilitiesDeviceCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceCreateRequestCustomPropertySet()).get();
+        extension.setError(MessageSeeds.SERVICE_CALL_WAS_CANCELLED);
+        serviceCall.update(extension);
     }
 
     private void processServiceCall(ServiceCall serviceCall) {

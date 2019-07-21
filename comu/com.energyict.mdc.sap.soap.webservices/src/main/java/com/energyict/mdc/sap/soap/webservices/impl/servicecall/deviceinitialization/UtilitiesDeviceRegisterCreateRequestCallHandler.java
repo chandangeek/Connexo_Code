@@ -40,6 +40,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             case ONGOING:
                 processServiceCall(serviceCall);
                 break;
+            case CANCELLED:
+                cancelServiceCall(serviceCall);
+                break;
             default:
                 // No specific action required for these states
                 break;
@@ -73,6 +76,12 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
+    }
+
+    private void cancelServiceCall(ServiceCall serviceCall) {
+        UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
+        extension.setError(MessageSeeds.REGISTER_SERVICE_CALL_WAS_CANCELLED, extension.getRegisterId());
+        serviceCall.update(extension);
     }
 
     @Reference

@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -10,6 +11,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageID;
@@ -30,13 +33,16 @@ public class PointOfDeliveryAssignedNotification implements SmartMeterUtilitiesM
     private final ThreadPrincipalService threadPrincipalService;
     private final UserService userService;
     private final TransactionService transactionService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    PointOfDeliveryAssignedNotification(SAPCustomPropertySets sapCustomPropertySets, ThreadPrincipalService threadPrincipalService, UserService userService, TransactionService transactionService) {
+    PointOfDeliveryAssignedNotification(SAPCustomPropertySets sapCustomPropertySets, ThreadPrincipalService threadPrincipalService,
+                                        UserService userService, TransactionService transactionService, Thesaurus thesaurus) {
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
         this.transactionService = transactionService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -60,9 +66,13 @@ public class PointOfDeliveryAssignedNotification implements SmartMeterUtilitiesM
                 Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
                 if (device.isPresent()) {
                     sapCustomPropertySets.setPod(device.get(), podMsg.podId);
+                }else{
+                    throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, podMsg.deviceId);
                 }
                 context.commit();
             }
+        }else{
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
 

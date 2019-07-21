@@ -64,6 +64,8 @@ public class CreateRegisterConfirmationMessageFactory {
                         confirmationMessage.setLog(createFailedLog());
                     }
                 }
+            }else if (deviceServiceCall.getState() == DefaultState.CANCELLED) {
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.code(), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
             }
         }
 
@@ -96,7 +98,7 @@ public class CreateRegisterConfirmationMessageFactory {
     private String createRegisterError(List<ServiceCall> serviceCalls) {
         StringBuffer message = new StringBuffer();
         for (ServiceCall child : serviceCalls) {
-            if (child.getState() == DefaultState.FAILED) {
+            if (child.getState() == DefaultState.FAILED || child.getState() == DefaultState.CANCELLED) {
                 UtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
                 String startMsg = "";
                 if (message.length() != 0) {

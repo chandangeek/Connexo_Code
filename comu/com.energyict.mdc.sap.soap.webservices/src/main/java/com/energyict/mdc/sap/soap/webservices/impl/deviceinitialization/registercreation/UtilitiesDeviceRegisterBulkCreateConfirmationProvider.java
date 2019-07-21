@@ -30,7 +30,8 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationProvider implements Ut
         OutboundSoapEndPointProvider {
 
     private final Map<String, UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut> ports = new HashMap<>();
-    private Thesaurus thesaurus;
+
+    private volatile Thesaurus thesaurus;
 
     public UtilitiesDeviceRegisterBulkCreateConfirmationProvider() {
         // for OSGI purposes
@@ -69,6 +70,7 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationProvider implements Ut
         if (ports.isEmpty()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
         }
+
         ports.values().stream().findFirst().get().utilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut(msg.getBulkConfirmationMessage());
     }
 }

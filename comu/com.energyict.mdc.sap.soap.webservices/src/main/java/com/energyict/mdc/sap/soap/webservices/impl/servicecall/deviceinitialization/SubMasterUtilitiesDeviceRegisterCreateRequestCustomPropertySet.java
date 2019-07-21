@@ -12,7 +12,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -132,12 +131,6 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impl
                         .named(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName(), TranslationKeys.DEVICE_ID)
                         .describedAs(TranslationKeys.DEVICE_ID)
                         .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .longSpec()
-                        .named(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.RETURN_CODE.javaName(), TranslationKeys.RETURN_CODE)
-                        .describedAs(TranslationKeys.RETURN_CODE)
-                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -190,12 +183,6 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impl
             table.column(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .varChar(80)
                     .map(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
-                    .notNull()
-                    .add();
-            table.column(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.RETURN_CODE.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2LONG)
-                    .map(SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.RETURN_CODE.javaName())
                     .notNull()
                     .add();
         }

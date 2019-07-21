@@ -93,7 +93,7 @@ public class UtilitiesDeviceCreateConfirmationMessage {
             confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
             if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
                 confirmationMessage.setLog(createSuccessfulLog());
-            } else if (childServiceCall.getState() == DefaultState.FAILED) {
+            } else if (childServiceCall.getState() == DefaultState.FAILED || childServiceCall.getState() == DefaultState.CANCELLED) {
                 confirmationMessage.setLog(createFailedLog(extension.getErrorCode(), extension.getErrorMessage()));
             }
             return confirmationMessage;

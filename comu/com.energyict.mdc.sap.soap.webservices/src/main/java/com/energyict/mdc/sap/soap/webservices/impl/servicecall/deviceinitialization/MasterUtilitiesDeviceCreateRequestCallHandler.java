@@ -31,7 +31,11 @@ public class MasterUtilitiesDeviceCreateRequestCallHandler implements ServiceCal
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
-                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
+                serviceCall.findChildren().stream().forEach(child -> {
+                    if(child.canTransitionTo(DefaultState.PENDING)) {
+                        child.requestTransition(DefaultState.PENDING);
+                    }
+                });
                 break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PAUSED)) {
@@ -58,6 +62,7 @@ public class MasterUtilitiesDeviceCreateRequestCallHandler implements ServiceCal
     @Override
     public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
+            case CANCELLED:
             case FAILED:
             case SUCCESSFUL:
                 if (isLastChild(findChildren(parentServiceCall))) {

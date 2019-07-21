@@ -30,7 +30,8 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider implements UtilitiesD
         OutboundSoapEndPointProvider {
 
     private final Map<String, UtilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut> ports = new HashMap<>();
-    private Thesaurus thesaurus;
+
+    private volatile Thesaurus thesaurus;
 
     public UtilitiesDeviceBulkCreateConfirmationProvider() {
         // for OSGI purposes

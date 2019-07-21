@@ -39,7 +39,11 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
-                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
+                serviceCall.findChildren().stream().forEach(child -> {
+                    if(child.canTransitionTo(DefaultState.PENDING)) {
+                        child.requestTransition(DefaultState.PENDING);
+                    }
+                });
                 break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PAUSED)) {
@@ -51,6 +55,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
                     resultTransition(serviceCall);
                 }
                 break;
+            case CANCELLED:
             case FAILED:
             case PARTIAL_SUCCESS:
             case SUCCESSFUL:
@@ -64,6 +69,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
     @Override
     public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
+            case CANCELLED:
             case FAILED:
             case SUCCESSFUL:
                 if (isLastChild(findChildren(parentServiceCall))) {

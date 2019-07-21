@@ -8,11 +8,8 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
-import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,7 +32,11 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
-                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
+                serviceCall.findChildren().stream().forEach(child -> {
+                    if(child.canTransitionTo(DefaultState.PENDING)) {
+                        child.requestTransition(DefaultState.PENDING);
+                    }
+                });
                 break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PAUSED)) {
@@ -56,6 +57,7 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler implements
     @Override
     public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
+            case CANCELLED:
             case FAILED:
             case SUCCESSFUL:
                 if (isLastChild(findChildren(parentServiceCall))) {

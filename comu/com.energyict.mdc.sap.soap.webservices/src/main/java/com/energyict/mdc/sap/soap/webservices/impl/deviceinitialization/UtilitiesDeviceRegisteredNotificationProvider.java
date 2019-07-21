@@ -56,8 +56,9 @@ public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesD
         OutboundSoapEndPointProvider{
 
     private final Map<String, UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut> ports = new HashMap<>();
-    private Thesaurus thesaurus;
-    private ObjectFactory objectFactory = new ObjectFactory();
+    private final ObjectFactory objectFactory = new ObjectFactory();
+
+    private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile MeteringService meteringService;
@@ -149,8 +150,12 @@ public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesD
                             sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
                                 if (sapCustomPropertySets.isAnyLrn(device.getId())) {
                                     call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
+                                }else{
+                                    throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_ANY_LRN_ON_DEVICE, sapDeviceId);
                                 }
                             });
+                        }else{
+                            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_NOT_IN_OPERATIONAL_STAGE, endDevice.getMRID());
                         }
                     }
             );

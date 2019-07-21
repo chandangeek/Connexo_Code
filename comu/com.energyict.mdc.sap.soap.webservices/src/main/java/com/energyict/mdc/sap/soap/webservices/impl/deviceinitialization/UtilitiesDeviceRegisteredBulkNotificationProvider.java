@@ -42,10 +42,11 @@ import java.util.UUID;
 public class UtilitiesDeviceRegisteredBulkNotificationProvider implements UtilitiesDeviceRegisteredBulkNotification,
         OutboundSoapEndPointProvider {
 
-    private volatile  Clock clock;
-    private Thesaurus thesaurus;
     private final Map<String, UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> ports = new HashMap<>();
-    private ObjectFactory objectFactory = new ObjectFactory();
+    private final ObjectFactory objectFactory = new ObjectFactory();
+
+    private volatile  Clock clock;
+    private volatile Thesaurus thesaurus;
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes

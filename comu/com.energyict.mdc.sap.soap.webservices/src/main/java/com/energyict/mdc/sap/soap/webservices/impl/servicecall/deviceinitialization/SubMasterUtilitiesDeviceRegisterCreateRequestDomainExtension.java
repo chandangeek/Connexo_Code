@@ -25,9 +25,6 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extend
 
         // provided
         DEVICE_ID("deviceId", "deviceId"),
-
-        //returned
-        RETURN_CODE("returnCode", "returnCode"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -75,29 +72,18 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extend
         this.deviceId = deviceId;
     }
 
-    public long getReturnCode() {
-        return returnCode;
-    }
-
-    public void setReturnCode(long returnCode) {
-        this.returnCode = returnCode;
-    }
-
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setParentServiceCallId(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
                 .orElse(BigDecimal.ZERO).toString()));
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
-        this.setReturnCode((long) propertyValues.getProperty(FieldNames.RETURN_CODE.javaName()));
-
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
-        propertySetValues.setProperty(FieldNames.RETURN_CODE.javaName(), this.getReturnCode());
     }
 
     @Override

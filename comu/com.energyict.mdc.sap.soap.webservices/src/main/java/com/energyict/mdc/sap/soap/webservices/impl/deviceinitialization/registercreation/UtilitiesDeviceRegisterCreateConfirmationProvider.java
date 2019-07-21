@@ -30,7 +30,8 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider implements Utilit
         OutboundSoapEndPointProvider {
 
     private final Map<String, UtilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut> ports = new HashMap<>();
-    private Thesaurus thesaurus;
+
+    private volatile Thesaurus thesaurus;
 
     public UtilitiesDeviceRegisterCreateConfirmationProvider() {
         // for OSGI purposes
