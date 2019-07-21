@@ -152,7 +152,8 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createGetEndDeviceEventsMasterServiceCall(List<ch.iec.tc57._2011.getenddeviceevents.Meter> meters,
-                                                                 Range<Instant> interval, EndPointConfiguration outboundEndPointConfiguration)
+                                                                 Range<Instant> interval, EndPointConfiguration outboundEndPointConfiguration,
+                                                                 String correlationId)
             throws ch.iec.tc57._2011.getenddeviceevents.FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.GET_END_DEVICE_EVENTS);
 
@@ -167,6 +168,7 @@ public class ServiceCallCommands {
         domainExtension.setFromDate(interval.lowerEndpoint());
         domainExtension.setToDate(interval.upperEndpoint());
         domainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());
+        domainExtension.setCorrelationId(correlationId);
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin("MultiSense")

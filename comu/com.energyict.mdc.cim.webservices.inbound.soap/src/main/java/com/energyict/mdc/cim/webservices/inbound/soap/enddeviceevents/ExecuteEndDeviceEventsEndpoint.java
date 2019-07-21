@@ -74,7 +74,7 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
                             MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
             EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
             context.commit();
-            return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1);
+            return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1, createdEndDeviceEventsEventMessage.getHeader().getCorrelationID());
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -92,7 +92,7 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
                             MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
             EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
             context.commit();
-            return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1);
+            return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1, closedEndDeviceEventsEventMessage.getHeader().getCorrelationID());
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -115,13 +115,14 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    private EndDeviceEventsResponseMessageType createResponseMessage(EndDeviceEvents endDeviceEvents, HeaderType.Verb verb, boolean bulkRequired) {
+    private EndDeviceEventsResponseMessageType createResponseMessage(EndDeviceEvents endDeviceEvents, HeaderType.Verb verb, boolean bulkRequired, String correlationId) {
         EndDeviceEventsResponseMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsResponseMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
+        header.setCorrelationID(correlationId);
         responseMessage.setHeader(header);
 
         // set reply

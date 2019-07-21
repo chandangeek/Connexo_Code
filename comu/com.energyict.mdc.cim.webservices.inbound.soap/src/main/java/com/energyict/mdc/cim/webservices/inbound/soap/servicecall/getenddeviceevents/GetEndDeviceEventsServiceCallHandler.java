@@ -103,7 +103,7 @@ public class GetEndDeviceEventsServiceCallHandler implements ServiceCallHandler 
                 .filter(epc -> epc.getUrl().equals(extension.getCallbackURL()))
                 .findAny();
 
-        replyGetEndDeviceEventsWebService.call(endPointConfiguration.get(), endDeviceEvents);
+        replyGetEndDeviceEventsWebService.call(endPointConfiguration.get(), endDeviceEvents, extension.getCorrelationId());
     }
 
     private void setEndDeviceEvents(GetEndDeviceEventsDomainExtension extension) {

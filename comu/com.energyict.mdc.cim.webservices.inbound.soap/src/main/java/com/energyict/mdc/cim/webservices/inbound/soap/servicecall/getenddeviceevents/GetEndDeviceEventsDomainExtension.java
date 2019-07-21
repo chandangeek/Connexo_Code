@@ -24,7 +24,8 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
         FROM_DATE("fromDate", "fromDate"),
         TO_DATE("toDate", "toDate"),
         ERROR_MESSAGE("errorMessage", "errorMessage"),
-        CALLBACK_URL("callbackURL", "callback_url");
+        CALLBACK_URL("callbackURL", "callback_url"),
+        CORRELATION_ID("correlationId", "correlation_id");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -54,6 +55,9 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String correlationId;
+
 
     public GetEndDeviceEventsDomainExtension() {
         super();
@@ -98,6 +102,14 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
     public void setCallbackURL(String callbackURL) {
         this.callbackURL = callbackURL;
     }
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
 
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
@@ -107,6 +119,7 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
         this.setToDate((Instant) propertyValues.getProperty(FieldNames.TO_DATE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
         this.setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
+        this.setCorrelationId((String) propertyValues.getProperty(FieldNames.CORRELATION_ID.javaName()));
     }
 
     @Override
@@ -116,6 +129,7 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
         propertySetValues.setProperty(FieldNames.TO_DATE.javaName(), this.getToDate());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
         propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), this.getCallbackURL());
+        propertySetValues.setProperty(FieldNames.CORRELATION_ID.javaName(), this.getCorrelationId());
     }
 
     @Override
