@@ -88,7 +88,7 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
 
     public void call(List<ReadingInfo> readingInfos, HeaderType.Verb requestVerb) {
         MeterReadings meterReadings = readingBuilderProvider.build(readingInfos);
-        if (checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
+        if (checkMeterReadings(meterReadings) && checkMeterReadingsPorts()) {
             meterReadingsPorts.forEach((url, soapService) ->
                     sendMeterReadingsPortResponse(soapService, meterReadings, getHeader(requestVerb))
             );
@@ -96,15 +96,15 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
     }
 
     public boolean call(MeterReadings meterReadings, HeaderType header, EndPointConfiguration endPointConfiguration) {
-        if (!checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
-            return false;
+        if (checkMeterReadingsPorts()) {
+            MeterReadingsPort meterReadingsPort = getMeterReadingsPorts().get(endPointConfiguration.getUrl());
+            if (meterReadingsPort == null) {
+                LOGGER.log(Level.SEVERE, "No meter reading port was found for url: " + endPointConfiguration.getUrl());
+                return false;
+            }
+            return sendMeterReadingsPortResponse(meterReadingsPort, meterReadings, header);
         }
-        MeterReadingsPort meterReadingsPort = getMeterReadingsPorts().get(endPointConfiguration.getUrl());
-        if (meterReadingsPort == null) {
-            LOGGER.log(Level.SEVERE, "No meter reading port was found for url: " + endPointConfiguration.getUrl());
-            return false;
-        }
-        return sendMeterReadingsPortResponse(meterReadingsPort, meterReadings, header);
+        return false;
     }
 
     protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType header) {
@@ -149,13 +149,17 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         return true;
     }
 
-    private boolean checkMeterReadingsAndMeterReadingsPorts(MeterReadings meterReadings) {
-        if (meterReadings.getMeterReading().isEmpty()) {
-            LOGGER.log(Level.SEVERE, "No meter readings to send.");
-            return false;
-        }
+    private boolean checkMeterReadingsPorts() {
         if (meterReadingsPorts.isEmpty()) {
             LOGGER.log(Level.SEVERE, "No published web service endpoint is found to send meter readings.");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkMeterReadings(MeterReadings meterReadings) {
+        if (meterReadings.getMeterReading().isEmpty()) {
+            LOGGER.log(Level.SEVERE, "No meter readings to send.");
             return false;
         }
         return true;

@@ -18,7 +18,8 @@ public class ServiceCallTransitionUtils {
 
     public static void resultTransition(ServiceCall serviceCall, boolean trickyLogic) {
         List<ServiceCall> childs = findAllChildren(serviceCall);
-        if (isLastChild(childs) && serviceCall.getState() == DefaultState.WAITING) {
+        if (isLastChild(childs) && (serviceCall.getState() == DefaultState.WAITING
+                || serviceCall.getState() == DefaultState.ONGOING)) {
             if (hasAllChildrenStates(childs, DefaultState.SUCCESSFUL)) {
                 if (trickyLogic) {
                     transitServiceCallToResultState(serviceCall, DefaultState.PAUSED);
@@ -28,15 +29,33 @@ public class ServiceCallTransitionUtils {
                 }
             } else if (hasAllChildrenStates(childs, DefaultState.CANCELLED)) {
                 transitServiceCallToResultState(serviceCall, DefaultState.CANCELLED);
-            } else if (hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
-                transitServiceCallToResultState(serviceCall, DefaultState.PARTIAL_SUCCESS);
+            } else if (hasAllChildrenStates(childs, DefaultState.PARTIAL_SUCCESS)
+                    || hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
+                if (trickyLogic) {
+                    transitServiceCallToResultState(serviceCall, DefaultState.PAUSED);
+                    transitServiceCallToResultState(serviceCall, DefaultState.ONGOING);
+                } else {
+                    transitServiceCallToResultState(serviceCall, DefaultState.PARTIAL_SUCCESS);
+                }
             } else {
                 transitServiceCallToResultState(serviceCall, DefaultState.FAILED);
             }
         }
     }
 
-    private static List<ServiceCall> findAllChildren(ServiceCall serviceCall) {
+    public static boolean isFinalState(ServiceCall serviceCall) {
+        return serviceCall.getState().equals(DefaultState.CANCELLED)
+                || serviceCall.getState().equals(DefaultState.FAILED)
+                || serviceCall.getState().equals(DefaultState.REJECTED)
+                || serviceCall.getState().equals(DefaultState.SUCCESSFUL)
+                || serviceCall.getState().equals(DefaultState.PARTIAL_SUCCESS);
+    }
+
+    public static boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
+    }
+
+    public static List<ServiceCall> findAllChildren(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
@@ -44,17 +63,9 @@ public class ServiceCallTransitionUtils {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
-    private static boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().anyMatch(sc -> sc.getState().equals(defaultState));
-    }
-
     private static boolean isLastChild(List<ServiceCall> serviceCalls) {
         return serviceCalls.stream()
-                .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED)
-                        || sc.getState().equals(DefaultState.FAILED)
-                        || sc.getState().equals(DefaultState.REJECTED)
-                        || sc.getState().equals(DefaultState.SUCCESSFUL)
-                        || sc.getState().equals(DefaultState.PARTIAL_SUCCESS));
+                .allMatch(sc -> isFinalState(sc));
     }
 
     private static void transitServiceCallToResultState(ServiceCall serviceCall, DefaultState finalState) {

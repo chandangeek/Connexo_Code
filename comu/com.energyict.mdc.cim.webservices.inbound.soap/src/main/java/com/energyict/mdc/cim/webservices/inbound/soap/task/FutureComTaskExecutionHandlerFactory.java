@@ -25,7 +25,7 @@ import java.time.Clock;
 public class FutureComTaskExecutionHandlerFactory implements MessageHandlerFactory {
     public static final String FUTURE_COM_TASK_EXECUTION_DESTINATION = "FutureComTaskExecTopic";
     public static final String FUTURE_COM_TASK_EXECUTION_SUBSCRIBER = "FutureComTaskExecSubscriber";
-    public static final String FUTURE_COM_TASK_EXECUTION_DISPLAYNAME = "Handle future communocation task executions";
+    public static final String FUTURE_COM_TASK_EXECUTION_DISPLAYNAME = "Handle future communication task executions";
 
     private volatile TaskService taskService;
     private volatile Clock clock;

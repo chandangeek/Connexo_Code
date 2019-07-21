@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
 import static com.elster.jupiter.servicecall.DefaultState.FAILED;
+import static com.elster.jupiter.servicecall.DefaultState.PARTIAL_SUCCESS;
 import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -76,15 +77,14 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
                     collectAndSendResult(serviceCall);
                 }
                 break;
-            case PARTIAL_SUCCESS:
-                collectAndSendResult(serviceCall);
-                break;
             case SUCCESSFUL:
                 processChilds(serviceCall, SUCCESSFUL);
                 break;
-            case FAILED: // no break expressly
+            case REJECTED:
+            case FAILED:
             case CANCELLED:
                 processChilds(serviceCall, CANCELLED);
+                sendResponse(serviceCall, new MeterReadings());
                 break;
             default:
                 // No specific action required for these states
@@ -94,21 +94,16 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
 
     @Override
     public void onChildStateChange(ServiceCall parentServiceCall, ServiceCall subParentServiceCall, DefaultState oldState, DefaultState newState) {
-        switch (newState) {
-            case SUCCESSFUL:
-            case PARTIAL_SUCCESS:
-            case CANCELLED:
-            case FAILED:
-                if (parentServiceCall.getState() == DefaultState.WAITING) {
-                    ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
-                }
-                break;
+        if (ServiceCallTransitionUtils.isFinalState(subParentServiceCall)
+                && parentServiceCall.getState() == DefaultState.WAITING) {
+            ServiceCallTransitionUtils.resultTransition(parentServiceCall, true);
         }
     }
 
     private void processChilds(ServiceCall parentServiceCall, DefaultState newState) {
         parentServiceCall.findChildren().stream()
-                .filter(subParentServiceCall -> subParentServiceCall.getState() != newState)
+                .filter(subParentServiceCall -> subParentServiceCall.getState() != newState
+                        && !ServiceCallTransitionUtils.isFinalState(subParentServiceCall))
                 .forEach(subParentServiceCall -> subParentServiceCall.requestTransition(newState));
     }
 
@@ -120,14 +115,12 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         String readingTypesString = extension.getReadingTypes();
         String loadProfilesString = extension.getLoadProfiles();
         String registerGroupsString = extension.getRegisterGroups();
-        String correlationId = extension.getCorrelationId();
         List<String> endDevicesMRIDs = serviceCall.findChildren().stream()
                 .map(c -> c.getExtension(SubParentGetMeterReadingsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"))
                         .getEndDevice())
                 .collect(Collectors.toList());
         String source = extension.getSource();
-        String callbackUrl = extension.getCallbackUrl();
 
         if (timePeriodEnd == null) {
             timePeriodEnd = calculateEndDateFromChildrenServiceCall(serviceCall);
@@ -162,28 +155,44 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
             return;
         }
         if (meterReadings == null || meterReadings.getMeterReading().isEmpty()) {
-            serviceCall.requestTransition(SUCCESSFUL);
             serviceCall.log(LogLevel.FINE,
                     MessageFormat.format("No meter readings are found for source ''{0}'', time range {1}",
                             source, timeRangeSet));
+        }
+        if (!sendResponse(serviceCall, meterReadings)) {
             return;
         }
-        EndPointConfiguration endPointConfiguration = getEndPointConfiguration(serviceCall, callbackUrl);
-        if (endPointConfiguration == null) {
-            serviceCall.requestTransition(FAILED);
-            return;
+        if (ServiceCallTransitionUtils.hasAnyChildState(ServiceCallTransitionUtils.findAllChildren(serviceCall), PARTIAL_SUCCESS)) {
+            serviceCall.requestTransition(PARTIAL_SUCCESS);
+        } else {
+            serviceCall.requestTransition(SUCCESSFUL);
         }
-        boolean isOk = sendMeterReadingsProvider.call(meterReadings, getHeader(correlationId), endPointConfiguration);
-        if (!isOk) {
-            serviceCall.requestTransition(FAILED);
-            serviceCall.log(LogLevel.SEVERE,
-                    MessageFormat.format("Unable to send meter readings data for source ''{0}'', time range {1}", source, timeRangeSet));
-            return;
-        }
-        serviceCall.requestTransition(SUCCESSFUL);
+
         serviceCall.log(LogLevel.FINE,
                 MessageFormat.format("Data successfully sent for source ''{0}'', time range {1}",
                         source, timeRangeSet));
+    }
+
+    private boolean sendResponse(ServiceCall serviceCall, MeterReadings meterReadings) {
+        ParentGetMeterReadingsDomainExtension extension = serviceCall.getExtension(ParentGetMeterReadingsDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+
+        EndPointConfiguration endPointConfiguration = getEndPointConfiguration(serviceCall, extension.getCallbackUrl());
+        if (endPointConfiguration == null) {
+            serviceCall.requestTransition(FAILED);
+            return false;
+        }
+        if (!sendMeterReadingsProvider.call(meterReadings, getHeader(extension.getCorrelationId()), endPointConfiguration)) {
+            serviceCall.requestTransition(FAILED);
+            RangeSet<Instant> timeRangeSet = null;
+            if (extension.getTimePeriodStart() != null) {
+                timeRangeSet = getTimeRangeSet(extension.getTimePeriodStart(), extension.getTimePeriodEnd());
+            }
+            serviceCall.log(LogLevel.SEVERE,
+                    MessageFormat.format("Unable to send meter readings data for source ''{0}'', time range {1}", extension
+                            .getSource(), timeRangeSet));
+        }
+        return true;
     }
 
     private Device findDeviceForEndDevice(com.elster.jupiter.metering.Meter meter) {

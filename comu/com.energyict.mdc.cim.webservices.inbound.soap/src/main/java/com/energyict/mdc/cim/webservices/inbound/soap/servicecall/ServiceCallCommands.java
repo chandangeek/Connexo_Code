@@ -430,11 +430,9 @@ public class ServiceCallCommands {
 
     private Instant getTriggerDate(Instant actualEnd, int delay, ComTaskExecution comTaskExecution,
                                    ScheduleStrategyEnum scheduleStrategy) {
-        Instant trigger;
-        if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
-            trigger = actualEnd.plus(delay, ChronoUnit.MINUTES);
-        } else { // USE_SCHEDULE
-            Instant next = comTaskExecution.getNextExecutionTimestamp();
+        Instant trigger = actualEnd.plus(delay, ChronoUnit.MINUTES);
+        Instant next = comTaskExecution.getNextExecutionTimestamp();
+        if (scheduleStrategy == ScheduleStrategyEnum.USE_SCHEDULE && next != null) {
             if (next.isBefore(actualEnd)) {
                 trigger = actualEnd;
             } else {
