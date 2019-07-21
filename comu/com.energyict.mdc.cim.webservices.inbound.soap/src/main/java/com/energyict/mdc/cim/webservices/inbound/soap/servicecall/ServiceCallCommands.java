@@ -95,13 +95,14 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createMeterConfigMasterServiceCall(MeterConfig meterConfig, EndPointConfiguration outboundEndPointConfiguration,
-                                                          OperationEnum operation) throws FaultMessage {
+                                                          OperationEnum operation, String correlationId) throws FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_METER_CONFIG);
 
         MeterConfigMasterDomainExtension meterConfigMasterDomainExtension = new MeterConfigMasterDomainExtension();
         meterConfigMasterDomainExtension.setActualNumberOfSuccessfulCalls(0l);
         meterConfigMasterDomainExtension.setActualNumberOfFailedCalls(0l);
         meterConfigMasterDomainExtension.setExpectedNumberOfCalls(Long.valueOf(meterConfig.getMeter().size()));
+        meterConfigMasterDomainExtension.setCorrelationId(correlationId);
         setCallBackUrl(meterConfigMasterDomainExtension, outboundEndPointConfiguration);
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()

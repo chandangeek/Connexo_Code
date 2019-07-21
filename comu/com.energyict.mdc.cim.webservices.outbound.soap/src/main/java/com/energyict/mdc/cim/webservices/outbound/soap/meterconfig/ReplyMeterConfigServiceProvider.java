@@ -147,7 +147,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                         .ifPresent(meterConfigPortService -> {
                             try {
                                 meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(Collections
-                                        .singletonList(device)), HeaderType.Verb.CHANGED));
+                                        .singletonList(device)), HeaderType.Verb.CHANGED, null));
                             } catch (FaultMessage faultMessage) {
                                 endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                             }
@@ -161,7 +161,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls) {
+                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, String correlationId) {
         publish(endPointConfiguration);
         try {
             Optional.ofNullable(getMeterConfigPorts().get(endPointConfiguration.getUrl()))
@@ -170,13 +170,13 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                         try {
                             switch (operation) {
                                 case CREATE:
-                                    meterConfigPortService.createdMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED));
+                                    meterConfigPortService.createdMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId));
                                     break;
                                 case UPDATE:
-                                    meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED));
+                                    meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId));
                                     break;
                                 case GET:
-                                    meterConfigPortService.replyMeterConfig(createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY));
+                                    meterConfigPortService.replyMeterConfig(createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId));
                                     break;
                             }
                         } catch (FaultMessage faultMessage) {
@@ -224,13 +224,16 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         return meterConfig;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb) {
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb, String correlationId) {
         MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
+        if (correlationId != null) {
+            header.setCorrelationID(correlationId);
+        }
         meterConfigEventMessageType.setHeader(header);
 
         // set reply
@@ -247,8 +250,8 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb) {
-        MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb);
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
+        MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb, correlationId);
 
         // set reply
         ReplyType replyType = cimMessageObjectFactory.createReplyType();

@@ -24,7 +24,8 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         CALLS_EXPECTED("expectedNumberOfCalls", "EXPECTED_CALLS"),
         CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "SUCCESS_CALLS"),
         CALLS_FAILED("actualNumberOfFailedCalls", "FAILED_CALLS"),
-        CALLBACK_URL("callbackURL", "CALLBACK_URL");
+        CALLBACK_URL("callbackURL", "CALLBACK_URL"),
+        CORRELATION_ID("correlationId", "CORRELATION_ID");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -53,6 +54,9 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     private Long actualNumberOfFailedCalls;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
+
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String correlationId;
 
     public MeterConfigMasterDomainExtension() {
         super();
@@ -90,6 +94,14 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         this.callbackURL = callbackURL;
     }
 
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
@@ -97,6 +109,7 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         this.setActualNumberOfSuccessfulCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0l));
         this.setActualNumberOfFailedCalls((Long)Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0l));
         this.setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
+        this.setCorrelationId((String) propertyValues.getProperty(FieldNames.CORRELATION_ID.javaName()));
     }
 
     @Override
@@ -105,6 +118,7 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.CALLS_SUCCESS.javaName(), this.getActualNumberOfSuccessfulCalls());
         propertySetValues.setProperty(FieldNames.CALLS_FAILED.javaName(), this.getActualNumberOfFailedCalls());
         propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), this.getCallbackURL());
+        propertySetValues.setProperty(FieldNames.CORRELATION_ID.javaName(), this.getCorrelationId());
     }
 
     @Override

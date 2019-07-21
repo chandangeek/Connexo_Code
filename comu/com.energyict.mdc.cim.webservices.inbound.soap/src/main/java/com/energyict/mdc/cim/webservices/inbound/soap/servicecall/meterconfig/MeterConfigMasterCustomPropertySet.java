@@ -213,6 +213,10 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .notNull()
                     .add();
+            table.column(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.databaseName())
+                    .varChar()
+                    .map(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.javaName())
+                    .add();
         }
 
         @Override
