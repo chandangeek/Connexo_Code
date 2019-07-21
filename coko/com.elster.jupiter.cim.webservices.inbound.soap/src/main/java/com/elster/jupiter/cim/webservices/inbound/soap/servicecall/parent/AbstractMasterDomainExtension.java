@@ -26,7 +26,8 @@ public abstract class AbstractMasterDomainExtension extends AbstractPersistentDo
         CALLS_EXPECTED("expectedNumberOfCalls", "expected_calls"),
         CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "success_calls"),
         CALLS_FAILED("actualNumberOfFailedCalls", "failed_calls"),
-        CALLBACK_URL("callbackURL", "callback_url");
+        CALLBACK_URL("callbackURL", "callback_url"),
+        CORRELATION_ID("correlationId", "correlation_id");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -56,6 +57,10 @@ public abstract class AbstractMasterDomainExtension extends AbstractPersistentDo
     @Size(max = Table.MAX_STRING_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
+
+    @Size(max = Table.MAX_STRING_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
+            + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String correlationId;
 
     public BigDecimal getExpectedNumberOfCalls() {
         return expectedNumberOfCalls;
@@ -89,6 +94,15 @@ public abstract class AbstractMasterDomainExtension extends AbstractPersistentDo
         this.callbackURL = callbackURL;
     }
 
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues,
             Object... additionalPrimaryKeyValues) {
@@ -100,6 +114,7 @@ public abstract class AbstractMasterDomainExtension extends AbstractPersistentDo
         setActualNumberOfFailedCalls(new BigDecimal(Optional
                 .ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0).toString()));
         setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
+        setCorrelationId((String) propertyValues.getProperty(FieldNames.CORRELATION_ID.javaName()));
     }
 
     @Override
@@ -108,6 +123,7 @@ public abstract class AbstractMasterDomainExtension extends AbstractPersistentDo
         propertySetValues.setProperty(FieldNames.CALLS_SUCCESS.javaName(), getActualNumberOfSuccessfulCalls());
         propertySetValues.setProperty(FieldNames.CALLS_FAILED.javaName(), getActualNumberOfFailedCalls());
         propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), getCallbackURL());
+        propertySetValues.setProperty(FieldNames.CORRELATION_ID.javaName(), getCorrelationId());
     }
 
     @Override

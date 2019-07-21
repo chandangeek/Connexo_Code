@@ -59,7 +59,7 @@ public class UsagePointConfigMasterServiceCallHandler extends
                 .get();
         replyWebService.call(endPointConfiguration, extensionForChild.getOperation(),
                 getSuccessfulUsagePoints(serviceCall), getFailedUsagePoints(serviceCall),
-                extension.getExpectedNumberOfCalls());
+                extension.getExpectedNumberOfCalls(), extension.getCorrelationId());
     }
 
     private List<FailedUsagePointOperation> getFailedUsagePoints(ServiceCall serviceCall) {

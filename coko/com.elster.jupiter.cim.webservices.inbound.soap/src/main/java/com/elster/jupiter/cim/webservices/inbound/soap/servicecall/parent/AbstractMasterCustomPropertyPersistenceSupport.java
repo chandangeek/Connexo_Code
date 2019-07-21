@@ -55,6 +55,9 @@ public abstract class AbstractMasterCustomPropertyPersistenceSupport<E extends A
                 .map(AbstractMasterDomainExtension.FieldNames.CALLS_EXPECTED.javaName()).notNull().add();
         table.column(AbstractMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName()).varChar()
                 .map(AbstractMasterDomainExtension.FieldNames.CALLBACK_URL.javaName()).notNull(false).add();
+        table.column(AbstractMasterDomainExtension.FieldNames.CORRELATION_ID.databaseName()).varChar()
+                .map(AbstractMasterDomainExtension.FieldNames.CORRELATION_ID.javaName()).notNull(false).add();
+
     }
 
     @Override

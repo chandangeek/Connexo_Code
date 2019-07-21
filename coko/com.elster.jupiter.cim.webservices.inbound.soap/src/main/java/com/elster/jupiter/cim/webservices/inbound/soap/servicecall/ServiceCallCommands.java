@@ -280,13 +280,15 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createUsagePointConfigMasterServiceCall(UsagePointConfigRequestMessageType config,
-            Optional<EndPointConfiguration> endPointConfiguration, Action action) {
+            Optional<EndPointConfiguration> endPointConfiguration, Action action, String correlationId) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_USAGE_POINT_CONFIG);
         UsagePointConfigMasterDomainExtension domainExtension = new UsagePointConfigMasterDomainExtension();
         domainExtension.setActualNumberOfSuccessfulCalls(BigDecimal.ZERO);
         domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
         domainExtension.setExpectedNumberOfCalls(
                 BigDecimal.valueOf(config.getPayload().getUsagePointConfig().getUsagePoint().size()));
+        domainExtension.setCorrelationId(correlationId);
+
         if (endPointConfiguration.isPresent()) {
             domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
         }
