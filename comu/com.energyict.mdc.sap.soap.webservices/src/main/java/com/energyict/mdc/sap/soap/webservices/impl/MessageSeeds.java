@@ -36,6 +36,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_END_POINT_WITH_URL(3002, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     SYNC_MODE_NOT_SUPPORTED(3003, "SyncModeNotSupported", "Synchronous mode is not supported for multiple objects"),
     NO_PUBLISHED_END_POINT_WITH_URL(3004, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
+    NO_NECESSARY_OUTBOUND_END_POINT(3005, "NoNecessaryOutboundEndPoint", "No necessary outbound end point configuration is found by name ''{0}''."),
 
     // Device
     NO_DEVICE_FOUND_BY_SAP_ID(4001, "NoDeviceFoundBySapId", "No device found with SAP id ''{0}''"),

@@ -22,10 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Component(name = UtilitiesDeviceBulkCreateConfirmation.SAP_UTILITIES_DEVICE_ERP_SMART_METER_BULK_CREATE_CONFIRMATION_C_OUT,
+@Component(name = UtilitiesDeviceBulkCreateConfirmation.NAME,
         service = {UtilitiesDeviceBulkCreateConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
-        property = {"name=" + UtilitiesDeviceBulkCreateConfirmation.SAP_UTILITIES_DEVICE_ERP_SMART_METER_BULK_CREATE_CONFIRMATION_C_OUT})
+        property = {"name=" + UtilitiesDeviceBulkCreateConfirmation.NAME})
 public class UtilitiesDeviceBulkCreateConfirmationProvider implements UtilitiesDeviceBulkCreateConfirmation,
         OutboundSoapEndPointProvider {
 

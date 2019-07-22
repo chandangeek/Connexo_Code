@@ -9,7 +9,7 @@ import java.util.List;
 
 @ProviderType
 public interface UtilitiesDeviceRegisteredBulkNotification {
-    String SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTERED_BULK_NOTIFICATION_C_OUT = "SAP UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out";
+    String NAME = "SAP UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out";
 
 
     /**

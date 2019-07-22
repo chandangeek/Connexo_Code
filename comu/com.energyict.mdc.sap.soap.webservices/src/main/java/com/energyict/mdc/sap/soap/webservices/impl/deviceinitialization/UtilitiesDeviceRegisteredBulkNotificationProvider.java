@@ -35,10 +35,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-@Component(name = UtilitiesDeviceRegisteredBulkNotification.SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTERED_BULK_NOTIFICATION_C_OUT,
+@Component(name = UtilitiesDeviceRegisteredBulkNotification.NAME,
         service = {UtilitiesDeviceRegisteredBulkNotification.class, OutboundSoapEndPointProvider.class},
         immediate = true,
-        property = {"name=" + UtilitiesDeviceRegisteredBulkNotification.SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTERED_BULK_NOTIFICATION_C_OUT})
+        property = {"name=" + UtilitiesDeviceRegisteredBulkNotification.NAME})
 public class UtilitiesDeviceRegisteredBulkNotificationProvider implements UtilitiesDeviceRegisteredBulkNotification,
         OutboundSoapEndPointProvider {
 

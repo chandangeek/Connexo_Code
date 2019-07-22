@@ -9,7 +9,7 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface UtilitiesDeviceRegisterBulkCreateConfirmation {
-    String SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTER_BULK_CREATE_CONFIRMATION_C_OUT = "SAP UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_C_Out";
+    String NAME = "SAP UtilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmation_C_Out";
 
 
     /**

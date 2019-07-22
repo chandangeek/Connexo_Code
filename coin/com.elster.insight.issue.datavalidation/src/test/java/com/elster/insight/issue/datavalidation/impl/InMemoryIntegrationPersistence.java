@@ -130,7 +130,8 @@ public class InMemoryIntegrationPersistence {
                 StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(
                         this.injector.getInstance(EventService.class),
                         this.injector.getInstance(BpmService.class),
-                        this.injector.getInstance(StateTransitionPropertiesProvider.class));
+                        this.injector.getInstance(StateTransitionPropertiesProvider.class),
+                        this.injector.getInstance(FiniteStateMachineService.class));
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
                 com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
                         new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),

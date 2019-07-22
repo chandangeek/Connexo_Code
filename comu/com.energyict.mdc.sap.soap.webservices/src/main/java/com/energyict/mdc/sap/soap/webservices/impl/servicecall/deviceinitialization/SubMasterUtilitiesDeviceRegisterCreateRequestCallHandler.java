@@ -14,7 +14,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component(name = SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler.NAME, service = ServiceCallHandler.class,

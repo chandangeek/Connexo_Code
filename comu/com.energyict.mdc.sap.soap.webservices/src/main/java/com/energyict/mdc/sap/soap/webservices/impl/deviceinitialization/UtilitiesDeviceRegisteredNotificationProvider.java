@@ -48,10 +48,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Component(name = UtilitiesDeviceRegisteredNotification.SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTERED_NOTIFICATION_C_OUT,
+@Component(name = UtilitiesDeviceRegisteredNotification.NAME,
         service = {UtilitiesDeviceRegisteredNotification.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
-        property = {"name=" + UtilitiesDeviceRegisteredNotification.SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTERED_NOTIFICATION_C_OUT})
+        property = {"name=" + UtilitiesDeviceRegisteredNotification.NAME})
 public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesDeviceRegisteredNotification, StateTransitionWebServiceClient,
         OutboundSoapEndPointProvider{
 
@@ -138,7 +138,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesD
 
     @Override
     public String getWebServiceName() {
-        return SAP_UTILITIES_DEVICE_ERP_SMART_METER_REGISTERED_NOTIFICATION_C_OUT;
+        return NAME;
     }
 
     @Override
