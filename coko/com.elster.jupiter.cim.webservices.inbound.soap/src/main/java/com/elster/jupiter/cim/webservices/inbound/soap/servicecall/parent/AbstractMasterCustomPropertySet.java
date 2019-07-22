@@ -79,7 +79,7 @@ public abstract class AbstractMasterCustomPropertySet<E extends AbstractMasterDo
                 getPropertySpecService().stringSpec()
                         .named(AbstractMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(),
                                 TranslationKeys.CALLBACK_URL)
-                        .describedAs(TranslationKeys.CALLBACK_URL).fromThesaurus(getThesaurus()).finish());
+                        .describedAs(TranslationKeys.CALLBACK_URL).fromThesaurus(getThesaurus()).finish(),
                 getPropertySpecService().stringSpec()
                         .named(AbstractMasterDomainExtension.FieldNames.CORRELATION_ID.javaName(),
                             TranslationKeys.CORRELATION_ID)
