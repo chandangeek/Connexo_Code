@@ -598,16 +598,16 @@ Ext.define('Isu.controller.IssueDetail', {
             var panel = widget.down('#servicecall-issue-detail-log'),
             detailsForm = widget.down('#servicecall-details-form');
 
-            if (rec.raw.journals && panel) {
+            if (rec.raw.serviceCallInfo.logs && panel) {
                 var data = [],
                     store;
 
-                rec.raw.journals.map(function (journal) {
+                rec.raw.serviceCallInfo.logs.map(function (log) {
                     data.push(Ext.apply({}, {
-                        timestamp: journal.timestamp,
-                        details: journal.details,
-                        logLevel: journal.logLevel,
-                    }, journal))
+                        timestamp: log.timestamp,
+                        details: log.details,
+                        logLevel: log.logLevel,
+                    }, log))
                 });
                 if (data.length) {
                     store = Ext.create(me.serviceCallLogStore, {

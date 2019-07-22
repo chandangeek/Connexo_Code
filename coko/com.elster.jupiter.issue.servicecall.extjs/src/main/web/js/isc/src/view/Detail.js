@@ -66,7 +66,7 @@ Ext.define('Isc.view.Detail', {
             {   xtype: 'panel',
                 itemId: 'servicecall-issue-log-grid',
                 ui: 'medium',
-                title: Uni.I18n.translate('issue.workspace.servicecall.logs', 'ISC', 'Most recent communication log'),
+                title: Uni.I18n.translate('issue.workspace.servicecall.logs', 'ISC', 'Most recent service call log'),
                 items:[
                     {
                         xtype: 'servicecall-issue-log-grid',

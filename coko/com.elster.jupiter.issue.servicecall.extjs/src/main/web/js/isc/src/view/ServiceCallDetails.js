@@ -32,7 +32,7 @@ Ext.define('Isc.view.ServiceCallDetails', {
                         name: 'serviceCall',
                         renderer: function (value) {
                             var url,
-                                result;
+                                result = '-';
 
                             if (value) {
                                 if (value.name && Scs.privileges.ServiceCall.canView()) {
@@ -52,7 +52,7 @@ Ext.define('Isc.view.ServiceCallDetails', {
                         name: 'parentServiceCall',
                         renderer: function (value) {
                             var url,
-                                result;
+                                result = '-';
 
                             if (value) {
                                 if (value.name && Scs.privileges.ServiceCall.canView()) {
@@ -71,7 +71,7 @@ Ext.define('Isc.view.ServiceCallDetails', {
                         fieldLabel: Uni.I18n.translate('general.servicecall.type', 'ISC', 'Service call type'),
                         name: 'serviceCallType',
                         renderer: function (value) {
-                            return value ? value.name : '';
+                            return value ? value.name : '-';
                         }
                     },
                     {
@@ -79,7 +79,7 @@ Ext.define('Isc.view.ServiceCallDetails', {
                         fieldLabel: Uni.I18n.translate('general.servicecall.status', 'ISC', 'Service call status'),
                         name: 'onState',
                         renderer: function (value) {
-                            return value ? value.name : '';
+                            return value ? value.name : '-';
                         }
                     },
                     {
@@ -87,15 +87,15 @@ Ext.define('Isc.view.ServiceCallDetails', {
                         fieldLabel: Uni.I18n.translate('general.servicecall.received.date', 'ISC', 'Received date'),
                         name: 'receivedTime',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
                         }
                     },
                     {
                         itemId: 'servicecall-issue-details-modification-date',
                         fieldLabel: Uni.I18n.translate('general.servicecall.modification.date', 'ISC', 'Modification date'),
-                        name: 'modTime',
+                        name: 'lastModifyTime',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '';
+                            return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
                         }
                     }
                 ]

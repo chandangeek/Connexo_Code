@@ -33,7 +33,7 @@ Ext.define('Isc.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.title.reason', 'ISC', 'Reason'),
                         name: 'reason',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : '';
+                            return value.name ? Ext.String.htmlEncode(value.name) : '-';
                         }
                     },
                     {
@@ -41,7 +41,7 @@ Ext.define('Isc.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.type', 'ISC', 'Type'),
                         name: 'issueType',
                         renderer: function (value) {
-                            return value ? value.name : '';
+                            return value ? value.name : '-';
                         }
                     }
                 ]
@@ -58,7 +58,7 @@ Ext.define('Isc.view.DetailForm', {
                         name: 'status',
                         afterSubTpl: '<span id="issue-status-field-sub-tpl" class="field-additional-info" style="color: #686868;"></span>',
                         renderer: function (value) {
-                            return value.name ? Ext.String.htmlEncode(value.name) : '';
+                            return value.name ? Ext.String.htmlEncode(value.name) : '-';
                         }
                     },
                     {
@@ -66,13 +66,16 @@ Ext.define('Isc.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISC', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateLong(value) : '';
+                            return value ? Uni.DateTime.formatDateLong(value) : '-';
                         }
                     },
                     {
                         itemId: 'servicecall-issue-priority',
                         fieldLabel: Uni.I18n.translate('general.title.priority', 'ISC', 'Priority'),
-                        name: 'priority'
+                        name: 'priority',
+                        renderer: function (value) {
+                            return value ? Ext.String.htmlEncode(value) : '-';
+                        }
                     },
                     {
                         itemId: 'servicecall-issue-workgroup',
@@ -95,7 +98,7 @@ Ext.define('Isc.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISC', 'Creation date'),
                         name: 'creationDate',
                         renderer: function (value) {
-                            return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                            return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                         }
                     }
                 ]
