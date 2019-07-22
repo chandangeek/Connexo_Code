@@ -36,10 +36,11 @@ public class UpgraderV10_7 implements Upgrader {
     }
     private String[] getNewMeterExpertPrivileges() {
         return new String[]{
-                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORTY_WEB_SERVICES,
-                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES,
                 CREATE_ISSUE,
-                SUSPEND_TASK_OVERVIEW
+                SUSPEND_TASK_OVERVIEW,
+
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES
         };
     }
 }
