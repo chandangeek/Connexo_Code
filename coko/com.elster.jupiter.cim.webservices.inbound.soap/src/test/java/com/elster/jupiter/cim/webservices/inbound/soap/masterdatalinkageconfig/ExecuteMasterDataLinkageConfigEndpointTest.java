@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -90,7 +89,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
                 return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
             }
         });
-        when(webServicesService.getOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
         message = getValidMessage().build();

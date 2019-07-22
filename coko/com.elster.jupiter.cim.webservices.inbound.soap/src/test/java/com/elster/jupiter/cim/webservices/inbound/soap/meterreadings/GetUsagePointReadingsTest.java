@@ -17,7 +17,6 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.ExecuteUsagePointConfigEndpoint;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -425,7 +424,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
             }
         });
-        when(webServicesService.getOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
         when(clock.instant()).thenReturn(JUNE_1ST.toInstant());
