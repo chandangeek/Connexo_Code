@@ -11,7 +11,7 @@ import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
 
 public class ServiceCallIssueInfo<T extends DeviceInfo> extends IssueInfo<T, ServiceCallIssue> {
 
-    ServiceCallInfo serviceCallInfo;
+    public ServiceCallInfo serviceCallInfo;
 
     public ServiceCallIssueInfo(ServiceCallIssue issue, Class<T> deviceInfoClass) {
         super(issue, deviceInfoClass);

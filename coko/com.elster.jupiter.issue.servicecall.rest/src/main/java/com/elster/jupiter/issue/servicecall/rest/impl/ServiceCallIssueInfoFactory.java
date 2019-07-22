@@ -79,9 +79,8 @@ public class ServiceCallIssueInfoFactory implements InfoFactory<ServiceCallIssue
 
     private void addServiceCallIssueInfo(ServiceCallIssueInfo<?> info, ServiceCallIssue issue) throws LocalizedFieldValidationException {
         ServiceCall serviceCall = issue.getServiceCall();
-        ServiceCallInfo scInfo = new ServiceCallInfo();
+        ServiceCallInfo scInfo = new ServiceCallInfo(serviceCall.getId(), serviceCall.getNumber());
         scInfo.logs = serviceCall.getLogs().stream().map(this::asServiceCallLogInfo).collect(Collectors.toList());
-        scInfo.serviceCall = new IdWithNameInfo(serviceCall.getId(), serviceCall.getNumber());
         serviceCall.getParent().ifPresent(parent -> scInfo.parentServiceCall = new IdWithNameInfo(parent.getId(), parent.getNumber()));
         scInfo.onState = new IdWithNameInfo(issue.getStateCausedIssue().ordinal(), issue.getStateCausedIssue().getDisplayName(thesaurus));
         scInfo.serviceCallType = new IdWithNameInfo(serviceCall.getType());

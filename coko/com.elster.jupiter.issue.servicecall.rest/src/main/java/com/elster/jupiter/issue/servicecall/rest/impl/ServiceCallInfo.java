@@ -9,8 +9,12 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import java.time.Instant;
 import java.util.List;
 
-public class ServiceCallInfo {
-    public IdWithNameInfo serviceCall;
+public class ServiceCallInfo extends IdWithNameInfo {
+
+    public ServiceCallInfo(Object id, String name) {
+        super(id, name);
+    }
+
     public IdWithNameInfo parentServiceCall;
     public IdWithNameInfo onState;
     public Instant receivedTime;
