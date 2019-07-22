@@ -93,7 +93,7 @@ public abstract class AbstractInboundEndPoint {
     }
 
     private void saveRequestNameAndApplicationIfNeeded(long id) {
-        WebServiceCallOccurrence occurrence = webServicesService.getOccurrence(id);
+        WebServiceCallOccurrence occurrence = webServicesService.getOngoingOccurrence(id);
         boolean needToSave = false;
         if (!occurrence.getApplicationName().isPresent()) {
             occurrence.setApplicationName(getApplicationName());
@@ -135,11 +135,11 @@ public abstract class AbstractInboundEndPoint {
     }
 
     protected void log(LogLevel logLevel, String message) {
-        webServicesService.getOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(logLevel, message);
+        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(logLevel, message);
     }
 
     protected void log(String message, Exception exception) {
-        webServicesService.getOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
+        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
     }
 
     private String getApplicationName() {

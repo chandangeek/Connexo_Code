@@ -13,7 +13,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
-import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
@@ -111,7 +110,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
                 return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
             }
         });
-        when(webServicesService.getOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
         when(meteringService.findEndDevices(anySetOf(String.class))).thenReturn(Collections.singletonList(endDevice));

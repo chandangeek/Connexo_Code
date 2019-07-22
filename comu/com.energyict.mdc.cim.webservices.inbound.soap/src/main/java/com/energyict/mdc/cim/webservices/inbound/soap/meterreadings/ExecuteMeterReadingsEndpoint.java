@@ -10,14 +10,13 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
@@ -71,7 +70,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
+public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implements GetMeterReadingsPort, ApplicationSpecific {
     private static final String NOUN = "MeterReadings";
     private static final String GET_METER_READINGS_ITEM = "GetMeterReadings";
     private static final String READING_TYPES_LIST_ITEM = GET_METER_READINGS_ITEM + ".ReadingType";
@@ -96,8 +95,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     private final Provider<MeterReadingsBuilder> readingBuilderProvider;
     private final ReplyTypeFactory replyTypeFactory;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
-    private final EndPointHelper endPointHelper;
-    private final TransactionService transactionService;
     private final Clock clock;
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
@@ -111,8 +108,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     public ExecuteMeterReadingsEndpoint(Provider<MeterReadingsBuilder> readingBuilderProvider,
                                         ReplyTypeFactory replyTypeFactory,
                                         MeterReadingFaultMessageFactory faultMessageFactory,
-                                        EndPointHelper endPointHelper,
-                                        TransactionService transactionService,
                                         Clock clock, ServiceCallCommands serviceCallCommands,
                                         EndPointConfigurationService endPointConfigurationService,
                                         WebServicesService webServicesService, MeteringService meteringService,
@@ -120,8 +115,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         this.readingBuilderProvider = readingBuilderProvider;
         this.replyTypeFactory = replyTypeFactory;
         this.faultMessageFactory = faultMessageFactory;
-        this.endPointHelper = endPointHelper;
-        this.transactionService = transactionService;
         this.clock = clock;
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
@@ -134,8 +127,8 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
     @Override
     public MeterReadingsResponseMessageType getMeterReadings(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage) throws
             FaultMessage {
-        endPointHelper.setSecurityContext();
-        try (TransactionContext context = transactionService.getContext()) {
+        return runInTransactionWithOccurrence(() -> {
+            try {
             syncReplyIssue = new SyncReplyIssue(replyTypeFactory);
             GetMeterReadings getMeterReadings = Optional.ofNullable(getMeterReadingsRequestMessage.getRequest()
                     .getGetMeterReadings())
@@ -148,7 +141,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
             checkGetMeterReading(getMeterReadings, async);
             // run async
             if (async) {
-                return runAsyncMode(getMeterReadingsRequestMessage, context);
+                return runAsyncMode(getMeterReadingsRequestMessage);
             }
             // run sync
             // -EndDevice
@@ -170,6 +163,7 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                 MeterReadings meterReadings = builder
                         .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
                         .build();
+                /// TODO use correlationid
                 return createMeterReadingsResponseMessageType(meterReadings, syncReplyIssue.getResultErrorTypes(), null);
             }
             // -UsagePoint
@@ -194,10 +188,10 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         } catch (LocalizedException e) {
             throw faultMessageFactory.createMeterReadingFaultMessage(e.getLocalizedMessage(), e.getErrorCode());
         }
+        });
     }
 
-    private MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage,
-                                                          TransactionContext context) throws FaultMessage {
+    private MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage) throws FaultMessage {
         String correlationId = getMeterReadingsRequestMessage.getHeader().getCorrelationID();
         if (correlationId != null) {
             checkIsEmpty(correlationId, GET_METER_READINGS_ITEM + ".Header.CorrelationID");
@@ -258,7 +252,6 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
                     reading, i, syncReplyIssue, combinerReadingTypes);
             syncReplyIssue.addExistedReadingsIndexes(i);
         }
-        context.commit();
 
         // no meter readings on sync reply! It's built in parent service call
         MeterReadings meterReadings = null;
@@ -862,5 +855,10 @@ public class ExecuteMeterReadingsEndpoint implements GetMeterReadingsPort {
         meterReadingsPayloadType.setMeterReadings(meterReadings);
         meterReadingsResponseMessageType.setPayload(meterReadingsPayloadType);
         return meterReadingsResponseMessageType;
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

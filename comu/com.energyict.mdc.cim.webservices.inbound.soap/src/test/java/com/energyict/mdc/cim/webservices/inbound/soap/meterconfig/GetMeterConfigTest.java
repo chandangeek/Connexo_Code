@@ -72,7 +72,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
                 return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
             }
         });
-        when(webServicesService.getOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
         when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
         when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
 
