@@ -26,7 +26,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Mdc.securityaccessors.store.HsmJssKeyTypes',
         'Mdc.securityaccessors.store.HSMLabelEndPoint',
         'Mdc.securityaccessors.store.HsmCapabilities',
-        'Mdc.securityaccessors.store.SecurityCategoryCommands'
+        'Mdc.securityaccessors.store.SecurityCategoryCommands',
+        'Mdc.securityaccessors.store.WrappingSecurityAccessors'
     ],
 
     models: [
@@ -101,6 +102,10 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         {
             ref: 'keyRenewalForm',
             selector: '#key-renewal-with-form'
+        },
+        {
+            ref: 'keyWrapperForm',
+            selector: '#key-wrapper-with-form'
         },
         {
             ref: 'previewNoProperties',
@@ -262,11 +267,16 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view,
-            securityCategoryCommandsStore = me.getStore('Mdc.securityaccessors.store.SecurityCategoryCommands');
+            securityCategoryCommandsStore = me.getStore('Mdc.securityaccessors.store.SecurityCategoryCommands'),
+            wrappers = me.getStore('Mdc.securityaccessors.store.WrappingSecurityAccessors');
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.deviceType = deviceType;
+
+                wrappers.getProxy().setUrl(deviceTypeId);
+                wrappers.load();
+
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 securityCategoryCommandsStore.getProxy().setUrl(deviceTypeId);
 
@@ -285,6 +295,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                     keyRenewalForm = me.getKeyRenewalForm(),
                                     commandCombo = keyRenewalForm.down('#key-renewal-command-combo'),
                                     noCommand = keyRenewalForm.down('#key-renewal-no-command');
+
+                                    keyWrapperForm = me.getKeyWrapperForm(),
+                                    wrapperCombo = keyWrapperForm.down('#key-wrapper-combo'),
+                                    noWrapperAvailable = keyWrapperForm.down('#key-wrapper-no-wrapper-available');
+
+                                wrappers.count() == 0 && noWrapperAvailable.setVisible(true) && wrapperCombo.setVisible(false);
+                                wrappers.count() != 0 && noWrapperAvailable.setVisible(false) && wrapperCombo.setVisible(true);
 
                                 records.length == 0 && commandCombo.setVisible(false) && noCommand.setVisible(true);
                                 records.length != 0 && commandCombo.setVisible(true) && noCommand.setVisible(false);
@@ -340,6 +357,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 securityAccessorRecord.set('keyRenewalCommandSpecification', {
                     id: keyRenewalPage.down('#key-renewal-command-combo').getValue()
                 });
+                securityAccessorRecord.set('wrapperAccessorId', keyRenewalPage.down('#key-wrapper-combo').getValue());
                 securityAccessorRecord.propertiesStore = propertiesForm.getRecord().properties();
                 securityAccessorRecord.endEdit();
                 securityAccessorRecord.save({

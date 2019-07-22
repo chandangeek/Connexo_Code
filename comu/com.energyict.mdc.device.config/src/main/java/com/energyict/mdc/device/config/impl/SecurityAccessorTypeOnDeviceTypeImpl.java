@@ -98,6 +98,15 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     }
 
     @Override
+    public void setWrappingSecurityAccessor(Optional<SecurityAccessorType> deviceSecurityAccessorType) {
+        if (deviceSecurityAccessorType.isPresent()) {
+            this.wrappingSecurityAccessorType.set(deviceSecurityAccessorType.get());
+        } else {
+            wrappingSecurityAccessorType.setNull();
+        }
+    }
+
+    @Override
     public SecurityAccessorType getSecurityAccessorType() {
         return securityAccessorType.orNull();
     }

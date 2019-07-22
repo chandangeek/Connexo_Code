@@ -9,7 +9,9 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Mdc.securityaccessors.store.SecurityCategoryCommands',
+        'Mdc.securityaccessors.store.WrappingSecurityAccessors',
         'Uni.view.form.ComboBoxWithEmptyComponent'
+
     ],
 
     initComponent: function () {
@@ -127,6 +129,42 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                                     resetButtonHidden: false,
                                     width: 334
                                 }
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'form',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        itemId: 'key-wrapper-with-form',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                name: 'wrapperAccessorId',
+                                fieldLabel: Uni.I18n.translate('key.wrapper.label', 'MDC', 'Wrapped by key'),
+                                itemId: 'key-wrapper-combo',
+                                emptyText: Uni.I18n.translate('key.wrapper.message', 'MDC', 'Select a wrapper...'),
+                                store: 'Mdc.securityaccessors.store.WrappingSecurityAccessors',
+                                displayField: 'name',
+                                valueField: 'id',
+                                required: false,
+                                allowBlank: false,
+                                editable: true,
+                                queryMode: 'local',
+                                labelWidth: 200,
+                                width: 550
+                            },
+                            {
+                                xtype: 'displayfield',
+                                itemId: 'key-wrapper-no-wrapper-available',
+                                fieldLabel: Uni.I18n.translate('key.wrapper.label', 'MDC', 'Wrapped by key'),
+                                value: Uni.I18n.translate('key.wrapper.message.unavailable', 'MDC', 'No wrappers are available'),
+                                fieldStyle: {
+                                    color: '#EB5642'
+                                },
+                                hidden: true
                             }
                         ]
                     },

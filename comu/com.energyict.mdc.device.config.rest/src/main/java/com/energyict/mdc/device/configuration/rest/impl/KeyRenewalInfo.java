@@ -15,6 +15,7 @@ import java.util.List;
 public class KeyRenewalInfo {
     public long id;
     public long version;
+    public Long wrapperAccessorId;
     public IdWithNameInfo keyRenewalCommandSpecification;
     public List<PropertyInfo> properties;
 }

@@ -8,6 +8,10 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessorsOnDeviceType', {
         'Mdc.securityaccessors.model.SecurityAccessor'
     ],
 
+    fields: [
+        {name: 'wrapperAccessorId', type: 'int', useNull: true}
+    ],
+
     proxy: {
         type: 'rest',
         urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors',

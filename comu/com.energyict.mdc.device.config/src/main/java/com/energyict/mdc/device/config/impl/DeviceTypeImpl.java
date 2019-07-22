@@ -367,14 +367,40 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public void setWrappingSecurityAccessor(DeviceSecurityAccessorType toUpdateDeviceSecurityAccessorType, Optional<SecurityAccessorType> wrappingSecurityAccessor){
+        // We do not treat if we find many but that should not be the case
+        Optional<SecurityAccessorTypeOnDeviceTypeImpl> first = securityAccessorTypes.stream().filter(f -> f.getDeviceSecurityAccessorType().equals(toUpdateDeviceSecurityAccessorType)).findFirst();
+        if (!first.isPresent()) {
+            throw new SecurityAccessorTypeCanNotBeFoundException(getThesaurus());
+        }
+        first.get().setWrappingSecurityAccessor(wrappingSecurityAccessor);
+    }
+
+    @Override
     public boolean removeDeviceSecurityAccessor(DeviceSecurityAccessorType securityAccessorType) {
-        return securityAccessorTypes.stream()
-                .filter(securityAccessorTypeOnDeviceType ->
-                        securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().equals(securityAccessorType))
-                .peek(this::validateSecurityAccessorTypeRemoval)
-                .findAny()
-                .map(securityAccessorTypes::remove)
-                .orElse(false);
+        long inUseAsWrapper = securityAccessorTypes.stream()
+                .map(f -> f.getDeviceSecurityAccessorType().getWrappingSecurityAccessor())
+                .filter(f -> f.isPresent())
+                .map(f -> f.get())
+                .filter(f -> f.getId() == securityAccessorType.getSecurityAccessor().getId())
+                .count();
+        if (inUseAsWrapper > 0) {
+
+        }
+
+        SecurityAccessorTypeOnDeviceType toBeRemoved = null;
+        for (SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType: securityAccessorTypes) {
+            if (securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().equals(securityAccessorType)) {
+                toBeRemoved = securityAccessorTypeOnDeviceType;
+                break;
+            }
+        }
+
+        if (toBeRemoved != null) {
+            securityAccessorTypes.remove(toBeRemoved);
+        }
+
+        return toBeRemoved != null;
     }
 
     private void validateSecurityAccessorTypeRemoval(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
@@ -383,7 +409,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .join(DeviceConfiguration.class)
                 .filter(Where.where("securityPropertySet.deviceConfiguration.deviceType").isEqualTo(this))
                 .filter(Where.where("securityPropertySet.deviceConfiguration.active").isEqualTo(true))
-                .filter(Where.where("keyAccessorType").isEqualTo(securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().getSecurityAccessor()))
+                .filter(Where.where("keyAccessorType").isEqualTo(securityAccessorTypeOnDeviceType.getSecurityAccessorType()))
                 .findAny()
                 .isPresent()) {
             throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
