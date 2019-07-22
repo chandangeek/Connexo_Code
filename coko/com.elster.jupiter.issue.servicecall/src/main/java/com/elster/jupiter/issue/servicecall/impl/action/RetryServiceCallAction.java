@@ -39,17 +39,16 @@ public class RetryServiceCallAction extends AbstractIssueAction {
         DefaultActionResult result = new DefaultActionResult();
         ServiceCallIssue scIssue = (ServiceCallIssue) issue;
         ServiceCall serviceCall = scIssue.getServiceCall();
-        validateState(serviceCall);
-        serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
-        return result;
-    }
-
-    private void validateState(ServiceCall serviceCall) {
         if (serviceCall.getState().isOpen()) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
-                    .entity("The service call is not in the final state")
-                    .build());
+            serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
+            result.success(getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION_SUCCEED).format());
+            return result;
+        } else {
+//            result.nextAction(getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION_FAIL_TITLE).format());
+            result.fail(getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION_FAIL_NOT_FINAL_STATE).format());
         }
+
+        return result;
     }
 
     @Override
@@ -70,6 +69,6 @@ public class RetryServiceCallAction extends AbstractIssueAction {
 
     @Override
     public String getDisplayName() {
-        return getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_NOW).format();
+        return getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION).format();
     }
 }

@@ -11,9 +11,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
-    START_PROCESS_ACTION("issue.action.startProcess", "Start process"),
-    START_PROCESS_ACTION_PROCESS("issue.action.process", "Process"),
-    START_PROCESS_ACTION_SELECT_PROCESS("issue.action.select_process", "Select process"),
+    START_PROCESS_ACTION("servicecall.issue.action.startProcess", "Start process"),
+    START_PROCESS_ACTION_PROCESS("servicecall.issue.action.process", "Process"),
+    START_PROCESS_ACTION_SELECT_PROCESS("servicecall.issue.action.select_process", "Select process"),
+    START_PROCESS_ACTION_SUCCEED("servicecall.issue.action.startProcess.succeed", "Start process action succeed"),
+    START_PROCESS_ACTION_FAILED("servicecall.issue.action.startProcess.failed", "Start process action failed"),
     SERVICE_CALL_ISSUE_TYPE("servicecall.issue.Type", "Service call"),
     SERVICE_CALL_ISSUE_FAILED_REASON("servicecall.issue.FailedReason", "Service call failed"),
     SERVICE_CALL_ISSUE_FAILED_REASON_DESCRIPTION("servicecall.issue.FailedReasonDescription", "Service call failed"),
@@ -31,7 +33,11 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
 
-    ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
+    RETRY_NOW_ACTION("servicecall.issue.action.retrynow", "Retry now"),
+    RETRY_NOW_ACTION_FAIL_TITLE("servicecall.issue.action.retrynow.fail.title", "Failed to retry service call"),
+    RETRY_NOW_ACTION_FAIL_NOT_FINAL_STATE("servicecall.issue.action.retrynow.fail.notinfinalstate", "The service call is not in the final state"),
+    RETRY_NOW_ACTION_SUCCEED("servicecall.issue.action.retrynow.succeed", "Retry now action succeed"),
+
 
     SERVICE_CALL_ISSUE_RULE_TEMPLATE_NAME("servicecall.issue.RuleTemplateName", "State change"),
     SERVICE_CALL_ISSUE_RULE_TEMPLATE_DESCRIPTION("servicecall.issue.TemplateDescription", "State change");

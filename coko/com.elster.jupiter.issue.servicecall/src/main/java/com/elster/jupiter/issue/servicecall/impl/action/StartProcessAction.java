@@ -94,6 +94,9 @@ public class StartProcessAction extends AbstractIssueAction {
                             .getVersion()))
                     .forEach(p -> bpmService.startProcess(p.deploymentId, p.processId, expectedParams))
             );
+            result.success(getThesaurus().getFormat(TranslationKeys.START_PROCESS_ACTION_SUCCEED).format());
+        } else {
+            result.fail(getThesaurus().getFormat(TranslationKeys.START_PROCESS_ACTION_FAILED).format());
         }
         return result;
     }
