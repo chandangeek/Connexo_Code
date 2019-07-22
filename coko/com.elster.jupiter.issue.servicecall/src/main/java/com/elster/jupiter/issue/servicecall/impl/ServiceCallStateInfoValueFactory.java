@@ -97,17 +97,6 @@ class DefaultStateInfo extends HasIdAndName {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this != o) {
-            return false;
-        }
-        if (getClass() != o.getClass()) {
-            return false;
-        }
-        return super.equals(o);
-    }
-
-    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + Long.hashCode(defaultState.ordinal());

@@ -59,14 +59,14 @@ public class RuleResource extends BaseResource {
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE,Privileges.Constants.VIEW_CREATION_RULE})
-    public PagedInfoList getCreationRulesTemplates(@QueryParam(value = ISSUE_TYPE) String issueType, @BeanParam JsonQueryParameters params, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey){
+    public PagedInfoList getCreationRulesTemplates(@QueryParam(value = ISSUE_TYPE) String issueType, @BeanParam JsonQueryParameters params){
         if (issueType == null ) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         List<CreationRuleTemplateInfo> infos = getIssueCreationService()
                 .getCreationRuleTemplates().stream()
                 .filter(template -> template.getIssueType().getKey().equals(issueType))
-                .map(creationRuleTemplate -> templateInfoFactory.asInfo(creationRuleTemplate, appKey))
+                .map(templateInfoFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("creationRuleTemplates", infos, params);
     }

@@ -6,12 +6,14 @@ package com.energyict.mdc.firmware.impl.campaign;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.firmware.impl.EventType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     public static final String NAME = "FirmwareCampaignServiceCallHandler";
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
+    public static final DefaultState RETRY_STATE = DefaultState.ONGOING;
 
     private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
 
@@ -37,7 +40,17 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         if (!oldState.isOpen()) {
-            retryParent(serviceCall, newState);
+            switch (newState) {
+                case ONGOING:
+                    ServiceCallFilter filter = new ServiceCallFilter();
+                    filter.states = Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).collect(Collectors.toList());
+                    if (!serviceCall.findChildren(filter).stream().findFirst().isPresent()) {
+                        serviceCall.findChildren().stream().forEach(kid ->  kid.requestTransition(kid.getType().getRetryState().orElse(RETRY_STATE)));
+                    }
+                    break;
+                default:
+                    break;
+            }
         } else {
             switch (newState) {
                 case PENDING:
@@ -61,33 +74,19 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     }
 
     public void onChildStateChange(ServiceCall parent, ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        if (!oldState.isOpen()) {
-            retryChild(serviceCall, newState);
-        } else {
-            switch (newState) {
-                case CANCELLED:
-                    firmwareCampaignService.handleFirmwareUploadCancellation(serviceCall);
-                case FAILED:
-                case REJECTED:
-                case SUCCESSFUL:
-                    complete(parent);
-                    parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was " +
-                            newState.getDefaultFormat().toLowerCase(), serviceCall.getId(), serviceCall.getType().getName()));
-                    break;
-                default:
-                    break;
-            }
+        switch (newState) {
+            case CANCELLED:
+                firmwareCampaignService.handleFirmwareUploadCancellation(serviceCall);
+            case FAILED:
+            case REJECTED:
+            case SUCCESSFUL:
+                complete(parent);
+                parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was " +
+                        newState.getDefaultFormat().toLowerCase(), serviceCall.getId(), serviceCall.getType().getName()));
+                break;
+            default:
+                break;
         }
-    }
-
-    private void retryParent(ServiceCall serviceCall, DefaultState newState) {
-        if (DefaultState.ONGOING != serviceCall.getState()) {
-            serviceCall.requestTransition(DefaultState.ONGOING);
-        }
-    }
-
-    private void retryChild(ServiceCall serviceCall, DefaultState newState) {
-        serviceCall.requestTransition(DefaultState.PENDING);
     }
 
     private void complete(ServiceCall parent) {

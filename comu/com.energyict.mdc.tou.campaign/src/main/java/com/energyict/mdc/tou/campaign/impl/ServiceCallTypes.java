@@ -34,12 +34,12 @@ public enum ServiceCallTypes {
     private final String customPropertySetClass;
     private final String persistenceSupportClass;
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    private final Optional<String> reservedByApplication;
+    private final String reservedByApplication;
 
     ServiceCallTypes(String typeName, String typeVersion, String reservedByApplication, String customPropertySetClass, String persistenceSupportClass) {
         this.typeName = typeName;
         this.typeVersion = typeVersion;
-        this.reservedByApplication = Optional.ofNullable(reservedByApplication);
+        this.reservedByApplication = reservedByApplication;
         this.customPropertySetClass = customPropertySetClass;
         this.persistenceSupportClass = persistenceSupportClass;
     }
@@ -53,7 +53,7 @@ public enum ServiceCallTypes {
     }
 
     public Optional<String> getApplication() {
-        return reservedByApplication;
+        return Optional.ofNullable(reservedByApplication);
     }
 
     public String getCustomPropertySetClass() {

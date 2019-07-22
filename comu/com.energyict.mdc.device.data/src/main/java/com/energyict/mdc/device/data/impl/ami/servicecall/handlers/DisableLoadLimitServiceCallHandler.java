@@ -30,7 +30,7 @@ public class DisableLoadLimitServiceCallHandler extends AbstractOperationService
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "DisableLoadLimitServiceCallHandler";
-    public static final String APPLICATION = null;
+    public static final String APPLICATION = "MDC";
 
     public DisableLoadLimitServiceCallHandler() {
         super();

@@ -33,7 +33,7 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
     // TODO: no way to make names of service call types translatable
     private static final String NAME = TranslationKeys.SERVICE_CALL_TYPE_NAME.getDefaultFormat();
     private static final String VERSION = "1.0";
-    private static final String APPLICATION = "MDC";
+    private static final String APPLICATION = null;
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;

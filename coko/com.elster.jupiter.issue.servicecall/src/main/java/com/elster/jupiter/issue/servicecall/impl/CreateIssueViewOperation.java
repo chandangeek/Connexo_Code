@@ -26,7 +26,7 @@ public class CreateIssueViewOperation {
 
     public void execute() {
         try (Connection conn = dataModel.getConnection(true)) {
-            PreparedStatement statement = buildStatement(conn, buildCreateSQL());
+            PreparedStatement statement = buildStatement(conn,   buildCreateSQL());
             statement.execute();
         } catch (SQLException sqlEx) {
             LOG.log(Level.SEVERE, "Unable to create view for all issues", sqlEx);
@@ -36,7 +36,7 @@ public class CreateIssueViewOperation {
     protected SqlBuilder buildCreateSQL() {
         SqlBuilder builder = new SqlBuilder();
         builder.append("CREATE OR REPLACE VIEW " + TableSpecs.ISC_ISSUE_ALL + " AS ");
-        builder.append("select * from " + TableSpecs.ISC_ISSUE_OPEN.name() );
+        builder.append("select * from " + TableSpecs.ISC_ISSUE_OPEN.name() + " union select * from " + TableSpecs.ISC_ISSUE_HISTORY.name());
         return builder;
     }
 

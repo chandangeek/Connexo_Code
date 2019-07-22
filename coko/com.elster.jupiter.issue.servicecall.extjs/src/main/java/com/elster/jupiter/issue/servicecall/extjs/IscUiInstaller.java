@@ -24,7 +24,7 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.issue.servicecall.extjs.IscUiInstaller.APP_KEY;
 
-@Component(name = "com.elster.jupiter.issue.extjs", service = TranslationKeyProvider.class,
+@Component(name = "com.elster.jupiter.issue.servicecall.extjs", service = TranslationKeyProvider.class,
         property = {"name=" + IscUiInstaller.COMPONENT_NAME + "-UI", "app=" + APP_KEY}, immediate = true)
 public class IscUiInstaller implements TranslationKeyProvider {
     public static final String APP_KEY = "SYS";

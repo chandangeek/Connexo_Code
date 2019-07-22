@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.servicecall.rest.impl;
 
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.device.DeviceShortInfo;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,6 +17,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -25,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component(name="issue.servicecall.info.factory", service = { InfoFactory.class }, immediate = true)
+@Component(name="com.elster.jupiter.issue.servicecall.rest.impl.ServiceCallIssueInfoFactory", service = { InfoFactory.class }, immediate = true)
 public class ServiceCallIssueInfoFactory implements InfoFactory<ServiceCallIssue> {
 
 
@@ -44,18 +46,14 @@ public class ServiceCallIssueInfoFactory implements InfoFactory<ServiceCallIssue
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(ServiceCallIssueService.COMPONENT_NAME, com.elster.jupiter.nls.Layer.DOMAIN);
-        Thesaurus restThesaurus = nlsService.getThesaurus(IssueServiceCallApplication.ISSUE_SERVICE_CALL_REST_COMPONENT, com.elster.jupiter.nls.Layer.REST);
+        Thesaurus restThesaurus = nlsService.getThesaurus(ServiceCallIssueApplication.SERVICE_CALL_ISSUE_REST_COMPONENT, com.elster.jupiter.nls.Layer.REST)
+                .join(nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN));
         this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
     @Override
     public Object from(ServiceCallIssue issueServiceCall) {
         return asInfo(issueServiceCall, DeviceInfo.class);
-    }
-
-    @Override
-    public List<Object> from(List<ServiceCallIssue> domainObjects) {
-        return null;
     }
 
     public ServiceCallIssueInfo<?> asInfo(ServiceCallIssue issue, Class<? extends DeviceInfo> deviceInfoClass) {
@@ -81,17 +79,18 @@ public class ServiceCallIssueInfoFactory implements InfoFactory<ServiceCallIssue
 
     private void addServiceCallIssueInfo(ServiceCallIssueInfo<?> info, ServiceCallIssue issue) throws LocalizedFieldValidationException {
         ServiceCall serviceCall = issue.getServiceCall();
-        info.journals = serviceCall.getLogs().stream().map(this::asServiceCallLogInfo).collect(Collectors.toList());
-        info.serviceCall = new IdWithNameInfo(serviceCall.getId(), serviceCall.getNumber());
-        info.parentServiceCall = serviceCall.getParent().isPresent() ? new IdWithNameInfo(serviceCall.getParent().get().getId(), serviceCall.getParent().get().getNumber()) : null;
-        info.onState = new IdWithNameInfo(issue.getNewState().ordinal(), issue.getNewState().name());
-        info.serviceCallType = new IdWithNameInfo(serviceCall.getType());
-        info.receivedTime = serviceCall.getCreationTime();
-        info.lastModifyTime = serviceCall.getLastModificationTime();
+        ServiceCallInfo scInfo = new ServiceCallInfo(serviceCall.getId(), serviceCall.getNumber());
+        scInfo.logs = serviceCall.getLogs().stream().map(this::asServiceCallLogInfo).collect(Collectors.toList());
+        serviceCall.getParent().ifPresent(parent -> scInfo.parentServiceCall = new IdWithNameInfo(parent.getId(), parent.getNumber()));
+        scInfo.onState = new IdWithNameInfo(issue.getStateCausedIssue().ordinal(), issue.getStateCausedIssue().getDisplayName(thesaurus));
+        scInfo.serviceCallType = new IdWithNameInfo(serviceCall.getType());
+        scInfo.receivedTime = serviceCall.getCreationTime();
+        scInfo.lastModifyTime = serviceCall.getLastModificationTime();
+        info.serviceCallInfo = scInfo;
     }
 
-    private JournalEntryInfo asServiceCallLogInfo(ServiceCallLog serviceCallLog) {
-        JournalEntryInfo info = new JournalEntryInfo();
+    private ServiceCallLogEntryInfo asServiceCallLogInfo(ServiceCallLog serviceCallLog) {
+        ServiceCallLogEntryInfo info = new ServiceCallLogEntryInfo();
         info.timestamp = serviceCallLog.getTime();
         info.logLevel = serviceCallLog.getLogLevel();
         info.details = serviceCallLog.getMessage();

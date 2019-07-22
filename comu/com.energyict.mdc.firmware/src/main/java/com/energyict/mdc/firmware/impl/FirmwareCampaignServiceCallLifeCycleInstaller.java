@@ -44,7 +44,7 @@ class FirmwareCampaignServiceCallLifeCycleInstaller {
                                     serviceCallTypeMapping.getCustomPropertySetClass())));
 
             serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), createServiceCallLifeCycle(serviceCallTypeMapping),
-                    serviceCallTypeMapping.getReservedByApplication(), serviceCallTypeMapping.getRetryState())
+                    serviceCallTypeMapping.getApplication().orElseGet(null), serviceCallTypeMapping.getRetryState())
                     .handler(serviceCallTypeMapping.getTypeName())
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(customPropertySet)

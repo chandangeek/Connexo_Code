@@ -74,7 +74,7 @@ public class IssueResource {
     @Path("/{" + ID + "}/processes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
-    public IssueProcessInfos getTimeine(@PathParam(ID) long id, @BeanParam StandardParametersBean params, @HeaderParam("Authorization") String auth) {
+    public IssueProcessInfos getAvailableProcesses(@PathParam(ID) long id, @BeanParam StandardParametersBean params, @HeaderParam("Authorization") String auth) {
         String jsonContent;
         IssueProcessInfos issueProcessInfos = new IssueProcessInfos();
         JSONArray arr = null;
@@ -106,15 +106,4 @@ public class IssueResource {
         return issueProcessInfos;
     }
 
-    @PUT
-    @Transactional
-    @Path("/retryscallnow")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
-    public Response retryCommunicationIssues(BulkIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) throws Exception {
-        ActionInfo response = new ActionInfo();
-        response.addSuccess(1);
-        return entity(response).build();
-    }
 }

@@ -2,13 +2,12 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.bpm.impl.issue.servicecall;
+package com.elster.jupiter.issue.servicecall.impl.provider;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -42,24 +41,23 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(name = "ServiceCallProcessAssociationProvider",
         service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
         property = "name=ServiceCallProcessAssociationProvider", immediate = true)
-public class ServiceCallProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
-    public static final String APP_KEY = "MDC";
+public class ServiceCallIssueProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
+    public static final String APP_KEY = "SYS";
     public static final String COMPONENT_NAME = "BPM";
     public static final String ASSOCIATION_TYPE = "servicecallissue";
     public static final String ISSUE_TYPE = "servicecall";
-
-    private volatile License license;
+    
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
 
     //For OSGI purposes
-    public ServiceCallProcessAssociationProvider() {
+    public ServiceCallIssueProcessAssociationProvider() {
     }
 
     //For testing purposes
     @Inject
-    public ServiceCallProcessAssociationProvider(Thesaurus thesaurus, IssueService issueService, PropertySpecService propertySpecService) {
+    public ServiceCallIssueProcessAssociationProvider(Thesaurus thesaurus, IssueService issueService, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.issueService = issueService;
         this.propertySpecService = propertySpecService;
@@ -80,11 +78,6 @@ public class ServiceCallProcessAssociationProvider implements ProcessAssociation
         this.propertySpecService = propertySpecService;
     }
 
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-        this.license = license;
-    }
-
     @Override
     public String getName() {
         return this.thesaurus.getFormat(TranslationKeys.SERVICE_CALL_ISSUE_ASSOCIATION_PROVIDER).format();
@@ -103,16 +96,16 @@ public class ServiceCallProcessAssociationProvider implements ProcessAssociation
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getTaskIssueReasonPropertySpec());
+        builder.add(getServiceCallIssueReasonsPropertySpec());
         return builder.build();
     }
 
     @Override
     public Optional<PropertySpec> getPropertySpec(String name) {
-        return (TranslationKeys.SERVICE_CALL_ISSUE_REASON_TITLE.getKey().equals(name))? Optional.of(getTaskIssueReasonPropertySpec()) : Optional.empty();
+        return (TranslationKeys.SERVICE_CALL_ISSUE_REASON_TITLE.getKey().equals(name))? Optional.of(getServiceCallIssueReasonsPropertySpec()) : Optional.empty();
     }
 
-    private PropertySpec getTaskIssueReasonPropertySpec() {
+    private PropertySpec getServiceCallIssueReasonsPropertySpec() {
         IssueType issueType = issueService.findIssueType(ISSUE_TYPE).orElse(null);
 
         IssueReasonInfo[] possibleValues = issueService.query(IssueReason.class)

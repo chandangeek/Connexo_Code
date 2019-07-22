@@ -27,10 +27,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.servicecall.issue.rest", service = {Application.class}, immediate = true, property = {"alias=/isc", "app=" + IssueServiceCallApplication.APP_KEY, "name=" + IssueServiceCallApplication.ISSUE_SERVICE_CALL_REST_COMPONENT})
-public class IssueServiceCallApplication extends Application {
+@Component(name = "com.elster.jupiter.servicecall.issue.rest", service = {Application.class}, immediate = true, property = {"alias=/isc", "app=" + ServiceCallIssueApplication.APP_KEY, "name=" + ServiceCallIssueApplication.SERVICE_CALL_ISSUE_REST_COMPONENT})
+public class ServiceCallIssueApplication extends Application {
     public static final String APP_KEY = "SYS";
-    public static final String ISSUE_SERVICE_CALL_REST_COMPONENT = "SIR";
+    public static final String SERVICE_CALL_ISSUE_REST_COMPONENT = "SIR";
 
     private volatile TransactionService transactionService;
     private volatile UserService userService;
@@ -76,7 +76,7 @@ public class IssueServiceCallApplication extends Application {
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(ServiceCallIssueService.COMPONENT_NAME, Layer.DOMAIN);
-        Thesaurus restThesaurus = nlsService.getThesaurus(ISSUE_SERVICE_CALL_REST_COMPONENT, Layer.REST);
+        Thesaurus restThesaurus = nlsService.getThesaurus(SERVICE_CALL_ISSUE_REST_COMPONENT, Layer.REST);
         this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 

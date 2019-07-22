@@ -71,8 +71,8 @@ public class ServiceCallCommands {
             return typeVersion;
         }
 
-        public String getApplication() {
-            return reservedByApplication;
+        public Optional<String> getApplication() {
+            return Optional.ofNullable(reservedByApplication);
         }
 
         public String getCustomPropertySetClass() {

@@ -8,7 +8,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 
 import java.time.Instant;
 
-public class JournalEntryInfo {
+public class ServiceCallLogEntryInfo {
     public Instant timestamp;
     public String details;
     public LogLevel logLevel;

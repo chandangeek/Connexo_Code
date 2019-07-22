@@ -29,9 +29,6 @@ import java.util.stream.Collectors;
 
 public class RetryServiceCallAction extends AbstractIssueAction {
 
-    public static final String FIRMWARE_CAMPAIGN_NAME = "FirmwareCampaignServiceCallHandler";
-    public static final String FIRMWARE_ITEM_NAME = "FirmwareCampaignItemServiceCallHandler";
-
     @Inject
     public RetryServiceCallAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(dataModel, thesaurus, propertySpecService);
@@ -40,39 +37,27 @@ public class RetryServiceCallAction extends AbstractIssueAction {
     @Override
     public IssueActionResult execute(Issue issue) {
         DefaultActionResult result = new DefaultActionResult();
-        if (isApplicable(issue)){
-            ServiceCallIssue scIssue = (ServiceCallIssue) issue;
-            ServiceCall serviceCall = scIssue.getServiceCall();
-            validateState(serviceCall);
-            if (serviceCall.getParent().isPresent()) {
-                serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
-                serviceCall.getParent().get().requestTransition(DefaultState.ONGOING);
-            } else {
-                serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
-            }
-        }
-        return result;
-    }
-
-    private void validateState(ServiceCall serviceCall) {
+        ServiceCallIssue scIssue = (ServiceCallIssue) issue;
+        ServiceCall serviceCall = scIssue.getServiceCall();
         if (serviceCall.getState().isOpen()) {
-            throw new WebApplicationException(Response.status(Response.Status.NOT_ACCEPTABLE)
-                    .entity("The service call is not in the final state")
-                    .build());
+            serviceCall.requestTransition(serviceCall.getType().getRetryState().get());
+            result.success(getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION_SUCCEED).format());
+            return result;
+        } else {
+//            result.nextAction(getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION_FAIL_TITLE).format());
+            result.fail(getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION_FAIL_NOT_FINAL_STATE).format());
         }
+
+        return result;
     }
 
     @Override
     public boolean isApplicable(Issue issue) {
-        if (issue != null && !issue.getStatus().isHistorical() && issue instanceof ServiceCallIssue){
+        if (super.isApplicable(issue) && issue instanceof ServiceCallIssue) {
             ServiceCallIssue scIssue = (ServiceCallIssue) issue;
-            if (FIRMWARE_CAMPAIGN_NAME.equals(scIssue.getServiceCall().getType().getName()) ||
-                    FIRMWARE_ITEM_NAME.equals(scIssue.getServiceCall().getType().getName())) {
-                return !scIssue.getStatus().isHistorical() && scIssue.getServiceCall() != null
-                        && scIssue.getServiceCall().getType().getRetryState().isPresent()
-                        && !scIssue.getServiceCall().getState().isOpen();
-            }
-            return false;
+            return !scIssue.getStatus().isHistorical() && scIssue.getServiceCall() != null
+                    && scIssue.getServiceCall().getType().getRetryState().isPresent()
+                    && !scIssue.getServiceCall().getState().isOpen();
         }
         return false;
     }
@@ -84,6 +69,6 @@ public class RetryServiceCallAction extends AbstractIssueAction {
 
     @Override
     public String getDisplayName() {
-        return getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_NOW).format();
+        return getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION).format();
     }
 }

@@ -52,13 +52,13 @@ public class ServiceCallCommands {
         private final String typeName;
         private final String typeVersion;
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-        private final Optional<String> reservedByApplication;
+        private final String reservedByApplication;
         private final EndDeviceControlTypeMapping endDeviceControlTypeMapping;
 
         ServiceCallTypeMapping(String typeName, String typeVersion, String reservedByApplication, EndDeviceControlTypeMapping endDeviceControlTypeMapping) {
             this.typeName = typeName;
             this.typeVersion = typeVersion;
-            this.reservedByApplication = Optional.ofNullable(reservedByApplication);
+            this.reservedByApplication = reservedByApplication;
             this.endDeviceControlTypeMapping = endDeviceControlTypeMapping;
         }
 
@@ -71,7 +71,7 @@ public class ServiceCallCommands {
         }
 
         public Optional<String> getApplication() {
-            return reservedByApplication;
+            return Optional.ofNullable(reservedByApplication);
         }
 
         public EndDeviceControlTypeMapping getEndDeviceControlTypeMapping() {

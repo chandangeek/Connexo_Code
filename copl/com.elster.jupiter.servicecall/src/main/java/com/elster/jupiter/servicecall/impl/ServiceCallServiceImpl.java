@@ -40,6 +40,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -284,6 +285,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         return DefaultFinder.of(ServiceCallType.class, dataModel)
                 .sorted(ServiceCallTypeImpl.Fields.name.fieldName(), true)
                 .sorted(ServiceCallTypeImpl.Fields.version.fieldName(), true);
+    }
+
+    @Override
+    public Optional<ServiceCallType> findServiceCallType(long id) {
+        return dataModel.stream(ServiceCallType.class).filter(Where.where("id").isEqualTo(id)).findFirst();
     }
 
     public List<ServiceCallType> getServiceCallTypes(String destination) {

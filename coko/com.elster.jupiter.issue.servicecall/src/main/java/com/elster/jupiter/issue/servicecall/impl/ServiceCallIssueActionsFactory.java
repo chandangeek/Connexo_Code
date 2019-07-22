@@ -115,7 +115,7 @@ public class ServiceCallIssueActionsFactory implements IssueActionFactory {
     @Reference
     public final void setThesaurus(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference

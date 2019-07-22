@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.issue.servicecall.impl.event;
 
-import com.elster.jupiter.issue.servicecall.MessageSeeds;
-import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
+import com.elster.jupiter.issue.servicecall.impl.MessageSeeds;
+import com.elster.jupiter.issue.servicecall.impl.entity.ServiceCallIssueImpl;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -54,8 +54,8 @@ public class ServiceCallStateChangedEvent implements IssueEvent {
 
     @Override
     public void apply(Issue issue) {
-        if (issue instanceof ServiceCallIssue) {
-            ServiceCallIssue issueServiceCall = (ServiceCallIssue) issue;
+        if (issue instanceof ServiceCallIssueImpl) {
+            ServiceCallIssueImpl issueServiceCall = (ServiceCallIssueImpl) issue;
             issueServiceCall.setNewState(newState);
             issueServiceCall.setServiceCall(serviceCall);
         }

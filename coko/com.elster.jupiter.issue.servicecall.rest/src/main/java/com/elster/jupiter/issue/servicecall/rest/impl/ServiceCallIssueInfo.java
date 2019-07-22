@@ -6,22 +6,12 @@ package com.elster.jupiter.issue.servicecall.rest.impl;
 
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
-import java.time.Instant;
-
-import java.util.List;
 
 
 public class ServiceCallIssueInfo<T extends DeviceInfo> extends IssueInfo<T, ServiceCallIssue> {
 
-    public IdWithNameInfo serviceCall;
-    public IdWithNameInfo parentServiceCall;
-    public IdWithNameInfo onState;
-    public Instant receivedTime;
-    public Instant lastModifyTime;
-    public IdWithNameInfo serviceCallType;
-    public List<JournalEntryInfo> journals;
+    public ServiceCallInfo serviceCallInfo;
 
     public ServiceCallIssueInfo(ServiceCallIssue issue, Class<T> deviceInfoClass) {
         super(issue, deviceInfoClass);

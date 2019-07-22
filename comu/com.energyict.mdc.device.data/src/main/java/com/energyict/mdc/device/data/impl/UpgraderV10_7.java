@@ -10,10 +10,12 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -22,17 +24,20 @@ public class UpgraderV10_7 implements Upgrader {
 
     private final DataModel dataModel;
     private final MessageService messageService;
+    private final ServiceCallService serviceCallService;
 
     @Inject
-    public UpgraderV10_7(DataModel dataModel, MessageService messageService) {
+    public UpgraderV10_7(DataModel dataModel, MessageService messageService, ServiceCallService serviceCallService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
         createMessageHandlerLP();
+        updateServiceCallTypes();
     }
 
     private void createMessageHandlerLP() {
@@ -42,13 +47,27 @@ public class UpgraderV10_7 implements Upgrader {
             DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(LoadProfileService.BULK_LOADPROFILE_QUEUE_DESTINATION, Installer.DEFAULT_RETRY_DELAY_IN_SECONDS);
             subscribeLP(queue);
         } else {
-            boolean notSubscribedYet = !destinationSpecOptional.get()
+            boolean notSubscribedYet = destinationSpecOptional.get()
                     .getSubscribers()
                     .stream()
-                    .anyMatch(spec -> spec.getName().equals(SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER.getKey()));
+                    .noneMatch(spec -> spec.getName().equals(SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER.getKey()));
             if (notSubscribedYet) {
                 subscribeLP(destinationSpecOptional.get());
             }
+        }
+    }
+
+    private void updateServiceCallTypes() {
+        for (ServiceCallCommands.ServiceCallTypeMapping type : ServiceCallCommands.ServiceCallTypeMapping.values()) {
+            type.getApplication().ifPresent(
+                    application ->
+                            serviceCallService
+                                    .findServiceCallType(type.getTypeName(), type.getTypeVersion()).ifPresent(
+                                    serviceCallType -> {
+                                        serviceCallType.setApplication(application);
+                                        serviceCallType.save();
+                                    }
+                            ));
         }
     }
 
