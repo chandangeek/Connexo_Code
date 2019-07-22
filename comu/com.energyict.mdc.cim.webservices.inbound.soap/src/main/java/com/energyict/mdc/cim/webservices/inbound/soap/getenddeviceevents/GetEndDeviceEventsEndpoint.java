@@ -154,7 +154,9 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun(GET_END_DEVICE_EVENTS);
-        header.setCorrelationID(correlationId);
+        if(correlationId != null) {
+            header.setCorrelationID(correlationId);
+        }
         responseMessage.setHeader(header);
 
         // set reply

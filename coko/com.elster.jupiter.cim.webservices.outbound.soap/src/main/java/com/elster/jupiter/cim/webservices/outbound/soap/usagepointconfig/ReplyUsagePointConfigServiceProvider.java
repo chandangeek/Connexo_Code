@@ -165,7 +165,9 @@ public class ReplyUsagePointConfigServiceProvider
         HeaderType header = headerTypeFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
-        header.setCorrelationID(correlationId);
+        if(correlationId != null) {
+            header.setCorrelationID(correlationId);
+        }
         usagePointConfigEventMessageType.setHeader(header);
 
         // set reply

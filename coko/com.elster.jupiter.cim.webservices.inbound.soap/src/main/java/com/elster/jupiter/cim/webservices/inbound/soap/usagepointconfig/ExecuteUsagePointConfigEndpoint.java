@@ -169,7 +169,9 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(verb);
         header.setNoun(NOUN);
-        header.setCorrelationID(correlationId);
+        if(correlationId != null) {
+            header.setCorrelationID(correlationId);
+        }
         usagePointConfigResponseMessageType.setHeader(header);
         usagePointConfigResponseMessageType.setReply(
                 bulkRequested ? replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
@@ -187,7 +189,9 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(verb);
         header.setNoun(NOUN);
-        header.setCorrelationID(correlationId);
+        if(correlationId != null) {
+            header.setCorrelationID(correlationId);
+        }
         usagePointConfigResponseMessageType.setHeader(header);
         usagePointConfigResponseMessageType.setReply(replyTypeFactory.okReplyType());
         return usagePointConfigResponseMessageType;

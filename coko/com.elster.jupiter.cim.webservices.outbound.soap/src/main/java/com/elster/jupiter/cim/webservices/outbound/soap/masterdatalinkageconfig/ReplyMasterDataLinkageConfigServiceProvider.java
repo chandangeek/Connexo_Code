@@ -158,7 +158,9 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		HeaderType header = headerTypeFactory.createHeaderType();
 		header.setNoun(NOUN);
 		header.setVerb(verb);
-		header.setCorrelationID(correlationId);
+		if(correlationId != null) {
+			header.setCorrelationID(correlationId);
+		}
 		response.setHeader(header);
 		ReplyType replyType = headerTypeFactory.createReplyType();
 		replyType.setResult(ReplyType.Result.OK);

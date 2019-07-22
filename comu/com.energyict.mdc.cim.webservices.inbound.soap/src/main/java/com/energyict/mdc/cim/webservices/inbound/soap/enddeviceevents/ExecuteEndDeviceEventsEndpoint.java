@@ -122,7 +122,9 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
-        header.setCorrelationID(correlationId);
+        if(correlationId != null) {
+            header.setCorrelationID(correlationId);
+        }
         responseMessage.setHeader(header);
 
         // set reply
