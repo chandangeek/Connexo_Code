@@ -4,8 +4,9 @@
 
 package com.energyict.mdc.firmware;
 
-import aQute.bnd.annotation.ProviderType;
-
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -14,16 +15,16 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
-public interface FirmwareCampaign extends HasId, HasName{
+public interface FirmwareCampaign extends HasId, HasName {
     void setName(String name);
-
-    FirmwareCampaignStatus getStatus();
 
     DeviceType getDeviceType();
 
@@ -37,39 +38,47 @@ public interface FirmwareCampaign extends HasId, HasName{
 
     void setManagementOption(ProtocolSupportedFirmwareOptions upgradeOption);
 
-    Instant getStartedOn();
-
-    void setStartedOn(Instant startedOn);
-
-    Instant getFinishedOn();
-
-    void setFinishedOn(Instant finishedOn);
-
-    List<DeviceInFirmwareCampaign> getDevices();
-
     Map<String, Object> getProperties();
 
     Optional<DeviceMessageSpec> getFirmwareMessageSpec();
 
-    FirmwareCampaign addProperty(String key, String value);
+    String getDeviceGroup();
 
-    void clearProperties();
+    Instant getUploadPeriodStart();
 
-    void save();
+    Instant getUploadPeriodEnd();
+
+    void setUploadPeriodStart(Instant start);
+
+    void setUploadPeriodEnd(Instant end);
+
+    Instant getActivationDate();
+
+    TimeDuration getValidationTimeout();
+
+    ServiceCall getServiceCall();
+
+    Map<DefaultState, Long> getNumbersOfChildrenWithStatuses();
+
+    void update();
+
+    void cancel();
 
     void delete();
 
-    Map<String, Long> getDevicesStatusMap();
-
     long getVersion();
+
+    FirmwareCampaign addProperties(Map<PropertySpec, Object> map);
+
+    void clearProperties();
 
     ComWindow getComWindow();
 
-    void setComWindow(ComWindow window);
+    boolean isWithVerification();
 
-    void decreaseCount();
+    Instant getStartedOn();
 
-    Optional<TimeDuration> getValidationTimeout();
+    Instant getFinishedOn();
 
-    void setValidationTimeout(TimeDuration validationTimeout);
+    List<DeviceInFirmwareCampaign> getDevices();
 }

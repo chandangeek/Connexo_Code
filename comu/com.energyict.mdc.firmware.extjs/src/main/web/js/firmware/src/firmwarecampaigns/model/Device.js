@@ -6,21 +6,21 @@ Ext.define('Fwc.firmwarecampaigns.model.Device', {
     extend: 'Ext.data.Model',
     fields: [
         'campaignId',
-        'deviceName',
+        'device',
         'status',
         {name: 'startedOn', type: 'date', dateFormat: 'time'},
         {name: 'finishedOn', type: 'date', dateFormat: 'time'}
     ],
     cancelUrlTpl: '/api/fwc/devices/{deviceId}/firmwares/{campaignId}/cancel',
     retryUrlTpl:  '/api/fwc/devices/{deviceId}/firmwares/{campaignId}/retry',
-    cancelUrl: function () {
-        return this.replaceIds(this.cancelUrlTpl);
+    cancelUrl: function (campaignId) {
+        return this.replaceIds(this.cancelUrlTpl, campaignId);
     },
-    retryUrl: function () {
-        return this.replaceIds(this.retryUrlTpl);
+    retryUrl: function (campaignId) {
+        return this.replaceIds(this.retryUrlTpl, campaignId);
     },
-    replaceIds: function(tpl){
-        var url = tpl.replace('{campaignId}', this.get('campaignId'));
-        return url.replace('{deviceId}', this.get('deviceName'));
+    replaceIds: function(tpl, campaignId){
+        var url = tpl.replace('{campaignId}', campaignId);
+        return url.replace('{deviceId}', this.get('device').name);
     }
 });

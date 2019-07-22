@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
+import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -358,7 +359,9 @@ public class UsagePointResource {
         }
 
         info.writeTo(usagePoint);
-        info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+        if (!info.techInfo.isEqual(usagePoint, clock)){
+            info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+        }
 
         UsagePointCustomPropertySetExtension extension = usagePoint.forCustomProperties();
         info.customPropertySets
@@ -452,7 +455,6 @@ public class UsagePointResource {
         }
 
         usagePoint.setLifeCycle(newLifeCycle);
-        usagePoint.update();
 
         State initialState = usagePoint.getLifeCycle().getStates()
                 .stream()
@@ -460,7 +462,7 @@ public class UsagePointResource {
                 .findFirst()
                 .get();
         usagePoint.setState(initialState, Instant.now());
-
+        usagePoint.update();
         return Response.ok(usagePointInfoFactory.from(usagePoint)).build();
     }
 
@@ -719,6 +721,39 @@ public class UsagePointResource {
         } catch (LocalizedException ex) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
         }
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Transactional
+    @Path("/{usagePointName}/meterroles/{key}/unlink/{timeStamp}")
+    public Response unlinkMeterRole(@PathParam("usagePointName") String usagePointName,
+                                    @PathParam("key") String key,
+                                    @PathParam("timeStamp") Long timeStamp) {
+
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
+        Instant unlinkDate = Instant.ofEpochMilli(timeStamp);
+
+        for(MeterActivation meterActivation: usagePoint.getMeterActivations()){
+            if(meterActivation.getMeterRole().get().getKey().equals(key) & meterActivation.getInterval().getEnd()==null ){//if the device is unlinked - it disappears from meterActivations
+                if(meterActivation.getInterval().getStart().isBefore(unlinkDate) ) {
+                    UsagePointMeterActivator linker = usagePoint.linkMeters();
+                    linker.clear(unlinkDate, resourceHelper.findMeterRoleOrThrowException(key));
+                    linker.complete();
+                }else{
+                    throw exceptionFactory.newException(MessageSeeds.CANNOT_UNLINK_BEFORE_LINK_DATE);
+                }
+            }else{
+                throw exceptionFactory.newException(
+                        MessageSeeds.METER_CANNOT_BE_UNLINKED,
+                        meterActivation.getMeter().get().getName(),
+                        usagePoint.getName(), resourceHelper.formatDate(unlinkDate)
+                );
+            }
+        }
+        return Response.ok().build();
     }
 
     @PUT

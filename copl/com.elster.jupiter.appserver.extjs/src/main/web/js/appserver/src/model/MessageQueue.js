@@ -49,6 +49,9 @@ Ext.define('Apr.model.MessageQueue', {
         },
         {
             name: 'tasks'
+        },
+        {
+            name: 'serviceCallTypes'
         }
     ],
     hasMany: {

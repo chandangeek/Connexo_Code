@@ -11,6 +11,8 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterFilter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
@@ -57,6 +59,9 @@ import java.util.stream.Collectors;
 
 @Path("/flowprocesses")
 public class ProcessResource {
+    
+    public final static String USAGE_POINT_VARIABLE_ID = "usagePointId";
+    
     private enum ProcessObjectType {
         DEVICE("device", "deviceId"),
         ALARM("devicealarm", "alarmId"),
@@ -188,6 +193,16 @@ public class ProcessResource {
                     System.out.println("There is no corresponding issue in database");
                 }
             }
+            
+            if (processGeneralInfos.getVariableId(i).equals(USAGE_POINT_VARIABLE_ID)) {
+                final String usagePointMRID = processGeneralInfos.getValue(i);
+                Optional<UsagePoint> usagePoint = meteringService.findUsagePointByMRID(usagePointMRID);
+                if (usagePoint.isPresent()) {
+                    processGeneralInfos.setObjectName(i, usagePoint.get().getName());
+                } else {
+                    System.out.println("There is no corresponding usagePoint in database");
+                }
+            }
         }
         return processGeneralInfos;
     }
@@ -247,6 +262,24 @@ public class ProcessResource {
         filter.setName(dbSearchText);
         List<Meter> listMeters = meteringService.findMeters(filter).paged(params.getStart(), params.getLimit()).find();
         return Response.ok().entity(listMeters.stream().map(alm -> new DeviceObjectInfo(alm.getId(), alm.getName(), alm.getMRID())).collect(Collectors.toList())).build();
+    }
+    
+    @GET
+    @Path("/usagepointobjects")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM })
+    public Response getUsagePointObjects(@BeanParam StandardParametersBean params) {
+        String searchText = params.getFirst("like");
+        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
+        UsagePointFilter filter = new UsagePointFilter();
+        filter.setName(dbSearchText);
+        Finder<UsagePoint> finder = meteringService.getUsagePoints(filter);
+        List<UsagePoint> listUsagePoints = finder.find();
+        return Response.ok()
+                .entity(listUsagePoints.stream()
+                        .map(alm -> new DeviceObjectInfo(alm.getId(), alm.getName(), alm.getMRID()))
+                        .collect(Collectors.toList()))
+                .build();
     }
 
     @GET

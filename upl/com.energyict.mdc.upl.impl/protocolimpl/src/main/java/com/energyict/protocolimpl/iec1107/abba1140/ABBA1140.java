@@ -297,9 +297,13 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
             }
         }
 
-        pEchoCancelling = p.getTypedProperty(PK_ECHO_CANCELING);
+        if (p.getTypedProperty(PK_ECHO_CANCELING) != null) {
+            pEchoCancelling = p.getTypedProperty(PK_ECHO_CANCELING);
+        }
 
-        pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
+        if (p.getTypedProperty(PK_IEC1107_COMPATIBLE) != null) {
+            pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
+        }
 
         this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
 

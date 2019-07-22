@@ -127,6 +127,10 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_CUSTIMATTRIBUTE_HEADER(554, "InvalidCustomAttributeFileHeader", "File should contain at least 3 columns separated by ''{0}''. Please check the delimiter.", Level.WARNING),
     NO_ENDTIME_SPECIFIED(555, "NoEndtimeSpecified", "Can''t process line {0}: end time is not specified for new version of custom attribute set {1} on device {2}", Level.WARNING),
     NO_STARTTIME_SPECIFIED(556, "NoStarttimeSpecified", "Can''t process line {0}: start time is not specified for new version of custom attribute set {1} on device {2}", Level.WARNING),
+    IMPORT_FAILED_FOR_DEVICE_KEY(557, "ImportFailedForDeviceKey", "Failed to import device with name ''{0}'', id '{1}'. Failed at key name '{2}'", Level.SEVERE),
+    IMPORT_FAILED_NO_TRANSPORT_KEYS_DEFINED(558, "ImportFailedNoTransportKeysDefined", "Invalid file, no transport keys defined", Level.SEVERE),
+    UNKNOWN_WRAPPER_KEY(559, "UnknownWrapperKey", "Could not find wrapper key define in file with name: {0}", Level.SEVERE),
+    INVALID_WRAPPER_KEY(560, "InvalidWrapperKey", "Could not find wrapper key bytes define in file with name: {0}", Level.SEVERE),
 
     ATTRIBUTE_INVALID_VALUE(601, "AttributeInvalidValue", "Can''t process line {0}: Value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
     NO_DEVICE_PROTOCOL_DIALECT_ON_DEVICE(602, "NoSuchProtocolDialectOnDevice", "Can''t process line {0}: Protocol dialect ''{1}'' is not supported on the device.", Level.WARNING),

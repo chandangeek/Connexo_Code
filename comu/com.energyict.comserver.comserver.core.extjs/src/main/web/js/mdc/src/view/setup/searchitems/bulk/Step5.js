@@ -39,7 +39,24 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5', {
         this.add(widget);
         Ext.resumeLayouts(true);
     },
-
+    showIssueCreatedSuccess: function (text) {
+        var widget = {
+            xtype: 'uni-notification-panel',
+            margin: '0 0 0 -13',
+            message: '',
+            type: 'success',
+            additionalItems: [
+                {
+                    xtype: 'container',
+                    html: text
+                }
+            ]
+        };
+        Ext.suspendLayouts();
+        this.removeAll();
+        this.add(widget);
+        Ext.resumeLayouts(true);
+    },
 
 
 

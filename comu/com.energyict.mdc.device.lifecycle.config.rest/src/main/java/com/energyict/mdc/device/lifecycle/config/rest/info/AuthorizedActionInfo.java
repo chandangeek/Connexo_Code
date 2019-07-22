@@ -10,6 +10,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -25,7 +26,9 @@ public class AuthorizedActionInfo {
     public DeviceLifeCycleStateInfo toState;
     public List<DeviceLifeCyclePrivilegeInfo> privileges;
     public StateTransitionEventTypeInfo triggeredBy;
+    @JsonProperty("microActions")
     public Set<MicroActionAndCheckInfo> microActions;
+    @JsonProperty("microChecks")
     public Set<MicroActionAndCheckInfo> microChecks;
     public long version;
     public VersionInfo<Long> parent;

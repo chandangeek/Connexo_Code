@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>servicecall.rest</artifactId>
@@ -89,6 +89,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.whiteboard</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
         </dependency>
 
         <!-- Testing -->

@@ -96,6 +96,11 @@ class TransientQueueTableSpec implements QueueTableSpec {
     }
 
     @Override
+    public boolean isPrioritized() {
+        return false;
+    }
+
+    @Override
     public boolean isActive() {
         return active;
     }
@@ -107,7 +112,7 @@ class TransientQueueTableSpec implements QueueTableSpec {
     }
 
     @Override
-    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
+    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized) {
         return createDestinationSpec(name, retryDelay, false, isDefault, queueTypeName, isExtraQueueCreationEnabled);
     }
 
