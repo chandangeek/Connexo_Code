@@ -67,6 +67,16 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
             });
         }
 
+        if (Isu.privileges.Issue.canCreateManualIssue()) {
+            me.items.push({
+                itemId: 'device-issue-link',
+                privileges: Isu.privileges.Issue.createManualIssue,
+                text: Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue'),
+                href: '#/devices/' + encodeURIComponent(me.deviceName) + '/newissuemanually',
+                section: me.SECTION_ACTION
+            });
+        }
+
         me.callParent(arguments);
     }
 });

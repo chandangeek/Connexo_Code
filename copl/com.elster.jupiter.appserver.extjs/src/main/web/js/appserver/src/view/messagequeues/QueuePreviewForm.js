@@ -6,9 +6,7 @@ Ext.define('Apr.view.messagequeues.QueuePreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.queue-preview-form',
     router: null,
-    layout: {
-        type: 'vbox'
-    },
+    layout: 'fit',
     defaults: {
         xtype: 'displayfield',
         labelWidth: 250,
@@ -18,62 +16,31 @@ Ext.define('Apr.view.messagequeues.QueuePreviewForm', {
         {
             xtype: 'form',
             itemId: 'queue-message-preview-form',
-            defaults: {
-                xtype: 'container',
-                layout: 'form'
+            layout: {
+                type: 'column',
+                align: 'stretch'
             },
             items: [
                 {
                     xtype: 'container',
+                    columnWidth: 0.5,
                     layout: {
-                        type: 'column',
+                        type: 'vbox',
                         align: 'stretch'
+                    },
+                    defaults: {
+                        labelWidth: 150
                     },
                     items: [
                         {
-                            xtype: 'container',
-                            columnWidth: 0.5,
-                            layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            },
-                            defaults: {
-                                labelWidth: 150
-                            },
-                            items: [
-
-                                {
-                                    xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('general.name', 'APR', 'Name'),
-                                    name: 'name',
-                                    itemId: 'queue-preview-name'
-                                },
-                                {
-                                    xtype: 'container',
-                                    itemId: 'queue-properties1',
-                                    layout: {
-                                        type: 'vbox',
-                                        align: 'stretch'
-                                    },
-                                    defaults: {
-                                        labelWidth: 150
-                                    },
-                                    items: [
-                                        {
-                                            xtype: 'displayfield',
-                                            fieldLabel: Uni.I18n.translate('general.type', 'APR', 'Type'),
-                                            name: 'queueTypeName',
-                                            itemId: 'queue-type'
-
-                                        }
-                                    ]
-                                }
-                            ]
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('general.name', 'APR', 'Name'),
+                            name: 'name',
+                            itemId: 'queue-preview-name'
                         },
                         {
                             xtype: 'container',
-                            columnWidth: 0.5,
-                            itemId: 'queue-properties2',
+                            itemId: 'queue-properties1',
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
@@ -84,12 +51,39 @@ Ext.define('Apr.view.messagequeues.QueuePreviewForm', {
                             items: [
                                 {
                                     xtype: 'displayfield',
-                                    htmlEncode: false,
-                                    fieldLabel: Uni.I18n.translate('general.tasks', 'APR', 'Tasks'),
-                                    name: 'queueTasks',
-                                    itemId: 'queue-tasks'
+                                    fieldLabel: Uni.I18n.translate('general.type', 'APR', 'Type'),
+                                    name: 'queueTypeName',
+                                    itemId: 'queue-type'
                                 }
                             ]
+                        }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    columnWidth: 0.5,
+                    itemId: 'queue-properties2',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
+                    defaults: {
+                        labelWidth: 150
+                    },
+                    items: [
+                        {
+                            xtype: 'displayfield',
+                            htmlEncode: false,
+                            fieldLabel: Uni.I18n.translate('general.tasks', 'APR', 'Tasks'),
+                            name: 'queueTasks',
+                            itemId: 'queue-tasks'
+                        },
+                        {
+                            xtype: 'displayfield',
+                            htmlEncode: false,
+                            fieldLabel: Uni.I18n.translate('general.serviceCallTypes', 'APR', 'Service call types'),
+                            name: 'serviceCallTypes',
+                            itemId: 'service-call-types'
                         }
                     ]
                 }

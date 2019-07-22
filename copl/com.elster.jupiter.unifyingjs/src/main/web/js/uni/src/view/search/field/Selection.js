@@ -119,6 +119,7 @@ Ext.define('Uni.view.search.field.Selection', {
 
     initComponent: function () {
         var me = this,
+            devicePrivilege = false,
             selection = me.selection = Ext.create('Ext.util.MixedCollection', {
                 listeners: {
                     add: {
@@ -140,9 +141,12 @@ Ext.define('Uni.view.search.field.Selection', {
                     root: 'data'
                 }]
             });
-
+        if(me.text === "Device type"){
+            devicePrivilege =  !(Uni.Auth.hasPrivilege('privilege.view.device') && Uni.Auth.hasPrivilege('privilege.administrate.deviceData'));
+        }
         me.items = {
             xtype: 'grid',
+            disabled: devicePrivilege,
             itemId: 'grid-selection',
             layout: 'fit',
             columns: {

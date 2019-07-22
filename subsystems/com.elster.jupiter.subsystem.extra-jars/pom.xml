@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>extra-jars</artifactId>
@@ -120,6 +120,12 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.demo.customtask</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- COMU -->
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.webservices.demo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- COIN -->

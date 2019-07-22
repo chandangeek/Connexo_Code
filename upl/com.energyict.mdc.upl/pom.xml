@@ -8,12 +8,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>upl</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
     <artifactId>mdc.upl</artifactId>
-    <version>0.0.1-Heracles-SNAPSHOT</version>
+    <version>1.0.1-Heracles-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] com.energyict.mdc.upl</name>
     <description>
@@ -31,7 +31,7 @@
              will be set to false by the release profile for releases -->
         <include.source>true</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jackson.version>2.3.2</jackson.version>
+        <jackson.version>2.9.9</jackson.version>
         <guava.version>26.0</guava.version>
         <assertj.version>3.3.0</assertj.version>
         <javax-servlet-api.version>2.5</javax-servlet-api.version>

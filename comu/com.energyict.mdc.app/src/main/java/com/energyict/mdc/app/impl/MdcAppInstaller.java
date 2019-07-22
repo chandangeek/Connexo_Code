@@ -85,7 +85,13 @@ public class MdcAppInstaller {
                 InstallIdentifier.identifier("MultiSense", "MDA"),
                 dataModel,
                 Installer.class,
-                ImmutableMap.copyOf(upgraders)
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 2), UpgraderV10_2.class)
+                        .put(version(10, 3), UpgraderV10_3.class)
+                        .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 4, 1),UpgraderV10_4_1.class)
+                        .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 7), UpgraderV10_7.class).build()
         );
     }
 
@@ -216,6 +222,7 @@ public class MdcAppInstaller {
                     com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                     com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+                    com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE,
 
                     //Alarms
                     com.energyict.mdc.device.alarms.security.Privileges.Constants.ACTION_ALARM,

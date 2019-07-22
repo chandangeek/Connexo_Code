@@ -1,5 +1,7 @@
 package com.elster.jupiter.messaging.rest.impl;
 
+import com.elster.jupiter.orm.ReservedWord;
+
 class DestinationSpecBean {
 
     private static String CHARACTERS_ONLY = "[a-zA-Z]+";
@@ -26,6 +28,10 @@ class DestinationSpecBean {
 
     boolean isWrongQueueTypeNameDefined() {
         return queueTypeName == null || queueTypeName.trim().isEmpty() || !queueTypeName.matches(CHARACTERS_ONLY);
+    }
+
+    boolean isReserved() {
+        return ReservedWord.isReserved(name);
     }
 
 }

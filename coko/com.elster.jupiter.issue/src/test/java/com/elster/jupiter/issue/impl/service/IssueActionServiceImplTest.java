@@ -94,8 +94,8 @@ public class IssueActionServiceImplTest extends BaseTest {
             long id = actionType.getId();
             actionType = getIssueActionService().createActionType("factoryId1", "classname1", issueTypeRef.get());
             assertThat(actionType.getId()).isEqualTo(id);
-            // 2 default action type + 1 factoryId1 (classname1)
-            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(3);
+            // 3 default action type + 1 factoryId1 (classname1)
+            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(4);
         }
         try (TransactionContext context = getContext()) {
             Optional<IssueReason> reasonRef = getIssueService().findReason(ISSUE_DEFAULT_REASON);
@@ -103,8 +103,8 @@ public class IssueActionServiceImplTest extends BaseTest {
             long id = actionType.getId();
             actionType = getIssueActionService().createActionType("factoryId1", "classname1", reasonRef.get());
             assertThat(actionType.getId()).isEqualTo(id);
-            // 2 default action type + 1 factoryId1 (classname1)
-            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(3);
+            // 3 default action type + 1 factoryId1 (classname1)
+            assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(4);
         }
     }
 

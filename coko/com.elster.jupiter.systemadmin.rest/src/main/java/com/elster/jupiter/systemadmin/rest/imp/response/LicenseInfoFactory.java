@@ -40,11 +40,11 @@ public class LicenseInfoFactory {
         info.validfrom = license.getActivation();
         info.graceperiod = license.getGracePeriodInDays();
         info.content = license.getLicensedValues().entrySet().stream()
-                .map(property -> new AbstractMap.SimpleEntry<>(
+                .map(property -> new LicenseProperty(
                         thesaurus.getString(property.getKey().toString(), property.getKey().toString()),
-                        property.getValue()
+                        property.getValue().toString()
                 ))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         return info;
     }
 
