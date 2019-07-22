@@ -35,8 +35,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
