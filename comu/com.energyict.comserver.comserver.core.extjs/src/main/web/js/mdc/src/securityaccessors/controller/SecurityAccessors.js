@@ -274,7 +274,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             success: function (deviceType) {
                 me.deviceType = deviceType;
 
-                wrappers.getProxy().setUrl(deviceTypeId);
+                wrappers.getProxy().setUrl(deviceTypeId, securityAccessorId);
                 wrappers.load();
 
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -297,11 +297,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                     noCommand = keyRenewalForm.down('#key-renewal-no-command');
 
                                     keyWrapperForm = me.getKeyWrapperForm(),
-                                    wrapperCombo = keyWrapperForm.down('#key-wrapper-combo'),
-                                    noWrapperAvailable = keyWrapperForm.down('#key-wrapper-no-wrapper-available');
+                                    wrapperCombo = keyWrapperForm.down('#key-wrapper-combo');
 
-                                wrappers.count() == 0 && noWrapperAvailable.setVisible(true) && wrapperCombo.setVisible(false);
-                                wrappers.count() != 0 && noWrapperAvailable.setVisible(false) && wrapperCombo.setVisible(true);
+                                wrapperCombo.setVisible(true);
 
                                 records.length == 0 && commandCombo.setVisible(false) && noCommand.setVisible(true);
                                 records.length != 0 && commandCombo.setVisible(true) && noCommand.setVisible(false);

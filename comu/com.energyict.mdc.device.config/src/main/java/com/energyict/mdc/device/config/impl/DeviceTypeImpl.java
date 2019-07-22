@@ -385,7 +385,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .filter(f -> f.getId() == securityAccessorType.getSecurityAccessor().getId())
                 .count();
         if (inUseAsWrapper > 0) {
-
+            throw new SecurityAccessorTypeWrapperInUseException(getThesaurus());
         }
 
         SecurityAccessorTypeOnDeviceType toBeRemoved = null;
@@ -397,6 +397,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
 
         if (toBeRemoved != null) {
+            validateSecurityAccessorTypeRemoval(toBeRemoved);
             securityAccessorTypes.remove(toBeRemoved);
         }
 

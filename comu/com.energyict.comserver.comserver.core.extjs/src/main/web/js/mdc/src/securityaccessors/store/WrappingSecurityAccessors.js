@@ -11,14 +11,14 @@ Ext.define('Mdc.securityaccessors.store.WrappingSecurityAccessors', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors/wrapping',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/securityaccessors/{securityAccessorId}/wrappers',
         reader: {
             type: 'json',
             root: 'securityaccessors'
         },
 
-        setUrl: function(deviceTypeId) {
-            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
+        setUrl: function(deviceTypeId, securityAccessorId) {
+            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId).replace('{securityAccessorId}', securityAccessorId);
         }
     },
 

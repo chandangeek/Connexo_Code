@@ -155,16 +155,6 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                                 queryMode: 'local',
                                 labelWidth: 200,
                                 width: 550
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'key-wrapper-no-wrapper-available',
-                                fieldLabel: Uni.I18n.translate('key.wrapper.label', 'MDC', 'Wrapped by key'),
-                                value: Uni.I18n.translate('key.wrapper.message.unavailable', 'MDC', 'No wrappers are available'),
-                                fieldStyle: {
-                                    color: '#EB5642'
-                                },
-                                hidden: true
                             }
                         ]
                     },

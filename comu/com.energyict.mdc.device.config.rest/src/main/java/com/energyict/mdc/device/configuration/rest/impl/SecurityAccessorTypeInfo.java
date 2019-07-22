@@ -45,5 +45,10 @@ public class SecurityAccessorTypeInfo {
     public List<PropertyInfo> properties;
     public boolean isWrapper;
 
-
+    public static SecurityAccessorTypeInfo getNotAvailable(String name) {
+        SecurityAccessorTypeInfo securityAccessorTypeInfo = new SecurityAccessorTypeInfo();
+        securityAccessorTypeInfo.id = -1;
+        securityAccessorTypeInfo.name = name;
+        return securityAccessorTypeInfo;
+    }
 }

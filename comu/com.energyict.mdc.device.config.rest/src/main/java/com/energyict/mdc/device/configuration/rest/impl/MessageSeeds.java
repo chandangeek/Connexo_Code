@@ -68,7 +68,8 @@ public enum MessageSeeds implements MessageSeed {
     SECACCESSOR_ISWRAPPER_INUSE(233,Keys.SEC_ACCESSOR_WRAPPER_IN_USE , "Security accessor is declared as wrapper by another key"),
     NO_SUCH_CUSTOMPROPERTYSET(234, "noSuchCPS", "No custom property set with id {0}."),
     DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(235, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''"),
-    ;
+    SECACC_WRAPPER_IN_USE(236,Keys.SEC_ACCESSOR_WRAPPER_IN_USE , "Security accessor is declared as wrapper by another key"),
+    SECACC_WRAPPER_NOT_SET(237,Keys.SEC_ACCESSOR_NOT_SET , "< None >");
 
     private final int number;
     private final String key;
@@ -122,5 +123,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String MULTI_ELEMENT_SLAVE_AT_LEAST_ONE_DATASOURCE = "multi.element.submeter.at.least.one.datasource";
         public static final String MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "multi.element.enablements.at.least.one.datasource";
         public static final String SEC_ACCESSOR_WRAPPER_IN_USE = "security.accessor.wrapper.in.use";
+        public static final String SEC_ACCESSOR_NOT_SET = "security.accessor.wrapper.not.set";
     }
 }

@@ -185,7 +185,8 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_TYPE_IS_NOT_FOUND(15031, "securityAccessorTypeIsNotFound", "The security accessor type ''{0}'' is not found"),
     SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(15032, "securityAccessorTypeIsNotHSM", "The security accessor type ''{0}'' is not HSM"),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(15033, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),
-    SECURITY_ACCESSOR_ERROR(15034, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),;
+    SECURITY_ACCESSOR_WRAPPER_IN_USE(15034, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "Security accessor is defined as wrapper for another security accessor"),
+    SECURITY_ACCESSOR_ERROR(15035, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),;
 
     private final int number;
     private final String key;
@@ -319,6 +320,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_MESSAGE_IS_REQUIRED = "deviceMessage.required.deviceMessageAttribute";
         public static final String DEVICE_MESSAGE_ID_NOT_SUPPORTED= "deviceMessageId.deviceMessage.device.notSupported";
         public static final String SECURITY_ACCESSOR_TYPE_NOT_FOUND = "security.accessor.type.not.found";
+        public static final String SECURITY_ACCESSOR_WRAPPER_IN_USE = "security.accessor.type.in.use";
 
     }
 }
