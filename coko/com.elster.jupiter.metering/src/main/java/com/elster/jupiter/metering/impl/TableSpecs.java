@@ -1743,6 +1743,7 @@ public enum TableSpecs {
             table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 7));
             table.addModTimeColumn("MODTIME", "modTime").since(version(10, 7));
             table.addUserNameColumn("USERNAME", "userName").since(version(10, 7));
+            table.setJournalTableName("MTR_EFFECTIVE_CONTRACT_JRNL").since(version(10, 7));
             table.primaryKey("PK_MTR_EFFECTIVE_CONTRACT").on(idColumn).add();
             table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
                     .on(effectiveConfColumn)
@@ -1759,6 +1760,7 @@ public enum TableSpecs {
             table.audit("")
                     .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
                     .domainReferences("MTR_EF_CONTRACT_2_EF_CONF", "FK_MTR_UPMTRCONFIG_UP")
+                    .contextReferenceColumn(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name())
                     .build();
         }
     },

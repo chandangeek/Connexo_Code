@@ -24,11 +24,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
 
@@ -90,16 +93,31 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
 
     private List<AuditLogChange> auditPurpose(UsagePoint usagePoint) {
         List<AuditLogChange> auditLogChanges = new ArrayList<>();
-
         DataMapper<EffectiveMetrologyContractOnUsagePoint> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(EffectiveMetrologyContractOnUsagePoint.class);
 
-        usagePoint.getEffectiveMetrologyConfiguration(getAuditTrailReference().getModTimeStart())
+        Optional<EffectiveMetrologyContractOnUsagePoint> metrologyContract = getPurposeChangedObjects(dataMapper)
+                .stream()
+                .filter(distinctByKey(p -> ((EffectiveMetrologyContractOnUsagePoint)p).getVersion()))
+                .map(p-> (EffectiveMetrologyContractOnUsagePoint)p)
+                .sorted(Comparator.comparing(EffectiveMetrologyContractOnUsagePoint::getVersion))
+                .reduce((first, second) -> second);
+
+        metrologyContract.ifPresent(
+                mc -> {
+                    getAuditLogChange(Optional.of(mc.getMetrologyContract().getMetrologyPurpose().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGY_PURPOSE_NAME, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                    if(mc.getRange().hasUpperBound()) {
+                        getAuditLogChange(Optional.of(mc.getRange().upperEndpoint()), PropertyTranslationKeys.USAGEPOINT_METROLOGY_PURPOSE_END_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
+                    }
+                    if (!mc.getRange().hasUpperBound() && mc.getRange().hasLowerBound()){
+                        getAuditLogChange(Optional.of(mc.getRange().lowerEndpoint()), PropertyTranslationKeys.USAGEPOINT_METROLOGY_PURPOSE_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
+                    }
+                }
+        );
+        /*usagePoint.getEffectiveMetrologyConfiguration(getAuditTrailReference().getModTimeStart())
                 .ifPresent(effectiveMetrologyConfigurationOnUsagePoint -> {
-                    List<EffectiveMetrologyContractOnUsagePoint> actualEntriesByModTime = getActualEntries(dataMapper, ImmutableMap.of("metrologyConfiguration", effectiveMetrologyConfigurationOnUsagePoint));
-                    List<EffectiveMetrologyContractOnUsagePoint> actualEntriesByCreateTime = getActualEntriesByCreateTime(dataMapper, ImmutableMap.of("metrologyConfiguration", effectiveMetrologyConfigurationOnUsagePoint));
-                    List<EffectiveMetrologyContractOnUsagePoint> actualEntries = new ArrayList<>();
-                    actualEntries.addAll(actualEntriesByModTime);
-                    actualEntries.addAll(actualEntriesByCreateTime);
+                    List<EffectiveMetrologyContractOnUsagePoint> actualEntries = getActualEntries(dataMapper, ImmutableMap.of("metrologyConfiguration", effectiveMetrologyConfigurationOnUsagePoint));
+                    actualEntries.addAll(getActualEntriesByCreateTime(dataMapper, ImmutableMap.of("metrologyConfiguration", effectiveMetrologyConfigurationOnUsagePoint)));
+
                     if (actualEntries.size()>0){
                         EffectiveMetrologyContractOnUsagePoint metrologyContract = actualEntries.get(0);
                         getAuditLogChange(Optional.of(metrologyContract.getMetrologyContract().getMetrologyPurpose().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGY_PURPOSE_NAME, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
@@ -110,18 +128,7 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
                             getAuditLogChange(Optional.of(metrologyContract.getRange().lowerEndpoint()), PropertyTranslationKeys.USAGEPOINT_METROLOGY_PURPOSE_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                         }
                     }
-                });
-        //getActualEntries(dataMapper, ImmutableMap.of("metrologyConfiguration", usagePoint.getEffectiveMetrologyConfiguration(getAuditTrailReference().getModTimeStart()).get()));
-        //List<EffectiveMetrologyContractOnUsagePoint> actualEntries = getActualEntries(dataMapper, ImmutableMap.of("metrologyConfiguratin.USAGEPOINT", usagePoint.getId()));
-
-        /*Optional<EffectiveMetrologyContractOnUsagePoint> changes = getChangedObjects(dataMapper, usagePoint.getId())
-                .stream()
-                .filter(distinctByKey(p -> ((EffectiveMetrologyContractOnUsagePoint)p).getVersion()))
-                .map(p-> (EffectiveMetrologyContractOnUsagePoint)p)
-                .sorted(Comparator.comparing(EffectiveMetrologyContractOnUsagePoint::getVersion))
-                .reduce((first, second) -> second);
-        */
-
+                });*/
         return auditLogChanges;
     }
 
@@ -147,6 +154,28 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
             return getAuditLogChangeForOptional(to, translationKey, simplePropertyType);
         }
         return getAuditLogChangeForOptional(to, Optional.empty(), translationKey, simplePropertyType);
+    }
+
+    private <T> List<T> getPurposeChangedObjects(DataMapper dataMapper)
+    {
+        long id = getAuditTrailReference().getPkContext1();
+        Map<String, Object> actualClause = ImmutableMap.of("EFFECTIVE_CONF", id);
+
+        ImmutableSetMultimap<Operator, Pair<String, Object>> modTimeClauses = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("EFFECTIVE_CONF", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
+                Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
+
+        ImmutableSetMultimap<Operator, Pair<String, Object>> historyByJournalClauses = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("EFFECTIVE_CONF", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
+                Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
+
+        List<T> actualEntries = getActualEntries(dataMapper, actualClause);
+        List<T> historyByModTimeEntries = getHistoryEntries(dataMapper, modTimeClauses);
+        List<T> historyByJournalTimeEntries = getHistoryEntries(dataMapper, historyByJournalClauses);
+
+        return Stream.of(actualEntries, historyByModTimeEntries, historyByJournalTimeEntries)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
 
