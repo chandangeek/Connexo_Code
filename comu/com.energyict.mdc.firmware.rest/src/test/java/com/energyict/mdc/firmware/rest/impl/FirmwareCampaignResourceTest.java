@@ -148,8 +148,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<Number>get("$.timeBoundaryEnd")).isEqualTo(((Number) firmwareCampaign.getUploadPeriodEnd().toEpochMilli()).intValue());
         assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number) firmwareCampaign.getDeviceType().getId()).intValue());
         assertThat(jsonModel.<String>get("$.deviceType.localizedValue")).isEqualTo(firmwareCampaign.getDeviceType().getName());
-        assertThat(jsonModel.<Number>get("$.validationComTask.id")).isEqualTo(((Number)firmwareCampaign.getValidationComTaskId()).longValue());
-        assertThat(jsonModel.<Number>get("$.calendarUploadComTask.id")).isEqualTo(((Number)firmwareCampaign.getFirmwareUploadComTaskId()).longValue());
+        assertThat(jsonModel.<Number>get("$.validationComTask.id")).isEqualTo(((Number)firmwareCampaign.getValidationComTaskId()).intValue());
+        assertThat(jsonModel.<Number>get("$.calendarUploadComTask.id")).isEqualTo(((Number)firmwareCampaign.getFirmwareUploadComTaskId()).intValue());
     }
 
     @Test
@@ -233,9 +233,9 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getFirmwareVersion()).thenReturn(firmwareVersion);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
         when(firmwareCampaign.getFirmwareUploadComTaskId()).thenReturn(1L);
-        when(firmwareCampaign.getFirmwareUploadConnectionStrategy().get()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(firmwareCampaign.getFirmwareUploadConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.AS_SOON_AS_POSSIBLE));
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
-        when(firmwareCampaign.getValidationConnectionStrategy().get()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.MINIMIZE_CONNECTIONS));
         when(comtask.getName()).thenReturn("comTaskName");
         when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         return firmwareCampaign;

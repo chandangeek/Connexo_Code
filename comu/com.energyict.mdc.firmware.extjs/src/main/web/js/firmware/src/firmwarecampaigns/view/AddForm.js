@@ -196,7 +196,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 fieldLabel: Uni.I18n.translate(
                     'general.calendarUploadComTask',
                     'FWC',
-                    'Send calendar communication task'
+                    'Firmware upload communication task'
                 ),
                 required: true,
                 allowBlank: false,

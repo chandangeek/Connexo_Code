@@ -62,17 +62,6 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     }
 
     @Test
-    public void sfer() {
-        String vb = null;
-        Optional<String> a = Optional.of(vb.toString());
-
-        if(a.isPresent()){
-            a.get();
-            System.out.println("2");
-        }
-    }
-
-    @Test
     public void testUpdateScheduleFutureStartDate() throws Exception {
         ComSchedule mockedSchedule = mock(ComSchedule.class);
         when(mockedSchedule.getId()).thenReturn(COM_TASK_ID);

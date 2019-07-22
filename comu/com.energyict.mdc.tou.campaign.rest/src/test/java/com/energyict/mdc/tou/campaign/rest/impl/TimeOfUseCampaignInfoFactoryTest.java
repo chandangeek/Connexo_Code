@@ -21,6 +21,7 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -128,8 +129,8 @@ public class TimeOfUseCampaignInfoFactoryTest {
         when(timeOfUseCampaign.getValidationTimeout()).thenReturn(120L);
         when(timeOfUseCampaign.getCalendarUploadComTaskId()).thenReturn(1L);
         when(timeOfUseCampaign.getValidationComTaskId()).thenReturn(1L);
-        when(timeOfUseCampaign.getCalendarUploadConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
-        when(timeOfUseCampaign.getValidationConnectionStrategy().get()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
+        when(timeOfUseCampaign.getCalendarUploadConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.AS_SOON_AS_POSSIBLE));
+        when(timeOfUseCampaign.getValidationConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.MINIMIZE_CONNECTIONS));
         ComTask comtask = mock(ComTask.class);
         when(timeOfUseCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
         when(timeOfUseCampaignService.getComTaskById(anyLong()).getName()).thenReturn("ctask");

@@ -216,7 +216,7 @@ public class ToUCampaignServiceIT {
         assertThat(timeOfUseCampaign1.getValidationTimeout()).isEqualTo(timeValidation);
         assertThat(timeOfUseCampaign1.getCalendarUploadComTaskId()).isEqualTo(1L);
         assertThat(timeOfUseCampaign1.getValidationComTaskId()).isEqualTo(1L);
-        assertThat(timeOfUseCampaign1.getCalendarUploadConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        assertThat(timeOfUseCampaign1.getCalendarUploadConnectionStrategy().get()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         assertThat(timeOfUseCampaign1.getValidationConnectionStrategy().get()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
     }
 

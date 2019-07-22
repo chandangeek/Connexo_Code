@@ -66,9 +66,9 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_UPLOAD_CURRENTLY_ONGOING(4011, "FirmwareUploadOfFirmwareIsCurrentlyOngoing", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Firmware upload of firmware is currently ongoing.", Level.WARNING),
     PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE(4012, "ProtocolOfTheDeviceTypeDoesNotSupportUploadingFirmware", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The protocol of the device type ''{1}'' doesn''t support uploading firmware.", Level.WARNING),
     CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY(4013, "ConnectionWindowOutsideOfCampaignTimeBoundary", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Connection window start of the connection method used by the firmware management communication task of the device is outside of the time boundary of the campaign.", Level.WARNING),
-    TASK_FOR_VALIDATION_IS_MISSING(4014, "TaskForValidationIsMissing", "Communication task ''{0}'' required for validation is missing on the device configuration, doesn't meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
-    TASK_FOR_SENDING_FIRMWARE_IS_MISSING(4015,"TaskForSendingFirmwareIsMissing", "Communication task ''{0}'' for sending firmware is missing on the device configuration, doesn't meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
-    CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(4016, "ConnectionMethodDoesntMeetTheRequirement","The connection method ''{0}'' set on ''{1}'' doesn't match the one required on the firmware campaign" ,Level.WARNING)
+    TASK_FOR_VALIDATION_IS_MISSING(4014, "TaskForValidationIsMissing", "Communication task ''{0}'' required for validation is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
+    TASK_FOR_SENDING_FIRMWARE_IS_MISSING(4015,"TaskForSendingFirmwareIsMissing", "Communication task ''{0}'' for sending firmware is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
+    CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(4016, "ConnectionMethodDoesntMeetTheRequirement","The connection method ''{0}'' set on ''{1}'' doesn''t match the one required on the firmware campaign" ,Level.WARNING)
     ;
 
     private final int number;

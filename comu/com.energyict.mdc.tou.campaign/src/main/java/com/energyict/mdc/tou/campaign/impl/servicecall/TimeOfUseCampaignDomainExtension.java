@@ -203,13 +203,13 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
-    public ConnectionStrategy getCalendarUploadConnectionStrategy() {
-        return calendarUploadConnectionStrategy;
+    public  Optional<ConnectionStrategy> getCalendarUploadConnectionStrategy() {
+        return Optional.ofNullable(calendarUploadConnectionStrategy);
     }
 
     @Override
     public Optional<ConnectionStrategy> getValidationConnectionStrategy() {
-        return Optional.of(validationConnectionStrategy);
+        return Optional.ofNullable(validationConnectionStrategy);
     }
 
     @Override
@@ -307,8 +307,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setWithUniqueCalendarName((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName()));
         this.setValidationComTaskId((long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
         this.setCalendarUploadComTaskId((long) propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName()));
-        this.setValidationConnectionStrategy((ConnectionStrategy) propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
-        this.setCalendarUploadConnectionStrategy((ConnectionStrategy) propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName()));
+        this.setValidationConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
+        this.setCalendarUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName()));
     }
 
     @Override
@@ -326,8 +326,8 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
         propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
         propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), this.getCalendarUploadComTaskId());
-        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().get());
-        propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getCalendarUploadConnectionStrategy());
+        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().isPresent()?this.getValidationConnectionStrategy().get():null);
+        propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getCalendarUploadConnectionStrategy().isPresent()?this.getCalendarUploadConnectionStrategy().get():null);
     }
 
     @Override

@@ -75,8 +75,12 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     }
 
     @Override
-    public TimeOfUseCampaignBuilder withCalendarUploadConnectionStrategy(String firmwareUploadConnectionStrategy){
-        this.calendarUploadConnectionStrategy = ConnectionStrategy.valueOf(firmwareUploadConnectionStrategy.toUpperCase().replace(' ', '_'));
+    public TimeOfUseCampaignBuilder withCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy){
+        if(calendarUploadConnectionStrategy == null){
+            this.calendarUploadConnectionStrategy = null;
+            return this;
+        }
+        this.calendarUploadConnectionStrategy = ConnectionStrategy.valueOf(calendarUploadConnectionStrategy.toUpperCase().replace(' ', '_'));
         return this;
     }
 

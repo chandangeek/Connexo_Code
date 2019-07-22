@@ -66,7 +66,7 @@ public interface TimeOfUseCampaign {
 
     void setValidationComTaskId(long validationComTaskId);
 
-    ConnectionStrategy getCalendarUploadConnectionStrategy();
+    Optional<ConnectionStrategy> getCalendarUploadConnectionStrategy();
 
     Optional<ConnectionStrategy> getValidationConnectionStrategy();
 

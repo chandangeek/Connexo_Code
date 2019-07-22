@@ -293,31 +293,29 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
         if (campaignOptional.isPresent()) {
             TimeOfUseCampaign campaign = campaignOptional.get();
             Optional<ComTaskEnablement> comTaskEnablementOptional = device.getDeviceConfiguration().getComTaskEnablements().stream()
+                    .filter(comTaskEnablement ->  comTaskEnablement.getComTask().getId() == campaign.getValidationComTaskId())
                     .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                             .anyMatch(task -> task instanceof StatusInformationTask))
                     .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
                     .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                             .noneMatch(protocolTask -> protocolTask instanceof MessagesTask))
-                    .filter(comTaskEnablement ->  comTaskEnablement.getComTask().getId() == campaign.getValidationComTaskId())
                     .filter(comTaskEnablement -> (timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablement) == null)
                             || (!timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablement).isOnHold()))
                     .findAny();
             if (comTaskEnablementOptional.isPresent()) {
-                if (campaign.getValidationComTaskId() != 0) {
-                    ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
-                            .filter(cte -> cte.getComTask().equals(comTaskEnablementOptional.get().getComTask()))
-                            .findAny().orElseGet(() -> device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add());
-                    if (comTaskExecution.getConnectionTask().isPresent()) {
-                        ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                        if (connectionStrategy == campaign.getValidationConnectionStrategy().get()) {
-                            comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
-                            isVerificationComTaskStart = true;
-                        } else {
-                            serviceCallService.lockServiceCall(serviceCall.getId());
-                            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.getValidationConnectionStrategy().get().name(), comTaskExecution.getComTask().getName()));
-                            serviceCall.requestTransition(DefaultState.REJECTED);
-                            return;
-                        }
+                ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
+                        .filter(cte -> cte.getComTask().equals(comTaskEnablementOptional.get().getComTask()))
+                        .findAny().orElseGet(() -> device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add());
+                if (comTaskExecution.getConnectionTask().isPresent()) {
+                    ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
+                    if (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign.getValidationConnectionStrategy().get() ) {
+                        comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
+                        isVerificationComTaskStart = true;
+                    } else {
+                        serviceCallService.lockServiceCall(serviceCall.getId());
+                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.getValidationConnectionStrategy().get().name(), comTaskExecution.getComTask().getName()));
+                        serviceCall.requestTransition(DefaultState.REJECTED);
+                        return;
                     }
                 }
             }

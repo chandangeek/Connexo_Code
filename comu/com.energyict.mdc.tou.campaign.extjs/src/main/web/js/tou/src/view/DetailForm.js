@@ -186,7 +186,7 @@ Ext.define('Tou.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate(
                             'general.sendCalendarComTask',
                             'TOU',
-                            'Send calendar communication task'
+                            'Calendar upload communication task'
                         ),
                         name: 'sendCalendarComTask',
                         renderer: function (item) {

@@ -358,8 +358,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
                     firmwareComTaskExec.getNextExecutionTimestamp().isAfter(appliedStartDate)) {
                 connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
-                if (connectionStrategy == campaign.get().getFirmwareUploadConnectionStrategy().get()
-                        || !campaign.get().getFirmwareUploadConnectionStrategy().isPresent()){
+                if (!campaign.get().getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign.get().getFirmwareUploadConnectionStrategy().get()){
                     firmwareComTaskExec.schedule(appliedStartDate);
                     isFirmwareComTaskStart = true;
                 }else{

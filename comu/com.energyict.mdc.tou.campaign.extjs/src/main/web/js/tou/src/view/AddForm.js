@@ -225,7 +225,7 @@ Ext.define('Tou.view.AddForm', {
                 fieldLabel: Uni.I18n.translate(
                     'general.sendCalendarComTask',
                     'TOU',
-                    'Send calendar communication task'
+                    'Calendar upload communication task'
                 ),
                 required: true,
                 allowBlank: false,

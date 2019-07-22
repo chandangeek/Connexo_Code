@@ -71,7 +71,7 @@ public class TimeOfUseCampaignInfoFactory {
                 .withUniqueCalendarName(timeOfUseCampaignInfo.withUniqueCalendarName)
                 .withCalendarUploadComTaskId(((Number)timeOfUseCampaignInfo.sendCalendarComTask.id).longValue())
                 .withValidationComTaskId(((Number)timeOfUseCampaignInfo.validationComTask.id).longValue())
-                .withCalendarUploadConnectionStrategy(timeOfUseCampaignInfo.sendCalendarConnectionStrategy.name)
+                .withCalendarUploadConnectionStrategy(timeOfUseCampaignInfo.sendCalendarConnectionStrategy==null?null:timeOfUseCampaignInfo.sendCalendarConnectionStrategy.name)
                 .withValidationConnectionStrategy(timeOfUseCampaignInfo.validationConnectionStrategy==null?null:timeOfUseCampaignInfo.validationConnectionStrategy.name);
         return timeOfUseCampaignBuilder.create();
     }
@@ -93,7 +93,7 @@ public class TimeOfUseCampaignInfoFactory {
         timeOfUseCampaignInfo.withUniqueCalendarName = campaign.isWithUniqueCalendarName();
         timeOfUseCampaignInfo.sendCalendarComTask = new IdWithNameInfo(campaign.getCalendarUploadComTaskId(),timeOfUseCampaignService.getComTaskById(campaign.getCalendarUploadComTaskId()).getName());
         timeOfUseCampaignInfo.validationComTask = campaign.getValidationComTaskId() == 0 ? null : new IdWithNameInfo(new Long(campaign.getValidationComTaskId()),timeOfUseCampaignService.getComTaskById(campaign.getValidationComTaskId()).getName());
-        timeOfUseCampaignInfo.sendCalendarConnectionStrategy = new IdWithNameInfo(campaign.getCalendarUploadConnectionStrategy().name(),thesaurus.getString(campaign.getCalendarUploadConnectionStrategy().name(), campaign.getCalendarUploadConnectionStrategy().name()));
+        timeOfUseCampaignInfo.sendCalendarConnectionStrategy = campaign.getCalendarUploadConnectionStrategy().isPresent()? new IdWithNameInfo(campaign.getCalendarUploadConnectionStrategy().get().name(),thesaurus.getString(campaign.getCalendarUploadConnectionStrategy().get().name(), campaign.getCalendarUploadConnectionStrategy().get().name())):null;
         timeOfUseCampaignInfo.validationConnectionStrategy = campaign.getValidationConnectionStrategy().isPresent()?new IdWithNameInfo(campaign.getValidationConnectionStrategy().get().name(),thesaurus.getString(campaign.getValidationConnectionStrategy().get().name(), campaign.getValidationConnectionStrategy().get().name())):null;
         return timeOfUseCampaignInfo;
     }

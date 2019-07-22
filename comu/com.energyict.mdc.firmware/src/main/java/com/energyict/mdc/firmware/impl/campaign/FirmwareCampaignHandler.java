@@ -206,12 +206,12 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         if (campaignOptional.isPresent()) {
             FirmwareCampaign campaign = campaignOptional.get();
             Optional<ComTaskEnablement> comTaskEnablementOptional = device.getDeviceConfiguration().getComTaskEnablements().stream()
+                    .filter(comTaskEnablement ->  comTaskEnablement.getComTask().getId() == campaign.getValidationComTaskId())
                     .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                             .anyMatch(task -> task instanceof StatusInformationTask))
                     .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
                     .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                             .noneMatch(protocolTask -> protocolTask instanceof FirmwareManagementTask))
-                    .filter(comTaskEnablement ->  comTaskEnablement.getComTask().getId() == campaign.getValidationComTaskId())
                     .filter(comTaskEnablement -> (firmwareCampaignService.findComTaskExecution(device, comTaskEnablement) == null)
                             || (!firmwareCampaignService.findComTaskExecution(device, comTaskEnablement).isOnHold()))
                     .findAny();
@@ -221,7 +221,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         .findAny().orElseGet(() -> device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add());
                 if (comTaskExecution.getConnectionTask().isPresent()) {
                     ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                    if ((connectionStrategy == campaign.getValidationConnectionStrategy().get() || !campaign.getValidationConnectionStrategy().isPresent())) {
+                    if (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign.getValidationConnectionStrategy().get()) {
                         comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
                         isValidationComTaskStart = true;
                     }else{
