@@ -7,6 +7,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChe
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import com.google.inject.Module;
@@ -56,7 +57,7 @@ public abstract class AbstractMasterCustomPropertyPersistenceSupport<E extends A
         table.column(AbstractMasterDomainExtension.FieldNames.CALLBACK_URL.databaseName()).varChar()
                 .map(AbstractMasterDomainExtension.FieldNames.CALLBACK_URL.javaName()).notNull(false).add();
         table.column(AbstractMasterDomainExtension.FieldNames.CORRELATION_ID.databaseName()).varChar()
-                .map(AbstractMasterDomainExtension.FieldNames.CORRELATION_ID.javaName()).notNull(false).add();
+                .map(AbstractMasterDomainExtension.FieldNames.CORRELATION_ID.javaName()).notNull(false).since(Version.version(10,7)).add();
 
     }
 

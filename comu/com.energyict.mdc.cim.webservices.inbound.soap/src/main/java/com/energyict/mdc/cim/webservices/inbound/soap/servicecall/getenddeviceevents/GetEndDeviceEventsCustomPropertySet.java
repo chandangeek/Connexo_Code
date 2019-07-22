@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -230,6 +231,8 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
             table.column(GetEndDeviceEventsDomainExtension.FieldNames.CORRELATION_ID.databaseName())
                     .varChar()
                     .map(GetEndDeviceEventsDomainExtension.FieldNames.CORRELATION_ID.javaName())
+                    .notNull(false)
+                    .since(Version.version(10,7))
                     .add();
         }
 
