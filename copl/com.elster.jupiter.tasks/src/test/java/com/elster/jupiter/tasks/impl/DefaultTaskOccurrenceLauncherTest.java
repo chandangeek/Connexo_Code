@@ -10,6 +10,7 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.json.JsonService;
 
 import java.time.Clock;
@@ -85,12 +86,12 @@ public class DefaultTaskOccurrenceLauncherTest {
     public void testRun() {
         defaultTaskOccurrenceLauncher.run();
 
-        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
+        ArgumentCaptor<VoidTransaction> transactionCaptor = ArgumentCaptor.forClass(VoidTransaction.class);
         verify(transactionService).execute(transactionCaptor.capture());
 
         verify(task1, never()).launchOccurrence(NOW.toInstant()); // never save outside transaction
 
-        transactionCaptor.getValue().perform();
+        transactionCaptor.getValue().get();
 
         verify(task1).launchOccurrence(NOW.toInstant()); // does save within transaction
 

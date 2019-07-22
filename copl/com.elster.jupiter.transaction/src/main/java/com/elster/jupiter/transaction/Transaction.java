@@ -4,9 +4,15 @@
 
 package com.elster.jupiter.transaction;
 
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
+
 @FunctionalInterface
-public interface Transaction<T> {
+public interface Transaction<T> extends ExceptionThrowingSupplier<T, RuntimeException> {
 
     T perform();
 
+    @Override
+    default T get() {
+        return perform();
+    }
 }

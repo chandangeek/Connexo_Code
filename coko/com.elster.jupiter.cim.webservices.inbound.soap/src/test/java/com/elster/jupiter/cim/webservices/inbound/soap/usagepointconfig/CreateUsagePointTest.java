@@ -41,7 +41,10 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
 import ch.iec.tc57._2011.executeusagepointconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -61,6 +64,9 @@ import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigResponseMessageType;
 
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -75,10 +81,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -130,6 +139,14 @@ public class CreateUsagePointTest extends AbstractMockActivator {
     private UsagePointConnectionState usagePointConnectionState;
     @Mock
     private UsagePointCustomPropertySetExtension usagePointCustomPropertySetExtension;
+    @Mock
+    private WebServiceContext webServiceContext;
+    @Mock
+    private MessageContext messageContext;
+    @Mock
+    private WebServiceCallOccurrence webServiceCallOccurrence;
+
+    private ExecuteUsagePointConfigEndpoint executeUsagePointConfigEndpoint;
 
     private static void assertReadingType1(ch.iec.tc57._2011.usagepointconfig.ReadingType rt) {
         assertThat(rt.getMRID()).isEqualTo("MRID1");
@@ -177,6 +194,25 @@ public class CreateUsagePointTest extends AbstractMockActivator {
 
     @Before
     public void setUp() throws Exception {
+        executeUsagePointConfigEndpoint = getInstance(ExecuteUsagePointConfigEndpoint.class);
+        Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
+        webServiceContextField.setAccessible(true);
+        webServiceContextField.set(executeUsagePointConfigEndpoint, webServiceContext);
+        when(messageContext.get(anyString())).thenReturn(1l);
+        when(webServiceContext.getMessageContext()).thenReturn(messageContext);
+        inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "threadPrincipalService", threadPrincipalService);
+        inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "transactionService", transactionService);
+        when(transactionService.execute(any())).then(new Answer(){
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+            }
+        });
+        when(webServicesService.getOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
+        when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
+
         mockUsagePoint();
         mockReadingType1();
         mockReadingType2();
@@ -274,7 +310,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         usagePointConfigRequest.setHeader(new HeaderType());
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'Payload' is required.");
     }
@@ -285,7 +321,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = usagePointConfigMessageFactory.createUsagePointConfigRequestMessageType();
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'Header' is required.");
     }
@@ -296,7 +332,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(null);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig' is required.");
     }
@@ -308,7 +344,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.EMPTY_LIST.getErrorCode(),
                 "The list of 'UsagePointConfig.UsagePoint' cannot be empty.");
     }
@@ -324,7 +360,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].ServiceCategory' is required.");
     }
@@ -339,7 +375,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].ServiceCategory.kind' is required.");
     }
@@ -356,7 +392,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(meteringService.getServiceCategory(com.elster.jupiter.metering.ServiceKind.SEWERAGE)).thenReturn(Optional.empty());
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_SERVICE_CATEGORY_FOUND.getErrorCode(),
                 "No active service category is found for 'Sewerage'.");
     }
@@ -373,7 +409,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(serviceCategory.isActive()).thenReturn(false);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_SERVICE_CATEGORY_FOUND.getErrorCode(),
                 "No active service category is found for 'Electricity'.");
     }
@@ -388,7 +424,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.EMPTY_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].Names[0].name' is empty or contains only white spaces.");
     }
@@ -403,7 +439,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.EMPTY_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].Names[0].name' is empty or contains only white spaces.");
     }
@@ -418,7 +454,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].isSdp' is required.");
     }
@@ -433,7 +469,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].isVirtual' is required.");
     }
@@ -449,7 +485,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.EMPTY_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].MetrologyRequirements[0].Names[0].name' is empty or contains only white spaces.");
     }
@@ -465,7 +501,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.EMPTY_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].MetrologyRequirements[0].Names[0].name' is empty or contains only white spaces.");
     }
@@ -484,7 +520,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(metrologyConfigurationService.findMetrologyConfiguration(METROLOGY_CONFIGURATION_NAME)).thenReturn(Optional.empty());
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_METROLOGY_CONFIGURATION_WITH_NAME.getErrorCode(),
                 "No metrology configuration suitable for usage point is found by name '" + METROLOGY_CONFIGURATION_NAME + "'.");
     }
@@ -503,7 +539,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(metrologyConfigurationService.findMetrologyConfiguration(METROLOGY_CONFIGURATION_NAME)).thenReturn(Optional.of(mc));
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_METROLOGY_CONFIGURATION_WITH_NAME.getErrorCode(),
                 "No metrology configuration suitable for usage point is found by name '" + METROLOGY_CONFIGURATION_NAME + "'.");
     }
@@ -519,7 +555,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method
-        UsagePointConfigResponseMessageType response = getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest);
+        UsagePointConfigResponseMessageType response = executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest);
 
         // Assert invocations
         verify(serviceCategory).newUsagePoint(USAGE_POINT_NAME, CREATION_DATE);
@@ -611,7 +647,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.empty());
 
         // Business method
-        UsagePointConfigResponseMessageType response = getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest);
+        UsagePointConfigResponseMessageType response = executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest);
 
         // Assert invocations
         verify(serviceCategory).newUsagePoint(USAGE_POINT_NAME, CREATION_DATE);
@@ -673,7 +709,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(state.getName()).thenReturn(DefaultState.UNDER_CONSTRUCTION.getKey());
 
         // Business method
-        UsagePointConfigResponseMessageType response = getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest);
+        UsagePointConfigResponseMessageType response = executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest);
 
         // Assert invocations
         verify(serviceCategory).newUsagePoint(USAGE_POINT_NAME + 1, REQUEST_DATE);
@@ -738,7 +774,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(usagePointConnectionState.getConnectionState()).thenReturn(ConnectionState.PHYSICALLY_DISCONNECTED);
 
         // Business method
-        UsagePointConfigResponseMessageType response = getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest);
+        UsagePointConfigResponseMessageType response = executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest);
 
         // Assert invocations
         verify(serviceCategory).newUsagePoint(USAGE_POINT_NAME, NOW);
@@ -800,7 +836,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(serviceCategory.getKind()).thenReturn(com.elster.jupiter.metering.ServiceKind.HEAT);
 
         // Business method
-        UsagePointConfigResponseMessageType response = getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest);
+        UsagePointConfigResponseMessageType response = executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest);
 
         // Assert invocations
         verify(serviceCategory).newUsagePoint(USAGE_POINT_NAME, CREATION_DATE);
@@ -868,7 +904,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         when(serviceCategory.newUsagePoint(USAGE_POINT_NAME, CREATION_DATE)).thenThrow(localizedException);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 "ERRORCODE",
                 "ErrorMessage");
     }
@@ -889,7 +925,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         doThrow(exception).when(usagePoint).apply(metrologyConfiguration, CREATION_DATE);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest),
                 null,
                 "ErrorMessage");
     }
@@ -907,7 +943,7 @@ public class CreateUsagePointTest extends AbstractMockActivator {
         usagePointConfigRequest.getHeader().setAsyncReplyFlag(true);
 
         // Execute
-        getInstance(ExecuteUsagePointConfigEndpoint.class).createUsagePointConfig(usagePointConfigRequest);
+        executeUsagePointConfigEndpoint.createUsagePointConfig(usagePointConfigRequest);
 
         // Assert service call
         verify(serviceCall).requestTransition(com.elster.jupiter.servicecall.DefaultState.PENDING);
@@ -986,7 +1022,6 @@ public class CreateUsagePointTest extends AbstractMockActivator {
             assertThat(error.getCode()).isEqualTo(expectedCode);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
 
-            verify(transactionContext).close();
             verifyNoMoreInteractions(transactionContext);
         } catch (Exception e) {
             e.printStackTrace();

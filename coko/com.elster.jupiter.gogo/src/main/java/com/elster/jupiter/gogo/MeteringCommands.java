@@ -28,10 +28,10 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -624,7 +624,7 @@ public class MeteringCommands {
         });
     }
 
-    private <T> T executeTransaction(Transaction<T> transaction) {
+    private <T> T executeTransaction(ExceptionThrowingSupplier<T, RuntimeException> transaction) {
         setPrincipal();
         try {
             return transactionService.execute(transaction);

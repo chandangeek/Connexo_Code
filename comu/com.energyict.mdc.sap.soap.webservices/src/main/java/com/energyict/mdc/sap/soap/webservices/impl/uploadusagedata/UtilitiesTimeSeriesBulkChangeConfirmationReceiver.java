@@ -6,10 +6,10 @@ package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -37,14 +37,12 @@ import java.util.stream.Stream;
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkChangeConfirmationReceiver.NAME})
-public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkChangeConfirmationEIn {
+public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkChangeConfirmationEIn, ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeConfirmation_C_In";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of("5");
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
-    private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile UserService userService;
 
     public UtilitiesTimeSeriesBulkChangeConfirmationReceiver() {
         // for OSGi purposes
@@ -66,16 +64,6 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver implements Inboun
         this.thesaurus = translationsProvider.getThesaurus();
     }
 
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
     @Override
     public UtilitiesTimeSeriesBulkChangeConfirmationReceiver get() {
         return this;
@@ -83,15 +71,17 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver implements Inboun
 
     @Override
     public void utilitiesTimeSeriesERPItemBulkChangeConfirmationEIn(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
-        setPrincipal();
-        Optional<String> uuid = findReferenceUuid(confirmation);
-        ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
-        if (isConfirmed(confirmation)) {
-            dataExportServiceCallType.tryPassingServiceCall(serviceCall);
-        } else {
-            dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
-        }
+        runInTransactionWithOccurrence(() -> {
+            Optional<String> uuid = findReferenceUuid(confirmation);
+            ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)
+                    .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.UNEXPECTED_CONFIRMATION_MESSAGE, uuid.orElse("null")));
+            if (isConfirmed(confirmation)) {
+                dataExportServiceCallType.tryPassingServiceCall(serviceCall);
+            } else {
+                dataExportServiceCallType.tryFailingServiceCall(serviceCall, getSeverestError(confirmation).orElse(null));
+            }
+            return null;
+        });
     }
 
     private static Optional<String> findReferenceUuid(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
@@ -153,10 +143,8 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver implements Inboun
         }
     }
 
-    private void setPrincipal() {
-        if (threadPrincipalService.getPrincipal() == null) {
-            userService.findUser(WebServiceActivator.BATCH_EXECUTOR_USER_NAME, userService.getRealm())
-                    .ifPresent(threadPrincipalService::set);
-        }
+    @Override
+    public String getApplication(){
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

@@ -13,8 +13,11 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.util.YesNoAnswer;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 
@@ -32,6 +35,9 @@ import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigResponseMessageType;
 
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -44,9 +50,12 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -83,9 +92,36 @@ public class GetUsagePointTest extends AbstractMockActivator {
     private UsagePointConnectionState usagePointConnectionState;
     @Mock
     private UsagePointCustomPropertySetExtension usagePointCustomPropertySetExtension;
+    @Mock
+    private WebServiceContext webServiceContext;
+    @Mock
+    private MessageContext messageContext;
+    @Mock
+    private WebServiceCallOccurrence webServiceCallOccurrence;
+
+    private ExecuteUsagePointConfigEndpoint executeUsagePointConfigEndpoint;
 
     @Before
     public void setUp() throws Exception {
+        executeUsagePointConfigEndpoint = getInstance(ExecuteUsagePointConfigEndpoint.class);
+        Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
+        webServiceContextField.setAccessible(true);
+        webServiceContextField.set(executeUsagePointConfigEndpoint, webServiceContext);
+        when(messageContext.get(anyString())).thenReturn(1l);
+        when(webServiceContext.getMessageContext()).thenReturn(messageContext);
+        inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "threadPrincipalService", threadPrincipalService);
+        inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, executeUsagePointConfigEndpoint, "transactionService", transactionService);
+        when(transactionService.execute(any())).then(new Answer(){
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+            }
+        });
+        when(webServicesService.getOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
+        when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
+
         when(clock.instant()).thenReturn(NOW);
         when(meteringService.findUsagePointById(anyLong())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
@@ -139,7 +175,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
                 .createUsagePointConfigRequestMessageType();
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).getUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'Payload' is required.");
     }
@@ -150,7 +186,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(null);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).getUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig' is required.");
     }
@@ -162,7 +198,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).getUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.EMPTY_LIST.getErrorCode(),
                 "The list of 'UsagePointConfig.UsagePoint' cannot be empty.");
     }
@@ -177,7 +213,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).getUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.EMPTY_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].mRID' is empty or contains only white spaces.");
     }
@@ -192,7 +228,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).getUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_USAGE_POINT_WITH_MRID.getErrorCode(),
                 "No usage point is found by MRID '" + ANOTHER_MRID + "'.");
     }
@@ -207,7 +243,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).getUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.EMPTY_ELEMENT.getErrorCode(),
                 "Element 'UsagePointConfig.UsagePoint[0].Names[0].name' is empty or contains only white spaces.");
     }
@@ -222,7 +258,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).getUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
                 "Either element 'mRID' or 'Names' is required under 'UsagePointConfig.UsagePoint[0]' for identification purpose.");
     }
@@ -237,7 +273,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method & assertions
-        assertFaultMessage(() -> getInstance(ExecuteUsagePointConfigEndpoint.class).getUsagePointConfig(usagePointConfigRequest),
+        assertFaultMessage(() -> executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest),
                 MessageSeeds.NO_USAGE_POINT_WITH_NAME.getErrorCode(),
                 "No usage point is found by name '" + ANOTHER_NAME + "'.");
     }
@@ -252,8 +288,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method
-        UsagePointConfigResponseMessageType response = getInstance(ExecuteUsagePointConfigEndpoint.class)
-                .getUsagePointConfig(usagePointConfigRequest);
+        UsagePointConfigResponseMessageType response = executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
@@ -289,8 +324,7 @@ public class GetUsagePointTest extends AbstractMockActivator {
         UsagePointConfigRequestMessageType usagePointConfigRequest = createUsagePointConfigRequest(usagePointConfig);
 
         // Business method
-        UsagePointConfigResponseMessageType response = getInstance(ExecuteUsagePointConfigEndpoint.class)
-                .getUsagePointConfig(usagePointConfigRequest);
+        UsagePointConfigResponseMessageType response = executeUsagePointConfigEndpoint.getUsagePointConfig(usagePointConfigRequest);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);

@@ -9,12 +9,11 @@ import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.streams.ExceptionThrowingRunnable;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
@@ -153,7 +152,7 @@ public class RegisterReadings {
                 endDeviceEvent.setLogBookPosition(logBookPosition);
                 endDeviceEvent.setEventData(parseMap(data));
                 meterReading.addEndDeviceEvent(endDeviceEvent);
-                executeAsBatchExecutor(VoidTransaction.of(() -> device.store(meterReading)));
+                executeAsBatchExecutor(() -> device.store(meterReading));
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -211,23 +210,20 @@ public class RegisterReadings {
     }
 
     private void addReadings(final Device device, final String readingTypeMRID, final List<Instant> readingTimestamps) {
-        this.executeAsBatchExecutor(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                for (Instant readingTimestamp : readingTimestamps) {
-                    meterReading.addReading(newReading(readingTypeMRID, readingTimestamp));
-                }
-                device.store(meterReading);
+        this.executeAsBatchExecutor(() -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            for (Instant readingTimestamp : readingTimestamps) {
+                meterReading.addReading(newReading(readingTypeMRID, readingTimestamp));
             }
+            device.store(meterReading);
         });
     }
 
-    private void executeAsBatchExecutor(Transaction transaction) {
+    private void executeAsBatchExecutor(ExceptionThrowingRunnable<RuntimeException> transaction) {
         try {
             Optional<User> user = this.userService.findUser("batch executor");
             this.threadPrincipalService.set(user.get());
-            this.transactionService.execute(transaction);
+            this.transactionService.run(transaction);
         } finally {
             this.threadPrincipalService.clear();
         }

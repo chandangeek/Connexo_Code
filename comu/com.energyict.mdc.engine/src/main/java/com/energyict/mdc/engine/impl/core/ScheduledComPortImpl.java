@@ -250,7 +250,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     private long getSleepDurationInMs() {
         Instant now = Instant.now();
+        System.out.println("now="+now);
         Instant nextExecutionMoment = now.plus(schedulingInterpollDelay.getMilliSeconds(), ChronoUnit.MILLIS).truncatedTo(ChronoUnit.MINUTES);
+        System.out.println("nextExecutionMoment="+nextExecutionMoment.toString());
         return now.until(nextExecutionMoment, ChronoUnit.MILLIS);
     }
 

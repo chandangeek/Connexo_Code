@@ -9,7 +9,11 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
+import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
@@ -32,6 +36,9 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.Range;
 
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,11 +48,14 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class GetEndDeviceEventsTest extends AbstractMockActivator {
@@ -76,9 +86,34 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
     private EndDeviceEventRecord endDeviceEvent;
     @Mock
     private ServiceCallCommands serviceCallCommands;
+    @Mock
+    private WebServiceContext webServiceContext;
+    @Mock
+    private MessageContext messageContext;
+    @Mock
+    private WebServiceCallOccurrence webServiceCallOccurrence;
+    private GetEndDeviceEventsEndpoint getEndDeviceEventsEndpoint;
 
     @Before
     public void setUp() throws Exception {
+        getEndDeviceEventsEndpoint = getInstance(GetEndDeviceEventsEndpoint.class);
+        Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
+        webServiceContextField.setAccessible(true);
+        webServiceContextField.set(getEndDeviceEventsEndpoint, webServiceContext);
+        when(messageContext.get(anyString())).thenReturn(1l);
+        when(webServiceContext.getMessageContext()).thenReturn(messageContext);
+        inject(AbstractInboundEndPoint.class, getEndDeviceEventsEndpoint, "threadPrincipalService", threadPrincipalService);
+        inject(AbstractInboundEndPoint.class, getEndDeviceEventsEndpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, getEndDeviceEventsEndpoint, "transactionService", transactionService);
+        when(transactionService.execute(any())).then(new Answer(){
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+            }
+        });
+        when(webServicesService.getOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
+        when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
         when(meteringService.findEndDevices(anySetOf(String.class))).thenReturn(Collections.singletonList(endDevice));
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(endDevice.getName()).thenReturn(END_DEVICE_NAME);
@@ -109,7 +144,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         try {
             // Business method
-            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -134,7 +169,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         try {
             // Business method
-            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -168,7 +203,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         try {
             // Business method
-            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -203,7 +238,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         try {
             // Business method
-            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -231,7 +266,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         getEndDeviceEvents.getTimeSchedule().add(createTimeSchedule(NOW.minusMillis(1000), NOW.plusMillis(1000)));
 
         // Business method
-        EndDeviceEventsResponseMessageType response = getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+        EndDeviceEventsResponseMessageType response = getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
@@ -264,7 +299,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         try {
             // Business method
-            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -291,7 +326,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         try {
             // Business method
-            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
@@ -323,7 +358,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
 
         try {
             // Business method
-            getInstance(GetEndDeviceEventsEndpoint.class).getEndDeviceEvents(endDeviceEventsRequest);
+            getEndDeviceEventsEndpoint.getEndDeviceEvents(endDeviceEventsRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts

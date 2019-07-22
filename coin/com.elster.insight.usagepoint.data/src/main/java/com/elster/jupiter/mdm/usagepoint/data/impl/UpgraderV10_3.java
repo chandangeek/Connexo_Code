@@ -28,6 +28,7 @@ class UpgraderV10_3 implements Upgrader {
         this.privilegesProviderV103 = privilegesProviderV103;
     }
 
+
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, VERSION);

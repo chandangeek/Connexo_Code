@@ -35,6 +35,7 @@ import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.framework.BundleContext;
 
+import java.lang.reflect.Field;
 import java.time.Clock;
 import java.util.Optional;
 
@@ -140,5 +141,15 @@ public abstract class AbstractMockActivator {
 
     protected void mockWebServices(boolean isPublished) {
         when(webServicesService.isPublished(anyObject())).thenReturn(isPublished);
+    }
+
+    protected static void inject(Class<?> clazz, Object instance, String fieldName, Object value) {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

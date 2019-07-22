@@ -5,15 +5,27 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
@@ -22,19 +34,32 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.security.Principal;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import com.elster.jupiter.orm.OrmService;
+
+import com.google.common.collect.Range;
 
 /**
  * Resource to manage end point configurations
@@ -46,30 +71,87 @@ public class EndPointConfigurationResource {
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final WebServicesService webServicesService;
-    private final EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory;
+    private final WebServiceCallOccurrenceLogInfoFactory endpointConfigurationLogInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
+    private final WebServiceCallOccurrenceInfoFactory endpointConfigurationOccurrenceInfoFactorty;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
     @Inject
-    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService, EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory,ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory) {
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService,
+                                         EndPointConfigurationInfoFactory endPointConfigurationInfoFactory,
+                                         ExceptionFactory exceptionFactory,
+                                         WebServicesService webServicesService,
+                                         WebServiceCallOccurrenceLogInfoFactory endpointConfigurationLogInfoFactory,
+                                         ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
+                                         WebServiceCallOccurrenceInfoFactory endpointConfigurationOccurrenceInfoFactorty,
+                                         ThreadPrincipalService threadPrincipalService,
+                                         WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
         this.endPointConfigurationService = endPointConfigurationService;
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.webServicesService = webServicesService;
         this.endpointConfigurationLogInfoFactory = endpointConfigurationLogInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
+        this.endpointConfigurationOccurrenceInfoFactorty = endpointConfigurationOccurrenceInfoFactorty;
+        this.threadPrincipalService = threadPrincipalService;
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams, @Context UriInfo uriInfo) {
-        List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
-                .from(queryParams)
-                .stream()
-                .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
-                .collect(toList());
+    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
+                                                   @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                   @Context UriInfo uriInfo) {
+
+        List<EndPointConfigurationInfo> infoList;
+        if ("SYS".equals(applicationName)){
+            infoList = endPointConfigurationService.findEndPointConfigurations()
+                    .from(queryParams)
+                    .stream()
+                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                    .collect(toList());
+        }else{
+            Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+
+            Set<String> webServiceNames = webServicesService.getWebServices().stream()
+                    .filter(ws -> applicationNameToFilter.contains(ws.getApplicationName()))
+                    .map(ws -> ws.getName())
+                    .collect(toSet());
+
+            infoList = endPointConfigurationService.findEndPointConfigurations(webServiceNames)
+                    .from(queryParams)
+                    .stream()
+                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                    .collect(toList());
+        }
+
+
         return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
+    }
+
+    private Set<String> prepareApplicationNames(String applicationName){
+        Set<String> applicationNames = new HashSet();
+        switch (applicationName) {
+            case "SYS":
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
+                break;
+            case "MDC":
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                break;
+            case "INS":
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                break;
+            default:
+                throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.INCORRECT_APPLICATION_NAME).get();
+        }
+        return applicationNames;
     }
 
     @GET
@@ -190,12 +272,135 @@ public class EndPointConfigurationResource {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
 
-        List<EndpointConfigurationLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
+        /* Logs contains actions not related to occurrence. */
+        List<WebServiceCallOccurrenceLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
                 .from(queryParameters)
                 .stream()
                 .map(endpointConfigurationLogInfoFactory::from)
                 .collect(toList());
         return PagedInfoList.fromPagedList("logs", endpointConfigurationLogs, queryParameters);
+    }
+
+
+    private void checkApplicationPriviliges(String[] priviligeNames, String applicationName) {
+        /*TODO add check for name. IF it is not specified then return 403 */
+        Principal principal = threadPrincipalService.getPrincipal();
+        List privilegies = Arrays.asList(priviligeNames);
+        Set<Privilege> appPrivilegies = ((User) principal).getPrivileges(applicationName);
+        Optional<Privilege> neededPrivilege = appPrivilegies.stream()
+                .filter(privilege -> privilegies.contains(privilege.getName()))
+                .findFirst();
+
+        if (!neededPrivilege.isPresent()) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/occurrences")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public PagedInfoList getAllOccurrences(@BeanParam JsonQueryParameters queryParameters,
+                                           @BeanParam JsonQueryFilter filter,
+                                           @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                           @Context UriInfo uriInfo) {
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
+
+        Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+
+        List<WebServiceCallOccurrence> endPointOccurrences = getWebServiceCallOccurrence(queryParameters, filter, applicationNameToFilter, null);
+        List<WebServiceCallOccurrenceInfo> webServiceCallOccurrenceInfo = endPointOccurrences.
+                                                         stream().
+                                                         map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo, false)).
+                                                         collect(toList());
+
+        return PagedInfoList.fromPagedList("occurrences", webServiceCallOccurrenceInfo , queryParameters);
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/occurrences/{id}")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public WebServiceCallOccurrenceInfo getOccurrence(@PathParam("id") long id,
+                                                      @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                      @Context UriInfo uriInfo) {
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
+
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
+
+        return epOcc
+               .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo, true))
+               .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
+
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{epId}/occurrences")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("epId") long epId,
+                                                      @BeanParam JsonQueryParameters queryParameters,
+                                                      @BeanParam JsonQueryFilter filter,
+                                                      @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                      @Context UriInfo uriInfo) {
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
+
+        Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+
+        List<WebServiceCallOccurrence> endPointOccurrences = getWebServiceCallOccurrence(queryParameters, filter, applicationNameToFilter, epId);
+        List<WebServiceCallOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
+                stream().
+                map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo, false)).
+                collect(toList());
+
+        return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo, queryParameters);
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/occurrences/{id}/retry")
+    @Transactional
+    @RolesAllowed(Privileges.Constants.RETRY_WEB_SERVICES)
+    public Response retryOccurrence(@PathParam("id") long id,
+                                    @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
+
+        String[] privileges = {Privileges.Constants.RETRY_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
+
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
+
+        WebServiceCallOccurrence occurrence = epOcc.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
+
+        occurrence.retry();
+
+        return Response.ok().build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/occurrences/{id}/log")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public PagedInfoList getLogForOccurrence(@PathParam("id") long id,
+                                             @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                             @BeanParam JsonQueryParameters queryParameters,
+                                             @Context UriInfo uriInfo) {
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        checkApplicationPriviliges(privileges, applicationName);
+
+        WebServiceCallOccurrence epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id)
+        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
+
+        List<EndPointLog> logs = getLogForOccurrence(epOcc, queryParameters);
+        List<WebServiceCallOccurrenceLogInfo> logsInfo = logs.stream().
+                                                      map(log -> endpointConfigurationLogInfoFactory.fromFull(log, uriInfo)).
+                                                      collect(toList());
+
+        return PagedInfoList.fromPagedList("logs", logsInfo, queryParameters);
+
     }
 
     private void validatePayload(EndPointConfigurationInfo info) {
@@ -243,4 +448,81 @@ public class EndPointConfigurationResource {
         return object == null || object.toString().isEmpty();
     }
 
+    private List<WebServiceCallOccurrence> getWebServiceCallOccurrence(JsonQueryParameters queryParameters,
+                                                                       JsonQueryFilter filter,
+                                                                       Set<String> applicationNames,
+                                                                       Long epId){
+
+
+        WebServiceCallOccurrenceFinderBuilder finderBuilder =  webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder();
+
+        if (applicationNames != null && !applicationNames.isEmpty()){
+            finderBuilder.withApplicationNames(applicationNames);
+        }
+
+        if (epId != null){
+            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(epId).get();
+            finderBuilder.withEndPointConfiguration(epc);
+        }
+
+        if (filter.hasProperty("startedOnFrom")) {
+            if (filter.hasProperty("startedOnTo")) {
+                finderBuilder.withStartTimeIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
+            } else {
+                finderBuilder.withStartTimeIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
+            }
+        } else if (filter.hasProperty("startedOnTo")) {
+            finderBuilder.withStartTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
+        }
+        if (filter.hasProperty("finishedOnFrom")) {
+            if (filter.hasProperty("finishedOnTo")) {
+                finderBuilder.withEndTimeIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
+            } else {
+                finderBuilder.withEndTimeIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
+            }
+        } else if (filter.hasProperty("finishedOnTo")) {
+            finderBuilder.withEndTimeIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
+        }
+        /* Find endpoint by ID */
+        if (filter.hasProperty("webServiceEndPoint")) {
+
+            Long endPointId = filter.getLong("webServiceEndPoint");
+            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId).get();
+
+            finderBuilder.withEndPointConfiguration(epc);
+        }
+
+        if (filter.hasProperty("status")) {
+
+            finderBuilder.withStatusIn(filter.getStringList("status")
+                    .stream()
+                    .map(status->status.toUpperCase())
+                    .map(WebServiceCallOccurrenceStatus::valueOf)
+                    .collect(Collectors.toList()));
+        }
+
+        if(filter.hasProperty("type")){
+            List<String> typeList = filter.getStringList("type");
+            if (typeList.contains("INBOUND") && !typeList.contains("OUTBOUND")){
+                finderBuilder.onlyInbound();
+            } else if  (typeList.contains("OUTBOUND") && !typeList.contains("INBOUND")) {
+                finderBuilder.onlyOutbound();
+            }
+        }
+
+        List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
+
+        return epocList;
+    }
+
+
+
+    private List<EndPointLog> getLogForOccurrence(WebServiceCallOccurrence epOcc, JsonQueryParameters queryParameters){
+
+        OccurrenceLogFinderBuilder finderBuilder = webServiceCallOccurrenceService.getOccurrenceLogFinderBuilder();
+        
+        finderBuilder.withOccurrenceId(epOcc);
+
+        return finderBuilder.build().from(queryParameters).find();
+    }
 }

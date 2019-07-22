@@ -4,9 +4,14 @@
 package com.elster.jupiter.cim.webservices.outbound.soap.usagepointconfig;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -32,9 +37,15 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import ch.iec.tc57._2011.replyusagepointconfig.FaultMessage;
 import ch.iec.tc57._2011.replyusagepointconfig.UsagePointConfigPort;
@@ -60,6 +71,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
     private static final Map<String, Object> PROPS = new HashMap<>();
     static {
         PROPS.put(URL, ENDPOINT_CONFIG_URL);
+        PROPS.put("epcId", 1l);
         FAILED_OP.setErrorCode(ERROR_CODE);
         FAILED_OP.setErrorMessage(ERROR_MESSAGE);
         FAILED_OP.setUsagePointMrid(ERR_UP_MRID);
@@ -93,17 +105,22 @@ public class ReplyUsagePointConfigServiceProviderTest {
 
     @Mock
     private UsagePointCustomPropertySetExtension usagepointCustomPropertySetExtension;
+    @Mock
+    private WebServiceCallOccurrence webServiceCallOccurrence;
+    @Mock
+    private Thesaurus thesaurus;
+    @Mock
+    private OutboundEndPointProvider.RequestSender requestSender;
 
     @Before
     public void setUp() {
-        testable = new ReplyUsagePointConfigServiceProvider() {
-            @Override
-            boolean isValidUsagePointConfigPortService(UsagePointConfigPort usagePointConfigPort) {
-                return true;
-            }
-        };
+        testable = spy(new ReplyUsagePointConfigServiceProvider());
+        when(webServiceCallOccurrence.getId()).thenReturn(1l);
+        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
+        inject(AbstractOutboundEndPointProvider.class, testable, "thesaurus", thesaurus);
+        inject(AbstractOutboundEndPointProvider.class, testable, "webServicesService", webServicesService);
         testable.setClock(Clock.fixed(NOW, ZoneId.systemDefault()));
-        testable.setWebServicesService(webServicesService);
         testable.setCustomPropertySetService(customPropertySetService);
         testable.addUsagePointConfigPort(usagePointConfigPort, PROPS);
         testable.onActivate();
@@ -121,6 +138,8 @@ public class ReplyUsagePointConfigServiceProviderTest {
         when(usagePoint.getCurrentConnectionState()).thenReturn(Optional.empty());
         when(usagePoint.forCustomProperties()).thenReturn(usagepointCustomPropertySetExtension);
         when(usagepointCustomPropertySetExtension.getAllPropertySets()).thenReturn(Collections.emptyList());
+        when(testable.using(anyString())).thenReturn(requestSender);
+        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
     }
 
     @Test
@@ -129,8 +148,9 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_CREATE, Arrays.asList(usagePoint), Arrays.asList(FAILED_OP),
                 EXPECTED_NUMBER_OF_CALLS);
-        verify(webServicesService).publishEndPoint(endPointConfiguration);
-        verify(usagePointConfigPort).createdUsagePointConfig(responseMessageCaptor.capture());
+        //verify(webServicesService).publishEndPoint(endPointConfiguration);
+        verify(testable).using("createdUsagePointConfig");
+        verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.PARTIAL, value.getReply().getResult());
         assertEquals(1, value.getReply().getError().size());
@@ -150,8 +170,9 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_CREATE, Arrays.asList(usagePoint), Collections.emptyList(),
                 BigDecimal.ONE);
-        verify(webServicesService).publishEndPoint(endPointConfiguration);
-        verify(usagePointConfigPort).createdUsagePointConfig(responseMessageCaptor.capture());
+        //verify(webServicesService).publishEndPoint(endPointConfiguration);
+        verify(testable).using("createdUsagePointConfig");
+        verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.OK, value.getReply().getResult());
         assertTrue(value.getReply().getError().isEmpty());
@@ -167,8 +188,9 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_CREATE, Collections.emptyList(), Arrays.asList(FAILED_OP),
                 BigDecimal.ONE);
-        verify(webServicesService).publishEndPoint(endPointConfiguration);
-        verify(usagePointConfigPort).createdUsagePointConfig(responseMessageCaptor.capture());
+        //verify(webServicesService).publishEndPoint(endPointConfiguration);
+        verify(testable).using("createdUsagePointConfig");
+        verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.FAILED, value.getReply().getResult());
         assertEquals(1, value.getReply().getError().size());
@@ -185,8 +207,9 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_UPDATE, Arrays.asList(usagePoint), Arrays.asList(FAILED_OP),
                 EXPECTED_NUMBER_OF_CALLS);
-        verify(webServicesService).publishEndPoint(endPointConfiguration);
-        verify(usagePointConfigPort).changedUsagePointConfig(responseMessageCaptor.capture());
+        //verify(webServicesService).publishEndPoint(endPointConfiguration);
+        verify(testable).using("changedUsagePointConfig");
+        verify(requestSender).send(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
         assertEquals(ReplyType.Result.PARTIAL, value.getReply().getResult());
         assertEquals(1, value.getReply().getError().size());
@@ -200,4 +223,13 @@ public class ReplyUsagePointConfigServiceProviderTest {
                 value.getPayload().getUsagePointConfig().getUsagePoint().get(0).getNames().get(0).getName());
     }
 
+    private static void inject(Class<?> clazz, Object instance, String fieldName, Object value) {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

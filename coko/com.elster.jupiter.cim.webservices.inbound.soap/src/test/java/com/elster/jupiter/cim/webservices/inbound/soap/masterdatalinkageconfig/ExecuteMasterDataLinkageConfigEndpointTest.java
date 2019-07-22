@@ -4,25 +4,35 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigResponseMessageType;
 
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
+
+import java.lang.reflect.Field;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,8 +47,6 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
 
     @Mock
     private MasterDataLinkageHandler linkageHandler;
-    @Mock
-    private EndPointHelper endPointHelper;
     @Mock
     private MasterDataLinkageConfigResponseMessageType response;
     @Mock
@@ -55,13 +63,36 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
     private WebServicesService webServicesService;
     @Mock
     private ServiceCallCommands serviceCallCommands;
+    @Mock
+    private WebServiceContext webServiceContext;
+    @Mock
+    private MessageContext messageContext;
+    @Mock
+    private WebServiceCallOccurrence webServiceCallOccurrence;
 
     @Before
     public void setUp() throws Exception {
         endpoint = new ExecuteMasterDataLinkageConfigEndpoint(getInstance(MasterDataLinkageFaultMessageFactory.class),
-                transactionService, endPointHelper, () -> linkageHandler, () -> validator, endPointConfigurationService,
+                () -> linkageHandler, () -> validator, endPointConfigurationService,
                 webServicesService, serviceCallCommands);
 
+        Field webServiceContextField = AbstractInboundEndPoint.class.getDeclaredField("webServiceContext");
+        webServiceContextField.setAccessible(true);
+        webServiceContextField.set(endpoint, webServiceContext);
+        when(messageContext.get(anyString())).thenReturn(1l);
+        when(webServiceContext.getMessageContext()).thenReturn(messageContext);
+        inject(AbstractInboundEndPoint.class, endpoint, "threadPrincipalService", threadPrincipalService);
+        inject(AbstractInboundEndPoint.class, endpoint, "webServicesService", webServicesService);
+        inject(AbstractInboundEndPoint.class, endpoint, "transactionService", transactionService);
+        when(transactionService.execute(any())).then(new Answer(){
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+            }
+        });
+        when(webServicesService.getOccurrence(1l)).thenReturn(webServiceCallOccurrence);
+        when(webServiceCallOccurrence.getApplicationName()).thenReturn(Optional.of("ApplicationName"));
+        when(webServiceCallOccurrence.getRequest()).thenReturn(Optional.of("Request"));
         message = getValidMessage().build();
         // common mocks
         when(transactionService.getContext()).thenReturn(transactionContext);
@@ -83,9 +114,6 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         // Verify
         assertThat(actualResponse).isNotNull().isSameAs(response);
         verify(linkageHandler).forMessage(message);
-        verify(endPointHelper, times(1)).setSecurityContext();
-        verify(transactionContext, times(1)).commit();
-        verify(transactionContext, times(1)).close();
     }
 
     @Test
@@ -130,9 +158,6 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         // Verify
         assertThat(actualResponse).isNotNull().isSameAs(response);
         verify(linkageHandler).forMessage(message);
-        verify(endPointHelper, times(1)).setSecurityContext();
-        verify(transactionContext, times(1)).commit();
-        verify(transactionContext, times(1)).close();
     }
 
     @Test

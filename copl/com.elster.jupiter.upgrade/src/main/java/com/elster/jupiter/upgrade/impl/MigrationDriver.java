@@ -10,6 +10,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.streams.ExceptionThrowingRunnable;
 
 import java.sql.Connection;
 
@@ -54,7 +55,7 @@ final class MigrationDriver implements Migration {
         }
     }
 
-    private Runnable doMigrate() {
+    private ExceptionThrowingRunnable<RuntimeException> doMigrate() {
         return () -> upgrader.get().migrate(dataModelUpgrader);
     }
 

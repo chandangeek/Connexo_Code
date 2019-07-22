@@ -35,4 +35,5 @@ public class EndPointConfigurationInfo {
     public IdWithLocalizedValueInfo<WebServiceDirection> direction;
     public String type;
     public List<PropertyInfo> properties;
+    public String applicationName;
 }

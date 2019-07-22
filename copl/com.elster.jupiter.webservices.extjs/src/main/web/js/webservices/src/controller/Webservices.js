@@ -7,14 +7,22 @@ Ext.define('Wss.controller.Webservices', {
 
     views: [
         'Wss.view.Setup',
+        'Wss.view.History',
         'Uni.view.window.Confirmation',
         'Wss.view.Add',
         'Wss.view.LandingPage',
-        'Wss.view.LoggingPage'
+        'Wss.view.endpoint.Status',
+        'Wss.view.endpoint.History',
+        'Wss.view.endpoint.HistoryOccurrence'
     ],
     stores: [
         'Wss.store.Endpoints',
         'Wss.store.Webservices',
+        'Wss.store.endpoint.Type',
+        'Wss.store.endpoint.Status',
+        'Wss.store.endpoint.Occurrence',
+        'Wss.store.endpoint.EndpointOccurrence',
+        'Wss.store.endpoint.OccurrenceLog',
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
         'Wss.store.Logs',
@@ -23,11 +31,13 @@ Ext.define('Wss.controller.Webservices', {
     models: [
         'Wss.model.Endpoint',
         'Wss.model.Webservice',
+        'Wss.model.endpoint.Occurrence',
         'Wss.model.Log'
     ],
 
     refs: [
         {ref: 'preview', selector: 'webservices-preview'},
+        {ref: 'historyPreview', selector: 'webservices-webservice-history-preview'},
         {ref: 'addForm', selector: '#addForm'},
         {ref: 'propertyForm', selector: 'endpoint-add property-form'},
         {ref: 'landingPageForm', selector: 'webservice-landing-page webservices-preview-form form'},
@@ -48,11 +58,17 @@ Ext.define('Wss.controller.Webservices', {
             'webservices-action-menu': {
                 click: this.chooseAction
             },
+            'webservices-endpoint-action-menu': {
+                click: this.chooseEndpointAction
+            },
             '#wss-no-webservice-endpoints-add-btn': {
                 click: this.goToAddView
             },
             '#add-webservice-endpoint': {
                 click: this.goToAddView
+            },
+            'wss-webservice-history-grid': {
+                select: this.showHistoryPreview
             }
         });
     },
@@ -63,9 +79,72 @@ Ext.define('Wss.controller.Webservices', {
             store = me.getStore('Wss.store.Endpoints');
 
         view = Ext.widget('webservices-setup', {
-            router: me.getController('Uni.controller.history.Router')
+            router: me.getController('Uni.controller.history.Router'),
+            adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
         });
         me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showWebservicesHistoryOverview: function () {
+        var me = this;
+        var store = me.getStore('Wss.store.endpoint.Occurrence');
+        var view = Ext.widget('webservices-history', {
+            router: me.getController('Uni.controller.history.Router'),
+            adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
+        });
+        store.load();
+        me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showWebserviceHistory: function (endpointId) {
+        var me = this;
+        var store = me.getStore('Wss.store.endpoint.EndpointOccurrence');
+        store.getProxy().setUrl(endpointId);
+
+        me.getModel('Wss.model.Endpoint').load(endpointId, {
+            success: function (record) {
+                var view = Ext.widget('webservice-history', {
+                    router: me.getController('Uni.controller.history.Router'),
+                    record: record,
+                    adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
+                });
+                me.getApplication().fireEvent('changecontentevent', view);
+                me.getApplication().fireEvent('endpointload', record.get('name'));
+                store.load();
+            }
+        });
+    },
+
+    showWebserviceHistoryOccurrence: function (endpointId, occurenceId) {
+        var me = this;
+        var store = me.getStore('Wss.store.endpoint.EndpointOccurrence');
+        var logStore = me.getStore('Wss.store.endpoint.OccurrenceLog');
+        store.getProxy().setUrl(endpointId);
+        logStore.getProxy().setUrl(occurenceId);
+
+        me.getModel('Wss.model.Endpoint').load(endpointId, {
+            success: function (endpoint) {
+                me.getModel('Wss.model.endpoint.Occurrence').load(occurenceId, {
+                    success: function (occurrence) {
+                        var showRetry = false;
+                        if (endpoint.data.direction.id === "OUTBOUND" && occurrence.data.status !== "Ongoing" && occurrence.data.payload !== "")
+                        {
+                            showRetry = true;
+                        }
+
+                        var view = Ext.widget('webservice-history-occurence', {
+                            router: me.getController('Uni.controller.history.Router'),
+                            adminView: showRetry,
+                            endpoint: endpoint,
+                            occurrence: occurrence
+                        });
+
+                        me.getApplication().fireEvent('changecontentevent', view);
+                        me.getApplication().fireEvent('endpointload', endpoint.get('name'));
+                    }
+                });
+            }
+        });
     },
 
     showAddWebserviceEndPoint: function () {
@@ -225,6 +304,14 @@ Ext.define('Wss.controller.Webservices', {
         }
     },
 
+    showHistoryPreview: function (selectionModel, record) {
+        var me = this,
+            preview = me.getHistoryPreview(),
+            previewForm = preview.down('webservices-webservice-history-form');
+            
+        previewForm.loadRecord(record);
+    },
+
     chooseAction: function (menu, item) {
         var me = this;
 
@@ -238,6 +325,78 @@ Ext.define('Wss.controller.Webservices', {
             case 'edit':
                 me.editEndpoint(menu.record);
         }
+    },
+
+    chooseEndpointAction: function (menu, item) {
+        var me = this;
+
+        switch (item.action) {
+            case 'view-payload':
+                var win = window.open();
+                var payload = Ext.String.htmlEncode(
+                    menu.record.get('payload')
+                );
+
+                win.document.write("<pre>" + payload + "</pre>");
+
+                win.focus();
+                break;
+            case 'retry':
+                var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                    confirmText: Uni.I18n.translate('webservices.retry.action', 'WSS', "Retry now"),
+                    green: true,
+                });
+                confirmationWindow.show({
+                    title: Uni.I18n.translate('webservices.retry.title', 'WSS', "Retry now?"),
+                    msg: Uni.I18n.translate(
+                        'webservices.retry.msg',
+                        'WSS',
+                        'The response will be resent.'
+                    ),
+                    fn: function (state) {
+                        if (state === 'confirm') {
+                            me.retry(menu.record);
+                        }
+                    }
+                });
+                break;
+        }
+    },
+
+    retry: function(occurrence) {
+        var me = this;
+        var router = me.getController('Uni.controller.history.Router');
+
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ws/endpointconfigurations/occurrences/' + occurrence.getId() + '/retry',
+            success: function () {
+                router.getRoute('administration/webserviceendpoints/view/history').forward({
+                    endpointId: occurrence.getEndpoint().getId()
+                })
+                me.getApplication().fireEvent(
+                    'acknowledge',
+                    Uni.I18n.translate(
+                        'webservices.retry.success',
+                        'WSS',
+                        'The response is successfully resent'
+                    )
+                );
+            },
+            failure: function () {
+                var errorWindow = Ext.create('Uni.view.window.Confirmation', {
+                    noConfirmBtn: true
+                });
+                errorWindow.show({
+                    title: Uni.I18n.translate('webservices.retry.error', 'WSS', "Couldn't perform your action"),
+                    msg: Uni.I18n.translate(
+                        'webservices.retry.error.msg',
+                        'WSS',
+                        'The response couldn\'t be resent. Please check the web service configuration'
+                    )
+                });
+            }
+        });
     },
 
     removeEndpoint: function (record) {
@@ -288,7 +447,6 @@ Ext.define('Wss.controller.Webservices', {
                         version: record.get('version')
                     },
 
-
                     success: function () {
                     record.set('active', toState);
                     tmpVersion = record.get('version');
@@ -304,17 +462,18 @@ Ext.define('Wss.controller.Webservices', {
                 }
         });
     },
+
     showEndpointOverview: function (endpointId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view;
 
-
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
                 view = Ext.widget('webservice-landing-page', {
                     router: router,
-                    record: record
+                    record: record,
+                    adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
                 });
                 if (view.down('webservices-action-menu')) {
                     view.down('webservices-action-menu').record = record;
@@ -324,7 +483,7 @@ Ext.define('Wss.controller.Webservices', {
         });
     },
 
-    showLoggingPage: function (endpointId) {
+    showEndpointStatusHistory: function (endpointId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view,
@@ -334,7 +493,7 @@ Ext.define('Wss.controller.Webservices', {
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
-                view = Ext.widget('webservice-logging-page', {
+                view = Ext.widget('webservice-endpoint-status', {
                     router: router,
                     record: record
                 });

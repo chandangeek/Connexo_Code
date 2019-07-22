@@ -271,6 +271,7 @@ Ext.define('Wss.view.Add', {
             {
                 xtype: 'checkbox',
                 name: 'httpCompression',
+                itemId: 'http-compression-id',
                 fieldLabel: Uni.I18n.translate('endPointAdd.httpCompression', 'WSS', 'HTTP compression')
             }
         );
@@ -278,6 +279,7 @@ Ext.define('Wss.view.Add', {
             form.add(
                 {
                     xtype: 'checkbox',
+                    itemId: 'scheme-validation-id',
                     name: 'schemaValidation',
                     fieldLabel: Uni.I18n.translate('endPointAdd.schemeValidation', 'WSS', 'Scheme validation')
                 }

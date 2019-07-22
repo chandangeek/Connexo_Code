@@ -5,12 +5,14 @@
 package com.elster.jupiter.webservices.inbound.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+
 
 @Component(name = "com.elster.jupiter.metering.rest.provider", service = {InboundRestEndPointProvider.class}, immediate = true, property = {"name=GetMeters"})
 public class MeteringProvider implements InboundRestEndPointProvider {

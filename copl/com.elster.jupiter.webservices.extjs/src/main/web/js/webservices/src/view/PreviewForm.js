@@ -92,7 +92,11 @@ Ext.define('Wss.view.PreviewForm', {
                     renderer: function (value) {
                         return value.localizedValue;
                     }
-
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.application', 'WSS', 'Application'),
+                    name: 'applicationName'
                 },
                 {
                     xtype: 'displayfield',
@@ -115,12 +119,14 @@ Ext.define('Wss.view.PreviewForm', {
                 },
                 {
                     xtype: 'displayfield',
+                    itemId: 'http-compression-id',
                     fieldLabel: Uni.I18n.translate('webservices.httpCompression', 'WSS', 'HTTP compression'),
                     name: 'httpCompression',
                     renderer: me.renderYesOrNo
                 },
                 {
                     xtype: 'displayfield',
+                    itemId: 'scheme-validation-id',
                     fieldLabel: Uni.I18n.translate('webservices.schemeValidation', 'WSS', 'Scheme validation'),
                     name: 'schemaValidation',
                     renderer: function (value, field) {

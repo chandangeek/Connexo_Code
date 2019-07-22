@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.internal.TableSpecs;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
@@ -47,15 +46,15 @@ public class RefAnyTest {
 
     @Before
     public void setUp() {
-		injector = Guice.createInjector(
-                    new MockModule(),
-					inMemoryBootstrapModule,
-        			new UtilModule(),
-        			new ThreadSecurityModule(principal),
-        			new PubSubModule(),
-        			new TransactionModule(),
-        			new OrmModule());
-        injector.getInstance(TransactionService.class).execute((Transaction<Void>) () -> {
+        injector = Guice.createInjector(
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new UtilModule(),
+                new ThreadSecurityModule(principal),
+                new PubSubModule(),
+                new TransactionModule(),
+                new OrmModule());
+        injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(OrmService.class);
             return null;
         });
@@ -68,9 +67,9 @@ public class RefAnyTest {
 
     @Test
     public void testRefAny() {
-    	OrmServiceImpl service = (OrmServiceImpl) injector.getInstance(OrmService.class);
+        OrmServiceImpl service = (OrmServiceImpl) injector.getInstance(OrmService.class);
 
-        DataModelImpl dataModel =  injector.getInstance(TransactionService.class).execute(() -> {
+        DataModelImpl dataModel = injector.getInstance(TransactionService.class).execute(() -> {
             DataModelImpl dModel = service.newDataModel("ORM", "forTest");
             Arrays.stream(TableSpecs.values())
                     .forEach(tableSpecs -> tableSpecs.addTo(dModel));
@@ -79,10 +78,10 @@ public class RefAnyTest {
             return dModel;
         });
 
-        Optional<?> tableHolder = dataModel.getTable("ORM_TABLE").getOptional("ORM","ORM_TABLE");
-    	assertThat(tableHolder.isPresent()).isTrue();
-    	RefAny refAny = injector.getInstance(OrmService.class).getDataModels().get(0).asRefAny(tableHolder.get());
-    	assertThat(refAny.isPresent()).isTrue();
+        Optional<?> tableHolder = dataModel.getTable("ORM_TABLE").getOptional("ORM", "ORM_TABLE");
+        assertThat(tableHolder.isPresent()).isTrue();
+        RefAny refAny = injector.getInstance(OrmService.class).getDataModels().get(0).asRefAny(tableHolder.get());
+        assertThat(refAny.isPresent()).isTrue();
     }
 
     private static class MockModule extends AbstractModule {

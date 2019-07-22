@@ -57,7 +57,7 @@ public class ConsoleCommands {
     public void createEnumeratedEndDeviceGroup(String name, long... ids) {
         threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(() -> meteringGroupsService.createEnumeratedEndDeviceGroup()
+            transactionService.execute(VoidTransaction.<RuntimeException>of(() -> meteringGroupsService.createEnumeratedEndDeviceGroup()
                     .setName(name)
                     .at(clock.instant())
                     .containing(Arrays.stream(ids)

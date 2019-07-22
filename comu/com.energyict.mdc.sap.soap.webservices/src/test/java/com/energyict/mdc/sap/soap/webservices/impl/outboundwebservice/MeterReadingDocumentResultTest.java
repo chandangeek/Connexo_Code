@@ -3,8 +3,9 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateResultMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateRequestProvider;
@@ -15,11 +16,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTest {
@@ -31,8 +36,16 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
     @Mock
     private MeterReadingDocumentCreateResultMessage outboundMessage;
 
+    private MeterReadingDocumentResultCreateRequestProvider provider;
+
     @Before
     public void setUp() {
+        provider = spy(new MeterReadingDocumentResultCreateRequestProvider());
+        when(webServiceCallOccurrence.getId()).thenReturn(1l);
+        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
+        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
+        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
         when(outboundMessage.getUrl()).thenReturn(getURL());
         when(outboundMessage.getResultMessage()).thenReturn(resultMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
@@ -40,36 +53,36 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
 
     @Test
     public void testCall() {
+        when(provider.using(anyString())).thenReturn(requestSender);
         Map<String, Object> properties = new HashMap<>();
         properties.put(WebServiceActivator.URL_PROPERTY, getURL());
+        properties.put("epcId", 1l);
 
-        MeterReadingDocumentResultCreateRequestProvider provider = new MeterReadingDocumentResultCreateRequestProvider();
         provider.addResultPort(port, properties);
         provider.call(outboundMessage);
 
-        Mockito.verify(port).meterReadingDocumentERPResultCreateRequestEOut(outboundMessage.getResultMessage());
+        verify(provider).using("meterReadingDocumentERPResultCreateRequestEOut");
     }
 
     @Test
     public void testCallWithoutPort() {
-        MeterReadingDocumentResultCreateRequestProvider provider = new MeterReadingDocumentResultCreateRequestProvider();
-        provider.setThesaurus(webServiceActivator);
+        inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(new ArrayList());
+        provider.setWebServiceActivator(webServiceActivator);
 
-        expectedException.expect(SAPWebServiceException.class);
-        expectedException.expectMessage(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS.getDefaultFormat());
+        expectedException.expect(LocalizedException.class);
+        expectedException.expectMessage("No web service endpoints are available to send the request using 'SapMeterReadingResult'.");
 
         provider.call(outboundMessage);
     }
 
     @Test
     public void testGetService() {
-        MeterReadingDocumentResultCreateRequestProvider provider = new MeterReadingDocumentResultCreateRequestProvider();
         Assert.assertEquals(provider.getService(), MeterReadingDocumentERPResultCreateRequestEOut.class);
     }
 
     @Test
     public void testGet() {
-        MeterReadingDocumentResultCreateRequestProvider provider = new MeterReadingDocumentResultCreateRequestProvider();
         Assert.assertEquals(provider.get().getClass(), MeterReadingDocumentERPResultCreateRequestEOutService.class);
     }
 }

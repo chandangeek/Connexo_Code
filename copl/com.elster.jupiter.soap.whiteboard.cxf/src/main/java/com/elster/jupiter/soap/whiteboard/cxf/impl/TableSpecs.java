@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.users.Group;
 
@@ -21,6 +22,7 @@ import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
+
 
 public enum TableSpecs {
     WS_ENDPOINTCFG {
@@ -83,6 +85,62 @@ public enum TableSpecs {
             table.primaryKey("PK_WS_ENDPOINT").on(id).add();
         }
     },
+    WS_CALL_OCCURRENCE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<WebServiceCallOccurrence> table = dataModel.addTable(this.name(), WebServiceCallOccurrence.class);
+            table.map(WebServiceCallOccurrenceImpl.class);
+            table.since(version(10, 7));
+
+            Column idColumn = table.addAutoIdColumn();
+
+            Column endPoint = table.column("ENDPOINTCFG").number().notNull().add();
+            table.foreignKey("FK_WS_CALL_OCCURRENCE ")
+                    .references(WS_ENDPOINTCFG.name())
+                    .on(endPoint)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(WebServiceCallOccurrenceImpl.Fields.endPointConfiguration.fieldName())
+                    .add();
+
+            Column startTimeColumn = table.column("STARTTIME")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .notNull()
+                    .map(WebServiceCallOccurrenceImpl.Fields.startTime.fieldName())
+                    .add();
+
+            table.column("ENDTIME")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(WebServiceCallOccurrenceImpl.Fields.endTime.fieldName())
+                    .add();
+
+            table.column("REQUESTNAME")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallOccurrenceImpl.Fields.requestName.fieldName())
+                    .add();
+
+            table.column("STATUS")
+                    .varChar(NAME_LENGTH)
+                    .conversion(ColumnConversion.CHAR2ENUM)
+                    .notNull()
+                    .map(WebServiceCallOccurrenceImpl.Fields.status.fieldName())
+                    .add();
+            table.column("APPLICATIONNAME")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallOccurrenceImpl.Fields.applicationName.fieldName())
+                    .add();
+            table.column("PAYLOAD")
+                    .type("CLOB")
+                    .conversion(CLOB2STRING)
+                    .map(WebServiceCallOccurrenceImpl.Fields.payload.fieldName())
+                    .add();
+
+
+            table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
+            table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
+        }
+    },
     WS_ENDPOINT_LOG {
         @Override
         void addTo(DataModel dataModel) {
@@ -118,9 +176,17 @@ public enum TableSpecs {
                     .conversion(CLOB2STRING)
                     .map(EndPointLogImpl.Fields.stacetrace.fieldName())
                     .add();
+            Column occurrence = table.column("OCCURRENCEID").number().add();
+
+            table.foreignKey("FK_WS_OCCURRENCE")
+                    .references(WS_CALL_OCCURRENCE.name())
+                    .on(occurrence)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(EndPointLogImpl.Fields.occurrence.fieldName())
+                    .since(version(10, 7))
+                    .add();
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
             table.autoPartitionOn(timestampColumn, LifeCycleClass.WEBSERVICES);
-
         }
     },
     WS_ENDPOINT_PROPS {

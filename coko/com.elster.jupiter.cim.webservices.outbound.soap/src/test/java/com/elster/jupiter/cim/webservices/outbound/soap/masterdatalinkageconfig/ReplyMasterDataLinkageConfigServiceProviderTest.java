@@ -5,7 +5,13 @@ package com.elster.jupiter.cim.webservices.outbound.soap.masterdatalinkageconfig
 
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
@@ -21,6 +27,7 @@ import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.ImmutableMap;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,7 +45,8 @@ import org.mockito.stubbing.Answer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -63,14 +71,24 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
     private MasterDataLinkageConfigPort masterDataLinkageConfigPort;
     @Mock
     private FailedLinkageOperation failedLinkage;
+    @Mock
+    private WebServicesService webServicesService;
+    @Mock
+    private WebServiceCallOccurrence webServiceCallOccurrence;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setup() {
         provider = spy(new ReplyMasterDataLinkageConfigServiceProvider());
         String url = "some url";
-        provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url));
+        when(webServiceCallOccurrence.getId()).thenReturn(1l);
+        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
+        inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", thesaurus);
+        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
+        provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url, "epcId", 1l));
 
-        doReturn(true).when(provider).isValidMasterDataLinkageConfigPortService(masterDataLinkageConfigPort);
         when(endPointConfiguration.getUrl()).thenReturn(url);
 
         when(failedLinkage.getErrorCode()).thenReturn(ERROR_CODE);
@@ -98,6 +116,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                     throws Throwable {
                                 MasterDataLinkageConfigEventMessageType message = invocation.getArgumentAt(0,
                                         MasterDataLinkageConfigEventMessageType.class);
+
                                 assertNotNull(message);
                                 assertNotNull(message.getReply());
                                 assertEquals(ReplyType.Result.OK, message.getReply().getResult());
@@ -121,8 +140,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
 
-        verify(masterDataLinkageConfigPort)
-                .createdMasterDataLinkageConfig(any(MasterDataLinkageConfigEventMessageType.class));
+        verify(provider).using("createdMasterDataLinkageConfig");
     }
 
     @Test
@@ -151,8 +169,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
 
-        verify(masterDataLinkageConfigPort)
-                .closedMasterDataLinkageConfig(any(MasterDataLinkageConfigEventMessageType.class));
+        verify(provider).using("closedMasterDataLinkageConfig");
     }
 
     @Test
@@ -195,8 +212,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
 
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
 
-        verify(masterDataLinkageConfigPort)
-                .closedMasterDataLinkageConfig(any(MasterDataLinkageConfigEventMessageType.class));
+        verify(provider).using("closedMasterDataLinkageConfig");
     }
 
     private void verifyFailure(ErrorType failure) {
@@ -232,4 +248,13 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         }
     }
 
+    private static void inject(Class<?> clazz, Object instance, String fieldName, Object value) {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
