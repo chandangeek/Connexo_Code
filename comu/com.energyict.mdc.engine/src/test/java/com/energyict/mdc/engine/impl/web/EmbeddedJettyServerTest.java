@@ -12,6 +12,8 @@ import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 import org.eclipse.jetty.server.Server;
 
@@ -47,6 +49,10 @@ public class EmbeddedJettyServerTest {
     private InboundCommunicationHandler.ServiceProvider inboundCommunicationHandlerServiceProvider;
     @Mock
     private EmbeddedJettyServer.ServiceProvider embeddedJettyServerServiceProvider;
+    @Mock
+    EventAPIStatistics eventAPIStatistics;
+    @Mock
+    QueryAPIStatistics queryAPIStatistics;
 
     private EmbeddedJettyServer embeddedJettyServer;
     private Server jettyServer;
@@ -180,7 +186,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsStart () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:46000/remote/events"), this.embeddedJettyServerServiceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:46000/remote/events"), eventAPIStatistics);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -199,7 +205,7 @@ public class EmbeddedJettyServerTest {
             e.printStackTrace(System.err);
             fail("Failed to start server on port " + PORT_NUMBER + " so testing that starting a second because the port is already in use does not make sense.");
         }
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:" + PORT_NUMBER + "/remote/events"), this.embeddedJettyServerServiceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:" + PORT_NUMBER + "/remote/events"), this.eventAPIStatistics);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -210,7 +216,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsShutdown () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8082/remote/events"), this.embeddedJettyServerServiceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8082/remote/events"), this.eventAPIStatistics);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -222,7 +228,7 @@ public class EmbeddedJettyServerTest {
 
     @Test
     public void testEventsShutdownImmediate () throws URISyntaxException {
-        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8083/remote/events"), this.embeddedJettyServerServiceProvider);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForEventMechanism(new URI("http://localhost:8083/remote/events"), this.eventAPIStatistics);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -239,7 +245,7 @@ public class EmbeddedJettyServerTest {
         when(comServer.getQueryApiPostUri()).thenReturn(queryPostURI);
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI(queryPostURI), runningOnlineComServer);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI(queryPostURI), runningOnlineComServer, queryAPIStatistics);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -261,7 +267,7 @@ public class EmbeddedJettyServerTest {
         OnlineComServer comServer = mock(OnlineComServer.class);
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer, queryAPIStatistics);
 
         // Business method
         this.embeddedJettyServer.start();
@@ -275,7 +281,7 @@ public class EmbeddedJettyServerTest {
         OnlineComServer comServer = mock(OnlineComServer.class);
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:8082/remote/queries"), runningOnlineComServer);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:8082/remote/queries"), runningOnlineComServer, queryAPIStatistics);
         this.embeddedJettyServer.start();
 
         // Business method
@@ -290,7 +296,7 @@ public class EmbeddedJettyServerTest {
         OnlineComServer comServer = mock(OnlineComServer.class);
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:8083/remote/queries"), runningOnlineComServer);
+        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:8083/remote/queries"), runningOnlineComServer, queryAPIStatistics);
         this.embeddedJettyServer.start();
 
         // Business method

@@ -20,7 +20,10 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import org.eclipse.jetty.websocket.WebSocket;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +39,7 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-09 (11:11)
  */
-public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
+public class WebSocketQueryApiService {
 
     private final RunningOnlineComServer comServer;
     private final ComServerDAO comServerDAO;
@@ -44,7 +47,7 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
     private final ConnectionTaskService connectionTaskService;
     private final CommunicationTaskService communicationTaskService;
     private final TransactionService transactionService;
-    private Connection connection;
+    private Session session;
 
     public WebSocketQueryApiService(RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
         super();
@@ -60,7 +63,7 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
         return this.comServer.getComServer();
     }
 
-    @Override
+    @OnWebSocketMessage
     public void onMessage (String data) {
         try {
             JSONObject jsonQuery = new JSONObject(data);
@@ -129,21 +132,21 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
                  || RemoteComServerQueryJSonPropertyNames.METHOD.equals(key));
     }
 
-    @Override
-    public void onOpen (Connection connection) {
-        this.connection = connection;
+    @OnWebSocketConnect
+    public void onOpen (Session session) {
+        this.session = session;
     }
 
-    @Override
+    @OnWebSocketClose
     public void onClose (int closeCode, String message) {
-        this.connection = null;
+        this.session = null;
         this.comServer.queryApiClientUnregistered();
     }
 
     private void sendMessage (String message) {
         try {
             if (this.isConnected()) {
-                this.connection.sendMessage(message);
+                this.session.getRemote().sendString(message);
             }
         }
         catch (IOException e) {
@@ -152,7 +155,7 @@ public class WebSocketQueryApiService implements WebSocket.OnTextMessage {
     }
 
     private boolean isConnected () {
-        return this.connection != null;
+        return this.session != null;
     }
 
     private class QueryMethodServiceProvider implements QueryMethod.ServiceProvider {

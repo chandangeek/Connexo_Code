@@ -14,6 +14,8 @@ import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,10 +39,10 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
         return EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer) {
+    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer, EventAPIStatistics eventAPIStatistics) {
         try {
             URI eventRegistrationUri = new URI(comServer.getEventRegistrationUriIfSupported());
-            return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri, new EmbeddedJettyServerServiceProvider());
+            return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri, eventAPIStatistics);
         }
         catch (UnsupportedOperationException e) {
             // Event registration is not supported
@@ -62,10 +64,10 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
     }
 
     @Override
-    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer runningComServer) {
+    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer runningComServer, QueryAPIStatistics queryAPIStatistics) {
         try {
             String queryApiPostUri = runningComServer.getComServer().getQueryApiPostUriIfSupported();
-            return EmbeddedJettyServer.newForQueryApi(new URI(queryApiPostUri), runningComServer);
+            return EmbeddedJettyServer.newForQueryApi(new URI(queryApiPostUri), runningComServer, queryAPIStatistics);
         }
         catch (UnsupportedOperationException e) {
             // Event registration is not supported

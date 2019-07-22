@@ -23,6 +23,7 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
@@ -72,6 +73,8 @@ public class ComPortOperationsLogHandlerTest {
     private NlsService nlsService;
     @Mock
     private EventService eventService;
+    @Mock
+    private EventAPIStatistics eventApiStatistics;
 
     private ComPortOperationsLogger comPortOperationsLogger;
     private static final String eventRegistrationURL = "ws://localhost:8282/events/registration";
@@ -95,7 +98,7 @@ public class ComPortOperationsLogHandlerTest {
                         this.identificationService,
                         serviceProvider.eventPublisher());
         EmbeddedWebServerFactory embeddedWebServerFactory = new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory);
-        embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics);
     }
 
     @Test

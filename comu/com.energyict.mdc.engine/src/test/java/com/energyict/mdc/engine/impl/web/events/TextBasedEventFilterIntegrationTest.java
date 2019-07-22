@@ -23,14 +23,17 @@ import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
 
-import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.eclipse.jetty.websocket.WebSocketClientFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -84,6 +87,8 @@ public class TextBasedEventFilterIntegrationTest {
     private IdentificationService identificationService;
     @Mock
     private RequestParser.ServiceProvider requestParserServiceProvider;
+    @Mock
+    private EventAPIStatistics eventApiStatistics;
 
     private EmbeddedWebServerFactory embeddedWebServerFactory;
     private String eventRegistrationURL = "ws://localhost:8181/events/registration";
@@ -129,7 +134,7 @@ public class TextBasedEventFilterIntegrationTest {
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch = new CountDownLatch(1);
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
-        EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics);
         webServer.start();
         //WebSocketClientFactory factory = new WebSocketClientFactory();
         //factory.start();
@@ -179,7 +184,7 @@ public class TextBasedEventFilterIntegrationTest {
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch = new CountDownLatch(3);
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
-        EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics);
         webServer.start();
        // WebSocketClientFactory factory = new WebSocketClientFactory();
         //factory.start();
@@ -226,7 +231,7 @@ public class TextBasedEventFilterIntegrationTest {
         CountDownLatch messagesReceivedLatch2 = new CountDownLatch(3);
         RegisterAndReceiveAllEventCategories webSocket1 = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch1);
         RegisterAndReceiveAllEventCategories webSocket2 = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch2);
-        EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics);
         webServer.start();
         //WebSocketClientFactory factory = new WebSocketClientFactory();
         //factory.start();
@@ -290,7 +295,7 @@ public class TextBasedEventFilterIntegrationTest {
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch = new CountDownLatch(1);
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
-        EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        EmbeddedWebServer webServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics);
         webServer.start();
         //WebSocketClientFactory factory = new WebSocketClientFactory();
         //factory.start();
@@ -320,11 +325,12 @@ public class TextBasedEventFilterIntegrationTest {
         }
     }
 
-    private class RegisterAndReceiveAllEventCategories implements WebSocket.OnTextMessage {
+    @WebSocket
+    private class RegisterAndReceiveAllEventCategories {
 
         private CountDownLatch messageReceivedLatch;
         private List<String> receivedMessages = new ArrayList<>();
-        private Connection connection;
+        private Session session;
 
         private RegisterAndReceiveAllEventCategories() {
             super();
@@ -337,31 +343,31 @@ public class TextBasedEventFilterIntegrationTest {
 
         public void closeIfOpen() {
             if (this.isOpen()) {
-                this.connection.close();
+                this.session.close();
             }
         }
 
         public boolean isOpen() {
-            return this.connection != null;
+            return this.session != null;
         }
 
         public void registerMalformedRequest() throws IOException {
-            this.connection.sendMessage("Anything as long as it does not conform to the expected parse format");
+            this.session.getRemote().sendString("Anything as long as it does not conform to the expected parse format");
         }
 
         public void register() throws IOException {
-            this.connection.sendMessage("Register request for info:");
+            this.session.getRemote().sendString("Register request for info:");
         }
 
         public void registerForComTasksOnly() throws IOException {
-            this.connection.sendMessage("Register request for debugging: COMTASK");
+            this.session.getRemote().sendString("Register request for debugging: COMTASK");
         }
 
         public synchronized List<String> getReceivedMessages() {
             return receivedMessages;
         }
 
-        @Override
+        @OnWebSocketMessage
         public synchronized void onMessage(String data) {
             this.receivedMessages.add(data);
             if (this.messageReceivedLatch != null) {
@@ -369,14 +375,14 @@ public class TextBasedEventFilterIntegrationTest {
             }
         }
 
-        @Override
-        public void onOpen(Connection connection) {
-            this.connection = connection;
+        @OnWebSocketConnect
+        public void onOpen(Session session) {
+            this.session = session;
         }
 
-        @Override
+        @OnWebSocketClose
         public void onClose(int closeCode, String message) {
-            this.connection = null;
+            this.session = null;
         }
     }
 
@@ -442,8 +448,8 @@ public class TextBasedEventFilterIntegrationTest {
         }
 
         @Override
-        public void onMessage(String message) {
-            super.onMessage(message);
+        public void onWebSocketText(String message) {
+            super.onWebSocketText(message);
             this.latch.countDown();
         }
     }

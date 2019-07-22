@@ -21,6 +21,8 @@ import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 import com.google.inject.Provider;
 
@@ -65,6 +67,10 @@ public class EmbeddedWebServerFactoryTest {
     Thesaurus thesaurus;
     @Mock
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
+    @Mock
+    private EventAPIStatistics eventAPIStatistics;
+    @Mock
+    private QueryAPIStatistics queryAPIStatistics;
 
     private EmbeddedWebServerFactory factory;
     private EmbeddedWebServer embeddedWebServer;
@@ -89,7 +95,7 @@ public class EmbeddedWebServerFactoryTest {
         OfflineComServer comServer = createOfflineComServer();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -116,7 +122,7 @@ public class EmbeddedWebServerFactoryTest {
         OnlineComServer comServer = createOnlineComServer();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -139,7 +145,7 @@ public class EmbeddedWebServerFactoryTest {
         RemoteComServer comServer = createRemoteComServerWithRegistrationPort();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -152,7 +158,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, queryAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -167,7 +173,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, queryAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();

@@ -21,7 +21,6 @@ Import-Package: !com.sun.jdi.*,\
     !org.codehaus.groovy.*,\
     !org.codehaus.janino,\
     !org.eclipse.jetty.jmx,\
-    !org.eclipse.jetty.io.nio,\
     !org.eclipse.jetty.continuation,\
     !org.mortbay.*,\
     !org.slf4j.*,\

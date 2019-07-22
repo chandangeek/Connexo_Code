@@ -15,25 +15,22 @@ import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.EventServlet;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
-import org.eclipse.jetty.server.HttpConnection;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.io.*;
-import org.eclipse.jetty.server.handler.ErrorHandler;
+import org.eclipse.jetty.server.Handler;
+
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.ServerConnector;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.ByteArrayISO8859Writer;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.joda.time.DateTimeConstants;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.Writer;
+import javax.servlet.Servlet;
 import java.net.URI;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -52,6 +49,8 @@ import static com.elster.jupiter.util.Checks.is;
 public class EmbeddedJettyServer implements EmbeddedWebServer {
 
     private final ShutdownFailureLogger shutdownFailureLogger;
+    private final static String INBOUND_COMPORT_SERVICE = "Jetty_InboundComportService";
+    private final static String EVENT_MECHANISM = "Jetty_EventMechanism";
 
     public interface ServiceProvider {
 
@@ -65,6 +64,8 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      */
     private static final int GRACEFUL_SHUTDOWN_SECONDS = 3;
     private Server jetty;
+    private String threadPoolName;
+    private ServletContextHandler servletContextHandler;
 
     /**
      * Constructs a new EmbeddedJettyServer that will host
@@ -85,7 +86,10 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     private EmbeddedJettyServer (ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider)
              {
         super();
-        this.jetty = new Server();
+        threadPoolName = INBOUND_COMPORT_SERVICE;
+        QueuedThreadPool threadPool = new QueuedThreadPool();
+        threadPool.setName(threadPoolName);
+        this.jetty = new Server(threadPool);
         this.shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
         if (comPort.isHttps()) {
             try {
@@ -95,15 +99,17 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
                 KeyStore keyStore = KeyStore.getInstance(comPort.getTrustStoreSpecsFilePath());
                 sslContextFactory.setTrustStore(keyStore);
                 sslContextFactory.setTrustStorePassword(comPort.getTrustStoreSpecsPassword());
-                ServerConnector sslConnector = new ServerConnector(this.jetty, sslContextFactory);
-                sslConnector.setPort(comPort.getPortNumber());
-                this.jetty.addConnector(sslConnector);
+
+                ServerConnector connector = new ServerConnector(jetty, sslContextFactory);
+
+                connector.setPort(comPort.getPortNumber());
+                jetty.addConnector(connector);
+
             }catch (KeyStoreException ex){}
-        }
-        else {
+        } else {
             ServerConnector connector = new ServerConnector(jetty);
             connector.setPort(comPort.getPortNumber());
-            this.jetty.addConnector(connector);
+            jetty.addConnector(connector);
         }
 
         initCustomErrorHandling();
@@ -137,18 +143,25 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param eventRegistrationUri The URI on which the servlet should be listening
      * @param serviceProvider The ServiceProvider
      */
-    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
+    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, EventAPIStatistics eventAPIStatistics) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new EventMechanismShutdownFailureLogger(eventRegistrationUri));
-        server.addEventMechanism(eventRegistrationUri, serviceProvider);
+        server.addEventMechanism(eventRegistrationUri, eventAPIStatistics);
         return server;
     }
 
-    public void addEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
-        this.jetty = new Server(getPortNumber(eventRegistrationUri, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER));
-        ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        ServletHolder servletHolder = new ServletHolder(new EventServlet(serviceProvider.webSocketEventPublisherFactory()));
-        handler.addServlet(servletHolder, eventRegistrationUri.getPath());
-        this.jetty.setHandler(handler);
+    public void addEventMechanism (URI eventRegistrationUri, EventAPIStatistics eventAPIStatistics) {
+        if (this.jetty == null) {
+            threadPoolName = EVENT_MECHANISM;
+            this.jetty = new Server(getPortNumber(eventRegistrationUri, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER));
+
+            ContextHandlerCollection handlerCollection = new ContextHandlerCollection();
+            jetty.setHandler(handlerCollection);
+            servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            handlerCollection.setHandlers(new Handler[]{servletContextHandler});
+        }
+        EventServlet servlet = new EventServlet(eventAPIStatistics);
+
+        servletContextHandler.addServlet(new ServletHolder((Servlet) servlet), eventRegistrationUri.getPath());
     }
 
     /**
@@ -159,16 +172,16 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param queryApiPostUri The URI on which the servlet should be listening
      * @param comServer The OnlineComServer
      */
-    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
+    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new QueryAPIShutdownFailureLogger(queryApiPostUri));
-        server.addQueryApi(queryApiPostUri, comServer);
+        server.addQueryApi(queryApiPostUri, comServer, queryAPIStatistics);
         return server;
     }
 
-    public void addQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
+    public void addQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
         this.jetty = new Server(getPortNumber(queryApiPostUri, ComServer.DEFAULT_QUERY_API_PORT_NUMBER));
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        ServletHolder servletHolder = new ServletHolder(new QueryApiServlet(comServer));
+        ServletHolder servletHolder = new ServletHolder(new QueryApiServlet(comServer, queryAPIStatistics));
         handler.addServlet(servletHolder, queryApiPostUri.getPath());
         this.jetty.setHandler(handler);
     }
@@ -219,6 +232,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     @Override
     public void start () {
         try {
+            jetty.setStopAtShutdown(true);
             this.jetty.start();
         }
         catch (Exception e) {

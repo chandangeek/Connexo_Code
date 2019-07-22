@@ -17,7 +17,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<jetty-server.version>9.4.11.v20180605</jetty-server.version>
+		<jetty-server.version>9.4.6.v20170531</jetty-server.version>
 		<serialio.version>10.0.4.2</serialio.version>
 		<org.rxtx.version>2.2pre2</org.rxtx.version>
 		<json.version>20090211</json.version>
@@ -553,6 +553,12 @@
 			</dependency>
 			<!-- Web libraries -->
 			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>3.1.0</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-http</artifactId>
 				<version>${jetty-server.version}</version>
@@ -578,20 +584,6 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-webapp</artifactId>
-				<version>${jetty-server.version}</version>
-				<scope>provided</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-io</artifactId>
-				<version>${jetty-server.version}</version>
-				<scope>provided</scope>
-			</dependency>
-
-			<dependency>
-				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-server</artifactId>
 				<version>${jetty-server.version}</version>
 				<scope>provided</scope>
@@ -604,29 +596,32 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-websocket</artifactId>
-				<version>8.2.0.v20160908</version>
-				<scope>provided</scope>
+				<artifactId>jetty-webapp</artifactId>
+				<version>${jetty-server.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-util</artifactId>
 				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty.websocket</groupId>
 				<artifactId>websocket-client</artifactId>
 				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty.websocket</groupId>
 				<artifactId>websocket-server</artifactId>
 				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty.websocket</groupId>
 				<artifactId>websocket-servlet</artifactId>
 				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

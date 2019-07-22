@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.impl.monitor.ServerQueryAPIStatistics;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
 
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -26,17 +27,21 @@ import java.util.concurrent.ThreadFactory;
 public class RunningOnlineComServerImpl extends RunningComServerImpl implements RunningOnlineComServer {
 
     private EmbeddedWebServer remoteQueryApi;
+    private ServiceProvider serviceProvider;
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, null, null, new ComServerThreadFactory(comServer), serviceProvider);
+        this.serviceProvider = serviceProvider;
     }
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, serviceProvider);
+        this.serviceProvider = serviceProvider;
     }
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, embeddedWebServerFactory, serviceProvider);
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
@@ -58,7 +63,8 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
     }
 
     private void startQueryApiListener () {
-        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this);
+        ComServerMonitor monitor =  (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor((RunningComServer) super.getComServer());
+        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this, monitor.getQueryApiStatistics());
         this.remoteQueryApi.start();
     }
 

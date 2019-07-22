@@ -34,8 +34,10 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.google.common.collect.Range;
-import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.json.JSONException;
@@ -631,33 +633,41 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return ids;
     }
 
-    private class QueryWebSocket implements WebSocket.OnTextMessage {
 
-        private Connection connection;
+    private class QueryWebSocket  {
 
-        @Override
-        public void onOpen (Connection connection) {
-            this.connection = connection;
+        private Session session;
+
+        public QueryWebSocket() {
         }
 
-        @Override
-        public void onClose (int closeCode, String message) {
-            this.connection = null;
-            webSocketClosed();
+        public QueryWebSocket(Session session) {
+            this.session = session;
+        }
+
+        @OnWebSocketConnect
+        public void onOpen(Session session) {
+            this.session = session;
+        }
+
+        @OnWebSocketClose
+        public void onClose(int closeCode, String message) {
+            session = null;
+            //Note that after this, the recovery mechanism will try to setup a new connection to the online ComServer
         }
 
         public void disconnect () {
-            if (this.connection != null) {
-                this.connection.close();
+            if (this.session != null) {
+                this.session.close();
             }
         }
 
         public void post (Query query) throws IOException {
-            this.connection.sendMessage(query.getSpecs().toString());
+            this.session.getRemote().sendString(query.getSpecs().toString());
         }
 
-        @Override
-        public void onMessage (String data) {
+        @OnWebSocketMessage
+        public void onMessage(byte[] data, int offset, int length) {
             try {
                 JSONObject jsonObject = new JSONObject(data);
                 String queryId = String.valueOf(jsonObject.get(RemoteComServerQueryJSonPropertyNames.QUERY_ID));
