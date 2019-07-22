@@ -79,13 +79,15 @@ public class ServiceCallIssueInfoFactory implements InfoFactory<ServiceCallIssue
 
     private void addServiceCallIssueInfo(ServiceCallIssueInfo<?> info, ServiceCallIssue issue) throws LocalizedFieldValidationException {
         ServiceCall serviceCall = issue.getServiceCall();
-        info.logs = serviceCall.getLogs().stream().map(this::asServiceCallLogInfo).collect(Collectors.toList());
-        info.serviceCall = new IdWithNameInfo(serviceCall.getId(), serviceCall.getNumber());
-        serviceCall.getParent().ifPresent(parent -> info.parentServiceCall = new IdWithNameInfo(parent.getId(), parent.getNumber()));
-        info.onState = new IdWithNameInfo(issue.getStateCausedIssue().ordinal(), issue.getStateCausedIssue().getDisplayName(thesaurus));
-        info.serviceCallType = new IdWithNameInfo(serviceCall.getType());
-        info.receivedTime = serviceCall.getCreationTime();
-        info.lastModifyTime = serviceCall.getLastModificationTime();
+        ServiceCallInfo scInfo = new ServiceCallInfo();
+        scInfo.logs = serviceCall.getLogs().stream().map(this::asServiceCallLogInfo).collect(Collectors.toList());
+        scInfo.serviceCall = new IdWithNameInfo(serviceCall.getId(), serviceCall.getNumber());
+        serviceCall.getParent().ifPresent(parent -> scInfo.parentServiceCall = new IdWithNameInfo(parent.getId(), parent.getNumber()));
+        scInfo.onState = new IdWithNameInfo(issue.getStateCausedIssue().ordinal(), issue.getStateCausedIssue().getDisplayName(thesaurus));
+        scInfo.serviceCallType = new IdWithNameInfo(serviceCall.getType());
+        scInfo.receivedTime = serviceCall.getCreationTime();
+        scInfo.lastModifyTime = serviceCall.getLastModificationTime();
+        info.serviceCallInfo = scInfo;
     }
 
     private ServiceCallLogEntryInfo asServiceCallLogInfo(ServiceCallLog serviceCallLog) {

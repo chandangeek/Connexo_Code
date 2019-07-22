@@ -7,7 +7,7 @@ package com.elster.jupiter.issue.servicecall.impl.provider;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
-    SERVICE_CALL_ISSUE_ASSOCIATION_PROVIDER(ServiceCallProcessAssociationProvider.ASSOCIATION_TYPE, "Service call issue"),
+    SERVICE_CALL_ISSUE_ASSOCIATION_PROVIDER(ServiceCallIssueProcessAssociationProvider.ASSOCIATION_TYPE, "Service call issue"),
     SERVICE_CALL_ISSUE_REASON_TITLE("issueReasons", "Issue reasons"),
     SERVICE_CALL_ISSUE_REASON_COLUMN("issueReason", "Issue reason");
 
