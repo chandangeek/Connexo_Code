@@ -7,6 +7,8 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 
 import com.energyict.mdc.device.data.Register;
@@ -18,7 +20,9 @@ import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component(name = UtilitiesDeviceRegisterCreateRequestCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + UtilitiesDeviceRegisterCreateRequestCallHandler.NAME, immediate = true)
@@ -54,34 +58,62 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
 
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
         if (device.isPresent()) {
-            //TODO: we can set LRN for channels
-            Optional<Register> register = device.get().getRegisterWithDeviceObisCode(ObisCode.fromString(extension.getRegisterId()));
-            if(register.isPresent()){
-                try {
-                    sapCustomPropertySets.setLrn(register.get(), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
-                } catch (SAPWebServiceException ex) {
-                    extension.setError(ex.getMessageSeed(), ex.getMessageArgs());
-                    serviceCall.update(extension);
-                    serviceCall.requestTransition(DefaultState.FAILED);
-                    return;
+            String interval = extension.getInterval();
+            String obis = extension.getObis();
+
+            if (interval == null || interval.equals("0")) {
+                Optional<Register> register = device.get().getRegisterWithDeviceObisCode(ObisCode.fromString(obis));
+                if (register.isPresent()) {
+                    try {
+                        sapCustomPropertySets.setLrn(register.get(), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
+                    } catch (SAPWebServiceException ex) {
+                        failServiceCall(serviceCall, extension, (MessageSeeds)ex.getMessageSeed(), ex.getMessageArgs());
+                        return;
+                    }
+                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                } else {
+                    failServiceCall(serviceCall, extension, MessageSeeds.REGISTER_NOT_FOUND, obis);
                 }
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                extension.setError(MessageSeeds.REGISTER_NOT_FOUND, extension.getRegisterId() );
-                serviceCall.update(extension);
-                serviceCall.requestTransition(DefaultState.FAILED);
+                List<Channel> channels = findChannelOnDevice(device.get(), obis, interval);
+                if (!channels.isEmpty()) {
+                    if (channels.size() == 1) {
+                        try {
+                            sapCustomPropertySets.setLrn(channels.get(0), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
+                        } catch (SAPWebServiceException ex) {
+                            failServiceCall(serviceCall, extension, (MessageSeeds)ex.getMessageSeed(), ex.getMessageArgs());
+                            return;
+                        }
+                        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                    } else {
+                        failServiceCall(serviceCall, extension, MessageSeeds.SEVERAL_CHANNELS, obis);
+                    }
+                } else {
+                    failServiceCall(serviceCall, extension, MessageSeeds.CHANNEL_NOT_FOUND, obis, interval);
+                }
             }
         } else {
-            extension.setError(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
-            serviceCall.update(extension);
-            serviceCall.requestTransition(DefaultState.FAILED);
+            failServiceCall(serviceCall, extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
         }
+
     }
 
     private void cancelServiceCall(ServiceCall serviceCall) {
         UtilitiesDeviceRegisterCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-        extension.setError(MessageSeeds.REGISTER_SERVICE_CALL_WAS_CANCELLED, extension.getRegisterId());
+        extension.setError(MessageSeeds.REGISTER_SERVICE_CALL_WAS_CANCELLED, extension.getObis());
         serviceCall.update(extension);
+    }
+
+    private void failServiceCall(ServiceCall serviceCall, UtilitiesDeviceRegisterCreateRequestDomainExtension extension, MessageSeeds messageSeed, Object... args){
+        extension.setError(messageSeed, args);
+        serviceCall.update(extension);
+        serviceCall.requestTransition(DefaultState.FAILED);
+    }
+
+    private List<Channel> findChannelOnDevice(Device device, String obis, String interval) {
+        return device.getChannels().stream().filter(c -> c.getObisCode().toString().equals(obis))
+                .filter(c -> c.getInterval().getSeconds() / 60 == Integer.parseInt(interval))
+                .collect(Collectors.toList());
     }
 
     @Reference

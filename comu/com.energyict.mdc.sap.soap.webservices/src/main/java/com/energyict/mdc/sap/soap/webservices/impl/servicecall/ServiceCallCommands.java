@@ -307,7 +307,8 @@ public class ServiceCallCommands {
         UtilitiesDeviceRegisterCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceRegisterCreateRequestDomainExtension();
         childDomainExtension.setDeviceId(deviceId);
         childDomainExtension.setLrn(bodyMessage.getLrn());
-        childDomainExtension.setRegisterId(bodyMessage.getOBIS());
+        childDomainExtension.setObis(bodyMessage.getOBIS());
+        childDomainExtension.setInterval(bodyMessage.getInterval());
         childDomainExtension.setStartDate(bodyMessage.getStartDate());
         childDomainExtension.setEndDate(bodyMessage.getEndDate());
 

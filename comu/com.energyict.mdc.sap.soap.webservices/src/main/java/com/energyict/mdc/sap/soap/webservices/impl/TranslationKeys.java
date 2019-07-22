@@ -47,11 +47,12 @@ public enum TranslationKeys implements TranslationKey {
     CATEGORY_CODE("categoryCode", "Category code"),
     REASON_CODE("reasonCode", "Reason code"),
     PROCESS_DATE("processDate", "Planned processing date"),
-    REGISTER_ID("registerId","Register Code"),
+    OBIS("obis","OBIS code"),
     START_DATE("startDate","Time slice start date"),
     END_DATE("endDate","Time slice end date"),
     RETURN_CODE("returnCode", "Return code"),
     SERIAL_ID("serialId", "Serial id"),
+    INTERVAL("interval","Interval length"),
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
 

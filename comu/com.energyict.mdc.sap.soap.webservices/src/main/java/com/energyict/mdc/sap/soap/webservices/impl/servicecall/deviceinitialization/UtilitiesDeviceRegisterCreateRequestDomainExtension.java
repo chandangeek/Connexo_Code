@@ -10,7 +10,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
@@ -24,7 +23,8 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
 
         // provided
         DEVICE_ID("deviceId", "deviceId"),
-        REGISTER_ID("registerId", "registerId"),
+        OBIS("obis", "obis"),
+        INTERVAL("interval", "interval"),
         LRN("lrn", "lrn"),
         START_DATE("startDate", "startDate"),
         END_DATE("endDate", "endDate"),
@@ -59,7 +59,10 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String registerId;
+    private String obis;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String interval;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -74,12 +77,20 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorMessage;
 
-    public String getRegisterId() {
-        return registerId;
+    public String getObis() {
+        return obis;
     }
 
-    public void setRegisterId(String registerId) {
-        this.registerId = registerId;
+    public void setObis(String obis) {
+        this.obis = obis;
+    }
+
+    public String getInterval() {
+        return interval;
+    }
+
+    public void setInterval(String interval) {
+        this.interval = interval;
     }
 
     public String getLrn() {
@@ -130,16 +141,17 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.errorMessage = errorMessage;
     }
 
-    public void setError(MessageSeed messageSeed, Object... args ){
-        setErrorCode(String.valueOf(messageSeed.getNumber()));
-        setErrorMessage(((MessageSeeds)messageSeed).getDefaultFormat(args));
+    public void setError(MessageSeeds messageSeed, Object... args) {
+        setErrorCode(messageSeed.code());
+        setErrorMessage(messageSeed.getDefaultFormat(args));
     }
 
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
-        this.setRegisterId((String) propertyValues.getProperty(FieldNames.REGISTER_ID.javaName()));
+        this.setObis((String) propertyValues.getProperty(FieldNames.OBIS.javaName()));
+        this.setInterval((String) propertyValues.getProperty(FieldNames.INTERVAL.javaName()));
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setStartDate((Instant) propertyValues.getProperty(FieldNames.START_DATE.javaName()));
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
@@ -150,7 +162,8 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
-        propertySetValues.setProperty(FieldNames.REGISTER_ID.javaName(), this.getRegisterId());
+        propertySetValues.setProperty(FieldNames.OBIS.javaName(), this.getObis());
+        propertySetValues.setProperty(FieldNames.INTERVAL.javaName(), this.getInterval());
         propertySetValues.setProperty(FieldNames.LRN.javaName(), this.getLrn());
         propertySetValues.setProperty(FieldNames.START_DATE.javaName(), this.getStartDate());
         propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());

@@ -151,6 +151,8 @@ public interface MasterDataService {
 
     public Optional<LoadProfileType> findAndLockLoadProfileTypeByIdAndVersion(long id, long version);
 
+    public Optional<LoadProfileType> findAndLockLoadProfileTypeById(long id);
+
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 
     public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterType templateRegisterType, TimeDuration interval);

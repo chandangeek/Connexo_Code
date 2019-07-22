@@ -59,7 +59,7 @@ public class CreateRegisterConfirmationMessageFactory {
                 } else {
                     String failedRegisterError = createRegisterError(registerServiceCalls);
                     if (!failedRegisterError.isEmpty()) {
-                        confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_REGISTER.code(), MessageSeeds.FAILED_REGISTER.getDefaultFormat(failedRegisterError)));
+                        confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_DATA_SOURCE.code(), MessageSeeds.FAILED_DATA_SOURCE.getDefaultFormat(failedRegisterError)));
                     } else {
                         confirmationMessage.setLog(createFailedLog());
                     }

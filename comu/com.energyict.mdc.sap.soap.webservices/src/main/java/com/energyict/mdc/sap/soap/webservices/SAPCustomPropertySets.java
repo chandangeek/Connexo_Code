@@ -41,6 +41,8 @@ public interface SAPCustomPropertySets {
 
     void setLrn(Register register, String lrn, Instant startDateTime, Instant endDateTime);
 
+    void setLrn(com.energyict.mdc.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime);
+
     boolean isAnyLrn(long deviceId);
 
     Optional<Channel> getChannel(String lrn, Instant when);

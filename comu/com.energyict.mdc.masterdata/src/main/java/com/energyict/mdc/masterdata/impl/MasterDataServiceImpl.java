@@ -218,6 +218,11 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
     }
 
     @Override
+    public Optional<LoadProfileType> findAndLockLoadProfileTypeById(long id) {
+        return Optional.ofNullable(this.getDataModel().mapper(LoadProfileType.class).lock(id));
+    }
+
+    @Override
     public List<LoadProfileType> findLoadProfileTypesByName(String name) {
         return this.getDataModel().mapper(LoadProfileType.class).find("name", name);
     }

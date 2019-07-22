@@ -343,6 +343,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<ChannelSpec> findAndLockChannelSpecById(long id) {
+        return Optional.ofNullable(this.getDataModel().mapper(ChannelSpec.class).lock(id));
+    }
+
+    @Override
     public Optional<RegisterSpec> findRegisterSpec(long id) {
         return this.getDataModel().mapper((RegisterSpec.class)).getUnique("id", id);
     }

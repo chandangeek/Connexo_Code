@@ -129,8 +129,14 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.javaName(), TranslationKeys.REGISTER_ID)
-                        .describedAs(TranslationKeys.REGISTER_ID)
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.javaName(), TranslationKeys.OBIS)
+                        .describedAs(TranslationKeys.OBIS)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.INTERVAL.javaName(), TranslationKeys.INTERVAL)
+                        .describedAs(TranslationKeys.INTERVAL)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -213,10 +219,14 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                     .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
                     .add();
-            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.databaseName())
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.databaseName())
                     .varChar(80)
-                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.javaName())
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.OBIS.javaName())
                     .notNull()
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.INTERVAL.databaseName())
+                    .varChar(80)
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.INTERVAL.javaName())
                     .add();
             table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.LRN.databaseName())
                     .varChar(80)
