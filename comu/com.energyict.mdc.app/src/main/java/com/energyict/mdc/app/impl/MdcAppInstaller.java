@@ -74,13 +74,6 @@ public class MdcAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        Map<Version,  Class<? extends Upgrader>>  upgraders = new HashMap<>();
-        upgraders.put(version(10, 2), UpgraderV10_2.class);
-        upgraders.put(version(10, 3), UpgraderV10_3.class);
-        upgraders.put(version(10, 4), UpgraderV10_4.class);
-        upgraders.put(version(10, 4, 1), UpgraderV10_4_1.class);
-        upgraders.put(version(10, 6), UpgraderV10_6.class);
-        upgraders.put(version(10, 7), UpgraderV10_7.class);
         upgradeService.register(
                 InstallIdentifier.identifier("MultiSense", "MDA"),
                 dataModel,
