@@ -185,7 +185,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         this.serviceCallLifeCycle.set(serviceCallLifeCycle);
     }
 
-    void setRetryState(DefaultState retryState) {
+    @Override
+    public void setRetryState(DefaultState retryState) {
         this.RETRY_STATE = retryState;
     }
 

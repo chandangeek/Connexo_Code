@@ -6,78 +6,43 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.energyict.mdc.firmware.impl.campaign.ServiceCallTypes;
 
 import javax.inject.Inject;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import static com.elster.jupiter.orm.Version.version;
 
 public class UpgraderV10_7 implements Upgrader {
+
     private final DataModel dataModel;
     private final FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller;
+    private final ServiceCallService serviceCallService;
 
     @Inject
-    UpgraderV10_7(DataModel dataModel, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller) {
+    UpgraderV10_7(DataModel dataModel, ServiceCallService serviceCallService, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller) {
         this.dataModel = dataModel;
         this.firmwareCampaignServiceCallLifeCycleInstaller = firmwareCampaignServiceCallLifeCycleInstaller;
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         firmwareCampaignServiceCallLifeCycleInstaller.createServiceCallTypes();
+        updateServiceCallTypes();
         dataModelUpgrader.upgrade(dataModel, version(10, 7));
-        //    serviceCallTable();
     }
 
-    private void serviceCallTable() {
-//        executeQuery(dataModel,"", this::convertResultSetToMap)
-//                .forEach(firCamp -> execute(dataModel,""));
-//        execute(dataModel,
-//            "INSERT INTO SCS_SERVICE_CALL (id, parent, state, servicecalltype, versioncount, createtime, modtime, username)"
-//                    +"SELECT (SELECT NVL(MAX(ID),0) FROM SCS_SERVICE_CALL)+1 campaign_name, device_type FROM FWC_CAMPAIGN");
-        long i = executeQuery(dataModel, "SELECT NVL(MAX(ID),0) FROM SCS_SERVICE_CALL", this::toLong);
+    private void updateServiceCallTypes() {
+        for (ServiceCallTypes type : ServiceCallTypes.values()) {
+            serviceCallService
+                    .findServiceCallType(type.getTypeName(), type.getTypeVersion()).ifPresent(
+                    serviceCallType -> {
+                        serviceCallType.setApplication(type.getApplication().orElse(null));
+                        serviceCallType.setRetryState(type.getRetryState());
+                    }
+            );
+        }
     }
-
-    private void firmwareCampaignTable() {
-//        execute(dataModel,
-//                "INSERT INTO " + FirmwareCampaignPersistenceSupport.TABLE_NAME + "(name, device_type)"
-//                +"SELECT campaign_name, device_type FROM FWC_CAMPAIGN");
-    }
-
-    private long toLong(ResultSet resultSet) throws SQLException {
-        resultSet.next();
-        return resultSet.getLong(1);
-    }
-
-//    private <T> T executeQuery(DataModel dataModel, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
-//        try (Connection connection = dataModel.getConnection(false);
-//             Statement statement = connection.createStatement()) {
-//            return executeQuery(statement, sql, resultMapper);
-//        } catch (SQLException e) {
-//            throw new UnderlyingSQLFailedException(e);
-//        }
-//    }
-
-//    private List<FirCamp> convertResultSetToMap(ResultSet resultSet) throws SQLException {
-//        List<FirCamp> map = new ArrayList<>();
-//        while (resultSet.next()) {
-//            map.put(resultSet.getLong(1), resultSet.getLong(2));
-//        }
-//        return map;
-//    }
-//
-//    private class FirCamp{
-//        List<FirCampItem> list;
-//        int id;
-//
-//    }
-//
-//    private class FirCampItem{
-//        int i;
-//
-//    }
-
 }

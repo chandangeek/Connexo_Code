@@ -5,6 +5,8 @@ package com.energyict.mdc.firmware.impl.campaign;
 
 import com.elster.jupiter.servicecall.DefaultState;
 
+import java.util.Optional;
+
 public enum ServiceCallTypes {
 
     FIRMWARE_CAMPAIGN(
@@ -47,8 +49,8 @@ public enum ServiceCallTypes {
         return typeVersion;
     }
 
-    public String getReservedByApplication() {
-        return reservedByApplication;
+    public Optional<String> getApplication() {
+        return Optional.ofNullable(reservedByApplication);
     }
 
     public String getCustomPropertySetClass() {

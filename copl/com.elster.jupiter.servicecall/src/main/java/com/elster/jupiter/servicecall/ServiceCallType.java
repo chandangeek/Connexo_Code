@@ -46,6 +46,8 @@ public interface ServiceCallType extends HasId, HasName {
 
     Optional<String> getReservedByApplication();
 
+    void setRetryState(DefaultState retryState);
+
     Optional<DefaultState> getRetryState();
 
     /**
