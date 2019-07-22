@@ -329,6 +329,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             if (timePeriod == null) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILE_EMPTY_TIME_PERIOD, null,
                         String.format(READING_ITEM, index)));
+                return false;
             }
             if (timePeriod.getStart() == null || timePeriod.getEnd() == null) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILE_WRONG_TIME_PERIOD, null,
