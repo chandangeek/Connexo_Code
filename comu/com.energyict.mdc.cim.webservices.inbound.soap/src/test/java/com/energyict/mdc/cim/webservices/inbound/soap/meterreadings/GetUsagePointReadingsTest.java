@@ -20,7 +20,6 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -46,9 +45,9 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.time.Interval;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.device.data.Device;
 
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.EndDeviceGroup;
@@ -102,7 +101,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -193,6 +191,8 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private WebServicesService webServicesService;
     @Captor
     private ArgumentCaptor<Range<Instant>> rangeCaptor;
+    @Mock
+    private Device device1, device2;
 
     private static void assertReadingType(ch.iec.tc57._2011.meterreadings.ReadingType rt, String fullAliasName, boolean regular) {
         assertThat(rt.getAccumulation()).isEqualTo(regular ? "Delta data" : "Bulk quantity");
@@ -487,6 +487,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         List<ReadingType> readings = new ArrayList<>();
         readings.addAll(Arrays.asList(readingTypes));
         when(finder.find()).thenReturn(readings);
+        when(finder.stream()).thenReturn(readings.stream());
     }
 
     private void mockFindEndDevices(com.elster.jupiter.metering.EndDevice... endDevices) {
@@ -530,6 +531,14 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private void mockEndDevice(com.elster.jupiter.metering.EndDevice mock, String MRID, String name) {
         when(mock.getMRID()).thenReturn(MRID);
         when(mock.getName()).thenReturn(name);
+    }
+
+    private void mockDevices() {
+
+    }
+
+    private void mockDevice() {
+
     }
 
     private void mockReadingTypesOnDevices() {
