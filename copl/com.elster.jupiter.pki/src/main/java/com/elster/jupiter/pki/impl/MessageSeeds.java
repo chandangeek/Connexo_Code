@@ -97,7 +97,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_TRUSTED_CERTIFICATE_IN_KEYSTORE(1082, "NoTrustedCertificateInKeystore", "No trusted certificate(s) found in keystore"),
     HEXBINARY_EVEN_LENGTH(1083, Keys.HEXBINARY_EVEN_LENGTH, "The key size needs to be even-length"),
     ENCRYPTED_KEY_INVALID(1084, "CouldNotRenewKey", "The encrypted key couldn''t be created"),
-    INVALID_LABEL(1085, Keys.INVALID_LABEL, "This label is invalid (non empty label required)");
+    INVALID_LABEL(1085, Keys.INVALID_LABEL, "This label is invalid (non empty label required)"),
+    SKIPPING_SIGNATURE_VERIFICATION(1086, "SkipSignatureVerification", "Skipping signature verification"),
+    PROCESSING_CSR(1087, "ProcessingCSR", "Processing CSR for serial {0} and alias {1}" , Level.INFO);
 
     private final int number;
     private final String key;
