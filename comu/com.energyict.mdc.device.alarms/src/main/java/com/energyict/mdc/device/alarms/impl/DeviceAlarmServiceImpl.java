@@ -56,6 +56,7 @@ import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.OpenDeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4;
+import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_7;
 import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -171,7 +172,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setBundleContext(bundleContext);
 
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                version(10, 4), UpgraderV10_4.class
+                version(10, 4), UpgraderV10_4.class,
+                version(10, 7), UpgraderV10_7.class
         ));
     }
 
