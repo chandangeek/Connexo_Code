@@ -38,6 +38,11 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.priority', 'APR', 'Priority'),
+                dataIndex: 'priority',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
                 dataIndex: 'queueStatusString',
                 flex: 1
@@ -54,7 +59,7 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    return !Usr.privileges.Users.canAdministrate() || !(record.get('isExtraQueueCreationEnabled'));
+                    return !Usr.privileges.Users.canAdministrate() || !(record.get('extraQueueCreationEnabled')) || !(record.get('queuePrioritized'));
                 },
                 menu: {
                     xtype: 'task-overview-action-menu',
