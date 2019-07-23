@@ -123,12 +123,13 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         String source = extension.getSource();
 
         if (timePeriodEnd == null) {
-            timePeriodEnd = calculateEndDateFromChildrenServiceCall(serviceCall);
+            timePeriodEnd = calculateEndDateFromChild(getChildDomainExtension(serviceCall));
         }
-        RangeSet<Instant> timeRangeSet = null;
-        if (timePeriodStart != null) {
-            timeRangeSet = getTimeRangeSet(timePeriodStart, timePeriodEnd);
+        if (timePeriodStart == null) {
+            timePeriodStart = calculateStartDateFromChild(getChildDomainExtension(serviceCall));
+
         }
+        RangeSet<Instant> timeRangeSet = getTimeRangeSet(timePeriodStart, timePeriodEnd);
         Set<Meter> endDevices = getEndDevices(endDevicesMRIDs, serviceCall);
         Set<String> readingTypesMRIDs = getSetOfValuesFromString(readingTypesString);
         Set<String> loadProfilesNames = getSetOfValuesFromString(loadProfilesString);
@@ -227,14 +228,22 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         return readingTypesMRIDsTimeRangeMap;
     }
 
-    private Instant calculateEndDateFromChildrenServiceCall(ServiceCall parent) {
+    private ChildGetMeterReadingsDomainExtension getChildDomainExtension(ServiceCall parent) {
         ServiceCall childServiceCall = parent.findChildren().stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("No SubParentServiceCall was found"))
                 .findChildren().stream().findFirst().get();
-        ChildGetMeterReadingsDomainExtension extension = childServiceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
+        return childServiceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
                 .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for child service call"));
-        return Optional.ofNullable(extension.getActialEndDate())
+    }
+
+    private Instant calculateStartDateFromChild(ChildGetMeterReadingsDomainExtension extension) {
+        return Optional.ofNullable(extension.getActualStartDate())
+                .orElseThrow(() -> new IllegalStateException("Unable to get actual start date for child service call"));
+    }
+
+    private Instant calculateEndDateFromChild(ChildGetMeterReadingsDomainExtension extension) {
+        return Optional.ofNullable(extension.getActualEndDate())
                 .orElseThrow(() -> new IllegalStateException("Unable to get actual end date for child service call"));
     }
 

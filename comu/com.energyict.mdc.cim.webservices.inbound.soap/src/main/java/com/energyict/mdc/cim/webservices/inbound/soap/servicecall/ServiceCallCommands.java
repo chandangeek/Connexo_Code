@@ -329,11 +329,9 @@ public class ServiceCallCommands {
         ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
 
         Set<String> existedLoadProfiles = syncReplyIssue.getReadingExistedLoadProfilesMap().get(index);
-//        if (existedLoadProfiles != null && !existedLoadProfiles.isEmpty()) {
-        if (start != null && end != null
-                && (CollectionUtils.isNotEmpty(existedLoadProfiles)
+        if ((CollectionUtils.isNotEmpty(existedLoadProfiles)
                     || (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes())))) {
-            processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, end, now, delay, scheduleStrategy);
+            processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, actualEnd, now, delay, scheduleStrategy);
         }
 
         if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, delay)) {
@@ -386,7 +384,7 @@ public class ServiceCallCommands {
     }
 
     private void processLoadProfiles(ServiceCall subParentServiceCall, Device device, int index, SyncReplyIssue syncReplyIssue,
-                                     Instant start, Instant end, Instant now, int delay, ScheduleStrategyEnum scheduleStrategy) {
+                                     Instant start, Instant actualEnd, Instant now, int delay, ScheduleStrategyEnum scheduleStrategy) {
         Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, index, syncReplyIssue);
         Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
         loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
@@ -401,31 +399,32 @@ public class ServiceCallCommands {
                 return;
             }
             deviceMessagesComTaskExecution = deviceMessagesComTaskExecutionOptional.get();
-            Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
-            createDeviceMessages(device, loadProfiles, trigger, start, end);
+            Instant actualStart = getActualStart(start, deviceMessagesComTaskExecution);
+            Instant trigger = getTriggerDate(actualEnd, delay, deviceMessagesComTaskExecution, scheduleStrategy);
+            createDeviceMessages(device, loadProfiles, trigger, actualStart, actualEnd);
             if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
                 if (trigger.isAfter(now)) { // use recurrent task
                     processComTaskExecutionByRecurrentTask(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
-                            start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS);
+                            actualStart, actualEnd, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS);
                 } else { // run now
                     scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
-                            start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, true);
+                            actualStart, actualEnd, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, true);
                 }
             } else { // use schedule
                 scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
-                        start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, false);
+                        actualStart, actualEnd, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, false);
             }
         }
     }
 
-    // channels without concrete start or end date / registers with start and end dates
+    // channels without concrete start or end date / registers with at least start date
     private boolean comTaskExecutionRequired(Instant start, Instant end, ComTaskExecution comTaskExecution) {
         return (comTaskExecution.getProtocolTasks().stream()
                 .anyMatch(protocolTask -> LoadProfilesTask.class.isInstance(protocolTask))
                 && (start == null || end == null))
             || (comTaskExecution.getProtocolTasks().stream()
                 .anyMatch(protocolTask -> RegistersTask.class.isInstance(protocolTask))
-                && start != null && end != null);
+                && start != null);
     }
 
     private Instant getTriggerDate(Instant actualEnd, int delay, ComTaskExecution comTaskExecution,
@@ -551,8 +550,8 @@ public class ServiceCallCommands {
         ChildGetMeterReadingsDomainExtension childDomainExtension = new ChildGetMeterReadingsDomainExtension();
         childDomainExtension.setCommunicationTask(comTaskName);
         childDomainExtension.setTriggerDate(triggerDate);
-        childDomainExtension.setActialStartDate(actualStart);
-        childDomainExtension.setActialEndDate(actualEnd);
+        childDomainExtension.setActualStartDate(actualStart);
+        childDomainExtension.setActualEndDate(actualEnd);
 
         return subParentServiceCall.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension)

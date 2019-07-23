@@ -326,28 +326,17 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                         String.format(READING_ITEM, index)));
                 return false;
             }
-            if (timePeriod == null) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILE_EMPTY_TIME_PERIOD, null,
-                        String.format(READING_ITEM, index)));
-                return false;
-            }
-            if (timePeriod.getStart() == null || timePeriod.getEnd() == null) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILE_WRONG_TIME_PERIOD, null,
-                        String.format(READING_ITEM, index), timePeriod == null ? null : timePeriod.getStart(), timePeriod
-                                .getEnd()));
-                return false;
-            }
         } else if (hasRegisterGroups) {
             if (timePeriod == null) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_GROUP_EMPTY_TIME_PERIOD, null,
                         String.format(READING_ITEM, index)));
                 return false;
-            }
-            if (timePeriod.getStart() == null || timePeriod.getEnd() == null) {
+            } else if (timePeriod.getStart() == null/* || timePeriod.getEnd() == null*/) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_GROUP_WRONG_TIME_PERIOD, null,
                         String.format(READING_ITEM, index), timePeriod.getStart(), timePeriod.getEnd()));
                 return false;
             }
+
         }
         if (!hasLoadProfiles && !hasRegisterGroups && !hasReadingTypes) {
             syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.NO_DATA_SOURCES, null,
@@ -724,25 +713,24 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 syncReplyIssue.addNotUsedReadingsDueToTimeStamp(i);
                 continue;
             }
-            result.add(getTimeInterval(readings.get(i), i));
+            result.add(getTimeInterval(readings.get(i)));
         }
         return result;
     }
 
-    private Range<Instant> getTimeInterval(Reading reading, int index) throws FaultMessage {
+    private Range<Instant> getTimeInterval(Reading reading) {
         return Range.openClosed(reading.getTimePeriod().getStart(), reading.getTimePeriod().getEnd());
     }
 
-    private boolean checkTimeInterval(Reading reading, String readingItem, boolean asyncFlag) throws FaultMessage {
+    private boolean checkTimeInterval(Reading reading, String readingItem, boolean asyncFlag) {
         DateTimeInterval interval = reading.getTimePeriod();
         if (interval == null) {
             if (reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.SYSTEM_SOURCE_EMPTY_TIME_PERIOD, null));
                 return false;
             }
-            if (hasRegularReadingTypes()) {
+            if (hasIrregularReadingTypes()) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
-                return false;
             }
         }
         if (interval != null) { //optional
@@ -764,9 +752,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.SYSTEM_SOURCE_EMPTY_TIME_PERIOD, null));
                     return false;
                 }
-                if (hasRegularReadingTypes()) {
+                if (hasIrregularReadingTypes()) {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
-                    return false;
                 }
             }
             if (start == null && end != null) {
@@ -783,7 +770,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return true;
     }
 
-    private boolean hasRegularReadingTypes() {
+    private boolean hasIrregularReadingTypes() {
         return syncReplyIssue.getExistedReadingTypes().stream()
                 .anyMatch(readingType -> !readingType.isRegular());
     }
