@@ -343,9 +343,9 @@ public class ServiceCallCommands {
                             reading.getConnectionMethod(), comTaskExecution.getComTask().getName()));
                     continue;
                 }
-                Instant actualStart = getActualStart(start, comTaskExecution);
+                Instant actualStart = getActualStart(start, actualEnd, comTaskExecution);
 
-                if (!actualEnd.isAfter(actualStart)) {
+                if (actualEnd.isBefore(actualStart)) {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
                             MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
                             XsdDateTimeConverter.marshalDateTime(actualStart),
@@ -399,7 +399,7 @@ public class ServiceCallCommands {
                 return;
             }
             deviceMessagesComTaskExecution = deviceMessagesComTaskExecutionOptional.get();
-            Instant actualStart = getActualStart(start, deviceMessagesComTaskExecution);
+            Instant actualStart = getActualStart(start, actualEnd, deviceMessagesComTaskExecution);
             Instant trigger = getTriggerDate(actualEnd, delay, deviceMessagesComTaskExecution, scheduleStrategy);
             createDeviceMessages(device, loadProfiles, trigger, actualStart, actualEnd);
             if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
@@ -453,11 +453,15 @@ public class ServiceCallCommands {
                 .forEach(loadProfile -> device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update());
     }
 
-    private Instant getActualStart(Instant start, ComTaskExecution comTaskExecution) {
+    private Instant getActualStart(Instant start, Instant actualEnd, ComTaskExecution comTaskExecution) {
+        Instant actualStart = start;
         if (start == null) {
-            return comTaskExecution.getLastSuccessfulCompletionTimestamp();
+            actualStart = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         }
-        return start;
+        if (actualStart == start) { // in case when comTask has never run
+            actualStart = actualEnd;
+        }
+        return actualStart;
     }
 
     private Instant getActualEnd(Instant end, Instant now) {

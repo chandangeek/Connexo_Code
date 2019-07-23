@@ -726,7 +726,10 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         DateTimeInterval interval = reading.getTimePeriod();
         if (interval == null) {
             if (reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.SYSTEM_SOURCE_EMPTY_TIME_PERIOD, null));
+
+            }
+            if (!asyncFlag) {
+                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD, null));
                 return false;
             }
             if (hasIrregularReadingTypes()) {

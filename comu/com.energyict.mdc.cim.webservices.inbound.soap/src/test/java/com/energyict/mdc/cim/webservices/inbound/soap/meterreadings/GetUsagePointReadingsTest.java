@@ -15,8 +15,6 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.AbstractMockActivator;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -1008,6 +1006,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         getMeterReadingsRequestMessage.setHeader(headerType);
         getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
         mockFindReadingTypes();
+        mockFindEndDevices(meter1);
 
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
@@ -1793,6 +1792,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
         mockFindReadingTypes(dailyReadingType);
+        mockEffectiveMetrologyConfigurationsWithData();
 
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
@@ -1828,6 +1828,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), MAY_1ST.toInstant())
                 .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
+        mockEffectiveMetrologyConfigurationsWithData();
         getMeterReadingsRequestMessage.setRequest(request);
         mockFindReadingTypes(min15ReadingType);
 
