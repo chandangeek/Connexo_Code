@@ -81,7 +81,14 @@ Ext.define('Wss.view.webservice.HistoryForm', {
             },
             {
                 name: 'duration',
-                fieldLabel: Uni.I18n.translate('general.duration', 'WSS', 'Duration')
+                fieldLabel: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
+                renderer: function (value) {
+                    if (value && value !== "-") {
+                        return Uni.util.String.formatDuration(value) ;
+                    }
+
+                    return '-';
+                }
             },
             {
                 name: 'applicationName',
@@ -105,19 +112,7 @@ Ext.define('Wss.view.webservice.HistoryForm', {
             {
                 name: 'status',
                 fieldLabel: Uni.I18n.translate('general.status', 'WSS', 'Status')
-            },
-            {
-                name: 'duration',
-                fieldLabel: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
-                renderer: function (value) {
-                    if (value && value !== "-") {
-                        return Uni.util.String.formatDuration(value) ;
-                    }
-
-                    return '-';
-                }
             }
-
         ];
 
         me.callParent(arguments);
