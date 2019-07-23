@@ -73,7 +73,6 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
       .replace(/\t/g, me.separator)
       .replace(/\r\n/g, me.separator)
       .replace(/\n/g, me.separator)
-      .replace(/\s/g, me.separator)
       .split(me.separator)
     ;
 
@@ -113,7 +112,7 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
       minWidth: me.fieldMaxWidth,
       height: (me.lines * me.lineHeight) + 8, // 8 - padding
       grow: false,
-      maxLength: 5000,
+      maxLength: 19000,
       allowBlank: !me.isFilterField,
       validateOnBlur: false,
       validator: function() {

@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.util.YesNoAnswer;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -20,8 +21,9 @@ import java.time.Clock;
 import java.util.Arrays;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM,
-        include = JsonTypeInfo.As.PROPERTY,
-        property = "serviceCategory")
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "serviceCategory",
+        visible = true)
 @JsonTypeIdResolver(BaseUsagePointDetailsInfo.UsagePointDetailsTypeResolver.class)
 public abstract class BaseUsagePointDetailsInfo {
     public YesNoAnswer collar;
@@ -72,6 +74,15 @@ public abstract class BaseUsagePointDetailsInfo {
         }
 
         @Override
+        public JavaType typeFromId(DatabindContext context, String s) {
+            return context.constructType(typeFromId(s));
+        }
+
+        @Override
+        public String getDescForKnownTypeIds() {
+            return javaType.getTypeName();
+        }
+
         public JavaType typeFromId(String s) {
             try {
                 ServiceKind kind = Arrays.stream(ServiceKind.values()).filter(k -> k.name().equals(s)).findAny().orElse(ServiceKind.OTHER);

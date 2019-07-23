@@ -8,7 +8,8 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
     alias: 'widget.task-management-filter',
 
     requires: [
-        'Apr.store.QueuesByApplication'
+        'Apr.store.QueuesByApplication',
+        'Apr.store.SuspendedTask'
     ],
 
     initComponent: function () {
@@ -20,6 +21,17 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 dataIndex: 'application',
                 value: me.applicationKey,
                 hidden: true
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'queueType',
+                emptyText: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                multiSelect: true,
+                displayField: 'queueType',
+                valueField: 'queueType',
+                store: me.queueTypesStore,
+                matchFieldWidth: false,
+                itemId: 'task-queue-type'
             },
             {
                 type: 'combobox',
@@ -36,6 +48,25 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 dataIndexFrom: 'startedOnFrom',
                 dataIndexTo: 'startedOnTo',
                 text: Uni.I18n.translate('taskManagement.startedBetween', 'APR', 'Started between')
+            },
+            {
+                type: 'combobox',
+                store: 'Apr.store.SuspendedTask',
+                dataIndex: 'suspended',
+                emptyText: Uni.I18n.translate('general.suspended', 'APR', 'Suspended'),
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'value',
+                queryMode: 'local',
+                editable:false,
+                listeners:{
+                    beforeselect : function(combo, record, index){
+                        combo.suspendEvents();
+                        combo.clearValue();
+                        combo.select(record);
+                        combo.resumeEvents();
+                    }
+                }
             }
         ];
 

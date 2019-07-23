@@ -53,6 +53,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        execute(dataModel, "ALTER TABLE FWC_CAMPAIGN_PROPS MODIFY CPS_ID NUMBER NOT NULL");
         doTry(
                 "Create event types for FRM",
                 this::createEventTypesIfNotExist,

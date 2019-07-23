@@ -25,6 +25,7 @@ public class DataExportTaskInfo {
     public DataExportTaskHistoryMinimalInfo lastExportOccurrence;
     public Instant nextRun;
     public Instant lastRun;
+    public Instant suspendUntilExport;
     public StandardDataSelectorInfo standardDataSelector;
     public List<DestinationInfo> destinations = new ArrayList<>();
     public long version;

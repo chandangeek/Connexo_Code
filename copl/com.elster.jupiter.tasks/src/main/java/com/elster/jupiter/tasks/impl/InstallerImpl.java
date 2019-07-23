@@ -62,7 +62,8 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(TaskService.COMPONENTNAME, Privileges.RESOURCE_TASKS.getKey(), Privileges.RESOURCE_TASKS_DESCRIPTION.getKey(),
                 Arrays.asList(
-                        Privileges.Constants.VIEW_TASK_OVERVIEW)));
+                        Privileges.Constants.VIEW_TASK_OVERVIEW,
+                        Privileges.Constants.SUSPEND_TASK_OVERVIEW)));
         return resources;
     }
 }

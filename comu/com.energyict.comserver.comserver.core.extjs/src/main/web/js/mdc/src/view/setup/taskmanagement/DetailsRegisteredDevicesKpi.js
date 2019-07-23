@@ -57,6 +57,15 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsRegisteredDevicesKpi', {
                                 fieldLabel: Uni.I18n.translate('general.target', 'MDC', 'Target'),
                                 itemId: 'registered-devices-kpi-target',
                                 name: 'target'
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('general.suspended', 'MDC', 'Suspended'),
+                                itemId: 'registered-devices-kpi-suspended',
+                                name: 'suspendUntilTime',
+                                renderer: function(value){
+                                    return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes <br/>has been suspended until next run') : Uni.I18n.translate('general.suspended.no','APR','No')
+                                }
                             }
                         ]
                     }

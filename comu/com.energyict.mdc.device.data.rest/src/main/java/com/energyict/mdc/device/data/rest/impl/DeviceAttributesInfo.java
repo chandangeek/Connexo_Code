@@ -9,6 +9,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -32,9 +33,13 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<String> lifeCycleState;
     public DeviceAttributeInfo<String> batch;
     public DeviceAttributeInfo<String> usagePoint;
+    @JsonProperty("shipmentDate")
     public DeviceAttributeInfo<Instant> shipmentDate;
+    @JsonProperty("installationDate")
     public DeviceAttributeInfo<Instant> installationDate;
+    @JsonProperty("deactivationDate")
     public DeviceAttributeInfo<Instant> deactivationDate;
+    @JsonProperty("decommissioningDate")
     public DeviceAttributeInfo<Instant> decommissioningDate;
     public DeviceAttributeInfo<EditLocationInfo> location;
     public DeviceAttributeInfo<CoordinatesInfo> geoCoordinates;
