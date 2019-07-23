@@ -12,7 +12,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.model.FirmwareManagementOptions',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
-        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
+        'Fwc.firmwarecampaigns.view.FirmvareVersionsOptions'
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -128,7 +129,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         fn: Ext.bind(me.onManagementOptionChange, me)
                     }
                 },
-                width: 1000
+                width: 800
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -184,6 +185,15 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     resetButtonHidden: true
                 },
                 width: 1000
+            },
+            {
+                xtype: 'firmware-version-options',
+                itemId: 'firmware-version-options',
+                hidden: true,
+                defaults: {
+                    width: 600,
+                    labelWidth: 260
+                },
             },
             {
                 xtype: 'fieldcontainer',
