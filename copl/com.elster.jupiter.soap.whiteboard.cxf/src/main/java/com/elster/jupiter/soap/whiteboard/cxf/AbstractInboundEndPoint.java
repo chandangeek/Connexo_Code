@@ -23,6 +23,14 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Basic abstract class for implementation of inbound endpoints that should be provided with {@link InboundSoapEndPointProvider} and (in the future) {@link InboundRestEndPointProvider}.
+ * Contains methods to wrap web service methods logic with or without DB transaction and track with web service call occurrences.
+ * Creation of related web service call occurrences and (if needed) web service issues is implemented in message interceptors for SOAP web services,
+ * but their states are tracked in this abstract class.
+ * <b>NB:</b> During the implementation please don't forget to introduce explicit dependency on {@link WebServicesService} in the provider of the subclass,
+ * otherwise the provider may not register on whiteboard and thus the inbound endpoint may work incorrectly (e.g. some fields below won't be injected).
+ */
 @ConsumerType
 public abstract class AbstractInboundEndPoint {
     private static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
@@ -49,6 +57,9 @@ public abstract class AbstractInboundEndPoint {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Sets the "batch executor" principal for further operations. Principal can be required for DB transaction support, checking privileges etc.
+     */
     protected void setSecurityContext() {
         if (threadPrincipalService.getPrincipal() == null) {
             userService.findUser(BATCH_EXECUTOR_USER_NAME, userService.getRealm())
@@ -56,6 +67,15 @@ public abstract class AbstractInboundEndPoint {
         }
     }
 
+    /**
+     * Wraps the {@code supplier} into a try/catch block and creates a {@link WebServiceCallOccurrence} for this operation.
+     * At the end of execution the occurrence is passed unless any exception is caught; otherwise the occurrence is failed, and all exceptions are rethrown.
+     * @param supplier The operation to execute in scope of the web service call occurrence.
+     * @param <RES> The type of result returned by the {@code supplier}.
+     * @param <E> The type of {@link Fault} exception thrown from the {@code supplier}.
+     * @return The result (response) object returned by the {@code supplier}.
+     * @throws E The exception thrown from the {@code supplier}.
+     */
     protected <RES, E extends Exception> RES runWithOccurrence(ExceptionThrowingSupplier<RES, E> supplier) throws E {
         long id = MessageUtils.getOccurrenceId(webServiceContext);
         try {
@@ -73,7 +93,7 @@ public abstract class AbstractInboundEndPoint {
     }
 
     private void saveRequestNameAndApplicationIfNeeded(long id) {
-        WebServiceCallOccurrence occurrence = webServicesService.getOccurrence(id);
+        WebServiceCallOccurrence occurrence = webServicesService.getOngoingOccurrence(id);
         boolean needToSave = false;
         if (!occurrence.getApplicationName().isPresent()) {
             occurrence.setApplicationName(getApplicationName());
@@ -95,6 +115,16 @@ public abstract class AbstractInboundEndPoint {
         }
     }
 
+    /**
+     * Wraps the {@code supplier} into a transaction performed under user "batch executor" and creates a {@link WebServiceCallOccurrence} for this operation.
+     * At the end of execution the occurrence is passed unless any exception is caught; otherwise the occurrence is failed, and all exceptions are rethrown.
+     * The same as {@link #setSecurityContext()} and {@link #runWithOccurrence(ExceptionThrowingSupplier)} with supplier wrapped into a transaction.
+     * @param supplier The operation to execute in scope of the web service call occurrence.
+     * @param <RES> The type of result returned by the {@code supplier}.
+     * @param <E> The type of {@link Fault} exception thrown from the {@code supplier}.
+     * @return The result (response) object returned by the {@code supplier}.
+     * @throws E The exception thrown from the {@code supplier}.
+     */
     protected <RES, E extends Exception> RES runInTransactionWithOccurrence(ExceptionThrowingSupplier<RES, E> supplier) throws E {
         setSecurityContext();
         return runWithOccurrence(() -> transactionService.execute(supplier));
@@ -105,11 +135,11 @@ public abstract class AbstractInboundEndPoint {
     }
 
     protected void log(LogLevel logLevel, String message) {
-        webServicesService.getOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(logLevel, message);
+        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(logLevel, message);
     }
 
     protected void log(String message, Exception exception) {
-        webServicesService.getOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
+        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
     }
 
     private String getApplicationName() {

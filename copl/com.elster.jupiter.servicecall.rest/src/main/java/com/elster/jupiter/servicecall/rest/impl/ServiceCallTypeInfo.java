@@ -19,6 +19,8 @@ public class ServiceCallTypeInfo {
     public IdWithDisplayValueInfo<String> logLevel;
     public IdWithNameInfo serviceCallLifeCycle;
     public List<ServiceCallTypeCustomPropertySetInfo> customPropertySets;
+    public String destination;
+    public int priority;
 
     public ServiceCallTypeInfo() {
     }

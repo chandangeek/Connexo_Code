@@ -80,7 +80,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         allowBlank: false,
                         queryMode: 'local',
                         displayField: 'name',
-                        valueField: 'id',
+                        valueField: 'name',
                         width: 325
                     },
                     {
@@ -101,7 +101,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'timeInHoursAndMinutes',
                 fieldLabel: Uni.I18n.translate('general.timeBoundaryStart', 'FWC', 'Time boundary start'),
-                name: 'timeBoundaryStart',
+                name: 'timeBoundaryStartTimeInSec',
                 itemId: 'timeBoundaryStart',
                 required: true,
                 allowBlank: false
@@ -109,10 +109,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'timeInHoursAndMinutes',
                 fieldLabel: Uni.I18n.translate('general.timeBoundaryEnd', 'FWC', 'Time boundary end'),
-                name: 'timeBoundaryEnd',
+                name: 'timeBoundaryEndTimeInSec',
                 itemId: 'timeBoundaryEnd',
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -327,7 +328,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
-            me.getRecord().propertiesStore = propertyForm.getRecord().properties();
+            var properties = propertyForm.getRecord().properties();
+            me.getRecord().propertiesStore = properties;
         }
     },
 

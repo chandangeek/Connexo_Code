@@ -53,6 +53,7 @@ public class DlmsProtocolProperties {
     public static final String VALIDATE_LOAD_PROFILE_CHANNELS = "ValidateLoadProfileChannels";
     public static final String PROPERTY_IGNORE_DST_STATUS_CODE = "IgnoreDstStatusCode";
     public static final String MASTER_KEY = "MasterKey";
+    public static final String FRAME_COUNTER_LIMIT = "FrameCounterLimit";
 
     /** Property name of the property that indicates whether or not to bump the FC when invoking reply_to_hls. The f(StoC) uses FC, the action request carrying it FC + 1. */
     public static final String INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS = "IncrementFrameCounterForReplyToHLS";

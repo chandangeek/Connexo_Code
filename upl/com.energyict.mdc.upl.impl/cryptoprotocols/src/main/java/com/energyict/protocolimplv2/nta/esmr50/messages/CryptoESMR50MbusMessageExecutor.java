@@ -494,4 +494,22 @@ public class CryptoESMR50MbusMessageExecutor extends ESMR50MbusMessageExecutor {
         log(Level.INFO, "generateMacLastBlock - Mac value: " + macValue);
         return macResponse;
     }
+
+    @Override
+    protected CollectedMessage upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) {
+        return upgradeFirmwareWithActivationDate(pendingMessage);
+    }
+
+    protected CollectedMessage upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) {
+        try {
+            return doFirmwareUpgradeCrypto(pendingMessage);
+        } catch (Exception ex) {
+            CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setFailureInformation(ResultType.Other, createUnsupportedWarning(pendingMessage));
+            collectedMessage.setDeviceProtocolInformation(ex.getLocalizedMessage());
+            return collectedMessage;
+        }
+    }
+
 }

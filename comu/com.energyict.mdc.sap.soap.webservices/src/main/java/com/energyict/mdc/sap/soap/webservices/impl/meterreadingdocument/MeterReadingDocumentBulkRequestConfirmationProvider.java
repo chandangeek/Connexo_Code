@@ -7,6 +7,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkRequestConfirmation;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOutService;
 
@@ -17,7 +18,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component(name = "com.energyict.mdc.sap.meterreadingdocumentbulkrequest.outbound.provider",
@@ -38,6 +38,11 @@ public class MeterReadingDocumentBulkRequestConfirmationProvider extends Abstrac
 
     public void removeConfirmationPort(SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut port) {
         super.doRemoveEndpoint(port);
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 
     @Override

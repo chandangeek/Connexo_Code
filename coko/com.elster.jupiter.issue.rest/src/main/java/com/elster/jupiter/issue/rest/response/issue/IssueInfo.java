@@ -64,7 +64,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             }
             this.usagePointInfo = issue.getUsagePoint().isPresent() ? new UsagePointInfo(issue.getUsagePoint().get()) : null;
             this.title = issue.getTitle();
-            this.issueType = new IssueTypeInfo(issue.getReason().getIssueType());
+            this.issueType = new IssueTypeInfo(issue.getType());
             this.creationDate = issue.getCreateDateTime().toEpochMilli();
             this.modTime = issue.getModTime().toEpochMilli();
             this.version = issue.getVersion();

@@ -529,5 +529,6 @@ Ext.define('Est.tasksmanagement.controller.TaskManagementAddEdit', {
         controller.actionMenu = actionMenu;
         controller.showEstimationTaskDetails(taskId);
         controller.getDetailsView().down('#' + actionMenu.itemId).record = taskManagementRecord;
+        controller.getDetailsView().down('#suspended_formatted_string').setValue(taskManagementRecord.get('suspendUntilTime'));
     }
 });

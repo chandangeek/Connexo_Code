@@ -16,7 +16,8 @@ public enum Privileges implements TranslationKey {
     RESOURCE_TASKS_DESCRIPTION("task.tasks.description", "Manage tasks"),
 
     //Privileges
-    VIEW_TASK_OVERVIEW(Constants.VIEW_TASK_OVERVIEW, "View task overview");
+    VIEW_TASK_OVERVIEW(Constants.VIEW_TASK_OVERVIEW, "View task overview"),
+    SUSPEND_TASK_OVERVIEW(Constants.SUSPEND_TASK_OVERVIEW, "Suspend task overview");
 
     private final String key;
     private final String description;
@@ -48,6 +49,7 @@ public enum Privileges implements TranslationKey {
 
     public interface Constants {
         String VIEW_TASK_OVERVIEW = "privilege.view.ViewTaskOverview";
+        String SUSPEND_TASK_OVERVIEW ="privilege.suspend.SuspendTaskOverview";
     }
 
 

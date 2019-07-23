@@ -85,7 +85,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         return propertySpecService;
     }
 
-    protected CollectedDataFactory getCollectedDataFactory() {
+    public CollectedDataFactory getCollectedDataFactory() {
         return collectedDataFactory;
     }
 
@@ -486,8 +486,17 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
         CollectedCalendar result = this.collectedDataFactory.createCalendarCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
         try {
             ActivityCalendar activityCalendar = getDlmsSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
-            result.setActiveCalendar(activityCalendar.readCalendarNameActive().stringValue());
-            result.setPassiveCalendar(activityCalendar.readCalendarNamePassive().stringValue());
+
+            journal("Reading active calendar name from "+DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+            String nameActive = activityCalendar.readCalendarNameActive().stringValue();
+            journal("Active calendar name is "+nameActive);
+            result.setActiveCalendar(nameActive);
+
+            journal("Reading passive calendar name from "+DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+            String namePassive = activityCalendar.readCalendarNamePassive().stringValue();
+            journal("Passive calendar name is "+namePassive);
+            result.setPassiveCalendar(namePassive);
+
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
                 Issue problem = this.issueFactory.createProblem(
@@ -495,6 +504,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
                         "issue.protocol.readingOfCalendarFailed",
                         e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
+                journal(Level.WARNING, "Error while reading calendar information: "+e.getLocalizedMessage());
             } //Else, a communication timeout is thrown
         }
         return result;

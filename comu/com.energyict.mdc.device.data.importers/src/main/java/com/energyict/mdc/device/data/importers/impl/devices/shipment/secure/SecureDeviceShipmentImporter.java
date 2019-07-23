@@ -18,7 +18,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bind
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.WrapKey;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.ImportFailedException;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -40,10 +39,10 @@ public class SecureDeviceShipmentImporter extends SecureDeviceImporterAbstract i
     }
 
     @Override
-    protected void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, Map<String, WrapKey> wrapKeyMap, Logger logger) {
+    protected void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, TransportKeys transportKeys, Logger logger) {
         String securityAccessorName = deviceKey.getName();
         SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger).orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName));
-        final WrapKey wrapKey = wrapKeyMap.get(deviceKey.getWrapKeyLabel());
+        final WrapKey wrapKey = transportKeys.get(deviceKey.getWrapKeyLabel());
         if (wrapKey == null) {
             throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
         }

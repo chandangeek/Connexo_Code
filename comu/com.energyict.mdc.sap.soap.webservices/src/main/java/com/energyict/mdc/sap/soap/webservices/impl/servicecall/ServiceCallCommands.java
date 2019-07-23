@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -20,9 +19,6 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -43,7 +39,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMe
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.time.Clock;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,35 +53,24 @@ public class ServiceCallCommands {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
-    private final ThreadPrincipalService threadPrincipalService;
-    private final TransactionService transactionService;
-    private final UserService userService;
 
     @Inject
     public ServiceCallCommands(Clock clock, MessageService messageService, MeteringService meteringService,
                                SAPCustomPropertySets sapCustomPropertySets, ServiceCallService serviceCallService,
-                               Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService,
-                               TransactionService transactionService, UserService userService) {
+                               Thesaurus thesaurus) {
         this.clock = clock;
         this.messageService = messageService;
         this.meteringService = meteringService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
-        this.threadPrincipalService = threadPrincipalService;
-        this.transactionService = transactionService;
-        this.userService = userService;
     }
 
     public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message) {
-        setSecurityContext();
         if (message.isValid()) {
             if (!hasConnectionStatusChangeServiceCall(message.getId())) {
                 getServiceCallType(ServiceCallTypes.CONNECTION_STATUS_CHANGE).ifPresent(serviceCallType -> {
-                    try (TransactionContext context = transactionService.getContext()) {
-                        createServiceCall(serviceCallType, message);
-                        context.commit();
-                    }
+                    createServiceCall(serviceCallType, message);
                 });
             } else {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, message);
@@ -97,16 +81,12 @@ public class ServiceCallCommands {
     }
 
     public void createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage message) {
-        setSecurityContext();
         if (message.isValid()) {
             if (hasMeterReadingRequestServiceCall(message.getId())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
                 getServiceCallType(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_REQUEST).ifPresent(serviceCallType -> {
-                    try (TransactionContext context = transactionService.getContext()) {
-                        sendMessage(createServiceCall(serviceCallType, message), message.isBulk());
-                        context.commit();
-                    }
+                    sendMessage(createServiceCall(serviceCallType, message), message.isBulk());
                 });
             }
         } else if (message.getConfirmationURL() != null) {
@@ -115,28 +95,24 @@ public class ServiceCallCommands {
     }
 
     public void updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage message) {
-        setSecurityContext();
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_RESULT.getTypeName());
         filter.states.add(DefaultState.WAITING.name());
-        try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.getServiceCallFinder(filter)
-                    .stream()
-                    .forEach(serviceCall -> {
-                        MasterMeterReadingDocumentCreateResultDomainExtension extension =
-                                serviceCall.getExtension(MasterMeterReadingDocumentCreateResultDomainExtension.class).get();
-                        if (extension.getRequestUUID().equals(message.getUuid())) {
-                            if (message.getProcessingResultCode().equals(ProcessingResultCode.FAILED.getCode())) {
-                                serviceCall.requestTransition(DefaultState.ONGOING);
-                                serviceCall.requestTransition(DefaultState.FAILED);
-                            } else {
-                                serviceCall.requestTransition(DefaultState.ONGOING);
-                                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                            }
+        serviceCallService.getServiceCallFinder(filter)
+                .stream()
+                .forEach(serviceCall -> {
+                    MasterMeterReadingDocumentCreateResultDomainExtension extension =
+                            serviceCall.getExtension(MasterMeterReadingDocumentCreateResultDomainExtension.class).get();
+                    if (extension.getRequestUUID().equals(message.getUuid())) {
+                        if (message.getProcessingResultCode().equals(ProcessingResultCode.FAILED.getCode())) {
+                            serviceCall.requestTransition(DefaultState.ONGOING);
+                            serviceCall.requestTransition(DefaultState.FAILED);
+                        } else {
+                            serviceCall.requestTransition(DefaultState.ONGOING);
+                            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                         }
-                    });
-            context.commit();
-        }
+                    }
+                });
     }
 
     private void createAndSendCommand(String id, EndDevice endDevice, ServiceCall serviceCall,
@@ -348,18 +324,6 @@ public class ServiceCallCommands {
                         .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
                         .build();
         sendMessage(confirmationMessage);
-    }
-
-    private void setSecurityContext() {
-        Principal principal = threadPrincipalService.getPrincipal();
-        if (principal == null) {
-            try (TransactionContext context = transactionService.getContext()) {
-                userService.findUser(WebServiceActivator.BATCH_EXECUTOR_USER_NAME, userService.getRealm()).ifPresent(user -> {
-                    threadPrincipalService.set(user);
-                    context.commit();
-                });
-            }
-        }
     }
 
     public ServiceCallType getServiceCallTypeOrThrowException(ServiceCallTypes serviceCallType) {

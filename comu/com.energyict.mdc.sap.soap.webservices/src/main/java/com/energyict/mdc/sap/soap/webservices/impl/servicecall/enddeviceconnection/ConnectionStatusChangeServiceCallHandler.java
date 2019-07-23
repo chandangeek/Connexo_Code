@@ -20,11 +20,6 @@ public class ConnectionStatusChangeServiceCallHandler implements ServiceCallHand
     public static final String VERSION = "v1.0";
 
     @Override
-    public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        return !newState.equals(DefaultState.CANCELLED) || oldState.equals(DefaultState.WAITING);
-    }
-
-    @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {

@@ -53,7 +53,6 @@ Ext.define('Dxp.controller.TaskManagement', {
 
     getTask: function (controller, taskManagementId, operationCompleted) {
         var me = this;
-
         Ext.Ajax.request({
             url: '/api/export/dataexporttask/recurrenttask/' + taskManagementId,
             method: 'GET',

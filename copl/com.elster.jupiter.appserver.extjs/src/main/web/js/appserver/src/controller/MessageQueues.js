@@ -295,6 +295,7 @@ Ext.define('Apr.controller.MessageQueues',{
             preview = me.getQueuePreview(),
             previewForm = preview.down('queue-preview-form'),
             tasksField = previewForm.down('[name=queueTasks]'),
+            serviceCallTypes = record.get('serviceCallTypes') || [],
             tasksList = [];
 
 
@@ -307,6 +308,14 @@ Ext.define('Apr.controller.MessageQueues',{
             tasksList.push('- ' + Ext.htmlEncode(task.get('name')));
         });
         tasksField.setValue((tasksList.length == 0) ? tasksList = '-' : tasksList.join('<br/>'));
+        previewForm.down('[name=serviceCallTypes]').setValue(
+            serviceCallTypes.length
+                ? serviceCallTypes.map(function (type) {
+                    return '- ' + Ext.htmlEncode(type);
+                }).join('<br/>')
+                : '-'
+        ),
+
         Ext.resumeLayouts();
     },
 

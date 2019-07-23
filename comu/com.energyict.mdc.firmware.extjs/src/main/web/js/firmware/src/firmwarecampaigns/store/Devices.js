@@ -11,7 +11,7 @@ Ext.define('Fwc.firmwarecampaigns.store.Devices', {
         urlTpl: '/api/fwc/campaigns/{firmwareCampaignId}/devices',
         reader: {
             type: 'json',
-            root: 'devices'
+            root: 'devicesInCampaign'
         },
         setUrl: function (firmwareCampaignId) {
             this.url = this.urlTpl.replace('{firmwareCampaignId}', firmwareCampaignId);
