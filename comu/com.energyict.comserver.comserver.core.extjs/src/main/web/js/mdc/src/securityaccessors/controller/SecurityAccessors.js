@@ -300,6 +300,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                     wrapperCombo = keyWrapperForm.down('#key-wrapper-combo');
 
                                 wrapperCombo.setVisible(true);
+                                wrapperCombo.setValue(securityAccessorRecord.get('wrapperIdAndName').id);
 
                                 records.length == 0 && commandCombo.setVisible(false) && noCommand.setVisible(true);
                                 records.length != 0 && commandCombo.setVisible(true) && noCommand.setVisible(false);
@@ -307,6 +308,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                 me.getApplication().fireEvent('configurekeyrenewal', securityAccessorRecord);
                                 view.down('#edit-security-accessor-key-renewal-panel').setTitle(Uni.I18n.translate('general.editKeyRenewal', 'MDC', "Edit key renewal for '{0}'", securityAccessorRecord.get('name')));
                                 view.down('#key-renewal-radio').setValue({keyRenewal: !Ext.isEmpty(securityAccessorRecord.get('keyRenewalCommandSpecification'))});
+
                                 if (securityAccessorRecord.get('keyRenewalCommandSpecification')){
                                     commandCombo.setValue(securityAccessorRecord.get('keyRenewalCommandSpecification').id);
                                     view.down('#key-renewal-property-form').loadRecord(securityAccessorRecord);
@@ -535,6 +537,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                     delete accessorToAdd.data.isReversible;
                 }
                 delete accessorToAdd.data.keyRenewalCommandSpecification;
+                delete accessorToAdd.data.wrapperIdAndName;
                 delete accessorToAdd.data.properties;
                 return accessorToAdd.getData();
             }),
@@ -702,6 +705,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             record.set('defaultValue', null);
         }
         delete record.data.keyRenewalCommandSpecification;
+        delete record.data.wrapperIdAndName;
         delete record.data.properties;
         record.endEdit();
 
@@ -873,6 +877,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 fn: function (state) {
                     if (state === 'confirm') {
                         delete record.data.keyRenewalCommandSpecification;
+                        delete record.data.wrapperIdAndName;
                         delete record.data.properties;
                         record.destroy({
                             success: function () {

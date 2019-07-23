@@ -143,7 +143,7 @@ Ext.define('Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal', {
                             {
                                 xtype: 'combobox',
                                 name: 'wrapperAccessorId',
-                                fieldLabel: Uni.I18n.translate('key.wrapper.label', 'MDC', 'Wrapped by key'),
+                                fieldLabel: Uni.I18n.translate('key.wrapper.label', 'MDC', 'Wrapped by'),
                                 itemId: 'key-wrapper-combo',
                                 emptyText: Uni.I18n.translate('key.wrapper.message', 'MDC', 'Select a wrapper...'),
                                 store: 'Mdc.securityaccessors.store.WrappingSecurityAccessors',

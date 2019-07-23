@@ -65,11 +65,11 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_TIME_DURATION(230, "TimeDurationTooLong", "Validity period must be shorter than or equal to 30 years."),
     DEVICE_TYPE_IN_USE_BY_CREATION_RULE(231, "DeviceTypeInUseByCreationRule",  "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by alarm creation rule ''{2}''"),
     NO_SUCH_MESSAGE_SPEC(232, "NoSuchMessageSpec", "No such device message specification"),
-    SECACCESSOR_ISWRAPPER_INUSE(233,Keys.SEC_ACCESSOR_WRAPPER_IN_USE , "Security accessor is declared as wrapper by another key"),
-    NO_SUCH_CUSTOMPROPERTYSET(234, "noSuchCPS", "No custom property set with id {0}."),
-    DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(235, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''"),
-    SECACC_WRAPPER_IN_USE(236,Keys.SEC_ACCESSOR_WRAPPER_IN_USE , "Security accessor is declared as wrapper by another key"),
-    SECACC_WRAPPER_NOT_SET(237,Keys.SEC_ACCESSOR_NOT_SET , "< None >");
+    SECACC_WRAPPER_IN_USE(233,Keys.SEC_ACCESSOR_WRAPPER_IN_USE , "Security accessor is declared as wrapper by another key"),
+    SECACC_WRAPPER_NOT_SET(234,Keys.SEC_ACCESSOR_NOT_SET , "<None>"),
+    NO_SUCH_CUSTOMPROPERTYSET(235, "noSuchCPS", "No custom property set with id {0}."),
+    DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(236, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''");
+
 
     private final int number;
     private final String key;

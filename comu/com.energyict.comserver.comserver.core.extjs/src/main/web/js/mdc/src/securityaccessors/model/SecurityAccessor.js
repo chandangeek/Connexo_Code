@@ -115,6 +115,10 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             useNull: true
         },
         {
+            name: 'wrapperIdAndName',
+            useNull: true
+        },
+        {
             name: 'properties',
             useNull: true
         }

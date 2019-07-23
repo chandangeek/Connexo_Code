@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class SecurityAccessorTypeInfoFactory {
@@ -88,6 +89,17 @@ public class SecurityAccessorTypeInfoFactory {
 
                 }
         );
+
+        Optional<SecurityAccessorType> wrappingSecurityAccessor = securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().getWrappingSecurityAccessor();
+
+        if (wrappingSecurityAccessor.isPresent()) {
+            SecurityAccessorType securityAccessorType = wrappingSecurityAccessor.get();
+            info.wrapperIdAndName = new IdWithNameInfo(securityAccessorType.getId(), securityAccessorType.getName());
+        } else {
+            info.wrapperIdAndName = new IdWithNameInfo(getNotAvailableSecurityAccessorWrapper().id, getNotAvailableSecurityAccessorWrapper().name);
+        }
+
+
         TypedProperties typedProperties = TypedProperties.empty();
         Collection<PropertySpec> propertySpecs = new ArrayList<>();
         securityAccessorTypeOnDeviceType
@@ -121,6 +133,10 @@ public class SecurityAccessorTypeInfoFactory {
 
     public SecurityAccessorType.Purpose purposeFromInfo(IdWithNameInfo info) {
         return SecurityAccessorType.Purpose.valueOf(info.id.toString());
+    }
+
+    public SecurityAccessorTypeInfo getNotAvailableSecurityAccessorWrapper() {
+        return SecurityAccessorTypeInfo.getNotAvailable(thesaurus.getString(MessageSeeds.SECACC_WRAPPER_NOT_SET.getKey(), MessageSeeds.SECACC_WRAPPER_NOT_SET.getDefaultFormat()));
     }
 
 }
