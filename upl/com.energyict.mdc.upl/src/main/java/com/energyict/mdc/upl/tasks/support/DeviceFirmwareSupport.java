@@ -50,4 +50,14 @@ public interface DeviceFirmwareSupport {
     default boolean supportsCaConfigImageVersion() {
         return false;
     }
+
+    /**
+     * Indication whether or not the FirmwareType 'Auxiliary' is supported.
+     *      * Most meter only have one <i>adjustable</i> firmware so by default it is set to false.
+     *
+     * @return FALSE by default
+     */
+    default boolean supportsAuxiliaryFirmwareVersion() {
+        return false;
+    }
 }

@@ -39,6 +39,8 @@ public enum MessageSeeds implements MessageSeed {
     MASTER_FIRMWARE_NOT_LATEST(28, "MasterFirmwareNotLatest", "Firmware types on the master don''t have the highest level (among firmware types with the acceptable status).", Level.WARNING),
     DEVICE_HAS_GHOST_FIRMWARE(29, "DeviceHasGhostFirmware", "There is firmware with \"Ghost\" status on the device.", Level.WARNING),
     MASTER_HAS_GHOST_FIRMWARE(30, "MasterHasGhostFirmware", "There is firmware with \"Ghost\" status on the master device.", Level.WARNING),
+    WRONG_FIRMWARE_TYPE_FOR_AUX_FW_DEPENDENCY(31, "WrongFirmwareTypeForAuxFWDependency", "{0} ''{1}'' can''t be selected as a minimal auxiliary firmware for ''{2}''.", Level.SEVERE),
+    WRONG_RANK_FOR_AUX_FW_DEPENDENCY(32, "WrongRankForAuxFWDependency", "Firmware ''{0}'' can''t have dependency on minimal auxiliary firmware ''{1}'' with a higher rank.", Level.SEVERE),
 
     DEVICES_WERENT_ADDED_BECAUSE_PART_OTHER_CAMPAIGN(1001, "DevicesWerentAddedBecausePartOtherCampaign", "''{0}'' devices weren''t added to the campaign because they are a part of another ongoing campaign.", Level.INFO),
     DEVICE_WAS_ADDED(1002, "DeviceWasAdded", "Device was added", Level.INFO),

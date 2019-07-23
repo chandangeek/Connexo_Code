@@ -42,7 +42,7 @@ public class NoGhostFirmwareCheck implements FirmwareCheck {
     }
 
     boolean hasGhostMeterOrCommunicationFirmware(Device device) {
-        List<FirmwareType> checkedTypes = Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION);
+        List<FirmwareType> checkedTypes = Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.AUXILIARY);
         return dataModel.stream(ActivatedFirmwareVersion.class)
                 .join(FirmwareVersion.class)
                 .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.DEVICE.fieldName()).isEqualTo(device))

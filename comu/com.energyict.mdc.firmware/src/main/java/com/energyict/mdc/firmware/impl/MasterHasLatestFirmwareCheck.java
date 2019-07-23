@@ -57,7 +57,7 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
                             }
                             DeviceType masterDeviceType = master.getDeviceType();
                             EnumSet<FirmwareStatus> statusesForCheck = firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK);
-                            EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
+                            EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.AUXILIARY).stream()
                                     .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(masterDeviceType, firmwareType))
                                     .forEach(firmwareType -> {
                                         Optional<FirmwareVersion> maximum = firmwareService.getMaximumFirmware(masterDeviceType, EnumSet.of(firmwareType), statusesForCheck);

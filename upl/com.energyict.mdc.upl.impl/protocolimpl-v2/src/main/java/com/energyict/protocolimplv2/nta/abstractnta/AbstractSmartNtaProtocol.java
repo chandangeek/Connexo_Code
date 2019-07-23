@@ -471,5 +471,8 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         return true;
     }
 
-
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        return true;
+    }
 }

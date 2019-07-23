@@ -81,6 +81,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
 
     private Reference<FirmwareVersion> meterFirmwareDependency = ValueReference.absent();
     private Reference<FirmwareVersion> communicationFirmwareDependency = ValueReference.absent();
+    private Reference<FirmwareVersion> auxiliaryFirmwareDependency = ValueReference.absent();
 
     @Inject
     public FirmwareVersionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
@@ -328,6 +329,16 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
     }
 
     @Override
+    public Optional<FirmwareVersion> getAuxiliaryFirmwareDependency() {
+        return auxiliaryFirmwareDependency.getOptional();
+    }
+
+    @Override
+    public void setAuxiliaryFirmwareDependency(FirmwareVersion auxiliaryFirmwareDependency) {
+        this.auxiliaryFirmwareDependency.set(auxiliaryFirmwareDependency);
+    }
+
+    @Override
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
     }
@@ -348,7 +359,8 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         IMAGEIDENTIFIER("imageIdentifier"),
         RANK("rank"),
         METER_FW_DEP("meterFirmwareDependency"),
-        COM_FW_DEP("communicationFirmwareDependency");
+        COM_FW_DEP("communicationFirmwareDependency"),
+        AUX_FW_DEP("auxiliaryFirmwareDependency");
 
         private final String javaFieldName;
 
@@ -390,6 +402,12 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
         @Override
         public FirmwareVersionBuilder setCommunicationFirmwareDependency(FirmwareVersion communicationFirmwareDependency) {
             underConstruction.setCommunicationFirmwareDependency(communicationFirmwareDependency);
+            return this;
+        }
+
+        @Override
+        public FirmwareVersionBuilder setAuxiliaryFirmwareDependency(FirmwareVersion auxiliaryFirmwareDependency) {
+            underConstruction.setCommunicationFirmwareDependency(auxiliaryFirmwareDependency);
             return this;
         }
 
