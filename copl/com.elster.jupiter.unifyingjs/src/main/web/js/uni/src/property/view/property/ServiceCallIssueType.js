@@ -19,7 +19,7 @@ Ext.define('Uni.property.view.property.ServiceCallIssueType', {
                         itemId: 'service-call-type',
                         fieldLabel: Uni.I18n.translate('serviceCall.type', 'UNI', 'Service call type'),
                         queryMode: 'local',
-                        name: 'serviceCallType',
+                        name: this.getName(),
                         labelWidth: 260,
                         width: 595,
                         emptyText: Uni.I18n.translate('general.serviceCall.type.empty', 'UNI', 'Select a service call type...'),

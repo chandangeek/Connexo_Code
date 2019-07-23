@@ -93,10 +93,13 @@ Ext.define('Isu.model.Issue', {
             name: 'serviceCall',
             persist: false,
             mapping: function (data) {
-                return {
-                    id: data.serviceCallInfo.id,
-                    name: data.serviceCallInfo.name
+                if (data.serviceCallInfo) {
+                    return {
+                        id: data.serviceCallInfo.id,
+                        name: data.serviceCallInfo.name
+                    }
                 }
+                return null;
             }
         },
     ],

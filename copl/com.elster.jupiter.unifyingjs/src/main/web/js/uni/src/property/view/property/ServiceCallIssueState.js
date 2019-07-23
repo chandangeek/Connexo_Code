@@ -21,7 +21,7 @@ Ext.define('Uni.property.view.property.ServiceCallIssueState', {
                         disabled: true,
                         fieldLabel: Uni.I18n.translate('serviceCall.state.label', 'UNI', 'State (trigger)'),
                         queryMode: 'local',
-                        name: 'serviceCallState',
+                        name: this.getName(),
                         labelWidth: 260,
                         allowBlank: false,
                         width: 595,
