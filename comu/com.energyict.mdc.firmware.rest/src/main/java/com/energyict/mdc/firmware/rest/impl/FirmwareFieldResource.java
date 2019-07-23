@@ -75,8 +75,13 @@ public class FirmwareFieldResource extends FieldResource {
         List<String> firmwareTypes = new FirmwareTypeFieldAdapter().getClientSideValues();
         if (deviceTypeId != null) {
             DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
-            if (deviceType.getDeviceProtocolPluggableClass().isPresent() && !deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
-                firmwareTypes.remove(FirmwareType.COMMUNICATION.getType());
+            if (deviceType.getDeviceProtocolPluggableClass().isPresent()) {
+                if (!deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
+                    firmwareTypes.remove(FirmwareType.COMMUNICATION.getType());
+                }
+                if (!deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsAuxiliaryFirmwareVersion()) {
+                    firmwareTypes.remove(FirmwareType.AUXILIARY.getType());
+                }
             }
         }
         return asJsonArrayObjectWithTranslation("firmwareTypes", "id", firmwareTypes);

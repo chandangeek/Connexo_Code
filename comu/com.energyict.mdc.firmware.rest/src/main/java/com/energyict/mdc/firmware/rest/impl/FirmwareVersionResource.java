@@ -90,7 +90,8 @@ public class FirmwareVersionResource {
         FirmwareVersionBuilder versionToValidate = getFirmwareVersionBuilder(deviceType, firmwareVersionInfo.firmwareVersion,
                 firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id, firmwareVersionInfo.imageIdentifier,
                 firmwareVersionInfo.meterFirmwareDependency == null ? null : ((Number) firmwareVersionInfo.meterFirmwareDependency.id).longValue(),
-                firmwareVersionInfo.communicationFirmwareDependency == null ? null : ((Number) firmwareVersionInfo.communicationFirmwareDependency.id).longValue());
+                firmwareVersionInfo.communicationFirmwareDependency == null ? null : ((Number) firmwareVersionInfo.communicationFirmwareDependency.id).longValue(),
+                firmwareVersionInfo.auxiliaryFirmwareDependency == null ? null : ((Number) firmwareVersionInfo.auxiliaryFirmwareDependency.id).longValue());
 
         if (firmwareVersionInfo.fileSize != null) {
             versionToValidate.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -111,13 +112,14 @@ public class FirmwareVersionResource {
                                         @FormDataParam("firmwareStatus") String statusString,
                                         @FormDataParam("imageIdentifier") String imageIdentifier,
                                         @FormDataParam("meterFirmwareDependency") Long meterFWDependency,
-                                        @FormDataParam("communicationFirmwareDependency") Long comFWDependency) {
+                                        @FormDataParam("communicationFirmwareDependency") Long comFWDependency,
+                                        @FormDataParam("auxiliaryFirmwareDependency") Long auxFWDependency) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
         FirmwareType firmwareType = parseFirmwareTypeField(typeString).orElse(null);
         FirmwareStatus firmwareStatus = parseFirmwareStatusField(statusString).orElse(null);
 
         FirmwareVersionBuilder firmwareVersionBuilder = getFirmwareVersionBuilder(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier,
-                meterFWDependency, comFWDependency);
+                meterFWDependency, comFWDependency, auxFWDependency);
 
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
@@ -176,6 +178,12 @@ public class FirmwareVersionResource {
                 .map(Number::longValue)
                 .map(resourceHelper::findFirmwareVersionByIdOrThrowException)
                 .orElse(null));
+        firmwareVersion.setAuxiliaryFirmwareDependency(Optional.ofNullable(firmwareVersionInfo.auxiliaryFirmwareDependency)
+                .map(idWithName -> idWithName.id) // nullable too
+                .map(Number.class::cast)
+                .map(Number::longValue)
+                .map(resourceHelper::findFirmwareVersionByIdOrThrowException)
+                .orElse(null));
 
         if (firmwareVersionInfo.fileSize != null) {
             firmwareVersion.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -198,7 +206,8 @@ public class FirmwareVersionResource {
                                         @FormDataParam("imageIdentifier") String imageId,
                                         @FormDataParam("version") @DefaultValue("0") long version,
                                         @FormDataParam("meterFirmwareDependency") Long meterFWDependency,
-                                        @FormDataParam("communicationFirmwareDependency") Long comFWDependency) {
+                                        @FormDataParam("communicationFirmwareDependency") Long comFWDependency,
+                                        @FormDataParam("auxiliaryFirmwareDependency") Long auxFWDependency) {
         DeviceType deviceType = resourceHelper.findAndLockDeviceTypeOrThrowException(deviceTypeId); // to prevent from changing order of firmwares during the operation
 
         FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(id, version, fwVersion);
@@ -208,6 +217,7 @@ public class FirmwareVersionResource {
         parseFirmwareStatusField(status).ifPresent(firmwareVersion::setFirmwareStatus);
         firmwareVersion.setMeterFirmwareDependency(meterFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(meterFWDependency));
         firmwareVersion.setCommunicationFirmwareDependency(comFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
+        firmwareVersion.setAuxiliaryFirmwareDependency(comFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(auxFWDependency));
 
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
@@ -314,7 +324,7 @@ public class FirmwareVersionResource {
     }
 
     private FirmwareVersionBuilder getFirmwareVersionBuilder(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType, String imageIdentifier,
-                                                             Long meterFWDependency, Long comFWDependency) {
+                                                             Long meterFWDependency, Long comFWDependency, Long auxFWDependency) {
         FirmwareVersionBuilder builder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType,
                 FirmwareType.CA_CONFIG_IMAGE.equals(firmwareType) ? firmwareVersion : imageIdentifier);
         if (meterFWDependency != null) {
@@ -322,6 +332,9 @@ public class FirmwareVersionResource {
         }
         if (comFWDependency != null) {
             builder.setCommunicationFirmwareDependency(resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
+        }
+        if (auxFWDependency != null) {
+            builder.setAuxiliaryFirmwareDependency(resourceHelper.findFirmwareVersionByIdOrThrowException(auxFWDependency));
         }
         return builder;
     }

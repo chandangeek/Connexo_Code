@@ -277,6 +277,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                         .map(DeviceProtocolPluggableClass::getDeviceProtocol)
                         .filter(DeviceProtocol::supportsCaConfigImageVersion)
                         .isPresent();
+            case AUXILIARY:
+                return deviceType.getDeviceProtocolPluggableClass()
+                        .map(DeviceProtocolPluggableClass::getDeviceProtocol)
+                        .filter(DeviceProtocol::supportsAuxiliaryFirmwareVersion)
+                        .isPresent();
             default:
                 throw new IllegalArgumentException("Unknown firmware type!");
         }

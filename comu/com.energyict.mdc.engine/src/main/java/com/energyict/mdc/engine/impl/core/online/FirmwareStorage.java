@@ -47,6 +47,10 @@ class FirmwareStorage {
         updateFirmwareVersionForType(collectedCaConfigImageVersion, device, FirmwareType.CA_CONFIG_IMAGE);
     }
 
+    void updateAuxiliaryFirmwareVersion(Optional<String> collectedAuxiliaryFirmwareVersion, Device device) {
+        updateFirmwareVersionForType(collectedAuxiliaryFirmwareVersion, device, FirmwareType.AUXILIARY);
+    }
+
     private void updateFirmwareVersionForType(Optional<String> collectedFirmwareVersion, Device device, FirmwareType firmwareType) {
         collectedFirmwareVersion.ifPresent(version -> {
             if (!version.isEmpty()) {
