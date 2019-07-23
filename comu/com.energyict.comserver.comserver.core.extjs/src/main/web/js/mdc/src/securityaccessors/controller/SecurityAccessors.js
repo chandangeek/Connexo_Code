@@ -380,6 +380,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         else {
             securityAccessorRecord.beginEdit();
             securityAccessorRecord.set('keyRenewalCommandSpecification', {});
+            securityAccessorRecord.set('wrapperAccessorId', keyRenewalPage.down('#key-wrapper-combo').getValue());
             securityAccessorRecord.propertiesStore = undefined;
             securityAccessorRecord.endEdit();
             securityAccessorRecord.save({
