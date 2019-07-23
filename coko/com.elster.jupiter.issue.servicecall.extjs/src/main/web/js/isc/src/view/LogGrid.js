@@ -8,7 +8,7 @@ Ext.define('Isc.view.LogGrid', {
     store: null,
     ui: 'medium',
     requires: [ 'Uni.DateTime' ],
-    maxHeight: 408,
+    maxHeight: 364,
     columns: [
         {
             text: Uni.I18n.translate('general.timestamp', 'ISC', 'Timestamp'),
