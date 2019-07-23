@@ -30,7 +30,6 @@ Ext.define('Isu.model.Issue', {
         {name: 'userAssignee', type: 'auto'},
         {name: 'reason', type: 'auto'},
         {name: 'snoozedDateTime', type:'auto'},
-        {name: 'serviceCall', type: 'auto'},
         {
             name: 'statusDetail',
             convert: function (value, rec) {
@@ -89,7 +88,17 @@ Ext.define('Isu.model.Issue', {
         'comTaskId',
         'comTaskSessionId',
         'connectionTaskId',
-        'comSessionId'
+        'comSessionId',
+        {
+            name: 'serviceCall',
+            persist: false,
+            mapping: function (data) {
+                return {
+                    id: data.serviceCallInfo.id,
+                    name: data.serviceCallInfo.name
+                }
+            }
+        },
     ],
     associations: [
         {
