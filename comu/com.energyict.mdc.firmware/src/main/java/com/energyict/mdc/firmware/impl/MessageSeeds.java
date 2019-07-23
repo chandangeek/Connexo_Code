@@ -66,7 +66,7 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_UPLOAD_CURRENTLY_ONGOING(4011, "FirmwareUploadOfFirmwareIsCurrentlyOngoing", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Firmware upload of firmware is currently ongoing.", Level.WARNING),
     PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE(4012, "ProtocolOfTheDeviceTypeDoesNotSupportUploadingFirmware", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The protocol of the device type ''{1}'' doesn''t support uploading firmware.", Level.WARNING),
     CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY(4013, "ConnectionWindowOutsideOfCampaignTimeBoundary", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Connection window start of the connection method used by the firmware management communication task of the device is outside of the time boundary of the campaign.", Level.WARNING),
-    SERVICE_CALL_NOT_IN_FINAL_STATE(4014, "ServiceCallNotInFinalState", "The service call is not in the final state", Level.SEVERE);
+    DEVICE_PART_OF_CAMPAIGN(4014, "DeviceIsPartOfAnotherCampaign", "The service call is not restarted since the device is a part of another campaign", Level.SEVERE);
 
 
     private final int number;

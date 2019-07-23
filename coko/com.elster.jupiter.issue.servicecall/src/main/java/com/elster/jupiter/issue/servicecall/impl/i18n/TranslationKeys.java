@@ -36,7 +36,7 @@ public enum TranslationKeys implements TranslationKey {
     RETRY_NOW_ACTION("servicecall.issue.action.retrynow", "Retry now"),
     RETRY_NOW_ACTION_FAIL_TITLE("servicecall.issue.action.retrynow.fail.title", "Failed to retry service call"),
     RETRY_NOW_ACTION_FAIL_NOT_FINAL_STATE("servicecall.issue.action.retrynow.fail.notinfinalstate", "The service call is not in the final state"),
-    RETRY_NOW_ACTION_SUCCEED("servicecall.issue.action.retrynow.succeed", "Retry now action succeed"),
+    RETRY_NOW_ACTION_SUCCEED("servicecall.issue.action.retrynow.succeed", "The service call has been restarted"),
 
 
     SERVICE_CALL_ISSUE_RULE_TEMPLATE_NAME("servicecall.issue.RuleTemplateName", "State change"),

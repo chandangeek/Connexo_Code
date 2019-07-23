@@ -10,6 +10,7 @@ import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
 import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
+import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -47,8 +48,11 @@ public class StartProcessAction extends AbstractIssueAction {
 
     private static final String NAME = START_PROCESS_ACTION_PROCESS.getKey();
     private static final String ASSOCIATION = "servicecallissue";
+    private static final String PROPERTY_NAME = "issueReasons";
 
     private final BpmService bpmService;
+
+    private String reasonName;
 
     @Inject
     protected StartProcessAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, BpmService bpmService) {
@@ -117,7 +121,12 @@ public class StartProcessAction extends AbstractIssueAction {
     }
 
     private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition){
-        return ASSOCIATION.equals(processDefinition.getAssociation());
+        Object props = processDefinition.getProperties().get(PROPERTY_NAME);
+        if (props instanceof List) {
+           return ASSOCIATION.equals(processDefinition.getAssociation()) && ((List<Object>) props).stream().filter(HasIdAndName.class::isInstance)
+                    .anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName));
+        }
+        return false;
     }
 
     @Override
@@ -127,19 +136,20 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(String reasonName){
-
         return super.isApplicable(reasonName) && bpmService.getActiveBpmProcessDefinitions().stream()
                 .filter(this::getBpmProcessDefinitionFilter)
-                .filter(f -> List.class.isInstance(f.getProperties().get("issueReasons")))
-                .anyMatch(s -> ((List<Object>) s.getProperties().get("issueReasons"))
+                .filter(f -> List.class.isInstance(f.getProperties().get(PROPERTY_NAME)))
+                .anyMatch(s -> ((List<Object>) s.getProperties().get(PROPERTY_NAME))
                         .stream()
                         .filter(HasIdAndName.class::isInstance)
-                        .anyMatch(v -> ((HasIdAndName) v).getId().toString().equals(reasonName)));
+                        .anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName)));
     }
 
+
     @Override
-    public long getActionType() {
-        return ActionType.ACTION.getValue();
+    public IssueAction setReasonName(String reasonName){
+        this.reasonName = reasonName;
+        return this;
     }
 
     class ProcessInfoValueFactory implements ValueFactory<HasIdAndName> {

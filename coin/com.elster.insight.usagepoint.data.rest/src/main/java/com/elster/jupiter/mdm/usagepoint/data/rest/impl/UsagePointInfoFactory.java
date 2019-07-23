@@ -293,6 +293,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
         info.isReadyForLinkingMC = isReadyForLinkingMC(usagePoint);
 
+        info.serviceCategory = usagePoint.getServiceCategory().getName();
+
         return info;
     }
 

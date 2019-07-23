@@ -15,7 +15,7 @@ public enum ServiceCallTypes {
             FirmwareCampaignServiceCallHandler.APPLICATION,
             FirmwareCampaignCustomPropertySet.class.getSimpleName(),
             FirmwareCampaignDomainExtension.class.getName(),
-            FirmwareCampaignServiceCallHandler.RETRY_STATE),
+            null),
     FIRMWARE_CAMPAIGN_ITEM(
             FirmwareCampaignItemServiceCallHandler.NAME,
             FirmwareCampaignItemServiceCallHandler.VERSION,

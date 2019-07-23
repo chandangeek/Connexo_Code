@@ -7,10 +7,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 
 import javax.inject.Inject;
+
+import static com.energyict.mdc.firmware.impl.MessageSeeds.DEVICE_PART_OF_CAMPAIGN;
 
 public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandler {
 
@@ -21,11 +25,14 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final Thesaurus thesaurus;
+    private final ServiceCallService serviceCallService;
 
     @Inject
-    public FirmwareCampaignItemServiceCallHandler(FirmwareServiceImpl firmwareService, Thesaurus thesaurus) {
+    public FirmwareCampaignItemServiceCallHandler(FirmwareServiceImpl firmwareService, ServiceCallService serviceCallService,
+                                                  Thesaurus thesaurus) {
         this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
         this.thesaurus = thesaurus;
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -35,6 +42,14 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
+        ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
+        if (serviceCall.getTargetObject().isPresent()) {
+            serviceCallFilter.targetObject = serviceCall.getTargetObject().get();
+            if (serviceCallService.getServiceCallFinder(serviceCallFilter).stream().anyMatch(sc -> !sc.equals(serviceCall) && sc.getState().isOpen())) {
+                throw new FirmwareCampaignException(thesaurus, DEVICE_PART_OF_CAMPAIGN);
+            }
+        }
+
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         if (!oldState.isOpen()) {
             switch (newState) {
