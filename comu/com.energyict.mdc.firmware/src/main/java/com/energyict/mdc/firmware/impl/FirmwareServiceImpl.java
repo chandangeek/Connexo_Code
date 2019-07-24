@@ -49,6 +49,8 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
@@ -63,6 +65,7 @@ import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignCustomPropertySet;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemCustomPropertySet;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
@@ -444,6 +447,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType) {
         return dataModel.getInstance(FirmwareManagementOptionsImpl.class).init(deviceType);
+    }
+
+    @Override
+    public FirmwareCampaignManagementOptions newFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign) {
+        return dataModel.getInstance(FirmwareCampaignManagementOptionsImpl.class).init(firmwareCampaign);
     }
 
     @Override

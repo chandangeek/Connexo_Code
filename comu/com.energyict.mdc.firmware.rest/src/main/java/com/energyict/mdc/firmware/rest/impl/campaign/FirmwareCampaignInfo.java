@@ -7,6 +7,8 @@ package com.energyict.mdc.firmware.rest.impl.campaign;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.rest.impl.CheckManagementOptionInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfo;
 import com.energyict.mdc.firmware.rest.impl.IdWithLocalizedValue;
@@ -15,6 +17,7 @@ import com.energyict.mdc.firmware.rest.impl.ManagementOptionInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +40,8 @@ public class FirmwareCampaignInfo {
     public long version;
     public TimeDurationInfo validationTimeout;
     public IdWithNameInfo serviceCall;
+
+    public EnumMap<FirmwareCheckManagementOption, CheckManagementOptionInfo> checkOptions;
 
     public Optional<PropertyInfo> getPropertyInfo(String key) {
         return this.properties.stream().filter(y -> y.key.equals(key)).findFirst();

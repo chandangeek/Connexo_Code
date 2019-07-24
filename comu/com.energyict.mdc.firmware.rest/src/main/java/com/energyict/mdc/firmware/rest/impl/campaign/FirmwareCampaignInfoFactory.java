@@ -16,9 +16,14 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.impl.FirmwareCampaignManagementOptionsImpl;
+import com.energyict.mdc.firmware.rest.impl.CheckManagementOptionInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
@@ -39,9 +44,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.firmware.rest.impl.campaign.StatusInfoFactory.getCampaignStatus;
 import static com.energyict.mdc.firmware.rest.impl.campaign.StatusInfoFactory.getDeviceStatus;
@@ -99,6 +107,7 @@ public class FirmwareCampaignInfoFactory {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
             info.properties = firmwareMessageInfoFactory.getProperties(firmwareMessageSpec.get(), campaign.getDeviceType(), info.firmwareType.id.getType(), campaign.getProperties());
         }
+        info.checkOptions = null;
         return info;
     }
 
@@ -160,7 +169,18 @@ public class FirmwareCampaignInfoFactory {
                 }
             }
         }
-        return firmwareCampaignBuilder.create();
+        FirmwareCampaign firmwareCampaign = firmwareCampaignBuilder.create();
+        FirmwareCampaignManagementOptions options = firmwareService.newFirmwareCampaignManagementOptions(firmwareCampaign);
+        Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption -> {
+            CheckManagementOptionInfo checkInfo = info.checkOptions.get(checkManagementOption);
+            if (checkInfo == null || !checkInfo.isActivated()) {
+                options.deactivate(checkManagementOption);
+            } else {
+                options.activateFirmwareCheckWithStatuses(checkManagementOption, checkInfo.getStatuses());
+            }
+        });
+        options.save();
+        return firmwareCampaign;
     }
 
     public Range<Instant> retrieveRealUploadRange(FirmwareCampaignInfo firmwareCampaignInfo) {
