@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -130,8 +131,7 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.CREATED);
         header.setNoun(END_DEVICE_EVENTS);
-        /* TO-DO XROMVYU !!!!!!!!!!!!!!*/
-        header.setCorrelationID("GENERATE IT AS UIID");
+        header.setCorrelationID(UUID.randomUUID().toString());
         responseMessage.setHeader(header);
 
         // set payload
@@ -179,8 +179,7 @@ public class EndDeviceEventsServiceProviderImpl implements EndDeviceEventsServic
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.CREATED);
         header.setNoun(END_DEVICE_EVENTS);
-        /* TO-DO XROMVYU !!!!!!!!!!!!!!*/
-        header.setCorrelationID("GENERATE IT AS UIID");
+        header.setCorrelationID(UUID.randomUUID().toString());
         responseMessage.setHeader(header);
 
         // set payload
