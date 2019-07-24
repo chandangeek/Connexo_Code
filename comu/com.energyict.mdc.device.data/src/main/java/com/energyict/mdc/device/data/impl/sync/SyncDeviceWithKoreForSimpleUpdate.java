@@ -126,7 +126,7 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
-        dirtyFields.put(Field.MANUFACTURER, Optional.of(location));
+        dirtyFields.put(Field.MANUFACTURER, Optional.of(manufacturer));
     }
 
     public String getModelNumber() {
@@ -135,7 +135,7 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
 
     public void setModelNumber(String modelNumber) {
         this.modelNbr = modelNumber;
-        dirtyFields.put(Field.MODELNBR, Optional.of(location));
+        dirtyFields.put(Field.MODELNBR, Optional.of(modelNumber));
     }
 
     public String getModelVersion() {
@@ -144,12 +144,12 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
 
     public void setModelVersion(String modelVersion) {
         this.modelVersion = modelVersion;
-        dirtyFields.put(Field.MODELVERSION, Optional.of(location));
+        dirtyFields.put(Field.MODELVERSION, Optional.of(modelVersion));
     }
 
     public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         this.spatialCoordinates = Optional.ofNullable(spatialCoordinates);
-        dirtyFields.put(Field.SPATIALCOORDINATES, Optional.of(location));
+        dirtyFields.put(Field.SPATIALCOORDINATES, Optional.of(spatialCoordinates));
     }
 
     public String getSerialNumber() {
@@ -158,7 +158,7 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
-        dirtyFields.put(Field.SERIALNUMBER, Optional.of(location));
+        dirtyFields.put(Field.SERIALNUMBER, Optional.of(serialNumber));
     }
 
     @Override
