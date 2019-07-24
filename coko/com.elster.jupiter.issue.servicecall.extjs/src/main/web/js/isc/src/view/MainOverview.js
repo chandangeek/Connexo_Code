@@ -21,7 +21,7 @@ Ext.define('Isc.view.MainOverview', {
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('issue.workspace.servicecall', 'ISC', 'Service call'),
+            title: Uni.I18n.translate('general.servicecall', 'ISC', 'Service call'),
             flex: 1
         }
     ]

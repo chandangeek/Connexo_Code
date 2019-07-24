@@ -56,20 +56,21 @@ Ext.define('Isc.controller.Main', {
 
                 items.push({
                     text: Uni.I18n.translate('general.issues','ISC','Issues'),
+                    itemId: 'servicecall-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall']})
                 });
                 items.push({
-                    text: Uni.I18n.translate('servicecall.myOpenIssues','ISC','My open issues'),
+                    text: Uni.I18n.translate('general.myOpenIssues','ISC','My open issues'),
                     itemId: 'servicecall-my-open-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall'], myopenissues: true, status: ['status.open', 'status.in.progress']})
                 });
                 items.push({
-                    text: Uni.I18n.translate('servicecall.myWorkgroupsIssues', 'ISC', 'My workgroups issues'),
+                    text: Uni.I18n.translate('general.myWorkgroupsIssues', 'ISC', 'My workgroups issues'),
                     itemId: 'servicecall-my-workgroup-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['servicecall'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
                 });
             servicecallIssue = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.servicecall.issues','ISC','Service calls'),
+                title: Uni.I18n.translate('general.serviceCalls','ISC','Service calls'),
                 portal: 'workspace',
                 items:  items
             });
