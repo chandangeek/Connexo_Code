@@ -18,7 +18,7 @@ use Digest::MD5 qw(md5_hex);
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170622";
+my $INSTALL_VERSION="v20170622";yellowfin-ws
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -843,6 +843,7 @@ sub activate_sso {
             }
 
             if ("$INSTALL_FLOW" eq "yes") {
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->","<!-- to enable Connexo Flow SSO uncomment the Connexo authentication filters below -->");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!--filter>","<filter>");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
@@ -860,6 +861,7 @@ sub activate_sso {
             }
 
             if ("$INSTALL_FACTS" eq "yes") {
+                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->","<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->");
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!--filter>","<filter>");
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
 

@@ -18,7 +18,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <yellowfin.version>7.4</yellowfin.version>
+        <yellowfin.version>8.0</yellowfin.version>
         <axis.version>1.4</axis.version>
     </properties>
 
