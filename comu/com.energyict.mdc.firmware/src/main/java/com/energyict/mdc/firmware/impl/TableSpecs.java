@@ -142,7 +142,7 @@ public enum TableSpecs {
             addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_FINAL, "'Y'");
             addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_TEST, "'N'");
             table.primaryKey("FWC_PK_FIRMWARECPMGTOPTIONS").on(firmwareCampaignColumn).add();
-            table.foreignKey("FWC_OPTIONS_FK_FIRMWARECAMPAIGN")
+            table.foreignKey("FWC_OPTIONS_FK_FWRCAMPAIGN")
                     .on(firmwareCampaignColumn)
                     .references(DeviceType.class)
                     .map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName())
