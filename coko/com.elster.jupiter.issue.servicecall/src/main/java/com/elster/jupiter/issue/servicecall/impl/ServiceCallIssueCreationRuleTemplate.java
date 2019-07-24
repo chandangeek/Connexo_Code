@@ -97,6 +97,16 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
                 "then\n" +
                 "\tLOGGER.info(\"Trying to create issue by servicecall rule [id = @{ruleId}]\");\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
+                "end\n" +
+                "rule \"Auto-resolution section @{ruleId}\"\n" +
+                "when\n" +
+                "\tevent : ServiceCallStateChangedEvent(stateId == " + DefaultState.SUCCESSFUL.ordinal() + "), " +
+                " serviceCallTypeId in (@{" + TranslationKeys.SERVICE_CALL_TYPE.getKey() + "})," +
+                "@{" + AUTORESOLUTION + "} == 1" +
+                ")\n" +
+                "then\n" +
+                "\tLOGGER.info(\"Trying to resolve service call issue rule=@{ruleId}\");\n" +
+                "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                 "end\n";
     }
 
@@ -149,7 +159,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .markMultiValued(ServiceCallStateInfoValueFactory.SEPARATOR)
-                .addValues(Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen()).map(defaultState -> new DefaultStateInfo(defaultState, thesaurus)).collect(Collectors.toList()))
+                .addValues(Arrays.stream(DefaultState.values()).filter(defaultState -> !defaultState.isOpen() && DefaultState.SUCCESSFUL != defaultState).map(defaultState -> new DefaultStateInfo(defaultState, thesaurus)).collect(Collectors.toList()))
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         builder.add(propertySpecService

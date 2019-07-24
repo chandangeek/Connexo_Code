@@ -23,8 +23,8 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     private static final String TRIGGERING_EVENTS = "BasicDeviceAlarmRuleTemplate.triggeringEvents";
     private static final String LIFECYCLE_IN_DEVICE_TYPES = "DeviceLifeCycleInDeviceType.deviceLifecyleInDeviceTypes";
     private static final String ALARMS_LIFECYCLE_IN_DEVICE_TYPES = "BasicDeviceAlarmRuleTemplate.deviceLifecyleInDeviceTypes";
-    private static final String SERVICE_CALL_STATE = "ServiceCallTypeState";
-    private static final String SERVICE_CALL_TYPE = "ServiceCallTypeHandler";
+    private static final String SERVICE_CALL_STATE = "servicecall.issue.type.state";
+    private static final String SERVICE_CALL_TYPE = "servicecall.issue.type.name";
 
     private HasValidProperties annotation;
     private boolean valid;
