@@ -118,6 +118,14 @@ public class SyncReplyIssue {
         this.notFoundRTNames = notFoundRTNames;
     }
 
+    public void addExistedReadingType(ReadingType readingType) {
+        getExistedReadingTypes().add(readingType);
+    }
+
+    public void addExistedReadingTypes(Set<ReadingType> readingTypes) {
+        getExistedReadingTypes().addAll(readingTypes);
+    }
+
     public Set<ReadingType> getExistedReadingTypes() {
         if (existedReadingTypes == null) {
             existedReadingTypes = new HashSet<>();

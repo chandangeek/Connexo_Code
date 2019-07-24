@@ -16,12 +16,11 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigParser;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.MeterReadingFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ReadingSourceEnum;
@@ -46,6 +45,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.Me
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -53,6 +53,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -329,9 +330,20 @@ public class ServiceCallCommands {
         ServiceCall subParentServiceCall = createSubParentServiceCall(parentServiceCall, meter);
 
         Set<String> existedLoadProfiles = syncReplyIssue.getReadingExistedLoadProfilesMap().get(index);
-        if ((CollectionUtils.isNotEmpty(existedLoadProfiles)
-                    || (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes())))) {
-            processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, actualEnd, now, delay, scheduleStrategy);
+        if (start != null && end != null) {
+            if (CollectionUtils.isNotEmpty(existedLoadProfiles)
+                    || (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes()))) {
+                processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, end, now, delay, scheduleStrategy);
+            }
+        } else if (CollectionUtils.isNotEmpty(existedLoadProfiles)) {
+            Set<ReadingType> readingTypes = masterDataService.findAllLoadProfileTypes().stream()
+                    .filter(lp -> existedLoadProfiles.contains(lp.getName()))
+                    .map(LoadProfileType::getChannelTypes)
+                    .flatMap(Collection::stream)
+                    .map(channelType -> channelType.getReadingType())
+                    .collect(Collectors.toSet());
+            syncReplyIssue.addExistedReadingTypes(readingTypes);
+            combinedReadingTypes.addAll(readingTypes);
         }
 
         if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, delay)) {
@@ -384,7 +396,7 @@ public class ServiceCallCommands {
     }
 
     private void processLoadProfiles(ServiceCall subParentServiceCall, Device device, int index, SyncReplyIssue syncReplyIssue,
-                                     Instant start, Instant actualEnd, Instant now, int delay, ScheduleStrategyEnum scheduleStrategy) {
+                                     Instant start, Instant end, Instant now, int delay, ScheduleStrategyEnum scheduleStrategy) {
         Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, index, syncReplyIssue);
         Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
         loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
@@ -399,20 +411,19 @@ public class ServiceCallCommands {
                 return;
             }
             deviceMessagesComTaskExecution = deviceMessagesComTaskExecutionOptional.get();
-            Instant actualStart = getActualStart(start, actualEnd, deviceMessagesComTaskExecution);
-            Instant trigger = getTriggerDate(actualEnd, delay, deviceMessagesComTaskExecution, scheduleStrategy);
-            createDeviceMessages(device, loadProfiles, trigger, actualStart, actualEnd);
+            Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
+            createDeviceMessages(device, loadProfiles, trigger, start, end);
             if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
                 if (trigger.isAfter(now)) { // use recurrent task
                     processComTaskExecutionByRecurrentTask(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
-                            actualStart, actualEnd, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS);
+                            start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS);
                 } else { // run now
                     scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
-                            actualStart, actualEnd, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, true);
+                            start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, true);
                 }
             } else { // use schedule
                 scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
-                        actualStart, actualEnd, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, false);
+                        start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, false);
             }
         }
     }
