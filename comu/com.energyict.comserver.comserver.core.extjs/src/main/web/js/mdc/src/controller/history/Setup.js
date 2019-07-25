@@ -1321,7 +1321,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 title: Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue'),
                                 route: 'newissuemanually',
                                 controller: 'Isu.controller.CreationManualRule',
-                                action: 'createNewManuallyIssue',
+                                action: 'createNewManualIssue',
                                 privileges: Isu.privileges.Issue.createManualIssue
                         }
                     }

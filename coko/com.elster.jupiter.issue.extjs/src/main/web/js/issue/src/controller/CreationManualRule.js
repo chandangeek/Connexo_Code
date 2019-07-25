@@ -34,7 +34,7 @@ Ext.define('Isu.controller.CreationManualRule', {
         });
     },
 
-    createNewManuallyIssue: function () {
+    createNewManualIssue: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             returnLink = router.getRoute('workspace/issues').buildUrl(),
@@ -114,8 +114,9 @@ Ext.define('Isu.controller.CreationManualRule', {
 
        form.updateRecord();
        var record = form.getRecord();
+       var issueReasonIsValid = me.validateIssueReason(record);
 
-       if (!form.isValid() || !me.validateIssueReason(record)) {
+       if (!form.isValid() || !issueReasonIsValid) {
             errorMessage.show();
             return;
        }

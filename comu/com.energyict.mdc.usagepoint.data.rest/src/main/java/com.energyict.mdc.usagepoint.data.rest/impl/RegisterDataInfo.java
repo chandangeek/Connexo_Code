@@ -5,6 +5,7 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -41,6 +42,7 @@ public class RegisterDataInfo {
 
     public Instant eventDate;
 
+    @JsonProperty("validationResult")
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     ValidationStatus validationResult;
 

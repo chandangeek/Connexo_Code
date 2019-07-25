@@ -33,4 +33,6 @@ public interface DeviceInFirmwareCampaign {
     Instant getFinishedOn();
 
     long getId();
+
+    void delete();
 }
