@@ -88,11 +88,4 @@ class ServiceCallTypeInfo extends HasIdAndName {
     public String getName() {
         return serviceCallType.getName();
     }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + Long.hashCode(serviceCallType.getId());
-        return result;
-    }
 }

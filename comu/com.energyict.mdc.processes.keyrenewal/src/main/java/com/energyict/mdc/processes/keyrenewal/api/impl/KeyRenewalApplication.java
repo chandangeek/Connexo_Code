@@ -188,7 +188,7 @@ public class KeyRenewalApplication extends Application implements TranslationKey
         upgradeService.register(InstallIdentifier.identifier(KeyRenewalChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(
                         version(10, 4, 1), UpgraderV10_4_1.class,
-                        version(10, 7), UpgraderV10_4_1.class
+                        version(10, 7), UpgraderV10_7.class
                 ));
     }
 

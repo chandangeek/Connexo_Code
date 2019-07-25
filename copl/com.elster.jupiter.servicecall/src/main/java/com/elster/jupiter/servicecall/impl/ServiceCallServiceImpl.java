@@ -289,7 +289,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public Optional<ServiceCallType> findServiceCallType(long id) {
-        return dataModel.stream(ServiceCallType.class).filter(Where.where("id").isEqualTo(id)).findFirst();
+        return dataModel.mapper(ServiceCallType.class).getOptional(id);
     }
 
     public List<ServiceCallType> getServiceCallTypes(String destination) {

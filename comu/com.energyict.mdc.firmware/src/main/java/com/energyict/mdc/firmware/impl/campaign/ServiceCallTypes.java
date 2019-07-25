@@ -61,7 +61,7 @@ public enum ServiceCallTypes {
         return persistenceSupportClass;
     }
 
-    public DefaultState getRetryState() {
-        return retryState;
+    public Optional<DefaultState> getRetryState() {
+        return Optional.ofNullable(retryState);
     }
 }

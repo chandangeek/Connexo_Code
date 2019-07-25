@@ -96,10 +96,4 @@ class DefaultStateInfo extends HasIdAndName {
         return defaultState.getDisplayName(thesaurus);
     }
 
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + Long.hashCode(defaultState.ordinal());
-        return result;
-    }
 }

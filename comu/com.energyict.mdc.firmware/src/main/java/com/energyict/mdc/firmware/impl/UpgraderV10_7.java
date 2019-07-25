@@ -40,7 +40,7 @@ public class UpgraderV10_7 implements Upgrader {
                     .findServiceCallType(type.getTypeName(), type.getTypeVersion()).ifPresent(
                     serviceCallType -> {
                         serviceCallType.setApplication(type.getApplication().orElse(null));
-                        serviceCallType.setRetryState(type.getRetryState());
+                        serviceCallType.setRetryState(type.getRetryState().orElse(null));
                     }
             );
         }

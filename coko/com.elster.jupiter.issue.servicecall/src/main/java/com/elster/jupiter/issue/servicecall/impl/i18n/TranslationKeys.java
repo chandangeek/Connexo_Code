@@ -14,7 +14,7 @@ public enum TranslationKeys implements TranslationKey {
     START_PROCESS_ACTION("servicecall.issue.action.startProcess", "Start process"),
     START_PROCESS_ACTION_PROCESS("servicecall.issue.action.process", "Process"),
     START_PROCESS_ACTION_SELECT_PROCESS("servicecall.issue.action.select_process", "Select process"),
-    START_PROCESS_ACTION_SUCCEED("servicecall.issue.action.startProcess.succeed", "Start process action succeed"),
+    START_PROCESS_ACTION_SUCCEED("servicecall.issue.action.startProcess.succeeded", "Start process action succeeded"),
     START_PROCESS_ACTION_FAILED("servicecall.issue.action.startProcess.failed", "Start process action failed"),
     SERVICE_CALL_ISSUE_TYPE("servicecall.issue.Type", "Service call"),
     SERVICE_CALL_ISSUE_FAILED_REASON("servicecall.issue.FailedReason", "Service call failed"),
@@ -35,7 +35,6 @@ public enum TranslationKeys implements TranslationKey {
 
     RETRY_NOW_ACTION("servicecall.issue.action.retrynow", "Retry now"),
     RETRY_NOW_ACTION_FAIL_TITLE("servicecall.issue.action.retrynow.fail.title", "Failed to retry service call"),
-    RETRY_NOW_ACTION_FAIL_NOT_FINAL_STATE("servicecall.issue.action.retrynow.fail.notinfinalstate", "The service call is not in the final state"),
     RETRY_NOW_ACTION_SUCCEED("servicecall.issue.action.retrynow.succeed", "The service call has been restarted"),
 
 

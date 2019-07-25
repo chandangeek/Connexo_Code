@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -36,7 +35,7 @@ public class ServiceCallTypeInfoFactory {
         info.version = serviceCallType.getVersion();
         info.name = serviceCallType.getName();
         info.versionName = serviceCallType.getVersionName();
-        serviceCallType.getReservedByApplication().ifPresent(
+        serviceCallType.getApplication().ifPresent(
                 key -> info.reservedByApplication = APPS.get(key));
         info.destination = serviceCallType.getDestinationName();
         info.priority = serviceCallType.getPriority();

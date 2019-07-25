@@ -123,7 +123,8 @@ public class StartProcessAction extends AbstractIssueAction {
     private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition){
         Object props = processDefinition.getProperties().get(PROPERTY_NAME);
         if (props instanceof List) {
-           return ASSOCIATION.equals(processDefinition.getAssociation()) && ((List<Object>) props).stream().filter(HasIdAndName.class::isInstance)
+           return ASSOCIATION.equals(processDefinition.getAssociation()) &&
+                   ((List<Object>) props).stream().filter(HasIdAndName.class::isInstance)
                     .anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName));
         }
         return false;

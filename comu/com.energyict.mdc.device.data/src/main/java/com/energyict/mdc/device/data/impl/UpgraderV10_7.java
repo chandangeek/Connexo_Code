@@ -81,7 +81,7 @@ public class UpgraderV10_7 implements Upgrader {
 
         serviceCallService.findServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION).ifPresent(
                 serviceCallType -> {
-                    serviceCallType.setApplication(OnDemandReadServiceCallHandler.APPLICATION);
+                    serviceCallType.setApplication(CommunicationTestServiceCallHandler.APPLICATION);
                     serviceCallType.save();
                 }
         );

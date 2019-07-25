@@ -22,7 +22,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     public static final String NAME = "FirmwareCampaignServiceCallHandler";
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
-    public static final DefaultState RETRY_STATE = DefaultState.ONGOING;
+    public static final DefaultState RETRY_STATE = DefaultState.PENDING;
 
     private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
 

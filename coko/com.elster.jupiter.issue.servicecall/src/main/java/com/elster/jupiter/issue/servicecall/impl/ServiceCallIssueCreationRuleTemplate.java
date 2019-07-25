@@ -171,8 +171,8 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     }
 
     private boolean getServiceCallTypeFilter(ServiceCallType serviceCallType) {
-        if (serviceCallType.getReservedByApplication().isPresent()) {
-           return threadPrincipalService.getApplicationName().equals(serviceCallType.getReservedByApplication().get());
+        if (serviceCallType.getApplication().isPresent()) {
+           return threadPrincipalService.getApplicationName().equals(serviceCallType.getApplication().get());
         }
         return true;
     }

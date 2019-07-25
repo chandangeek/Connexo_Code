@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.servicecall.impl.action;
 
 import com.elster.jupiter.issue.servicecall.ServiceCallIssue;
+import com.elster.jupiter.issue.servicecall.impl.MessageSeeds;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -12,7 +13,6 @@ import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -45,11 +45,11 @@ public class RetryServiceCallAction extends AbstractIssueAction {
                 issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
                 issue.update();
                 return result;
-            } catch (LocalizedException e) {
+            } catch (Exception e) {
                 result.fail(e.getLocalizedMessage());
             }
         } else {
-            result.fail(getThesaurus().getFormat(TranslationKeys.RETRY_NOW_ACTION_FAIL_NOT_FINAL_STATE).format());
+            result.fail(getThesaurus().getFormat(MessageSeeds.RETRY_NOW_ACTION_FAIL_NOT_FINAL_STATE).format());
         }
 
         return result;

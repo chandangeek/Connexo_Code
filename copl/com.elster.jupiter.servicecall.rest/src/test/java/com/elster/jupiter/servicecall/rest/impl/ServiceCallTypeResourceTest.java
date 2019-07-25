@@ -104,7 +104,7 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);
         when(serviceCallType.getId()).thenReturn(id);
         when(serviceCallType.getVersion()).thenReturn(1L);
-        when(serviceCallType.getReservedByApplication()).thenReturn(Optional.empty());
+        when(serviceCallType.getApplication()).thenReturn(Optional.empty());
         return serviceCallType;
     }
 }

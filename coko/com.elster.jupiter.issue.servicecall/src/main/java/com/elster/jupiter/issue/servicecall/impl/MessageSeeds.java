@@ -12,6 +12,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     UNABLE_TO_CREATE_EVENT(2001, "ServiceCallIssueUnableToMapEvent", "Unable to create event from event payload: {0}", Level.INFO),
+    RETRY_NOW_ACTION_FAIL_NOT_FINAL_STATE(2002, "retrynow.fail.notinfinalstate", "The service call is not in the final state", Level.WARNING),
     ;
 
     private final int number;

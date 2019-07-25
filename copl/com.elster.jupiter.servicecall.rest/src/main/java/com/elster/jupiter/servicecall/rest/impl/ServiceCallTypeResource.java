@@ -72,7 +72,7 @@ public class ServiceCallTypeResource {
         List<ServiceCallTypeInfo> serviceCallTypeInfos = serviceCallService.getServiceCallTypes()
                 .from(queryParameters)
                 .stream()
-                .filter(type -> ADMIN_APP_KEY.equals(appKey) || !type.getReservedByApplication().isPresent() || appKey.equals(type.getReservedByApplication().get()))
+                .filter(type -> ADMIN_APP_KEY.equals(appKey) || !type.getApplication().isPresent() || appKey.equals(type.getApplication().get()))
                 .map(serviceCallTypeInfoFactory::from)
                 .collect(toList());
 
