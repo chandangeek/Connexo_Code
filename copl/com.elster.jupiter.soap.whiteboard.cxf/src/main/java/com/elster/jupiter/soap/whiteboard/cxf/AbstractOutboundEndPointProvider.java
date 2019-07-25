@@ -22,9 +22,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -187,13 +193,13 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             Class<?> type = method.getParameterTypes()[0];
 
             try {
+                InputStream inputStream = new ByteArrayInputStream(message.getBytes());
+                SOAPMessage msg = MessageFactory.newInstance().createMessage(null, inputStream);
                 JAXBContext jaxbContext = JAXBContext.newInstance(type);
                 Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                StringReader sReader = new StringReader(message);
-                StreamSource streamSource = new StreamSource(sReader);
-                JAXBElement<?> root = jaxbUnmarshaller.unmarshal(streamSource, type);
+                JAXBElement<?> root = jaxbUnmarshaller.unmarshal(msg.getSOAPBody().extractContentAsDocument(), type);
                 return doSend(method, root.getValue());
-            } catch (JAXBException e) {
+            } catch (JAXBException | SOAPException | IOException e) {
                 getEndpoints().keySet().forEach(endPointConfiguration -> {
                     long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), message).getId();
                     webServicesService.failOccurrence(id,
