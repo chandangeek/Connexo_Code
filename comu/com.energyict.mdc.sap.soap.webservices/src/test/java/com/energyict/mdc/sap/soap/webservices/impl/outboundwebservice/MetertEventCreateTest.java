@@ -54,6 +54,7 @@ public class MetertEventCreateTest extends AbstractOutboundWebserviceTest {
         provider.addSOAUtilitiesSmartMeterEventERPBulkCreateRequest(port, ImmutableMap.of(AbstractOutboundEndPointProvider.ENDPOINT_CONFIGURATION_ID_PROPERTY, 1l));
         provider.send(reqMsg);
         verify(provider).using("soaUtilitiesSmartMeterEventERPBulkCreateRequest");
+        verify(requestSender).send(reqMsg);
     }
 
     @Test

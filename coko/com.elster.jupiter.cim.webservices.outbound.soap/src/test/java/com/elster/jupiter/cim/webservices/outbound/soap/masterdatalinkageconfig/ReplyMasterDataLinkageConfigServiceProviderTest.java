@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -77,6 +78,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
     private WebServiceCallOccurrence webServiceCallOccurrence;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    protected OutboundEndPointProvider.RequestSender requestSender;
 
     @Before
     public void setup() {
@@ -88,6 +91,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", thesaurus);
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url, "epcId", 1l));
+        when(provider.using(anyString())).thenReturn(requestSender);
+        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
 
         when(endPointConfiguration.getUrl()).thenReturn(url);
 
@@ -141,6 +146,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
 
         verify(provider).using("createdMasterDataLinkageConfig");
+        verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
     @Test
@@ -170,6 +177,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
 
         verify(provider).using("closedMasterDataLinkageConfig");
+        verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
     @Test
@@ -213,6 +222,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
 
         verify(provider).using("closedMasterDataLinkageConfig");
+        verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
     private void verifyFailure(ErrorType failure) {

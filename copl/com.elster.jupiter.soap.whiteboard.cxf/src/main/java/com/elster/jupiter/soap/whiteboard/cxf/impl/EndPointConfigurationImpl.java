@@ -23,7 +23,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
@@ -257,16 +256,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void log(LogLevel logLevel, String message) {
-        if (this.logLevel.compareTo(logLevel) > -1) {
-            if (transactionService.isInTransaction()) {
-                doLog(logLevel, message);
-            } else {
-                try (TransactionContext context = transactionService.getContext()) {
-                    doLog(logLevel, message);
-                    context.commit();
-                }
-            }
-        }
+        log(logLevel, message, null);
     }
 
     private void doLog(LogLevel logLevel, String message) {
@@ -297,14 +287,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void log(String message, Exception exception) {
-        if (transactionService.isInTransaction()) {
-            doLog(message, exception);
-        } else {
-            try (TransactionContext context = transactionService.getContext()) {
-                doLog(message, exception);
-                context.commit();
-            }
-        }
+        log(message, exception, null);
     }
 
     private void doLog(String message, Exception exception) {
@@ -341,17 +324,17 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public Finder<EndPointLog> getLogs() {
-        OccurrenceLogFinderBuilder finderBuilder =  new OccurrenceLogFinderBuilderImpl(dataModel, Condition.TRUE);
+        OccurrenceLogFinderBuilder finderBuilder =  new OccurrenceLogFinderBuilderImpl(dataModel);
         finderBuilder.withEndPointConfiguration(this);
-        finderBuilder.withEmptyOccurrence();
+        finderBuilder.withNoOccurrence();
         return finderBuilder.build();
     }
 
     @Override
-    public Finder<WebServiceCallOccurrence> getOccurrences(Boolean sort) {
+    public Finder<WebServiceCallOccurrence> getOccurrences(Boolean ascending) {
         return DefaultFinder.of(WebServiceCallOccurrence.class,
-                Where.where(WebServiceCallOccurrenceImpl.Fields.endPointConfiguration.fieldName())
-                        .isEqualTo(this), dataModel).sorted(WebServiceCallOccurrenceImpl.Fields.startTime.fieldName(), sort);
+                Where.where(WebServiceCallOccurrenceImpl.Fields.ENDPOINT_CONFIGURATION.fieldName())
+                        .isEqualTo(this), dataModel).sorted(WebServiceCallOccurrenceImpl.Fields.START_TIME.fieldName(), ascending);
 
     }
 
@@ -413,17 +396,17 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public WebServiceCallOccurrence createEndPointOccurrence(Instant startTime,
-                                                             String requestName,
-                                                             String applicationName) {
-        return createEndPointOccurrence(startTime, requestName, applicationName, null);
+    public WebServiceCallOccurrence createWebServiceCallOccurrence(Instant startTime,
+                                                                   String requestName,
+                                                                   String applicationName) {
+        return createWebServiceCallOccurrence(startTime, requestName, applicationName, null);
     }
 
     @Override
-    public WebServiceCallOccurrence createEndPointOccurrence(Instant startTime,
-                                                             String requestName,
-                                                             String applicationName,
-                                                             String payload) {
+    public WebServiceCallOccurrence createWebServiceCallOccurrence(Instant startTime,
+                                                                   String requestName,
+                                                                   String applicationName,
+                                                                   String payload) {
         WebServiceCallOccurrence occurrence = dataModel.getInstance(WebServiceCallOccurrenceImpl.class).init(
                 startTime,
                 requestName,

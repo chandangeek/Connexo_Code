@@ -26,13 +26,13 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
                 .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
 
-        WebServiceCallOccurrence tmpOccurrence  = endPointConfiguration.createEndPointOccurrence(clock.instant(), "RequestName", "Multisense");
+        WebServiceCallOccurrence tmpOccurrence  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName", "MultiSense");
 
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(tmpOccurrence.getId());
 
         assertThat(epOcc.get().getId()).isEqualTo(tmpOccurrence.getId());
         assertThat(epOcc.get().getRequest().get()).isEqualTo("RequestName");
-        assertThat(epOcc.get().getApplicationName().get()).isEqualTo("Multisense");
+        assertThat(epOcc.get().getApplicationName().get()).isEqualTo("MultiSense");
         assertThat(epOcc.get().getStatus()).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING);
 
         tmpOccurrence.setStatus(WebServiceCallOccurrenceStatus.SUCCESSFUL);
@@ -40,7 +40,7 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(tmpOccurrence.getId());
         assertThat(epOcc.get().getId()).isEqualTo(tmpOccurrence.getId());
         assertThat(epOcc.get().getRequest().get()).isEqualTo("RequestName");
-        assertThat(epOcc.get().getApplicationName().get()).isEqualTo("Multisense");
+        assertThat(epOcc.get().getApplicationName().get()).isEqualTo("MultiSense");
         assertThat(epOcc.get().getStatus()).isEqualTo(WebServiceCallOccurrenceStatus.SUCCESSFUL);
     }
 
@@ -50,12 +50,12 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
                 .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
 
-        WebServiceCallOccurrence tmpOccurrence1  = endPointConfiguration.createEndPointOccurrence(clock.instant(), "RequestName1", "Multisense");
+        WebServiceCallOccurrence tmpOccurrence1  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName1", "MultiSense");
 
-        WebServiceCallOccurrence tmpOccurrence2  = endPointConfiguration.createEndPointOccurrence(clock.instant(), "RequestName2", "Multisense");
+        WebServiceCallOccurrence tmpOccurrence2  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName2", "MultiSense");
 
         List<WebServiceCallOccurrence> epOccList = webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder()
-                .withApplicationNames(Collections.singleton("Multisense"))
+                .withApplicationNames(Collections.singleton("MultiSense"))
                 .build()
                 .paged(0, 10)
                 .find();
@@ -63,12 +63,12 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         assertThat(epOccList.size()).isEqualTo(2);
         assertThat(epOccList.get(0).getId()).isEqualTo(tmpOccurrence1.getId());
         assertThat(epOccList.get(0).getRequest().get()).isEqualTo("RequestName1");
-        assertThat(epOccList.get(0).getApplicationName().get()).isEqualTo("Multisense");
+        assertThat(epOccList.get(0).getApplicationName().get()).isEqualTo("MultiSense");
         assertThat(epOccList.get(0).getStatus()).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING);
 
         assertThat(epOccList.get(1).getId()).isEqualTo(tmpOccurrence2.getId());
         assertThat(epOccList.get(1).getRequest().get()).isEqualTo("RequestName2");
-        assertThat(epOccList.get(1).getApplicationName().get()).isEqualTo("Multisense");
+        assertThat(epOccList.get(1).getApplicationName().get()).isEqualTo("MultiSense");
         assertThat(epOccList.get(1).getStatus()).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING);
 
         tmpOccurrence1.setStatus(WebServiceCallOccurrenceStatus.SUCCESSFUL);
@@ -77,7 +77,7 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         tmpOccurrence2.save();
 
         epOccList = webServiceCallOccurrenceService.getWebServiceCallOccurrenceFinderBuilder()
-                .withApplicationNames(Collections.singleton("Multisense"))
+                .withApplicationNames(Collections.singleton("MultiSense"))
                 .build()
                 .paged(0, 10)
                 .find();
@@ -85,12 +85,12 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         assertThat(epOccList.size()).isEqualTo(2);
         assertThat(epOccList.get(0).getId()).isEqualTo(tmpOccurrence1.getId());
         assertThat(epOccList.get(0).getRequest().get()).isEqualTo("RequestName1");
-        assertThat(epOccList.get(0).getApplicationName().get()).isEqualTo("Multisense");
+        assertThat(epOccList.get(0).getApplicationName().get()).isEqualTo("MultiSense");
         assertThat(epOccList.get(0).getStatus()).isEqualTo(WebServiceCallOccurrenceStatus.SUCCESSFUL);
 
         assertThat(epOccList.get(1).getId()).isEqualTo(tmpOccurrence2.getId());
         assertThat(epOccList.get(1).getRequest().get()).isEqualTo("RequestName2");
-        assertThat(epOccList.get(1).getApplicationName().get()).isEqualTo("Multisense");
+        assertThat(epOccList.get(1).getApplicationName().get()).isEqualTo("MultiSense");
         assertThat(epOccList.get(1).getStatus()).isEqualTo(WebServiceCallOccurrenceStatus.SUCCESSFUL);
     }
 
@@ -100,9 +100,9 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.newInboundEndPointConfiguration("service", "webservice", "/srv")
                 .setAuthenticationMethod(EndPointAuthentication.NONE).logLevel(LogLevel.SEVERE).create();
 
-        WebServiceCallOccurrence tmpOccurrence1  = endPointConfiguration.createEndPointOccurrence(clock.instant(), "RequestName1", "Multisense");
+        WebServiceCallOccurrence tmpOccurrence1  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName1", "MultiSense");
 
-        WebServiceCallOccurrence tmpOccurrence2  = endPointConfiguration.createEndPointOccurrence(clock.instant(), "RequestName2", "Multisense");
+        WebServiceCallOccurrence tmpOccurrence2  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName2", "MultiSense");
 
 
         tmpOccurrence1.log(LogLevel.SEVERE, "MESSAGE1");

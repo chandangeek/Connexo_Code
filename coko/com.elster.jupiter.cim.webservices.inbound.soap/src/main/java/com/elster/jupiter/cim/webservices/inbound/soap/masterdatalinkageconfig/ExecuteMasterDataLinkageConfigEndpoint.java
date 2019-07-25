@@ -16,6 +16,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.MasterDataLinkageConfigPort;
@@ -38,11 +39,6 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
     private final EndPointConfigurationService endPointConfigurationService;
     private final WebServicesService webServicesService;
     private final ServiceCallCommands serviceCallCommands;
-
-    @FunctionalInterface
-    private interface ThrowingFunction<R> {
-        R apply() throws FaultMessage;
-    }
 
     @Inject
     public ExecuteMasterDataLinkageConfigEndpoint(MasterDataLinkageFaultMessageFactory faultMessageFactory,
@@ -80,7 +76,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
 
     private MasterDataLinkageConfigResponseMessageType process(MasterDataLinkageConfigRequestMessageType message,
             MasterDataLinkageAction action,
-            ThrowingFunction<MasterDataLinkageConfigResponseMessageType> synchronousProcessor)
+            ExceptionThrowingSupplier<MasterDataLinkageConfigResponseMessageType, FaultMessage> synchronousProcessor)
             throws FaultMessage {
         masterDataLinkageMessageValidatorProvider.get().validate(message, action);
         return runInTransactionWithOccurrence(() -> {
@@ -88,7 +84,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                     return processAsynchronously(message, action);
                 }
-                return synchronousProcessor.apply();
+                return synchronousProcessor.get();
             } catch (VerboseConstraintViolationException e) {
                 throw faultMessageFactory.createMasterDataLinkageFaultMessage(action, e.getLocalizedMessage());
             } catch (LocalizedException e) {

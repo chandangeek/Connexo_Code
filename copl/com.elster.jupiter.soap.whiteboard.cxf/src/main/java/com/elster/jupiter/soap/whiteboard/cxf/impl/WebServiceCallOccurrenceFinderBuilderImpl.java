@@ -12,11 +12,10 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -25,25 +24,23 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     private DataModel dataModel;
     private Condition condition;
 
-    WebServiceCallOccurrenceFinderBuilderImpl(DataModel dataModel, Condition condition) {
+    WebServiceCallOccurrenceFinderBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.condition = condition;
+        this.condition = Condition.TRUE;
     }
 
     @Override
     public WebServiceCallOccurrenceFinderBuilder withApplicationNames(Set<String> applicationNames){
-        if (!applicationNames.isEmpty())
-        {
-            List<String> namesList = new ArrayList<>(applicationNames);
-            this.condition = this.condition.and(where("applicationName").in(namesList));
+        if (!applicationNames.isEmpty()) {
+            this.condition = this.condition.and(where("applicationName").in(ImmutableList.copyOf(applicationNames)));
         }
         return this;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<WebServiceCallOccurrenceStatus> statuses) {
+    public WebServiceCallOccurrenceFinderBuilder withStatuses(Set<WebServiceCallOccurrenceStatus> statuses) {
         if (!statuses.isEmpty()) {
-            this.condition = this.condition.and(where("status").in(statuses));
+            this.condition = this.condition.and(where("status").in(ImmutableList.copyOf(statuses)));
         }
         return this;
     }
@@ -51,7 +48,7 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     @Override
     public WebServiceCallOccurrenceFinderBuilder withWebServiceName(String webServiceName) {
         if (!webServiceName.isEmpty()) {
-            this.condition = this.condition.and(where("importScheduleId").isEqualTo(webServiceName));
+            this.condition = this.condition.and(where("webServiceName").isEqualTo(webServiceName));
         }
         return this;
     }
@@ -63,13 +60,13 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval) {
+    public WebServiceCallOccurrenceFinderBuilder withStartTime(Range<Instant> interval) {
         this.condition = this.condition.and(where("startTime").in(interval));
         return this;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withEndTimeIn(Range<Instant> interval) {
+    public WebServiceCallOccurrenceFinderBuilder withEndTime(Range<Instant> interval) {
         this.condition = this.condition.and(where("endTime").in(interval));
         return this;
     }

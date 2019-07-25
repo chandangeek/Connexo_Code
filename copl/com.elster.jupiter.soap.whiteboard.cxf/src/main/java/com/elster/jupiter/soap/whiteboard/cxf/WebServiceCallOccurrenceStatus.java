@@ -1,12 +1,9 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-
-public enum WebServiceCallOccurrenceStatus implements TranslationKey {
-    ONGOING("Ongoing"),
-    FAILED("Failed"),
-    SUCCESSFUL("Successful");
+public enum WebServiceCallOccurrenceStatus {
+    ONGOING("ongoing"),
+    FAILED("failed"),
+    SUCCESSFUL("successful");
 
     private String name;
 
@@ -23,18 +20,12 @@ public enum WebServiceCallOccurrenceStatus implements TranslationKey {
         return this.name;
     }
 
-    @Override
-    public String getKey() {
-        return "com.elster.jupiter.soap.whiteboard.cxf." + name();
+    public static WebServiceCallOccurrenceStatus fromString(String text) {
+        for (WebServiceCallOccurrenceStatus status : WebServiceCallOccurrenceStatus.values()) {
+            if (status.name.equalsIgnoreCase(text)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException();
     }
-
-    @Override
-    public String getDefaultFormat() {
-        return name;
-    }
-
-    public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getFormat(this).format();
-    }
-
 }

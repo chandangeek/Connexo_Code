@@ -4,12 +4,9 @@
 
 package com.elster.jupiter.webservices.rest.impl;
 
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
-
 import java.time.Instant;
 
-public class WebServiceCallOccurrenceLogInfo {
+public class EndPointLogInfo {
     public long id;
     public Instant timestamp;
     public String message;

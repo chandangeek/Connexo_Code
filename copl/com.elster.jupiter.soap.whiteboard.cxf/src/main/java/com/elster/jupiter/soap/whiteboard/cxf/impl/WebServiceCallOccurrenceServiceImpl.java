@@ -38,12 +38,12 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
 
     @Override
     public WebServiceCallOccurrenceFinderBuilder getWebServiceCallOccurrenceFinderBuilder(){
-        return new WebServiceCallOccurrenceFinderBuilderImpl(dataModel, Condition.TRUE);
+        return new WebServiceCallOccurrenceFinderBuilderImpl(dataModel);
     }
 
 
     @Override
-    public Optional<WebServiceCallOccurrence> getEndPointOccurrence(Long id){
+    public Optional<WebServiceCallOccurrence> getEndPointOccurrence(long id){
         Optional<WebServiceCallOccurrence> epOcc = dataModel.mapper(WebServiceCallOccurrence.class)
                 .getUnique("id", id);
         return epOcc;
@@ -51,6 +51,6 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
 
     @Override
     public OccurrenceLogFinderBuilder getOccurrenceLogFinderBuilder(){
-        return new OccurrenceLogFinderBuilderImpl(dataModel, Condition.TRUE);
+        return new OccurrenceLogFinderBuilderImpl(dataModel);
     }
 }

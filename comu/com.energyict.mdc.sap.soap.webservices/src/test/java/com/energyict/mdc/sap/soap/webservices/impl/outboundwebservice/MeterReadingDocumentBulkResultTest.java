@@ -63,6 +63,7 @@ public class MeterReadingDocumentBulkResultTest extends AbstractOutboundWebservi
         provider.call(outboundMessage);
 
         verify(provider).using("meterReadingDocumentERPResultBulkCreateRequestEOut");
+        verify(requestSender).send(resultMessage);
     }
 
     @Test

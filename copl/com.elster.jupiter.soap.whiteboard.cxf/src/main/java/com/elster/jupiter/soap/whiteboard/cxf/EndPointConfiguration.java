@@ -116,7 +116,7 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     Finder<EndPointLog> getLogs();
 
-    Finder<WebServiceCallOccurrence> getOccurrences(Boolean sort);
+    Finder<WebServiceCallOccurrence> getOccurrences(Boolean ascending);
 
     List<EndPointProperty> getProperties();
 
@@ -124,12 +124,12 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
 
     void setProperties(Map<String, Object> map);
 
-    WebServiceCallOccurrence createEndPointOccurrence(Instant startTime,
-                                                      String requestName,
-                                                      String applicationName);
+    WebServiceCallOccurrence createWebServiceCallOccurrence(Instant startTime,
+                                                            String requestName,
+                                                            String applicationName);
 
-    WebServiceCallOccurrence createEndPointOccurrence(Instant startTime,
-                                                      String requestName,
-                                                      String applicationName,
-                                                      String payload);
+    WebServiceCallOccurrence createWebServiceCallOccurrence(Instant startTime,
+                                                            String requestName,
+                                                            String applicationName,
+                                                            String payload);
 }

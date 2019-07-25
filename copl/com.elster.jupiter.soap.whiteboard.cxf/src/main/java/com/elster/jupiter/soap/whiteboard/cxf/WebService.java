@@ -17,7 +17,5 @@ public interface WebService {
 
     WebServiceProtocol getProtocol();
 
-    default String getApplicationName(){
-        return "Application is not specified";
-    }
+    String getApplicationName();
 }

@@ -36,7 +36,6 @@ public class EndPointAccessRequestInterceptor extends AbstractPhaseInterceptor<M
     }
 
 
-    /*HADLE MESSAGE!!!*/
     @Override
     public void handleMessage(Message message) throws Fault {
         if (message != null) {

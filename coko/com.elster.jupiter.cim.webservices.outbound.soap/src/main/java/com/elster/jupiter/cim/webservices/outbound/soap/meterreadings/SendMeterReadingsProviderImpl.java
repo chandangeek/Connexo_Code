@@ -14,8 +14,10 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
 import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsPayloadType;
+import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsResponseMessageType;
 import ch.iec.tc57._2011.meterreadingsmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
 import ch.iec.tc57._2011.sendmeterreadings.SendMeterReadings;
 import org.osgi.service.component.annotations.Component;
@@ -108,9 +110,12 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
         } else {
             throw new UnsupportedOperationException(requestVerb + " isn't supported.");
         }
-        using(method)
+        Map response = using(method)
                 .toEndpoints(endPointConfiguration)
                 .send(message);
+        if (response == null || response.get(endPointConfiguration) == null || ReplyType.Result.OK != ((MeterReadingsResponseMessageType)response.get(endPointConfiguration)).getReply().getResult()) {
+            return false;
+        }
         return true;
     }
 

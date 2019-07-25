@@ -532,10 +532,8 @@ public class SingleThreadedScheduledComPortTest {
     public void testExecuteTasksOneByOneOutsideComWindow() throws InterruptedException, SQLException, ConnectionException {
         Date now = new DateTime(2013, 8, 22, 9, 0, 0, 0).toDate();    // It's now 9 am
         this.clock = mock(Clock.class);
-        System.out.println("1!!!!!!!!!!!!");
         when(this.clock.instant()).thenReturn(now.toInstant());
         when(this.serviceProvider.clock()).thenReturn(this.clock);
-        System.out.println("2!!!!!!!!!!!!");
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 6); // Window is from 4 am to 6 am
         ComServerDAO comServerDAO = getMockedComServerDAO();
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
@@ -545,7 +543,6 @@ public class SingleThreadedScheduledComPortTest {
         when(this.serialConnectionTask1.connect(eq(comPort), anyList())).thenReturn(this.comChannel);
         when(this.serialConnectionTask1.getCommunicationWindow()).thenReturn(comWindow);
         List<ComTaskExecution> work = new ArrayList<>();
-        System.out.println("3!!!!!!!!!!!!");
         for (int i = 0; i < NUMBER_OF_TASKS; i++) {
             work.add(this.mockComTaskExecution(i + 1, this.serialConnectionTask1));
         }
@@ -557,24 +554,17 @@ public class SingleThreadedScheduledComPortTest {
         when(this.deviceCommandExecutor.acquireTokens(1)).thenReturn(tokens);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, stopLatch);
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(runningComServer, comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
-        System.out.println("4!!!!!!!!!!!!");
         try {
             // Business method
-            System.out.println("5!!!!!!!!!!!!");
             scheduledComPort.start();
 
             // Wait for all processes
-            System.out.println("6!!!!!!!!!!!!");
             stopLatch.await();
-            System.out.println("7!!!!!!!!!!!!");
             // Asserts
             verify(comServerDAO, atLeastOnce()).findExecutableOutboundComTasks(comPort);
             verify(this.serialConnectionTask1, atLeastOnce()).getCommunicationWindow();
-            System.out.println("8!!!!!!!!!!!!");
             scheduledComPort.verifyConnectionTaskLockAttemptCalls();
-            System.out.println("9!!!!!!!!!!!!");
             scheduledComPort.verifyNoComTaskLockAttemptCalls();
-            System.out.println("10!!!!!!!!!!!!");
             verify(this.deviceCommandExecutor, times(1)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
             this.shutdown(scheduledComPort);
@@ -671,7 +661,6 @@ public class SingleThreadedScheduledComPortTest {
         InboundCapableComServer comServer = mock(InboundCapableComServer.class);
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
-
         when(comServer.getSchedulingInterPollDelay()).thenReturn(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
         OutboundComPort comPort = mock(OutboundComPort.class);
         when(comPort.getName()).thenReturn("SingleThreadedScheduledComPortTest#" + name);

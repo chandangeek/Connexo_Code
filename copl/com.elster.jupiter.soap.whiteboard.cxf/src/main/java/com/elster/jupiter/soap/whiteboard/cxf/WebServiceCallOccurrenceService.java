@@ -9,7 +9,7 @@ public interface WebServiceCallOccurrenceService {
 
     WebServiceCallOccurrenceFinderBuilder getWebServiceCallOccurrenceFinderBuilder();
 
-    Optional<WebServiceCallOccurrence> getEndPointOccurrence(Long id);
+    Optional<WebServiceCallOccurrence> getEndPointOccurrence(long id);
 
     OccurrenceLogFinderBuilder getOccurrenceLogFinderBuilder();
 }
