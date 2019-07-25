@@ -5,8 +5,8 @@
 Ext.define('Isc.store.Logs', {
     extend: 'Ext.data.Store',
     fields: [
-        { name: 'timestamp', type: 'number' },
-        { name: 'details', type: 'string' },
-        { name: 'logLevel', type: 'string' }
+        { name: 'timestamp', type: 'auto' },
+        { name: 'details', type: 'auto' },
+        { name: 'logLevel', type: 'auto' }
     ]
 });

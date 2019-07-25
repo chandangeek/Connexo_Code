@@ -596,7 +596,7 @@ Ext.define('Isu.controller.IssueDetail', {
 
         me.getApplication().on('issueLoad', function (rec) {
             var panel = widget.down('#servicecall-issue-detail-log'),
-            detailsForm = widget.down('#servicecall-details-form');
+                detailsForm = widget.down('#servicecall-details-form');
 
             if (rec.raw.serviceCallInfo.logs && panel) {
                 var data = [],
@@ -644,15 +644,13 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel = 'Idv.model.Issue';
         } else if (issueType === 'devicelifecycle') {
             issueModel = 'Idl.model.Issue';
-        }else if (issueType === 'task') {
+        } else if (issueType === 'task') {
             issueModel = 'Itk.model.Issue';
-        }else if (issueType === 'manual') {
-             issueModel = 'Isu.model.ManualIssue';
-        }
-        else if (issueType === 'servicecall') {
+        } else if (issueType === 'manual') {
+            issueModel = 'Isu.model.ManualIssue';
+        } else if (issueType === 'servicecall') {
             issueModel = 'Isc.model.Issue';
-        }
-        else {
+        } else {
             issueModel = me.issueModel;
         }
 
@@ -686,13 +684,13 @@ Ext.define('Isu.controller.IssueDetail', {
             me.addValidationBlocksWidget(widget);
         }
 
-        if ((issueType === 'devicelifecycle')) {
+        if (issueType === 'devicelifecycle') {
             me.addTransitionBlocksWidget(widget);
         }
-        if ((issueType === 'task')) {
+        if (issueType === 'task') {
             me.addTaskOccurrenceWidget(widget);
         }
-        if ((issueType === 'servicecall')) {
+        if (issueType === 'servicecall') {
             me.addServiceCallIssueLogs(widget);
         }
     },

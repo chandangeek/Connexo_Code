@@ -11,7 +11,7 @@ Ext.define('Isc.view.LogGrid', {
     maxHeight: 364,
     columns: [
         {
-            text: Uni.I18n.translate('general.timestamp', 'ISC', 'Timestamp'),
+            text: Uni.I18n.translate('general.label.timestamp', 'ISC', 'Timestamp'),
             dataIndex: 'timestamp',
             flex: 1,
             renderer: function (value) {
@@ -19,7 +19,7 @@ Ext.define('Isc.view.LogGrid', {
             }
         },
         {
-            text: Uni.I18n.translate('general.logLevel', 'ISC', 'Log level'),
+            text: Uni.I18n.translate('general.label.logLevel', 'ISC', 'Log level'),
             dataIndex: 'logLevel',
             flex: 1,
             renderer: function (value) {
@@ -27,7 +27,7 @@ Ext.define('Isc.view.LogGrid', {
             }
         },
         {
-            text: Uni.I18n.translate('general.details', 'ISC', 'Message'),
+            text: Uni.I18n.translate('general.label.message', 'ISC', 'Message'),
             dataIndex: 'details',
             flex: 3,
             renderer: function (value) {

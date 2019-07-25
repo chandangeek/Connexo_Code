@@ -54,7 +54,7 @@ Ext.define('Isc.view.Detail', {
             {   xtype: 'panel',
                 itemId: 'servicecall-details-panel',
                 ui: 'medium',
-                title: Uni.I18n.translate('general.servicecall.details.title', 'ISC', 'Service call details'),
+                title: Uni.I18n.translate('general.title.serviceCallDetails', 'ISC', 'Service call details'),
                 items:[
                     {
                         xtype: 'servicecall-details-form',
@@ -66,7 +66,7 @@ Ext.define('Isc.view.Detail', {
             {   xtype: 'panel',
                 itemId: 'servicecall-issue-log-grid',
                 ui: 'medium',
-                title: Uni.I18n.translate('issue.workspace.servicecall.logs', 'ISC', 'Most recent service call log'),
+                title: Uni.I18n.translate('general.title.serviceCallLogs', 'ISC', 'Most recent service call log'),
                 items:[
                     {
                         xtype: 'servicecall-issue-log-grid',
@@ -78,7 +78,7 @@ Ext.define('Isc.view.Detail', {
             {
                 xtype: 'panel',
                 ui: 'medium',
-                title: Uni.I18n.translate('issue.workspace.servicecall.context', 'ISC', 'Contextual information'),
+                title: Uni.I18n.translate('general.title.serviceCallContextual', 'ISC', 'Contextual information'),
                 items: [
                     {
                         xtype: 'tabpanel',
@@ -87,7 +87,7 @@ Ext.define('Isc.view.Detail', {
                         items: [
                             {
                                 ui: 'medium',
-                                title: Uni.I18n.translate('issue.workspace.servicecall.timeline', 'ISC', 'Timeline'),
+                                title: Uni.I18n.translate('general.title.serviceCallTimeline', 'ISC', 'Timeline'),
                                 itemId: 'tab-panel-issue-timeline',
                                 items: [
                                     {
@@ -98,7 +98,7 @@ Ext.define('Isc.view.Detail', {
                             },
                             {
                                 ui: 'medium',
-                                title: Uni.I18n.translate('issue.workspace.servicecall.comments', 'ISC', 'Comments'),
+                                title: Uni.I18n.translate('general.title.serviceCallComments', 'ISC', 'Comments'),
                                 itemId: 'tab-panel-issue-comments',
                                 items: [
                                     {
@@ -109,7 +109,7 @@ Ext.define('Isc.view.Detail', {
                             },
                             {
                                 ui: 'medium',
-                                title: Uni.I18n.translate('issue.workspace.servicecall.processes', 'ISC', 'Processes'),
+                                title: Uni.I18n.translate('general.title.serviceCallProcesses', 'ISC', 'Processes'),
                                 itemId: 'tab-panel-issue-processes',
                                 privileges: Isu.privileges.Issue.canViewProcesses(),
                                 items: [
