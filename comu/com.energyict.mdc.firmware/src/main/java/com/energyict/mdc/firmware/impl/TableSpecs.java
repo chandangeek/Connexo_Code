@@ -15,6 +15,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -133,19 +134,19 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<FirmwareCampaignManagementOptions> table = dataModel.addTable(name(), FirmwareCampaignManagementOptions.class);
             table.map(FirmwareCampaignManagementOptionsImpl.class);
-            Column firmwareCampaignColumn = table.column("FIRMWARECAMPAIGN").number().notNull().add();
-            table.setJournalTableName("FWC_FWRCPMANAGEMENTOPTIONS").since(version(10, 6));
+            Column firmwareCampaignColumn = table.column("FWRCAMPAIGN").number().notNull().add();
+            table.setJournalTableName("FWC_FWRCPMGOPTIONSJRNL").since(version(10, 6));
             table.addAuditColumns();
             addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_FINAL, "'Y'");
             addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_TEST, "'Y'");
             addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_CURRENT_FW, "'N'");
             addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_FINAL, "'Y'");
             addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_TEST, "'N'");
-            table.primaryKey("FWC_PK_FIRMWARECPMGTOPTIONS").on(firmwareCampaignColumn).add();
+            table.primaryKey("FWC_PK_FWRCPMGTOPTIONS").on(firmwareCampaignColumn).add();
             table.foreignKey("FWC_OPTIONS_FK_FWRCAMPAIGN")
                     .on(firmwareCampaignColumn)
-                    .references(DeviceType.class)
-                    .map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName())
+                    .references(FirmwareCampaignDomainExtension.class)
+                    .map(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName())
                     .add();
         }
 

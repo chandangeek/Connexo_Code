@@ -22,6 +22,8 @@ public interface FirmwareCampaignManagementOptions {
 
     void delete();
 
+    long getVersion();
+
     boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
 
     EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption);

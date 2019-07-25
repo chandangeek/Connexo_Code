@@ -17,12 +17,14 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Set;
 
 public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignManagementOptions {
 
     enum Fields {
+        FWRCAMPAIGN("firmwareCampaign"),
         CHK_TARGET_FW_FINAL("checkFinalTargetFirmwareStatus"),
         CHK_TARGET_FW_TEST("checkTestTargetFirmwareStatus"),
         CHK_CURRENT_FW("checkCurrentFirmware"),
@@ -41,7 +43,7 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
     }
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
+    private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();//change it to FirmwareCampaignDomainExtension
 
     private boolean checkFinalTargetFirmwareStatus;
     private boolean checkTestTargetFirmwareStatus;
@@ -49,6 +51,15 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
     private boolean checkMasterFirmwareWithFinalStatus;
     private boolean checkMasterFirmwareWithTestStatus;
 
+//why orm need this columns?
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     private final DataModel dataModel;
 
@@ -74,6 +85,11 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
             default:
                 throw new IllegalArgumentException("Unknown firmware check management option!");
         }
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     @Override
