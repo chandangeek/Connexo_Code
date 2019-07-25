@@ -17,14 +17,6 @@ Ext.define('Isc.view.ServiceCallDetails', {
 
         me.items = [
             {
-                xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('general.slaveDetails', 'ISC', 'Slave details'),
-                labelAlign: 'top',
-                layout: 'vbox',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200
-                },
                 items: [
                     {
                         itemId: 'servicecall-issue-details-link',
@@ -99,7 +91,7 @@ Ext.define('Isc.view.ServiceCallDetails', {
                         }
                     }
                 ]
-            },
+            }
         ];
 
         me.callParent(arguments);
