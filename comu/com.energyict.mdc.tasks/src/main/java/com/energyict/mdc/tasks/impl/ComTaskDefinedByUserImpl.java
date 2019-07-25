@@ -37,4 +37,9 @@ class ComTaskDefinedByUserImpl extends ComTaskImpl {
     public boolean isUserComTask() {
         return true;
     }
+
+    @Override
+    public boolean isSystemComTask() {
+        return false;
+    }
 }
