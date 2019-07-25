@@ -11,8 +11,8 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.Status;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -102,6 +104,7 @@ public class ServiceCallTypeResourceTest extends ServiceCallApplicationTest {
         when(serviceCallType.getStatus()).thenReturn(Status.ACTIVE);
         when(serviceCallType.getId()).thenReturn(id);
         when(serviceCallType.getVersion()).thenReturn(1L);
+        when(serviceCallType.getReservedByApplication()).thenReturn(Optional.empty());
         return serviceCallType;
     }
 }
