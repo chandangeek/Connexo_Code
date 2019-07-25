@@ -78,7 +78,7 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
                     getAuditLogChange(Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
                     Optional.ofNullable(mc.getEnd())
                             .ifPresent(date ->
-                                    getAuditLogChange(Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_END_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add)
+                                    getAuditLogChangeForOptional(Optional.empty(), Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_END_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add)
                             );
                     if (mc.getEnd() == null){
                         Optional.ofNullable(mc.getStart())
