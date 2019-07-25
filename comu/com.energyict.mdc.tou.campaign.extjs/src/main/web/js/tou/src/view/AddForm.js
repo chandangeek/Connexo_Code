@@ -19,7 +19,6 @@ Ext.define('Tou.view.AddForm', {
     action: null,
     skipLoadingIndication: false,
     campaignRecordBeingEdited: null,
-    defaultConnectionStrategy: 2,
 
     defaults: {
         labelWidth: 260,
@@ -261,13 +260,10 @@ Ext.define('Tou.view.AddForm', {
                         displayField: 'name',
                         margin: '0 10 0 0',
                         valueField: 'id',
-                        value: me.defaultConnectionStrategy,
-                        allowBlank: false,
-                        forceSelection: true,
                         listeners: {
                             change: function(field, val) {
                                 me.down('#tou-campaign-send-connection-strategy-reset')
-                                .setDisabled(me.defaultConnectionStrategy === val);
+                                .setDisabled(!val);
                             },
                             scope: me,
                         }
@@ -329,13 +325,10 @@ Ext.define('Tou.view.AddForm', {
                         displayField: 'name',
                         margin: '0 10 0 0',
                         valueField: 'id',
-                        value: me.defaultConnectionStrategy,
-                        allowBlank: false,
-                        forceSelection: true,
                         listeners: {
                             change: function(field, val) {
                                 me.down('#tou-campaign-validation-connection-strategy-reset')
-                                .setDisabled(me.defaultConnectionStrategy === val);
+                                .setDisabled(!val);
                             },
                             scope: me,
                         }
