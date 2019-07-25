@@ -52,7 +52,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     private volatile ThreadPrincipalService threadPrincipalService;
 
     //for OSGI
-    public ServiceCallIssueCreationRuleTemplate() {ArmServiceCallHandler
+    public ServiceCallIssueCreationRuleTemplate() {
     }
 
     @Inject
