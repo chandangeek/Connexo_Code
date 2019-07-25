@@ -39,37 +39,31 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        if (!oldState.isOpen()) {
-            switch (newState) {
-                case ONGOING:
+        switch (newState) {
+            case PENDING:
+                serviceCall.requestTransition(DefaultState.ONGOING);
+                break;
+            case FAILED:
+                break;
+            case ONGOING:
+                if (!oldState.isOpen()) {
                     ServiceCallFilter filter = new ServiceCallFilter();
                     filter.states = Arrays.stream(DefaultState.values()).filter(DefaultState::isOpen).map(DefaultState::name).collect(Collectors.toList());
                     if (!serviceCall.findChildren(filter).stream().findFirst().isPresent()) {
                         serviceCall.findChildren().stream().forEach(kid ->  kid.requestTransition(kid.getType().getRetryState().orElse(RETRY_STATE)));
                     }
-                    break;
-                default:
-                    break;
-            }
-        } else {
-            switch (newState) {
-                case PENDING:
-                    serviceCall.requestTransition(DefaultState.ONGOING);
-                    break;
-                case FAILED:
-                    break;
-                case ONGOING:
+                } else {
                     firmwareCampaignService.createItemsOnCampaign(serviceCall);
-                    break;
-                case CANCELLED:
-                    firmwareCampaignService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED, serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get());
-                    break;
-                case SUCCESSFUL:
-                    serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
-                    break;
-                default:
-                    break;
-            }
+                }
+                break;
+            case CANCELLED:
+                firmwareCampaignService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED, serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get());
+                break;
+            case SUCCESSFUL:
+                serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
+                break;
+            default:
+                break;
         }
     }
 

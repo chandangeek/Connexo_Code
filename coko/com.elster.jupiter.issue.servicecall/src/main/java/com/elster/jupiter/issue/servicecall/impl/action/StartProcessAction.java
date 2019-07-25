@@ -124,7 +124,8 @@ public class StartProcessAction extends AbstractIssueAction {
         Object props = processDefinition.getProperties().get(PROPERTY_NAME);
         if (props instanceof List) {
            return ASSOCIATION.equals(processDefinition.getAssociation()) &&
-                   ((List<Object>) props).stream().filter(HasIdAndName.class::isInstance)
+                   ((List<Object>) props).stream()
+                           .filter(HasIdAndName.class::isInstance)
                     .anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName));
         }
         return false;
@@ -138,17 +139,12 @@ public class StartProcessAction extends AbstractIssueAction {
     @Override
     public boolean isApplicable(String reasonName){
         return super.isApplicable(reasonName) && bpmService.getActiveBpmProcessDefinitions().stream()
-                .filter(this::getBpmProcessDefinitionFilter)
-                .filter(f -> List.class.isInstance(f.getProperties().get(PROPERTY_NAME)))
-                .anyMatch(s -> ((List<Object>) s.getProperties().get(PROPERTY_NAME))
-                        .stream()
-                        .filter(HasIdAndName.class::isInstance)
-                        .anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName)));
+                .anyMatch(this::getBpmProcessDefinitionFilter);
     }
 
 
     @Override
-    public IssueAction setReasonName(String reasonName){
+    public IssueAction setReasonName(String reasonName) {
         this.reasonName = reasonName;
         return this;
     }

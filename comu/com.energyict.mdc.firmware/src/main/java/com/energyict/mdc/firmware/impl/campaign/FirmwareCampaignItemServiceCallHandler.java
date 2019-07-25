@@ -51,36 +51,29 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
         }
 
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        if (!oldState.isOpen()) {
-            switch (newState) {
-                case PENDING:
-                    serviceCall.getParent().filter(parent -> DefaultState.ONGOING != parent.getState())
-                            .ifPresent(parent -> parent.requestTransition(DefaultState.ONGOING));
-                    serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().retryFirmwareProcess();
-                default:
-                    break;
-            }
-        } else {
-            switch (newState) {
-                case PENDING:
-                    if (oldState.equals(DefaultState.CREATED)) {
-                        serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().startFirmwareProcess();
-                    } else {
-                        serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().retryFirmwareProcess();
+        switch (newState) {
+            case PENDING:
+                if (oldState.equals(DefaultState.CREATED)) {
+                    serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().startFirmwareProcess();
+                } else {
+                    if (!oldState.isOpen()) {
+                        serviceCall.getParent().filter(parent -> DefaultState.ONGOING != parent.getState())
+                                .ifPresent(parent -> parent.requestTransition(DefaultState.ONGOING));
                     }
-                    break;
-                case ONGOING:
-                    break;
-                case FAILED:
-                    break;
-                case CANCELLED:
-                    break;
-                case SUCCESSFUL:
-                    serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
-                    break;
-                default:
-                    break;
-            }
+                    serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().retryFirmwareProcess();
+                }
+                break;
+            case ONGOING:
+                break;
+            case FAILED:
+                break;
+            case CANCELLED:
+                break;
+            case SUCCESSFUL:
+                serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
+                break;
+            default:
+                break;
         }
     }
 }
