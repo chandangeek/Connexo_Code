@@ -27,6 +27,8 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_ASSIGN_ISSUE("issue.action.assignIssue", "Assign issue"),
     ACTION_COMMENT_ISSUE("issue.action.commentIssue", "Comment issue"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
+    ACTION_MAIL_ISSUE("issue.action.email", "Email"),
+    ACTION_MAIL_TO("issue.action.mail.to", "To"),
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
     ACTION_RETRY("ActionRetry", "Retry"),
     COMMENTACTION_PROPERTY_COMMENT(CommentIssueAction.ISSUE_COMMENT, "Comment"),
