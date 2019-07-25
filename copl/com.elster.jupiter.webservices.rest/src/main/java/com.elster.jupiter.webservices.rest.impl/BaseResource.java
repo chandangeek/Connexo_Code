@@ -55,13 +55,17 @@ public abstract class BaseResource {
         this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
     }
 
-    protected void checkApplicationPrivilegies(String[] privilegeNames, String applicationName) {
-        if (privilegeNames == null || privilegeNames.length == 0) {
+    protected void checkApplicationPrivileges(String applicationName, String... privilegeNames) {
+        if (privilegeNames == null || privilegeNames.length == 0 || applicationName == null) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         Principal principal = threadPrincipalService.getPrincipal();
-        List<String> privileges = Arrays.asList(privilegeNames);
-        Optional<String> appPrivilege = privileges.stream().filter(priv -> ((User) principal).hasPrivilege(applicationName, priv)).findFirst();
+        if (principal == null) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        Optional<String> appPrivilege = Arrays.stream(privilegeNames)
+                .filter(priv -> ((User) principal).hasPrivilege(applicationName, priv))
+                .findAny();
         if (!appPrivilege.isPresent()) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }

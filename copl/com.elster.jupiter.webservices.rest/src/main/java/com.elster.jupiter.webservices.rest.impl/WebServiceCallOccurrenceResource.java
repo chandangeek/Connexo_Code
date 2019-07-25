@@ -60,8 +60,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
                                            @BeanParam JsonQueryFilter filter,
                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                            @Context UriInfo uriInfo) {
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
-        checkApplicationPrivilegies(privileges, applicationName);
+        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES);
 
         Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
 
@@ -82,8 +81,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     public WebServiceCallOccurrenceInfo getOccurrence(@PathParam("id") long id,
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context UriInfo uriInfo) {
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
-        checkApplicationPrivilegies(privileges, applicationName);
+        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES);
 
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
 
@@ -101,9 +99,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     @RolesAllowed(Privileges.Constants.RETRY_WEB_SERVICES)
     public Response retryOccurrence(@PathParam("id") long id,
                                     @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
-
-        String[] privileges = {Privileges.Constants.RETRY_WEB_SERVICES};
-        checkApplicationPrivilegies(privileges, applicationName);
+        checkApplicationPrivileges(applicationName, Privileges.Constants.RETRY_WEB_SERVICES);
 
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
 
@@ -123,8 +119,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                              @BeanParam JsonQueryParameters queryParameters,
                                              @Context UriInfo uriInfo) {
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
-        checkApplicationPrivilegies(privileges, applicationName);
+        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES);
 
         WebServiceCallOccurrence epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
