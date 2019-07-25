@@ -105,12 +105,6 @@ public abstract class BaseResource {
             finderBuilder.withApplicationNames(applicationNames);
         }
 
-        if (filter.hasProperty("endpointId")) {
-            EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(filter.getLong("endpointId"))
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
-            finderBuilder.withEndPointConfiguration(epc);
-        }
-
         if (filter.hasProperty("startedOnFrom")) {
             if (filter.hasProperty("startedOnTo")) {
                 finderBuilder.withStartTime(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));

@@ -246,30 +246,6 @@ public class EndPointConfigurationResource extends BaseResource {
         return PagedInfoList.fromPagedList("logs", endpointConfigurationLogs, queryParameters);
     }
 
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/occurrences")
-    @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getAllOccurrencesForEndPoint(@BeanParam JsonQueryParameters queryParameters,
-                                                      @BeanParam JsonQueryFilter filter,
-                                                      @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
-                                                      @Context UriInfo uriInfo) {
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
-        checkApplicationPrivilegies(privileges, applicationName);
-
-        Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
-
-        List<WebServiceCallOccurrence> endPointOccurrences = getWebServiceCallOccurrences(queryParameters, filter, applicationNameToFilter);
-        List<WebServiceCallOccurrenceInfo> endPointOccurrencesInfo = endPointOccurrences.
-                stream().
-                map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo, false)).
-                collect(toList());
-
-        return PagedInfoList.fromPagedList("occurrences", endPointOccurrencesInfo, queryParameters);
-    }
-
     private void validatePayload(EndPointConfigurationInfo info) {
         validateBasicPayload(info);
         if (Checks.is(info.webServiceName).emptyOrOnlyWhiteSpace()) {
