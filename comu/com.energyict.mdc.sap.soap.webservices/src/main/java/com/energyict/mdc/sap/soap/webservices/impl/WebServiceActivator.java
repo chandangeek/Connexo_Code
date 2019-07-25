@@ -220,8 +220,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::addCustomPropertySet);
 
         upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
-                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                        .put(version(10, 7), UpgraderV10_7.class));
+                ImmutableMap.of(version(10, 7), UpgraderV10_7.class));
 
         registerServices(bundleContext);
     }
