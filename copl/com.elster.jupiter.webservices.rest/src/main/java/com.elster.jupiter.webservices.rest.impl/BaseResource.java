@@ -25,6 +25,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -108,26 +109,26 @@ public abstract class BaseResource {
         if (filter.hasProperty("endpointId")) {
             EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(filter.getLong("endpointId"))
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
-            finderBuilder.withEndPointConfiguration(epc);
+            finderBuilder.withEndPointConfigurations(Collections.singleton(epc));
         }
 
         if (filter.hasProperty("startedOnFrom")) {
             if (filter.hasProperty("startedOnTo")) {
-                finderBuilder.withStartTime(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
+                finderBuilder.withStartTimeIn(Range.closed(filter.getInstant("startedOnFrom"), filter.getInstant("startedOnTo")));
             } else {
-                finderBuilder.withStartTime(Range.atLeast(filter.getInstant("startedOnFrom")));
+                finderBuilder.withStartTimeIn(Range.atLeast(filter.getInstant("startedOnFrom")));
             }
         } else if (filter.hasProperty("startedOnTo")) {
-            finderBuilder.withStartTime(Range.atMost(filter.getInstant("startedOnTo")));
+            finderBuilder.withStartTimeIn(Range.atMost(filter.getInstant("startedOnTo")));
         }
         if (filter.hasProperty("finishedOnFrom")) {
             if (filter.hasProperty("finishedOnTo")) {
-                finderBuilder.withEndTime(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
+                finderBuilder.withEndTimeIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.getInstant("finishedOnTo")));
             } else {
-                finderBuilder.withEndTime(Range.atLeast(filter.getInstant("finishedOnFrom")));
+                finderBuilder.withEndTimeIn(Range.atLeast(filter.getInstant("finishedOnFrom")));
             }
         } else if (filter.hasProperty("finishedOnTo")) {
-            finderBuilder.withEndTime(Range.atMost(filter.getInstant("finishedOnTo")));
+            finderBuilder.withEndTimeIn(Range.atMost(filter.getInstant("finishedOnTo")));
         }
         /* Find endpoint by ID */
         if (filter.hasProperty("webServiceEndPoint")) {
@@ -136,7 +137,7 @@ public abstract class BaseResource {
             EndPointConfiguration epc = endPointConfigurationService.getEndPointConfiguration(endPointId)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
 
-            finderBuilder.withEndPointConfiguration(epc);
+            finderBuilder.withEndPointConfigurations(Collections.singleton(epc));
         }
 
         if (filter.hasProperty("status")) {

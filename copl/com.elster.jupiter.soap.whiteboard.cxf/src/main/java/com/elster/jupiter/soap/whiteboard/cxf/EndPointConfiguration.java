@@ -116,7 +116,7 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
      */
     Finder<EndPointLog> getLogs();
 
-    Finder<WebServiceCallOccurrence> getOccurrences(Boolean ascending);
+    Finder<WebServiceCallOccurrence> getOccurrences(boolean ascending);
 
     List<EndPointProperty> getProperties();
 

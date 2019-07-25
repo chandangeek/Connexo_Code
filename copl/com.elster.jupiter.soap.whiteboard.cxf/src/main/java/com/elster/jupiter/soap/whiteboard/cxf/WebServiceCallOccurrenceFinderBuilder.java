@@ -15,13 +15,13 @@ public interface WebServiceCallOccurrenceFinderBuilder {
 
     WebServiceCallOccurrenceFinderBuilder withStatuses(Set<WebServiceCallOccurrenceStatus> statuses);
 
-    WebServiceCallOccurrenceFinderBuilder withWebServiceName(String webServiceName);
+    WebServiceCallOccurrenceFinderBuilder withWebServiceNames(Set<String> webServiceNames);
 
-    WebServiceCallOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc);
+    WebServiceCallOccurrenceFinderBuilder withEndPointConfigurations(Set<EndPointConfiguration> endPointConfigurations);
 
-    WebServiceCallOccurrenceFinderBuilder withStartTime(Range<Instant> interval);
+    WebServiceCallOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval);
 
-    WebServiceCallOccurrenceFinderBuilder withEndTime(Range<Instant> interval);
+    WebServiceCallOccurrenceFinderBuilder withEndTimeIn(Range<Instant> interval);
 
     WebServiceCallOccurrenceFinderBuilder onlyInbound();
 

@@ -30,7 +30,7 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withApplicationNames(Set<String> applicationNames){
+    public WebServiceCallOccurrenceFinderBuilder withApplicationNames(Set<String> applicationNames) {
         if (!applicationNames.isEmpty()) {
             this.condition = this.condition.and(where("applicationName").in(ImmutableList.copyOf(applicationNames)));
         }
@@ -46,27 +46,29 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withWebServiceName(String webServiceName) {
-        if (!webServiceName.isEmpty()) {
-            this.condition = this.condition.and(where("webServiceName").isEqualTo(webServiceName));
+    public WebServiceCallOccurrenceFinderBuilder withWebServiceNames(Set<String> webServiceNames) {
+        if (!webServiceNames.isEmpty()) {
+            this.condition = this.condition.and(where("endPointConfiguration.webServiceName").in(ImmutableList.copyOf(webServiceNames)));
         }
         return this;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc) {
-        this.condition = this.condition.and(where("endPointConfiguration").isEqualTo(epc));
+    public WebServiceCallOccurrenceFinderBuilder withEndPointConfigurations(Set<EndPointConfiguration> endPointConfigurations) {
+        if (!endPointConfigurations.isEmpty()) {
+            this.condition = this.condition.and(where("endPointConfiguration").in(ImmutableList.copyOf(endPointConfigurations)));
+        }
         return this;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withStartTime(Range<Instant> interval) {
+    public WebServiceCallOccurrenceFinderBuilder withStartTimeIn(Range<Instant> interval) {
         this.condition = this.condition.and(where("startTime").in(interval));
         return this;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withEndTime(Range<Instant> interval) {
+    public WebServiceCallOccurrenceFinderBuilder withEndTimeIn(Range<Instant> interval) {
         this.condition = this.condition.and(where("endTime").in(interval));
         return this;
     }
@@ -87,7 +89,7 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
 
     @Override
     public Finder<WebServiceCallOccurrence> build() {
-        return DefaultFinder.of(WebServiceCallOccurrence.class, this.condition, this.dataModel)
+        return DefaultFinder.of(WebServiceCallOccurrence.class, this.condition, this.dataModel, EndPointConfiguration.class)
                 .defaultSortColumn("startTime");
     }
 }

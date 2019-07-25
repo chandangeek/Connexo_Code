@@ -331,7 +331,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     }
 
     @Override
-    public Finder<WebServiceCallOccurrence> getOccurrences(Boolean ascending) {
+    public Finder<WebServiceCallOccurrence> getOccurrences(boolean ascending) {
         return DefaultFinder.of(WebServiceCallOccurrence.class,
                 Where.where(WebServiceCallOccurrenceImpl.Fields.ENDPOINT_CONFIGURATION.fieldName())
                         .isEqualTo(this), dataModel).sorted(WebServiceCallOccurrenceImpl.Fields.START_TIME.fieldName(), ascending);

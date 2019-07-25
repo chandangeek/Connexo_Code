@@ -43,7 +43,7 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
 
 
     @Override
-    public Optional<WebServiceCallOccurrence> getEndPointOccurrence(long id){
+    public Optional<WebServiceCallOccurrence> getWebServiceCallOccurrence(long id){
         Optional<WebServiceCallOccurrence> epOcc = dataModel.mapper(WebServiceCallOccurrence.class)
                 .getUnique("id", id);
         return epOcc;
