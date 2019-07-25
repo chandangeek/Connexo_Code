@@ -43,7 +43,7 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
     }
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();//change it to FirmwareCampaignDomainExtension
+    private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
 
     private boolean checkFinalTargetFirmwareStatus;
     private boolean checkTestTargetFirmwareStatus;
@@ -52,14 +52,14 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
     private boolean checkMasterFirmwareWithTestStatus;
 
 //why orm need this columns?
-    @SuppressWarnings("unused")
+   /* @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
-    private String userName;
+    private String userName;*/
 
     private final DataModel dataModel;
 
@@ -87,10 +87,10 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
         }
     }
 
-    @Override
+    /*@Override
     public long getVersion() {
         return this.version;
-    }
+    }*/
 
     @Override
     public EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption) {

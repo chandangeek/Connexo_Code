@@ -22,7 +22,7 @@ public interface FirmwareCampaignManagementOptions {
 
     void delete();
 
-    long getVersion();
+    //long getVersion();
 
     boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
 
