@@ -12,12 +12,14 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
-
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Optional;
 
 public class UpgraderV10_7 implements Upgrader {
@@ -69,6 +71,20 @@ public class UpgraderV10_7 implements Upgrader {
                                     }
                             ));
         }
+
+        serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION).ifPresent(
+                serviceCallType -> {
+                    serviceCallType.setApplication(OnDemandReadServiceCallHandler.APPLICATION);
+                    serviceCallType.save();
+                }
+        );
+
+        serviceCallService.findServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION).ifPresent(
+                serviceCallType -> {
+                    serviceCallType.setApplication(OnDemandReadServiceCallHandler.APPLICATION);
+                    serviceCallType.save();
+                }
+        );
     }
 
     private void subscribeLP(DestinationSpec queue) {

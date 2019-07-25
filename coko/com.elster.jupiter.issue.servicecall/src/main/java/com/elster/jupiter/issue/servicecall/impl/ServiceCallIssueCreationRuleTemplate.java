@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.servicecall.impl;
 
 import com.elster.jupiter.issue.servicecall.OpenServiceCallIssue;
+import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -23,7 +24,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 
 import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;
@@ -42,7 +42,6 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
 
     static final String NAME = "ServiceCallIssueCreationRuleTemplate";
 
-    public static final String SERVICE_CALL_CONFIGURATIONS = NAME + ".serviceCallConfigurations";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
 
     private volatile ServiceCallIssueService issueServiceCallService;
@@ -53,7 +52,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     private volatile ThreadPrincipalService threadPrincipalService;
 
     //for OSGI
-    public ServiceCallIssueCreationRuleTemplate() {
+    public ServiceCallIssueCreationRuleTemplate() {ArmServiceCallHandler
     }
 
     @Inject
