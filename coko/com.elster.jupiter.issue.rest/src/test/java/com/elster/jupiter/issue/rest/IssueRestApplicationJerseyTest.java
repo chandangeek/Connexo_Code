@@ -387,6 +387,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         IssueAction action = mockIssueAction(name);
         when(type.getId()).thenReturn(id);
         when(type.createIssueAction()).thenReturn(Optional.of(action));
+        when(action.setReasonName(anyString())).thenReturn(action);
         when(type.getIssueType()).thenReturn(issueType);
         return type;
     }
