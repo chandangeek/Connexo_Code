@@ -32,6 +32,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -166,8 +167,9 @@ public class PrepaymentApplication extends Application implements TranslationKey
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(PrepaymentChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
-                version(10, 7), UpgraderV10_7.class));
+        upgradeService.register(InstallIdentifier.identifier(PrepaymentChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel,
+                Installer.class,
+                ImmutableMap.of(version(10, 7), UpgraderV10_7.class));
     }
 
     @Override
