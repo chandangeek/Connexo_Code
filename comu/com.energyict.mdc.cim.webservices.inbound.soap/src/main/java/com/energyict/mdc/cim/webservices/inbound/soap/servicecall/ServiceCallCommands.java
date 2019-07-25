@@ -376,14 +376,14 @@ public class ServiceCallCommands {
                             processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
                                     actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                         } else if (end != null && !trigger.isAfter(now)) {
-                            scheduleOrRunNowComTaskExecution(subParentServiceCall, device, comTaskExecution, trigger,
+                            scheduleOrRunNowComTaskExecution(subParentServiceCall, comTaskExecution, trigger,
                                     actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, true);
                         } else if (end != null && trigger.isAfter(now)) {
                             processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
                                     actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                         }
                     } else { // use schedule
-                        scheduleOrRunNowComTaskExecution(subParentServiceCall, device, comTaskExecution, trigger,
+                        scheduleOrRunNowComTaskExecution(subParentServiceCall, comTaskExecution, trigger,
                                 actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, false);
                         // wait next task execution
                     }
@@ -418,11 +418,11 @@ public class ServiceCallCommands {
                     processComTaskExecutionByRecurrentTask(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
                             start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS);
                 } else { // run now
-                    scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
+                    scheduleOrRunNowComTaskExecution(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
                             start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, true);
                 }
             } else { // use schedule
-                scheduleOrRunNowComTaskExecution(subParentServiceCall, device, deviceMessagesComTaskExecution, trigger,
+                scheduleOrRunNowComTaskExecution(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
                         start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, false);
             }
         }
@@ -529,13 +529,13 @@ public class ServiceCallCommands {
         childServiceCall.requestTransition(DefaultState.SCHEDULED);
     }
 
-    private void scheduleOrRunNowComTaskExecution(ServiceCall subParentServiceCall, Device device,
+    private void scheduleOrRunNowComTaskExecution(ServiceCall subParentServiceCall,
                                                   ComTaskExecution comTaskExecution, Instant trigger,
                                                   Instant actualStart, Instant actualEnd,
                                                   ServiceCallTypes serviceCallTypes, boolean runNow) {
         ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
                 serviceCallTypes, comTaskExecution.getComTask().getName(), trigger,
-                actualStart, actualEnd, device);
+                actualStart, actualEnd, comTaskExecution.getDevice());
         childServiceCall.requestTransition(DefaultState.PENDING);
         childServiceCall.requestTransition(DefaultState.ONGOING);
         childServiceCall.requestTransition(DefaultState.WAITING);
