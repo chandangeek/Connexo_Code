@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
+//import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -46,7 +47,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -152,7 +152,10 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 3), V10_3SimpleUpgrader.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                Version.version(10, 3), V10_3SimpleUpgrader.class//,
+                //Version.version(10, 7), V10_7SimpleUpgrader.class
+        ));
     }
 
     @Override

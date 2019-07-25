@@ -23,9 +23,9 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -73,6 +73,10 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         ACTIVATION_DATE("activationDate", "activation_date"),
         VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
         PROPERTIES("properties", "properties"),
+        VALIDATION_COMTASK_ID("validationComTaskId", "VALIDATION_COMTASK_ID"),
+        FIRMWARE_UPLOAD_COMTASK_ID("firmwareUploadComTaskId", "FIRMWARE_UPLOAD_COMTASK_ID"),
+        VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
+        FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "FIRMWARE_UPLOAD_CONSTRATEGY"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -122,7 +126,10 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private Instant activationDate;
     private TimeDuration validationTimeout;
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
-
+    private long firmwareUploadComTaskId;
+    private ConnectionStrategy firmwareUploadConnectionStrategy;
+    private long validationComTaskId;
+    private ConnectionStrategy validationConnectionStrategy;
 
     @Inject
     public FirmwareCampaignDomainExtension(Thesaurus thesaurus, FirmwareServiceImpl firmwareService) {
@@ -169,6 +176,46 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     @Override
     public void setManagementOption(ProtocolSupportedFirmwareOptions managementOption) {
         this.managementOption = managementOption;
+    }
+
+    @Override
+    public void setFirmwareUploadComTaskId(long firmwareUploadComTaskId){
+        this.firmwareUploadComTaskId = firmwareUploadComTaskId;
+    }
+
+    @Override
+    public void setFirmwareUploadConnectionStrategy(ConnectionStrategy firmwareUploadConnectionStrategy){
+        this.firmwareUploadConnectionStrategy = firmwareUploadConnectionStrategy;
+    }
+
+    @Override
+    public void setValidationComTaskId(long validationComTaskId){
+        this.validationComTaskId = validationComTaskId;
+    }
+
+    @Override
+    public void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy){
+        this.validationConnectionStrategy = validationConnectionStrategy;
+    }
+
+    @Override
+    public Optional<ConnectionStrategy> getFirmwareUploadConnectionStrategy(){
+        return Optional.ofNullable(firmwareUploadConnectionStrategy);
+    }
+
+    @Override
+    public long getValidationComTaskId(){
+        return validationComTaskId;
+    }
+
+    @Override
+    public long getFirmwareUploadComTaskId(){
+        return firmwareUploadComTaskId;
+    }
+
+    @Override
+    public Optional<ConnectionStrategy> getValidationConnectionStrategy(){
+        return Optional.ofNullable(validationConnectionStrategy);
     }
 
     @Override
@@ -342,6 +389,10 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.setValidationTimeout((TimeDuration) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setFirmwareType((FirmwareType) propertyValues.getProperty(FieldNames.FIRMWARE_TYPE.javaName()));
         this.setManagementOption((ProtocolSupportedFirmwareOptions) propertyValues.getProperty(FieldNames.MANAGEMENT_OPTION.javaName()));
+        this.setFirmwareUploadComTaskId((long)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName()));
+        this.setFirmwareUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName()));
+        this.setValidationComTaskId((long)propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
+        this.setValidationConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
     }
 
     @Override
@@ -355,6 +406,11 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
         propertySetValues.setProperty(FieldNames.FIRMWARE_TYPE.javaName(), this.getFirmwareType());
         propertySetValues.setProperty(FieldNames.MANAGEMENT_OPTION.javaName(), this.getFirmwareManagementOption());
+        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(), this.getFirmwareUploadComTaskId());
+        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(),this.getFirmwareUploadConnectionStrategy().isPresent()?this.getFirmwareUploadConnectionStrategy().get():null);
+        propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
+        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().isPresent()?this.getValidationConnectionStrategy().get():null);
+
     }
 
     @Override

@@ -95,7 +95,7 @@ Ext.define('Tou.view.ActivateCalendar', {
                         } else {
                             timeoutFld.hide();
                         }
-
+                        me.fireEvent('change', field, newValue);
                     }
                 }
             }, {
@@ -175,6 +175,10 @@ Ext.define('Tou.view.ActivateCalendar', {
         }
 
         me.callParent(arguments);
+        // if (me.listeners && me.listeners.change) {
+        //     debugger;
+        //     me.down('#uploadRadioGroup').addListener("change", me.listeners.change, me.listeners.scope);
+        // }
     }
 
 });

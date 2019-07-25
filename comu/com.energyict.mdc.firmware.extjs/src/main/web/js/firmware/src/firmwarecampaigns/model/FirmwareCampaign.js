@@ -71,7 +71,33 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
                 return '-';
             }
         },
-        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null}
+        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null}, {
+            name: 'validationComTask',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        },
+        {
+            name: 'calendarUploadComTask',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }, {
+            name: 'validationComTask',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }, {
+            name: 'calendarUploadConnectionStrategy',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }, {
+            name: 'validationConnectionStrategy',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }
     ],
     associations: [
         {

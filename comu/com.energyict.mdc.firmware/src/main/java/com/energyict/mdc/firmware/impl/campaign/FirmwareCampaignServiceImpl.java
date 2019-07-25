@@ -26,6 +26,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -40,8 +41,11 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.EventType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 
 import com.google.common.collect.ImmutableMap;
 import org.osgi.framework.BundleContext;
@@ -68,11 +72,13 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private final RegisteredCustomPropertySet registeredCustomPropertySet;
     private final EventService eventService;
+    private final TaskService taskService;
 
     @Inject
     public FirmwareCampaignServiceImpl(FirmwareServiceImpl firmwareService, DeviceService deviceService,
                                        ServiceCallService serviceCallService, EventService eventService,
-                                       Thesaurus thesaurus, MeteringGroupsService meteringGroupsService) {
+                                       Thesaurus thesaurus, MeteringGroupsService meteringGroupsService,
+                                       TaskService taskService) {
         this.firmwareService = firmwareService;
         this.dataModel = firmwareService.getDataModel();
         this.ormService = firmwareService.getOrmService();
@@ -82,6 +88,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         this.thesaurus = thesaurus;
         this.meteringGroupsService = meteringGroupsService;
         this.eventService = eventService;
+        this.taskService = taskService;
     }
 
     public ServiceCall createServiceCallAndTransition(FirmwareCampaignDomainExtension campaign) {
@@ -101,6 +108,11 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
 
     private Optional<ServiceCallType> getServiceCallType(ServiceCallTypes serviceCallType) {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion());
+    }
+
+    @Override
+    public ComTask getComTaskById(long id){
+        return taskService.findComTask(id).get();
     }
 
     @Override

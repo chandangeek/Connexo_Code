@@ -6,9 +6,11 @@ package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.QueryStream;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -44,4 +46,7 @@ public interface FirmwareCampaignService {
     List<DeviceInFirmwareCampaign> findFirmwareCampaignItems(Device device);
 
     FirmwareVersion getFirmwareVersion(Map<String, Object> properties);
+
+    ComTask getComTaskById(long id);
+
 }

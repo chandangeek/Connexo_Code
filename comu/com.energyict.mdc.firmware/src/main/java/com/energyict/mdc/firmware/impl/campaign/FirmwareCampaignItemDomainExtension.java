@@ -16,6 +16,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -78,6 +79,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private final FirmwareServiceImpl firmwareService;
     private final TaskService taskService;
     private final Clock clock;
+    private final FirmwareCampaignServiceImpl firmwareCampaignService;
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
@@ -96,6 +98,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         this.serviceCallService = dataModel.getInstance(ServiceCallService.class);
         this.taskService = dataModel.getInstance(TaskService.class);
         this.clock = clock;
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
     }
 
     @Override
@@ -347,9 +350,28 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private void scheduleFirmwareTask() {
         ComTaskExecution firmwareComTaskExec = getFirmwareComTaskExec();
         Instant appliedStartDate = parent.get().getExtension(FirmwareCampaignDomainExtension.class).get().getUploadPeriodStart();
-        if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
-                firmwareComTaskExec.getNextExecutionTimestamp().isAfter(appliedStartDate)) {
-            firmwareComTaskExec.schedule(appliedStartDate);
+        Optional<? extends FirmwareCampaign> campaign = getServiceCall().getParent().get().getExtension(FirmwareCampaignDomainExtension.class);
+        ConnectionStrategy connectionStrategy;
+        boolean isFirmwareComTaskStart = false;
+        if (campaign.isPresent()) {
+            if (firmwareComTaskExec.getNextExecutionTimestamp() == null ||
+                    firmwareComTaskExec.getNextExecutionTimestamp().isAfter(appliedStartDate)) {
+                connectionStrategy = ((ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get()).getConnectionStrategy();
+                if (!campaign.get().getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign.get().getFirmwareUploadConnectionStrategy().get()){
+                    firmwareComTaskExec.schedule(appliedStartDate);
+                    isFirmwareComTaskStart = true;
+                }else{
+                    serviceCallService.lockServiceCall(getServiceCall().getId());
+                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(campaign.get().getFirmwareUploadConnectionStrategy().get().name(), firmwareComTaskExec.getComTask().getName()));
+                    getServiceCall().requestTransition(DefaultState.REJECTED);
+                    return;
+                }
+            }
+        }
+        if(!isFirmwareComTaskStart){
+            serviceCallService.lockServiceCall(getServiceCall().getId());
+            getServiceCall().log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format(firmwareComTaskExec.getComTask().getName()));
+            getServiceCall().requestTransition(DefaultState.REJECTED);
         }
     }
 

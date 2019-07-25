@@ -79,7 +79,8 @@ abstract class ComTaskImpl implements ComTask {
         NAME("name"),
         PROTOCOL_TASKS("protocolTasks"),
         STORE_DATE("storeData"),
-        MAX_NR_OF_TRIES("maxNrOfTries");
+        MAX_NR_OF_TRIES("maxNrOfTries"),
+        SYSTEM_TASK("systemTask");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -110,6 +111,8 @@ abstract class ComTaskImpl implements ComTask {
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private boolean systemTask;
 
     /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
@@ -278,6 +281,16 @@ abstract class ComTaskImpl implements ComTask {
                 throw new TranslatableApplicationException(thesaurus, MessageSeeds.DUPLICATE_PROTOCOL_TASK_TYPE_IN_COMTASK);
             }
         }
+    }
+
+    @Override
+    public void setSystemTask(boolean systemTask) {
+        this.systemTask = systemTask;
+    }
+
+    @Override
+    public boolean isSystemComTask(){
+        return systemTask;
     }
 
     @Override

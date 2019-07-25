@@ -142,6 +142,26 @@ public class TimeOfUseCampaignCustomPropertySet implements CustomPropertySet<Ser
                         .booleanSpec()
                         .named(TimeOfUseCampaignDomainExtension.FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), TranslationKeys.WITH_UNIQUE_CALENDAR_NAME)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .longSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), TranslationKeys.CALENDAR_UPLOAD_COMTASK_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .longSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName(), TranslationKeys.VALIDATION_COMTASK_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), TranslationKeys.CALENDAR_UPLOAD_CONNECTIONSTRATEGY)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }

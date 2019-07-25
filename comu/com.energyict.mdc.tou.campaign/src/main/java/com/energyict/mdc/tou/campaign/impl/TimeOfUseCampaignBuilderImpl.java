@@ -7,6 +7,7 @@ package com.energyict.mdc.tou.campaign.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
@@ -28,7 +29,11 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     public Instant activationDate;
     public String updateType;
     public Long validationTimeout;
-    public Boolean withUniqueCalendarName;
+    public boolean withUniqueCalendarName;
+    public long calendarUploadComTaskId;
+    public long validationComTaskId;
+    public ConnectionStrategy calendarUploadConnectionStrategy;
+    public ConnectionStrategy validationConnectionStrategy;
 
     private final TimeOfUseCampaignServiceImpl timeOfUseCampaignService;
     private final DataModel dataModel;
@@ -54,6 +59,38 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
     @Override
     public TimeOfUseCampaignBuilder withActivationOption(String activationOption) {
         this.activationOption = activationOption;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder withCalendarUploadComTaskId(long calendarUploadComTaskId) {
+        this.calendarUploadComTaskId = calendarUploadComTaskId;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder withValidationComTaskId(long validationComTaskId) {
+        this.validationComTaskId = validationComTaskId;
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder withCalendarUploadConnectionStrategy(String calendarUploadConnectionStrategy){
+        if(calendarUploadConnectionStrategy == null){
+            this.calendarUploadConnectionStrategy = null;
+            return this;
+        }
+        this.calendarUploadConnectionStrategy = ConnectionStrategy.valueOf(calendarUploadConnectionStrategy.toUpperCase().replace(' ', '_'));
+        return this;
+    }
+
+    @Override
+    public TimeOfUseCampaignBuilder withValidationConnectionStrategy(String validationConnectionStrategy){
+        if(validationConnectionStrategy == null){
+            this.validationConnectionStrategy = null;
+            return this;
+        }
+        this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy.toUpperCase().replace(' ', '_'));
         return this;
     }
 
@@ -108,6 +145,10 @@ public class TimeOfUseCampaignBuilderImpl implements TimeOfUseCampaignBuilder {
         timeOfUseCampaign.setUpdateType(updateType);
         timeOfUseCampaign.setActivationOption(activationOption);
         timeOfUseCampaign.setWithUniqueCalendarName(withUniqueCalendarName);
+        timeOfUseCampaign.setCalendarUploadComTaskId(calendarUploadComTaskId);
+        timeOfUseCampaign.setValidationComTaskId(validationComTaskId);
+        timeOfUseCampaign.setCalendarUploadConnectionStrategy(calendarUploadConnectionStrategy);
+        timeOfUseCampaign.setValidationConnectionStrategy(validationConnectionStrategy);
         Optional.ofNullable(activationDate).ifPresent(timeOfUseCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(timeOfUseCampaign::setValidationTimeout);
         ServiceCall serviceCall = timeOfUseCampaignService.createServiceCallAndTransition(timeOfUseCampaign);

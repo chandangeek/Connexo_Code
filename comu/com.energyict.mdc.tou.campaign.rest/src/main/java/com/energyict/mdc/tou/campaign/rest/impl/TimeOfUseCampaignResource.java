@@ -19,6 +19,8 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -45,7 +47,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Path("/toucampaigns")
@@ -220,6 +225,25 @@ public class TimeOfUseCampaignResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId));
         DeviceTypeAndOptionsInfo deviceTypeAndOptionsInfo = deviceTypeAndOptionsInfoFactory.create(deviceType);
         return Response.ok(deviceTypeAndOptionsInfo).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/comtasks")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TOU_CAMPAIGNS, Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS})
+    public Response getComTasks(@QueryParam("type") long deviceTypeId) {
+
+        Set<IdWithNameInfo> comTasks = new TreeSet<>(Comparator.comparing(IdWithNameInfo::getName));
+
+        deviceConfigurationService.findDeviceType(deviceTypeId)
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId))
+                .getConfigurations().stream()
+                .flatMap(cnf -> cnf.getComTaskEnablements().stream())
+                .filter(cte -> cte.getComTask().isSystemComTask())
+                .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
+
+        return Response.ok(comTasks).build();
     }
 
     public Long getCurrentCampaignVersion(long id) {

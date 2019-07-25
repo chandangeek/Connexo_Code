@@ -88,6 +88,8 @@ public class ComTaskResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response addComTask(ComTaskInfo comTaskInfo) {
         ComTask newComTask = taskService.newComTask(comTaskInfo.name);
+        newComTask.setSystemTask(comTaskInfo.systemTask);
+
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
             Categories category = Categories.valueOf(protocolTaskInfo.categoryId.toUpperCase());
             category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
@@ -120,6 +122,7 @@ public class ComTaskResource {
 
         ComTask comTask = resourceHelper.lockComTaskOrThrowException(comTaskInfo);
         comTask.setName(comTaskInfo.name);
+        comTask.setSystemTask(comTaskInfo.systemTask);
         comTask.setMaxNrOfTries(comTaskInfo.maxNrOfTries);
         List<ProtocolTask> currentProtocolTasks = new ArrayList<>(comTask.getProtocolTasks());
 

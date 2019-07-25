@@ -20,6 +20,16 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
     },
     router: null,
     isPreview: false,
+    loadRecord: function(record) {
+        var me = this;
+        var managementOption = record.get('managementOption');
+        var showValidation = managementOption.id === 'activate' || managementOption.id === 'activateOnDate';
+
+        me.callParent(arguments);
+
+        me.down('[name="validationComTask"]').setVisible(showValidation);
+        me.down('[name="validationConnectionStrategy"]').setVisible(showValidation);
+    },
     initComponent: function () {
         var me = this;
 
@@ -102,6 +112,72 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         renderer: function (value) {
                             return value ?  '<a href="' + me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id})+ '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
                         }
+                    },
+                    {
+                        itemId: 'fwc-campaign-allowed-comtask',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.calendarUploadComTask',
+                            'FWC',
+                            'Firmware upload communication task'
+                        ),
+                        name: 'calendarUploadComTask',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'fwc-campaign-send-connection-strategy',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.connectionMethodStrategy',
+                            'FWC',
+                            'Connection method strategy'
+                        ),
+                        name: 'calendarUploadConnectionStrategy',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    },
+                    {
+                        itemId: 'fwc-campaign-validation-comtask',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.validationComTask',
+                            'FWC',
+                            'Validation communication task'
+                        ),
+                        name: 'validationComTask',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
+                    }, {
+                        itemId: 'fwc-campaign-validation-connection-strategy',
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate(
+                            'general.connectionMethodStrategy',
+                            'FWC',
+                            'Connection method strategy'
+                        ),
+                        name: 'validationConnectionStrategy',
+                        renderer: function (item) {
+                            if (!item) {
+                                return '-';
+                            }
+
+                            return item.name;
+                        },
                     },
                     {
                         xtype: 'property-form',

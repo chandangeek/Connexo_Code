@@ -128,7 +128,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
-    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile EventService eventService;
     private volatile TaskService taskService;
@@ -145,6 +144,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile CustomPropertySetService customPropertySetService;
     private volatile TransactionService transactionService;
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
+    private volatile DeviceConfigurationService deviceConfigurationService;
 
     private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
@@ -159,7 +159,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public FirmwareServiceImpl(OrmService ormService,
                                NlsService nlsService,
                                QueryService queryService,
-                               DeviceConfigurationService deviceConfigurationService,
                                DeviceMessageSpecificationService deviceMessageSpecificationService,
                                DeviceMessageService deviceMessageService,
                                DeviceService deviceService,
@@ -175,13 +174,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                CustomPropertySetService customPropertySetService,
                                BundleContext bundleContext,
                                TransactionService transactionService,
-                               MeteringGroupsService meteringGroupsService) {
+                               MeteringGroupsService meteringGroupsService,
+                               DeviceConfigurationService deviceConfigurationService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setQueryService(queryService);
         setDeviceServices(deviceService);
-        setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setDeviceMessageService(deviceMessageService);
         setEventService(eventService);
@@ -196,7 +195,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setCustomPropertySetService(customPropertySetService);
         setTransactionService(transactionService);
         setMeteringGroupsService(meteringGroupsService);
+        setDeviceConfigurationService(deviceConfigurationService);
         activate(bundleContext);
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
@@ -653,7 +658,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(QueryService.class).toInstance(queryService);
-                    bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                     bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                     bind(DeviceMessageService.class).toInstance(deviceMessageService);
                     bind(DeviceService.class).toInstance(deviceService);
@@ -668,6 +672,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                     bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                     bind(TransactionService.class).toInstance(transactionService);
+                    bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                     bind(FirmwareCampaignService.class).to(FirmwareCampaignServiceImpl.class).in(Scopes.SINGLETON);
 
                 }
@@ -703,11 +708,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         customPropertySets.clear();
         firmwareChecks.clear();
         firmwareCampaignService.deactivate();
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
