@@ -28,7 +28,7 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
 
         WebServiceCallOccurrence tmpOccurrence  = endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), "RequestName", "MultiSense");
 
-        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(tmpOccurrence.getId());
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(tmpOccurrence.getId());
 
         assertThat(epOcc.get().getId()).isEqualTo(tmpOccurrence.getId());
         assertThat(epOcc.get().getRequest().get()).isEqualTo("RequestName");
@@ -37,7 +37,7 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
 
         tmpOccurrence.setStatus(WebServiceCallOccurrenceStatus.SUCCESSFUL);
         tmpOccurrence.save();
-        epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(tmpOccurrence.getId());
+        epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(tmpOccurrence.getId());
         assertThat(epOcc.get().getId()).isEqualTo(tmpOccurrence.getId());
         assertThat(epOcc.get().getRequest().get()).isEqualTo("RequestName");
         assertThat(epOcc.get().getApplicationName().get()).isEqualTo("MultiSense");

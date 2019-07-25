@@ -135,7 +135,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
                 ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
                 ecpMock
         );
-        when(webServiceCallOccurrenceService.getEndPointOccurrence((long) 1)).thenReturn(Optional.of(occurrence));
+        when(webServiceCallOccurrenceService.getWebServiceCallOccurrence((long) 1)).thenReturn(Optional.of(occurrence));
 
         /*Test for "/endpointconfigurations/1/occurrences" resource is the same. So just one test for two resources */
         Response response = target("/occurrences/1").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get();
@@ -218,7 +218,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
         OccurrenceLogFinderBuilder builder = FakeBuilder.initBuilderStub(logs, OccurrenceLogFinderBuilder.class, Finder.class);
         when(webServiceCallOccurrenceService.getOccurrenceLogFinderBuilder()).thenReturn(builder);
-        when(webServiceCallOccurrenceService.getEndPointOccurrence(1L)).thenReturn(Optional.of(occurrence));
+        when(webServiceCallOccurrenceService.getWebServiceCallOccurrence(1L)).thenReturn(Optional.of(occurrence));
 
         Response response = target("/occurrences/1/log").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -257,7 +257,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
         WebServiceCallOccurrence occurrence = mock(WebServiceCallOccurrence.class);
 
-        when(webServiceCallOccurrenceService.getEndPointOccurrence((long) 1)).thenReturn(Optional.of(occurrence));
+        when(webServiceCallOccurrenceService.getWebServiceCallOccurrence((long) 1)).thenReturn(Optional.of(occurrence));
 
         Response response = target("/occurrences/1/retry").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").put(null);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

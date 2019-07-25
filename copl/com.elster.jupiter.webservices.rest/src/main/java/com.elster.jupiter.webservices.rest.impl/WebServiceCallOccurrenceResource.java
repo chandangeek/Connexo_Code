@@ -85,7 +85,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPrivilegies(privileges, applicationName);
 
-        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
 
         return epOcc
                 .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo, true))
@@ -105,7 +105,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         String[] privileges = {Privileges.Constants.RETRY_WEB_SERVICES};
         checkApplicationPrivilegies(privileges, applicationName);
 
-        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
 
         WebServiceCallOccurrence occurrence = epOcc.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
 
@@ -126,7 +126,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
         checkApplicationPrivilegies(privileges, applicationName);
 
-        WebServiceCallOccurrence epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id)
+        WebServiceCallOccurrence epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
 
         List<EndPointLog> logs = getLogForOccurrence(epOcc, queryParameters);
