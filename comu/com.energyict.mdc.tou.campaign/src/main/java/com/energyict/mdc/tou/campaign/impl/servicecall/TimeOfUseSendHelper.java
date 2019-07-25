@@ -113,12 +113,11 @@ public class TimeOfUseSendHelper {
             if(comTaskEnablements.isPresent()) {
                 comTaskExecutions = device.getComTaskExecutions();
             }
-
             ConnectionStrategy connectionStrategy;
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 if (comTaskExecution.getConnectionTask().isPresent()) {
                     connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                    if(!timeOfUseCampaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == timeOfUseCampaign.getCalendarUploadConnectionStrategy().get()) {
+                    if(comTaskExecution.getConnectionTask().get().isActive() && (!timeOfUseCampaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == timeOfUseCampaign.getCalendarUploadConnectionStrategy().get())) {
                         if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId()) {
                             scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
                             TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
