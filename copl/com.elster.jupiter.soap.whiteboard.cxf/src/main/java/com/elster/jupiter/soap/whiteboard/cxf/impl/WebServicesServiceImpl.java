@@ -297,7 +297,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Override
     public WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application) {
         WebServiceCallOccurrence tmp = transactionService.executeInIndependentTransaction(
-                () -> endPointConfiguration.createEndPointOccurrence(clock.instant(), requestName, application));
+                () -> endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), requestName, application));
         occurrences.put(tmp.getId(), tmp);
         return tmp;
     }
@@ -305,7 +305,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Override
     public WebServiceCallOccurrence startOccurrence(EndPointConfiguration endPointConfiguration, String requestName, String application, String payload) {
         WebServiceCallOccurrence tmp = transactionService.executeInIndependentTransaction(
-                () -> endPointConfiguration.createEndPointOccurrence(clock.instant(), requestName, application, payload));
+                () -> endPointConfiguration.createWebServiceCallOccurrence(clock.instant(), requestName, application, payload));
         occurrences.put(tmp.getId(), tmp);
         return tmp;
     }

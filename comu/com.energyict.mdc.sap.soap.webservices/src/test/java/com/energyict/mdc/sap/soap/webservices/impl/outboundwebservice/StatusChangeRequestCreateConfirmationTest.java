@@ -66,6 +66,7 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
         provider.call(outboundMessage);
 
         verify(provider).using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut");
+        verify(requestSender).send(confirmationMessage);
     }
 
     @Test

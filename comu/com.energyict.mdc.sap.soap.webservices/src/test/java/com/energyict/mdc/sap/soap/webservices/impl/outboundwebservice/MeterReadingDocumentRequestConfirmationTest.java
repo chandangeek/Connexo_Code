@@ -63,6 +63,7 @@ public class MeterReadingDocumentRequestConfirmationTest extends AbstractOutboun
         provider.call(outboundMessage);
 
         verify(provider).using("smartMeterMeterReadingDocumentERPCreateConfirmationEOut");
+        verify(requestSender).send(confirmationMessage);
     }
 
     @Test

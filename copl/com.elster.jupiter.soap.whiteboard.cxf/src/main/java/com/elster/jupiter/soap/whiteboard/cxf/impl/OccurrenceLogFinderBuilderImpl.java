@@ -16,35 +16,32 @@ public class OccurrenceLogFinderBuilderImpl implements OccurrenceLogFinderBuilde
     private DataModel dataModel;
     private Condition condition;
 
-    OccurrenceLogFinderBuilderImpl(DataModel dataModel, Condition condition) {
+    OccurrenceLogFinderBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.condition = condition;
+        this.condition = Condition.TRUE;
     }
 
     @Override
-    public OccurrenceLogFinderBuilder withEndPointConfiguration(EndPointConfiguration epc){
-
+    public OccurrenceLogFinderBuilder withEndPointConfiguration(EndPointConfiguration epc) {
         this.condition = this.condition.and(where("endPointConfiguration").isEqualTo(epc));
         return this;
     }
 
     @Override
-    public OccurrenceLogFinderBuilder withEmptyOccurrence(){
+    public OccurrenceLogFinderBuilder withNoOccurrence() {
         this.condition = this.condition.and(where("occurrence").isNull());
         return this;
-
-    };
+    }
 
     @Override
-    public OccurrenceLogFinderBuilder withOccurrenceId(WebServiceCallOccurrence epoc){
+    public OccurrenceLogFinderBuilder withOccurrenceId(WebServiceCallOccurrence epoc) {
         this.condition = this.condition.and(where("occurrence").isEqualTo(epoc));
         return this;
-
-    };
+    }
 
     public Finder<EndPointLog> build() {
         return DefaultFinder.of(EndPointLog.class, condition, dataModel)
                 .defaultSortColumn("timestamp", false);
-    };
+    }
 }
 

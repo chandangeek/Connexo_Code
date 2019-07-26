@@ -62,6 +62,7 @@ public class MeterReadingDocumentResultTest extends AbstractOutboundWebserviceTe
         provider.call(outboundMessage);
 
         verify(provider).using("meterReadingDocumentERPResultCreateRequestEOut");
+        verify(requestSender).send(resultMessage);
     }
 
     @Test

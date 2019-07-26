@@ -84,7 +84,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
 
     private void sendResponseMessage(ServiceCall parent, DefaultState finalState) {
         try (TransactionContext context = transactionService.getContext()) {
-            if (!parent.getState().equals(DefaultState.ONGOING)) {
+            if (parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
             }
             parent.requestTransition(finalState);

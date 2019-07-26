@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
-import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadings;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadingsPort;
 import ch.iec.tc57._2011.getmeterreadings.ReadingType;
@@ -63,7 +62,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
             Holder<MeterReadingsPayloadType> payload,
             @WebParam(name = "Reply", targetNamespace = "http://iec.ch/TC57/2011/GetMeterReadingsMessage", mode = WebParam.Mode.OUT)
             Holder<ReplyType> reply
-    ) throws FaultMessage {
+    ) {
         if (request != null) {
             Set<com.elster.jupiter.metering.ReadingType> requestedReadingTypes = requestedReadingTypes(request);
             if (!requestedReadingTypes.isEmpty()) {

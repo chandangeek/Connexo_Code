@@ -173,22 +173,22 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
     }
 
     private void call(EndDevice endDevice, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
-        endPointConfigurations.forEach(endPointConfiguration -> {
-            EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate, endDeviceAttributesProviders);
-            getEndDeviceConfigExtendedDataFactories().forEach(endDeviceConfigExtendedDataFactory -> {
-                endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
-            });
-            EndDeviceConfigEventMessageType message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGED);
-            String methodName;
-            if (isCreated) {
-                methodName = "createdEndDeviceConfig";
-            } else {
-                methodName = "changedEndDeviceConfig";
-            }
-            using(methodName)
-                    .toEndpoints(endPointConfiguration)
-                    .send(message);
+        EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate, endDeviceAttributesProviders);
+        getEndDeviceConfigExtendedDataFactories().forEach(endDeviceConfigExtendedDataFactory -> {
+            endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
         });
+        EndDeviceConfigEventMessageType message;
+        String methodName;
+        if (isCreated) {
+            methodName = "createdEndDeviceConfig";
+            message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CREATED);
+        } else {
+            methodName = "changedEndDeviceConfig";
+            message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGED);
+        }
+        using(methodName)
+                .toEndpoints(endPointConfigurations)
+                .send(message);
     }
 
     private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
