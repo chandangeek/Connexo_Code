@@ -66,9 +66,11 @@ public class UpgraderV10_7 implements Upgrader {
         initVariables();
         executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN", this::makeCampaignAndSC);
         executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN_DEVICES", this::makeDeviceAndSC);
-        execute(dataModel, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY " + (currentId - startId),
-                "SELECT SCS_SERVICE_CALLID.NEXTVAL FROM DUAL",
-                "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY 1");
+        if (startId != currentId) {
+            execute(dataModel, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY " + (currentId - startId),
+                    "SELECT SCS_SERVICE_CALLID.NEXTVAL FROM DUAL",
+                    "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY 1");
+        }
         execute(dataModel, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT PK_FWC_CAMPAIGN_PROPS DROP INDEX",
                 "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
         executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN_PROPS", this::updateProps);

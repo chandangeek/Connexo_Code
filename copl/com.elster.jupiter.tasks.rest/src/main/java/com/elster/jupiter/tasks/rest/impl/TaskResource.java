@@ -68,6 +68,7 @@ public class TaskResource {
             JsonQueryFilter filter = new JsonQueryFilter(params.get("filter").get(0));
             filterSpec.applications.addAll(filter.getStringList("application"));
             filterSpec.queues.addAll(filter.getStringList("queue"));
+            filterSpec.queueTypes.addAll(filter.getStringList("queueType"));
             filterSpec.startedOnFrom = filter.getInstant("startedOnFrom");
             filterSpec.startedOnTo = filter.getInstant("startedOnTo");
             filterSpec.suspended.addAll(filter.getStringList("suspended"));
@@ -148,6 +149,23 @@ public class TaskResource {
             queues.add(new QueueInfo(queueName));
         }
         return queues;
+    }
+
+    @GET
+    @Path("/queueTypes")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public List<QueueTypeInfo> getQueueTypes(@Context UriInfo uriInfo) {
+        List<RecurrentTask> tasks = taskService.getRecurrentTasks();
+        List<String> applicationNames = uriInfo.getQueryParameters().get("application");
+        Set<String> queueTypeNamesSet = new HashSet<>();
+        for (RecurrentTask task : tasks) {
+            if (((applicationNames == null) || (applicationNames.size() == 0)) ||
+                    applicationNames.contains(task.getApplication())) {
+                queueTypeNamesSet.add(task.getDestination().getQueueTypeName());
+            }
+        }
+        return queueTypeNamesSet.stream().map(QueueTypeInfo::new).collect(Collectors.toList());
     }
 
     @GET
