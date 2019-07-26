@@ -21,7 +21,6 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.endpoint.Type',
         'Wss.store.endpoint.Status',
         'Wss.store.endpoint.Occurrence',
-        'Wss.store.endpoint.EndpointOccurrence',
         'Wss.store.endpoint.OccurrenceLog',
         'Wss.store.LogLevels',
         'Wss.store.AuthenticationMethods',
@@ -98,8 +97,7 @@ Ext.define('Wss.controller.Webservices', {
 
     showWebserviceHistory: function (endpointId) {
         var me = this;
-        var store = me.getStore('Wss.store.endpoint.EndpointOccurrence');
-        store.getProxy().setUrl(endpointId);
+        var store = me.getStore('Wss.store.endpoint.Occurrence');
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
@@ -117,9 +115,9 @@ Ext.define('Wss.controller.Webservices', {
 
     showWebserviceHistoryOccurrence: function (endpointId, occurenceId) {
         var me = this;
-        var store = me.getStore('Wss.store.endpoint.EndpointOccurrence');
+        var store = me.getStore('Wss.store.endpoint.Occurrence');
         var logStore = me.getStore('Wss.store.endpoint.OccurrenceLog');
-        store.getProxy().setUrl(endpointId);
+
         logStore.getProxy().setUrl(occurenceId);
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
@@ -308,7 +306,7 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             preview = me.getHistoryPreview(),
             previewForm = preview.down('webservices-webservice-history-form');
-            
+
         previewForm.loadRecord(record);
     },
 
@@ -366,12 +364,15 @@ Ext.define('Wss.controller.Webservices', {
     retry: function(occurrence) {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
+        var adminView = Uni.util.Application.getAppNamespace() === 'SystemApp';
 
         Ext.Ajax.request({
             method: 'PUT',
-            url: '/api/ws/endpointconfigurations/occurrences/' + occurrence.getId() + '/retry',
+            url: '/api/ws/occurrences/' + occurrence.getId() + '/retry',
             success: function () {
-                router.getRoute('administration/webserviceendpoints/view/history').forward({
+                var basename = adminView ? 'administration' : 'workspace';
+
+                router.getRoute(basename + '/webserviceendpoints/view/history').forward({
                     endpointId: occurrence.getEndpoint().getId()
                 })
                 me.getApplication().fireEvent(

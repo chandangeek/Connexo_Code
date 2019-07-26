@@ -42,7 +42,7 @@ Ext.define('Wss.model.endpoint.Occurrence', {
 
   proxy: {
     type: 'rest',
-    url: '/api/ws/endpointconfigurations/occurrences/',
+    url: '/api/ws/occurrences/',
     timeout: 120000,
     reader: {
         type: 'json',

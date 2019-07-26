@@ -45,10 +45,9 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
               xtype: 'uni-button-action',
               itemId: 'webservicePreviewMenuButton',
               menu: {
-                  itemId: 'webservices-endpoint-action-menu-id',
-                  xtype: 'webservices-endpoint-action-menu',
-                  adminView: me.adminView,
-                  record: me.occurrence
+                itemId: 'webservices-endpoint-action-menu-id',
+                xtype: 'webservices-endpoint-action-menu',
+                record: me.occurrence
               }
           }
         ],

@@ -8,7 +8,7 @@ Ext.define('Wss.store.endpoint.OccurrenceLog', {
   autoLoad: false,
   proxy: {
     type: 'rest',
-    urlTpl: '/api/ws/endpointconfigurations/occurrences/{occurrenceId}/log',
+    urlTpl: '/api/ws/occurrences/{occurrenceId}/log',
     setUrl: function (occurrenceId) {
       this.url = this.urlTpl.replace('{occurrenceId}', occurrenceId);
     },
