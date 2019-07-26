@@ -423,10 +423,16 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         previewNoProperties.show();
                     }
                 } else {
-                    me.getPreviewForm().down('#previewPropertiesCommandName').setValue();
+                    me.getPreviewForm().down('#previewPropertiesCommandName').setVisible(false);
                     previewPropertiesHeader.hide();
                     previewNoProperties.hide();
                 }
+                if (recordParam.get('keyType').isKey && !Ext.isEmpty(recordParam.get('wrapperIdAndName'))) {
+                    me.getPreviewForm().down('#previewWrapperName').setValue(recordParam.get('wrapperIdAndName').name);
+                } else {
+                    me.getPreviewForm().down('#previewWrapperName').setVisible(false);
+                }
+
                 previewPropertiesForm.loadRecord(recordParam);
                 me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
                 gridMenu.updateMenuItems(record);
