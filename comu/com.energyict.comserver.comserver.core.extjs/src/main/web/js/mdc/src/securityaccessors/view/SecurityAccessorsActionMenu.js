@@ -64,8 +64,6 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
                 hidden: !this.deviceTypeId,
                 section: this.SECTION_EDIT
             }
-
-
         ];
         this.callParent(arguments);
     },
@@ -82,5 +80,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsActionMenu', {
         this.down('#menu-sa-set-default-value')
                 &&  this.down('#menu-sa-set-default-value')
                         .setVisible(this.deviceTypeId && record.get('keyType').name == 'HSM Key');
+        this.down('#menu-sa-configure-key-renewal')
+        && this.down('#menu-sa-configure-key-renewal').setVisible(record.get(this.deviceTypeId &&'isKey'));
     }
 });
