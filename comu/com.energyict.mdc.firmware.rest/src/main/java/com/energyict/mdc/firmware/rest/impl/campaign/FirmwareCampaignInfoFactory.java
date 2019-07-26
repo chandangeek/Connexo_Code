@@ -38,6 +38,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.Range;
+import jersey.repackaged.com.google.common.collect.Maps;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -46,6 +47,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -108,7 +110,13 @@ public class FirmwareCampaignInfoFactory {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
             info.properties = firmwareMessageInfoFactory.getProperties(firmwareMessageSpec.get(), campaign.getDeviceType(), info.firmwareType.id.getType(), campaign.getProperties());
         }
-        info.checkOptions = null;
+        Optional<FirmwareCampaignManagementOptions> firmwareCampaignMgtOptions = firmwareService.findFirmwareCampaignManagementOptions(campaign);
+
+        info.checkOptions = new EnumMap<>(FirmwareCheckManagementOption.class);
+        Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption ->
+                info.checkOptions.put(checkManagementOption,
+                        firmwareCampaignMgtOptions.map(options -> new CheckManagementOptionInfo(options, checkManagementOption))
+                                .orElseGet(CheckManagementOptionInfo::new)));
         return info;
     }
 

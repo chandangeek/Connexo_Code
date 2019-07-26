@@ -514,6 +514,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign){
+        return dataModel.mapper(FirmwareCampaignManagementOptions.class).getUnique(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName(), firmwareCampaign);
+    }
+
+    @Override
     public Optional<FirmwareManagementOptions> findAndLockFirmwareManagementOptionsByIdAndVersion(DeviceType deviceType, long version) {
         return dataModel.mapper(FirmwareManagementOptions.class).lockObjectIfVersion(version, deviceType.getId());
     }
