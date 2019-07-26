@@ -29,6 +29,7 @@ public class ServiceCallCommands {
 
         private final String typeName;
         private final String typeVersion;
+        private static final String APPLICATION = "MDC";
 
         ServiceCallTypes(String typeName, String typeVersion) {
             this.typeName = typeName;
@@ -41,6 +42,10 @@ public class ServiceCallCommands {
 
         public String getTypeVersion() {
             return typeVersion;
+        }
+
+        public String getApplication() {
+            return APPLICATION;
         }
     }
 

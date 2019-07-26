@@ -8,8 +8,10 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.firmware.impl.campaign.ServiceCallTypes;
 
 import javax.inject.Inject;
 import java.sql.ResultSet;
@@ -32,6 +34,7 @@ public class UpgraderV10_7 implements Upgrader {
     private final DataModel dataModel;
     private final FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller;
     private final EventService eventService;
+    private final ServiceCallService serviceCallService;
     private final Logger logger = Logger.getLogger(UpgraderV10_7.class.getName());
     private Map<Long, Pair> campaignIdAndCreationTimeByOldIds = new HashMap<>();
     private Map<Long, Long> campaignStates = new HashMap<>();
@@ -46,15 +49,17 @@ public class UpgraderV10_7 implements Upgrader {
 
     @Inject
     UpgraderV10_7(DataModel dataModel, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller,
-                  EventService eventService) {
+                  EventService eventService, ServiceCallService serviceCallService) {
         this.dataModel = dataModel;
         this.firmwareCampaignServiceCallLifeCycleInstaller = firmwareCampaignServiceCallLifeCycleInstaller;
         this.eventService = eventService;
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         firmwareCampaignServiceCallLifeCycleInstaller.createServiceCallTypes();
+        updateServiceCallTypes();
         execute(dataModel, "DELETE FROM EVT_EVENTTYPE WHERE COMPONENT = 'FWC'");
         for (EventType eventType : EventType.values()) {
             try {
@@ -369,6 +374,18 @@ public class UpgraderV10_7 implements Upgrader {
         Long parent;
         Long device;
         Long deviceMessage;
+    }
+
+    private void updateServiceCallTypes() {
+        for (ServiceCallTypes type : ServiceCallTypes.values()) {
+            serviceCallService
+                    .findServiceCallType(type.getTypeName(), type.getTypeVersion()).ifPresent(
+                    serviceCallType -> {
+                        serviceCallType.setApplication(type.getApplication().orElse(null));
+                        serviceCallType.setRetryState(type.getRetryState().orElse(null));
+                    }
+            );
+        }
     }
 
 }
