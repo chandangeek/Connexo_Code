@@ -4,7 +4,11 @@
 
 package com.energyict.mdc.engine.impl.web;
 
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -16,14 +20,11 @@ import com.energyict.mdc.engine.impl.web.events.EventServlet;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
-import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.Handler;
-
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -172,16 +173,16 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param queryApiPostUri The URI on which the servlet should be listening
      * @param comServer The OnlineComServer
      */
-    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
+    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new QueryAPIShutdownFailureLogger(queryApiPostUri));
-        server.addQueryApi(queryApiPostUri, comServer, queryAPIStatistics);
+        server.addQueryApi(queryApiPostUri, comServer, comServerDAO,engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
         return server;
     }
 
-    public void addQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
+    public void addQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
         this.jetty = new Server(getPortNumber(queryApiPostUri, ComServer.DEFAULT_QUERY_API_PORT_NUMBER));
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        ServletHolder servletHolder = new ServletHolder(new QueryApiServlet(comServer, queryAPIStatistics));
+        ServletHolder servletHolder = new ServletHolder(new QueryApiServlet(comServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService));
         handler.addServlet(servletHolder, queryApiPostUri.getPath());
         this.jetty.setHandler(handler);
     }

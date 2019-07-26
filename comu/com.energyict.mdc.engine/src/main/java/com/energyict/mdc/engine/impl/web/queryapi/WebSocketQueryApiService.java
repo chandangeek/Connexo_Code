@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.remote.QueryMethod;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -23,7 +24,7 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,6 +33,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+;
 
 /**
  * Services clients of the remote query API.
@@ -47,6 +50,8 @@ public class WebSocketQueryApiService {
     private final ConnectionTaskService connectionTaskService;
     private final CommunicationTaskService communicationTaskService;
     private final TransactionService transactionService;
+
+    private QueryAPIStatistics queryAPIStatistics;
     private Session session;
 
     public WebSocketQueryApiService(RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {

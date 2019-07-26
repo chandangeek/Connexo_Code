@@ -8,7 +8,7 @@
 
     <properties>
         <revision>-SNAPSHOT</revision>
-        <jetty.version>9.4.6.v20170531</jetty.version>
+        <jetty.version>9.4.15.v20190215</jetty.version>
         <jersey.version>2.13</jersey.version>
     </properties>
 

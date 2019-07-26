@@ -19,6 +19,8 @@ import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.monitor.EventAPIStatistics;
@@ -71,6 +73,10 @@ public class EmbeddedWebServerFactoryTest {
     private EventAPIStatistics eventAPIStatistics;
     @Mock
     private QueryAPIStatistics queryAPIStatistics;
+    @Mock
+    private ComServerDAO comServerDAO;
+    @Mock
+    private RunningComServerImpl.ServiceProvider serviceProvider;
 
     private EmbeddedWebServerFactory factory;
     private EmbeddedWebServer embeddedWebServer;
@@ -158,7 +164,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, queryAPIStatistics);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -173,7 +179,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, queryAPIStatistics);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();

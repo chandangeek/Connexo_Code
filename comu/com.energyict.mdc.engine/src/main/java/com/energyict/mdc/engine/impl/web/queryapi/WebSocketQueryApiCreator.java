@@ -1,8 +1,11 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
-import com.energyict.mdc.engine.config.OnlineComServer;
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
-import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest;
@@ -10,8 +13,6 @@ import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse;
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator;
 
 import javax.servlet.http.HttpSession;
-import java.net.HttpCookie;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,10 +22,20 @@ public class WebSocketQueryApiCreator implements WebSocketCreator {
     private QueryAPIStatistics queryAPIStatistics;
     private Map<String, WebSocketQueryApiService> queryApiServices = new HashMap<>();
 
-    public WebSocketQueryApiCreator(RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
+    private final ComServerDAO comServerDAO;
+    private final EngineConfigurationService engineConfigurationService;
+    private final ConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
+    private final TransactionService transactionService;
+
+    public WebSocketQueryApiCreator(RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
         super();
         this.comServer = comServer;
-        this.queryAPIStatistics = queryAPIStatistics;
+        this.comServerDAO = comServerDAO;
+        this.engineConfigurationService = engineConfigurationService;
+        this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
+        this.transactionService = transactionService;
     }
 
     public RunningOnlineComServer getComServer() {
@@ -46,21 +57,11 @@ public class WebSocketQueryApiCreator implements WebSocketCreator {
         if (queryApiService == null) {
             queryApiService = this.createQueryApiService();
             queryApiServices.put(httpSessionId, queryApiService);
-            if (request.getCookies() != null) {
-                for (HttpCookie each : request.getCookies()) {
-                   /* if (RemoteComServerDAOImpl.CLIENT_PROPERTY.equals(each.getName())) {
-                        if (queryAPIStatistics != null) {
-                            queryAPIStatistics.clientRegistered(each.getValue(), new Date(request.getSession().getLastAccessedTime()));
-                        }
-                    }*/
-                }
-            }
         }
         return queryApiService;
     }
 
     private WebSocketQueryApiService createQueryApiService() {
-       return null;
-       // return WebSocketQueryApiServiceFactory.getInstance().newWebSocketQueryApiService(this.comServer, queryAPIStatistics);
+       return WebSocketQueryApiServiceFactory.getInstance().newWebSocketQueryApiService(this.comServer, this.comServerDAO, this.engineConfigurationService, this.connectionTaskService, this.communicationTaskService, this.transactionService);
     }
 }

@@ -161,21 +161,17 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
 
     private void shutdownExecutorService(boolean immediate) {
         if (immediate) {
-            if(this.executorService != null) {
-                List<Runnable> waiting = this.executorService.shutdownNow();
-                for (Runnable runnable : waiting) {
-                    Worker waitingWorker = (Worker) ((ExtendedFutureTask) runnable).getCallable();
-                    waitingWorker.runDuringShutdown();
-                }
+            List<Runnable> waiting = this.executorService.shutdownNow();
+            for (Runnable runnable : waiting) {
+                Worker waitingWorker = (Worker) ((ExtendedFutureTask) runnable).getCallable();
+                waitingWorker.runDuringShutdown();
             }
         } else {
-            if(this.executorService != null) {
-                this.executorService.shutdown();
-                try {
-                    this.executorService.awaitTermination(1, TimeUnit.MINUTES);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+            this.executorService.shutdown();
+            try {
+                this.executorService.awaitTermination(1, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
     }

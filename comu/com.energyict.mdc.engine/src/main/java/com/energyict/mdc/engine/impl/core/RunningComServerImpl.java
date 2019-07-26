@@ -62,6 +62,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.io.SocketService;
+
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
@@ -152,9 +153,10 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
+        registerAsMBean();
         this.eventMechanism = new EventMechanism(embeddedWebServerFactory, operationalMonitor.getEventApiStatistics());
         this.comServerDAO = comServerDAO;
-        registerAsMBean();
+
         this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
@@ -446,10 +448,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private void doShutdown() {
         this.status = ServerProcessStatus.SHUTTINGDOWN;
-        if(this.continueRunning != null)
-            this.continueRunning.set(false);
-        if (self != null)
-            self.interrupt();   // in case the thread was sleeping between detecting changes
+        this.continueRunning.set(false);
+        self.interrupt();   // in case the thread was sleeping between detecting changes
     }
 
     private void shutdownTimeOutMonitor(boolean immediate) {
@@ -557,8 +557,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                 sleepAfterDatabaseException();
             }
         }
-        if(self != null)
-            self.interrupt();
+        self.interrupt();
         this.status = ServerProcessStatus.SHUTDOWN;
     }
 

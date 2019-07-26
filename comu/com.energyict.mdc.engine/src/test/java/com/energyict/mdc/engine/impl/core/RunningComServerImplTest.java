@@ -81,6 +81,8 @@ public class RunningComServerImplTest {
     @Mock
     private NlsService nlsService;
     @Mock
+    private ComServerDAO comServerDAO;
+    @Mock
     private Thesaurus thesaurus;
     @Mock
     private QueryAPIStatistics queryAPIStatistics;
@@ -204,7 +206,7 @@ public class RunningComServerImplTest {
         verify(timeOutMonitorThread).start();
         verify(cleanupProcessThread).start();
         verify(this.engineConfigurationService).findRemoteComServersForOnlineComServer(comServer);
-        verify(this.embeddedWebServerFactory, never()).findOrCreateRemoteQueryWebServer(runningComServer, queryAPIStatistics);
+        verify(this.embeddedWebServerFactory, never()).findOrCreateRemoteQueryWebServer(runningComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
     }
 
     @Test
@@ -234,7 +236,7 @@ public class RunningComServerImplTest {
 
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, this.embeddedWebServerFactory, this.serviceProvider);
-        when(this.embeddedWebServerFactory.findOrCreateRemoteQueryWebServer(runningComServer, queryAPIStatistics)).thenReturn(queryWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateRemoteQueryWebServer(runningComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService())).thenReturn(queryWebServer);
 
         // Business method
         runningComServer.start();
@@ -244,7 +246,7 @@ public class RunningComServerImplTest {
         verify(changesMonitorThread).start();
         verify(timeOutMonitorThread).start();
         verify(cleanupProcessThread).start();
-        verify(this.embeddedWebServerFactory).findOrCreateRemoteQueryWebServer(runningComServer, queryAPIStatistics);
+        verify(this.embeddedWebServerFactory).findOrCreateRemoteQueryWebServer(runningComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
         verify(queryWebServer).start();
     }
 
@@ -310,7 +312,7 @@ public class RunningComServerImplTest {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         RunningOnlineComServerImpl runningComServer = new RunningOnlineComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, this.embeddedWebServerFactory, this.serviceProvider);
         when(queryWebServer.getStatus()).thenReturn(ServerProcessStatus.STARTED, ServerProcessStatus.SHUTDOWN);
-        when(this.embeddedWebServerFactory.findOrCreateRemoteQueryWebServer(runningComServer, queryAPIStatistics)).thenReturn(queryWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateRemoteQueryWebServer(runningComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService())).thenReturn(queryWebServer);
         runningComServer.start();
 
         // Business method

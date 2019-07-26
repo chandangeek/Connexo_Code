@@ -12,7 +12,6 @@ import com.energyict.mdc.engine.impl.monitor.ServerQueryAPIStatistics;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
 
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
@@ -63,8 +62,8 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
     }
 
     private void startQueryApiListener () {
-        ComServerMonitor monitor =  (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor((RunningComServer) super.getComServer());
-        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this, monitor.getQueryApiStatistics());
+       // ComServerMonitor monitor =  (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor((RunningComServer) super.getComServer());
+        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this, getComServerDAO(),serviceProvider.engineConfigurationService() ,serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
         this.remoteQueryApi.start();
     }
 
