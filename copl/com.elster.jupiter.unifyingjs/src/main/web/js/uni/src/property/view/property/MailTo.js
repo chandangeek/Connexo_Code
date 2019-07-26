@@ -15,24 +15,6 @@ Ext.define('Uni.property.view.property.MailTo', {
             layout: 'hbox',
             required: true,
             items: [{
-<<<<<<< HEAD
-                    xtype: 'textfield',
-                    name: this.getName(),
-                    itemId: me.key,
-                    width: me.width,
-                    msgTarget: 'under',
-                    readOnly: me.isReadOnly,
-                    allowBlank: me.allowBlank,
-                    inputType: me.inputType,
-                    maxLength: maxLength,
-                    enforceMaxLength: (maxLength != null) ? true : false,
-                    blankText: me.blankText
-                },
-                {
-                    xtype: 'button',
-                    itemId: 'txt-user-name-info',
-                    tooltip: Uni.I18n.translate('dataExport.recipients.tooltip', 'DES', 'Separate multiple e-mailaddresses by semicolons (;)'),
-=======
                 xtype: 'textfield',
                 name: this.getName(),
                 itemId: me.key,
@@ -49,7 +31,6 @@ Ext.define('Uni.property.view.property.MailTo', {
                     xtype: 'button',
                     itemId: 'txt-user-name-info',
                     tooltip: Uni.I18n.translate('dataExport.recipients.tooltip', 'DES', 'Separate multiple e-mail addresses by semicolons (;)'),
->>>>>>> feature/Mail-notification-by-alarms
                     text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
                     disabled: true, // to avoid a hand cursor
                     ui: 'blank',
@@ -59,10 +40,6 @@ Ext.define('Uni.property.view.property.MailTo', {
                     tabIndex: -1
                 }]
         }
-<<<<<<< HEAD
-
-=======
->>>>>>> feature/Mail-notification-by-alarms
     },
 
     getField: function () {

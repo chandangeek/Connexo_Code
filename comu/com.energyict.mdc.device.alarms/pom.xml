@@ -278,8 +278,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        <groupId>com.google.inject</groupId>
-        <artifactId>guice</artifactId>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -378,15 +378,15 @@
                 </configuration>
             </plugin>
             <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.7.2.201409121644</version>
-            <configuration>
-                <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-                <excludes>
-                <exclude>org.drools.*</exclude>
-                </excludes>
-            </configuration>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.2.201409121644</version>
+                <configuration>
+                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                    <excludes>
+                        <exclude>org.drools.*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

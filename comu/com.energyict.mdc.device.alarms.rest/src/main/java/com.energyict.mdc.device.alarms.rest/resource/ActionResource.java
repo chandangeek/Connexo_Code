@@ -26,6 +26,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -65,6 +66,7 @@ public class ActionResource extends BaseAlarmResource {
                 .filter(issueActionType -> isStartProcessApplicable(issueReason, issueActionType))
                 .map(i-> actionInfoFactory.asInfo(i, issueReason.isPresent() ? issueReason.get().getName() : null))
                 .filter(item -> !(phaseParam.equals("OVERDUE") && item.name.equals("Email")))
+                .sorted(Comparator.comparing(a -> a.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
     }
