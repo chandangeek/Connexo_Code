@@ -65,7 +65,6 @@ import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignCustomPropertySet;
-import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemCustomPropertySet;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;

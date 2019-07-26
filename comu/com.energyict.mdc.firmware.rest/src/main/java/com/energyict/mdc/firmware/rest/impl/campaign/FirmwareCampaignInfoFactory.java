@@ -19,11 +19,8 @@ import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.impl.FirmwareCampaignManagementOptionsImpl;
-import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
 import com.energyict.mdc.firmware.rest.impl.CheckManagementOptionInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
@@ -38,7 +35,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.Range;
-import jersey.repackaged.com.google.common.collect.Maps;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -51,8 +47,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.energyict.mdc.firmware.rest.impl.campaign.StatusInfoFactory.getCampaignStatus;
 import static com.energyict.mdc.firmware.rest.impl.campaign.StatusInfoFactory.getDeviceStatus;
@@ -111,7 +105,6 @@ public class FirmwareCampaignInfoFactory {
             info.properties = firmwareMessageInfoFactory.getProperties(firmwareMessageSpec.get(), campaign.getDeviceType(), info.firmwareType.id.getType(), campaign.getProperties());
         }
         Optional<FirmwareCampaignManagementOptions> firmwareCampaignMgtOptions = firmwareService.findFirmwareCampaignManagementOptions(campaign);
-
         info.checkOptions = new EnumMap<>(FirmwareCheckManagementOption.class);
         Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption ->
                 info.checkOptions.put(checkManagementOption,
