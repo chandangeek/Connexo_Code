@@ -30,6 +30,7 @@ import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -45,8 +46,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
     public static final ObisCode ACTIVITY_CALENDAR_NAME = ObisCode.fromString("0.0.13.0.0.2");
-    public static final ObisCode CORE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
-    public static final ObisCode MODULE_FIRMWARE = ObisCode.fromString("1.1.0.2.0.255");
+    public static final ObisCode CORE_FIRMWARE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_METER_CORE;
+    public static final ObisCode MODULE_FIRMWARE = AbstractSmartNtaProtocol.FIRMWARE_VERSION_COMMS_MODULE;
     public static final ObisCode CORE_FIRMWARE_SIGNATURE = ObisCode.fromString("1.0.0.2.8.255");
     public static final ObisCode MODULE_FIRMWARE_SIGNATURE = ObisCode.fromString("1.1.0.2.8.255");
     public static final ObisCode DISCONNECT_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
@@ -56,6 +57,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     public static final ObisCode ISKRA_MBUS_ENCRYPTION_STATUS = ObisCode.fromString("0.0.97.98.1.255");
     public static final ObisCode GSM_SIGNAL_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
     public static final ObisCode MbusClientObisCode = ObisCode.fromString("0.x.24.1.0.255");
+
+    public static final ObisCode ERROR_REGISTER = ObisCode.fromString("0.0.97.97.0.255");
+    public static final ObisCode ALARM_REGISTER = ObisCode.fromString("0.0.97.98.0.255");
+    public static final ObisCode ALARM_FILTER = ObisCode.fromString("0.0.97.98.10.255");
+
     // Mbus Registers
     public static final ObisCode MbusEncryptionStatus = ObisCode.fromString("0.x.24.50.0.255");
     public static final ObisCode MbusDisconnectMode = ObisCode.fromString("0.x.24.4.128.255");
@@ -129,7 +135,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
                         }
                     } else {
-                        this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
+                        this.protocol.journal(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit.");
                     }
                 } else if (this.registerMap.containsKey(register)) {
                     rv = convertCustomAbstractObjectsToRegisterValues(register, registerComposedCosemObject.getAttribute(this.registerMap.get(register)));
@@ -176,7 +182,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
                             su.getEisUnit()), eventTime);
         } else {
-            this.protocol.getLogger().log(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit "+su.toString()+". (it's handled as a composed register).");
+            this.protocol.journal(Level.WARNING, "Register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "] does not provide a proper Unit "+su.toString()+". (it's handled as a composed register).");
             return new RegisterValue(register,
                     new Quantity(registerComposedCosemObject.getAttribute(this.composedRegisterMap.get(register).getRegisterValueAttribute()).toBigDecimal(),
                             null), null);
@@ -194,7 +200,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         if (unitAttribute!=null) {
             return new ScalerUnit(registerComposedCosemObject.getAttribute(unitAttribute));
         } else {
-            protocol.getLogger().finest(" - register "+register.getObisCode()+" does now have an unit code specified in the protocol implementation, set to default");
+            protocol.journal("Register "+register.getObisCode()+" doesn't have an unit code specified in the protocol implementation, set to default");
             return new ScalerUnit(0, Unit.get(0) );
         }
     }
@@ -207,10 +213,26 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      *
      */
     protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+        Unit actualUnit;
+        actualUnit = unit;
+        if (isElectricityMilliWatts(offlineRegister.getObisCode())){
+            actualUnit = Unit.get(unit.getDlmsCode(), -3);
+        }
         return  new RegisterValue(offlineRegister,
-                new Quantity(attributeValue.toBigDecimal(), unit),
+                new Quantity(attributeValue.toBigDecimal(), actualUnit),
                 captureTime // eventTime
         );
+    }
+
+    /**
+     * Some meter have custom obis-codes mapped to mW instead of kW
+     * @param obisCode
+     * @return
+     */
+    static public boolean isElectricityMilliWatts(ObisCode obisCode){
+        return ((   obisCode.getA() == 1 )
+                && (obisCode.getB() == 128)
+                && (obisCode.getD() == 8 ));
     }
 
     /**
@@ -229,7 +251,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             if (protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
                 validRegisters.add(register);
             } else {
-                protocol.getLogger().severe("Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+                protocol.journal(Level.SEVERE,"Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validRegisters;
@@ -334,7 +356,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else {
-                            protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
+                            protocol.journal( "Register with ObisCode " + rObisCode + " is not supported.");
                         }
                     }
                 }

@@ -8,16 +8,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>issue.task.extjs</artifactId>
     <packaging>bundle</packaging>
     <name>com.elster.jupiter.issue.task.extjs</name>
-
-    <properties>
-         <baseline>(,${project.version})</baseline>
-    </properties>
 
     <dependencies>
         <dependency>

@@ -4,6 +4,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.ProtocolJournal;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -295,6 +296,16 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(this.deviceProtocol.getUPLPropertySpecs());
+    }
+
+    @Override
+    public void setProtocolJournaling(ProtocolJournal protocolJournal) {
+        this.deviceProtocol.setProtocolJournaling(protocolJournal);
+    }
+
+    @Override
+    public void journal(String message) {
+        this.deviceProtocol.journal(message);
     }
 
     @Override

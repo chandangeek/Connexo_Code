@@ -27,6 +27,7 @@ Ext.define('Uni.property.controller.Registry', {
     singleton: true,
     requires: [
         'Uni.property.view.property.Text',
+        'Uni.property.view.property.MailTo',
         'Uni.property.view.property.Combobox',
         'Uni.property.view.property.DeviceGroupCombobox',
         'Uni.property.view.property.Textarea',

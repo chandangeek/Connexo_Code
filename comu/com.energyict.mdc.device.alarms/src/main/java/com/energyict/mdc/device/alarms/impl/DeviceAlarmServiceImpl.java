@@ -56,6 +56,7 @@ import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.OpenDeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4;
+import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_7;
 import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -63,7 +64,7 @@ import com.energyict.mdc.device.alarms.impl.install.Installer;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.security.Privileges;
 import com.energyict.mdc.device.data.DeviceService;
-
+import org.osgi.framework.BundleContext;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -108,7 +109,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile BpmService bpmService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private final List<IssueWebServiceClient> alarmWebServiceClients = new ArrayList<>();
-
+    private static BundleContext bundleContext;
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
     }
@@ -127,7 +128,8 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   MeteringService meteringService,
                                   BpmService bpmService,
                                   EndPointConfigurationService endPointConfigurationService,
-                                  TimeService timeService) {
+                                  TimeService timeService,
+                                  BundleContext bundleContext) {
         this();
         setMessageService(messageService);
         setIssueService(issueService);
@@ -142,11 +144,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setTimeService(timeService);
         setBpmService(bpmService);
         setEndPointConfigurationService(endPointConfigurationService);
-        activate();
+        activate(bundleContext);
     }
 
     @Activate
-    public final void activate() {
+    public void activate(BundleContext bundleContext) {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -166,10 +168,15 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
+
+        setBundleContext(bundleContext);
+
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-                version(10, 4), UpgraderV10_4.class
+                version(10, 4), UpgraderV10_4.class,
+                version(10, 7), UpgraderV10_7.class
         ));
     }
+
 
     @Reference
     public final void setIssueService(IssueService issueService) {
@@ -191,6 +198,15 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN)
                 .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    public void setBundleContext(BundleContext bundleContext){
+        this.bundleContext = bundleContext;
+    }
+
+    @Override
+    public Optional<BundleContext> getBundleContext(){
+        return Optional.of(bundleContext);
     }
 
     @Reference

@@ -16,6 +16,7 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePointAccountability;
@@ -45,6 +46,7 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -125,6 +127,10 @@ public class CalendarTimeSeriesCacheHandlerMessagePostTest {
     private MessageBuilder messageBuilder;
     @Mock
     private LicenseService licenseService;
+    @Mock
+    private MessageService messageService;
+    @Mock
+    private JsonService jsonService;
 
     private Injector injector;
     private Instant now;
@@ -233,6 +239,8 @@ public class CalendarTimeSeriesCacheHandlerMessagePostTest {
                         .annotatedWith(Names.named(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION))
                         .toInstance(destinationSpec);
                 bind(LicenseService.class).toInstance(licenseService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(JsonService.class).toInstance(jsonService);
             }
         };
     }

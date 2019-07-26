@@ -156,6 +156,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private void setDefaultDeviceAlarmActions(IssueType issueType) {
         IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType, null);
+        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, MailNotificationAlarmAction.class.getName(), deviceAlarmType,null);
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, StartProcessAlarmAction.class.getName(), deviceAlarmType, null);
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.NOT_APPLICABLE);
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, WebServiceNotificationAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.CREATE);

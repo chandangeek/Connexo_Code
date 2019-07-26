@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>0.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>issue.task</artifactId>
@@ -17,10 +17,6 @@
     <description>
         Contains task issue templates
     </description>
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <dependencies>
         <dependency>

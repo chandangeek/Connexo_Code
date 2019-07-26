@@ -29,6 +29,7 @@ import com.energyict.protocolimplv2.nta.dsmr40.messages.KaifaDsmr40MessageExecut
 import com.energyict.protocolimplv2.nta.dsmr40.messages.KaifaDsmr40Messaging;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 public class Kaifa extends E350 {
     private KaifaDsmr40Messaging kaifaMessaging;
@@ -51,7 +52,7 @@ public class Kaifa extends E350 {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("Kaifa protocol init V2");
+        journal("Kaifa protocol init V2");
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         HHUSignOnV2 hhuSignOn = null;
@@ -80,8 +81,7 @@ public class Kaifa extends E350 {
             byte[] firmwareVersion = getMeterInfo().getFirmwareVersion().getBytes();
             return ProtocolTools.getHexStringFromBytes(firmwareVersion);
         } catch (CommunicationException e) {
-            String message = "Could not fetch the firmwareVersion. " + e.getMessage();
-            getLogger().finest(message);
+            journal(Level.WARNING, "Could not fetch the firmwareVersion. " + e.getMessage());
             return "Unknown version";
         }
     }

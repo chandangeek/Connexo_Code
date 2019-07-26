@@ -195,21 +195,7 @@ public class PreStoreLoadProfile {
                     .findAny()
                     .isPresent();
 
-            return intervalBlock.getIntervals().stream().filter(not(intervalReading1 -> {
-                if (!validInterval) {
-                    return false;
-                }
-                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(intervalReading1.getTimeStamp(), zone);
-                TimeDuration interval = timeDuration.get();
-                if (interval.getTemporalUnit().equals(ChronoUnit.SECONDS) && interval.getCount() <= 3600) {
-                    return zonedDateTime.getMinute() % getMinuteIntervalLength(interval.getTemporalUnit(), interval) == 0
-                            && zonedDateTime.getSecond() == 0 && zonedDateTime.getNano() == 0;
-                }
-                if (!validTimeOfDay(zonedDateTime)) {
-                    return false;
-                }
-                return !interval.getTemporalUnit().equals(ChronoUnit.MONTHS) || zonedDateTime.getDayOfMonth() == 1;
-            })).findAny();
+            return intervalBlock.getIntervals().stream().filter(not(streamedIntervalReading -> validInterval)).findAny();
         }
 
         private boolean validTimeOfDay(ZonedDateTime dateTime) {

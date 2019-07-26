@@ -141,7 +141,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 continue;
             }
 
-            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
+            this.meterProtocol.journal( "Reading configuration from LoadProfile " + lpr);
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
                 try {
@@ -182,7 +182,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
                 validLoadProfileReaders.add(loadProfileReader);
             } else {
-                this.meterProtocol.getLogger().severe("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
+                this.meterProtocol.journal("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validLoadProfileReaders;
@@ -209,7 +209,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     dlmsAttributes.add(cProfileConfig.getLoadProfileCapturedObjects());
                     this.lpConfigMap.put(lpReader, cProfileConfig);
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "LoadProfile with ObisCode " + obisCode + " for meter '" + lpReader.getMeterSerialNumber() + "' is not supported.");
+                    this.meterProtocol.journal( "LoadProfile with ObisCode " + obisCode + " for meter '" + lpReader.getMeterSerialNumber() + "' is not supported.");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -246,16 +246,18 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     List<CapturedRegisterObject> coRegisters = new ArrayList<>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
-//                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
-                        DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
-                        CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
+                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
+                            DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
+                            CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
-                        // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
-                            channelRegisters.add(reg);
+                            // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
+                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
+                                channelRegisters.add(reg);
+                            }
+                            coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
+                        } else {
+                            getMeterProtocol().journal(Level.WARNING, "Unexpected channel found in device which could not be mapped to the master device or to any of the slave devices: "+co.getLogicalName());
                         }
-                        coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
-//                        }
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
                 } //TODO should we log this if we didn't get it???
@@ -307,7 +309,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                         this.registerUnitMap.put(register, unitAttribute);
                     }
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "LoadProfile channel with ObisCode " + (rObisCode != null ? rObisCode : register.getObisCode()) + " is not supported.");
+                    this.meterProtocol.journal( "LoadProfile channel with ObisCode " + (rObisCode != null ? rObisCode : register.getObisCode()) + " is not supported.");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -455,7 +457,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
 
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
-                this.meterProtocol.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
+                this.meterProtocol.journal( "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
 
                 try {
                     List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);

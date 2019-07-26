@@ -66,7 +66,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
             CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
 
             if (this.getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
-                this.getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
+                this.getMeterProtocol().journal("Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
 
                 try {
                     List<ChannelInfo> channelInfos = this.getChannelInfoMap().get(lpr);

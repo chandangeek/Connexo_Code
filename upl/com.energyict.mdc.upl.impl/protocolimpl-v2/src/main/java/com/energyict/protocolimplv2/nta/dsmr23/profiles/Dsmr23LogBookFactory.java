@@ -35,10 +35,10 @@ import java.util.logging.Logger;
 
 public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
-    private static final ObisCode STANDARD_EVENT_LOG =  ObisCode.fromString("0.0.99.98.0.255");
-    private static final ObisCode POWER_FAILURE_LOG =   ObisCode.fromString("1.0.99.97.0.255");
-    private static final ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
-    private static final ObisCode CONTROL_LOG =         ObisCode.fromString("0.0.99.98.2.255");
+    protected static final ObisCode STANDARD_EVENT_LOG =  ObisCode.fromString("0.0.99.98.0.255");
+    protected static final ObisCode POWER_FAILURE_LOG =   ObisCode.fromString("1.0.99.97.0.255");
+    protected static final ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
+    protected static final ObisCode CONTROL_LOG =         ObisCode.fromString("0.0.99.98.2.255");
     protected static final ObisCode MBUS_EVENT_LOG =      ObisCode.fromString("0.x.99.98.3.255");
     protected static final ObisCode MBUS_CONTROL_LOG =    ObisCode.fromString("0.x.24.5.0.255");
     protected AbstractDlmsProtocol protocol;
@@ -89,7 +89,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBookReader : logBooks) {
             CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
-            if (isSupported(logBookReader)) {
+             if (isSupported(logBookReader)) {
                 ProfileGeneric profileGeneric = null;
                 try {
                     profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()));
@@ -102,12 +102,15 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
                     fromDate.setTime(logBookReader.getLastLogBook());
                     DataContainer dataContainer;
                     try {
+                        getProtocol().journal("Reading logbook "+profileGeneric.getObisCode()+" from "+fromDate.getTime());
                         dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
                         collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer,  logBookReader));
                     } catch (NotInObjectListException e) {
+                        getProtocol().journal(Level.WARNING, "Logbook not in objects list: "+logBookReader.getLogBookObisCode().toString());
                         collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                     } catch (IOException e) {
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
+                            getProtocol().journal(Level.WARNING, "Logbook not supported: "+logBookReader.getLogBookObisCode().toString());
                             collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                         }
                     }
@@ -122,21 +125,29 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, LogBookReader logBookReader) throws ProtocolException {
         ObisCode logBookObisCode = logBookReader.getLogBookObisCode();
+        getProtocol().journal("Parsing logbook "+logBookObisCode);
         List<MeterEvent> meterEvents;
-        if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
+        if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {
+            getProtocol().journal("Parsing as standard event log");
             meterEvents = new EventsLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getControlLogObject().getObisCode())) {
+        } else if (logBookObisCode.equals(CONTROL_LOG)) {
+            getProtocol().journal("Parsing as disconnect control log");
             meterEvents = new DisconnectControlLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getPowerFailureLogObject().getObisCode())) {
+        } else if (logBookObisCode.equals(POWER_FAILURE_LOG)) {
+            getProtocol().journal("Parsing as power failure log");
             meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
+        } else if (logBookObisCode.equals(FRAUD_DETECTION_LOG)) {
+            getProtocol().journal("Parsing as fraud detection log");
             meterEvents = new FraudDetectionLog(dataContainer).getMeterEvents();
-        }else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
+        }else if (logBookObisCode.equalsIgnoreBChannel(MBUS_CONTROL_LOG)) {
+            getProtocol().journal("Parsing as MBus control log");
             meterEvents = new MbusControlLog(dataContainer).getMeterEvents();
         }  else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = protocol.getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
+            getProtocol().journal("Parsing as MBus event log on channel "+channel);
             meterEvents = new MbusLog(dataContainer, channel).getMeterEvents();
         } else {
+            getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
             return new ArrayList<>();
         }
 
@@ -144,40 +155,41 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
         if(props instanceof Dsmr23Properties){
             Dsmr23Properties properties = (Dsmr23Properties) props;
             if(properties.getFrameCounterLimit() != 0 && properties.replayAttackPreventionEnabled()){
-                checkFrameCounterEvents(meterEvents, protocol.getLogger());
+                checkFrameCounterEvents(meterEvents);
             }
         }
+        getProtocol().journal("Decoded "+meterEvents.size()+" events from "+logBookObisCode);
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }
 
-    protected void checkFrameCounterEvents(List<MeterEvent> eventList, Logger logger) {
+    protected void checkFrameCounterEvents(List<MeterEvent> eventList) {
         SecurityContext securityContext = protocol.getDlmsSession().getAso().getSecurityContext();
 
-        generateFrameCounterLimitEvent(securityContext.getFrameCounter(), "Frame Counter", 900, eventList, logger);
+        generateFrameCounterLimitEvent(securityContext.getFrameCounter(), "Frame Counter", 900, eventList);
 
         if (securityContext.getResponseFrameCounter() != 0) {
-            generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),"Response Frame Counter", 901, eventList, logger);
+            generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),"Response Frame Counter", 901, eventList);
         } else {
-            logger.info("Response frame counter not initialized.");
+            getProtocol().journal("Response frame counter not initialized.");
         }
 
     }
 
-    protected void generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, List<MeterEvent> eventList, Logger logger) {
+    protected void generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, List<MeterEvent> eventList) {
         try {
             long frameCounterLimit = ((Dsmr23Properties)this.getProtocol().getDlmsSessionProperties()).getFrameCounterLimit();
 
             if (frameCounterLimit==0){
-                logger.info("Frame counter threshold not configured. FYI the current "+name+" is "+frameCounter);
+                getProtocol().journal("Frame counter threshold not configured. FYI the current "+name+" is "+frameCounter);
             } else if (frameCounter>frameCounterLimit) {
-                logger.info(name+": " + frameCounter + " is above the threshold ("+frameCounterLimit+") - will create an event");
+                getProtocol().journal(name+": " + frameCounter + " is above the threshold ("+frameCounterLimit+") - will create an event");
                 MeterEvent frameCounterEvent = new MeterEvent(new Date(), 0, eventId, name+" above threshold: " + frameCounter);
                 eventList.add(frameCounterEvent);
             } else {
-                logger.info(name + " below configured threshold: "+frameCounter+" < "+frameCounterLimit);
+                getProtocol().journal(name + " below configured threshold: "+frameCounter+" < "+frameCounterLimit);
             }
         }catch (Exception e) {
-            logger.log(Level.WARNING, "Error getting  "+name+e.getMessage(), e);
+            getProtocol().journal(Level.WARNING, "Error getting  "+name+e.getMessage(), e);
         }
     }
 
