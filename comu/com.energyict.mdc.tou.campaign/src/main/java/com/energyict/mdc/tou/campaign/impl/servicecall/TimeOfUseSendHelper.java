@@ -106,19 +106,11 @@ public class TimeOfUseSendHelper {
             device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
 
             boolean isSendCalendarCTStarted = false;
-            Optional<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements().stream()
-                    .filter(comTaskEnablement ->  comTaskEnablement.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId())
-                    .findAny();
-            List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-            if(comTaskEnablements.isPresent()) {
-                comTaskExecutions = device.getComTaskExecutions();
-            }
-
             ConnectionStrategy connectionStrategy;
-            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+            for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
                 if (comTaskExecution.getConnectionTask().isPresent()) {
                     connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                    if(!timeOfUseCampaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == timeOfUseCampaign.getCalendarUploadConnectionStrategy().get()) {
+                    if(comTaskExecution.getConnectionTask().get().isActive() && (!timeOfUseCampaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == timeOfUseCampaign.getCalendarUploadConnectionStrategy().get())) {
                         if (comTaskExecution.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId()) {
                             scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
                             TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();

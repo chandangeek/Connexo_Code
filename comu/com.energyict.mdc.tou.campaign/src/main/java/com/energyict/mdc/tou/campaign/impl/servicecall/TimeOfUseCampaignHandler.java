@@ -308,7 +308,7 @@ public class TimeOfUseCampaignHandler extends EventHandler<LocalEvent> {
                         .findAny().orElseGet(() -> device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add());
                 if (comTaskExecution.getConnectionTask().isPresent()) {
                     ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-                    if (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign.getValidationConnectionStrategy().get() ) {
+                    if (comTaskExecution.getConnectionTask().get().isActive() && (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign.getValidationConnectionStrategy().get()) ) {
                         comTaskExecution.schedule(clock.instant().plusSeconds(validationTimeout));
                         isVerificationComTaskStart = true;
                     } else {
