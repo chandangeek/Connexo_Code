@@ -32,7 +32,7 @@ public class FirmwareFieldResourceTest extends BaseFirmwareTest{
 
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(1L);
-        when(comTask.isSystemComTask()).thenReturn(true);
+        when(comTask.isManualComTask()).thenReturn(true);
         when(comTask.getName()).thenReturn("comTask");
 
         DeviceType deviceType = mock(DeviceType.class);
@@ -62,7 +62,7 @@ public class FirmwareFieldResourceTest extends BaseFirmwareTest{
 
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(1L);
-        when(comTask.isSystemComTask()).thenReturn(true);
+        when(comTask.isManualComTask()).thenReturn(true);
         when(comTask.getName()).thenReturn(ServerTaskService.FIRMWARE_COMTASK_NAME);
 
         DeviceType deviceType = mock(DeviceType.class);

@@ -167,7 +167,7 @@ public class FirmwareFieldResource extends FieldResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_TYPE_NOT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
                 .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                .filter(cte -> cte.getComTask().isSystemComTask())
+                .filter(cte -> cte.getComTask().isManualComTask())
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 
         return Response.ok(comTasks).build();

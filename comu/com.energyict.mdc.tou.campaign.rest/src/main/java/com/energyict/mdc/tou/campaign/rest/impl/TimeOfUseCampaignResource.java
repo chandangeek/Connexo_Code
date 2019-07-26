@@ -240,7 +240,7 @@ public class TimeOfUseCampaignResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, deviceTypeId))
                 .getConfigurations().stream()
                 .flatMap(cnf -> cnf.getComTaskEnablements().stream())
-                .filter(cte -> cte.getComTask().isSystemComTask())
+                .filter(cte -> cte.getComTask().isManualComTask())
                 .forEach(comTaskEnb -> comTasks.add(new IdWithNameInfo(comTaskEnb.getComTask().getId(), comTaskEnb.getComTask().getName())));
 
         return Response.ok(comTasks).build();
