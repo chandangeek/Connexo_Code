@@ -131,7 +131,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<FirmwareManagementOptions> table = dataModel.addTable(name(), FirmwareManagementOptions.class);
-            table.map(FirmwareManagementOptionsImpl.class);
+            table.map(FirmwareCampaignManagementOptionsImpl.class);
             Column firmwareCampaignColumn = table.column("FWRCAMPAIGN").number().notNull().add();
             table.setJournalTableName("FWC_FWRCPMGOPTIONSJRNL").since(version(10, 6));
             //table.addAuditColumns();
@@ -140,11 +140,11 @@ public enum TableSpecs {
                     //.notNull() can't make not null here; done manually in UpgraderV10_7 and Installer
                     .since(version(10, 7))
                     .add();
-            addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_FINAL, "'Y'");
-            addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_TEST, "'Y'");
-            addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_CURRENT_FW, "'N'");
-            addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_FINAL, "'Y'");
-            addCheckConfigurationColumnFor10_6(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_TEST, "'N'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_FINAL, "'Y'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_TEST, "'Y'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_CURRENT_FW, "'N'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_FINAL, "'Y'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_TEST, "'N'");
             table.primaryKey("FWC_PK_FWRCPMGTOPTIONS").on(firmwareCampaignColumn).add();
             table.foreignKey("FK_FWC_MNGOPT_TO_CAMPAIGN")
                     .on(firmwareCampaignColumn, cps)
@@ -156,11 +156,11 @@ public enum TableSpecs {
                     .add();
         }
 
-        private Column addCheckConfigurationColumnFor10_6(Table<FirmwareManagementOptions> table, FirmwareCampaignManagementOptionsImpl.Fields descriptor, String defaultValue) {
+        private Column addCheckConfigurationColumnFor10_7(Table<FirmwareManagementOptions> table, FirmwareCampaignManagementOptionsImpl.Fields descriptor, String defaultValue) {
             return table.column(descriptor.name())
                     .bool()
                     .map(descriptor.fieldName())
-                    .since(Version.version(10, 6))
+                    .since(Version.version(10, 7))
                     .installValue(defaultValue)
                     .add();
         }
