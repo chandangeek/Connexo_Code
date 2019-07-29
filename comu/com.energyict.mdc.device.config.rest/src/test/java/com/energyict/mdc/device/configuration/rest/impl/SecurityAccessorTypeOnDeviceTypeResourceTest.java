@@ -198,7 +198,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         SecurityAccessorType securityAccessorType2 = mockCertificateAccessorType(2, 1, "Namew", "Epic description2");
         when(securityManagementService.findAndLockSecurityAccessorType(1, 2)).thenReturn(Optional.of(securityAccessorType1));
         when(securityManagementService.findAndLockSecurityAccessorType(2, 1)).thenReturn(Optional.of(securityAccessorType2));
-        when(deviceType.addDeviceSecurityAccessor(anyVararg())).thenReturn(true);
+        when(deviceType.addDeviceSecurityAccessorType(anyVararg())).thenReturn(true);
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
         info.name = deviceType.getName();
@@ -207,7 +207,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         Response response = target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(deviceType).addDeviceSecurityAccessor(new DeviceSecurityAccessorType(securityAccessorType1, securityAccessorType2));
+        verify(deviceType).addDeviceSecurityAccessorType(new DeviceSecurityAccessorType(securityAccessorType1, securityAccessorType2));
         verify(deviceType).update();
     }
 
@@ -251,7 +251,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("device type 1 has changed");
         assertThat(model.<Number>get("$.version")).isEqualTo(24);
-        verify(deviceType, never()).addDeviceSecurityAccessor(anyVararg());
+        verify(deviceType, never()).addDeviceSecurityAccessorType(anyVararg());
         verify(deviceType, never()).update();
     }
 
@@ -284,7 +284,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("Certificate has changed");
         assertThat(model.<Number>get("$.version")).isNull();
-        verify(deviceType, never()).addDeviceSecurityAccessor(anyVararg());
+        verify(deviceType, never()).addDeviceSecurityAccessorType(anyVararg());
         verify(deviceType, never()).update();
     }
 
@@ -295,7 +295,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
         SecurityAccessorType securityAccessorType = mockKeyAccessorType(1, 1, "Name", "Epic description");
         when(deviceType.getSecurityAccessorTypes()).thenReturn(Collections.singletonList(securityAccessorType));
         DeviceSecurityAccessorType deviceSecurityAccessorType = new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType);
-        when(deviceType.removeDeviceSecurityAccessor(deviceSecurityAccessorType)).thenReturn(true);
+        when(deviceType.removeDeviceSecurityAccessorType(deviceSecurityAccessorType)).thenReturn(true);
 
         SecurityAccessorsForDeviceTypeInfo info = new SecurityAccessorsForDeviceTypeInfo();
         info.name = deviceType.getName();
@@ -303,7 +303,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        verify(deviceType).removeDeviceSecurityAccessor(deviceSecurityAccessorType);
+        verify(deviceType).removeDeviceSecurityAccessorType(deviceSecurityAccessorType);
         verify(deviceType).update();
     }
 
@@ -319,7 +319,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         Response response = target("/devicetypes/66/securityaccessors/1").request().method("DELETE", Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        verify(deviceType, never()).removeDeviceSecurityAccessor(any(DeviceSecurityAccessorType.class));
+        verify(deviceType, never()).removeDeviceSecurityAccessorType(any(DeviceSecurityAccessorType.class));
         verify(deviceType, never()).update();
     }
 
@@ -339,7 +339,7 @@ public class SecurityAccessorTypeOnDeviceTypeResourceTest extends DeviceConfigur
 
         assertThat(model.<String>get("$.error")).contains("device type 1 has changed");
         assertThat(model.<Number>get("$.version")).isEqualTo(24);
-        verify(deviceType, never()).removeDeviceSecurityAccessor(any(DeviceSecurityAccessorType.class));
+        verify(deviceType, never()).removeDeviceSecurityAccessorType(any(DeviceSecurityAccessorType.class));
         verify(deviceType, never()).update();
     }
 

@@ -115,7 +115,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     public void testGetOnlyCentrallyManagedSecurityAccessors() {
         assertThat(device.getSecurityAccessors()).isEmpty();
 
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
 
         List<SecurityAccessor> securityAccessors = device.getSecurityAccessors();
         assertThat(securityAccessors).hasSize(1);
@@ -135,7 +135,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         assertThat(device.getSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor())).isEmpty();
         assertThat(device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor())).isEmpty();
 
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
 
         assertThat(device.getSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor())).isEmpty();
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
@@ -153,7 +153,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testBothSecurityAccessorsCentrallyManagedAndNot() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         SecurityAccessor<CertificateWrapper> securityAccessor = device.newSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor());
         securityAccessor.setTempValue(cert1);
         securityAccessor.save();
@@ -186,17 +186,17 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
                 .map(SecurityAccessor::getKeyAccessorType)
                 .collect(Collectors.toList()))
                 .containsOnly(certificateTypeManagedCentrally.getSecurityAccessor());
-        device.getDeviceType().removeDeviceSecurityAccessor(certificateTypeOnDevice);
-        assertThat(device.getDeviceType().getDeviceSecurityAccessor()).containsOnly(certificateTypeManagedCentrally);
-        device.getDeviceType().removeDeviceSecurityAccessor(certificateTypeManagedCentrally);
-        assertThat(device.getDeviceType().getDeviceSecurityAccessor()).isEmpty();
+        device.getDeviceType().removeDeviceSecurityAccessorType(certificateTypeOnDevice);
+        assertThat(device.getDeviceType().getDeviceSecurityAccessorType()).containsOnly(certificateTypeManagedCentrally);
+        device.getDeviceType().removeDeviceSecurityAccessorType(certificateTypeManagedCentrally);
+        assertThat(device.getDeviceType().getDeviceSecurityAccessorType()).isEmpty();
         assertThat(device.getSecurityAccessors()).isEmpty();
     }
 
     @Test
     @Transactional
     public void testNotPossibleToRemoveSecurityAccessorTypeHavingSecurityAccessorFromDeviceType() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         SecurityAccessor<CertificateWrapper> securityAccessor = device.newSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor());
         securityAccessor.setTempValue(cert1);
         securityAccessor.save();
@@ -205,7 +205,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
                 .collect(Collectors.toList()))
                 .containsOnly(certificateTypeManagedCentrally.getSecurityAccessor(), certificateTypeOnDevice.getSecurityAccessor());
 
-        device.getDeviceType().removeDeviceSecurityAccessor(certificateTypeManagedCentrally);
+        device.getDeviceType().removeDeviceSecurityAccessorType(certificateTypeManagedCentrally);
         assertThat(device.getSecurityAccessors().stream()
                 .map(SecurityAccessor::getKeyAccessorType)
                 .collect(Collectors.toList()))
@@ -214,13 +214,13 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
         expectedEx.expect(LocalizedException.class);
         expectedEx.expectMessage("The security accessor couldn't be removed from the device type"
                 + " because keys/certificates are specified on devices of this device type.");
-        device.getDeviceType().removeDeviceSecurityAccessor(certificateTypeOnDevice);
+        device.getDeviceType().removeDeviceSecurityAccessorType(certificateTypeOnDevice);
     }
 
     @Test
     @Transactional
     public void testSecurityAccessorsOnDeviceAreManageable() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         SecurityAccessor<CertificateWrapper> securityAccessor = device.newSecurityAccessor(certificateTypeOnDevice.getSecurityAccessor());
         securityAccessor.setTempValue(cert1);
         securityAccessor.save();
@@ -253,7 +253,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCentrallyManagedSecurityAccessorsAreNotManageableOnDevice1() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
@@ -266,7 +266,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCentrallyManagedSecurityAccessorsAreNotManageableOnDevice2() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
@@ -279,7 +279,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCentrallyManagedSecurityAccessorsAreNotManageableOnDevice3() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
@@ -292,7 +292,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCentrallyManagedSecurityAccessorsAreNotManageableOnDevice4() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
@@ -305,7 +305,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCentrallyManagedSecurityAccessorsAreNotManageableOnDevice5() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
@@ -318,7 +318,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCentrallyManagedSecurityAccessorsAreNotManageableOnDevice6() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
@@ -331,7 +331,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCentrallyManagedSecurityAccessorsAreNotManageableOnDevice7() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
@@ -344,7 +344,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCentrallyManagedSecurityAccessorsAreNotManageableOnDevice8() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();
@@ -357,7 +357,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCannotOverrideCentrallyManagedSecurityAccessorOnDevice() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
 
         expectedEx.expect(UnmanageableSecurityAccessorException.class);
         expectedEx.expectMessage("It's not allowed to modify centrally managed security accessor '" + SA_CENTRALLY_MANAGED + "' on device level.");
@@ -367,7 +367,7 @@ public class DeviceImplSecurityAccessorsIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testCannotRemoveCentrallyManagedSecurityAccessorOnDevice() {
-        device.getDeviceType().addDeviceSecurityAccessor(certificateTypeManagedCentrally, certificateTypeOnDevice);
+        device.getDeviceType().addDeviceSecurityAccessorType(certificateTypeManagedCentrally, certificateTypeOnDevice);
         Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(certificateTypeManagedCentrally.getSecurityAccessor());
         assertThat(securityAccessorOptional).isPresent();
         SecurityAccessor<CertificateWrapper> securityAccessor = securityAccessorOptional.get();

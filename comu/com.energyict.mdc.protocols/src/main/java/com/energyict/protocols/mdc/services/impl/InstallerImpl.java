@@ -230,7 +230,7 @@ public class InstallerImpl implements FullInstaller {
         // Hell knows if this works, normal way sec access type on device type should be done via admin (UI). This way we specify a sec accessor without wrapping sec accessor
         // and may override the one defined in UI (with wrapping sec accessor).
         // To me this code should be deleted and leave only admin to define a device type
-        deviceType.addDeviceSecurityAccessor(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
+        deviceType.addDeviceSecurityAccessorType(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
 
         return securityAccessorType;
     }

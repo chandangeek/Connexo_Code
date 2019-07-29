@@ -1017,30 +1017,30 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     public void addSecurityAccessorTypes() {
         setupSecurityAccessorTypes();
 
-        assertThat(deviceType.getDeviceSecurityAccessor()).isEmpty();
-        assertThat(deviceType.addDeviceSecurityAccessor(keyDeviceSecAccessor)).isTrue();
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(keyDeviceSecAccessor);
-        assertThat(deviceType.addDeviceSecurityAccessor()).isFalse();
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(keyDeviceSecAccessor);
-        assertThat(deviceType.addDeviceSecurityAccessor(keyDeviceSecAccessor, certDeviceSecAccessor)).isTrue();
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
-        assertThat(deviceType.addDeviceSecurityAccessor(keyDeviceSecAccessor, certDeviceSecAccessor)).isFalse();
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).isEmpty();
+        assertThat(deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor)).isTrue();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor);
+        assertThat(deviceType.addDeviceSecurityAccessorType()).isFalse();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor);
+        assertThat(deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor)).isTrue();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
+        assertThat(deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor)).isFalse();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
     }
 
     @Test
     @Transactional
     public void removeSecurityAccessorType() {
         setupSecurityAccessorTypes();
-        deviceType.addDeviceSecurityAccessor(keyDeviceSecAccessor, certDeviceSecAccessor);
+        deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor);
 
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
-        assertThat(deviceType.removeDeviceSecurityAccessor(keyDeviceSecAccessor)).isTrue();
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(certDeviceSecAccessor);
-        assertThat(deviceType.removeDeviceSecurityAccessor(keyDeviceSecAccessor)).isFalse();
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(certDeviceSecAccessor);
-        assertThat(deviceType.removeDeviceSecurityAccessor(certDeviceSecAccessor)).isTrue();
-        assertThat(deviceType.getDeviceSecurityAccessor()).isEmpty();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
+        assertThat(deviceType.removeDeviceSecurityAccessorType(keyDeviceSecAccessor)).isTrue();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(certDeviceSecAccessor);
+        assertThat(deviceType.removeDeviceSecurityAccessorType(keyDeviceSecAccessor)).isFalse();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(certDeviceSecAccessor);
+        assertThat(deviceType.removeDeviceSecurityAccessorType(certDeviceSecAccessor)).isTrue();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).isEmpty();
     }
 
     @Test
@@ -1048,7 +1048,7 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     public void removeSecurityAccessorTypeUsedInSecurityPropertySetOnActiveDeviceConfiguration() {
         setupSecurityProperties();
         setupSecurityAccessorTypes();
-        deviceType.addDeviceSecurityAccessor(keyDeviceSecAccessor, certDeviceSecAccessor);
+        deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor);
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("COnf").add();
         deviceConfiguration.createSecurityPropertySet("SPS")
                 .authenticationLevel(authLevel.getId())
@@ -1056,16 +1056,16 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
                 .addConfigurationSecurityProperty(spec1.getName(), keyDeviceSecAccessor.getSecurityAccessor())
                 .addConfigurationSecurityProperty(spec2.getName(), keyDeviceSecAccessor.getSecurityAccessor())
                 .build();
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
         deviceConfiguration.activate();
 
-        deviceType.removeDeviceSecurityAccessor(certDeviceSecAccessor);
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsExactly(keyDeviceSecAccessor);
+        deviceType.removeDeviceSecurityAccessorType(certDeviceSecAccessor);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsExactly(keyDeviceSecAccessor);
 
         expectedException.expect(SecurityAccessorTypeCanNotBeDeletedException.class);
         expectedException.expectMessage("The security accessor couldn't be removed from the device type"
                 + " because it is used by security sets on active device configurations.");
-        deviceType.removeDeviceSecurityAccessor(keyDeviceSecAccessor);
+        deviceType.removeDeviceSecurityAccessorType(keyDeviceSecAccessor);
     }
 
     @Test
@@ -1073,7 +1073,7 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     public void removeSecurityAccessorTypeUsedInSecurityPropertySetOnInactiveDeviceConfiguration() {
         setupSecurityProperties();
         setupSecurityAccessorTypes();
-        deviceType.addDeviceSecurityAccessor(keyDeviceSecAccessor, certDeviceSecAccessor);
+        deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor);
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("COnf").add();
         deviceConfiguration.createSecurityPropertySet("SPS")
                 .authenticationLevel(authLevel.getId())
@@ -1081,18 +1081,18 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
                 .addConfigurationSecurityProperty(spec1.getName(), keyDeviceSecAccessor.getSecurityAccessor())
                 .addConfigurationSecurityProperty(spec2.getName(), certDeviceSecAccessor.getSecurityAccessor())
                 .build();
-        assertThat(deviceType.getDeviceSecurityAccessor()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
 
-        deviceType.removeDeviceSecurityAccessor(keyDeviceSecAccessor);
-        deviceType.removeDeviceSecurityAccessor(certDeviceSecAccessor);
-        assertThat(deviceType.getDeviceSecurityAccessor()).isEmpty();
+        deviceType.removeDeviceSecurityAccessorType(keyDeviceSecAccessor);
+        deviceType.removeDeviceSecurityAccessorType(certDeviceSecAccessor);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).isEmpty();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "securityAccessorType")
     public void addInvalidSecurityAccessorType() {
-        deviceType.addDeviceSecurityAccessor((DeviceSecurityAccessorType) null);
+        deviceType.addDeviceSecurityAccessorType((DeviceSecurityAccessorType) null);
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {

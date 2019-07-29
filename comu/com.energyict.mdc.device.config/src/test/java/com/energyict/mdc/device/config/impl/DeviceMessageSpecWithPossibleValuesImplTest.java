@@ -171,7 +171,7 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
         DeviceSecurityAccessorType deviceSecurityAccessorType3 = mock(DeviceSecurityAccessorType.class);
         when(deviceSecurityAccessorType3.getSecurityAccessor()).thenReturn(securityAccessorType3);
         when(securityAccessorType3.getName()).thenReturn("B");
-        when(this.deviceType.getDeviceSecurityAccessor()).thenReturn(Arrays.asList(deviceSecurityAccessorType1, deviceSecurityAccessorType2, deviceSecurityAccessorType3));
+        when(this.deviceType.getDeviceSecurityAccessorType()).thenReturn(Arrays.asList(deviceSecurityAccessorType1, deviceSecurityAccessorType2, deviceSecurityAccessorType3));
         PropertySpec propertySpec = this.propertySpecService
                 .referenceSpec(SecurityAccessorType.class)
                 .named("AK", "Authentication key")

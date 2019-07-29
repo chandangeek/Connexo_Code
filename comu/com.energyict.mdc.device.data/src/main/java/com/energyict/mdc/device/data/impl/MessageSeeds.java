@@ -179,6 +179,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_ACTUAL_CERTIFICATE(2153, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     CERTIFICATE_ENCODING_EXCEPTION(2154, "CertificateEncodingError", "The certificate is an unrecognized format"),
     ACTUAL_VALUE_NOT_SET(2155, "NoActualValue", "The security accessor does not contain an actual value"),
+    MASTER_KEY_ACTUAL_VALUE_NOT_SET(2155, "NoActualValue", "Master/Wrapper security accessor does not contain an actual value"),
     VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2157, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
     ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
     NO_BASIC_CHECK_COMTASK(2159, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located"),
@@ -205,14 +206,16 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_USED_BY_DEVICE(2178, "CertificateUsedByDevice", "Certificate {0} is still used by a device.", Level.WARNING),
     CERTIFICATE_REVOKED_SUCCESSFULLY(2179, "CertificateRevokedSuccessfully", "Certificate {0} has been revoked.", Level.INFO),
     EXCEPTION_FROM_CRL_REQUEST_TASK(2180, "ExceptionFromCrlRequestTask", "Exception during CRL request task execution: {0}"),
-    NO_CRL_REQUEST_TASK(2181, "NoCrlRequestTask", "No CRL request task."),
+    NO_CRL_REQUEST_TASK(2181, "NoCrlRequestTask", "No CRL request task.");
     CAN_NOT_BE_EMPTY(2182, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
     UNKNOWN_PROPERTY(2183, Keys.UNKNOWN_PROPERTY, "Unknown property {name}"),
     NO_SUCH_ZONE(2184, "NoSuchZone", "No zone with id {0}"),
     ZONE_REMOVED(2185, "ZoneRemoved", "Zone {0} removed from {1}"),
     NO_SUCH_LOAD_PROFILE_ON_DEVICE(2186, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
+    NO_WRAPPER_DEFINED(2187, "hsm.no.wrapper.defined", "No wrapper defined"),
+    NO_WRAPPER_ACTUAL_VALUE(2188, "hsm.no.wrapper.value", "No wrapper value"),
+    WRAPPER_NOT_HSMKEY(2189, "hsm.wrong.type", "Wrapper is not hsm key");
 
-    ;
 
     private final int number;
     private final String key;

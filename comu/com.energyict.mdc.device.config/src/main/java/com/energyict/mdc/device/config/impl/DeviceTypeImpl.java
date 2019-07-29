@@ -88,6 +88,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
 @DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
@@ -341,14 +342,27 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public List<DeviceSecurityAccessorType> getDeviceSecurityAccessor() {
+    public List<DeviceSecurityAccessorType> getDeviceSecurityAccessorType() {
         return securityAccessorTypes.stream()
                 .map(SecurityAccessorTypeOnDeviceTypeImpl::getDeviceSecurityAccessorType)
                 .collect(Collectors.toList());
     }
 
+    public Optional<SecurityAccessorType> getWrappingSecurityAccessorType(SecurityAccessorType securityAccessorType){
+        List<Optional<SecurityAccessorType>> collect = getDeviceSecurityAccessorType().stream().filter(f -> f.getSecurityAccessor().equals(securityAccessorType)).map(f -> f.getWrappingSecurityAccessor()).collect(Collectors.toList());
+        if (collect.size() == 1) {
+            return collect.get(0);
+        }
+        if (collect.size() == 0) {
+            throw new SecurityAccessorTypeCanNotBeFoundException(getThesaurus(), securityAccessorType.getName());
+        }
+        else {
+            throw new SecurityAccessorTypeMultipleFoundException(getThesaurus(), securityAccessorType.getName());
+        }
+    }
+
     @Override
-    public boolean addDeviceSecurityAccessor(DeviceSecurityAccessorType... securityAccessorTypesToAdd) {
+    public boolean addDeviceSecurityAccessorType(DeviceSecurityAccessorType... securityAccessorTypesToAdd) {
         Set<DeviceSecurityAccessorType> toAdd = Arrays.stream(securityAccessorTypesToAdd).collect(Collectors.toSet());
         securityAccessorTypes.stream()
                 .map(SecurityAccessorTypeOnDeviceTypeImpl::getDeviceSecurityAccessorType)
@@ -371,21 +385,22 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         // We do not treat if we find many but that should not be the case
         Optional<SecurityAccessorTypeOnDeviceTypeImpl> first = securityAccessorTypes.stream().filter(f -> f.getDeviceSecurityAccessorType().equals(toUpdateDeviceSecurityAccessorType)).findFirst();
         if (!first.isPresent()) {
-            throw new SecurityAccessorTypeCanNotBeFoundException(getThesaurus());
+            throw new SecurityAccessorTypeCanNotBeFoundException(getThesaurus(), toUpdateDeviceSecurityAccessorType.getSecurityAccessor().getName());
         }
         first.get().setWrappingSecurityAccessor(wrappingSecurityAccessor);
     }
 
     @Override
-    public boolean removeDeviceSecurityAccessor(DeviceSecurityAccessorType securityAccessorType) {
-        long inUseAsWrapper = securityAccessorTypes.stream()
+    public boolean removeDeviceSecurityAccessorType(DeviceSecurityAccessorType securityAccessorType) {
+        Stream<SecurityAccessorType> securityAccessorTypeStream = securityAccessorTypes.stream()
                 .map(f -> f.getDeviceSecurityAccessorType().getWrappingSecurityAccessor())
                 .filter(f -> f.isPresent())
                 .map(f -> f.get())
-                .filter(f -> f.getId() == securityAccessorType.getSecurityAccessor().getId())
+                .filter(f -> f.getId() == securityAccessorType.getSecurityAccessor().getId());
+        long inUseAsWrapper = securityAccessorTypeStream
                 .count();
         if (inUseAsWrapper > 0) {
-            throw new SecurityAccessorTypeWrapperInUseException(getThesaurus());
+            throw new SecurityAccessorTypeWrapperInUseException(getThesaurus(), securityAccessorTypeStream.findAny().get().getName());
         }
 
         SecurityAccessorTypeOnDeviceType toBeRemoved = null;
@@ -714,7 +729,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<SecurityAccessorType> getSecurityAccessorTypes() {
-        List<DeviceSecurityAccessorType> deviceSecurityAccessorType = getDeviceSecurityAccessor();
+        List<DeviceSecurityAccessorType> deviceSecurityAccessorType = getDeviceSecurityAccessorType();
         return deviceSecurityAccessorType.stream().map(DeviceSecurityAccessorType::getSecurityAccessor).collect(Collectors.toList());
     }
 
