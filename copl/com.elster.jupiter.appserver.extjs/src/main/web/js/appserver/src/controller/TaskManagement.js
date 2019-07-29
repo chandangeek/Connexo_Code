@@ -16,8 +16,7 @@ Ext.define('Apr.controller.TaskManagement', {
     stores: [
         'Apr.store.Tasks',
         'Apr.store.QueuesByApplication',
-        'Apr.store.CustomTaskTypes',
-        'Apr.store.TasksQueueTypes'
+        'Apr.store.TasksQueueTypes',
         'Apr.store.CustomTaskTypes',
         'Apr.store.TasksType',
         'Apr.store.Queues'
