@@ -13,6 +13,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import aQute.bnd.annotation.ConsumerType;
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Optional;
+
 @ConsumerType
 public interface FirmwareCheck {
     TranslationKey CHECK_PREFIX = new SimpleTranslationKey("checkPrefix", "Check: {0}");
@@ -27,7 +29,7 @@ public interface FirmwareCheck {
 
     String getName();
 
-    void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException;
+    void execute(Optional<FirmwareManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException;
 
     @ProviderType
     class FirmwareCheckException extends LocalizedException {

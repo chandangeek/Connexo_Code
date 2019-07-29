@@ -11,17 +11,15 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Set;
 
-public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignManagementOptions {
+public abstract class FirmwareCampaignManagementOptionsImpl implements FirmwareManagementOptions {
 
     enum Fields {
         FWRCAMPAIGN("firmwareCampaign"),
@@ -51,16 +49,6 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
     private boolean checkMasterFirmwareWithFinalStatus;
     private boolean checkMasterFirmwareWithTestStatus;
 
-//why orm need this columns?
-   /* @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
-    @SuppressWarnings("unused")
-    private String userName;*/
-
     private final DataModel dataModel;
 
     @Inject
@@ -86,11 +74,6 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
                 throw new IllegalArgumentException("Unknown firmware check management option!");
         }
     }
-
-    /*@Override
-    public long getVersion() {
-        return this.version;
-    }*/
 
     @Override
     public EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption) {
@@ -165,7 +148,7 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
 
     @Override
     public void save() {
-        if (dataModel.mapper(FirmwareCampaignManagementOptions.class).getUnique("firmwareCampaign", firmwareCampaign.get()).isPresent()) {
+        if (dataModel.mapper(FirmwareManagementOptions.class).getUnique("firmwareCampaign", firmwareCampaign.get()).isPresent()) {
             doUpdate();
         } else {
             doPersist();

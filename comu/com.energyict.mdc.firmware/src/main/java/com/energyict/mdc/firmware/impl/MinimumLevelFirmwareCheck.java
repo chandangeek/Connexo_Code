@@ -6,15 +6,18 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class MinimumLevelFirmwareCheck implements FirmwareCheck {
@@ -33,9 +36,11 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
     }
 
     @Override
-    public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
+    public void execute(Optional<FirmwareManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
-        if (firmwareService.isFirmwareCheckActivated(device.getDeviceType(), FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)) {
+        if (options.isPresent()?
+                options.get().isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK):
+                firmwareService.isFirmwareCheckActivated(device.getDeviceType(), FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)) {
             if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                 throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
             }
@@ -52,7 +57,6 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
                     });
         }
     }
-
     private MessageSeeds messageSeedForType(FirmwareType firmwareType) {
         switch (firmwareType) {
             case METER:

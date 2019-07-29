@@ -123,7 +123,7 @@ public interface FirmwareService {
     Optional<DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
                                                        FirmwareVersion firmwareVersion);
 
-    FirmwareCampaignManagementOptions newFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign);
+    FirmwareManagementOptions newFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign);
 
-    Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign);
+    Optional<FirmwareManagementOptions> findFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign);
 }

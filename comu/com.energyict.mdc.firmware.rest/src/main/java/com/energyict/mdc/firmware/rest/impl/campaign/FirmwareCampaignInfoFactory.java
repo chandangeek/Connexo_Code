@@ -16,9 +16,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.rest.impl.CheckManagementOptionInfo;
@@ -104,7 +104,7 @@ public class FirmwareCampaignInfoFactory {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
             info.properties = firmwareMessageInfoFactory.getProperties(firmwareMessageSpec.get(), campaign.getDeviceType(), info.firmwareType.id.getType(), campaign.getProperties());
         }
-        Optional<FirmwareCampaignManagementOptions> firmwareCampaignMgtOptions = firmwareService.findFirmwareCampaignManagementOptions(campaign);
+        Optional<FirmwareManagementOptions> firmwareCampaignMgtOptions = firmwareService.findFirmwareCampaignManagementOptions(campaign);
         info.checkOptions = new EnumMap<>(FirmwareCheckManagementOption.class);
         Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption ->
                 info.checkOptions.put(checkManagementOption,
@@ -172,7 +172,7 @@ public class FirmwareCampaignInfoFactory {
             }
         }
         FirmwareCampaign firmwareCampaign = firmwareCampaignBuilder.create();
-        FirmwareCampaignManagementOptions options = firmwareService.newFirmwareCampaignManagementOptions(firmwareCampaign);
+        FirmwareManagementOptions options = firmwareService.newFirmwareCampaignManagementOptions(firmwareCampaign);
         Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption -> {
             CheckManagementOptionInfo checkInfo = info.checkOptions.get(checkManagementOption);
             if (checkInfo == null || !checkInfo.isActivated()) {

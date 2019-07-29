@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -25,10 +24,6 @@ public class CheckManagementOptionInfo {
     }
 
     public CheckManagementOptionInfo(FirmwareManagementOptions config, FirmwareCheckManagementOption check) {
-        this(config.isActivated(check), config.getStatuses(check));
-    }
-
-    public CheckManagementOptionInfo(FirmwareCampaignManagementOptions config, FirmwareCheckManagementOption check) {
         this(config.isActivated(check), config.getStatuses(check));
     }
 

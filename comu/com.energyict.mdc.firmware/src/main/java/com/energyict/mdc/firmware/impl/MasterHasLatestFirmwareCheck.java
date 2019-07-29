@@ -12,6 +12,7 @@ import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -41,9 +42,9 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
     }
 
     @Override
-    public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
+    public void execute(Optional<FirmwareManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
-        firmwareService.findFirmwareManagementOptions(device.getDeviceType()).ifPresent(firmwareManagementOptions -> {
+        (options.isPresent()?options:firmwareService.findFirmwareManagementOptions(device.getDeviceType())).ifPresent(firmwareManagementOptions -> {
             if (firmwareManagementOptions.isActivated(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)) {
                 topologyService.getPhysicalGateway(device)
                         .map(firmwareService::getFirmwareManagementDeviceUtilsFor)

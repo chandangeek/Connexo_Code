@@ -122,7 +122,7 @@ public class DeviceFirmwareMessagesResource {
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(device.getDeviceType(), info.uploadOption, firmwareVersion);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(firmwareMessageId);
         if (!force) {
-            Optional<ConfirmationInfo> confirmationInfoOptional = performFirmwareRankingChecks(device, firmwareVersion);
+            Optional<ConfirmationInfo> confirmationInfoOptional = performFirmwareRankingChecks( device, firmwareVersion);
             if (confirmationInfoOptional.isPresent()) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(confirmationInfoOptional.get()).build();
             }
@@ -150,7 +150,7 @@ public class DeviceFirmwareMessagesResource {
             FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
             firmwareService.getFirmwareChecks().forEach(check -> {
                 try {
-                    check.execute(utils, firmwareVersion);
+                    check.execute(Optional.empty(), utils, firmwareVersion);
                 } catch (FirmwareCheck.FirmwareCheckException e) {
                     confirmationInfo.errors.add(new ErrorInfo(check.getKey(), check.getTitle(thesaurus), e.getLocalizedMessage()));
                 }

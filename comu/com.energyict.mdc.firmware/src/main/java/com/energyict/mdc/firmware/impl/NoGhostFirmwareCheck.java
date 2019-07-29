@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -18,6 +19,7 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class NoGhostFirmwareCheck implements FirmwareCheck {
     private final DataModel dataModel;
@@ -35,7 +37,7 @@ public class NoGhostFirmwareCheck implements FirmwareCheck {
     }
 
     @Override
-    public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
+    public void execute(Optional<FirmwareManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         if (hasGhostMeterOrCommunicationFirmware(deviceUtils.getDevice())) {
             throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_HAS_GHOST_FIRMWARE);
         }

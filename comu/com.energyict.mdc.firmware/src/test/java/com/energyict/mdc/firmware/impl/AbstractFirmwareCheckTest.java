@@ -105,12 +105,12 @@ public abstract class AbstractFirmwareCheckTest {
     protected void expectError(String message) {
         expectedException.expect(FirmwareCheck.FirmwareCheckException.class);
         expectedException.expectMessage(message);
-        firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware);
+        firmwareCheck.execute(null,firmwareManagementDeviceUtils, uploadedFirmware);
     }
 
     protected void expectSuccess() {
         try {
-            firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware);
+            firmwareCheck.execute(null,firmwareManagementDeviceUtils, uploadedFirmware);
         } catch (Throwable throwable) {
             throw new AssertionError("Unexpected exception during call of firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware) : "
                     + System.lineSeparator()
