@@ -49,10 +49,15 @@ public class ServiceCallCommands {
         public String getTypeVersion() {
             return typeVersion;
         }
+
+        public String getApplication() {
+            return APPLICATION;
+        }
     }
 
     private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
+    private static final String APPLICATION = "MDC";
 
     private ServiceCallType serviceCallType;
 

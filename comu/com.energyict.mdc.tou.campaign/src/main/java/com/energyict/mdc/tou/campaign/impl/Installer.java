@@ -70,7 +70,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                             MessageFormat.format("Could not find active custom property set {0}",
                                     serviceCallTypeMapping.getCustomPropertySetClass())));
 
-            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), createServiceCallLifeCycle(serviceCallTypeMapping))
+            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), createServiceCallLifeCycle(serviceCallTypeMapping), serviceCallTypeMapping.getApplication().orElse(null))
                     .handler(serviceCallTypeMapping.getTypeName())
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(customPropertySet)

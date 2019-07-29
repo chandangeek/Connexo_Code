@@ -12,6 +12,7 @@ import com.elster.jupiter.util.HasName;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public interface ServiceCallType extends HasId, HasName {
@@ -40,6 +41,14 @@ public interface ServiceCallType extends HasId, HasName {
     void setPriority(int priority);
 
     ServiceCallLifeCycle getServiceCallLifeCycle();
+
+    void setApplication(String appKey);
+
+    Optional<String> getApplication();
+
+    void setRetryState(DefaultState retryState);
+
+    Optional<DefaultState> getRetryState();
 
     /**
      * Returns the RegisteredCustomPropertySets linked to this ServiceCallType

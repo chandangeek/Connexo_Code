@@ -77,6 +77,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -1016,11 +1017,11 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{name}/servicecallhistory")
-    public PagedInfoList getServiceCallHistoryFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+    public PagedInfoList getServiceCallHistoryFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
 
-        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter, appKey);
         filter.targetObject = device;
         serviceCallService.getServiceCallFinder(filter)
                 .from(queryParameters)

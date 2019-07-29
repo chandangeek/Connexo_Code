@@ -10,7 +10,8 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
     requires:[
         'Apr.store.Applications',
         'Apr.store.Queues',
-        'Apr.store.SuspendedTask'
+        'Apr.store.SuspendedTask',
+        'Apr.store.TasksQueueTypes'
     ],
 
     initComponent: function () {
@@ -25,6 +26,17 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Apr.store.Applications'
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'queueType',
+                emptyText: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                multiSelect: true,
+                displayField: 'queueType',
+                valueField: 'queueType',
+                store: 'Apr.store.TasksQueueTypes',
+                matchFieldWidth: false,
+                itemId: 'task-queue-type'
             },
             {
                 type: 'combobox',

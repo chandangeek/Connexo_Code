@@ -21,6 +21,7 @@ public enum AuditDomainContextTranslationKeys implements TranslationKey {
     USAGEPOINT_GENERAL_ATTRIBUTES(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES, "Usage point attributes"),
     USAGEPOINT_TECHNICAL_ATTRIBUTES(AuditDomainContextType.USAGEPOINT_TECHNICAL_ATTRIBUTES, "Usage point attributes"),
     USAGEPOINT_CUSTOM_ATTRIBUTES(AuditDomainContextType.USAGEPOINT_CUSTOM_ATTRIBUTES, "Usage point attributes"),
+    USAGEPOINT_METROLOGY_CONFIGURATION(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION, "Usage point metrology configuration"),
     ;
 
     private AuditDomainContextType key;

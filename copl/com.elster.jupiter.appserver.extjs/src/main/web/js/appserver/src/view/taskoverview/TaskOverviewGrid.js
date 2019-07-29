@@ -33,6 +33,11 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                dataIndex: 'queueType',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
                 dataIndex: 'queue',
                 flex: 1

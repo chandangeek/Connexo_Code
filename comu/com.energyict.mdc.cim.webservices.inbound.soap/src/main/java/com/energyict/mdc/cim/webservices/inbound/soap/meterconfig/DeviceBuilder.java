@@ -137,34 +137,16 @@ public class DeviceBuilder {
 
             if(configurationEventReason.isPresent() ){
                 EventReason.forReason(configurationEventReason.get())
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), 
-			MessageSeeds.NOT_VALID_CONFIGURATION_REASON, configurationEventReason.get()));
-            }
-
-            if (configurationEventReason.flatMap(EventReason::forReason).filter(EventReason.CHANGE_STATUS::equals)
-	    .isPresent()) {
-                String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(
-		meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_STATUS_ITEM));
-                Instant effectiveDate = statusEffectiveDate.orElse(clock.instant());
-                ExecutableAction executableAction = deviceLifeCycleService.getExecutableActions(changedDevice)
-                        .stream()
-                        .filter(action -> action.getAction() instanceof AuthorizedTransitionAction)
-                        .filter(action -> isActionForState((AuthorizedTransitionAction) action.getAction(), state))
-                        .findFirst()
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), 
-			MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue.orElse("")));
-                executableAction.execute(effectiveDate, Collections.emptyList());
-                changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
-                updateDevice(changedDevice);
-                changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
+			    MessageSeeds.NOT_VALID_CONFIGURATION_REASON, configurationEventReason.get()));
             }
 
             if (configurationEventReason.flatMap(EventReason::forReason).filter(EventReason.CHANGE_MULTIPLIER::equals)
-	    .isPresent()){
-                changedDevice.setMultiplier(
-		multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(
-		meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_MULTIPLIER_ITEM)),
-                        multiplierEffectiveDate.orElse(clock.instant()));
+                .isPresent()){
+                    changedDevice.setMultiplier(
+                    multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(
+                    meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_MULTIPLIER_ITEM)),
+                                    multiplierEffectiveDate.orElse(clock.instant()));
             }
 
 			if (mrid.isPresent() && meter.getDeviceName() != null) {
@@ -179,12 +161,33 @@ public class DeviceBuilder {
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
             changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));
             changedDevice.setManufacturer(manufacturer.orElse(currentManufacturer));
+            updateDevice(changedDevice);
 
             Multimap<String, String> mapZones = ArrayListMultimap.create();
             changedDevice.removeZonesOnDevice();
             meter.getZones().stream().forEach(zone->mapZones.put(zone.getZoneName(), zone.getZoneType()));
             for (Map.Entry<String, String> zone : mapZones.entries()) { changedDevice.addZone(zone.getKey(), zone.getValue());}
-            return updateDevice(changedDevice);
+
+            if (configurationEventReason.flatMap(EventReason::forReason).filter(EventReason.CHANGE_STATUS::equals)
+                    .isPresent()) {
+                String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(
+                        meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_STATUS_ITEM));
+                Instant effectiveDate = statusEffectiveDate.orElse(clock.instant());
+                ExecutableAction executableAction = deviceLifeCycleService.getExecutableActions(changedDevice)
+                        .stream()
+                        .filter(action -> action.getAction() instanceof AuthorizedTransitionAction)
+                        .filter(action -> isActionForState((AuthorizedTransitionAction) action.getAction(), state))
+                        .findFirst()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
+                                MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue.orElse("")));
+                executableAction.execute(effectiveDate, Collections.emptyList());
+                //in case the device is removed, this will not be found anymore when searching for mRID
+                if(!deviceService.findDeviceByMrid(changedDevice.getmRID()).isPresent())
+                    return null;
+                changedDevice = deviceService.findDeviceByMrid(changedDevice.getmRID()).get();
+            }
+
+            return changedDevice;
         };
     }
 
