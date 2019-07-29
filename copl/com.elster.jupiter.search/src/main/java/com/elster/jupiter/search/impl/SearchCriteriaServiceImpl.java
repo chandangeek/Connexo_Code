@@ -2,15 +2,15 @@ package com.elster.jupiter.search.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 
@@ -26,11 +26,17 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService {
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
+
+    public SearchCriteriaServiceImpl(){
+
+    }
+
     @Inject
-    public SearchCriteriaServiceImpl(DataModel dataModel, QueryService queryService, Thesaurus thesaurus) {
-        this.dataModel = dataModel;
-        this.queryService = queryService;
-        this.thesaurus = thesaurus;
+    public SearchCriteriaServiceImpl(OrmService ormService, QueryService queryService, NlsService nlsService) {
+        setQueryService(queryService);
+        setOrmService(ormService);
+        setNlsService(nlsService);
         activate();
     }
 
@@ -42,7 +48,7 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
-
+                bind(NlsService.class).toInstance(nlsService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(QueryService.class).toInstance(queryService);
                 bind(SearchCriteriaService.class).to(SearchCriteriaServiceImpl.class).in(Scopes.SINGLETON);
@@ -70,5 +76,21 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService {
         Query<T> query = queryService.wrap(queryExecutor);
         query.setEager();
         return query;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        dataModel = ormService.newDataModel(SearchCriteriaService.COMPONENT_NAME, "search_criteria");
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(SearchCriteriaService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
     }
 }
