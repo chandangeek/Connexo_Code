@@ -9,6 +9,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
@@ -36,7 +37,7 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
     }
 
     @Override
-    public void execute(Optional<FirmwareManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
+    public void execute(Optional<FirmwareCampaignManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
         if (options.isPresent()?
                 options.get().isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK):

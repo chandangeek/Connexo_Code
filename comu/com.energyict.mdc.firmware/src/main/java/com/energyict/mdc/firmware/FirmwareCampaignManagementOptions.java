@@ -1,20 +1,13 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.firmware;
 
-import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
-
-import aQute.bnd.annotation.ProviderType;
-
 import java.util.EnumSet;
 import java.util.Set;
 
-@ProviderType
-public interface FirmwareManagementOptions extends FirmwareCampaignManagementOptions {
-    void setOptions(Set<ProtocolSupportedFirmwareOptions> allowedOptions);
-
+public interface FirmwareCampaignManagementOptions {
     /**
      * Activates firmware check option with a given set of {@link FirmwareStatus FirmwareStatuses}, where applicable.
      * If statuses are applicable, empty set of statuses means deactivation of the check option.
@@ -26,13 +19,9 @@ public interface FirmwareManagementOptions extends FirmwareCampaignManagementOpt
 
     void deactivate(FirmwareCheckManagementOption checkManagementOption);
 
-    Set<ProtocolSupportedFirmwareOptions> getOptions();
-
     void save();
 
     void delete();
-
-    long getVersion();
 
     boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
 

@@ -29,7 +29,7 @@ public interface FirmwareCheck {
 
     String getName();
 
-    void execute(Optional<FirmwareManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException;
+    void execute(Optional<FirmwareCampaignManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException;
 
     @ProviderType
     class FirmwareCheckException extends LocalizedException {

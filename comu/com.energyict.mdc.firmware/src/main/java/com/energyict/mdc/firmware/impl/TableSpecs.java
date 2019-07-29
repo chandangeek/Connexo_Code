@@ -15,6 +15,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -130,7 +131,7 @@ public enum TableSpecs {
     FWC_FWRCPMANAGEMENTOPTIONS {
         @Override
         void addTo(DataModel dataModel) {
-            Table<FirmwareManagementOptions> table = dataModel.addTable(name(), FirmwareManagementOptions.class);
+            Table<FirmwareCampaignManagementOptions> table = dataModel.addTable(name(), FirmwareCampaignManagementOptions.class);
             table.map(FirmwareCampaignManagementOptionsImpl.class);
             Column firmwareCampaignColumn = table.column("FWRCAMPAIGN").number().notNull().add();
             table.setJournalTableName("FWC_FWRCPMGOPTIONSJRNL").since(version(10, 6));
@@ -156,7 +157,7 @@ public enum TableSpecs {
                     .add();
         }
 
-        private Column addCheckConfigurationColumnFor10_7(Table<FirmwareManagementOptions> table, FirmwareCampaignManagementOptionsImpl.Fields descriptor, String defaultValue) {
+        private Column addCheckConfigurationColumnFor10_7(Table<FirmwareCampaignManagementOptions> table, FirmwareCampaignManagementOptionsImpl.Fields descriptor, String defaultValue) {
             return table.column(descriptor.name())
                     .bool()
                     .map(descriptor.fieldName())

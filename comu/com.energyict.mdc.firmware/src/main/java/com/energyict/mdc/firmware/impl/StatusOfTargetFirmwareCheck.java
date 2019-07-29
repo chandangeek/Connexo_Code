@@ -5,6 +5,7 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
@@ -30,7 +31,7 @@ public class StatusOfTargetFirmwareCheck implements FirmwareCheck {
     }
 
     @Override
-    public void execute(Optional<FirmwareManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
+    public void execute(Optional<FirmwareCampaignManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         (options.isPresent()?options:firmwareService.findFirmwareManagementOptions(deviceUtils.getDevice().getDeviceType())).ifPresent(firmwareManagementOptions -> {
             if (firmwareManagementOptions.isActivated(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK)
                     && !firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK).contains(firmwareVersion.getFirmwareStatus())) {

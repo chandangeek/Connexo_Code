@@ -11,15 +11,15 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareStatus;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.Set;
 
-public abstract class FirmwareCampaignManagementOptionsImpl implements FirmwareManagementOptions {
+public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignManagementOptions {
 
     enum Fields {
         FWRCAMPAIGN("firmwareCampaign"),
@@ -148,7 +148,7 @@ public abstract class FirmwareCampaignManagementOptionsImpl implements FirmwareM
 
     @Override
     public void save() {
-        if (dataModel.mapper(FirmwareManagementOptions.class).getUnique("firmwareCampaign", firmwareCampaign.get()).isPresent()) {
+        if (dataModel.mapper(FirmwareCampaignManagementOptions.class).getUnique("firmwareCampaign", firmwareCampaign.get()).isPresent()) {
             doUpdate();
         } else {
             doPersist();

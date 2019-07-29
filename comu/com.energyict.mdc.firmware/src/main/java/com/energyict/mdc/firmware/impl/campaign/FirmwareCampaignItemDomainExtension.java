@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -291,7 +292,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             return false;
         }
         FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        Optional<FirmwareManagementOptions> options = Optional.of(firmwareService.newFirmwareCampaignManagementOptions(campaign));
+        Optional<FirmwareCampaignManagementOptions> options = firmwareService.findFirmwareCampaignManagementOptions(campaign);
         return firmwareService.getFirmwareChecks()
                 .map(check -> {
                     try {
