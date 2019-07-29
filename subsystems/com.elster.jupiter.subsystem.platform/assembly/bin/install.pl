@@ -643,10 +643,7 @@ sub install_facts {
 		print $FH "option.db.dbausername=$FACTS_DBUSER\n";
 		print $FH "option.db.dbapassword=$FACTS_DBPASSWORD\n";
 		print $FH "option.serverport=$FACTS_PORT\n";
-		print "Path of FACTS_DIR: $FACTS_DIR\n";
-		print "Path of FACTS_BASE_REPL: $FACTS_BASE_REPL\n";
 		print $FH "option.installpath=$FACTS_BASE_REPL\n";
-		#print $FH "option.installpath=$FACTS_DIR\n";
 		close($FH);
 
 		chdir "$CONNEXO_DIR";
