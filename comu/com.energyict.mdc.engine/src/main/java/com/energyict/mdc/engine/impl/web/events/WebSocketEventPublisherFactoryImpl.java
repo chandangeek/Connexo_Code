@@ -19,7 +19,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-09 (13:03)
  */
-public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublisherFactory {
+public class WebSocketEventPublisherFactoryImpl extends WebSocketEventPublisherFactory {
 
     private final ConnectionTaskService connectionTaskService;
     private final CommunicationTaskService communicationTaskService;
@@ -39,7 +39,7 @@ public class WebSocketEventPublisherFactoryImpl implements WebSocketEventPublish
         this.eventPublisher = eventPublisher;
     }
 
-    @Override
+
     public WebSocketEventPublisher newWebSocketEventPublisher(WebSocketCloseEventListener closeEventListener) {
         return new WebSocketEventPublisher(this.comServer, new ServiceProvider(), this.eventPublisher, closeEventListener);
     }
