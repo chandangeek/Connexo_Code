@@ -46,7 +46,7 @@ public class ComTaskInfo {
         comTaskInfo.maxNrOfTries = comTask.getMaxNumberOfTries();
         comTaskInfo.inUse = false; //TODO: Real Implementation
         comTaskInfo.version = comTask.getVersion();
-        comTaskInfo.systemTask = comTask.isManualComTask();
+        comTaskInfo.systemTask = comTask.isManualSystemTask();
         return comTaskInfo;
     }
 

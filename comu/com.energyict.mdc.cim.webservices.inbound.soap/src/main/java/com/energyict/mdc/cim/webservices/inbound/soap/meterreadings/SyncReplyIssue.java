@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import ch.iec.tc57._2011.schema.message.ErrorType;
 
@@ -50,6 +51,11 @@ public class SyncReplyIssue {
     private Map<String, Set<String>> notFoundLoadProfilesOnDevices;
     private Map<Integer, Set<String>> readingExistedLoadProfilesMap;
     private Map<Integer, Set<String>> readingExistedRegisterGroupsMap;
+
+    // ComTask Executions
+    private Map<Long, ComTaskExecution> deviceRegularComTaskExecutionMap;
+    private Map<Long, ComTaskExecution> deviceIrregularComTaskExecutionMap;
+    private Map<Long, ComTaskExecution> deviceMessagesComTaskExecutionMap;
 
     // additional errors to be sent synchroneously
     private List<ErrorType> errorTypes;
@@ -255,6 +261,50 @@ public class SyncReplyIssue {
 
     public void setReadingExistedRegisterGroupsMap(Map<Integer, Set<String>> readingExistedRegisterGroupsMap) {
         this.readingExistedRegisterGroupsMap = readingExistedRegisterGroupsMap;
+    }
+    public void addDeviceRegularComTaskExecution(Long deviceId, ComTaskExecution deviceRegularComTaskExecutions) {
+        getDeviceRegularComTaskExecutionMap().put(deviceId, deviceRegularComTaskExecutions);
+    }
+
+    public Map<Long, ComTaskExecution> getDeviceRegularComTaskExecutionMap() {
+        if (deviceRegularComTaskExecutionMap == null) {
+            deviceRegularComTaskExecutionMap = new HashMap<>();
+        }
+        return deviceRegularComTaskExecutionMap;
+    }
+
+    public void setDeviceRegularComTaskExecutionMap(Map<Long, ComTaskExecution> deviceRegularComTaskExecutionMap) {
+        this.deviceRegularComTaskExecutionMap = deviceRegularComTaskExecutionMap;
+    }
+
+    public void addDeviceIrregularComTaskExecution(Long deviceId, ComTaskExecution deviceIrRegularComTaskExecutions) {
+        getDeviceIrregularComTaskExecutionMap().put(deviceId, deviceIrRegularComTaskExecutions);
+    }
+
+    public Map<Long, ComTaskExecution> getDeviceIrregularComTaskExecutionMap() {
+        if (deviceIrregularComTaskExecutionMap == null) {
+            deviceIrregularComTaskExecutionMap = new HashMap<>();
+        }
+        return deviceIrregularComTaskExecutionMap;
+    }
+
+    public void setDeviceIrregularComTaskExecutionMap(Map<Long, ComTaskExecution> deviceIrregularComTaskExecutionMap) {
+        this.deviceIrregularComTaskExecutionMap = deviceIrregularComTaskExecutionMap;
+    }
+
+    public void addDeviceMessagesComTaskExecutions(Long deviceId, ComTaskExecution deviceMessagesComTaskExecution) {
+        getDeviceMessagesComTaskExecutionMap().put(deviceId, deviceMessagesComTaskExecution);
+    }
+
+    public Map<Long, ComTaskExecution> getDeviceMessagesComTaskExecutionMap() {
+        if (deviceMessagesComTaskExecutionMap == null) {
+            deviceMessagesComTaskExecutionMap = new HashMap<>();
+        }
+        return deviceMessagesComTaskExecutionMap;
+    }
+
+    public void setDeviceMessagesComTaskExecutionMap(Map<Long, ComTaskExecution> deviceMessagesComTaskExecutionMap) {
+        this.deviceMessagesComTaskExecutionMap = deviceMessagesComTaskExecutionMap;
     }
 
     public void addErrorType(ErrorType errorType) {

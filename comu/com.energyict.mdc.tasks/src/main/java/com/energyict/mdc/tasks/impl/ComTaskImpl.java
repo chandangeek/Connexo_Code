@@ -289,7 +289,7 @@ abstract class ComTaskImpl implements ComTask {
     }
 
     @Override
-    public boolean isManualComTask() {
+    public boolean isManualSystemTask() {
         return manualSystemTask;
     }
 

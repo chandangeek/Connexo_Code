@@ -46,20 +46,16 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.Me
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
-import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
@@ -78,14 +74,11 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -267,7 +260,7 @@ public class ServiceCallCommands {
         DateTimeInterval timePeriod = reading.getTimePeriod();
         String source = reading.getSource();
         String connectionMethod = reading.getConnectionMethod();
-        ScheduleStrategyEnum scheduleStrategy = getScheduleStrategy(reading.getScheduleStrategy(), syncReplyIssue);
+        ScheduleStrategyEnum scheduleStrategy = getScheduleStrategy(reading.getScheduleStrategy());
 
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.PARENT_GET_METER_READINGS);
         ParentGetMeterReadingsDomainExtension parentGetMeterReadingsDomainExtension = new ParentGetMeterReadingsDomainExtension();
@@ -289,7 +282,6 @@ public class ServiceCallCommands {
         parentServiceCall.requestTransition(DefaultState.PENDING);
         parentServiceCall.requestTransition(DefaultState.ONGOING);
 
-
         if (ReadingSourceEnum.SYSTEM.getSource().equals(source)) {
             syncReplyIssue.getExistedMeters().forEach(meter -> createSubParentServiceCall(parentServiceCall, meter));
             initiateReading(parentServiceCall);
@@ -298,8 +290,11 @@ public class ServiceCallCommands {
 
         boolean meterReadingRunning = false;
         for (com.elster.jupiter.metering.Meter meter : syncReplyIssue.getExistedMeters()) {
-            meterReadingRunning = processSubParentServiceCallWithChilds(meter, parentServiceCall, timePeriod, reading,
+            boolean isOk = processSubParentServiceCallWithChilds(meter, parentServiceCall, timePeriod, reading,
                     index, syncReplyIssue, combinedReadingTypes, scheduleStrategy);
+            if (isOk) {
+                meterReadingRunning = true;
+            }
         }
         if (!meterReadingRunning) {
             initiateReading(parentServiceCall);
@@ -347,7 +342,7 @@ public class ServiceCallCommands {
         }
 
         if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, delay)) {
-            List<ComTaskExecution> existedComTaskExecutions = findComTaskExecutions(device, index, syncReplyIssue);
+            Set<ComTaskExecution> existedComTaskExecutions = getComTaskExecutions(meter, start, end, combinedReadingTypes, syncReplyIssue);
             for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
                 if (reading.getConnectionMethod() != null
                         && !checkConnectionMethodForComTaskExecution(comTaskExecution, reading.getConnectionMethod())) {
@@ -401,16 +396,13 @@ public class ServiceCallCommands {
         Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
         loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
 
-        ComTaskExecution deviceMessagesComTaskExecution;
+        ComTaskExecution deviceMessagesComTaskExecution = syncReplyIssue.getDeviceMessagesComTaskExecutionMap().get(device.getId());
+        if (deviceMessagesComTaskExecution == null) {
+            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES, null,
+                        device.getName()));
+            return;
+        }
         if (CollectionUtils.isNotEmpty(loadProfiles)) {
-
-            Optional<ComTaskExecution> deviceMessagesComTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
-            if (!deviceMessagesComTaskExecutionOptional.isPresent()) {
-                syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory()
-                        .errorType(MessageSeeds.NO_COM_TASK_EXECUTION, null, MessagesTask.class.getSimpleName(), device.getName()));
-                return;
-            }
-            deviceMessagesComTaskExecution = deviceMessagesComTaskExecutionOptional.get();
             Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
             createDeviceMessages(device, loadProfiles, trigger, start, end);
             if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
@@ -428,7 +420,51 @@ public class ServiceCallCommands {
         }
     }
 
-    // channels without concrete start or end date / registers with at least start date
+    private Set<ComTaskExecution> getComTaskExecutions(com.elster.jupiter.metering.Meter meter, Instant start, Instant end,
+                                                       Set<ReadingType> combinedReadingTypes, SyncReplyIssue syncReplyIssue) {
+        Set<ComTaskExecution> existedComTaskExecutions = new HashSet<>();
+        if (comTaskIsRequired(start, end, combinedReadingTypes, true)) {
+            fillComTaskExecutions(existedComTaskExecutions, meter, combinedReadingTypes, syncReplyIssue,true);
+        }
+        if (comTaskIsRequired(start, end, combinedReadingTypes, false)) {
+            fillComTaskExecutions(existedComTaskExecutions, meter, combinedReadingTypes, syncReplyIssue,false);
+        }
+        return existedComTaskExecutions;
+    }
+
+    private void fillComTaskExecutions(Set<ComTaskExecution> existedComTaskExecutions, com.elster.jupiter.metering.Meter meter,
+                                       Set<ReadingType> combinedReadingTypes, SyncReplyIssue syncReplyIssue, boolean isRegular) {
+        ComTaskExecution comTaskExecution;
+        if (isRegular) {
+            comTaskExecution = syncReplyIssue.getDeviceRegularComTaskExecutionMap().get(Long.parseLong(meter.getAmrId()));
+        } else {
+            comTaskExecution = syncReplyIssue.getDeviceIrregularComTaskExecutionMap().get(Long.parseLong(meter.getAmrId()));
+        }
+
+        if (comTaskExecution != null) {
+            existedComTaskExecutions.add(comTaskExecution);
+        } else {
+            String readingTypes = combinedReadingTypes.stream()
+                    .filter(readingType -> readingType.isRegular() == isRegular)
+                    .map(rt -> rt.getName())
+                    .collect(Collectors.joining(";"));
+            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_READING_TYPES, null,
+                    meter.getName(), readingTypes));
+        }
+    }
+
+    private boolean comTaskIsRequired(Instant start, Instant end, Set<ReadingType> combinedReadingTypes, boolean isRegular) {
+        if (combinedReadingTypes.stream()
+                .anyMatch(readingType -> readingType.isRegular() == isRegular)) {
+            if (isRegular) {
+                return start == null || end == null;
+            } else {
+                return start != null;
+            }
+        }
+        return false;
+    }
+
     private boolean comTaskExecutionRequired(Instant start, Instant end, ComTaskExecution comTaskExecution) {
         return (comTaskExecution.getProtocolTasks().stream()
                 .anyMatch(protocolTask -> LoadProfilesTask.class.isInstance(protocolTask))
@@ -469,7 +505,7 @@ public class ServiceCallCommands {
         if (start == null) {
             actualStart = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         }
-        if (actualStart == start) { // in case when comTask has never run
+        if (actualStart == null) { // in case when comTask has never run
             actualStart = actualEnd;
         }
         return actualStart;
@@ -480,42 +516,6 @@ public class ServiceCallCommands {
             return now;
         }
         return end;
-    }
-
-    private List<ComTaskExecution> findComTaskExecutions(Device device, int index, SyncReplyIssue syncReplyIssue) throws
-            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        Set<ReadingType> existedReadingTypes = syncReplyIssue.getExistedReadingTypes();
-        if (CollectionUtils.isNotEmpty(existedReadingTypes)) {
-            comTaskExecutions.addAll(getSupportedReadingTypeExecutionMapping(device, existedReadingTypes).keySet());
-        }
-        Set<String> existedRegisterGroups = syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index);
-        if (CollectionUtils.isNotEmpty(existedRegisterGroups)) {
-            comTaskExecutions.addAll(getSupportedReadingTypeExecutionMapping(device, masterDataService.findAllRegisterGroups().stream()
-                    .filter(rg -> existedRegisterGroups.contains(rg.getName()))
-                    .map(RegisterGroup::getRegisterTypes)
-                    .flatMap(Collection::stream)
-                    .map(registerType -> registerType.getReadingType())
-                    .collect(Collectors.toList()))
-                    .keySet());
-        }
-        return comTaskExecutions;
-    }
-
-    private Optional<ComTaskExecution> findComTaskExecutionForDeviceMessages(Device device) {
-        Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
-        comTaskExecutions.addAll(device.getComTaskExecutions());
-
-        comTaskExecutions.addAll(device.getDeviceConfiguration().getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> !comTaskExecutions.stream()
-                        .anyMatch(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId()))
-                .map(comTaskEnablement -> createAdHocComTaskExecution(device, comTaskEnablement))
-                .collect(Collectors.toSet()));
-
-         return comTaskExecutions.stream()
-                .filter(cte -> cte.getProtocolTasks().stream()
-                        .anyMatch(protocolTask -> MessagesTask.class.isInstance(protocolTask)))
-                .findAny();
     }
 
     private void processComTaskExecutionByRecurrentTask(ServiceCall subParentServiceCall,
@@ -618,7 +618,7 @@ public class ServiceCallCommands {
 
     private Set<LoadProfile> getLoadProfilesForReadingTypes(Device device, Set<ReadingType> readingTypes) {
         return device.getLoadProfiles().stream()
-                .filter(lp ->  lp.getLoadProfileSpec().getChannelSpecs().stream()
+                .filter(lp -> lp.getLoadProfileSpec().getChannelSpecs().stream()
                         .anyMatch(c -> readingTypes.contains(c.getReadingType()))
                 )
                 .collect(Collectors.toSet());
@@ -653,94 +653,6 @@ public class ServiceCallCommands {
         deviceMessageBuilder.addProperty("from", Date.from(start)); // java.util.Date
         deviceMessageBuilder.addProperty("to", Date.from(end)); // java.util.Date
         return deviceMessageBuilder.add();
-    }
-
-    private Map<ComTaskExecution, List<ReadingType>> getSupportedReadingTypeExecutionMapping(Device device,
-                                                                                             Collection<ReadingType> readingTypes)
-            throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        comTaskExecutions.addAll(device.getComTaskExecutions());
-        Map<ComTaskExecution, List<ReadingType>> comTaskExecReadingTypeMap = getSupportedReadingTypeExecutionMapping(comTaskExecutions, readingTypes);
-        Set<ReadingType> readingTypesWithExecutions = comTaskExecReadingTypeMap.values().stream()
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
-
-        if (readingTypesWithExecutions.size() < readingTypes.size()) {
-            for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
-                Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                        .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
-                        .findFirst();
-                comTaskExecutions.add(existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)));
-            }
-
-            getSupportedReadingTypeExecutionMapping(
-                    device.getDeviceConfiguration()
-                            .getComTaskEnablements()
-                            .stream()
-                            .filter(comTaskEnablement -> !comTaskExecutions.stream()
-                                    .anyMatch(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId()))
-                            .map(comTaskEnablement -> createAdHocComTaskExecution(device, comTaskEnablement))
-                            .collect(Collectors.toList()), readingTypes)
-                            .forEach((key, value) -> {
-                                    if (comTaskExecReadingTypeMap.containsKey(key)) {
-                                        comTaskExecReadingTypeMap.get(key).addAll(value);
-                                    } else {
-                                        comTaskExecReadingTypeMap.put(key,value);
-                                    }
-                             });
-
-        }
-        return comTaskExecReadingTypeMap;
-    }
-
-    private ComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        if (comTaskEnablement.hasPartialConnectionTask()) {
-            device.getConnectionTasks().stream()
-                    .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                    .findFirst()
-                    .ifPresent(comTaskExecutionBuilder::connectionTask);
-        }
-        ComTaskExecution manuallyScheduledComTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-        return manuallyScheduledComTaskExecution;
-    }
-
-    private Map<ComTaskExecution, List<ReadingType>> getSupportedReadingTypeExecutionMapping(Collection<ComTaskExecution> comTaskExecutions,
-                                                                                             Collection<ReadingType> readingTypes) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        Map<ComTaskExecution, List<ReadingType>> comTaskExecReadingTypeMap = new HashMap<>();
-        ComTaskExecution regularExecution = getComTaskExecutionForReadingTypes(comTaskExecutions, readingTypes, true);
-        if (regularExecution != null) {
-            comTaskExecReadingTypeMap.put(regularExecution, readingTypes.stream()
-                    .filter(ReadingType::isRegular)
-                    .collect(Collectors.toList()));
-        }
-        ComTaskExecution irRegularExecution = getComTaskExecutionForReadingTypes(comTaskExecutions, readingTypes, false);
-        if (irRegularExecution != null) {
-            comTaskExecReadingTypeMap.put(irRegularExecution, readingTypes.stream()
-                    .filter(readingType -> !readingType.isRegular())
-                    .collect(Collectors.toList()));
-        }
-        return comTaskExecReadingTypeMap;
-    }
-
-    private ComTaskExecution getComTaskExecutionForReadingTypes(Collection<ComTaskExecution> comTaskExecutions, Collection<ReadingType> readingTypes,
-                                                                boolean isRegular) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        final Class<?> clazz;
-        if (isRegular) {
-            clazz = LoadProfilesTask.class;
-        } else {
-            clazz = RegistersTask.class;
-        }
-        if (readingTypes.stream()
-                .anyMatch(readingType -> readingType.isRegular() == isRegular)) {
-            return comTaskExecutions.stream()
-                    .filter(comTaskExecution -> comTaskExecution.getProtocolTasks().stream()
-                            .anyMatch(protocolTask -> clazz.isInstance(protocolTask)))
-                    .findAny().orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_PROTOCOL_TASK, clazz.getSimpleName()));
-
-        }
-        return null;
     }
 
     private boolean isMeterReadingRequired(String source, com.elster.jupiter.metering.Meter meter,
@@ -791,14 +703,16 @@ public class ServiceCallCommands {
                 .collect(Collectors.joining(";"));
     }
 
-    private ScheduleStrategyEnum getScheduleStrategy(String scheduleStrategy, SyncReplyIssue syncReplyIssue) {
+    private ScheduleStrategyEnum getScheduleStrategy(String scheduleStrategy) throws
+            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
         ScheduleStrategyEnum strategy = ScheduleStrategyEnum.RUN_NOW;
         if (scheduleStrategy != null) {
             if (ScheduleStrategyEnum.getByName(scheduleStrategy) != null) {
                 return ScheduleStrategyEnum.getByName(scheduleStrategy);
             }
-            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory()
-                    .errorType(MessageSeeds.SCHEDULE_STRATEGY_NOT_FOUND, null, scheduleStrategy));
+            throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
+                    MessageSeeds.SCHEDULE_STRATEGY_NOT_SUPPORTED,
+                    scheduleStrategy).get();
         }
         return strategy;
     }
