@@ -23,10 +23,14 @@ import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.rest.impl.CheckManagementOptionInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareTypeFieldAdapter;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
+import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.IdWithLocalizedValue;
 import com.energyict.mdc.firmware.rest.impl.ManagementOptionInfo;
@@ -46,6 +50,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -139,10 +144,8 @@ public class FirmwareCampaignInfoFactory {
         return info;
     }
 
-    public FirmwareCampaign build(FirmwareCampaignInfo info) {
+    public FirmwareCampaign build(FirmwareCampaignInfo info, DeviceType deviceType, List<FirmwareVersion> foundFirmwares) {
         Range<Instant> timeFrame = retrieveRealUploadRange(info);
-        DeviceType deviceType = deviceConfigurationService.findDeviceType(((Number) info.deviceType.id).longValue())
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, info.deviceType.id));
         ProtocolSupportedFirmwareOptions managementOptions = ProtocolSupportedFirmwareOptions.from(info.managementOption.id)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.PROTOCOL_WITH_ID_ISNT_FOUND, info.managementOption.id));
         Long firmwareVersionId = info.getPropertyInfo(FirmwareMessageInfoFactory.PROPERTY_KEY_FIRMWARE_VERSION)
@@ -175,6 +178,7 @@ public class FirmwareCampaignInfoFactory {
                 }
             }
         }
+
         FirmwareCampaign firmwareCampaign = firmwareCampaignBuilder.create();
         FirmwareCampaignManagementOptions options = firmwareService.newFirmwareCampaignManagementOptions(firmwareCampaign);
         Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption -> {
@@ -186,11 +190,10 @@ public class FirmwareCampaignInfoFactory {
             }
         });
         options.save();
-        //
-        Finder<FirmwareVersion> firmwaresFinder = firmwareService.findAllFirmwareVersions(resourceHelper.getFirmwareFilter(filter, deviceType));
-        List<FirmwareVersion> foundFirmwares = firmwaresFinder.from().find();
-        return PagedInfoList.fromPagedList("firmwares", versionFactory.from(foundFirmwares), queryParameters);
-        //
+
+        List<FirmwareVersionInfo> firmwareVersionInfos = firmwareVersionFactory.from(foundFirmwares);
+        firmwareService.
+
         return firmwareCampaign;
     }
 

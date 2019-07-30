@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl.campaign;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.QueryStream;
@@ -17,10 +18,13 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.energyict.mdc.firmware.security.Privileges;
@@ -53,18 +57,23 @@ public class FirmwareCampaignResource {
     private final Thesaurus thesaurus;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final ExceptionFactory exceptionFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final FirmwareService firmwareService;
 
     @Inject
     public FirmwareCampaignResource(FirmwareService firmwareService, ResourceHelper resourceHelper, FirmwareCampaignInfoFactory campaignInfoFactory,
                                     DeviceInFirmwareCampaignInfoFactory deviceInCampaignInfoFactory, Thesaurus thesaurus,
-                                    ConcurrentModificationExceptionFactory conflictFactory, ExceptionFactory exceptionFactory) {
+                                    ConcurrentModificationExceptionFactory conflictFactory, ExceptionFactory exceptionFactory,
+                                    DeviceConfigurationService deviceConfigurationService) {
         this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
+        this.firmwareService = firmwareService;
         this.resourceHelper = resourceHelper;
         this.campaignInfoFactory = campaignInfoFactory;
         this.deviceInCampaignInfoFactory = deviceInCampaignInfoFactory;
         this.thesaurus = thesaurus;
         this.conflictFactory = conflictFactory;
         this.exceptionFactory = exceptionFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @GET
@@ -98,8 +107,12 @@ public class FirmwareCampaignResource {
     @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response addFirmwareCampaign(FirmwareCampaignInfo info) {
-        FirmwareCampaign firmwareCampaign = campaignInfoFactory.build(info);
+    public Response addFirmwareCampaign(@BeanParam JsonQueryParameters queryParameters, FirmwareCampaignInfo info) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(((Number) info.deviceType.id).longValue())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, info.deviceType.id));
+        Finder<FirmwareVersion> firmwaresFinder = firmwareService.findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType));
+        List<FirmwareVersion> foundFirmwares = firmwaresFinder.from(queryParameters).find();
+        FirmwareCampaign firmwareCampaign = campaignInfoFactory.build(info,deviceType,foundFirmwares);
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
@@ -153,7 +166,7 @@ public class FirmwareCampaignResource {
         return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", deviceInCampaignInfo, queryParameters)).build();
     }
 
-    @GET
+    /*@GET
     @Transactional
     @Path("/{id}/firmwareversions")
     @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
@@ -161,7 +174,7 @@ public class FirmwareCampaignResource {
     public Response getDevicesForFirmwareCampaign() {
 
         return Response.ok(PagedInfoList.fromPagedList()).build();
-    }
+    }*/
 
     public Long getCurrentCampaignVersion(long id) {
         return firmwareCampaignService.getFirmwareCampaignById(id).map(FirmwareCampaign::getVersion).orElse(null);
