@@ -153,6 +153,16 @@ public class FirmwareCampaignResource {
         return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", deviceInCampaignInfo, queryParameters)).build();
     }
 
+    @GET
+    @Transactional
+    @Path("/{id}/firmwareversions")
+    @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
+    public Response getDevicesForFirmwareCampaign() {
+
+        return Response.ok(PagedInfoList.fromPagedList()).build();
+    }
+
     public Long getCurrentCampaignVersion(long id) {
         return firmwareCampaignService.getFirmwareCampaignById(id).map(FirmwareCampaign::getVersion).orElse(null);
     }

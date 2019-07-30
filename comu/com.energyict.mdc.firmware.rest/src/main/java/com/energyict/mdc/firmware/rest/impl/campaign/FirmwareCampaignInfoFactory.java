@@ -4,11 +4,13 @@
 
 package com.energyict.mdc.firmware.rest.impl.campaign;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
@@ -46,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -183,6 +186,11 @@ public class FirmwareCampaignInfoFactory {
             }
         });
         options.save();
+        //
+        Finder<FirmwareVersion> firmwaresFinder = firmwareService.findAllFirmwareVersions(resourceHelper.getFirmwareFilter(filter, deviceType));
+        List<FirmwareVersion> foundFirmwares = firmwaresFinder.from().find();
+        return PagedInfoList.fromPagedList("firmwares", versionFactory.from(foundFirmwares), queryParameters);
+        //
         return firmwareCampaign;
     }
 
