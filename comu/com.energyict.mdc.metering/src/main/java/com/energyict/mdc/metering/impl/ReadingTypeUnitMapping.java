@@ -88,6 +88,8 @@ enum ReadingTypeUnitMapping {
     SIEMENS(BaseUnit.SIEMENS, ReadingTypeUnit.SIEMENS, Matcher.DONT_CARE),
     KELVIN(BaseUnit.KELVIN, ReadingTypeUnit.KELVIN, Matcher.DONT_CARE),
     DECIBELPOWERRATIO(BaseUnit.DECIBELMILLIWAT, ReadingTypeUnit.BELMILLIWATT, MetricMultiplier.DECI, Matcher.DONT_CARE),
+    DECIBELMICROVOLT(BaseUnit.DECIBELMICROVOLT, ReadingTypeUnit.BELMICROVOLT, MetricMultiplier.DECI, Matcher.DONT_CARE),
+    DECIBEL(BaseUnit.DECIBEL, ReadingTypeUnit.BEL, MetricMultiplier.DECI, Matcher.DONT_CARE),
     NOTAVAILABLE(BaseUnit.NOTAVAILABLE, ReadingTypeUnit.NOTAPPLICABLE, Matcher.DONT_CARE),
     COUNT(BaseUnit.COUNT, ReadingTypeUnit.NOTAPPLICABLE, Matcher.DONT_CARE),
     RATIO(BaseUnit.RATIO, ReadingTypeUnit.NOTAPPLICABLE, Matcher.DONT_CARE),
