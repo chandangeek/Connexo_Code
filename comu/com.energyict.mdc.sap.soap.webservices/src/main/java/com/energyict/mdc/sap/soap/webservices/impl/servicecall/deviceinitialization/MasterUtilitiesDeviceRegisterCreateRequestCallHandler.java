@@ -29,6 +29,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
 
     public static final String NAME = "MasterUtilitiesDeviceRegisterCreateRequestCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;

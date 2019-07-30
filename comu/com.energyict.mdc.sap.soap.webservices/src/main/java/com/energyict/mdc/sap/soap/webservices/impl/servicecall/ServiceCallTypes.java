@@ -71,26 +71,31 @@ public enum ServiceCallTypes {
     MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST(
             MasterUtilitiesDeviceRegisterCreateRequestCallHandler.NAME,
             MasterUtilitiesDeviceRegisterCreateRequestCallHandler.VERSION,
+            MasterUtilitiesDeviceRegisterCreateRequestCallHandler.APPLICATION,
             MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName(),
             MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class.getName()),
     SUB_MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST(
             SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler.NAME,
             SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler.VERSION,
+            SubMasterUtilitiesDeviceRegisterCreateRequestCallHandler.APPLICATION,
             SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName(),
             SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class.getName()),
     UTILITIES_DEVICE_REGISTER_CREATE_REQUEST(
             UtilitiesDeviceRegisterCreateRequestCallHandler.NAME,
             UtilitiesDeviceRegisterCreateRequestCallHandler.VERSION,
+            UtilitiesDeviceRegisterCreateRequestCallHandler.APPLICATION,
             UtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName(),
             UtilitiesDeviceRegisterCreateRequestDomainExtension.class.getName()),
     MASTER_UTILITIES_DEVICE_CREATE_REQUEST(
             MasterUtilitiesDeviceCreateRequestCallHandler.NAME,
             MasterUtilitiesDeviceCreateRequestCallHandler.VERSION,
+            MasterUtilitiesDeviceCreateRequestCallHandler.APPLICATION,
             MasterUtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName(),
             MasterUtilitiesDeviceCreateRequestDomainExtension.class.getName()),
     UTILITIES_DEVICE_CREATE_REQUEST(
             UtilitiesDeviceCreateRequestCallHandler.NAME,
             UtilitiesDeviceCreateRequestCallHandler.VERSION,
+            UtilitiesDeviceCreateRequestCallHandler.APPLICATION,
             UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName(),
             UtilitiesDeviceCreateRequestDomainExtension.class.getName()),
     ;
