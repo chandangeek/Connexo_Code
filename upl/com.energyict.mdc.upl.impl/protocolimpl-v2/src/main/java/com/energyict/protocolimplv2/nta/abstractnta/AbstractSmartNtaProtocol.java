@@ -22,6 +22,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -367,6 +368,15 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         return getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, serialNumber);
     }
 
+
+    /**
+     * Getter for the default obis code for the auxiliary module (only ESMR supports this)
+     * @return
+     */
+    private ObisCode getFirmwareVersionAuxiliaryModuleObisCode() {
+        return ESMR50RegisterFactory.AUXILIARY_FIRMWARE_VERSION;
+    }
+
     public void collectFirmwareVersionMeterCore(CollectedFirmwareVersion result) {
         ObisCode coreFirmwareVersion = getFirmwareVersionMeterCoreObisCode();
         try {
@@ -395,6 +405,22 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
                 Issue problem = this.getIssueFactory().createProblem(communicationModuleFirmwareVersion, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }
+        }
+    }
+
+    public void collectFirmwareVersionAuxiliary(CollectedFirmwareVersion result){
+        ObisCode auxiliaryModuleFirmwareVersion = getFirmwareVersionAuxiliaryModuleObisCode();
+        try {
+            journal("Collecting auxiliary module firmware version from "+auxiliaryModuleFirmwareVersion);
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(auxiliaryModuleFirmwareVersion).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveAuxiliaryFirmwareVersion(fwVersion);
+            journal("Auxiliary module firmware version is "+fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(auxiliaryModuleFirmwareVersion, "issue.protocol.readingOfFirmwareFailed", e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }
         }
@@ -462,6 +488,10 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
         collectFirmwareVersionCommunicationModule(result);
 
+        if (supportsAuxiliaryFirmwareVersion()) {
+            collectFirmwareVersionAuxiliary(result);
+        }
+
         return result;
     }
 
@@ -473,6 +503,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
     @Override
     public boolean supportsAuxiliaryFirmwareVersion() {
-        return true;
+        // only ESMR5 meters support this
+        return false;
     }
 }
