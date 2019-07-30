@@ -29,6 +29,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
 import com.energyict.obis.ObisCode;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -203,18 +204,21 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
     @Test(expected = RegisterTypesNotMappableToLoadProfileTypeIntervalException.class)
     @Transactional
+    @Ignore // removed restriction
     public void testCreateWithNonApplicableCommodityReadingType() {
         this.createWithInCompatibleCommodityReadingType(Commodity.NOTAPPLICABLE);
     }
 
     @Test(expected = RegisterTypesNotMappableToLoadProfileTypeIntervalException.class)
     @Transactional
+    @Ignore // removed restriction
     public void testCreateWithDeviceCommodityReadingType() {
         this.createWithInCompatibleCommodityReadingType(Commodity.DEVICE);
     }
 
     @Test(expected = RegisterTypesNotMappableToLoadProfileTypeIntervalException.class)
     @Transactional
+    @Ignore // removed restriction
     public void testCreateWithCommunicationCommodityReadingType() {
         this.createWithInCompatibleCommodityReadingType(Commodity.COMMUNICATION);
     }
