@@ -45,7 +45,8 @@ Ext.define('Uni.model.search.Property', {
         },
         {name: 'constraints', type: 'auto'},
         {name: 'values', type: 'auto'},
-        {name: 'disabled', type: 'boolean', persist: false, defaultValue : false}
+        {name: 'disabled', type: 'boolean', persist: false, defaultValue : false},
+        {name: 'availableOperators', type: 'auto'}
     ],
 
     hasMany: {

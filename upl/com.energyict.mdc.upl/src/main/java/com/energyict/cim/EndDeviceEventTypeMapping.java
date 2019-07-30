@@ -81,6 +81,21 @@ public enum EndDeviceEventTypeMapping {
     VALVE_ALARM_MBUS        (64, EndDeviceEventTypeFactory.getValveAlarmMbusEventType()),
     TAMPER_CLEARED          (65, EndDeviceEventTypeFactory.getTamperClearedEventType()),
 
+    //DSMR - ESMR Communication events
+    EVENT_METROLOGICAL_MAINTENANCE  (71, EndDeviceEventTypeFactory.getMetrologicalMaintenanceEventType()),
+    EVENT_TECHNICAL_MAINTENANCE     (72, EndDeviceEventTypeFactory.getTechnicalMaintenanceEventType()),
+    EVENT_RETRIEVE_METER_READINGS_E (73, EndDeviceEventTypeFactory.getRetrieveEmeterReadingsElectricityEventType()),
+    EVENT_RETRIEVE_METER_READINGS_G (74, EndDeviceEventTypeFactory.getRetrieveEmeterReadingsGasEventType()),
+    EVENT_RETRIEVE_INTERVAL_DATA_E  (75, EndDeviceEventTypeFactory.getRetrieveEmeterIntervalElectricityEventType()),
+    EVENT_RETRIEVE_INTERVAL_DATA_G  (76, EndDeviceEventTypeFactory.getRetrieveEmeterIntervalGasEventType()),
+
+    //DSMR - ESMR Power Voltage
+    EVENT_SHORT_VOLTAGE_SAG_L1      (77, EndDeviceEventTypeFactory.getShortVoltageSagL1EventType()),
+    EVENT_SHORT_VOLTAGE_SAG_L2      (78, EndDeviceEventTypeFactory.getShortVoltageSagL2EventType()),
+    EVENT_SHORT_VOLTAGE_SAG_L3      (79, EndDeviceEventTypeFactory.getShortVoltageSagL3EventType()),
+
+    EVENT_EVENT_LOG_CLEARED         (255, EndDeviceEventTypeFactory.getClearedEventType()),
+
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
     POWER_MANAGEMENT_SWITCH_LOW_POWER       (100002, EndDeviceEventTypeFactory.getPowerManagementSwitchLowPowerEventType()),
     POWER_MANAGEMENT_SWITCH_FULL_POWER      (100003, EndDeviceEventTypeFactory.getPowerManagementSwitchFullPowerEventType()),

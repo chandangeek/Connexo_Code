@@ -10,6 +10,8 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -31,7 +33,11 @@ public interface IssueFilter {
 
     void addDevice(EndDevice device);
 
+    void addDeviceGroup(EndDeviceGroup deviceGroup);
+
     void addUsagePoint(UsagePoint usagePoint);
+
+    void addUsagePointGroup(UsagePointGroup usagePointGroup);
 
     void setIssueReason(IssueReason issueReason);
 
@@ -52,6 +58,10 @@ public interface IssueFilter {
     boolean isUnassignedWorkGroupSelected();
 
     List<EndDevice> getDevices();
+
+    List<EndDeviceGroup> getDeviceGroups();
+
+    List<UsagePointGroup> getUsagePointGroups();
 
     List<UsagePoint> getUsagePoints();
 

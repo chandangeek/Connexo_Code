@@ -46,6 +46,15 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
     private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
 
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
+
     @Inject
     public EffectiveMetrologyContractOnUsagePointImpl(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
@@ -112,4 +121,10 @@ public class EffectiveMetrologyContractOnUsagePointImpl implements EffectiveMetr
     public long getId() {
         return this.id;
     }
+
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+
 }

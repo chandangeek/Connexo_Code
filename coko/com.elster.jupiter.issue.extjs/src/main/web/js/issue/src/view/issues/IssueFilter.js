@@ -15,7 +15,8 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.IssueAssignees',
         'Isu.store.Devices',
         'Isu.store.DueDate',
-        'Isu.store.IssueReasons'
+        'Isu.store.IssueReasons',
+        'Isu.store.DeviceGroups'
     ],
 
     initComponent: function () {
@@ -137,7 +138,17 @@ Ext.define('Isu.view.issues.IssueFilter', {
                         fn: me.comboLimitNotification
                     }
                 }
-            }
+            },
+            {
+                type: 'combobox',
+                itemId: 'issue-deviceGroup-filter',
+                dataIndex: 'deviceGroup',
+                emptyText: Uni.I18n.translate('general.deviceGroup', 'ISU', 'Device group'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Isu.store.DeviceGroups',
+                multiSelect: true,
+            },
         ];
 
         me.callParent(arguments);

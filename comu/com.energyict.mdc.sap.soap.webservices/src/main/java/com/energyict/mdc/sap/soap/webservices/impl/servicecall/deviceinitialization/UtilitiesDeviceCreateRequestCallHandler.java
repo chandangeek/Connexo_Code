@@ -25,6 +25,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
 
     public static final String NAME = "UtilitiesDeviceCreateRequestCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile DeviceService deviceService;

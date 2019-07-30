@@ -34,22 +34,25 @@ public class TaskInfo {
     public String name;
     public IdWithNameInfo application;
     public String queue;
+    public String queueType;
     public String queueStatus;
     public Long queueStatusDate;
     public String trigger;
     public Long nextRun;
+    public Long suspendUntilTime;
     public Long currentRunDuration;
     public String lastRunStatus;
     public Long lastRunDate;
     public Long lastRunDuration;
     public boolean isExtraQueueCreationEnabled;
 
-
+    public TaskInfo(){}  // needed for serialization - deserialization
     TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
         id = recurrentTask.getId();
         name = recurrentTask.getName();
         application = new IdWithNameInfo(recurrentTask.getApplication(), thesaurus.getString(recurrentTask.getApplication(), recurrentTask.getApplication()));
         queue = recurrentTask.getDestination().getName();
+        queueType = recurrentTask.getDestination().getQueueTypeName();
         isExtraQueueCreationEnabled = recurrentTask.getDestination().isExtraQueueCreationEnabled();
         trigger = Never.NEVER.equals(recurrentTask.getScheduleExpression()) ? thesaurus.getFormat(TranslationKeys.NOTSCHEDULED).format() :
                 thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService, locale) + ")";
@@ -71,6 +74,7 @@ public class TaskInfo {
             setPlannedOn(recurrentTask, null);
         }
         nextRun = recurrentTask.getNextExecution() != null ? recurrentTask.getNextExecution().toEpochMilli() : null;
+        suspendUntilTime = recurrentTask.getSuspendUntil() != null ? recurrentTask.getSuspendUntil().toEpochMilli() : null;
     }
 
     private void setNotScheduled(RecurrentTask recurrentTask, TaskOccurrence lastOccurrence) {

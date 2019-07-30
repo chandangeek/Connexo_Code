@@ -31,8 +31,6 @@ import java.util.Optional;
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceInfo extends DeviceVersionInfo {
-    public long id;
-    public String mRID;
     public String serialNumber;
     public String manufacturer;
     public String modelNbr;

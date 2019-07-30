@@ -16,6 +16,7 @@ Ext.define('Apr.controller.TaskOverview', {
         'Apr.store.Tasks',
         'Apr.store.Applications',
         'Apr.store.Queues',
+        'Apr.store.SuspendedTask',
         'Apr.store.TasksType'
     ],
     models: [

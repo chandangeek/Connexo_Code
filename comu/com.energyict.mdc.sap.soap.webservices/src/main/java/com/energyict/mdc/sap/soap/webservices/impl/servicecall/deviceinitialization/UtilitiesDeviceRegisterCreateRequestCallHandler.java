@@ -30,6 +30,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
 
     public static final String NAME = "UtilitiesDeviceRegisterCreateRequestCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile SAPCustomPropertySets sapCustomPropertySets;
 

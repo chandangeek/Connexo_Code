@@ -159,13 +159,18 @@ public class BasicTaskIssueRuleTemplate extends AbstractTaskIssueTemplate {
                         new IllegalArgumentException(TranslationKeys.ISSUE_REASON_TASKFAILED.getDefaultFormat()) {
                         }));
             }
-            Optional<RecurrenceSelectionInfo> recurrenceSelectionInfo = openIssue.getRule()
-                    .getProperties()
-                    .entrySet()
-                    .stream()
-                    .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
-                    .findFirst()
-                    .map(found -> (RecurrenceSelectionInfo) found.getValue());
+            Optional<RecurrenceSelectionInfo> recurrenceSelectionInfo;
+            if (openIssue.getRule().isPresent()) {
+                recurrenceSelectionInfo = openIssue.getRule().get()
+                        .getProperties()
+                        .entrySet()
+                        .stream()
+                        .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
+                        .findFirst()
+                        .map(found -> (RecurrenceSelectionInfo) found.getValue());
+            } else {
+                recurrenceSelectionInfo = Optional.empty();
+            }
             if (recurrenceSelectionInfo.isPresent() &&
                     recurrenceSelectionInfo.get().hasIncreaseUrgency()) {
                 taskIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()

@@ -5,10 +5,13 @@
 package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -17,6 +20,8 @@ import java.util.Set;
 public interface ServiceCallService {
 
     String COMPONENT_NAME = "SCS";
+    String SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME = "ServiceCallIssues";
+    String SERVICE_CALLS_ISSUE_DESTINATION_NAME = "ServiceCallIssues";
 
     /**
      * Get all known service call life cycles in tghe system, support paging.
@@ -45,20 +50,56 @@ public interface ServiceCallService {
      */
     Finder<ServiceCallType> getServiceCallTypes();
 
+    Optional<ServiceCallType> findServiceCallType(long id);
+
     /**
-     * Creates a new service call type, using provided name, version and life cycle. This method start a builder.
+     * Returns list of service call types with specified destination.
+     * @return List
+     */
+    List<ServiceCallType> getServiceCallTypes(String destination);
+
+    /**
+     * Creates a new service call type, using provided name, version, life cycle and destination. This method start a builder.
      * @param name
      * @return
      */
-    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle);
+    ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination, DefaultState retryState);
+
+    /**
+     * Creates a new service call type, using provided name, version and life cycle. The default destination is used. This method start a builder.
+     * @param name
+     * @param versionName
+     * @param serviceCallLifeCycle
+     * @param reservedByApplication "MultiSense" or "Insight". NULL for both.
+     * @return
+     */
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, null);
+    }
+
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, DefaultState retryState) {
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, retryState);
+    }
+
+    /**
+     * Creates a new service call type, using provided name and version. The default life cycle is used. The default destination is used. This method start a builder.
+     * @param name
+     * @param versionName
+     * @param reservedByApplication "MultiSense" or "Insight". NULL for both.
+     * @return
+     */
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, String reservedByApplication) {
+        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), reservedByApplication);
+    }
 
     /**
      * Creates a new service call type, using provided name and version. The default life cycle is used. This method start a builder.
      * @param name
+     * @param versionName
      * @return
      */
-    default public ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
-        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get());
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
+        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), null);
     }
 
     /**
@@ -143,4 +184,6 @@ public interface ServiceCallService {
     void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 
     Set<DefaultState> nonFinalStates();
+
+    List<DestinationSpec> getCompatibleQueues4();
 }

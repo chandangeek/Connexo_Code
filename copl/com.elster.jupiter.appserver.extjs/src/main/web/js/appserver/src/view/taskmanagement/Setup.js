@@ -27,7 +27,8 @@ Ext.define('Apr.view.taskmanagement.Setup', {
                     {
                         xtype: 'task-management-filter',
                         applicationKey: me.applicationKey,
-                        queuesStore: me.queuesStore
+                        queuesStore: me.queuesStore,
+                        queueTypesStore: me.queueTypesStore
                     },
                     {
                         xtype: 'preview-container',

@@ -76,9 +76,40 @@ Ext.define('Isu.view.issues.Preview', {
                         }
                     },
                     {
+                        xtype: 'filter-display',
+                        itemId: 'issue-preview-servicecall',
+                        fieldLabel: Uni.I18n.translate('general.title.servicecall', 'ISU', 'Service call'),
+                        name: 'serviceCall',
+                        renderer: function (value) {
+                            var url = '',
+                                result = '-';
+
+                            if (me.getRecord()) {
+                                me.down('#issue-preview-servicecall').setVisible(me.getRecord().get('issueType').uid === 'servicecall');
+                            }
+
+                            if (value) {
+                                if (value && Scs.privileges.ServiceCall.canView()) {
+                                    url = me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id});
+                                    result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
+                                } else {
+                                    result = value.name;
+                                }
+                            }
+
+                            return result;
+                        }
+                    },
+                    {
                         itemId: 'issue-preview-usage-point',
                         fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
-                        name: 'usage_point'
+                        name: 'usage_point',
+                        renderer: function (value) {
+                            if (me.getRecord()) {
+                                me.down('#issue-preview-usage-point').setVisible(me.getRecord().get('issueType').uid !== 'servicecall');
+                            }
+                            return value;
+                        }
                     },
                     {
                         xtype: 'filter-display',
@@ -88,6 +119,10 @@ Ext.define('Isu.view.issues.Preview', {
                         renderer: function (value) {
                             var url = '',
                                 result = '-';
+
+                            if (me.getRecord()) {
+                                me.down('#issue-preview-device').setVisible(me.getRecord().get('issueType').uid !== 'servicecall');
+                            }
 
                             if (value) {
                                 if (value.name && Isu.privileges.Device.canViewDeviceCommunication()) {

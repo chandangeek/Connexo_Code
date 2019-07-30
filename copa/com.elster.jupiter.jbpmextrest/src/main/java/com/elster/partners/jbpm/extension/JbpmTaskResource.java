@@ -695,14 +695,28 @@ public class JbpmTaskResource {
         }catch (NumberFormatException e){
         }
 
+        final JsonNode value = filterProperties.get("searchInAllProcesses");
+        final boolean searchInAllProcesses = Boolean
+                .valueOf(String.valueOf(value).replace("\"", "").replaceAll("\'", ""));
+        
         EntityManager em = emf.createEntityManager();
-        String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID " +
-                    "from processinstancelog p " +
-                    "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
-                    "where ( v.VARIABLEID in ('issueId','alarmId') " +
-                    "or v.VARIABLEID = 'deviceId' and (select count(*) from VARIABLEINSTANCELOG v1 where v1.PROCESSINSTANCEID = v.PROCESSINSTANCEID and VARIABLEID in ('alarmId', 'issueId'))=0) ";
-        queryString += addFilterToQuery(filterProperties, false);
-        queryString += addSortingToQuery(sortingProperties);
+        String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID"
+                + " from processinstancelog p"
+                + " LEFT JOIN (select count(*) as VARCOUNT, v1.PROCESSINSTANCEID as VPID from VARIABLEINSTANCELOG v1"
+                + " where v1.VARIABLEID in ('alarmId', 'issueId', 'deviceId', 'usagePointId')"
+                + " group by v1.PROCESSINSTANCEID) ON VPID = p.PROCESSINSTANCEID"
+                + " LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID and VARCOUNT = 1 and v.VARIABLEID in ('alarmId', 'issueId', 'deviceId', 'usagePointId')";
+        if (searchInAllProcesses) {
+            queryString += addProcessInstanceIdFilterToQuery(filterProperties);
+            queryString += addSortingToQuery(sortingProperties);
+        } else {
+            String filterToQuery = addFilterToQuery(filterProperties, false).trim();
+            if (filterToQuery.startsWith("AND") || filterToQuery.startsWith("and") || filterToQuery.startsWith("And")) {
+                filterToQuery = "WHERE " + filterToQuery.substring(3);
+            }
+            queryString += filterToQuery;
+            queryString += addSortingToQuery(sortingProperties);
+        }
 
         Query query = em.createNativeQuery(queryString);
         query.setFirstResult(startIndex);
@@ -1230,6 +1244,34 @@ public class JbpmTaskResource {
 
     private String getQueryValue(UriInfo uriInfo,String key){
         return uriInfo.getQueryParameters().getFirst(key);
+    }
+    
+    private String addProcessInstanceIdFilterToQuery(Map<String, JsonNode> filterProperties) {
+        String processInstanceId = "";
+        for (Map.Entry<String, JsonNode> entry : filterProperties.entrySet()) {
+            final String theKey = entry.getKey();
+            if ("processInstanceId".equals(theKey)) {
+                final JsonNode jsonProcessInstanceId = filterProperties.get(theKey);
+                if (jsonProcessInstanceId.size() > 0) {
+                    for (int i = 0; i < jsonProcessInstanceId.size(); i++) {
+                        if (processInstanceId.trim().isEmpty()) {
+                            processInstanceId += "p.PROCESSINSTANCEID = "
+                                    + jsonProcessInstanceId.get(i).toString().replace("\"", "'");
+                        } else {
+                            processInstanceId += " OR p.PROCESSINSTANCEID = "
+                                    + jsonProcessInstanceId.get(i).toString().replace("\"", "'");
+                        }
+                    }
+                } else {
+                    processInstanceId += "p.PROCESSINSTANCEID = "
+                            + jsonProcessInstanceId.getTextValue().replace("\"", "'");
+                }
+            }
+        }
+        if (!processInstanceId.trim().isEmpty()) {
+            processInstanceId = "where ( " + processInstanceId + " ) ";
+        }
+        return processInstanceId;
     }
 
     private String addFilterToQuery(Map<String, JsonNode> filterProperties, Boolean onlyHistoryProcesses){

@@ -97,10 +97,10 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
 
         ComTaskExecution from = allEntries.get(0);
         ComTaskExecution to = allEntries.get(allEntries.size() - 1);
-            auditStatus(from, to).ifPresent(auditLogChanges::add);
-            auditUrgency(from, to).ifPresent(auditLogChanges::add);
-            auditConnectionMethod(from, to).ifPresent(auditLogChanges::add);
-            auditUseDefaultConnectionMethod(from, to).ifPresent(auditLogChanges::add);
+        auditStatus(from, to).ifPresent(auditLogChanges::add);
+        auditUrgency(from, to).ifPresent(auditLogChanges::add);
+        auditConnectionMethod(from, to).ifPresent(auditLogChanges::add);
+        auditUseDefaultConnectionMethod(from, to).ifPresent(auditLogChanges::add);
 
         return auditLogChanges;
     }

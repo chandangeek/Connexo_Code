@@ -10,7 +10,8 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
         'Isu.store.CreationRuleActionPhases',
         'Isu.store.Clipboard',
         'Isu.store.Users',
-        'Isu.store.IssueTypes'
+        'Isu.store.IssueTypes',
+        'Isu.store.CreationRuleIssueTypes'
     ],
 
     views: [
@@ -77,7 +78,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
                     }
                 });
             } else {
-                me.getStore('Isu.store.IssueTypes').load(function (records) {
+                me.getStore('Isu.store.CreationRuleIssueTypes').load(function (records) {
                     var rule = Ext.create('Isu.model.CreationRule');
 
                     rule.setIssueType(records[0]);

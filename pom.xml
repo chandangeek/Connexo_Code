@@ -9,7 +9,7 @@
 
 	<groupId>com.elster.jupiter</groupId>
 	<artifactId>parent</artifactId>
-	<version>0.0.1-Heracles-SNAPSHOT</version>
+	<version>1.0.1-Heracles-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -39,7 +39,7 @@
              will be set to false by the release profile for releases -->
 		<include.source>false</include.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<baseline>1.0.0-Nessus-SNAPSHOT</baseline>
+		<baseline>1.0.0-Nessus</baseline>
 		<commercial.version>10.7.0</commercial.version>
 	</properties>
 
@@ -259,11 +259,6 @@
 					<version>1.3</version>
 				</plugin>
 				<plugin>
-					<groupId>com.elster.plugin</groupId>
-					<artifactId>bundle-version-maven-plugin</artifactId>
-					<version>1.4</version>
-				</plugin>
-				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-failsafe-plugin</artifactId>
 					<version>2.6</version>
@@ -311,6 +306,27 @@
 						</dependency>
 					</dependencies>
 				</plugin>
+				<!-- Our custom plugins -->
+				<plugin>
+					<groupId>com.elster.plugin</groupId>
+					<artifactId>bundle-version-maven-plugin</artifactId>
+					<version>1.4</version>
+				</plugin>
+				<plugin>
+					<groupId>com.elster.plugin</groupId>
+					<artifactId>npm-version-maven-plugin</artifactId>
+					<version>1.1</version>
+				</plugin>
+				<!-- This is commented due to errors in JS files
+				<plugin>
+					<groupId>com.elster.plugin</groupId>
+					<artifactId>js-unifying-i18n-maven-plugin</artifactId>
+					<version>1.0</version>
+					<configuration>
+						<jsSourceFolder>${project.basedir}/src/main/web/${js.dir}/src</jsSourceFolder>
+						<propertyFile>${project.basedir}/src/main/resources/i18n.properties</propertyFile>
+					</configuration>
+				</plugin-->
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -504,7 +520,7 @@
 						<configuration>
 							<includes>
 								<include>**/elster/**</include>
-								<include><include>**/energyict/**</include></include>
+								<include>**/energyict/**</include>
 							</includes>
 						</configuration>
 					</plugin>
@@ -536,6 +552,19 @@
 							</filesets>
 						</configuration>
 					</plugin>
+					<!-- This is commented due to errors in JS files
+					<plugin>
+						<groupId>com.elster.plugin</groupId>
+						<artifactId>js-unifying-i18n-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>check-translate-call</id>
+								<goals>
+									<goal>check</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin-->
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>
@@ -599,7 +628,6 @@
 					<plugin>
 						<groupId>com.elster.plugin</groupId>
 						<artifactId>npm-version-maven-plugin</artifactId>
-						<version>1.0</version>
 						<executions>
 							<execution>
 								<id>check-version</id>
@@ -616,6 +644,19 @@
 							</execution>
 						</executions>
 					</plugin>
+					<!-- This is commented due to errors in JS files
+					<plugin>
+						<groupId>com.elster.plugin</groupId>
+						<artifactId>js-unifying-i18n-maven-plugin</artifactId>
+						<executions>
+								<execution>
+									<id>check-translate-call</id>
+									<goals>
+										<goal>check</goal>
+									</goals>
+								</execution>
+                        </executions>
+					</plugin-->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-antrun-plugin</artifactId>

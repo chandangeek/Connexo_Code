@@ -268,7 +268,7 @@ Ext.define('Mdc.controller.setup.TaskManagementRegisteredDevices', {
             });
 
         pageMainContent.setLoading(true);
-
+        widget.down('#registered-devices-kpi-suspended').setValue(taskManagementRecord.get('suspendUntilTime'));
         Ext.Ajax.request({
             url: '/api/ddr/registereddevkpis/recurrenttask/' + taskManagementRecord.get('id'),
             method: 'GET',

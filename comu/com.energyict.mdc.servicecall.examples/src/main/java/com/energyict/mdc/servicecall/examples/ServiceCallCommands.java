@@ -330,7 +330,7 @@ public class ServiceCallCommands {
         String[] columns = record.split(";", -1);
         String index = columns[0];
         String loglevel = columns[1];
-        String message = columns[2];
+        String message = columns[3];
         try (TransactionContext context = transactionService.getContext()) {
             Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(serviceCallIds.get(Integer.parseInt(index)));
             if(serviceCall.isPresent()) {
@@ -383,37 +383,37 @@ public class ServiceCallCommands {
         try (TransactionContext context = transactionService.getContext()) {
 
             RegisteredCustomPropertySet customPropertySet = null;
-            if (columns.length > 5) {
-                customPropertySet = getCustomPropertySet(columns[5]);
+            if (columns.length > 6) {
+                customPropertySet = getCustomPropertySet(columns[6]);
             }
-            LogLevel level = getLogLevel(columns[3]);
+            LogLevel level = getLogLevel(columns[4]);
             ServiceCallType serviceCallType;
             if (customPropertySet != null) {
                 final RegisteredCustomPropertySet finalCustomPropertySet = customPropertySet;
                 serviceCallType = serviceCallService.findServiceCallType(columns[0], columns[1])
-                        .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[4], simpleLifecycle)
+                        .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[2], columns[5], simpleLifecycle)
                                 .handler("ServiceCallDemoHandler")
                                 .logLevel(level)
                                 .customPropertySet(finalCustomPropertySet)
                                 .create());
             } else {
                 serviceCallType = serviceCallService.findServiceCallType(columns[0], columns[1])
-                        .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[4], simpleLifecycle)
+                        .orElseGet(() -> getServiceCallTypeBuilder(columns[0], columns[1], columns[2], columns[5], simpleLifecycle)
                                 .handler("ServiceCallDemoHandler")
                                 .logLevel(level)
                                 .create());
             }
-            if ("deprecated".equals(columns[2])) {
+            if ("deprecated".equals(columns[3])) {
                 serviceCallType.deprecate();
             }
             context.commit();
         }
     }
 
-    private ServiceCallTypeBuilder getServiceCallTypeBuilder(String name, String version, String lifeCycleName, ServiceCallLifeCycle simpleLifecycle) {
+    private ServiceCallTypeBuilder getServiceCallTypeBuilder(String name, String version, String appKey, String lifeCycleName, ServiceCallLifeCycle simpleLifecycle) {
         System.out.println("Creating service call type '" + name + "'");
-        return "simple".equals(lifeCycleName) ? serviceCallService.createServiceCallType(name, version, simpleLifecycle) :
-                serviceCallService.createServiceCallType(name, version);
+        return "simple".equals(lifeCycleName) ? serviceCallService.createServiceCallType(name, version, simpleLifecycle, appKey) :
+                serviceCallService.createServiceCallType(name, version, appKey);
     }
 
     private LogLevel getLogLevel(String loglevel) {
@@ -478,12 +478,12 @@ public class ServiceCallCommands {
         String[] columns = record.split(";", -1);
         String externalRef = columns[0];
         String serviceCallType = columns[1];
-        String version = columns[2];
-        String origin = columns[3];
-        String state = columns[4];
-        String customAttributes = columns[5];
-        String parent = columns[6];
-        String object = columns[7];
+        String version = columns[3];
+        String origin = columns[4];
+        String state = columns[5];
+        String customAttributes = columns[6];
+        String parent = columns[7];
+        String object = columns[8];
         Optional<ServiceCallType> optionalServiceCallType = serviceCallService.findServiceCallType(serviceCallType,version);
         ServiceCallBuilder serviceCallBuilder = getServiceCallBuilder(serviceCallIds, parent, optionalServiceCallType);
         try (TransactionContext context = transactionService.getContext()) {

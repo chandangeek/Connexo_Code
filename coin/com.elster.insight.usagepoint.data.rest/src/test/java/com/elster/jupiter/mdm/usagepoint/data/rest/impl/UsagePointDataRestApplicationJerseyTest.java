@@ -5,6 +5,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.audit.AuditService;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
+import com.elster.jupiter.audit.rest.impl.AuditInfoFactoryImpl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
@@ -176,6 +179,10 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ReadingType irregularReadingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     @Mock
     UserService userService;
+    @Mock
+    AuditService auditService;
+
+    AuditInfoFactory auditInfoFactory;
 
     @Override
     protected Application getApplication() {
@@ -225,6 +232,9 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setPropertySpecService(propertySpecService);
         application.setUsagePointService(usagePointService);
         application.setUserService(userService);
+        application.setAuditService(auditService);
+        auditInfoFactory = new AuditInfoFactoryImpl();
+        application.setAuditInfoFactory(auditInfoFactory);
         return application;
     }
 

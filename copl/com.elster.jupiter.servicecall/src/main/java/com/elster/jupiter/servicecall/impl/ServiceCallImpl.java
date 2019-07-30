@@ -343,8 +343,8 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     private void deleteQueuedTransitions() {
-        DestinationSpec serviceCallQueue = serviceCallService.getServiceCallQueue();
-        serviceCallQueue.purgeCorrelationId(this.getNumber());
+        Optional<DestinationSpec> serviceCallQueue = serviceCallService.getServiceCallQueue(getType().getDestinationName());
+        serviceCallQueue.ifPresent(scq -> scq.purgeCorrelationId(this.getNumber()));
     }
 
     @Override

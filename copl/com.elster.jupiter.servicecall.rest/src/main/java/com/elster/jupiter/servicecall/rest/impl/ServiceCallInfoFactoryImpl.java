@@ -101,8 +101,9 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
     }
 
     @Override
-    public ServiceCallFilter convertToServiceCallFilter(JsonQueryFilter filter) {
+    public ServiceCallFilter convertToServiceCallFilter(JsonQueryFilter filter, String appKey) {
         ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
+        serviceCallFilter.appKey = appKey;
         if (filter.hasProperty("name")) {
             serviceCallFilter.reference = filter.getString("name");
         }

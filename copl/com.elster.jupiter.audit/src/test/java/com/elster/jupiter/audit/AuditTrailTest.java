@@ -15,7 +15,7 @@ public class AuditTrailTest extends BaseAuditTrailTest {
 
     @Test
     public void testGetAuditTrail() {
-        Finder<AuditTrail> finder = auditService.getAuditTrail(auditService.newAuditTrailFilter());
+        Finder<AuditTrail> finder = auditService.getAuditTrail(auditService.newAuditTrailFilter(ApplicationType.MDC_APPLICATION_KEY));
 
 //        assertThat(finder.stream().map(AuditTrail::getOperation).findFirst().get()).isEqualTo("");
     }

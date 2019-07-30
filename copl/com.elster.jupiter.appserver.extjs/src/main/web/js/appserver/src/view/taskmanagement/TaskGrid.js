@@ -29,6 +29,11 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                dataIndex: 'queueType',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
                 dataIndex: 'queue',
                 flex: 1
@@ -39,14 +44,23 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.suspendedTask', 'APR', 'Suspended'),
+                dataIndex: 'suspendUntilTime',
+                flex: 1,
+                renderer: function(value){
+                    return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes') : Uni.I18n.translate('general.suspended.no','APR','No')
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 width: 120,
-                //privileges: ,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     var taskType = record.get('queue'),
                         taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
 
-                    return taskManagement == undefined || !taskManagement.controller.canAdministrate();
+                   // return taskManagement == undefined || !taskManagement.controller.canAdministrate();
+                    return !((taskManagement != undefined && taskManagement.controller.canAdministrate())
+                        || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview'));
                 },
                 menu: {
                     xtype: 'task-management-action-menu',

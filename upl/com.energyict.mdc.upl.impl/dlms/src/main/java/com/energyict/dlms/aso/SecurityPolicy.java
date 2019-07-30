@@ -116,4 +116,12 @@ public class SecurityPolicy {
     private boolean isBitSet(int bitPosition) {
         return (dataTransportSecurityLevel & (1 << bitPosition)) != 0;
     }
+
+    public void setBit(int bitPosition) {
+        dataTransportSecurityLevel = dataTransportSecurityLevel | (1 << bitPosition);
+    }
+
+    public void unsetBit(int bitPosition) {
+        dataTransportSecurityLevel = dataTransportSecurityLevel & ~(1 << bitPosition);
+    }
 }

@@ -5,12 +5,14 @@
 package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
+import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
 import com.elster.jupiter.issue.security.Privileges;
+import com.elster.jupiter.issue.impl.database.PrivilegesProviderV10_7;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -53,9 +55,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final TaskService taskService;
     private final UserService userService;
     private final EndPointConfigurationService endPointConfigurationService;
+    private final PrivilegesProviderV10_7 privilegesProviderV10_7;
+
 
     @Inject
-    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService, EndPointConfigurationService endPointConfigurationService) {
+    public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService, EndPointConfigurationService endPointConfigurationService,
+                     PrivilegesProviderV10_7 privilegesProviderV10_7) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.userService = userService;
@@ -63,11 +68,13 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         this.messageService = messageService;
         this.taskService = taskService;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.privilegesProviderV10_7 = privilegesProviderV10_7;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
+        issueService.createIssueType(IssueService.MANUAL_ISSUE_TYPE, TranslationKeys.MANUAL_ISSUE_TYPE, IssueService.MANUAL_ISSUE_PREFIX);
         doTry(
                 "view for all issues",
                 this::createViews,
@@ -95,6 +102,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 logger
         );
         userService.addModulePrivileges(this);
+        userService.addModulePrivileges(privilegesProviderV10_7);
     }
 
     @Override
@@ -171,6 +179,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         IssueType type = null;
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, WebServiceNotificationAction.class.getName(), type, CreationRuleActionPhase.CREATE);
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), issueService.findIssueType(IssueService.MANUAL_ISSUE_TYPE).get());
     }
 
 }

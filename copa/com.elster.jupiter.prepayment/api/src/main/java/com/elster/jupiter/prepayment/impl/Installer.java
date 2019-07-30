@@ -68,7 +68,7 @@ public class Installer implements FullInstaller {
             RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(new ContactorOperationCustomPropertySet().getId())
                     .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find active custom property set {0}", ContactorOperationCustomPropertySet.class.getSimpleName())));
 
-            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion())
+            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), serviceCallTypeMapping.getApplication())
                     .handler(OperationHandler.HANDLER_NAME)
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(customPropertySet)

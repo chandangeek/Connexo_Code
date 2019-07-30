@@ -23,6 +23,7 @@ public class MasterUtilitiesDeviceCreateRequestCallHandler implements ServiceCal
 
     public static final String NAME = "MasterUtilitiesDeviceCreateRequestCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
 
