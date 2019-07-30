@@ -241,7 +241,7 @@ public enum ReadingTypeUnit {
 	VOLTHOUR(280, "Volt hour", Unit.VOLT_HOUR),
 	HUMIDITY(281, "Humidity", Unit.UNITLESS),
 	SKYCOVER(282, "Sky cover", Unit.UNITLESS),
-    BELMICROVOLT(233, "Bel microvolt", Unit.BEL_MICROVOLT);
+    BELMICROVOLT(283, "Bel microvolt", Unit.BEL_MICROVOLT);
 
 	private final int id;
 	private final String name;
