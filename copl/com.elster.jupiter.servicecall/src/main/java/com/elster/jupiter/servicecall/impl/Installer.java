@@ -61,7 +61,10 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         QueueTableSpec defaultQueueTableSpec = createDefaultQueueTableSpecIfNotExist();
-        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, logger);
+        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME,
+                ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
+        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME,
+                ServiceCallService.SERVICE_CALLS_ISSUE_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_ISSUE_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
         doTry(
                 "Install default Service Call Life Cycle.",
                 this::installDefaultLifeCycle,
@@ -102,11 +105,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 .orElseGet(()-> messageService.createQueueTableSpec(QUEUE_TABLE_NAME, "RAW", false, true));
     }
 
-    void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberName, Logger logger) {
+    void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String subscriberName, String destinationName, TranslationKey subscriberKey, String componentName, Logger logger) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
             DestinationSpec queue = doTry(
-                    "Create Queue : " + ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME,
+                    "Create Queue : " + destinationName,
                     () -> {
                         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, true, true);
                         destinationSpec.activate();
@@ -115,8 +118,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                     logger
             );
             doTry(
-                    "Create subsriber " + ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME,
-                    () -> queue.subscribe(TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, Layer.DOMAIN),
+                    "Create subsriber " + subscriberName + " on " + destinationName,
+                    () -> queue.subscribe(subscriberKey, componentName, Layer.DOMAIN),
                     logger
             );
         } else {
@@ -124,13 +127,13 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             boolean notSubscribedYet = queue
                     .getSubscribers()
                     .stream()
-                    .noneMatch(spec -> spec.getName().equals(subscriberName.getKey()));
+                    .noneMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
             if (notSubscribedYet) {
                 doTry(
-                        "Create subsriber " + ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME,
+                        "Create subsriber " + subscriberName+ " on " + destinationName,
                         () -> {
                             queue.activate();
-                            queue.subscribe(subscriberName, ServiceCallService.COMPONENT_NAME, Layer.DOMAIN);
+                            queue.subscribe(subscriberKey, componentName, Layer.DOMAIN);
                         },
                         logger
                 );

@@ -74,6 +74,7 @@ public class TopIssuesResource extends BaseResource {
                         add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.TASK.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.MANUAL.getName()).get());
                     }})));
             issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
@@ -116,6 +117,7 @@ public class TopIssuesResource extends BaseResource {
                 issueType.equals(IssueTypes.DATA_VALIDATION) ||
                 issueType.equals(IssueTypes.DEVICE_LIFECYCLE) ||
                 issueType.equals(IssueTypes.TASK) ||
+                issueType.equals(IssueTypes.SERVICE_CALL_ISSUE) ||
                 issueType.equals(IssueTypes.MANUAL);
     }
 

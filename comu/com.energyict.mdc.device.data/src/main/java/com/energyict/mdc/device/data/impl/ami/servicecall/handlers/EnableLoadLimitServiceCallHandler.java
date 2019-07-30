@@ -30,6 +30,7 @@ public class EnableLoadLimitServiceCallHandler extends AbstractOperationServiceC
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "EnableLoadLimitServiceCallHandler";
+    public static final String APPLICATION = null;
 
     public EnableLoadLimitServiceCallHandler() {
         super();
