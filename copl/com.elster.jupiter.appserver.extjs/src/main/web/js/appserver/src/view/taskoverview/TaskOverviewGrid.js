@@ -64,7 +64,7 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    return !Usr.privileges.Users.canAdministrate() || !(record.get('extraQueueCreationEnabled')) || !(record.get('queuePrioritized'));
+                    return !Usr.privileges.Users.canAdministrate() || (!(record.get('extraQueueCreationEnabled')) && !(record.get('queuePrioritized')));
                 },
                 menu: {
                     xtype: 'task-overview-action-menu',
