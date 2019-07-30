@@ -45,6 +45,7 @@ public class SyncReplyIssue {
     private Set<Integer> notUsedReadingsDueToTimeStamp;
     private Set<Integer> notUsedReadingsDueToConnectionMethod;
     private Set<Integer> notUsedReadingsDueToDataSources;
+    private Set<Integer> notUsedReadingsDueToComTaskExecutions;
     private Set<Integer> existedReadingsIndexes;
 
     // Source.dataSource
@@ -187,6 +188,9 @@ public class SyncReplyIssue {
         this.notUsedReadingsDueToConnectionMethod = notUsedReadingsDueToConnectionMethod;
     }
 
+    public void addNotUsedReadingsDueToDataSources(int index) {
+        getNotUsedReadingsDueToDataSources().add(index);
+    }
 
     public Set<Integer> getNotUsedReadingsDueToDataSources() {
         if (notUsedReadingsDueToDataSources == null) {
@@ -199,8 +203,19 @@ public class SyncReplyIssue {
         this.notUsedReadingsDueToDataSources = notUsedReadingsDueToDataSources;
     }
 
-    public void addNotUsedReadingsDueToDataSources(int index) {
-        getNotUsedReadingsDueToDataSources().add(index);
+    public void addNotUsedReadingsDueToComTaskExecutions(int index) {
+        getNotUsedReadingsDueToComTaskExecutions().add(index);
+    }
+
+    public Set<Integer> getNotUsedReadingsDueToComTaskExecutions() {
+        if (notUsedReadingsDueToComTaskExecutions == null) {
+            notUsedReadingsDueToComTaskExecutions = new HashSet<>();
+        }
+        return notUsedReadingsDueToComTaskExecutions;
+    }
+
+    public void setNotUsedReadingsDueToComTaskExecutions(Set<Integer> notUsedReadingsDueToComTaskExecutions) {
+        this.notUsedReadingsDueToComTaskExecutions = notUsedReadingsDueToComTaskExecutions;
     }
 
     public void addExistedReadingsIndexes(int index) {
@@ -262,6 +277,7 @@ public class SyncReplyIssue {
     public void setReadingExistedRegisterGroupsMap(Map<Integer, Set<String>> readingExistedRegisterGroupsMap) {
         this.readingExistedRegisterGroupsMap = readingExistedRegisterGroupsMap;
     }
+
     public void addDeviceRegularComTaskExecution(Long deviceId, ComTaskExecution deviceRegularComTaskExecutions) {
         getDeviceRegularComTaskExecutionMap().put(deviceId, deviceRegularComTaskExecutions);
     }
@@ -372,6 +388,16 @@ public class SyncReplyIssue {
         if (!getNotUsedReadingsDueToDataSources().isEmpty()) {
             errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
                     String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToDataSources())), DATA_SOURCE));
+        }
+
+        if (!getNotUsedReadingsDueToComTaskExecutions().isEmpty()) {
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE_DUE_TO_COM_TASKS, null,
+                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToComTaskExecutions()))));
+        }
+
+        if (getDeviceRegularComTaskExecutionMap().isEmpty() && getDeviceIrregularComTaskExecutionMap().isEmpty()
+                && getDeviceMessagesComTaskExecutionMap().isEmpty()) {
+            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOUND, null));
         }
 
         if (getExistedReadingsIndexes().isEmpty()) {

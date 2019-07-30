@@ -256,6 +256,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
             fillDevicesComTaskExecutions(devices, reading, i);
             if (!checkComTaskExecutions(devices, readingItem)) {
+                syncReplyIssue.addNotUsedReadingsDueToComTaskExecutions(i);
                 continue;
             }
 
@@ -322,7 +323,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 clazz = RegistersTask.class;
             }
             ComTaskExecution comTaskExecution = getComTaskExecution(device.getComTaskExecutions(), clazz)
-                    .orElse(createComTaskExecution(device, LoadProfilesTask.class));
+                    .orElse(createComTaskExecution(device, clazz));
             if (comTaskExecution != null) {
                 if (isRegular) {
                     syncReplyIssue.addDeviceRegularComTaskExecution(device.getId(), comTaskExecution);

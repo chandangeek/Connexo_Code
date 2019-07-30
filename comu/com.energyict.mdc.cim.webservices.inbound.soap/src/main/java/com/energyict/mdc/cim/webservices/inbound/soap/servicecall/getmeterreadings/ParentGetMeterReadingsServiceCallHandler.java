@@ -48,6 +48,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "ParentGetMeterReadingsServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private final MeteringService meteringService;
     private final SendMeterReadingsProvider sendMeterReadingsProvider;

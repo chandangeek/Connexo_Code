@@ -15,6 +15,7 @@ public class ComTaskExecutionServiceCallHandler implements ServiceCallHandler {
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "ComTaskExecutionServiceCallHandler";
+    public static final String APPLICATION = "MDC";
 
     @Inject
     public ComTaskExecutionServiceCallHandler() {

@@ -119,11 +119,12 @@ public enum MessageSeeds implements MessageSeed {
     SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES(7030, "SystemSourceDoesntSupportLoadProfiles", "''System'' source doesn''t support ''Load profile'' data source. Element ''{0}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_READING_TYPES(7031, "NoComTaskExecutionForReadingTypes", "No communication task execution has been found on device ''{0}'' for readingTypes ''{1}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES(7032, "NoComTaskExecutionForLoadProfiles", "No communication task execution has been found for load profile device messages on device ''{0}''.", Level.WARNING),
-    NO_COM_TASK_EXECUTION_ON_DEVICE(7033, "NoComTaskExecutionOnDevice", "No proper communication task execution has been found for device ''{0}'' under element ''{1}''."),
+    NO_COM_TASK_EXECUTION_ON_DEVICE(7033, "NoComTaskExecutionOnDevice", "No proper communication task execution has been found for device ''{0}'' under element ''{1}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOUND(7034, "NoComTaskExecutionFound", "No proper communication task execution has been found."),
     LOAD_PROFILES_NOT_FOUND_ON_DEVICE(7035, "LoadProfilesNotFoundOnDevice", "LoadProfile(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
     NO_READINGS_TO_READ(7036, "NoReadingsToRead", "Couldn''t find any correct  ''GetMeterReadings.Reading'' to read."),
     READING_NOT_APPLICABLE(7037, "ReadingNotApplicable", "''{0}'' will be skipped due to issue in the element ''{1}''.", Level.WARNING),
+    READING_NOT_APPLICABLE_DUE_TO_COM_TASKS(7038, "ReadingNotApplicableDueToComTasks", "''{0}'' will be skipped due to inability to find proper communication tasks.", Level.WARNING),
 
     NO_HEAD_END_INTERFACE_FOUND(8004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     ;

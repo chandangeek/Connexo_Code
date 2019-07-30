@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 public class SubParentGetMeterReadingsServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "SubParentGetMeterReadingsServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
 
     public SubParentGetMeterReadingsServiceCallHandler() {
