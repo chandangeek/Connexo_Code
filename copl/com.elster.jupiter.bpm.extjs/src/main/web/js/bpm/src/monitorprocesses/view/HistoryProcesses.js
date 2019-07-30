@@ -55,8 +55,8 @@ Ext.define('Bpm.monitorprocesses.view.HistoryProcesses', {
                         itemId: 'status-process-tab',
                         items: [
                             {
-                                xtype: 'bpm-status-process-preview',
-                                itemId: 'history-process-status-preview'
+                                xtype: 'bpm-status-process-preview-extended',
+                                itemId: 'history-process-status-preview-extended'
                             }
                         ]
                     }

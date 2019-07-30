@@ -1,13 +1,16 @@
 package com.energyict.mdc.device.data.importers.impl.devices.shipment.secure;
 
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.NamedEncryptedDataType;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.ImportFailedException;
+
+import org.w3._2001._04.xmlenc_.CipherDataType;
 
 public class ImportFileDeviceKey {
 
     private final byte[] encryptedKey;
 
-    public ImportFileDeviceKey(byte[] encryptedKey){
+    private ImportFileDeviceKey(byte[] encryptedKey){
         if (encryptedKey.length <= 16) {
             throw new ImportFailedException(MessageSeeds.INITIALIZATION_VECTOR_ERROR);
         }
@@ -31,4 +34,10 @@ public class ImportFileDeviceKey {
         return encryptedKey;
     }
 
+    public static ImportFileDeviceKey from(NamedEncryptedDataType deviceKey) throws InvalidKeyException {
+        if (deviceKey.getCipherData() == null || deviceKey.getCipherData().getCipherValue() == null) {
+            throw new InvalidKeyException();
+        }
+        return new ImportFileDeviceKey(deviceKey.getCipherData().getCipherValue());
+    }
 }

@@ -113,6 +113,14 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                     {
                         fieldLabel: Uni.I18n.translate('estimationtasks.general.nextRun', 'EST', 'Next run'),
                         name: 'nextRun_formatted_long'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.suspended', 'EST', 'Suspended'),
+                        name: 'suspendUntilTime',
+                        itemId : 'suspended_formatted_string',
+                        renderer: function(value) {
+                            return value ? Uni.I18n.translate('general.suspended.yes', 'APR', 'Yes <br/>has been suspended until next run') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
+                        }
                     }
                 ]
             },

@@ -669,6 +669,24 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         }
     },
 
+    EXPORT_ALL_DEVICE_CERTIFICATES(7074, "Export all device certificates") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    this.stringSpec(service, DeviceMessageConstants.trustStoreNameAttributeName, DeviceMessageConstants.trustedStoreNameDefaultTranslation)
+            );
+        }
+    },
+
+    CHANGE_PSK_KEK(7075, "Change PSK KEK") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPSKKEKAttributeName, DeviceMessageConstants.newPSKKEKDefaultTranslation)
+            );
+        }
+    },
+
     ;
 
     private final long id;

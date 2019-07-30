@@ -118,7 +118,7 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
     }
 
     @Override
-    public CreationRule getRule() {
+    public Optional<CreationRule> getRule() {
         return getBaseIssue().getRule();
     }
 

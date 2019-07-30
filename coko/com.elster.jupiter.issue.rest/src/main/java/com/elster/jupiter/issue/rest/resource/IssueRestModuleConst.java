@@ -27,4 +27,5 @@ public class IssueRestModuleConst {
     public static final String END_INTERVAL = "startIntervalTo";
     public static final String APPLICATION = "application";
     public static final String USAGEPOINT = "usagePoint";
+    public static final String USAGEPOINT_GROUPS = "usagePointGroup";
 }

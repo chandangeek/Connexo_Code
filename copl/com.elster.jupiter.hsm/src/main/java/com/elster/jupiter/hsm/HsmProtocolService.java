@@ -104,4 +104,6 @@ public interface HsmProtocolService {
     MacResponse generateMacMiddleBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] state) throws HsmBaseException;
     MacResponse generateMacLastBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv, byte[] state) throws HsmBaseException;
     MacResponse generateMacSingleBlock(HsmIrreversibleKey firmwareUpdateAuthKey, byte[] clearData, byte[] icv) throws HsmBaseException;
+
+    byte[] wrapServiceKey(byte[] preparedData, byte[] signature, String verifyKey) throws HsmBaseException;
 }

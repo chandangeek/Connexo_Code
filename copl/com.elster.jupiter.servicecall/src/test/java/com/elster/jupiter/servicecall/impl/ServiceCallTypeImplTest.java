@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -40,6 +41,8 @@ public class ServiceCallTypeImplTest {
     @Mock
     private IServiceCallService serviceCallService;
     @Mock
+    private MessageService messageService;
+    @Mock
     private ServiceCallHandler serviceRequestHandler;
     @Mock
     private ServiceCallImpl serviceCall;
@@ -63,7 +66,7 @@ public class ServiceCallTypeImplTest {
 
         doThrow(runtimeException).when(serviceRequestHandler).allowStateChange(any(), any(), any());
 
-        ServiceCallTypeImpl serviceCallType = new ServiceCallTypeImpl(dataModel, serviceCallService, thesaurus);
+        ServiceCallTypeImpl serviceCallType = new ServiceCallTypeImpl(dataModel, serviceCallService, messageService, thesaurus);
         serviceCallType.setHandlerName(HANDLER_NAME);
 
         ServiceCallHandler actualHandler = serviceCallType.getServiceCallHandler();
@@ -80,7 +83,7 @@ public class ServiceCallTypeImplTest {
 
         doThrow(runtimeException).when(serviceRequestHandler).onStateChange(any(), any(), any());
 
-        ServiceCallTypeImpl serviceCallType = new ServiceCallTypeImpl(dataModel, serviceCallService, thesaurus);
+        ServiceCallTypeImpl serviceCallType = new ServiceCallTypeImpl(dataModel, serviceCallService, messageService, thesaurus);
         serviceCallType.setHandlerName(HANDLER_NAME);
 
         ServiceCallHandler actualHandler = serviceCallType.getServiceCallHandler();

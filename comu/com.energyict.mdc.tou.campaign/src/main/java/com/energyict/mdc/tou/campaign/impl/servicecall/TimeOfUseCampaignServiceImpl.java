@@ -22,6 +22,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -40,6 +41,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
@@ -48,10 +50,13 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
@@ -59,6 +64,7 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.Installer;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
+import com.energyict.mdc.tou.campaign.impl.UpgraderV10_7;
 import com.energyict.mdc.tou.campaign.impl.ServiceCallTypes;
 import com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignBuilderImpl;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
@@ -80,7 +86,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -118,6 +123,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
+    private volatile TaskService taskService;
     private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -134,7 +140,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                                         MeteringGroupsService meteringGroupsService, OrmService ormService, Clock clock, DeviceService deviceService,
                                         CalendarService calendarService, DeviceConfigurationService deviceConfigurationService,
                                         DeviceMessageSpecificationService deviceMessageSpecificationService, EventService eventService,
-                                        BundleContext bundleContext) {
+                                        BundleContext bundleContext, TaskService taskService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setTransactionService(transactionService);
@@ -153,6 +159,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         setCalendarService(calendarService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setTaskService(taskService);
         activate(bundleContext);
     }
 
@@ -179,6 +186,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 bind(NlsService.class).toInstance(nlsService);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                bind(TaskService.class).toInstance(taskService);
                 bind(TimeOfUseCampaignService.class).toInstance(TimeOfUseCampaignServiceImpl.this);
                 bind(TimeOfUseCampaignServiceImpl.class).toInstance(TimeOfUseCampaignServiceImpl.this);
             }
@@ -193,7 +201,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         customPropertySets.add(dataModel.getInstance(TimeOfUseItemPropertySet.class));
         customPropertySets.forEach(customPropertySetService::addCustomPropertySet);
         registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(TimeOfUseCampaignCustomPropertySet.CUSTOM_PROPERTY_SET_ID).get();
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 7), UpgraderV10_7.class));
         registerServiceCallHandler(bundleContext, dataModel.getInstance(TimeOfUseCampaignServiceCallHandler.class), TimeOfUseCampaignServiceCallHandler.NAME);
         registerServiceCallHandler(bundleContext, dataModel.getInstance(TimeOfUseItemServiceCallHandler.class), TimeOfUseItemServiceCallHandler.NAME);
         serviceRegistrations.add(bundleContext.registerService(Subscriber.class, dataModel.getInstance(TimeOfUseCampaignHandler.class), new Hashtable<>()));
@@ -219,6 +227,11 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
                 .join(nlsService.getThesaurus(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService){
+        this.taskService = taskService;
     }
 
     @Reference
@@ -403,7 +416,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
             TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = dataModel.getInstance(TimeOfUseItemDomainExtension.class);
             timeOfUseItemDomainExtension.setDevice(device);
             timeOfUseItemDomainExtension.setParentServiceCallId(parent.getId());
-            ServiceCall serviceCall = parent.newChildCall(serviceCallType).extendedWith(timeOfUseItemDomainExtension).create();
+            ServiceCall serviceCall = parent.newChildCall(serviceCallType).extendedWith(timeOfUseItemDomainExtension).targetObject(device).create();
             serviceCall.requestTransition(DefaultState.PENDING);
             return MessageSeeds.DEVICE_WAS_ADDED;
         } else {
@@ -483,6 +496,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
             serviceCall.log(e.getLocalizedMessage(), e);
         }
     }
+
 
     void revokeCalendarsCommands(Device device) {
         device.getMessages().stream()
@@ -589,5 +603,10 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     boolean isWithVerification(TimeOfUseCampaign timeOfUseCampaign) {
         String activationOption = timeOfUseCampaign.getActivationOption();
         return (activationOption.equals(TranslationKeys.IMMEDIATELY.getKey()) || activationOption.equals(TranslationKeys.ON_DATE.getKey()));
+    }
+
+    @Override
+    public ComTask getComTaskById(long id){
+        return taskService.findComTask(id).get();
     }
 }

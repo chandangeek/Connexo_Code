@@ -6,6 +6,7 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCallService;
 
 /**
  * Created by bvn on 2/4/16.
@@ -13,6 +14,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 public enum TranslationKeys implements TranslationKey {
 
     SERVICE_CALL_SUBSCRIBER(ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME, "Handle service calls"),
+    SERVICE_CALL_ISSUE_SUBSCRIBER(ServiceCallService.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME, "Handle service call issues"),
 
     DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME("scs.standard.service.call.life.cycle", "Default service call life cycle"),
 
@@ -43,6 +45,13 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_FROM_REJECT_TO_PENDING(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.PENDING.getSymbol(), "Retry"),
     TRANSITION_FROM_REJECT_TO_FAILED(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.FAILED.getSymbol(), "Failed"),
     TRANSITION_FROM_PENDING_TO_REJECT(DefaultState.PENDING.getKey() + DefaultCustomStateTransitionEventType.REJECTED.getSymbol(), "Reject"),
+    TRANSITION_FROM_PENDING_TO_SUCCESS(DefaultState.PENDING.getKey() + DefaultCustomStateTransitionEventType.SUCCESSFUL.getSymbol(), "Successful"),
+
+    TRANSITION_FROM_FAILED_TO_ONGOING(DefaultState.FAILED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
+    TRANSITION_FROM_PARTIAL_SUCCESS_TO_ONGOING(DefaultState.PARTIAL_SUCCESS.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
+    TRANSITION_FROM_SUCCESSFUL_TO_ONGOING(DefaultState.SUCCESSFUL.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
+    TRANSITION_FROM_REJECT_TO_ONGOING(DefaultState.REJECTED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
+    TRANSITION_FROM_CANCELLED_TO_ONGOING(DefaultState.CANCELLED.getKey() + DefaultCustomStateTransitionEventType.ONGOING.getSymbol(), "Retry"),
     SERVICE_CALL_DOMAIN_NAME("com.elster.jupiter.servicecall.ServiceCall", "Service call");
 
     private final String key;

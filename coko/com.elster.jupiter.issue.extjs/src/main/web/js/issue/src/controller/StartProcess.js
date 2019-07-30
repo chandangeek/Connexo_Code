@@ -40,6 +40,11 @@ Ext.define('Isu.controller.StartProcess', {
             issueModel = 'Itk.model.Issue';
             issueType = 'taskissue';
         }
+        else if (router.queryParams.issueType === "servicecall")
+        {
+            issueModel = 'Isc.model.Issue';
+            issueType = 'servicecallissue';
+        }
 
         Ext.ModelManager.getModel(issueModel).load(issueId, {
             success: function (issue) {

@@ -85,6 +85,10 @@ public final class DeviceMessageConstants {
     public static final String MaxCyclesDefaultTranslation = "Maximum cycles";
     public static final String RequestedBlockSize = "FirmwareDeviceMessage.RequestedBlockSize";
     public static final String RequestedBlockSizeDefaultTranslation = "Requested block size";
+    public static final String MulticastGroup = "FirmwareDeviceMessage.MulticastGroup";
+    public static final String MulticastGroupDefaultTranslation = "Multicast group";
+    public static final String UdpMeterPort = "FirmwareDeviceMessage.UdpMeterPort";
+    public static final String UdpMeterPortDefaultTranslation = "UDP meter port";
     public static final String PadLastBlock = "FirmwareDeviceMessage.PadLastBlock";
     public static final String PadLastBlockDefaultTranslation = "Pad the last block";
     public static final String UseTransferredBlockStatus = "FirmwareDeviceMessage.UseTransferredBlockStatus";
@@ -219,6 +223,8 @@ public final class DeviceMessageConstants {
     public static final String newEncryptionKeyAttributeDefaultTranslation = "New encryption key";
     public static final String newPSKAttributeName = "SecurityMessage.new.PSK";
     public static final String newPSKDefaultTranslation = "New wrapped PSK";
+    public static final String newPSKKEKAttributeName = "SecurityMessage.new.PSK_KEK";
+    public static final String newPSKKEKDefaultTranslation = "New PSK KEK";
     public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
     public static final String newWrappedEncryptionKeyDefaultTranslation = "New wrapped encryption key";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
@@ -307,6 +313,8 @@ public final class DeviceMessageConstants {
     public static final String crlIssuerNameDefaultTranslation = "X.500 name of the CRL issuer";
     public static final String trustedCertificateWrapperAttributeName = "SecurityMessage.trustedCertificate";
     public static final String trustedCertificateWrapperDefaultTranslation = "Trusted certificate containing the CRL to send";
+    public static final String trustStoreNameAttributeName = "SecurityMessage.trustStoreName";
+    public static final String trustedStoreNameDefaultTranslation = "Trust store name";
 
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateTypeAttributeDefaultTranslation = "Certificate type";
@@ -1652,6 +1660,9 @@ public final class DeviceMessageConstants {
 
     public static final String adHocEndOfBillingActivationDatedAttributeName = "AdHocEndOfBilling.activationDateTime";
     public static final String adHocEndOfBillingActivationDatedAttributeDefaultTranslation = "Ad hoc end of billing date";
+
+    public static final String billingDateConfigurationDefaultTranslation = "Billing date configuration";
+
     public static final String attributeId = "DeviceActionMessage.AttributeId";
     public static final String attributeIdDefaultTranslation = "Attribute ID";
     public static final String classId = "DeviceActionMessage.ClassID";

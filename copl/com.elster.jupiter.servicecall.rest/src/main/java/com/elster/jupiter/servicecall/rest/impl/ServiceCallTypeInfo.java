@@ -15,10 +15,13 @@ public class ServiceCallTypeInfo {
     public String name;
     public String versionName;
     public String handler;
+    public String reservedByApplication;
     public IdWithDisplayValueInfo<String> status;
     public IdWithDisplayValueInfo<String> logLevel;
     public IdWithNameInfo serviceCallLifeCycle;
     public List<ServiceCallTypeCustomPropertySetInfo> customPropertySets;
+    public String destination;
+    public int priority;
 
     public ServiceCallTypeInfo() {
     }

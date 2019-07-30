@@ -61,8 +61,12 @@ class CSRImporter implements FileImporter {
         CSRImporterLogger logger = new CSRImporterLogger(fileImportOccurrence, thesaurus);
         try {
             ReusableInputStream reusableInputStream = ReusableInputStream.from(fileImportOccurrence.getContents());
-            verifyInputFileSignature(reusableInputStream);
-            logger.log(MessageSeeds.OK_SIGNATURE);
+            if ((Boolean) properties.get(CSRImporterTranslatedProperty.CHECK_FILE_SIGNATURE.getPropertyKey())) {
+                verifyInputFileSignature(reusableInputStream);
+                logger.log(MessageSeeds.OK_SIGNATURE);
+            } else {
+                logger.log(MessageSeeds.SKIPPING_SIGNATURE_VERIFICATION);
+            }
 
             Map<String, Map<String, PKCS10CertificationRequest>> csrMap = new CSRZipFileParser(thesaurus)
                     .parseInputStream(reusableInputStream.stream());
@@ -71,9 +75,15 @@ class CSRImporter implements FileImporter {
             Map<String, Map<String, X509Certificate>> certificateMap = new CSRProcessor(securityManagementService, caService, properties, logger, certificateUserData)
                     .process(csrMap);
 
-            boolean shouldExport = (Boolean) properties.get(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey());
+            boolean shouldExportSFTP = (Boolean) properties.get(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey());
+            boolean shouldExportFolder = (Boolean) properties.get(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER.getPropertyKey());
+
             if (deepSize(csrMap) == deepSize(certificateMap)) {
-                if (shouldExport) {
+                if (shouldExportFolder){
+                    new CertificateExportProcessor(properties, new CertificateFolderExporterDestination(clock, properties), logger)
+                            .processExport(certificateMap);
+                }
+                if (shouldExportSFTP) {
                     new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties), logger)
                             .processExport(certificateMap);
                 }

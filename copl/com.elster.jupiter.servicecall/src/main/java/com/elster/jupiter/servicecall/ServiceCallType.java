@@ -5,12 +5,14 @@
 package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public interface ServiceCallType extends HasId, HasName {
@@ -28,7 +30,25 @@ public interface ServiceCallType extends HasId, HasName {
 
     void setLogLevel(LogLevel logLevel);
 
+    DestinationSpec getDestination();
+
+    String getDestinationName();
+
+    void setDestination(String destination);
+
+    int getPriority();
+
+    void setPriority(int priority);
+
     ServiceCallLifeCycle getServiceCallLifeCycle();
+
+    void setApplication(String appKey);
+
+    Optional<String> getApplication();
+
+    void setRetryState(DefaultState retryState);
+
+    Optional<DefaultState> getRetryState();
 
     /**
      * Returns the RegisteredCustomPropertySets linked to this ServiceCallType

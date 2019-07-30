@@ -6,7 +6,6 @@ package com.elster.jupiter.issue.task.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmServer;
-import com.elster.jupiter.issue.task.TaskIssue;
 
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
@@ -17,7 +16,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +25,7 @@ public class IssueResourceTest extends TaskIssueApplicationJerseyTest {
     public void testGetUnexistingIssueById() {
         when(taskIssueService.findIssue(1)).thenReturn(Optional.empty());
 
-        Response response = target("/issues/1").request().get();
+        Response response = target("issues/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
