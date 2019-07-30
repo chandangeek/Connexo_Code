@@ -15,6 +15,7 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
@@ -44,8 +45,11 @@ public class UpgraderV10_7 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
-        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE).get();
-        installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, logger);
+        QueueTableSpec defaultQueueTableSpec = installerV10_7.createDefaultQueueTableSpecIfNotExist();
+        installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME,
+                ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
+        installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallService.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME,
+                ServiceCallService.SERVICE_CALLS_ISSUE_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_ISSUE_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
         replaceSubscriber();
         deleteOldDestination();
     }

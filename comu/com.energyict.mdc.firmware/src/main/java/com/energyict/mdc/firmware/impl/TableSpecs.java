@@ -7,24 +7,26 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemPersistenceSupport;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignPersistenceSupport;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignPropertyImpl;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
+
+import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
@@ -184,8 +186,11 @@ public enum TableSpecs {
         }
     },
 
-    FWC_CAMPAIGN { //removed in 10.7
-
+    /**
+     * @deprecated removed in 10.7; now done via {@link FirmwareCampaignPersistenceSupport}
+     */
+    @Deprecated
+    FWC_CAMPAIGN {
         @Override
         void addTo(DataModel dataModel) {
             Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
@@ -217,7 +222,7 @@ public enum TableSpecs {
                     .since(version(10, 4, 1))
                     .installValue(Integer.toString(TimeDuration.TimeUnit.HOURS.getCode()))
                     .add();
-            table.setJournalTableName("FWC_CAMPAIGNJRNL").since(version(10, 2));
+            table.setJournalTableName("FWC_CAMPAIGNJRNL").during(Range.closedOpen(version(10, 2), version(10, 7)));
             table.addAuditColumns();
 
             table.unique("UQ_FWC_CAMPAIGN_NAME").on(name).add();
@@ -230,8 +235,11 @@ public enum TableSpecs {
         }
     },
 
-    FWC_CAMPAIGN_DEVICES { //removed in 10.7
-
+    /**
+     * @deprecated removed in 10.7; now done via {@link FirmwareCampaignItemPersistenceSupport}
+     */
+    @Deprecated
+    FWC_CAMPAIGN_DEVICES {
         @Override
         void addTo(DataModel dataModel) {
             Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
@@ -258,8 +266,11 @@ public enum TableSpecs {
         }
     },
 
-    FWC_CAMPAIGN_STATUS { //removed in 10.7
-
+    /**
+     * @deprecated removed in 10.7; now done as {@link DefaultState}
+     */
+    @Deprecated
+    FWC_CAMPAIGN_STATUS {
         @Override
         void addTo(DataModel dataModel) {
             Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
@@ -313,6 +324,7 @@ public enum TableSpecs {
             table.foreignKey("FK_FWC_PROPS_TO_CAMPAIGN")
                     .on(campaign, cps)
                     .since(version(10, 7))
+                    // previously referenced FWC_CAMPAIGN; old fk is removed manually in UpgraderV10_7
                     .references(FirmwareCampaignDomainExtension.class)
                     .onDelete(CASCADE)
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())

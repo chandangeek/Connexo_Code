@@ -353,7 +353,6 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
         return destinationSpecs.stream()
                 .filter(DestinationSpec::isExtraQueueCreationEnabled)
                 .filter(destinationSpec -> destinationSpec.getQueueTypeName().equals(queueTypeName))
-                .filter(Predicates.not(destinationSpec -> destinationSpec.getName().equals(destination)))
                 .collect(Collectors.toList());
     }
 

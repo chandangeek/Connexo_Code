@@ -16,6 +16,7 @@ Ext.define('Apr.controller.TaskManagement', {
     stores: [
         'Apr.store.Tasks',
         'Apr.store.QueuesByApplication',
+        'Apr.store.TasksQueueTypes',
         'Apr.store.CustomTaskTypes',
         'Apr.store.TasksType',
         'Apr.store.Queues'
@@ -78,12 +79,15 @@ Ext.define('Apr.controller.TaskManagement', {
     showTaskManagement: function () {
         var me = this,
             queuesStore = me.getStore('Apr.store.QueuesByApplication'), widget;
+            queueTypesStore = me.getStore('Apr.store.TasksQueueTypes'), widget;
 
         queuesStore.getProxy().extraParams = {application: this.applicationKey};
+        queueTypesStore.getProxy().extraParams = {application: this.applicationKey};
         widget = Ext.widget('task-management-setup', {
             applicationKey: me.applicationKey,
             addTaskRoute: me.addTaskRoute,
             queuesStore: queuesStore,
+            queueTypesStore: queueTypesStore,
             router: me.getController('Uni.controller.history.Router')
         });
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -186,7 +190,7 @@ Ext.define('Apr.controller.TaskManagement', {
         menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
         menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
         menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
-        menu.down('#set-queue-priority').setVisible((menu.record.get('extraQueueCreationEnabled') && menu.record.get('queuePrioritized')));
+        menu.down('#set-queue-priority').setVisible((menu.record.get('extraQueueCreationEnabled') || menu.record.get('queuePrioritized')));
         menu.reorderItems();
         Ext.resumeLayouts(true);
     },

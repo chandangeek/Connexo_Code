@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -53,6 +54,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
+    private String appKey;
+    private DefaultState retryState;
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
@@ -87,6 +90,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         currentLifeCycleState("currentLifeCycleState"),
         customPropertySets("customPropertySets"),
         handler("serviceCallHandler"),
+        appKey("appKey"),
+        retryState("retryState"),
         destination("destination");
 
         private final String javaFieldName;
@@ -178,6 +183,26 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     void setServiceCallLifeCycle(IServiceCallLifeCycle serviceCallLifeCycle) {
         this.serviceCallLifeCycle.set(serviceCallLifeCycle);
+    }
+
+    @Override
+    public void setRetryState(DefaultState retryState) {
+        this.retryState = retryState;
+    }
+
+    @Override
+    public Optional<DefaultState> getRetryState() {
+        return Optional.ofNullable(retryState);
+    }
+
+    @Override
+    public void setApplication(String appKey) {
+        this.appKey = appKey;
+    }
+
+    @Override
+    public Optional<String> getApplication() {
+        return Optional.ofNullable(appKey);
     }
 
     @Override

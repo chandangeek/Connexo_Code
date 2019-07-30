@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
 import com.elster.jupiter.tasks.TaskFinder;
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -20,7 +19,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @LiteralSql
 public class RecurrentTaskFinder implements TaskFinder {
@@ -84,7 +82,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append("on RT.ID=TSKID ");
 
         boolean isFirstCondition = true;
-        //add started bewteen conditions
+        //add started between conditions
         if ((filter.startedOnFrom != null) || (filter.startedOnTo != null)) {
             builder.append("where exists (select * from TSK_TASK_OCCURRENCE where ");
             if (filter.startedOnFrom != null) {
@@ -154,7 +152,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add queue type filter conditions
-        if ((filter.queueTypes != null) && !filter.queueTypes.isEmpty()) {
+        if ((filter.queueTypes != null) && (!filter.queueTypes.isEmpty())) {
             builder.append(isFirstCondition ? " where ( " : " and ( ");
             isFirstCondition = false;
 

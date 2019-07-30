@@ -81,7 +81,8 @@ public class Installer implements FullInstaller {
                 UsagePointCommandHandler.USAGE_POINT_COMMAND_HANDLER_VERSION)
                 .orElseGet(() -> serviceCallService.createServiceCallType(
                         UsagePointCommandHandler.USAGE_POINT_COMMAND_HANDLER_NAME,
-                        UsagePointCommandHandler.USAGE_POINT_COMMAND_HANDLER_VERSION)
+                        UsagePointCommandHandler.USAGE_POINT_COMMAND_HANDLER_VERSION,
+                        UsagePointCommandHandler.APPLICATION)
                         .handler(UsagePointCommandHandler.USAGE_POINT_COMMAND_HANDLER_NAME)
                         .customPropertySet(customPropertySet)
                         .create());
