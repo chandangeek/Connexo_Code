@@ -43,6 +43,9 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_WAS_ADDED(2019, "DeviceWasAdded", "Device was added"),
     TOU_ITEM_WITH_ID_ISNT_FOUND(2020, "TimeOfUseCampaignItemWithIdIsntFound", "Time of use campaign item with id {0} isn''t found."),
     TOU_CAMPAIGN_WITH_ID_ISNT_FOUND(2021, "TimeOfUseCampaignWithIdIsntFound", "Time of use campaign with id {0} isn''t found."),
+    TASK_FOR_VALIDATION_IS_MISSING(2022, "TaskForValidationIsMissing", "Communication task ''{0}'' required for validation is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
+    TASK_FOR_SENDING_CALENDAR_IS_MISSING(2023,"TaskForSendingCalendarIsMissing", "Communication task ''{0}'' for sending calendar is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
+    CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(2024, "ConnectionMethodDoesntMeetTheRequirement","The connection method ''{0}'' set on ''{1}'' doesn't match the one required on the calendar campaign" ,Level.WARNING),
 
     CANCELED_BY_USER(3001, "CancelledByUser", "Cancelled by user."),
     RETRIED_BY_USER(3002, "RetriedByUser", "Retried by user.");
