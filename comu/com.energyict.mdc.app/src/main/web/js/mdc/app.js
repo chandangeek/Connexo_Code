@@ -102,6 +102,10 @@ Ext.onReady(function () {
         {
             name: 'Wss',
             path: '../../apps/wss/src'
+        },
+        {
+            name: 'Isc',
+            path: '../../apps/isc/src'
         }
     ];
 

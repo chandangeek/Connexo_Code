@@ -64,6 +64,7 @@ public class UpgraderV10_7 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         createFutureComTasksExecutionTask();
         removeOldGetMeterReadingsServiceCalls();
+        updateServiceCallTypes();
         createServiceCallTypes();
     }
 
@@ -148,4 +149,19 @@ public class UpgraderV10_7 implements Upgrader {
                 .scheduleImmediately(true)
                 .build();
     }
+
+    private void updateServiceCallTypes() {
+        for (ServiceCallCommands.ServiceCallTypes type : ServiceCallCommands.ServiceCallTypes.values()) {
+            type.getApplication().ifPresent(
+                    application ->
+                            serviceCallService
+                                    .findServiceCallType(type.getTypeName(), type.getTypeVersion()).ifPresent(
+                                    serviceCallType -> {
+                                        serviceCallType.setApplication(application);
+                                        serviceCallType.save();
+                                    }
+                            ));
+        }
+    }
 }
+

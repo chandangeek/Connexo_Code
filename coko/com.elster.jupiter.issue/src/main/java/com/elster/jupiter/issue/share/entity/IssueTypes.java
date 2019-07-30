@@ -13,6 +13,7 @@ public enum IssueTypes {
     DEVICE_LIFECYCLE("DLI", "devicelifecycle"),
     TASK("TKI", "task"),
     USAGEPOINT_DATA_VALIDATION("UVI", "usagepointdatavalidation"),
+    SERVICE_CALL_ISSUE("SCI", "servicecall"),
     MANUAL("ISU", "manual"),
     NA ("NA", "notapplicable");
 
@@ -41,6 +42,7 @@ public enum IssueTypes {
             case "manual" : return IssueTypes.MANUAL;
             case "usagepointdatavalidation" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
             case "task" : return  IssueTypes.TASK;
+            case "servicecall" : return IssueTypes.SERVICE_CALL_ISSUE;
             default:return IssueTypes.NA;
         }
     }
@@ -55,7 +57,7 @@ public enum IssueTypes {
             case "TKI" : return IssueTypes.TASK;
             case "ISU" : return IssueTypes.MANUAL;
             case "UVI" : return IssueTypes.USAGEPOINT_DATA_VALIDATION;
-
+            case "SCI" : return IssueTypes.SERVICE_CALL_ISSUE;
             default:return IssueTypes.NA;
         }
     }
