@@ -17,6 +17,12 @@ Ext.define('Isc.view.ServiceCallDetails', {
 
         me.items = [
             {
+                xtype: 'fieldcontainer',
+                layout: 'vbox',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
                 items: [
                     {
                         itemId: 'servicecall-issue-details-link',
