@@ -35,7 +35,7 @@ Ext.define('Apr.view.taskmanagement.QueueAndPriorityWindow', {
                             name: 'queue',
                             required: true,
                             editable: false,
-                            store: me.store,
+                            store: me.storeTaskType,
                             valueField: 'queue',
                             displayField: 'queue',
                             queryMode: 'local',

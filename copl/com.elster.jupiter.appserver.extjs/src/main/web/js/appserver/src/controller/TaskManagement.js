@@ -415,19 +415,19 @@ Ext.define('Apr.controller.TaskManagement', {
 
    setQueueAndPriority: function (record) {
             var me = this,
-            store = Ext.getStore('Apr.store.TasksType');
-            store.getProxy().setUrl(record.getId());
-        store.load(function(records, operation, success) {
+            storeTaskType = Ext.getStore('Apr.store.TasksType');
+            storeTaskType.getProxy().setUrl(record.getId());
+        storeTaskType.load(function(records, operation, success) {
             if (success) {
                 var window = Ext.widget('queue-priority-window-management', {
                     record: record,
-                    store: store
+                    storeTaskType: storeTaskType
                 });
                 window.show();
             };
         });
     },
-    saveQueuePriority: function() {
+   saveQueuePriority: function() {
         var me = this,
             window = me.getQueuePriorityWindow(),
             record = window.record,
@@ -455,7 +455,7 @@ Ext.define('Apr.controller.TaskManagement', {
                 me.getApplication().fireEvent('acknowledge', 'Task queue and priority changed.');
             },
         });
-    },
+   },
 
     /* common section */
     saveOperationComplete: function () {
