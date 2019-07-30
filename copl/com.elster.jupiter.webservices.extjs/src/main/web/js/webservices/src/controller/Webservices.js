@@ -77,7 +77,6 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             view,
             store = me.getStore('Wss.store.Endpoints');
-
         view = Ext.widget('webservices-setup', {
             router: me.getController('Uni.controller.history.Router'),
             adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
@@ -126,12 +125,12 @@ Ext.define('Wss.controller.Webservices', {
             success: function (endpoint) {
                 me.getModel('Wss.model.endpoint.Occurrence').load(occurenceId, {
                     success: function (occurrence) {
+                        console.log();
                         var showRetry = false;
                         if (endpoint.data.direction.id === "OUTBOUND" && occurrence.data.status !== "Ongoing" && occurrence.data.payload !== "")
                         {
                             showRetry = true;
                         }
-
                         var view = Ext.widget('webservice-history-occurence', {
                             router: me.getController('Uni.controller.history.Router'),
                             adminView: showRetry,

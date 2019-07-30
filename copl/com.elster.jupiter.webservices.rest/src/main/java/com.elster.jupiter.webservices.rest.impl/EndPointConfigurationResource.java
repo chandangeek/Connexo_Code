@@ -101,7 +101,7 @@ public class EndPointConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
                                                    @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                    @Context UriInfo uriInfo) {
@@ -159,7 +159,7 @@ public class EndPointConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return endPointConfigurationService.getEndPointConfiguration(id)
                 .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
@@ -267,7 +267,7 @@ public class EndPointConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}/logs")
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getAllLogs(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
@@ -299,12 +299,12 @@ public class EndPointConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/occurrences")
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getAllOccurrences(@BeanParam JsonQueryParameters queryParameters,
                                            @BeanParam JsonQueryFilter filter,
                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                            @Context UriInfo uriInfo) {
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
         Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
@@ -321,11 +321,11 @@ public class EndPointConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/occurrences/{id}")
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public WebServiceCallOccurrenceInfo getOccurrence(@PathParam("id") long id,
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context UriInfo uriInfo) {
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id);
@@ -339,13 +339,13 @@ public class EndPointConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{epId}/occurrences")
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getAllOccurrencesForEndPoint(@PathParam("epId") long epId,
                                                       @BeanParam JsonQueryParameters queryParameters,
                                                       @BeanParam JsonQueryFilter filter,
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context UriInfo uriInfo) {
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
         Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
@@ -383,12 +383,12 @@ public class EndPointConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/occurrences/{id}/log")
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getLogForOccurrence(@PathParam("id") long id,
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                              @BeanParam JsonQueryParameters queryParameters,
                                              @Context UriInfo uriInfo) {
-        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES};
+        String[] privileges = {Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES};
         checkApplicationPriviliges(privileges, applicationName);
 
         WebServiceCallOccurrence epOcc = webServiceCallOccurrenceService.getEndPointOccurrence(id)
