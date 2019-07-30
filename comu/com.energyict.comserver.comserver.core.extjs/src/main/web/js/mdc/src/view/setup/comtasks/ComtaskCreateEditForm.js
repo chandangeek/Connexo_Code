@@ -22,7 +22,6 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                     itemId: 'errors',
                     hidden: true,
                     width: 380
-
                 },
                 {
                     xtype: 'textfield',
@@ -36,6 +35,12 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                             field.focus(false, 200);
                         }
                     }
+                },
+                {
+                    xtype: 'checkbox',
+                    name: 'systemTask',
+                    itemId: 'systemTask',
+                    fieldLabel: Uni.I18n.translate('comtask.message.systemTask', 'MDC', 'System task')
                 },
                 {
                     xtype: 'toolbar',

@@ -11,6 +11,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
@@ -81,4 +82,20 @@ public interface FirmwareCampaign extends HasId, HasName {
     Instant getFinishedOn();
 
     List<DeviceInFirmwareCampaign> getDevices();
+
+    void setFirmwareUploadComTaskId(long firmwareUploadComTaskId);
+
+    void setFirmwareUploadConnectionStrategy(ConnectionStrategy firmwareUploadConnectionStrategy);
+
+    void setValidationComTaskId(long validationComTaskId);
+
+    void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy);
+
+    long getFirmwareUploadComTaskId();
+
+    Optional<ConnectionStrategy> getFirmwareUploadConnectionStrategy();
+
+    long getValidationComTaskId();
+
+    Optional<ConnectionStrategy> getValidationConnectionStrategy();
 }

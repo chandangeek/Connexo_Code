@@ -40,7 +40,7 @@ class CSRProcessor {
     private final SecurityManagementService securityManagementService;
     private final CaService caService;
     private final Map<String, Object> properties;
-    private  final Optional<CertificateRequestData> certificateRequestData;
+    private Optional<CertificateRequestData> certificateRequestData;
 
     @Inject
     CSRProcessor(SecurityManagementService securityManagementService, CaService caService, Map<String, Object> properties, CSRImporterLogger logger, Optional<CertificateRequestData> certificateRequestData) {
@@ -60,11 +60,17 @@ class CSRProcessor {
     }
 
     private Optional<X509Certificate> processCSR(String serial, String fullAlias, PKCS10CertificationRequest csr) {
+        logger.log(MessageSeeds.PROCESSING_CSR, serial, fullAlias);
+
         Matcher matcher = FULL_ALIAS_PATTERN.matcher(fullAlias);
         if (!matcher.matches()) {
             throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.WRONG_FILE_NAME_FORMAT);
         }
-        String alias = serial + '-' + matcher.group(1);
+        String prefix = matcher.group(1);
+        String alias = serial + '-' + prefix;
+        if (certificateRequestData.isPresent()) {
+            certificateRequestData.get().setPrefix(prefix);
+        }
         return Optional.of(processCSR(alias, csr));
     }
 
