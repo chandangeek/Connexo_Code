@@ -69,7 +69,7 @@ Ext.define('Apr.view.taskmanagement.QueueAndPriorityWindow', {
                                 me.down('[name=priority]').setValue(0);
                             },
                             tooltip: Uni.I18n.translate('general.resetToDefault', 'APR', 'Reset to default'),
-                            disabled: true,
+                            disabled: !me.record.get('priority'),
                             hidden: false,
                             scope: me
                         }
