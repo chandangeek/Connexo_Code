@@ -74,7 +74,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
 
     @Override
     public Service get() {
-        return new SendEndDeviceEvents(this.getClass().getResource("/enddeviceevents/SendEndDeviceEvents.wsdl"));
+        return new SendEndDeviceEvents(this.getClass().getResource("/wsdl/enddeviceevents/SendEndDeviceEvents.wsdl"));
     }
 
     @Override
