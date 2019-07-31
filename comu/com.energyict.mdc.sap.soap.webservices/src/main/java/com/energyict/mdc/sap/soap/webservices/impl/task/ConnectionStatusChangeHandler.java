@@ -16,6 +16,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,13 +27,15 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallService serviceCallService;
     private final TransactionService transactionService;
+    private final Clock clock;
 
     public ConnectionStatusChangeHandler(JsonService jsonService, SAPCustomPropertySets sapCustomPropertySets,
-                                         ServiceCallService serviceCallService, TransactionService transactionService) {
+                                         ServiceCallService serviceCallService, TransactionService transactionService, Clock clock) {
         this.jsonService = jsonService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
         this.transactionService = transactionService;
+        this.clock = clock;
     }
 
     @Override
@@ -92,7 +95,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
         }
         StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                 .builder(sapCustomPropertySets)
-                .from(parent, findAllChilds(parent))
+                .from(parent, findAllChilds(parent), clock.instant())
                 .build();
         WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage));
     }
