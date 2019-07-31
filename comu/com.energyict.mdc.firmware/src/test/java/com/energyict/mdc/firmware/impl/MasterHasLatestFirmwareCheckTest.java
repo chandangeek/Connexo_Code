@@ -71,17 +71,20 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
         when(dataModel.stream(ActivatedFirmwareVersion.class)).thenAnswer(invocation -> activatedFirmwareVersionStream);
         when(firmwareService.isFirmwareTypeSupported(masterDeviceType, FirmwareType.METER)).thenReturn(true);
         when(firmwareService.isFirmwareTypeSupported(masterDeviceType, FirmwareType.COMMUNICATION)).thenReturn(true);
+        when(firmwareService.isFirmwareTypeSupported(masterDeviceType, FirmwareType.AUXILIARY)).thenReturn(true);
         when(firmwareService.getActiveFirmwareVersion(master, FirmwareType.METER)).thenReturn(Optional.of(activatedMeterFirmware));
         when(firmwareService.getActiveFirmwareVersion(master, FirmwareType.COMMUNICATION)).thenReturn(Optional.of(activatedCommunicationFirmware));
+        when(firmwareService.getActiveFirmwareVersion(master, FirmwareType.AUXILIARY)).thenReturn(Optional.of(activatedAuxiliaryFirmware));
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.METER)), anySetOf(FirmwareStatus.class))).thenReturn(Optional.of(activeMeterFirmware));
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.COMMUNICATION)), anySetOf(FirmwareStatus.class))).thenReturn(Optional.of(activeCommunicationFirmware));
+        when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.AUXILIARY)), anySetOf(FirmwareStatus.class))).thenReturn(Optional.of(activeAuxiliaryFirmware));
     }
 
     @Test
     public void testMaximumFirmwareVersionsOnMaster() {
         expectSuccess();
 
-        verify(firmwareService, times(2)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.FINAL, FirmwareStatus.TEST)));
+        verify(firmwareService, times(3)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.FINAL, FirmwareStatus.TEST)));
         verify(activatedFirmwareVersionStream, times(3)).filter(conditionCaptor.capture());
         List<Condition> filterConditions = conditionCaptor.getAllValues();
         Optional<Comparison> deviceConditionOptional = filterConditions.stream()
@@ -99,7 +102,7 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
         assertThat(firmwareTypeConditionOptional).isPresent();
         assertThat(firmwareTypeConditionOptional.map(Contains::getFieldName)).isPresent();
         assertThat(firmwareTypeConditionOptional.map(Contains::getFieldName).get()).contains("firmwareType");
-        assertThat(firmwareTypeConditionOptional.map(Contains::getCollection)).contains(Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION));
+        assertThat(firmwareTypeConditionOptional.map(Contains::getCollection)).contains(Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.AUXILIARY));
         Optional<Effective> effectiveConditionOptional = filterConditions.stream()
                 .filter(Effective.class::isInstance)
                 .findAny()
@@ -173,12 +176,14 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
     public void testMasterHasLatestFinalFirmwareVersions() {
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.METER)), eq(EnumSet.of(FirmwareStatus.TEST)))).thenReturn(Optional.empty());
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.COMMUNICATION)), eq(EnumSet.of(FirmwareStatus.TEST)))).thenReturn(Optional.empty());
+        when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.AUXILIARY)), eq(EnumSet.of(FirmwareStatus.TEST)))).thenReturn(Optional.empty());
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.METER)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.of(activeMeterFirmware));
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.COMMUNICATION)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.of(activeCommunicationFirmware));
+        when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.AUXILIARY)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.of(activeAuxiliaryFirmware));
 
         when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.FINAL));
         expectSuccess();
-        verify(firmwareService, times(2)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.FINAL)));
+        verify(firmwareService, times(3)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.FINAL)));
 
         when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.TEST));
         expectError("Firmware types on the master don't have the highest level (among firmware types with the acceptable status).");
@@ -188,12 +193,14 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
     public void testMasterHasLatestTestFirmwareVersions() {
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.METER)), eq(EnumSet.of(FirmwareStatus.TEST)))).thenReturn(Optional.of(activeMeterFirmware));
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.COMMUNICATION)), eq(EnumSet.of(FirmwareStatus.TEST)))).thenReturn(Optional.of(activeCommunicationFirmware));
+        when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.AUXILIARY)), eq(EnumSet.of(FirmwareStatus.TEST)))).thenReturn(Optional.of(activeAuxiliaryFirmware));
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.METER)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.empty());
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.COMMUNICATION)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.empty());
+        when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.AUXILIARY)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.empty());
 
         when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.TEST));
         expectSuccess();
-        verify(firmwareService, times(2)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.TEST)));
+        verify(firmwareService, times(3)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.TEST)));
 
         when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.FINAL));
         expectError("Firmware types on the master don't have the highest level (among firmware types with the acceptable status).");

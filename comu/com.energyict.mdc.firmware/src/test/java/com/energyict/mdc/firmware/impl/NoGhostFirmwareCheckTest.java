@@ -74,7 +74,7 @@ public class NoGhostFirmwareCheckTest extends AbstractFirmwareCheckTest {
         assertThat(firmwareTypeConditionOptional).isPresent();
         assertThat(firmwareTypeConditionOptional.map(Contains::getFieldName)).isPresent();
         assertThat(firmwareTypeConditionOptional.map(Contains::getFieldName).get()).contains("firmwareType");
-        assertThat(firmwareTypeConditionOptional.map(Contains::getCollection)).contains(Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION));
+        assertThat(firmwareTypeConditionOptional.map(Contains::getCollection)).contains(Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.AUXILIARY));
         Optional<Effective> effectiveConditionOptional = filterConditions.stream()
                 .filter(Effective.class::isInstance)
                 .findAny()
