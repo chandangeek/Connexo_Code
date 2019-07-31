@@ -18,10 +18,11 @@ public enum TableSpecs {
             table.since(version(10, 7));
             table.cache();
             Column key = table.column("NAME").map("name").varChar(NAME_LENGTH).notNull().add();
+            table.primaryKey("SEARCH_PK_SEARCH_CRITERIA").on(key).add();
             table.column("USERNAME").map("userName").varChar(NAME_LENGTH).notNull().add();
             table.column("CRITERIA").map("criteria").varChar(NAME_LENGTH).notNull().add();
             table.column("DOMAIN").map("domain").varChar(NAME_LENGTH).notNull().add();
-            table.primaryKey("SEARCH_PK_SEARCH_CRITERIA").on(key).add();
+
         }
     };
 

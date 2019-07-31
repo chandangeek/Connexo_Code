@@ -15,7 +15,7 @@ public class SearchModule extends AbstractModule {
     @Override
     protected void configure() {
         requireBinding(ExecutionTimerService.class);
-
+        bind(SearchCriteriaService.class).to(SearchCriteriaServiceImpl.class).in(Scopes.SINGLETON);
         bind(SearchMonitor.class).to(SearchMonitorImpl.class).in(Scopes.SINGLETON);
         bind(SearchService.class).to(SearchServiceImpl.class).in(Scopes.SINGLETON);
     }
