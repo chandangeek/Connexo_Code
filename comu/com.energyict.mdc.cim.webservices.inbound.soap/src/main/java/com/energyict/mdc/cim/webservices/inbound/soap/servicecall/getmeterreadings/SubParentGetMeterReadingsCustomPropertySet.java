@@ -128,7 +128,12 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE.javaName(), TranslationKeys.END_DEVICE)
+                        .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_NAME.javaName(), TranslationKeys.END_DEVICE_NAME)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_MRID.javaName(), TranslationKeys.END_DEVICE_MRID)
                         .fromThesaurus(thesaurus)
                         .finish()
         );
@@ -175,9 +180,14 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE.databaseName())
+            table.column(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_NAME.databaseName())
                     .varChar()
-                    .map(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE.javaName())
+                    .map(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_NAME.javaName())
+                    .notNull()
+                    .add();
+            table.column(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_MRID.databaseName())
+                    .varChar()
+                    .map(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_MRID.javaName())
                     .notNull()
                     .add();
         }

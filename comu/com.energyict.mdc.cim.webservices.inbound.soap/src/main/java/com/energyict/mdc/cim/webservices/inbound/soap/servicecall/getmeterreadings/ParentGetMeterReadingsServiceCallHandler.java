@@ -119,7 +119,7 @@ public class ParentGetMeterReadingsServiceCallHandler implements ServiceCallHand
         List<String> endDevicesMRIDs = serviceCall.findChildren().stream()
                 .map(c -> c.getExtension(SubParentGetMeterReadingsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"))
-                        .getEndDevice())
+                        .getEndDeviceMrid())
                 .collect(Collectors.toList());
         String source = extension.getSource();
 

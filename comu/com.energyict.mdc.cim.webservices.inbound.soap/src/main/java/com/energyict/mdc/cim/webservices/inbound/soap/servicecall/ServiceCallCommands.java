@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -78,8 +79,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -404,27 +405,37 @@ public class ServiceCallCommands {
         Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
         loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
 
-        ComTaskExecution deviceMessagesComTaskExecution = syncReplyIssue.getDeviceMessagesComTaskExecutionMap().get(device.getId());
+        ComTaskExecution deviceMessagesComTaskExecution = syncReplyIssue.getDeviceMessagesComTaskExecutionMap()
+                .get(device.getId());
         if (deviceMessagesComTaskExecution == null) {
-            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES, null,
-                        device.getName()));
+            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory()
+                    .errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES, null,
+                            device.getName()));
             return;
         }
         if (CollectionUtils.isNotEmpty(loadProfiles)) {
             Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
-            createDeviceMessages(device, loadProfiles, trigger, start, end);
-            if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
-                if (trigger.isAfter(now)) { // use recurrent task
-                    processComTaskExecutionByRecurrentTask(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
-                            start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS);
-                } else { // run now
-                    scheduleOrRunNowComTaskExecution(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
-                            start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, true);
+            loadProfiles.forEach(loadProfile -> {
+                ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
+                        ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, deviceMessagesComTaskExecution, trigger, start, end);
+                DeviceMessage deviceMessage = createDeviceMessage(device, childServiceCall, loadProfile, trigger, start, end);
+                childServiceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is linked to service call",
+                        deviceMessage.getSpecification().getName(), deviceMessage.getId(), trigger));
+                if (scheduleStrategy == ScheduleStrategyEnum.RUN_NOW) {
+                    if (trigger.isAfter(now)) { // use recurrent task
+                        childServiceCall.requestTransition(DefaultState.SCHEDULED);
+                    } else { // run now
+                        childServiceCall.requestTransition(DefaultState.PENDING);
+                        childServiceCall.requestTransition(DefaultState.ONGOING);
+                        childServiceCall.requestTransition(DefaultState.WAITING);
+                        deviceMessagesComTaskExecution.runNow();
+                    }
+                } else { // use schedule
+                    childServiceCall.requestTransition(DefaultState.PENDING);
+                    childServiceCall.requestTransition(DefaultState.ONGOING);
+                    childServiceCall.requestTransition(DefaultState.WAITING);
                 }
-            } else { // use schedule
-                scheduleOrRunNowComTaskExecution(subParentServiceCall, deviceMessagesComTaskExecution, trigger,
-                        start, end, ServiceCallTypes.DEVICE_MESSAGE_GET_METER_READINGS, false);
-            }
+            });
         }
     }
 
@@ -531,8 +542,7 @@ public class ServiceCallCommands {
                                                         Instant actualStart, Instant actualEnd,
                                                         ServiceCallTypes serviceCallTypes) {
         ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
-                serviceCallTypes, comTaskExecution.getComTask().getName(), trigger, actualStart, actualEnd,
-                comTaskExecution.getDevice());
+                serviceCallTypes, comTaskExecution, trigger, actualStart, actualEnd);
         // recurrent task will check childServiceCall in state SCHEDULED
         childServiceCall.requestTransition(DefaultState.SCHEDULED);
     }
@@ -542,8 +552,7 @@ public class ServiceCallCommands {
                                                   Instant actualStart, Instant actualEnd,
                                                   ServiceCallTypes serviceCallTypes, boolean runNow) {
         ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
-                serviceCallTypes, comTaskExecution.getComTask().getName(), trigger,
-                actualStart, actualEnd, comTaskExecution.getDevice());
+                serviceCallTypes, comTaskExecution, trigger, actualStart, actualEnd);
         childServiceCall.requestTransition(DefaultState.PENDING);
         childServiceCall.requestTransition(DefaultState.ONGOING);
         childServiceCall.requestTransition(DefaultState.WAITING);
@@ -556,7 +565,8 @@ public class ServiceCallCommands {
     private ServiceCall createSubParentServiceCall(ServiceCall parent, com.elster.jupiter.metering.Meter meter) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.SUBPARENT_GET_METER_READINGS);
         SubParentGetMeterReadingsDomainExtension subParentDomainExtension = new SubParentGetMeterReadingsDomainExtension();
-        subParentDomainExtension.setEndDevice(meter.getMRID());
+        subParentDomainExtension.setEndDeviceName(meter.getName());
+        subParentDomainExtension.setEndDeviceMrid(meter.getMRID());
 
         ServiceCall subParentServiceCall = parent.newChildCall(serviceCallType).extendedWith(subParentDomainExtension)
                 .create();
@@ -566,19 +576,19 @@ public class ServiceCallCommands {
     }
 
     private ServiceCall createChildGetMeterReadingServiceCall(ServiceCall subParentServiceCall, ServiceCallTypes childServiceCallType,
-                                                              String comTaskName, Instant triggerDate, Instant actualStart,
-                                                              Instant actualEnd, Device device) {
+                                                              ComTaskExecution comTaskExecution, Instant triggerDate, Instant actualStart,
+                                                              Instant actualEnd) {
         ServiceCallType serviceCallType = getServiceCallType(childServiceCallType);
 
         ChildGetMeterReadingsDomainExtension childDomainExtension = new ChildGetMeterReadingsDomainExtension();
-        childDomainExtension.setCommunicationTask(comTaskName);
+        childDomainExtension.setCommunicationTask(comTaskExecution.getComTask().getName());
         childDomainExtension.setTriggerDate(triggerDate);
         childDomainExtension.setActualStartDate(actualStart);
         childDomainExtension.setActualEndDate(actualEnd);
 
         return subParentServiceCall.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension)
-                .targetObject(device)
+                .targetObject(comTaskExecution.getDevice())
                 .create();
     }
 
@@ -642,24 +652,15 @@ public class ServiceCallCommands {
             .collect(Collectors.toSet());
     }
 
-    private List<DeviceMessage> createDeviceMessages(Device device, Set<LoadProfile> loadProfiles,
-                                                     Instant releaseDate, Instant start, Instant end) {
-        return loadProfiles.stream()
-                .map(loadProfile -> createLoadProfileMessage(device, loadProfile, releaseDate, start, end, DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST))
-                .collect(Collectors.toList());
-    }
-
-    private DeviceMessage createLoadProfileMessage(Device device, LoadProfile loadProfile, Instant releaseDate,
-                                                   Instant start, Instant end, DeviceMessageId deviceMessageId) {
-        Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId)
-//                .setTrackingId(Long.toString(serviceCall.getId()))
+    private DeviceMessage createDeviceMessage(Device device, ServiceCall childServiceCall, LoadProfile loadProfile, Instant releaseDate,
+                                                   Instant start, Instant end) {
+        Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST)
+                .setTrackingId(Long.toString(childServiceCall.getId()))
                 .setReleaseDate(releaseDate);
 
-        // for DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST
-        // LOAD_PROFILE_PARTIAL_REQUEST(13001)
-        deviceMessageBuilder.addProperty("load profile", loadProfile);//type is: com.energyict.mdc.upl.meterdata.LoadProfile
-        deviceMessageBuilder.addProperty("from", Date.from(start)); // java.util.Date
-        deviceMessageBuilder.addProperty("to", Date.from(end)); // java.util.Date
+        deviceMessageBuilder.addProperty("load profile", loadProfile);
+        deviceMessageBuilder.addProperty("from", Date.from(start));
+        deviceMessageBuilder.addProperty("to", Date.from(end));
         return deviceMessageBuilder.add();
     }
 

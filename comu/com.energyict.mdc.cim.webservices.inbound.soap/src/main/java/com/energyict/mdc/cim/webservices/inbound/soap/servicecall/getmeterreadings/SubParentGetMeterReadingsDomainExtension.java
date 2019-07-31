@@ -15,13 +15,13 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.Instant;
 
 public class SubParentGetMeterReadingsDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
         DOMAIN("serviceCall", "SERVICE_CALL"),
-        END_DEVICE("endDevice", "END_DEVICE")
+        END_DEVICE_NAME("endDeviceName", "END_DEVICE_NAME"),
+        END_DEVICE_MRID("endDeviceMrid", "END_DEVICE_MRID")
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -45,7 +45,9 @@ public class SubParentGetMeterReadingsDomainExtension extends AbstractPersistent
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String endDevice;
+    private String endDeviceName;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String endDeviceMrid;
 
     public SubParentGetMeterReadingsDomainExtension() {
         super();
@@ -59,23 +61,33 @@ public class SubParentGetMeterReadingsDomainExtension extends AbstractPersistent
         this.serviceCall = serviceCall;
     }
 
-    public String getEndDevice() {
-        return endDevice;
+    public String getEndDeviceName() {
+        return endDeviceName;
     }
 
-    public void setEndDevice(String endDevice) {
-        this.endDevice = endDevice;
+    public void setEndDeviceName(String endDeviceName) {
+        this.endDeviceName = endDeviceName;
+    }
+
+    public String getEndDeviceMrid() {
+        return endDeviceMrid;
+    }
+
+    public void setEndDeviceMrid(String endDevice) {
+        this.endDeviceMrid = endDevice;
     }
 
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setEndDevice((String) propertyValues.getProperty(FieldNames.END_DEVICE.javaName()));
+        this.setEndDeviceName((String) propertyValues.getProperty(FieldNames.END_DEVICE_NAME.javaName()));
+        this.setEndDeviceMrid((String) propertyValues.getProperty(FieldNames.END_DEVICE_MRID.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.END_DEVICE.javaName(), this.getEndDevice());
+        propertySetValues.setProperty(FieldNames.END_DEVICE_NAME.javaName(), this.getEndDeviceName());
+        propertySetValues.setProperty(FieldNames.END_DEVICE_MRID.javaName(), this.getEndDeviceMrid());
     }
 
     @Override

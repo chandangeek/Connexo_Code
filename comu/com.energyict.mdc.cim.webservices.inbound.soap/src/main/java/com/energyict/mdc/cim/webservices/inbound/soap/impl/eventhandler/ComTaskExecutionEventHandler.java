@@ -23,6 +23,7 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -104,7 +105,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
 
         Instant triggerDate = domainExtension.getTriggerDate();
         if (clock.instant().isAfter(triggerDate)) {
-            serviceCall.log(LogLevel.INFO, "Communication task execution is completed");
+            serviceCall.log(LogLevel.FINE, "Communication task execution is completed");
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         }
@@ -116,17 +117,20 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
 
         Instant triggerDate = domainExtension.getTriggerDate();
         if (clock.instant().isAfter(triggerDate)) {
-            if (device.getMessages().stream()
-                    .map(DeviceMessage::getStatus)
-                    .filter(deviceMessageStatus -> deviceMessageStatus.equals(DeviceMessageStatus.CONFIRMED))
-                    .findAny()
-                    .isPresent()) {
+            // in fact it is one device message per service call
+            DeviceMessage deviceMessage = device.getMessages().stream()
+                    .filter(dm -> serviceCall.getId() == NumberUtils.toLong(dm.getTrackingId()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Unable to find device message for service call with id:" + serviceCall.getId()));;
+            if (deviceMessage.getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
                 serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.INFO, "Device message is confirmed");
+                serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
+                        deviceMessage.getSpecification().getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.SEVERE, "Device message wasn't confirmed");
+                serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
+                        deviceMessage.getSpecification().getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }

@@ -16,7 +16,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsDomainExtension;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -46,7 +45,7 @@ public class FutureComTaskExecutionHandler implements TaskExecutor {
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
                 ChildGetMeterReadingsDomainExtension childExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
                         .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-                String deviceMrid = extension.getEndDevice();
+                String deviceMrid = extension.getEndDeviceMrid();
                 String comTaksName = childExtension.getCommunicationTask();
                 Instant triggerDate = childExtension.getTriggerDate();
                 if (clock.instant().isAfter(triggerDate)) {
