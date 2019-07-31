@@ -13,21 +13,14 @@ import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
-import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
@@ -37,7 +30,6 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -109,41 +101,42 @@ public class TimeOfUseSendHelper {
                     .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_ALLOWED_CALENDAR_DEVICE_MESSAGE));
             DeviceMessage deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar, deviceMessageSpecificationService);
             device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
-// =  ((PartialScheduledConnectionTaskImpl) comTaskEnablement.getPartialConnectionTask().get()).getConnectionStrategy();
+
             boolean isSendCalendarCTStarted = false;
             ConnectionStrategy connectionStrategy;
             ComTaskExecution cteFromEnablement;
             for (ComTaskEnablement comTaskEnablement: comTaskEnablements) {
-                //for(ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
-                    if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
-                        connectionStrategy = ((PartialScheduledConnectionTaskImpl) comTaskEnablement.getPartialConnectionTask().get()).getConnectionStrategy();
-                        cteFromEnablement = device.newAdHocComTaskExecution(comTaskEnablement).add();
-                        if (cteFromEnablement.getConnectionTask().get().isActive() && (!timeOfUseCampaign.getValidationConnectionStrategy()
-                                .isPresent() || connectionStrategy == timeOfUseCampaign.getCalendarUploadConnectionStrategy().get())) {
-                            if (cteFromEnablement.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId()) {
-                                scheduleCampaign(cteFromEnablement, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
-                                TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
-                                extension.setDeviceMessage(deviceMessage);
-                                serviceCall.update(extension);
-                                if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
-                                    serviceCall.requestTransition(DefaultState.PENDING);
-                                }
-                                isSendCalendarCTStarted = true;
+                if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
+                    if(comTaskEnablement.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId()) {
+                        cteFromEnablement = timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablement);
+                        if (cteFromEnablement == null) {
+                            cteFromEnablement = device.newAdHocComTaskExecution(comTaskEnablement).add();
+                        }
+                        connectionStrategy = ((PartialScheduledConnectionTask) comTaskEnablement.getPartialConnectionTask().get()).getConnectionStrategy();
+                        if (cteFromEnablement.getConnectionTask().get().isActive() && (!timeOfUseCampaign.getCalendarUploadConnectionStrategy()
+                                .isPresent() || connectionStrategy == timeOfUseCampaign.getCalendarUploadConnectionStrategy().get())){
+                            scheduleCampaign(cteFromEnablement, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
+                            TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
+                            extension.setDeviceMessage(deviceMessage);
+                            serviceCall.update(extension);
+                            if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
+                                serviceCall.requestTransition(DefaultState.PENDING);
                             }
-                        } else {
+                            isSendCalendarCTStarted = true;
+                        }else {
                             serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                                    .format(timeOfUseCampaign.getCalendarUploadConnectionStrategy().get().name(), cteFromEnablement.getComTask().getName()));
+                                    .format(timeOfUseCampaign.getCalendarUploadConnectionStrategy().get().name(), comTaskEnablement.getComTask().getName()));
                             if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                                 serviceCall.requestTransition(DefaultState.REJECTED);
                             }
                         }
-                    } else {
-                        serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.MISSING_CONNECTION_TASKS).format());
-                        if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
-                            serviceCall.requestTransition(DefaultState.REJECTED);
-                        }
                     }
-                //}
+                } else {
+                    serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.MISSING_CONNECTION_TASKS).format());
+                    if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
+                        serviceCall.requestTransition(DefaultState.REJECTED);
+                    }
+                }
             }
             if(!isSendCalendarCTStarted){
                 serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_CALENDAR_IS_MISSING).format(timeOfUseCampaignService.getComTaskById(timeOfUseCampaign.getCalendarUploadComTaskId()).getName()));
