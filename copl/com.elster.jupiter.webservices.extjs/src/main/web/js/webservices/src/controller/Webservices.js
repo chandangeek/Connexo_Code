@@ -123,7 +123,6 @@ Ext.define('Wss.controller.Webservices', {
             success: function (endpoint) {
                 me.getModel('Wss.model.endpoint.Occurrence').load(occurenceId, {
                     success: function (occurrence) {
-                        console.log();
                         var showRetry = false;
                         if (endpoint.data.direction.id === "OUTBOUND" && occurrence.data.status !== "Ongoing" && occurrence.data.payload !== "")
                         {

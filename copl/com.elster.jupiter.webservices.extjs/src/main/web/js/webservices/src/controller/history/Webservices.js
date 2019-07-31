@@ -59,9 +59,6 @@ Ext.define('Wss.controller.history.Webservices', {
                             action: 'showEndpointStatusHistory'
                         },
                         history: {
-                            /*view: ['privilege.view.webservices'],
-                            viewHistory: ['privilege.viewHistory.webservices'],
-                            admin: ['privilege.administrate.webservices'],*/
                             privileges: ['privilege.viewHistory.webservices', 'privilege.administrate.webservices','privilege.view.webservices'],
                             route: 'history',
                             title: Uni.I18n.translate('general.history', 'WSS', 'History'),

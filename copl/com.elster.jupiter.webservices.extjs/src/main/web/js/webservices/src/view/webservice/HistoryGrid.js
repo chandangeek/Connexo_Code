@@ -24,16 +24,12 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                     var route = basename + '/webserviceendpoints/view/history/occurrence';
                     var date = value ? Uni.DateTime.formatDateTimeShort(value) : '-';
 
-                    //if (Wss.privileges.Webservices.canViewHistory()) {
-                        var url = me.router.getRoute(route).buildUrl({
-                            endpointId: record.getEndpoint().get('id'),
-                            occurenceId: record.get('id'),
-                        });
+                    var url = me.router.getRoute(route).buildUrl({
+                        endpointId: record.getEndpoint().get('id'),
+                        occurenceId: record.get('id'),
+                    });
 
-                        return '<a href="' + url + '">' + date + '</a>';
-                    //}
-
-                    //return date;
+                    return '<a href="' + url + '">' + date + '</a>';
                 }
             },
             {
