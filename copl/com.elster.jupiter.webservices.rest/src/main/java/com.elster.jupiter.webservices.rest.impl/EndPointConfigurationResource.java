@@ -7,13 +7,23 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
 
 import javax.annotation.security.RolesAllowed;
@@ -22,40 +32,55 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.security.Principal;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+
+import com.google.common.collect.Range;
 
 /**
  * Resource to manage end point configurations
  */
 @Path("/endpointconfigurations")
-public class EndPointConfigurationResource {
+public class EndPointConfigurationResource extends BaseResource {
 
-    private final EndPointConfigurationService endPointConfigurationService;
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
-    private final ExceptionFactory exceptionFactory;
     private final WebServicesService webServicesService;
-    private final EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
 
     @Inject
-    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService, EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory,ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory) {
-        this.endPointConfigurationService = endPointConfigurationService;
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService,
+                                         EndPointConfigurationInfoFactory endPointConfigurationInfoFactory,
+                                         ExceptionFactory exceptionFactory,
+                                         WebServicesService webServicesService,
+                                         EndPointLogInfoFactory endpointConfigurationLogInfoFactory,
+                                         ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
+                                         WebServiceCallOccurrenceInfoFactory endpointConfigurationOccurrenceInfoFactorty,
+                                         ThreadPrincipalService threadPrincipalService,
+                                         WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
+        super(endPointConfigurationService, exceptionFactory, endpointConfigurationLogInfoFactory, endpointConfigurationOccurrenceInfoFactorty,
+                threadPrincipalService, webServiceCallOccurrenceService);
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
-        this.exceptionFactory = exceptionFactory;
         this.webServicesService = webServicesService;
-        this.endpointConfigurationLogInfoFactory = endpointConfigurationLogInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
     }
 
@@ -63,12 +88,33 @@ public class EndPointConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams, @Context UriInfo uriInfo) {
-        List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
-                .from(queryParams)
-                .stream()
-                .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
-                .collect(toList());
+    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
+                                                   @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                   @Context UriInfo uriInfo) {
+
+        List<EndPointConfigurationInfo> infoList;
+        if ("SYS".equals(applicationName)) {
+            infoList = endPointConfigurationService.findEndPointConfigurations()
+                    .from(queryParams)
+                    .stream()
+                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                    .collect(toList());
+        } else {
+            Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+
+            Set<String> webServiceNames = webServicesService.getWebServices().stream()
+                    .filter(ws -> applicationNameToFilter.contains(ws.getApplicationName()))
+                    .map(ws -> ws.getName())
+                    .collect(toSet());
+
+            infoList = endPointConfigurationService.findEndPointConfigurations(webServiceNames)
+                    .from(queryParams)
+                    .stream()
+                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                    .collect(toList());
+        }
+
+
         return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
     }
 
@@ -185,12 +231,14 @@ public class EndPointConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}/logs")
+    @Transactional
     @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
     public PagedInfoList getAllLogs(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
 
-        List<EndpointConfigurationLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
+        /* Logs contains actions not related to occurrence. */
+        List<EndPointLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
                 .from(queryParameters)
                 .stream()
                 .map(endpointConfigurationLogInfoFactory::from)
