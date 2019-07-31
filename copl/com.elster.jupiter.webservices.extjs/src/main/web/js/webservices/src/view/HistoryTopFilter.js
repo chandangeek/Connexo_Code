@@ -34,14 +34,14 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 text: Uni.I18n.translate('importService.history.finished', 'WSS', 'Finished between')
             },
             {
-                type: 'combobox',
+                type: Boolean(me.endpoint) ? 'noui' : 'combobox',
                 dataIndex: 'webServiceEndPoint',
                 itemId: 'history-topfilter-webServiceEndPoint',
                 emptyText: Uni.I18n.translate('general.webServiceEndpoint', 'WSS', 'Web service endpoint'),
-                hidden: Boolean(me.endpoint),
                 displayField: 'name',
                 valueField: 'id',
-                store: endpointStore
+                store: endpointStore,
+                value: me.endpoint ? me.endpoint.getId() : undefined
             },
             {
                 type: 'combobox',

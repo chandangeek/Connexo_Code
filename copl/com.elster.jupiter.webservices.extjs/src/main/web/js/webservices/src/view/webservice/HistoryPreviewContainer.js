@@ -31,9 +31,7 @@ Ext.define('Wss.view.webservice.HistoryPreviewContainer', {
             endpoint: me.endpoint,
             router: me.router,
             adminView: me.adminView,
-            store: Boolean(me.endpoint)
-              ? store = 'Wss.store.endpoint.EndpointOccurrence'
-              : store = 'Wss.store.endpoint.Occurrence'
+            store: 'Wss.store.endpoint.Occurrence'
         };
 
         me.previewComponent = {
