@@ -17,6 +17,8 @@ import com.energyict.dlms.axrdencoding.UTF8String;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.AXDRDate;
+import com.energyict.dlms.axrdencoding.util.AXDRTime;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.Beacon3100PushSetup;
 import com.energyict.dlms.cosem.BorderRouterIC;
@@ -139,10 +141,7 @@ import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
-import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
-import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
-import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.*;
 import com.energyict.protocolimplv2.messages.validators.BeaconMessageValidator;
 import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
@@ -181,6 +180,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.energyict.dlms.DLMSUtils.getBytesFromHexString;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
@@ -223,6 +223,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode MULTI_APN_COFIG_OLD_OBISCODE = ObisCode.fromString("0.128.25.3.0.255");
     private static final ObisCode MULTI_APN_COFIG_NEW_OBISCODE = ObisCode.fromString("0.162.96.160.0.255");
     private static final ObisCode LIFE_CYCLEMANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.128.96.160.0.255");
+    private static final ObisCode RESET_MODEM_SINGLE_ACTION_SCHEDULE = ObisCode.fromString("0.162.15.128.0.255");
+
     /**
      * Old (pre-1.9) OBIS of the web portal setup IC.
      */
@@ -243,6 +245,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      */
     private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
     private static final int ROUTING_ENTRY_ID = 1;
+
     private final ObjectMapperService objectMapperService;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
@@ -284,6 +287,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 DeviceActionMessage.ResetLogicalDevice.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.FETCH_LOGGING.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.SET_REMOTE_SYSLOG_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.SetModemResetSchedule.get(this.propertySpecService, this.nlsService, this.converter),
 
                 // FirmwareDeviceMessage.BroadcastFirmwareUpgrade.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
@@ -689,6 +693,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         removeLogicalDevice(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ResetLogicalDevice)) {
                         resetLogicalDevice(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetModemResetSchedule)) {
+                        setModemResetSchedule(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS)) {
                         changeGPRSParameters(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PingMeter)) {
@@ -987,6 +993,65 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
 
         return result;
+    }
+
+    /**
+     * Set modem reset schedule for Beacon.
+     *
+     * Note:    Makes sense to reset the schedule somewhere between daily and once per month,
+     *          so the year and month are set as wildcards.
+     *          Also we don't need granularity of minutes, seconds, etc.
+     *
+     * @param pendingMessage
+     */
+    private void setModemResetSchedule(OfflineDeviceMessage pendingMessage) throws IOException {
+        String selectedDayOfMonth = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.daysOfMonthSchedule).getValue();
+        String selectedDayOfWeek = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.daysOfWeekSchedule).getValue();
+        String selectedHour = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.hour).getValue();
+        Boolean enableSchedule = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableModemResetSchedule).getValue());
+
+        OctetString dateOctetString = OctetString.fromByteArray(getBytesFromHexString("$ff$ff$ff$ff$ff")); // disabled state
+        OctetString timeOctetString = OctetString.fromByteArray(getBytesFromHexString("$ff$ff$ff$ff")); // disabled state
+        if (enableSchedule) {
+            int dlmsYear = 0xffff;  // default to every year
+            int dlmsMonth = 0xff;   // default to every month
+            int dlmsDayOfMonth = DaysOfMonth.getDlmsEncoding(selectedDayOfMonth);
+            int dlmsDayOfWeek = DaysOfWeek.getDlmsEncoding(selectedDayOfWeek);
+            int dlmsHour = 00;      // default reset time at midnight
+
+            if (selectedHour.matches("\\d+")) { // check if's numbers-only
+                int hour = Integer.parseInt(selectedHour);
+                if (hour >= 00 && hour <= 23) { //extra-check, just in case
+                    dlmsHour = hour;
+                }
+            }
+            dateOctetString = AXDRDate.encode(dlmsYear, dlmsMonth, dlmsDayOfMonth, dlmsDayOfWeek);
+
+            AXDRTime time = new AXDRTime();
+            time.setHour(dlmsHour);
+            time.setMinutes(0);
+            time.setSeconds(0);
+            time.setMilliSeconds(0);
+
+            timeOctetString = time.getOctetString();
+        }
+
+        Structure executionTimeDate = new Structure();
+        executionTimeDate.addDataType(timeOctetString);
+        executionTimeDate.addDataType(dateOctetString);
+
+
+        Array arrayOfExecutionTimes = new Array();
+        arrayOfExecutionTimes.addDataType(executionTimeDate);
+
+        try {
+            getCosemObjectFactory().getSingleActionSchedule(RESET_MODEM_SINGLE_ACTION_SCHEDULE).writeExecutionTime(arrayOfExecutionTimes);
+        } catch (NotInObjectListException e){
+            throw new ProtocolException("Reset modem single action schedule IC "+RESET_MODEM_SINGLE_ACTION_SCHEDULE+" not supported");
+        } catch (IOException e) {
+            throw new ProtocolException(e.getLocalizedMessage());
+        }
+
     }
 
     private void removeLogicalDevice(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
