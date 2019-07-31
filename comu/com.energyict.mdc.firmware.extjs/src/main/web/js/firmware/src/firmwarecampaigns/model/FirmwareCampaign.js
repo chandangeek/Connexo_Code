@@ -8,7 +8,8 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
         'Uni.property.model.Property',
         'Fwc.model.DeviceType',
         'Fwc.model.FirmwareType',
-        'Fwc.model.DeviceGroup'
+        'Fwc.model.DeviceGroup',
+        'Fwc.firmwarecampaigns.model.FirmvareVersionsOption'
     ],
     fields: [
         'id',
@@ -71,7 +72,8 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
                 return '-';
             }
         },
-        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null}
+        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null},
+        {name : 'checkOptions', type: 'auto'}
     ],
     associations: [
         {
@@ -80,6 +82,13 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             model: 'Uni.property.model.Property',
             associationKey: 'properties',
             foreignKey: 'properties'
+        },
+        {
+            type: 'hasOne',
+            name: 'checkOptions',
+            model: 'Fwc.firmwarecampaigns.model.FirmvareVersionsOption',
+            associationKey: 'checkOptions',
+            foreignKey: 'checkOptions'
         }
     ],
     proxy: {

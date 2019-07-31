@@ -21,7 +21,8 @@ Ext.define('Fwc.controller.Main', {
         'Fwc.firmwarecampaigns.controller.Overview',
         'Fwc.firmwarecampaigns.controller.Add',
         'Fwc.firmwarecampaigns.controller.Detail',
-        'Fwc.firmwarecampaigns.controller.Devices'
+        'Fwc.firmwarecampaigns.controller.Devices',
+        'Fwc.firmwarecampaigns.controller.ConfigurationOptions'
     ],
 
     refs: [

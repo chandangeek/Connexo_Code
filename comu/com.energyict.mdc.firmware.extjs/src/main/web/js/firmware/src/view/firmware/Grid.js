@@ -99,78 +99,81 @@ Ext.define('Fwc.view.firmware.Grid', {
 
          me.columns = delColbyId(['ordering-col', 'uni-actioncolumn'] , me.columns);
 
-        if (me.editOrder) {
-            me.viewConfig = {
-                 plugins: {
-                      ptype: 'gridviewdragdrop',
-                      dragText: '&nbsp;'
-                 },
-                 listeners: {
-                     drop: {
-                         fn: function () {
-                             me.isEditedRank = true;
-                             me.getView().refresh();
-                             me.isEditedRank = false;
+        if(!me.isFirmwareCampaignVersions){
+            if (me.editOrder) {
+                me.viewConfig = {
+                     plugins: {
+                          ptype: 'gridviewdragdrop',
+                          dragText: '&nbsp;'
+                     },
+                     listeners: {
+                         drop: {
+                             fn: function () {
+                                 me.isEditedRank = true;
+                                 me.getView().refresh();
+                                 me.isEditedRank = false;
+                             }
                          }
                      }
-                 }
-            };
-            me.selModel = {
-                 mode: 'MULTI'
-            };
+                };
+                me.selModel = {
+                     mode: 'MULTI'
+                };
 
-            me.columns.push({
-                 header: Uni.I18n.translate('general.ordering', 'EST', 'Ordering'),
-                 itemId: 'ordering-col',
-                 align: 'center',
-                 renderer: function () {
-                        return '<span class="icon-stack3"></span>';
-                 }
-            });
+                me.columns.push({
+                     header: Uni.I18n.translate('general.ordering', 'EST', 'Ordering'),
+                     itemId: 'ordering-col',
+                     align: 'center',
+                     renderer: function () {
+                            return '<span class="icon-stack3"></span>';
+                     }
+                });
 
-            buttons = [
+                buttons = [
+                    {
+                        xtype: 'button',
+                        itemId: 'btn-save-firmware-version-order',
+                        text: Uni.I18n.translate('general.saveOrder', 'FWC', 'Save order'),
+                        action: 'saveFirmwareVersionOrder',
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'btn-undo-firmware-version-order',
+                        text: Uni.I18n.translate('general.undo', 'FWC', 'Undo'),
+                        action: 'undoFirmwareVersionOrder',
+                        href: me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, null),
+                    }
+                ]
+            }else{
+                buttons =[
                 {
-                    xtype: 'button',
-                    itemId: 'btn-save-firmware-version-order',
-                    text: Uni.I18n.translate('general.saveOrder', 'FWC', 'Save order'),
-                    action: 'saveFirmwareVersionOrder',
+                     xtype: 'button',
+                     itemId: 'btn-edit-order-estimation-rules',
+                     text: Uni.I18n.translate('general.editOrder', 'FWC', 'Edit order'),
+                     action: 'editOrderEstimationRules',
+                     href: me.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(me.router.arguments, {editOrder: true}),
                 },
                 {
-                    xtype: 'button',
-                    itemId: 'btn-undo-firmware-version-order',
-                    text: Uni.I18n.translate('general.undo', 'FWC', 'Undo'),
-                    action: 'undoFirmwareVersionOrder',
-                    href: me.router.getRoute(me.router.currentRoute).buildUrl(me.router.arguments, null),
+                     text: Uni.I18n.translate('firmwareVersion.add', 'FWC', 'Add firmware version'),
+                     itemId: 'addFirmware',
+                     xtype: 'button',
+                     action: 'addFirmware'
+                }]
+                me.columns.push({
+                xtype: 'uni-actioncolumn',
+                itemId: 'uni-actioncolumn',
+                width: 120,
+                isDisabled: function() {
+                    return !Mdc.privileges.DeviceType.canAdministrate();
+                },
+                menu: {
+                    xtype: 'firmware-action-menu',
+                    itemId: 'firmware-action-menu'
                 }
-            ]
-        }else{
-            buttons =[
-            {
-                 xtype: 'button',
-                 itemId: 'btn-edit-order-estimation-rules',
-                 text: Uni.I18n.translate('general.editOrder', 'FWC', 'Edit order'),
-                 action: 'editOrderEstimationRules',
-                 href: me.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(me.router.arguments, {editOrder: true}),
-            },
-            {
-                 text: Uni.I18n.translate('firmwareVersion.add', 'FWC', 'Add firmware version'),
-                 itemId: 'addFirmware',
-                 xtype: 'button',
-                 action: 'addFirmware'
-            }]
-            me.columns.push({
-            xtype: 'uni-actioncolumn',
-            itemId: 'uni-actioncolumn',
-            width: 120,
-            isDisabled: function() {
-                return !Mdc.privileges.DeviceType.canAdministrate();
-            },
-            menu: {
-                xtype: 'firmware-action-menu',
-                itemId: 'firmware-action-menu'
+            });
             }
-        });
         }
+
         this.dockedItems = [{
                 xtype: 'pagingtoolbartop',
                 store: this.store,

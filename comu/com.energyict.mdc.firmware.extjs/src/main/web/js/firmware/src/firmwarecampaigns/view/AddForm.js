@@ -190,6 +190,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'firmware-version-options',
                 itemId: 'firmware-version-options',
                 hidden: true,
+                isDisabled: me.campaignRecordBeingEdited,
                 defaults: {
                     width: 600,
                     labelWidth: 260
@@ -244,6 +245,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.setLoading();
             }
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
+            var firmvareVersionsView = me.down('#firmware-version-options');
+            var firmvareVersionsStore = firmvareVersionsView.store;
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
         }
@@ -275,6 +278,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         firmwareManagementOptions.getProxy().extraParams = {};
         firmwareManagementOptions.load(1, {
             success: function (record) {
+                var firmvareVersionsView = me.down('#firmware-version-options');
+                var firmvareVersionsStore = firmvareVersionsView.store;
+                firmvareVersionsStore.loadRawData([record.data]);
+                firmvareVersionsView.fillChecksAccordingStore();
+                firmvareVersionsView.show();
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
                     showDescription: true,
                     showOnlyLabelForSingleItem: true,
@@ -332,7 +340,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     updateRecord: function () {
         var me = this,
-            propertyForm = me.down('property-form');
+            propertyForm = me.down('property-form'),
+            firmwareVersionsOptions = me.down('#firmware-version-options');
 
         me.callParent(arguments);
 
@@ -378,6 +387,12 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
                     periodNumber.setValue(validationTimeout.count);
                 }
+                var firmvareVersionsView = me.down('#firmware-version-options');
+                var firmvareVersionsStore = firmvareVersionsView.store;
+                firmvareVersionsStore.loadRawData([campaignRecord.data]);
+                firmvareVersionsView.fillChecksAccordingStore();
+                firmvareVersionsView.show();
+                firmvareVersionsView.disable();
 
             },
             setProperties = function() {
