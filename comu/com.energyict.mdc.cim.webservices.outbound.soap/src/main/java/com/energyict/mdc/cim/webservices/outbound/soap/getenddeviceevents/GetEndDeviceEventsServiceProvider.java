@@ -5,40 +5,35 @@
 package com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyGetEndDeviceEventsWebService;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvents;
-import ch.iec.tc57._2011.getenddeviceevents.FaultMessage;
 import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEventsPort;
 import ch.iec.tc57._2011.getenddeviceevents.GetEndDeviceEvents_Service;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.getenddeviceeventsmessage.GetEndDeviceEventsRequestMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 
-import org.apache.cxf.jaxws.JaxWsClientProxy;
-import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.inject.Inject;
 import javax.xml.ws.Service;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents.provider",
         service = {ReplyGetEndDeviceEventsWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + ReplyGetEndDeviceEventsWebService.NAME})
-public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEventsWebService, OutboundSoapEndPointProvider {
+public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointProvider<GetEndDeviceEventsPort> implements ReplyGetEndDeviceEventsWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private static final String NOUN = "GetEndDeviceEvents";
     private static final String RESOURCE_WSDL = "/getenddeviceevents/GetEndDeviceEvents.wsdl";
@@ -49,36 +44,23 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
             = new ch.iec.tc57._2011.getenddeviceeventsmessage.ObjectFactory();
 
     private final EndDeviceEventsFactory endDeviceEventsFactory = new EndDeviceEventsFactory();
-    private final List<GetEndDeviceEventsPort> getEndDeviceEventsPorts = new ArrayList<>();
-
-    private volatile WebServicesService webServicesService;
 
     public GetEndDeviceEventsServiceProvider() {
         // for OSGI purposes
     }
 
-    @Inject
-    public GetEndDeviceEventsServiceProvider(WebServicesService webServicesService) {
-        this();
-        setWebServicesService(webServicesService);
-    }
-
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService) {
-        this.webServicesService = webServicesService;
-    }
-
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addGetEndDeviceEventsPort(GetEndDeviceEventsPort port) {
-        getEndDeviceEventsPorts.add(port);
+    public void addGetEndDeviceEventsPort(GetEndDeviceEventsPort port, Map<String, Object> properties) {
+        super.doAddEndpoint(port, properties);
     }
 
     public void removeGetEndDeviceEventsPort(GetEndDeviceEventsPort port) {
-        getEndDeviceEventsPorts.remove(port);
+        super.doRemoveEndpoint(port);
     }
 
-    public List<GetEndDeviceEventsPort> getGetEndDeviceEventsPorts() {
-        return Collections.unmodifiableList(getEndDeviceEventsPorts);
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     @Override
@@ -92,22 +74,16 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
     }
 
     @Override
+    protected String getName() {
+        return ReplyGetEndDeviceEventsWebService.NAME;
+    }
+
+    @Override
     public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents) {
-        publish(endPointConfiguration);
-        try {
-            getGetEndDeviceEventsPorts().stream()
-                    .filter(getEndDeviceEventsPort -> isValidPortService(getEndDeviceEventsPort, endPointConfiguration))
-                    .findFirst()
-                    .ifPresent(portService -> {
-                        try {
-                            portService.getEndDeviceEvents(createResponseMessage(createEndDeviceEvents(endDeviceEvents)));
-                        } catch (FaultMessage faultMessage) {
-                            endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
-                        }
-                    });
-        } catch (RuntimeException ex) {
-            endPointConfiguration.log(LogLevel.SEVERE, ex.getMessage());
-        }
+        GetEndDeviceEventsRequestMessageType message = createResponseMessage(createEndDeviceEvents(endDeviceEvents));
+        using("getEndDeviceEvents")
+                .toEndpoints(endPointConfiguration)
+                .send(message);
     }
 
     private GetEndDeviceEventsRequestMessageType createResponseMessage(EndDeviceEvents endDeviceEvents) {
@@ -127,12 +103,6 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         return responseMessage;
     }
 
-    private void publish(EndPointConfiguration endPointConfiguration) {
-        if (endPointConfiguration.isActive() && !webServicesService.isPublished(endPointConfiguration)) {
-            webServicesService.publishEndPoint(endPointConfiguration);
-        }
-    }
-
     private EndDeviceEvents createEndDeviceEvents(List<EndDeviceEventRecord> records) {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
         List<EndDeviceEvent> endDeviceEventList = endDeviceEvents.getEndDeviceEvent();
@@ -140,7 +110,8 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         return endDeviceEvents;
     }
 
-    private boolean isValidPortService(GetEndDeviceEventsPort port, EndPointConfiguration endPointConfiguration) {
-        return endPointConfiguration.getUrl().toLowerCase().contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(port))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
+    @Override
+    public String getApplication(){
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

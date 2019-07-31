@@ -67,6 +67,7 @@ import static com.elster.jupiter.orm.Version.version;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-29 (11:17)
  */
+
 public enum TableSpecs {
 
     DTC_DEVICETYPE {

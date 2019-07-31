@@ -157,7 +157,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             IssueCreationService.CreationRuleActionBuilder actionBuilder = builder.newCreationRuleAction();
             actionBuilder.setPhase(CreationRuleActionPhase.fromString("CREATE"));
             Condition condition = where("className").isEqualTo("com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction");
-            Optional<IssueActionType> actionType = Optional.ofNullable(issueService.getIssueActionService().getActionTypeQuery().select(condition).get(0));
+            Optional<IssueActionType> actionType = issueService.getIssueActionService().getActionTypeQuery().select(condition, 1, 1).stream().findAny();
             actionType.ifPresent(issueActionType -> {
                 actionBuilder.setActionType(issueActionType);
                 Optional<IssueAction> issueAction = issueActionType.createIssueAction();
