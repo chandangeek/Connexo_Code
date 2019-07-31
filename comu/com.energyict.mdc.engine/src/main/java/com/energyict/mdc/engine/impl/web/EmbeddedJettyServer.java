@@ -25,6 +25,7 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -32,6 +33,9 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.joda.time.DateTimeConstants;
 
 import javax.servlet.Servlet;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.Writer;
 import java.net.URI;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -84,8 +88,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
         return new EmbeddedJettyServer(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    private EmbeddedJettyServer (ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider)
-             {
+    private EmbeddedJettyServer (ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         threadPoolName = INBOUND_COMPORT_SERVICE;
         QueuedThreadPool threadPool = new QueuedThreadPool();
@@ -102,15 +105,14 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
                 sslContextFactory.setTrustStorePassword(comPort.getTrustStoreSpecsPassword());
 
                 ServerConnector connector = new ServerConnector(jetty, sslContextFactory);
-
                 connector.setPort(comPort.getPortNumber());
-                jetty.addConnector(connector);
+                this.jetty.addConnector(connector);
 
             }catch (KeyStoreException ex){}
         } else {
             ServerConnector connector = new ServerConnector(jetty);
             connector.setPort(comPort.getPortNumber());
-            jetty.addConnector(connector);
+            this.jetty.addConnector(connector);
         }
 
         initCustomErrorHandling();
@@ -122,7 +124,22 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     }
 
     private void initCustomErrorHandling() {
+        ErrorHandler errorHandler = new ErrorHandler() {
+            @Override
+            protected void writeErrorPageBody(HttpServletRequest request, Writer writer, int code, String message, boolean showStacks) throws IOException {
+                String uri = request.getRequestURI();
+                writeErrorPageMessage(request, writer, code, message, uri);
+            }
 
+            @Override
+            protected void writeErrorPageMessage(HttpServletRequest request, Writer writer, int code, String message, String uri) throws IOException {
+                writer.write("<h2>HTTP ERROR ");
+                writer.write(Integer.toString(code));
+                writer.write("</h2>");
+            }
+        };
+        errorHandler.setShowStacks(false);
+        jetty.addBean(errorHandler);
     }
 
     private String getContextPath (ServletBasedInboundComPort comPort) {
@@ -161,7 +178,6 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
             handlerCollection.setHandlers(new Handler[]{servletContextHandler});
         }
         EventServlet servlet = new EventServlet(eventAPIStatistics);
-
         servletContextHandler.addServlet(new ServletHolder((Servlet) servlet), eventRegistrationUri.getPath());
     }
 
@@ -258,7 +274,6 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
                 this.jetty.setStopAtShutdown(false);
             }
             else {
-                // this.jetty.setGracefulShutdown(DateTimeConstants.MILLIS_PER_SECOND * GRACEFUL_SHUTDOWN_SECONDS);
                 this.jetty.setStopTimeout(DateTimeConstants.MILLIS_PER_SECOND * GRACEFUL_SHUTDOWN_SECONDS);
                 this.jetty.setStopAtShutdown(true);
             }
