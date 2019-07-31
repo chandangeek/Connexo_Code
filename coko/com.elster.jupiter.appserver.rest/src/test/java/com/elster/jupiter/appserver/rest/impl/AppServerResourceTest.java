@@ -48,8 +48,6 @@ import java.util.Optional;
 
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -450,13 +448,10 @@ public class AppServerResourceTest extends AppServerApplicationTest {
 
     @SuppressWarnings("unchecked")
     private void mockTransaction() {
-        when(transactionService.<Object>execute(Matchers.any(Transaction.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                @SuppressWarnings("rawtypes")
-                Transaction transaction = (Transaction) invocation.getArguments()[0];
-                return transaction.perform();
-            }
+        when(transactionService.execute(Matchers.any(Transaction.class))).thenAnswer(invocation -> {
+            @SuppressWarnings("rawtypes")
+            Transaction transaction = (Transaction) invocation.getArguments()[0];
+            return transaction.perform();
         });
     }
 

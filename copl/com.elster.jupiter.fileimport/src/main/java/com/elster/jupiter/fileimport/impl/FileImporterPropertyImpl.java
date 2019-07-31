@@ -71,7 +71,11 @@ final class FileImporterPropertyImpl implements FileImporterProperty, Persistenc
 
     @Override
     public Object getValue() {
-        return getPropertySpec().getValueFactory().fromStringValue(stringValue);
+        try {
+            return getPropertySpec().getValueFactory().fromStringValue(stringValue);
+        } catch (Exception ex){
+            return null;
+        }
     }
 
     private PropertySpec getPropertySpec() {

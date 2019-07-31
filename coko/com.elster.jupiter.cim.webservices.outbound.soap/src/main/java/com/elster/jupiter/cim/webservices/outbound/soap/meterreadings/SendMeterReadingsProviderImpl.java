@@ -5,6 +5,8 @@ package com.elster.jupiter.cim.webservices.outbound.soap.meterreadings;
 
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.metering.ReadingInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -16,7 +18,6 @@ import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsResponseMessageType;
 import ch.iec.tc57._2011.meterreadingsmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-import ch.iec.tc57._2011.sendmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.sendmeterreadings.MeterReadingsPort;
 import ch.iec.tc57._2011.sendmeterreadings.SendMeterReadings;
 import org.osgi.service.component.annotations.Component;
@@ -26,10 +27,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,34 +36,32 @@ import java.util.logging.Logger;
         service = {SendMeterReadingsProvider.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + SendMeterReadingsProvider.NAME})
-public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider, OutboundSoapEndPointProvider {
+public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvider<MeterReadingsPort> implements SendMeterReadingsProvider, OutboundSoapEndPointProvider, ApplicationSpecific {
     private static final Logger LOGGER = Logger.getLogger(SendMeterReadingsProviderImpl.class.getName());
 
     private static final QName QNAME = new QName("http://iec.ch/TC57/2011/SendMeterReadings", "SendMeterReadings");
     private static final String RESOURCE = "/meterreadings/SendMeterReadings.wsdl";
     private static final String NOUN = "MeterReadings";
-    private static final String URL = "url";
 
-    private final Map<String, MeterReadingsPort> meterReadingsPorts = new ConcurrentHashMap<>();
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ObjectFactory meterReadingsMessageObjectFactory = new ObjectFactory();
     private final MeterReadingsBuilder readingBuilderProvider = new MeterReadingsBuilder();
-    private volatile WebServicesService webServicesService;
 
     public SendMeterReadingsProviderImpl() {
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addMeterReadingsPort(MeterReadingsPort out, Map<String, Object> properties) {
-        meterReadingsPorts.put(properties.get(URL).toString(), out);
+        super.doAddEndpoint(out, properties);
     }
 
     public void removeMeterReadingsPort(MeterReadingsPort out) {
-        meterReadingsPorts.values().removeIf(port -> out == port);
+        super.doRemoveEndpoint(out);
     }
 
-    public Map<String, MeterReadingsPort> getMeterReadingsPorts() {
-        return Collections.unmodifiableMap(meterReadingsPorts);
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     @Override
@@ -77,34 +74,49 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         return MeterReadingsPort.class;
     }
 
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService) {
-        this.webServicesService = webServicesService;
+    @Override
+    protected String getName() {
+        return SendMeterReadingsProvider.NAME;
     }
 
     public String getWebServiceName() {
-        return SendMeterReadingsProvider.NAME;
+        return getName();
     }
 
     public void call(List<ReadingInfo> readingInfos, HeaderType.Verb requestVerb) {
         MeterReadings meterReadings = readingBuilderProvider.build(readingInfos);
-        if (checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
-            meterReadingsPorts.forEach((url, soapService) ->
-                    sendMeterReadingsPortResponse(soapService, meterReadings, requestVerb)
-            );
+        String method;
+        MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, requestVerb);
+        if (requestVerb.equals(HeaderType.Verb.CREATED)) {
+            method = "createdMeterReadings";
+        } else if (requestVerb.equals(HeaderType.Verb.CHANGED)) {
+            method = "changedMeterReadings";
+        } else {
+            throw new UnsupportedOperationException(requestVerb + " isn't supported.");
         }
+        using(method).send(message);
     }
 
     public boolean call(MeterReadings meterReadings, HeaderType.Verb requestVerb, EndPointConfiguration endPointConfiguration) {
         if (!checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
             return false;
         }
-        MeterReadingsPort meterReadingsPort = getMeterReadingsPorts().get(endPointConfiguration.getUrl());
-        if (meterReadingsPort == null) {
-            LOGGER.log(Level.SEVERE, "No meter reading port was found for url: " + endPointConfiguration.getUrl());
+        String method;
+        MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, requestVerb);
+        if (requestVerb.equals(HeaderType.Verb.CREATED)) {
+            method = "createdMeterReadings";
+        } else if (requestVerb.equals(HeaderType.Verb.CHANGED)) {
+            method = "changedMeterReadings";
+        } else {
+            throw new UnsupportedOperationException(requestVerb + " isn't supported.");
+        }
+        Map response = using(method)
+                .toEndpoints(endPointConfiguration)
+                .send(message);
+        if (response == null || response.get(endPointConfiguration) == null || ReplyType.Result.OK != ((MeterReadingsResponseMessageType)response.get(endPointConfiguration)).getReply().getResult()) {
             return false;
         }
-        return sendMeterReadingsPortResponse(meterReadingsPort, meterReadings, requestVerb);
+        return true;
     }
 
     protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType.Verb requestVerb) {
@@ -124,37 +136,16 @@ public class SendMeterReadingsProviderImpl implements SendMeterReadingsProvider,
         return meterReadingsResponseMessageType;
     }
 
-    private boolean sendMeterReadingsPortResponse(MeterReadingsPort meterReadingsPort, MeterReadings meterReadings, HeaderType.Verb requestVerb) {
-        MeterReadingsResponseMessageType meterReadingsResponseMessageType;
-        try {
-            if (requestVerb.equals(HeaderType.Verb.CREATED)) {
-                meterReadingsResponseMessageType = meterReadingsPort.createdMeterReadings(createMeterReadingsEventMessage(meterReadings, requestVerb));
-            } else if (requestVerb.equals(HeaderType.Verb.CHANGED)) {
-                meterReadingsResponseMessageType = meterReadingsPort.changedMeterReadings(createMeterReadingsEventMessage(meterReadings, requestVerb));
-            } else {
-                LOGGER.log(Level.SEVERE, "Unknown request type to send meter readings.");
-                return false;
-            }
-        } catch (FaultMessage faultMessage) {
-            LOGGER.log(Level.SEVERE, faultMessage.getLocalizedMessage(), faultMessage);
-            return false;
-        }
-        if (meterReadingsResponseMessageType == null
-                || ReplyType.Result.OK != meterReadingsResponseMessageType.getReply().getResult()) {
-            return false;
-        }
-        return true;
-    }
-
     private boolean checkMeterReadingsAndMeterReadingsPorts(MeterReadings meterReadings) {
         if (meterReadings.getMeterReading().isEmpty()) {
             LOGGER.log(Level.SEVERE, "No meter readings to send.");
             return false;
         }
-        if (meterReadingsPorts.isEmpty()) {
-            LOGGER.log(Level.SEVERE, "No published web service endpoint is found to send meter readings.");
-            return false;
-        }
         return true;
+    }
+
+    @Override
+    public String getApplication() {
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }
