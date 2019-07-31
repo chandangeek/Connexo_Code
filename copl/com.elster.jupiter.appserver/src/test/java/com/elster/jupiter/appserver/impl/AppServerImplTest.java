@@ -261,9 +261,8 @@ public class AppServerImplTest {
 
         appServer.activate();
         ArgumentCaptor<EndPointConfiguration> endPointConfigurationArgumentCaptor = ArgumentCaptor.forClass(EndPointConfiguration.class);
-        verify(webServicesService, times(2)).publishEndPoint(endPointConfigurationArgumentCaptor.capture());
+        verify(webServicesService, times(1)).publishEndPoint(endPointConfigurationArgumentCaptor.capture());
         assertThat(endPointConfigurationArgumentCaptor.getAllValues().get(0)).isEqualTo(epc2);
-        assertThat(endPointConfigurationArgumentCaptor.getAllValues().get(1)).isEqualTo(epc4);
     }
 
     @Test

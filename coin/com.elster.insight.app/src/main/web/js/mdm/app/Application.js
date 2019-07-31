@@ -22,7 +22,8 @@ Ext.define('MdmApp.Application', {
         'Est.privileges.EstimationConfiguration',
         'Imt.privileges.UsagePointGroup',
         'Yfn.privileges.Yellowfin',
-        'Cfg.privileges.Audit'
+        'Cfg.privileges.Audit',
+        'Wss.privileges.Webservices'
     ],
 
     controllers: [

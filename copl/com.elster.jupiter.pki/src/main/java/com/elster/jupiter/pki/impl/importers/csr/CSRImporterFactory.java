@@ -25,6 +25,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
 
+import org.json.JSONObject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -35,12 +36,11 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory",
@@ -100,14 +100,24 @@ public class CSRImporterFactory implements FileImporterFactory {
                 if (timeout != null && timeout.isEmpty()) {
                     throw new LocalizedFieldValidationException(MessageSeeds.POSITIVE_VALUE_IS_REQUIRED, prop.getName()).fromSubField("properties");
                 }
-            } else if (prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey())) {
+            } else if (prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_SFTP_PORT.getPropertyKey())) {
                 Long port = (Long) prop.getValue();
                 if (port != null && port <= 0) {
                     throw new LocalizedFieldValidationException(MessageSeeds.POSITIVE_VALUE_IS_REQUIRED, prop.getName()).fromSubField("properties");
                 }
+            } else if (prop.getName().equals(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey())) {
+                String jsonString = (String) prop.getValue();
+                try{
+                    JSONObject json = new JSONObject(jsonString);
+                    getLogger().info("CSR file mapping JSON decoded successfully: "+jsonString);
+                } catch (Exception ex){
+                    getLogger().severe("Cannot parse file mapping JSON: "+jsonString+"\r\n"+ex.getLocalizedMessage());
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, prop.getName()).fromSubField("properties");
+                }
             }
         });
-        if (properties.stream().anyMatch(prop -> prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()) && ((Boolean) prop.getValue()))) {
+        /*
+        if (properties.stream().anyMatch(prop -> prop.getName().equals(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey()) && ((Boolean) prop.getValue()))) {
             Set<String> requiredExportProperties = getPropertySpecs().stream()
                     .map(PropertySpec::getName)
                     .filter(name -> name.contains("export") && !name.equals(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey()))
@@ -122,6 +132,11 @@ public class CSRImporterFactory implements FileImporterFactory {
                         throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, property).fromSubField("properties");
                     });
         }
+        */
+    }
+
+    private Logger getLogger() {
+        return Logger.getLogger(this.getClass().getName());
     }
 
     @Override
@@ -150,6 +165,11 @@ public class CSRImporterFactory implements FileImporterFactory {
 //                        .addValues(TimeDuration.seconds(30), TimeDuration.minutes(1), TimeDuration.minutes(2), TimeDuration.minutes(5))
                         .setDefaultValue(TimeDuration.seconds(30))
                         .finish(),
+                propertySpecService.booleanSpec()
+                        .named(CSRImporterTranslatedProperty.CHECK_FILE_SIGNATURE.getPropertyKey(), CSRImporterTranslatedProperty.CHECK_FILE_SIGNATURE)
+                        .describedAs(CSRImporterTranslatedProperty.CHECK_FILE_SIGNATURE_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
                 propertySpecService.referenceSpec(SecurityAccessor.class)
                         .named(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey(), CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR)
                         .describedAs(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR_DESCRIPTION)
@@ -157,12 +177,6 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .markRequired()
                         .markExhaustive()
                         .addValues(securityAccessorsForSignatureCheck)
-                        .finish(),
-                propertySpecService.booleanSpec()
-                        .named(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_CERTIFICATES)
-                        .describedAs(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_DESCRIPTION)
-                        .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 propertySpecService.referenceSpec(SecurityAccessor.class)
                         .named(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR)
@@ -178,24 +192,9 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .markExhaustive()
                         .addValues(securityManagementService.getAllTrustStores())
                         .finish(),
-                propertySpecService.stringSpec()
-                        .named(CSRImporterTranslatedProperty.EXPORT_HOSTNAME.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_HOSTNAME)
-                        .describedAs(CSRImporterTranslatedProperty.EXPORT_HOSTNAME_DESCRIPTION)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                propertySpecService.longSpec()
-                        .named(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_PORT)
-                        .describedAs(CSRImporterTranslatedProperty.EXPORT_PORT_DESCRIPTION)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                propertySpecService.stringSpec()
-                        .named(CSRImporterTranslatedProperty.EXPORT_USER.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_USER)
-                        .describedAs(CSRImporterTranslatedProperty.EXPORT_USER_DESCRIPTION)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                propertySpecService.stringSpec()
-                        .named(CSRImporterTranslatedProperty.EXPORT_PASSWORD.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_PASSWORD)
-                        .describedAs(CSRImporterTranslatedProperty.EXPORT_PASSWORD_DESCRIPTION)
+                propertySpecService.booleanSpec()
+                        .named(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER)
+                        .describedAs(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService.stringSpec()
@@ -213,6 +212,31 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
+                propertySpecService.booleanSpec()
+                        .named(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP)
+                        .describedAs(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService.stringSpec()
+                        .named(CSRImporterTranslatedProperty.EXPORT_SFTP_HOSTNAME.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_SFTP_HOSTNAME)
+                        .describedAs(CSRImporterTranslatedProperty.EXPORT_SFTP_HOSTNAME_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService.longSpec()
+                        .named(CSRImporterTranslatedProperty.EXPORT_SFTP_PORT.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_SFTP_PORT)
+                        .describedAs(CSRImporterTranslatedProperty.EXPORT_SFTP_PORT_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService.stringSpec()
+                        .named(CSRImporterTranslatedProperty.EXPORT_SFTP_USER.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_SFTP_USER)
+                        .describedAs(CSRImporterTranslatedProperty.EXPORT_SFTP_USER_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService.stringSpec()
+                        .named(CSRImporterTranslatedProperty.EXPORT_SFTP_PASSWORD.getPropertyKey(), CSRImporterTranslatedProperty.EXPORT_SFTP_PASSWORD)
+                        .describedAs(CSRImporterTranslatedProperty.EXPORT_SFTP_PASSWORD_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
                 propertySpecService.stringSpec().named(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey(), CSRImporterTranslatedProperty.CA_NAME)
                         .describedAs(CSRImporterTranslatedProperty.CA_NAME_DESCRIPTION)
                         .fromThesaurus(thesaurus)
@@ -227,6 +251,10 @@ public class CSRImporterFactory implements FileImporterFactory {
                         .describedAs(CSRImporterTranslatedProperty.CA_PROFILE_NAME_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                propertySpecService.stringSpec().named(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey(), CSRImporterTranslatedProperty.CSR_MAPPING)
+                        .describedAs(CSRImporterTranslatedProperty.CSR_MAPPING_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }

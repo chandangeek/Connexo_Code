@@ -3694,12 +3694,13 @@ from &#13;
                           , MAX(idsvm2.RECORDTIME) OVER (PARTITION BY idsvm2.TIMESERIESID) AS LastReading&#13;
                           , NVL(to_char(FIRST_VALUE(idsvm2.SLOT1) OVER (PARTITION BY idsvm2.TIMESERIESID ORDER BY idsvm2.RECORDTIME DESC)), FIRST_VALUE(idsvm2.TEXTSLOT0) OVER (PARTITION BY idsvm2.TIMESERIESID ORDER BY idsvm2.RECORDTIME DESC)) AS LastValue      &#13;
                           , mc.MAINREADINGTYPEMRID&#13;
-                          , mmac.meterID&#13;
+                          , medev.amrid AS meterID&#13;
                       FROM Ids_Vault_Mtr_2 idsvm2&#13;
                             left join Mtr_Channel mc on idsvm2.Timeseriesid = mc.Timeseriesid&#13;
                             left join Mtr_Channel_Container mmcc on mc.channel_container = mmcc.id&#13;
                             left join Mtr_Meteractivation mmac on mmcc.meter_activation = mmac.id&#13;
-                    ) ld  on ld.MAINREADINGTYPEMRID = mmt.readingtype and dd.id = ld.meterID&#13;
+                            left join MTR_ENDDEVICE medev on medev.id = mmac.meterid&#13;
+      ) ld  on ld.MAINREADINGTYPEMRID = mmt.readingtype and dd.id = ld.meterID&#13;
           LEFT JOIN MDS_REGISTERTYPEINGROUP mrtg on mrtg.registertypeID = mmt.ID&#13;
           LEFT JOIN MDS_REGISTERGROUP mrg on mrg.ID = mrtg.registergroupID&#13;
                  ) res on devgr.ENDDEVICEID = res.DeviceID</viewSQL>
@@ -20219,9 +20220,9 @@ end</SQLClause>
     <calculatedFieldList>
       <viewField>
         <id>78764</id>
-        <columnName>LastReading</columnName>
+        <columnName>LastValue</columnName>when LASTVALUE is null then '-'
         <shortDescription>Last value</shortDescription>
-        <longDescription>LastReading</longDescription>
+        <longDescription>LastValue</longDescription>
         <sortOrder>2</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>
@@ -20244,7 +20245,7 @@ end</SQLClause>
         <SQLClause>Case 
 when LASTVALUE is null then '-'
 when INSTR(NAME, 'Wh') &gt; 0 then to_char(to_number(LASTVALUE), '999,999,999,999,999')  || ' Wh'
-else  to_char(LASTREADING)
+else  to_char(LASTVALUE)
 end</SQLClause>
         <originalFieldTemplateId>0</originalFieldTemplateId>
         <fieldUUID>b32a7ce8-7fda-463b-b57d-d540979b0d51</fieldUUID>

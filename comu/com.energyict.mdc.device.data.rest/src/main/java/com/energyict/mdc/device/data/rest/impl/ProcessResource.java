@@ -187,7 +187,9 @@ public class ProcessResource {
                 Optional<? extends Issue> tmpIssue = issueService.findIssue(Long.valueOf(issueId));
                 if (tmpIssue.isPresent()) {
                     processGeneralInfos.setObjectName(i, tmpIssue.get().getIssueId() + ": " + tmpIssue.get().getTitle());
-                    processGeneralInfos.setCorrDeviceName(i, tmpIssue.get().getDevice().getName());
+                    if (tmpIssue.get().getDevice() != null) {
+                        processGeneralInfos.setCorrDeviceName(i, tmpIssue.get().getDevice().getName());
+                    }
                     processGeneralInfos.setIssueType(i, tmpIssue.get().getReason().getIssueType().getKey());
                 } else {
                     System.out.println("There is no corresponding issue in database");

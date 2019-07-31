@@ -102,7 +102,7 @@ public class HistoryResource extends BaseResource {
                         filter.getString(IssueRestModuleConst.APPLICATION).equalsIgnoreCase("INS") ?
                                 Stream.of(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).collect(Collectors.toList()) :
                                 filter.getString(IssueRestModuleConst.APPLICATION).equalsIgnoreCase("MultiSense") ?
-                                        Stream.of(IssueTypes.DATA_COLLECTION.getName(), IssueTypes.DATA_VALIDATION.getName(), IssueTypes.DEVICE_LIFECYCLE.getName(), IssueTypes.TASK.getName()).collect(Collectors.toList()) :
+                                        Stream.of(IssueTypes.DATA_COLLECTION.getName(), IssueTypes.DATA_VALIDATION.getName(), IssueTypes.DEVICE_LIFECYCLE.getName(), IssueTypes.TASK.getName(), IssueTypes.SERVICE_CALL_ISSUE.getName()).collect(Collectors.toList()) :
                                         Collections.emptyList();
     }
 }

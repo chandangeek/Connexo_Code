@@ -6,8 +6,8 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
@@ -38,14 +38,16 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
 
     private final UserService userService;
     private InboundEndPointConfiguration endPointConfiguration;
-    private final TransactionService transactionService;
+    private final WebServicesService webServicesService;
     private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    public AuthorizationInInterceptor(UserService userService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
+    public AuthorizationInInterceptor(UserService userService,
+                                      WebServicesService webServicesService,
+                                      ThreadPrincipalService threadPrincipalService) {
         super(Phase.PRE_INVOKE);
         this.userService = userService;
-        this.transactionService = transactionService;
+        this.webServicesService = webServicesService;
         this.threadPrincipalService = threadPrincipalService;
     }
 
@@ -62,52 +64,48 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
             password = policy.getPassword();
             newSession = true;
         } else {
-            fail("Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
+            fail(message, "Authentication required",
+                    "Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
         }
         try {
             this.userService.findUser(userName).ifPresent(threadPrincipalService::set);
             Optional<User> user = userService.authenticateBase64(Base64Utility.encode((userName + ":" + password).getBytes()), request
                     .getRemoteAddr());
             if (!user.isPresent()) {
-                logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: invalid credentials");
-                fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
+                fail(message, "Not authorized",
+                        "User " + userName + " denied access: invalid credentials", HttpURLConnection.HTTP_FORBIDDEN);
             }
             if (endPointConfiguration.getGroup().isPresent()) {
                 if (!user.get().isMemberOf(endPointConfiguration.getGroup().get())) {
-                    logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: not in role");
-                    fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
+                    fail(message, "Not authorized",
+                            "User " + userName + " denied access: not in role", HttpURLConnection.HTTP_FORBIDDEN);
                 }
             }
-
-           request.setAttribute(USERPRINCIPAL, user.get());
-
-        } catch (
-                Fault e)
-
-        {
+            request.setAttribute(USERPRINCIPAL, user.get());
+        } catch (Fault e) {
             throw e;
-        } catch (
-                Exception e)
-
-        {
-            logInTransaction("Exception while logging in " + userName + ":", e);
-            fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
+        } catch (Exception e) {
+            fail(message, "Not authorized",
+                    "Exception while logging in " + userName + ": " + e.getLocalizedMessage(), e, HttpURLConnection.HTTP_FORBIDDEN);
         }
-
     }
 
-    private void fail(String message, int statusCode) {
+    private void fail(Message request, String message, String detailedMessage, int statusCode) {
+        webServicesService.failOccurrence(MessageUtils.getOccurrenceId(request), detailedMessage);
+        // TODO: create issue
+        doFail(message, statusCode);
+    }
+
+    private void fail(Message request, String message, String detailedMessage, Exception e, int statusCode) {
+        webServicesService.failOccurrence(MessageUtils.getOccurrenceId(request), new Exception(detailedMessage, e));
+        // TODO: create issue
+        doFail(message, statusCode);
+    }
+
+    private void doFail(String message, int statusCode) {
         Fault fault = new Fault(message, Logger.getGlobal());
         fault.setStatusCode(statusCode);
         throw fault;
-    }
-
-    private void logInTransaction(LogLevel logLevel, String message) {
-        endPointConfiguration.log(logLevel, message);
-    }
-
-    private void logInTransaction(String message, Exception exception) {
-        endPointConfiguration.log(message, exception);
     }
 
     /**

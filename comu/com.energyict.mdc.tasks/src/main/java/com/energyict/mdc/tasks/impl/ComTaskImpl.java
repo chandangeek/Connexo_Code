@@ -79,7 +79,8 @@ abstract class ComTaskImpl implements ComTask {
         NAME("name"),
         PROTOCOL_TASKS("protocolTasks"),
         STORE_DATE("storeData"),
-        MAX_NR_OF_TRIES("maxNrOfTries");
+        MAX_NR_OF_TRIES("maxNrOfTries"),
+        MANUAL_SYSTEM_TASK("manualSystemTask");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -110,6 +111,8 @@ abstract class ComTaskImpl implements ComTask {
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private boolean manualSystemTask;
 
     /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
@@ -279,6 +282,17 @@ abstract class ComTaskImpl implements ComTask {
             }
         }
     }
+
+    @Override
+    public void setManualSystemTask(boolean manualSystemTask) {
+        this.manualSystemTask = manualSystemTask;
+    }
+
+    @Override
+    public boolean isManualSystemTask() {
+        return manualSystemTask;
+    }
+
 
     @Override
     public void delete() {
