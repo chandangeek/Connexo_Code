@@ -15,6 +15,12 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.issue.servicecall.extjs</name>
 
+    <properties>
+        <baseline>(,${project.version})</baseline>
+        <js.dir>js/isc</js.dir>
+        <package.name>${project.groupId}.${project.artifactId}</package.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -50,15 +56,4 @@
             <artifactId>issue.extjs</artifactId>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>sencha-build</id>
-            <properties>
-                <js.dir>js/isc</js.dir>
-                <package.name>${project.groupId}.${project.artifactId}</package.name>
-            </properties>
-        </profile>
-    </profiles>
-
 </project>

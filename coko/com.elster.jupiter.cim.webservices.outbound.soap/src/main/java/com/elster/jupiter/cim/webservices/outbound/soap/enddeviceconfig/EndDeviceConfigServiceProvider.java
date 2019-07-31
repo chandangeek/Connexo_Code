@@ -127,7 +127,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
 
     @Override
     public Service get() {
-        return new ReplyEndDeviceConfig(this.getClass().getResource("/enddeviceconfig/ReplyEndDeviceConfig.wsdl"));
+        return new ReplyEndDeviceConfig(this.getClass().getResource("/wsdl/enddeviceconfig/ReplyEndDeviceConfig.wsdl"));
     }
 
     @Override

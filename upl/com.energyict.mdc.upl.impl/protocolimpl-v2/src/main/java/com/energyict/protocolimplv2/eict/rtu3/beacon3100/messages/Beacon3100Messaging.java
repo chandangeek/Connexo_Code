@@ -268,7 +268,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         List<DeviceMessageSpec> standardMessages = new ArrayList<>(Arrays.asList(
-                NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
 
                 DeviceActionMessage.SyncMasterdataForDC.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.SyncDeviceDataForDC.get(this.propertySpecService, this.nlsService, this.converter),
@@ -322,11 +321,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 UplinkConfigurationDeviceMessage.WRITE_MAX_INACTIVE_UPLINK.get(this.propertySpecService, this.nlsService, this.converter),
                 // PPPConfigurationDeviceMessage.SetPPPIdleTime.get(this.propertySpecService, this.nlsService, this.converter),
                 // NetworkConnectivityMessage.PreferGPRSUpstreamCommunication.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.EnableModemWatchdog.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetModemWatchdogParameters2.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetPrimaryDNSAddress.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetSecondaryDNSAddress.get(this.propertySpecService, this.nlsService, this.converter),
-                NetworkConnectivityMessage.EnableNetworkInterfaces.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.EnableNetworkInterfacesForSetupObject.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpPort.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpsPort.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.ADD_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
@@ -2112,14 +2112,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         switch (beaconSetupObject) {
             case Web_Portal_Config_New_ObisCode: {
-                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
+                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE);
                 webportalSetup.setEnabledInterfaces(enabledInterfaces);
 
                 break;
             }
 
             case Web_Portal_Config_Old_ObisCode: {
-                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE);
+                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
                 webportalSetup.setEnabledInterfaces(enabledInterfaces);
 
                 break;
