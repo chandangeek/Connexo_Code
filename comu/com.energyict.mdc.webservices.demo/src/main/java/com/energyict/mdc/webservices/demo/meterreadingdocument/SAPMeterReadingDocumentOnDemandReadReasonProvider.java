@@ -77,6 +77,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                 .map(Device::getComTaskExecutions)
                 .orElseGet(Collections::emptyList)
                 .stream()
+                .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
                 .filter(comTaskExecution -> comTaskExecution.getComTask().getProtocolTasks()
                         .stream()
                         .allMatch(protocolTask -> isRegular
