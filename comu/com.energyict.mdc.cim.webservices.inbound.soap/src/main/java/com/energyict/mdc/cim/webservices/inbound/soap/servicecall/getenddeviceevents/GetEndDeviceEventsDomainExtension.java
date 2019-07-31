@@ -55,7 +55,7 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String correlationId;
 
 
@@ -102,6 +102,7 @@ public class GetEndDeviceEventsDomainExtension extends AbstractPersistentDomainE
     public void setCallbackURL(String callbackURL) {
         this.callbackURL = callbackURL;
     }
+
     public String getCorrelationId() {
         return correlationId;
     }

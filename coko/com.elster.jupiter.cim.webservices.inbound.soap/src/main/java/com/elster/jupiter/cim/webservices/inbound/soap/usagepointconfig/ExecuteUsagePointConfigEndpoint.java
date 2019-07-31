@@ -112,7 +112,8 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
                             MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
             com.elster.jupiter.metering.UsagePoint connexoUsagePoint = synchronousProcessor.apply(usagePoint);
             context.commit();
-            return createResponse(connexoUsagePoint, verb, usagePoints.size() > 1, message.getHeader().getCorrelationID());
+            String correlationId = message.getHeader() == null ? null : message.getHeader().getCorrelationID();
+            return createResponse(connexoUsagePoint, verb, usagePoints.size() > 1, correlationId);
 
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.usagePointConfigFaultMessage(messageSeed, e.getLocalizedMessage());
@@ -131,10 +132,11 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
             outboundEndPointConfiguration = Optional.of(getOutboundEndPointConfiguration(action, replyAddress));
         }
         ServiceCall serviceCall = serviceCallCommands.createUsagePointConfigMasterServiceCall(message,
-                outboundEndPointConfiguration, action, message.getHeader().getCorrelationID());
+                outboundEndPointConfiguration, action);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         context.commit();
-        return createQuickResponse(HeaderType.Verb.REPLY, message.getHeader().getCorrelationID());
+        String correlationId = message.getHeader() == null ? null : message.getHeader().getCorrelationID();
+        return createQuickResponse(HeaderType.Verb.REPLY, correlationId);
     }
 
     private EndPointConfiguration getOutboundEndPointConfiguration(Action action, String url) throws FaultMessage {
@@ -169,9 +171,8 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(verb);
         header.setNoun(NOUN);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
+
         usagePointConfigResponseMessageType.setHeader(header);
         usagePointConfigResponseMessageType.setReply(
                 bulkRequested ? replyTypeFactory.partialFailureReplyType(MessageSeeds.UNSUPPORTED_BULK_OPERATION,
@@ -189,9 +190,8 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(verb);
         header.setNoun(NOUN);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
+
         usagePointConfigResponseMessageType.setHeader(header);
         usagePointConfigResponseMessageType.setReply(replyTypeFactory.okReplyType());
         return usagePointConfigResponseMessageType;
@@ -241,7 +241,7 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
                         MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
         com.elster.jupiter.metering.UsagePoint retrieved = usagePointBuilderProvider.get().from(usagePoint, 0) // bulk operation is not supported, only first element is processed
                 .get();
-
-        return createResponse(retrieved, HeaderType.Verb.REPLY, usagePoints.size() > 1, getUsagePointConfigRequestMessage.getHeader().getCorrelationID());
+        String correlationId  = getUsagePointConfigRequestMessage.getHeader() == null ? null : getUsagePointConfigRequestMessage.getHeader().getCorrelationID();
+        return createResponse(retrieved, HeaderType.Verb.REPLY, usagePoints.size() > 1, correlationId);
     }
 }

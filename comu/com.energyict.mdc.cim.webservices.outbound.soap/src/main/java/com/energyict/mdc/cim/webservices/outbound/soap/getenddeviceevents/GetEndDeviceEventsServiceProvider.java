@@ -117,9 +117,8 @@ public class GetEndDeviceEventsServiceProvider implements ReplyGetEndDeviceEvent
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun(NOUN);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
+
         responseMessage.setHeader(header);
 
         // set payload

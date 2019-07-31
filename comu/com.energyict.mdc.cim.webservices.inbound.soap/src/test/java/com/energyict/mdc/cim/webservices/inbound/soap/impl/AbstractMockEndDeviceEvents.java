@@ -22,6 +22,7 @@ import ch.iec.tc57._2011.enddeviceevents.Name;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsEventMessageType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.energyict.obis.ObisCode;
 
 import java.time.Instant;
@@ -112,6 +113,8 @@ public abstract class AbstractMockEndDeviceEvents extends AbstractMockActivator 
         payload.setEndDeviceEvents(endDeviceEvents);
         EndDeviceEventsEventMessageType message = endDeviceEventMessageFactory.createEndDeviceEventsEventMessageType();
         message.setPayload(payload);
+        HeaderType header = new HeaderType();
+        message.setHeader(header);
         return message;
     }
 

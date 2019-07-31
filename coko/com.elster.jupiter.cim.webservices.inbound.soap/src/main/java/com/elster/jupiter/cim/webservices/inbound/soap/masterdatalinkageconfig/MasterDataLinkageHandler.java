@@ -43,6 +43,7 @@ public class MasterDataLinkageHandler {
     private ConfigEventInfo configurationEvent;
     private UsagePointInfo usagePoint;
     private MeterInfo meter;
+    private String correlationId;
 
     private MasterDataLinkageAction currentLinkageAction;
 
@@ -65,6 +66,7 @@ public class MasterDataLinkageHandler {
         usagePointNodes = message.getPayload().getMasterDataLinkageConfig().getUsagePoint();
         meterNodes = message.getPayload().getMasterDataLinkageConfig().getMeter();
         configurationEvent = null;
+        correlationId = message.getHeader().getCorrelationID();
         return this;
     }
 
@@ -76,7 +78,7 @@ public class MasterDataLinkageHandler {
         return this;
     }
 
-    public MasterDataLinkageConfigResponseMessageType createLinkage(String correlationId) throws FaultMessage {
+    public MasterDataLinkageConfigResponseMessageType createLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CREATE;
         if (shouldCreateResponse()) {
             linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
@@ -89,7 +91,7 @@ public class MasterDataLinkageHandler {
         }
     }
 
-    public MasterDataLinkageConfigResponseMessageType closeLinkage(String correlationId) throws FaultMessage {
+    public MasterDataLinkageConfigResponseMessageType closeLinkage() throws FaultMessage {
         currentLinkageAction = MasterDataLinkageAction.CLOSE;
         if (shouldCreateResponse()) {
             unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
@@ -185,9 +187,7 @@ public class MasterDataLinkageHandler {
 
         HeaderType header = cimMessageFactory.createHeaderType();
         header.setVerb(verb);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
         header.setNoun(ExecuteMasterDataLinkageConfigEndpoint.NOUN);
         response.setHeader(header);
 
@@ -209,9 +209,7 @@ public class MasterDataLinkageHandler {
 
         HeaderType header = cimMessageFactory.createHeaderType();
         header.setVerb(verb);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
         header.setNoun(ExecuteMasterDataLinkageConfigEndpoint.NOUN);
         responseMessage.setHeader(header);
 

@@ -67,6 +67,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
     }
     private static final BigDecimal EXPECTED_NUMBER_OF_CALLS = BigDecimal.valueOf(2);
     private static final String UP_STATE_KEY = DefaultState.UNDER_CONSTRUCTION.getKey();
+    private static final String CORRELATION_ID = "CorrelationID";
 
     private ReplyUsagePointConfigServiceProvider testable;
 
@@ -128,7 +129,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         ArgumentCaptor<UsagePointConfigEventMessageType> responseMessageCaptor = ArgumentCaptor
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_CREATE, Arrays.asList(usagePoint), Arrays.asList(FAILED_OP),
-                EXPECTED_NUMBER_OF_CALLS);
+                EXPECTED_NUMBER_OF_CALLS, CORRELATION_ID);
         verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(usagePointConfigPort).createdUsagePointConfig(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
@@ -142,6 +143,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         assertEquals(UP_MRID, value.getPayload().getUsagePointConfig().getUsagePoint().get(0).getMRID());
         assertEquals(UP_NAME,
                 value.getPayload().getUsagePointConfig().getUsagePoint().get(0).getNames().get(0).getName());
+        assertEquals(CORRELATION_ID, value.getHeader().getCorrelationID());
     }
 
     @Test
@@ -149,7 +151,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         ArgumentCaptor<UsagePointConfigEventMessageType> responseMessageCaptor = ArgumentCaptor
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_CREATE, Arrays.asList(usagePoint), Collections.emptyList(),
-                BigDecimal.ONE);
+                BigDecimal.ONE, CORRELATION_ID);
         verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(usagePointConfigPort).createdUsagePointConfig(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
@@ -159,6 +161,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         assertEquals(UP_MRID, value.getPayload().getUsagePointConfig().getUsagePoint().get(0).getMRID());
         assertEquals(UP_NAME,
                 value.getPayload().getUsagePointConfig().getUsagePoint().get(0).getNames().get(0).getName());
+        assertEquals(CORRELATION_ID, value.getHeader().getCorrelationID());
     }
 
     @Test
@@ -166,7 +169,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         ArgumentCaptor<UsagePointConfigEventMessageType> responseMessageCaptor = ArgumentCaptor
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_CREATE, Collections.emptyList(), Arrays.asList(FAILED_OP),
-                BigDecimal.ONE);
+                BigDecimal.ONE, CORRELATION_ID);
         verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(usagePointConfigPort).createdUsagePointConfig(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
@@ -177,6 +180,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         assertEquals(ERR_UP_MRID, value.getReply().getError().get(0).getObject().getMRID());
         assertEquals(ERR_UP_NAME, value.getReply().getError().get(0).getObject().getName().get(0).getName());
         assertTrue(value.getPayload().getUsagePointConfig().getUsagePoint().isEmpty());
+        assertEquals(CORRELATION_ID, value.getHeader().getCorrelationID());
     }
 
     @Test
@@ -184,7 +188,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         ArgumentCaptor<UsagePointConfigEventMessageType> responseMessageCaptor = ArgumentCaptor
                 .forClass(UsagePointConfigEventMessageType.class);
         testable.call(endPointConfiguration, OPERATION_UPDATE, Arrays.asList(usagePoint), Arrays.asList(FAILED_OP),
-                EXPECTED_NUMBER_OF_CALLS);
+                EXPECTED_NUMBER_OF_CALLS, CORRELATION_ID);
         verify(webServicesService).publishEndPoint(endPointConfiguration);
         verify(usagePointConfigPort).changedUsagePointConfig(responseMessageCaptor.capture());
         UsagePointConfigEventMessageType value = responseMessageCaptor.getValue();
@@ -198,6 +202,7 @@ public class ReplyUsagePointConfigServiceProviderTest {
         assertEquals(UP_MRID, value.getPayload().getUsagePointConfig().getUsagePoint().get(0).getMRID());
         assertEquals(UP_NAME,
                 value.getPayload().getUsagePointConfig().getUsagePoint().get(0).getNames().get(0).getName());
+        assertEquals(CORRELATION_ID, value.getHeader().getCorrelationID());
     }
 
 }

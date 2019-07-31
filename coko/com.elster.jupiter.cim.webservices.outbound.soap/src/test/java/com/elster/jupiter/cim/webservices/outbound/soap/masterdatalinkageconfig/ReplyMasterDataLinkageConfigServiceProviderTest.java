@@ -54,6 +54,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
     private static final String SUCCESS_USAGE_POINT_MRID = "my success usagepoint mrid";
     private static final String ERROR_CODE = "my error code";
     private static final String ERROR_MESSAGE = "my error message";
+    private static final String CORRELATION_ID = "CorrelationID";
     private ReplyMasterDataLinkageConfigServiceProvider provider;
     @Mock
     private EndPointConfiguration endPointConfiguration;
@@ -63,6 +64,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
     private MasterDataLinkageConfigPort masterDataLinkageConfigPort;
     @Mock
     private FailedLinkageOperation failedLinkage;
+
 
     @Before
     public void setup() {
@@ -113,13 +115,13 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                 Meter meter = meters.get(0);
                                 UsagePoint usagePoint = usagePoints.get(0);
                                 verifyLinkage(meter, usagePoint);
-
+                                assertEquals(CORRELATION_ID, message.getHeader().getCorrelationID());
                                 return null;
                             }
 
                         });
 
-        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
+        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
 
         verify(masterDataLinkageConfigPort)
                 .createdMasterDataLinkageConfig(any(MasterDataLinkageConfigEventMessageType.class));
@@ -145,11 +147,13 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                 assertEquals(1, message.getReply().getError().size());
                                 ErrorType failure = message.getReply().getError().get(0);
                                 verifyFailure(failure);
+                                assertEquals(CORRELATION_ID ,message.getHeader().getCorrelationID());
+
                                 return null;
                             }
                         });
 
-        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
+        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
 
         verify(masterDataLinkageConfigPort)
                 .closedMasterDataLinkageConfig(any(MasterDataLinkageConfigEventMessageType.class));
@@ -188,12 +192,15 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                 for (int index = 0; index < successfulLinkages.size(); index++) {
                                     verifyLinkage(meters.get(index), usagePoints.get(index));
                                 }
+
+                                assertEquals(CORRELATION_ID, message.getHeader().getCorrelationID());
+
                                 return null;
                             }
 
                         });
 
-        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
+        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
 
         verify(masterDataLinkageConfigPort)
                 .closedMasterDataLinkageConfig(any(MasterDataLinkageConfigEventMessageType.class));

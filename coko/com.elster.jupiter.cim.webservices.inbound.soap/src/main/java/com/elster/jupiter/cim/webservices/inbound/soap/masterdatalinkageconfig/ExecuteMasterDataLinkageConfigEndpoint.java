@@ -69,7 +69,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
             MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
         return process(message, MasterDataLinkageAction.CREATE, context -> {
             MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
-                    .forMessage(message).createLinkage(message.getHeader().getCorrelationID());
+                    .forMessage(message).createLinkage();
             context.commit();
             return response;
         });
@@ -80,7 +80,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint implements MasterDataLinkage
             MasterDataLinkageConfigRequestMessageType message) throws FaultMessage {
         return process(message, MasterDataLinkageAction.CLOSE, context -> {
             MasterDataLinkageConfigResponseMessageType response = masterDataLinkageHandlerProvider.get()
-                    .forMessage(message).closeLinkage(message.getHeader().getCorrelationID());
+                    .forMessage(message).closeLinkage();
             context.commit();
             return response;
         });

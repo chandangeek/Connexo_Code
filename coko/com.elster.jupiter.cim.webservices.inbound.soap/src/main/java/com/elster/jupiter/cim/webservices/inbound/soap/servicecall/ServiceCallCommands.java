@@ -142,7 +142,8 @@ public class ServiceCallCommands {
         domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
         domainExtension.setExpectedNumberOfCalls(
                 BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()));
-        domainExtension.setCorrelationId(config.getHeader().getCorrelationID());
+        String correlationId = config.getHeader() == null ? null : config.getHeader().getCorrelationID();
+        domainExtension.setCorrelationId(correlationId);
 
         if (endPointConfiguration.isPresent()) {
             domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
@@ -282,13 +283,14 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createUsagePointConfigMasterServiceCall(UsagePointConfigRequestMessageType config,
-            Optional<EndPointConfiguration> endPointConfiguration, Action action, String correlationId) {
+            Optional<EndPointConfiguration> endPointConfiguration, Action action) {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_USAGE_POINT_CONFIG);
         UsagePointConfigMasterDomainExtension domainExtension = new UsagePointConfigMasterDomainExtension();
         domainExtension.setActualNumberOfSuccessfulCalls(BigDecimal.ZERO);
         domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
         domainExtension.setExpectedNumberOfCalls(
                 BigDecimal.valueOf(config.getPayload().getUsagePointConfig().getUsagePoint().size()));
+        String correlationId = config.getHeader() == null ? null : config.getHeader().getCorrelationID();
         domainExtension.setCorrelationId(correlationId);
 
         if (endPointConfiguration.isPresent()) {

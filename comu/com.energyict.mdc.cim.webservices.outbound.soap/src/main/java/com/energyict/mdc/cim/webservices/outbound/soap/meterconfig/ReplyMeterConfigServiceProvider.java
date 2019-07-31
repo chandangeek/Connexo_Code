@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
@@ -147,7 +148,7 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
                         .ifPresent(meterConfigPortService -> {
                             try {
                                 meterConfigPortService.changedMeterConfig(createResponseMessage(createMeterConfig(Collections
-                                        .singletonList(device)), HeaderType.Verb.CHANGED, null));
+                                        .singletonList(device)), HeaderType.Verb.CHANGED, UUID.randomUUID().toString()));
                             } catch (FaultMessage faultMessage) {
                                 endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
                             }
@@ -231,9 +232,8 @@ public class ReplyMeterConfigServiceProvider implements IssueWebServiceClient, R
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
-        if (correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
+
         meterConfigEventMessageType.setHeader(header);
 
         // set reply

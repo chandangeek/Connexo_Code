@@ -53,6 +53,8 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
     @Mock
     private DeviceAlarmRelatedEvent deviceAlarmRelatedEvent;
 
+    private final String CORRELATION_ID = "CorrelationID";
+
     @Before
     public void setUp() throws Exception {
         when(meteringService.findEndDeviceByMRID(anyString())).thenReturn(Optional.of(endDevice));
@@ -84,13 +86,14 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
 
         endDeviceEvents.getEndDeviceEvent().add(endDeviceEvent);
         EndDeviceEventsEventMessageType endDeviceEventsRequest = createEndDeviceEventsRequest(endDeviceEvents);
-
+        endDeviceEventsRequest.getHeader().setCorrelationID(CORRELATION_ID);
         // Business method
         EndDeviceEventsResponseMessageType response = getInstance(ExecuteEndDeviceEventsEndpoint.class).closedEndDeviceEvents(endDeviceEventsRequest);
 
         // Assert response
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CLOSED);
         assertThat(response.getHeader().getNoun()).isEqualTo("EndDeviceEvents");
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo(CORRELATION_ID);
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
 
         EndDeviceEvents result = response.getPayload().getEndDeviceEvents();
@@ -110,6 +113,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         endDeviceEvents.getEndDeviceEvent().add(endDeviceEvent);
         endDeviceEvents.getEndDeviceEvent().add(endDeviceEvent);
         EndDeviceEventsEventMessageType endDeviceEventsRequest = createEndDeviceEventsRequest(endDeviceEvents);
+        endDeviceEventsRequest.getHeader().setCorrelationID(CORRELATION_ID);
 
         // Business method
         EndDeviceEventsResponseMessageType response = getInstance(ExecuteEndDeviceEventsEndpoint.class).closedEndDeviceEvents(endDeviceEventsRequest);
@@ -117,6 +121,8 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         // Asserts
         assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.CLOSED);
         assertThat(response.getHeader().getNoun()).isEqualTo("EndDeviceEvents");
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo(CORRELATION_ID);
+
         ReplyType reply = response.getReply();
         assertThat(reply.getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertThat(reply.getError()).hasSize(1);
@@ -131,6 +137,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         EndDeviceEvent endDeviceEvent = createEndDeviceEvent();
         endDeviceEvents.getEndDeviceEvent().add(endDeviceEvent);
         EndDeviceEventsEventMessageType endDeviceEventsRequest = createEndDeviceEventsRequest(endDeviceEvents);
+        endDeviceEventsRequest.getHeader().setCorrelationID(CORRELATION_ID);
 
         LocalizedException localizedException = mock(LocalizedException.class);
         when(localizedException.getLocalizedMessage()).thenReturn("ErrorMessage");

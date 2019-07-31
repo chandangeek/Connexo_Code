@@ -82,21 +82,22 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
             GetEndDeviceEvents getEndDeviceEvents = Optional.ofNullable(requestMessage.getRequest().getGetEndDeviceEvents())
                     .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_END_DEVICE_EVENTS));
             List<Meter> meters = getEndDeviceEvents.getMeter();
+            String correlationId = requestMessage.getHeader() == null ? null : requestMessage.getHeader().getCorrelationID();
             if (meters.isEmpty()) {
                 throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_ITEM).get();
             }
             if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                 // call asynchronously
                 EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
-                createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration, requestMessage.getHeader().getCorrelationID());
+                createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration, correlationId);
                 context.commit();
-                return createQuickResponseMessage(requestMessage.getHeader().getCorrelationID());
+                return createQuickResponseMessage(correlationId);
             } else if (meters.size() > 1) {
                 throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
             } else {
                 // call synchronously
                 EndDeviceEvents endDeviceEvents = endDeviceBuilder.prepareGetFrom(meters, getEndDeviceEvents.getTimeSchedule()).build();
-                return createResponseMessage(endDeviceEvents, requestMessage.getHeader().getCorrelationID());
+                return createResponseMessage(endDeviceEvents, correlationId);
             }
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.createEndDeviceEventsFaultMessage(e.getLocalizedMessage());
@@ -154,9 +155,8 @@ public class GetEndDeviceEventsEndpoint implements GetEndDeviceEventsPort {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun(GET_END_DEVICE_EVENTS);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
+
         responseMessage.setHeader(header);
 
         // set reply

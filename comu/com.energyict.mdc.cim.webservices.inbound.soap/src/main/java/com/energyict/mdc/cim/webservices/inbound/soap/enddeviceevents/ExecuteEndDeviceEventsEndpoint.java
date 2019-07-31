@@ -68,13 +68,14 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
     public EndDeviceEventsResponseMessageType createdEndDeviceEvents(EndDeviceEventsEventMessageType createdEndDeviceEventsEventMessage) throws FaultMessage {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
+            String correlationId = createdEndDeviceEventsEventMessage.getHeader() == null ? null : createdEndDeviceEventsEventMessage.getHeader().getCorrelationID();
             List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(createdEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS);
             EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                     .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS,
                             MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
             EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
             context.commit();
-            return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1, createdEndDeviceEventsEventMessage.getHeader().getCorrelationID());
+            return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1, correlationId);
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CREATED_END_DEVICE_EVENTS, e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -86,13 +87,14 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
     public EndDeviceEventsResponseMessageType closedEndDeviceEvents(EndDeviceEventsEventMessageType closedEndDeviceEventsEventMessage) throws FaultMessage {
         endPointHelper.setSecurityContext();
         try (TransactionContext context = transactionService.getContext()) {
+            String correlationId = closedEndDeviceEventsEventMessage.getHeader() == null ? null : closedEndDeviceEventsEventMessage.getHeader().getCorrelationID();
             List<EndDeviceEvent> endDeviceEvents = getEndDeviceEvents(closedEndDeviceEventsEventMessage.getPayload(), MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS);
             EndDeviceEvent endDeviceEvent = endDeviceEvents.stream().findFirst()
                     .orElseThrow(messageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS,
                             MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
             EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
             context.commit();
-            return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1, closedEndDeviceEventsEventMessage.getHeader().getCorrelationID());
+            return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1, correlationId);
         } catch (VerboseConstraintViolationException e) {
             throw messageFactory.endDeviceEventsFaultMessage(MessageSeeds.INVALID_CLOSED_END_DEVICE_EVENTS, e.getLocalizedMessage());
         } catch (LocalizedException e) {
@@ -122,9 +124,8 @@ public class ExecuteEndDeviceEventsEndpoint implements EndDeviceEventsPort, EndP
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
+
         responseMessage.setHeader(header);
 
         // set reply

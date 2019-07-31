@@ -54,10 +54,10 @@ public class MasterDataLinkageConfigServiceCallHandler extends AbstractServiceCa
         try {
             switch (MasterDataLinkageAction.valueOf(extension.getOperation())) {
             case CREATE:
-                masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).createLinkage(null);
+                masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).createLinkage();
                 break;
             case CLOSE:
-                masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).closeLinkage(null);
+                masterDataLinkageHandlerProvider.get().from(configurationEvent, usagePoint, meter).closeLinkage();
                 break;
             default:
                 break;

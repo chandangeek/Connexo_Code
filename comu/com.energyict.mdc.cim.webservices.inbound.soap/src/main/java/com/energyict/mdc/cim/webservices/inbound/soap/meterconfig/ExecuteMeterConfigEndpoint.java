@@ -229,9 +229,8 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
+
         responseMessage.setHeader(header);
 
         // set reply
@@ -253,9 +252,7 @@ public class ExecuteMeterConfigEndpoint implements MeterConfigPort {
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
-        if(correlationId != null) {
-            header.setCorrelationID(correlationId);
-        }
+        header.setCorrelationID(correlationId);
         responseMessage.setHeader(header);
 
         // set reply

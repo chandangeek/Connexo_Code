@@ -58,7 +58,7 @@ public abstract class AbstractMasterDomainExtension extends AbstractPersistentDo
             + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
 
-    @Size(max = Table.MAX_STRING_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
+    @Size(max = Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
             + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String correlationId;
 
