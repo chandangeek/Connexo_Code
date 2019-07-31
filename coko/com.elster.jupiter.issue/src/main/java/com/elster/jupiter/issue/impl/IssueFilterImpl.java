@@ -43,6 +43,7 @@ public class IssueFilterImpl implements IssueFilter {
     private boolean unassignedWorkGroupSelected = false;
     private Long startCreateTime;
     private Long endCreateTime;
+    private boolean showTopology = false;
 
 
     @Override
@@ -80,6 +81,16 @@ public class IssueFilterImpl implements IssueFilter {
     @Override
     public List<EndDeviceGroup> getDeviceGroups() {
         return this.deviceGroups;
+    }
+
+    @Override
+    public void setShowTopology(boolean showTopology) {
+        this.showTopology = showTopology;
+    }
+
+    @Override
+    public boolean getShowTopology() {
+        return this.showTopology;
     }
 
     @Override

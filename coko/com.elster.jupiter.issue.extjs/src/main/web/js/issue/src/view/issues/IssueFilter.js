@@ -136,6 +136,9 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
+                    },
+                    change: {
+                        fn: me.onDeviceChange
                     }
                 }
             },
@@ -149,6 +152,30 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 store: 'Isu.store.DeviceGroups',
                 multiSelect: true,
             },
+            {
+                type: 'checkbox',
+                dataIndex: 'showTopology',
+                layout: 'hbox',
+                defaults: {margin: '0 10 0 0'},
+                listeners: {
+                    afterrender: function (field) {
+                        if (Ext.isEmpty(this.up().down('combobox[itemId=issue-meter-filter]').getValue())) {
+                            this.up().down('checkbox[itemId=showTopology-filter]').setValue(false);
+                            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(true);
+                        } else {
+                            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(false);
+                        }
+
+                    }
+                },
+                options: [
+                    {
+                        display: Uni.I18n.translate('general.showTopology','ISU','Show Topology'),
+                        value: 'true',
+                        itemId: 'showTopology-filter'
+                    }
+                ]
+            }
         ];
 
         me.callParent(arguments);
@@ -256,6 +283,16 @@ Ext.define('Isu.view.issues.IssueFilter', {
     onAssigneeBlur: function (field) {
         if (field.getRawValue()) {
             field.setValue(field.lastSelection);
+        }
+    },
+    onDeviceChange: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value)) {
+            this.up().down('checkbox[itemId=showTopology-filter]').setValue(false);
+            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(true);
+        } else {
+            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(false);
         }
     }
 });

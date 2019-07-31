@@ -61,6 +61,10 @@ public interface IssueFilter {
 
     List<EndDeviceGroup> getDeviceGroups();
 
+    boolean getShowTopology();
+
+    void setShowTopology(boolean showTopology);
+
     List<UsagePointGroup> getUsagePointGroups();
 
     List<UsagePoint> getUsagePoints();
