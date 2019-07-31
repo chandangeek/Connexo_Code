@@ -54,7 +54,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     private static final String COMPONENT_NAME = "SIM";
     private static final String NOUN = "MeterConfig";
-    private static final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
+    private static final String RESOURCE_WSDL = "/wsdl/meterconfig/ReplyMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
