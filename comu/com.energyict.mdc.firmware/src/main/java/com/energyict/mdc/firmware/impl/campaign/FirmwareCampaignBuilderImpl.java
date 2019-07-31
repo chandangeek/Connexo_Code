@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
@@ -33,6 +34,10 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
     FirmwareType firmwareType;
     Map<PropertySpec, Object> properties;
+    long firmwareUploadComTaskId;
+    ConnectionStrategy firmwareUploadConnectionStrategy;
+    long validationComTaskId;
+    ConnectionStrategy validationConnectionStrategy;
 
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel dataModel;
@@ -86,6 +91,37 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     }
 
     @Override
+    public FirmwareCampaignBuilderImpl withFirmwareUploadComTaskId(long firmwareUploadComTaskId){
+        this.firmwareUploadComTaskId = firmwareUploadComTaskId;
+        return this;
+    }
+    @Override
+    public FirmwareCampaignBuilderImpl withValidationComTaskId(long validationComTaskId){
+        this.validationComTaskId = validationComTaskId;
+        return this;
+    }
+
+    @Override
+    public FirmwareCampaignBuilderImpl withFirmwareUploadConnectionStrategy(String firmwareUploadConnectionStrategy){
+        if(firmwareUploadConnectionStrategy == null){
+            this.firmwareUploadConnectionStrategy = null;
+            return this;
+        }
+        this.firmwareUploadConnectionStrategy = ConnectionStrategy.valueOf(firmwareUploadConnectionStrategy.toUpperCase().replace(' ', '_'));
+        return this;
+    }
+
+    @Override
+    public FirmwareCampaignBuilderImpl withValidationConnectionStrategy(String validationConnectionStrategy){
+        if(validationConnectionStrategy == null){
+            this.validationConnectionStrategy = null;
+            return this;
+        }
+        this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy.toUpperCase().replace(' ', '_'));
+        return this;
+    }
+
+    @Override
     public FirmwareCampaignBuilder addProperty(PropertySpec propertySpec, Object propertyValue) {
         this.properties.put(propertySpec, propertyValue);
         if (propertySpec.getName().equals("FirmwareDeviceMessage.upgrade.activationdate")) {
@@ -104,6 +140,10 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
         firmwareCampaign.setUploadPeriodStart(uploadStart);
         firmwareCampaign.setUploadPeriodEnd(uploadEnd);
         firmwareCampaign.setManagementOption(protocolSupportedFirmwareOptions);
+        firmwareCampaign.setFirmwareUploadComTaskId(firmwareUploadComTaskId);
+        firmwareCampaign.setFirmwareUploadConnectionStrategy(firmwareUploadConnectionStrategy);
+        firmwareCampaign.setValidationComTaskId(validationComTaskId);
+        firmwareCampaign.setValidationConnectionStrategy(validationConnectionStrategy);
         Optional.ofNullable(activationDate).ifPresent(firmwareCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(firmwareCampaign::setValidationTimeout);
         ServiceCall serviceCall = firmwareCampaignService.createServiceCallAndTransition(firmwareCampaign);

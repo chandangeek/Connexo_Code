@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -35,10 +36,14 @@ class CSRZipFileParser {
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         Map<String, Map<String, PKCS10CertificationRequest>> keystoreCertificates = new LinkedHashMap<>();
         while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+            String folderName = getFolderName(zipEntry.getName());
             if (zipEntry.isDirectory()) {
-                keystoreCertificates.put(getFolderName(zipEntry.getName()), new LinkedHashMap<>());
+                keystoreCertificates.put(folderName, new LinkedHashMap<>());
+                Logger.getLogger(this.getClass().getName()).info("ZIP folder added for processing: "+folderName);
             } else {
-                keystoreCertificates.get(getFolderName(zipEntry.getName())).put(getFileName(zipEntry.getName()), getCsr(zipEntryToInputStream(zipInputStream)));
+                String fileName = getFileName(zipEntry.getName());
+                Logger.getLogger(this.getClass().getName()).info("CSR file added: "+fileName);
+                keystoreCertificates.get(folderName).put(fileName, getCsr(zipEntryToInputStream(zipInputStream)));
             }
         }
         return keystoreCertificates;

@@ -3,10 +3,6 @@
  */
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.MessageFormat;
-import java.util.Optional;
-
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -19,6 +15,10 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
+import java.util.Optional;
 
 public abstract class AbstractInstaller {
 
@@ -57,7 +57,7 @@ public abstract class AbstractInstaller {
                                         customPropertySet.getClass().getSimpleName())));
 
                 serviceCallService
-                        .createServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
+                        .createServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion(), serviceCallType.getApplication().orElse(null))
                         .handler(serviceCallType.getTypeName()).logLevel(LogLevel.FINEST)
                         .customPropertySet(registeredCustomPropertySet).create();
             } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException

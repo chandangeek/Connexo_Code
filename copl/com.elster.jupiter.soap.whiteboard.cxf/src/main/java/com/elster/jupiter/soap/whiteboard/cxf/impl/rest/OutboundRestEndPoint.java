@@ -7,6 +7,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 
 import org.glassfish.jersey.client.ClientProperties;
@@ -81,8 +82,9 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
         WebTarget target = client.target(endPointConfiguration.getUrl());
 
         S service = endPointProvider.get(target);
-        Hashtable<String, String> dict = new Hashtable<>();
-        dict.put("url", endPointConfiguration.getUrl());
+        Hashtable<String, Object> dict = new Hashtable<>();
+        dict.put(AbstractOutboundEndPointProvider.ENDPOINT_CONFIGURATION_ID_PROPERTY, endPointConfiguration.getId());
+        dict.put(AbstractOutboundEndPointProvider.URL_PROPERTY, endPointConfiguration.getUrl());
         serviceRegistration.set(bundleContext.registerService(
                 endPointProvider.getService(),
                 service,
