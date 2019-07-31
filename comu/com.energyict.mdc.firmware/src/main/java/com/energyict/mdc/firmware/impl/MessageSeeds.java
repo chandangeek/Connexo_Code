@@ -69,8 +69,7 @@ public enum MessageSeeds implements MessageSeed {
     TASK_FOR_VALIDATION_IS_MISSING(4014, "TaskForValidationIsMissing", "Communication task ''{0}'' required for validation is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
     TASK_FOR_SENDING_FIRMWARE_IS_MISSING(4015,"TaskForSendingFirmwareIsMissing", "Communication task ''{0}'' for sending firmware is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.SEVERE),
     CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(4016, "ConnectionMethodDoesntMeetTheRequirement","The connection method ''{0}'' set on ''{1}'' doesn''t match the one required on the firmware campaign" ,Level.WARNING),
-    DEVICE_PART_OF_CAMPAIGN(4014, "DeviceIsPartOfAnotherCampaign", "Couldn''t restart service call: the device is a part of another campaign", Level.SEVERE)
-    ;
+    DEVICE_PART_OF_CAMPAIGN(4017, "DeviceIsPartOfAnotherCampaign", "Couldn''t restart service call: the device is a part of another campaign", Level.SEVERE);
 
 
     private final int number;
