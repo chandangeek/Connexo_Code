@@ -86,6 +86,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -584,8 +585,9 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .findAny();
     }
 
-    Optional<ComTaskEnablement> getActiveTaskForCalendars(Device device) {
+    List<ComTaskEnablement> getActiveTaskForCalendars(Device device) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .filter(task -> task instanceof MessagesTask)
                         .map(task -> ((MessagesTask) task))
@@ -597,7 +599,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                         .noneMatch(protocolTask -> protocolTask instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
                         || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
-                .findAny();
+                .collect(Collectors.toList());
     }
 
     boolean isWithVerification(TimeOfUseCampaign timeOfUseCampaign) {
