@@ -455,10 +455,6 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
 
             this.launchComServer();
-
-
-
-
         } catch(Exception e) {
             // Not so a good idea to disable: can't be restarted by using the command lcs ...
             // componentContext.disableComponent(componentContext.getBundleContext().getProperty(Constants.SERVICE_PID));

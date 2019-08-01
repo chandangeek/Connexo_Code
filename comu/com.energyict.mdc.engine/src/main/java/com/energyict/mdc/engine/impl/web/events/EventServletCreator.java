@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by H216758 on 5/30/2017.
+ * ported from eiserver for jetty upgrade
  */
 public class EventServletCreator implements WebSocketCreator {
     private EventAPIStatistics statistics;
