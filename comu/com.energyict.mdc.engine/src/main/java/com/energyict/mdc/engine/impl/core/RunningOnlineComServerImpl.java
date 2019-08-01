@@ -62,7 +62,6 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
     }
 
     private void startQueryApiListener () {
-       // ComServerMonitor monitor =  (ComServerMonitor) this.serviceProvider.managementBeanFactory().findOrCreateFor((RunningComServer) super.getComServer());
         this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this, getComServerDAO(),serviceProvider.engineConfigurationService() ,serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
         this.remoteQueryApi.start();
     }
