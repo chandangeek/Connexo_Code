@@ -804,8 +804,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         //filter by location
         if (!filter.getLocations().isEmpty()) {
-            filter.getLocations().forEach(loc -> meteringService.findMetersByLocation(loc).forEach(filter::addDevice));
-            condition = condition.and(where("device").in(filter.getDevices()));
+            condition = condition.and(where("device.location").in(filter.getLocations()));
         }
 
         //filter by usagepoint

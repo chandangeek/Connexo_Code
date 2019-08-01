@@ -20,7 +20,6 @@ public class GroupByLocationImpl extends IssuesGroupOperation {
     public SqlBuilder buildSQL() {
         SqlBuilder builder = new SqlBuilder();
         builder.append("SELECT " + GROUP_KEY + ", " + GROUP_TITLE + ", " + GROUP_COUNT + " FROM " + "(SELECT ROWNUM as rnum, intr.*");
-//        builder.append(" FROM (SELECT NVL(loc.ID, -1) as " + GROUP_KEY + ", NVL(mmbr.LOCALITY, \'" + DatabaseConst.UNASSIGNED + "\') as " + GROUP_TITLE + ", count(NVL(loc.ID, -1)) as " + GROUP_COUNT);
         builder.append(" FROM (SELECT NVL(loc.ID, -1) as " + GROUP_KEY + ", NVL(loc.ID, -1) as " + GROUP_TITLE + ", count(NVL(loc.ID, -1)) as " + GROUP_COUNT);
         builder.append(" FROM " + getTableName() + " isu ");
         builder.append(" LEFT JOIN DAL_ALARM_OPEN dal ON isu." + getIssueIdColumnName(getTableName()) + " = dal.ID ");
@@ -30,7 +29,6 @@ public class GroupByLocationImpl extends IssuesGroupOperation {
         builder.append(" JOIN " + TableSpecs.ISU_STATUS.name() + " status ON isu.STATUS = status.\"KEY\"");
 
         builder.append(" LEFT JOIN MTR_LOCATION loc ON device.LOCATIONID = loc.ID ");
-//        builder.append(" LEFT JOIN MTR_LOCATIONMEMBER mmbr ON mmbr.LOCATIONID = loc.ID ");
         builder.append(" WHERE 1=1 ");
 
         builder.append(getIssueTypeCondition());
@@ -45,7 +43,6 @@ public class GroupByLocationImpl extends IssuesGroupOperation {
         if (getFilter().getGroupKey() != null) {
             builder.append(" AND reason.\"KEY\" = '" + getFilter().getGroupKey() + "'");
         }
-//        builder.append(" GROUP BY (NVL(loc.ID, -1), NVL(mmbr.LOCALITY, \'" + DatabaseConst.UNASSIGNED + "\'))");
         builder.append(" GROUP BY (NVL(loc.ID, -1), NVL(loc.ID, -1))");
         builder.append(" ORDER BY " + GROUP_COUNT + " " + (getFilter().isAscOrder() ? "ASC" : "DESC") + ", " + GROUP_TITLE + " ASC ) intr");
         builder.append(" WHERE ROWNUM <= ");
