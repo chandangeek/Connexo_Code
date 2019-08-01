@@ -9,19 +9,19 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.impl.DeviceTypeLoadProfileTypeUsage;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
+import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FirmwareCampaignVersionState {
+public class FirmwareCampaignVersionStateImpl implements FirmwareCampaignVersionState {
 
     enum Fields {
-        FWRCAMPAIGN("firmwareCampaign"),
-
+        FWRCAMPAIGN("firmwareCampaign");
 
         private final String javaFieldName;
 
@@ -36,19 +36,23 @@ public class FirmwareCampaignVersionState {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
-
-    //private List<FirmwareVersionState> firmwareVersionState = new ArrayList<>()
-
+    private List<FirmwareVersionState> firmwareVersionState = new ArrayList<>();
     private final DataModel dataModel;
 
     @Inject
-    public FirmwareCampaignVersionState(DataModel dataModel) {
+    public FirmwareCampaignVersionStateImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    public FirmwareCampaignVersionState init(FirmwareCampaign firmwareCampaign) {
+    public FirmwareCampaignVersionStateImpl init(FirmwareCampaign firmwareCampaign) {
         this.firmwareCampaign.set(firmwareCampaign);
         return this;
+    }
+
+    @Override
+    public void setFirmwareVersionState(List<FirmwareVersion> firmwareVersion){
+        firmwareVersionState = new ArrayList<>();
+        firmwareVersion.forEach(fvInfo -> this.firmwareVersionState.add(new FirmwareVersionState(fvInfo)));
     }
 
     public void delete() {

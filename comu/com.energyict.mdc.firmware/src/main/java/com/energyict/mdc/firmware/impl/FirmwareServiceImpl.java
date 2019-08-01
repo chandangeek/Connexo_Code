@@ -52,6 +52,7 @@ import com.energyict.mdc.firmware.DeviceFirmwareHistory;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
@@ -515,6 +516,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign){
         return dataModel.mapper(FirmwareCampaignManagementOptions.class).getUnique(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName(), firmwareCampaign);
+    }
+
+    @Override
+    public FirmwareCampaignVersionState newFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign){
+        return dataModel.getInstance(FirmwareCampaignVersionStateImpl.class).init(firmwareCampaign);
     }
 
     @Override

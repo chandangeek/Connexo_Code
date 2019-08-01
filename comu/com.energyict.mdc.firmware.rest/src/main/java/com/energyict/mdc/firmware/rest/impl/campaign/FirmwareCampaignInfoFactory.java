@@ -20,6 +20,7 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -191,8 +192,9 @@ public class FirmwareCampaignInfoFactory {
         });
         options.save();
 
-        List<FirmwareVersionInfo> firmwareVersionInfos = firmwareVersionFactory.from(foundFirmwares);
-        firmwareService.
+        FirmwareCampaignVersionState firmwareCampaignVersionState = firmwareService.newFirmwareCampaignVersionState(firmwareCampaign);
+        firmwareCampaignVersionState.setFirmwareVersionState(foundFirmwares);
+        firmwareCampaignVersionState.save();
 
         return firmwareCampaign;
     }
