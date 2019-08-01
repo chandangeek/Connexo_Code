@@ -17,6 +17,7 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -112,7 +113,7 @@ public class TimeOfUseSendHelper {
                         if (cteFromEnablement == null) {
                             cteFromEnablement = device.newAdHocComTaskExecution(comTaskEnablement).add();
                         }
-                        connectionStrategy = ((PartialScheduledConnectionTask) comTaskEnablement.getPartialConnectionTask().get()).getConnectionStrategy();
+                        connectionStrategy = ((ScheduledConnectionTask) cteFromEnablement.getConnectionTask().get()).getConnectionStrategy();
                         if (cteFromEnablement.getConnectionTask().get().isActive() && (!timeOfUseCampaign.getCalendarUploadConnectionStrategy()
                                 .isPresent() || connectionStrategy == timeOfUseCampaign.getCalendarUploadConnectionStrategy().get())){
                             scheduleCampaign(cteFromEnablement, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
@@ -129,6 +130,7 @@ public class TimeOfUseSendHelper {
                             if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                                 serviceCall.requestTransition(DefaultState.REJECTED);
                             }
+                            return;
                         }
                     }
                 } else {
@@ -136,6 +138,7 @@ public class TimeOfUseSendHelper {
                     if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                         serviceCall.requestTransition(DefaultState.REJECTED);
                     }
+                    return;
                 }
             }
             if(!isSendCalendarCTStarted){
