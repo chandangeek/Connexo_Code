@@ -533,6 +533,10 @@ public enum TableSpecs {
                     .map("meterRole")
                     .on(meterRoleIdColumn)
                     .add();
+            table.audit(MTR_MULTIPLIERVALUE.name())
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_MTR_METERACTMETER")
+                    .build();
         }
     },
     MTR_UPACCOUNTABILITY {
@@ -915,10 +919,10 @@ public enum TableSpecs {
                     .references(MultiplierType.class)
                     .map("type")
                     .add();
-            table.audit("")
+            /*table.audit("")
                     .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
                     .domainReferences("FK_MTR_MULTIPLIERVALUE_MA", "FK_MTR_METERACTMETER")
-                    .build();
+                    .build();*/
         }
     },
     MTR_METER_CONFIG {

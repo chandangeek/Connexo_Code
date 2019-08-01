@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.EndPointHelper;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
@@ -12,11 +11,11 @@ import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 
 import ch.iec.tc57._2011.executeusagepointconfig.FaultMessage;
@@ -35,13 +34,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
+public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint implements UsagePointConfigPort, ApplicationSpecific {
     private static final String NOUN = "UsagePointConfig";
-    private final EndPointHelper endPointHelper;
     private final ReplyTypeFactory replyTypeFactory;
     private final UsagePointConfigFaultMessageFactory messageFactory;
     private final UsagePointConfigFactory usagePointConfigFactory;
-    private final TransactionService transactionService;
     private final Provider<UsagePointBuilder> usagePointBuilderProvider;
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory usagePointConfigMessageObjectFactory = new ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory();
@@ -55,16 +52,14 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
     }
 
     @Inject
-    ExecuteUsagePointConfigEndpoint(EndPointHelper endPointHelper, ReplyTypeFactory replyTypeFactory,
+    ExecuteUsagePointConfigEndpoint(ReplyTypeFactory replyTypeFactory,
             UsagePointConfigFaultMessageFactory messageFactory, UsagePointConfigFactory usagePointConfigFactory,
-            TransactionService transactionService, Provider<UsagePointBuilder> usagePointBuilderProvider,
+            Provider<UsagePointBuilder> usagePointBuilderProvider,
             EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
             ServiceCallCommands serviceCallCommands) {
-        this.endPointHelper = endPointHelper;
         this.replyTypeFactory = replyTypeFactory;
         this.messageFactory = messageFactory;
         this.usagePointConfigFactory = usagePointConfigFactory;
-        this.transactionService = transactionService;
         this.usagePointBuilderProvider = usagePointBuilderProvider;
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServicesService = webServicesService;
@@ -96,33 +91,33 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
             MessageSeeds messageSeed, HeaderType.Verb verb,
             ThrowingFunction<UsagePoint, com.elster.jupiter.metering.UsagePoint> synchronousProcessor)
             throws FaultMessage {
-        endPointHelper.setSecurityContext();
-        try (TransactionContext context = transactionService.getContext()) {
-            if (message.getHeader() == null) {
-                throw messageFactory
-                        .usagePointConfigFaultMessageSupplier(messageSeed, MessageSeeds.MISSING_ELEMENT, "Header")
-                        .get();
-            }
-            if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
-                return processAsynchronously(message, action, context);
-            }
-            List<UsagePoint> usagePoints = retrieveUsagePoints(message.getPayload(), messageSeed);
-            UsagePoint usagePoint = usagePoints.stream().findFirst()
-                    .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(messageSeed,
-                            MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
-            com.elster.jupiter.metering.UsagePoint connexoUsagePoint = synchronousProcessor.apply(usagePoint);
-            context.commit();
-            return createResponse(connexoUsagePoint, verb, usagePoints.size() > 1);
+        return runInTransactionWithOccurrence(() -> {
+            try {
+                if (message.getHeader() == null) {
+                    throw messageFactory
+                            .usagePointConfigFaultMessageSupplier(messageSeed, MessageSeeds.MISSING_ELEMENT, "Header")
+                            .get();
+                }
+                if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
+                    return processAsynchronously(message, action);
+                }
+                List<UsagePoint> usagePoints = retrieveUsagePoints(message.getPayload(), messageSeed);
+                UsagePoint usagePoint = usagePoints.stream().findFirst()
+                        .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(messageSeed,
+                                MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
+                com.elster.jupiter.metering.UsagePoint connexoUsagePoint = synchronousProcessor.apply(usagePoint);
+                return createResponse(connexoUsagePoint, verb, usagePoints.size() > 1);
 
-        } catch (VerboseConstraintViolationException e) {
-            throw messageFactory.usagePointConfigFaultMessage(messageSeed, e.getLocalizedMessage());
-        } catch (LocalizedException e) {
-            throw messageFactory.usagePointConfigFaultMessage(messageSeed, e.getLocalizedMessage(), e.getErrorCode());
-        }
+            } catch (VerboseConstraintViolationException e) {
+                throw messageFactory.usagePointConfigFaultMessage(messageSeed, e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw messageFactory.usagePointConfigFaultMessage(messageSeed, e.getLocalizedMessage(), e.getErrorCode());
+            }
+        });
     }
 
     private UsagePointConfigResponseMessageType processAsynchronously(UsagePointConfigRequestMessageType message,
-            Action action, TransactionContext context) throws FaultMessage {
+            Action action) throws FaultMessage {
         Optional<EndPointConfiguration> outboundEndPointConfiguration;
         String replyAddress = getReplyAddress(message);
         if (Checks.is(replyAddress).emptyOrOnlyWhiteSpace()) {
@@ -133,7 +128,6 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         ServiceCall serviceCall = serviceCallCommands.createUsagePointConfigMasterServiceCall(message,
                 outboundEndPointConfiguration, action);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
-        context.commit();
         return createQuickResponse(HeaderType.Verb.REPLY);
     }
 
@@ -212,6 +206,7 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
+
     @Override
     public UsagePointConfigResponseMessageType closeUsagePointConfig(
             UsagePointConfigRequestMessageType closeUsagePointConfigRequestMessage) throws FaultMessage {
@@ -227,15 +222,21 @@ public class ExecuteUsagePointConfigEndpoint implements UsagePointConfigPort {
     @Override
     public UsagePointConfigResponseMessageType getUsagePointConfig(
             UsagePointConfigRequestMessageType getUsagePointConfigRequestMessage) throws FaultMessage {
-        endPointHelper.setSecurityContext();
-        List<UsagePoint> usagePoints = retrieveUsagePoints(getUsagePointConfigRequestMessage.getPayload(),
-                MessageSeeds.UNABLE_TO_GET_USAGE_POINT);
-        UsagePoint usagePoint = usagePoints.stream().findFirst()
-                .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_GET_USAGE_POINT,
-                        MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
-        com.elster.jupiter.metering.UsagePoint retrieved = usagePointBuilderProvider.get().from(usagePoint, 0) // bulk operation is not supported, only first element is processed
-                .get();
+        return runInTransactionWithOccurrence(() -> {
+            List<UsagePoint> usagePoints = retrieveUsagePoints(getUsagePointConfigRequestMessage.getPayload(),
+                    MessageSeeds.UNABLE_TO_GET_USAGE_POINT);
+            UsagePoint usagePoint = usagePoints.stream().findFirst()
+                    .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(MessageSeeds.UNABLE_TO_GET_USAGE_POINT,
+                            MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
+            com.elster.jupiter.metering.UsagePoint retrieved = usagePointBuilderProvider.get().from(usagePoint, 0) // bulk operation is not supported, only first element is processed
+                    .get();
 
-        return createResponse(retrieved, HeaderType.Verb.REPLY, usagePoints.size() > 1);
+            return createResponse(retrieved, HeaderType.Verb.REPLY, usagePoints.size() > 1);
+        });
+    }
+
+    @Override
+    public String getApplication() {
+        return WebServiceApplicationName.INSIGHT.getName();
     }
 }
