@@ -10,8 +10,9 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.search.SearchCriteriaService;
 import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.search.impl.SearchCriteriaService;
 import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
@@ -44,6 +45,12 @@ public class SearchApplication extends Application implements MessageSeedProvide
     private volatile SearchLocationService searchLocationService;
     private volatile Thesaurus thesaurus;
     private volatile InfoFactoryService infoFactoryService;
+    private volatile RestQueryService restQueryService;
+
+    @Reference
+    public void setRestQueryService(RestQueryService restQueryService) {
+        this.restQueryService = restQueryService;
+    }
 
     @Reference
     public void setSearchCriteriaService(SearchCriteriaService searchCriteriaService) {
@@ -100,6 +107,7 @@ public class SearchApplication extends Application implements MessageSeedProvide
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
+            bind(restQueryService).to(RestQueryService.class);
             bind(searchCriteriaService).to(SearchCriteriaService.class);
             bind(searchService).to(SearchService.class);
             bind(searchLocationService).to(SearchLocationService.class);

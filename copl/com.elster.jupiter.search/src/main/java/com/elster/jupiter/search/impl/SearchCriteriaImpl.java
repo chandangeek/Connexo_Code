@@ -2,12 +2,15 @@ package com.elster.jupiter.search.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.search.SearchCriteria;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class SearchCriteriaImpl extends EntityImpl implements SearchCriteria {
+
+    private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 280, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String userName;
@@ -35,7 +38,7 @@ public class SearchCriteriaImpl extends EntityImpl implements SearchCriteria {
     }
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 3, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(min = 1, max = 150, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String domain;
 
     private final Thesaurus thesaurus;
@@ -70,5 +73,10 @@ public class SearchCriteriaImpl extends EntityImpl implements SearchCriteria {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public long getId() {
+        return id;
     }
 }

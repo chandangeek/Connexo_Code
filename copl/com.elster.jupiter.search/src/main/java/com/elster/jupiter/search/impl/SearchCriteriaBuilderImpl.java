@@ -1,9 +1,12 @@
 package com.elster.jupiter.search.impl;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.search.SearchCriteria;
+import com.elster.jupiter.search.SearchCriteriaService;
 
-public class SearchCriteriaBuilderImpl implements SearchCriteriaService.SearchCriteriaBuilder {
+import static com.elster.jupiter.search.SearchCriteriaService.*;
+
+public class SearchCriteriaBuilderImpl implements SearchCriteriaBuilder {
 
     protected final SearchCriteriaImpl underConstruction;
     private final DataModel dataModel;
@@ -14,25 +17,25 @@ public class SearchCriteriaBuilderImpl implements SearchCriteriaService.SearchCr
     }
 
     @Override
-    public SearchCriteriaService.SearchCriteriaBuilder setName(String name) {
+    public SearchCriteriaBuilder setName(String name) {
         underConstruction.setName(name);
         return this;
     }
 
     @Override
-    public SearchCriteriaService.SearchCriteriaBuilder setUserName(String userName) {
+    public SearchCriteriaBuilder setUserName(String userName) {
         underConstruction.setUserName(userName);
         return this;
     }
 
     @Override
-    public SearchCriteriaService.SearchCriteriaBuilder setCriteria(String criteria) {
+    public SearchCriteriaBuilder setCriteria(String criteria) {
         underConstruction.setCriteria(criteria);
         return this;
     }
 
     @Override
-    public SearchCriteriaService.SearchCriteriaBuilder setDomain(String domain) {
+    public SearchCriteriaBuilder setDomain(String domain) {
         underConstruction.setDomain(domain);
         return this;
     }

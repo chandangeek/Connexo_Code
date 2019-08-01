@@ -11,15 +11,14 @@ import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.search.SearchBuilder;
-import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchService;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.*;
+import com.elster.jupiter.search.SearchCriteriaService.SearchCriteriaBuilder;
 import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -48,7 +47,7 @@ import static java.util.stream.Collectors.toList;
  * Created by bvn on 6/1/15.
  */
 @Path("/search")
-public class DynamicSearchResource {
+public class DynamicSearchResource extends BaseResource{
 
     private final SearchService searchService;
     private final SearchLocationService searchLocationService;
@@ -245,6 +244,25 @@ public class DynamicSearchResource {
         PropertyInfo propertyInfo = searchCriterionInfoFactory.asSingleObjectWithValues(searchableProperty, uriInfo, searchLocationService.findLocations(jsonQueryFilter.getString("displayValue")));
         return Response.ok().entity(propertyInfo).build();
     }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/test")
+    public Response testRest() {
+        try(TransactionContext transactionContext = getTransactionService().getContext()){
+            SearchCriteriaBuilder searchCriteriaBuilder = getSearchCriteriaService().newSearchCriteria();
+            searchCriteriaBuilder.setUserName("TestName");
+            searchCriteriaBuilder.setCriteria("TestName");
+            searchCriteriaBuilder.setName("TestName");
+            searchCriteriaBuilder.setDomain("TestName");
+            searchCriteriaBuilder.complete();
+            transactionContext.commit();
+        }
+                return Response.ok(Response.Status.OK).build();
+    }
+
+
 
 
     class SearchDomainInfo {

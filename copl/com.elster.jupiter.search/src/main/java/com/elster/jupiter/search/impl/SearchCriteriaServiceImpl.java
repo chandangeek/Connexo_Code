@@ -6,6 +6,9 @@ import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.search.SearchCriteria;
+import com.elster.jupiter.search.SearchCriteriaService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.osgi.service.component.annotations.Activate;
@@ -13,15 +16,20 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+
 @Component(name = "com.elster.jupiter.search.impl",
-        service = {SearchCriteriaService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {SearchCriteriaService.class, MessageSeedProvider.class},
         property = {"name=" + SearchCriteriaService.COMPONENT_NAME,
              },
         immediate = true)
-public class SearchCriteriaServiceImpl implements SearchCriteriaService {
+public class SearchCriteriaServiceImpl implements SearchCriteriaService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
@@ -52,7 +60,7 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(QueryService.class).toInstance(queryService);
                 bind(SearchCriteriaService.class).to(SearchCriteriaServiceImpl.class).in(Scopes.SINGLETON);
-
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
         // issueCreationService = dataModel.getInstance(IssueCreationService.class);
@@ -92,5 +100,15 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService {
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }

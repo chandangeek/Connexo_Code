@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.search.impl;
 
+import com.elster.jupiter.search.SearchCriteriaService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.time.ExecutionTimerService;
 
