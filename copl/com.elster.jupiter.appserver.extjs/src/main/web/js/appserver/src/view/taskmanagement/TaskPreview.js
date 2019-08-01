@@ -55,6 +55,10 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
                                             name: 'name'
                                         },
                                         {
+                                            fieldLabel: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                                            name: 'queueType'
+                                        },
+                                        {
                                             fieldLabel: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
                                             name: 'queue'
                                         }

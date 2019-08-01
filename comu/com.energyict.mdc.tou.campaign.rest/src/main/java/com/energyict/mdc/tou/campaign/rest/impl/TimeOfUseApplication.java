@@ -17,6 +17,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import com.google.common.collect.ImmutableSet;
@@ -48,6 +49,7 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
     private volatile DeviceService deviceService;
     private volatile Clock clock;
     private volatile CalendarService calendarService;
+    private volatile TaskService taskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -121,6 +123,11 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
         this.calendarService = calendarService;
     }
 
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -139,6 +146,7 @@ public class TimeOfUseApplication extends Application implements TranslationKeyP
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
             bind(calendarService).to(CalendarService.class);
+            bind(taskService).to(TaskService.class);
         }
     }
 }

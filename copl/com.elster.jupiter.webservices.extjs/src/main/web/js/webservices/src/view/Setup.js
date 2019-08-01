@@ -20,6 +20,7 @@ Ext.define('Wss.view.Setup', {
             items: [
                 {
                     xtype: 'webservices-preview-container',
+                    adminView: me.adminView,
                     router: me.router
                 }
             ]

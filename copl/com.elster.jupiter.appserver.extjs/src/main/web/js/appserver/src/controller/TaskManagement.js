@@ -15,7 +15,8 @@ Ext.define('Apr.controller.TaskManagement', {
     stores: [
         'Apr.store.Tasks',
         'Apr.store.QueuesByApplication',
-        'Apr.store.CustomTaskTypes'
+        'Apr.store.CustomTaskTypes',
+        'Apr.store.TasksQueueTypes'
     ],
     models: [
         'Apr.model.Task',
@@ -68,12 +69,15 @@ Ext.define('Apr.controller.TaskManagement', {
     showTaskManagement: function () {
         var me = this,
             queuesStore = me.getStore('Apr.store.QueuesByApplication'), widget;
+            queueTypesStore = me.getStore('Apr.store.TasksQueueTypes'), widget;
 
         queuesStore.getProxy().extraParams = {application: this.applicationKey};
+        queueTypesStore.getProxy().extraParams = {application: this.applicationKey};
         widget = Ext.widget('task-management-setup', {
             applicationKey: me.applicationKey,
             addTaskRoute: me.addTaskRoute,
             queuesStore: queuesStore,
+            queueTypesStore: queueTypesStore,
             router: me.getController('Uni.controller.history.Router')
         });
         me.getApplication().fireEvent('changecontentevent', widget);

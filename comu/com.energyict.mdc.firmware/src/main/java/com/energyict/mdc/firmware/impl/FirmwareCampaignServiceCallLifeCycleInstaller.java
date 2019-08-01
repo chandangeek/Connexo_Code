@@ -43,7 +43,8 @@ class FirmwareCampaignServiceCallLifeCycleInstaller {
                             MessageFormat.format("Could not find active custom property set {0}",
                                     serviceCallTypeMapping.getCustomPropertySetClass())));
 
-            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), createServiceCallLifeCycle(serviceCallTypeMapping))
+            serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), createServiceCallLifeCycle(serviceCallTypeMapping),
+                    serviceCallTypeMapping.getApplication().orElse(null), serviceCallTypeMapping.getRetryState().orElse(null))
                     .handler(serviceCallTypeMapping.getTypeName())
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(customPropertySet)
@@ -76,6 +77,9 @@ class FirmwareCampaignServiceCallLifeCycleInstaller {
                         .remove(DefaultState.REJECTED)
                         .removeTransition(DefaultState.CREATED, DefaultState.REJECTED)
                         .addTransition(DefaultState.CREATED, DefaultState.ONGOING)
+                        .addTransition(DefaultState.SUCCESSFUL, DefaultState.ONGOING)
+                        .addTransition(DefaultState.CANCELLED, DefaultState.ONGOING)
+                        .addTransition(DefaultState.FAILED, DefaultState.ONGOING)
                         .create();
             case FIRMWARE_CAMPAIGN_ITEM:
             default:
@@ -106,6 +110,10 @@ class FirmwareCampaignServiceCallLifeCycleInstaller {
                         .addTransition(DefaultState.CANCELLED, DefaultState.PENDING)
                         .addTransition(DefaultState.PENDING, DefaultState.REJECTED)
                         .addTransition(DefaultState.PENDING, DefaultState.SUCCESSFUL)
+                        .addTransition(DefaultState.SUCCESSFUL, DefaultState.ONGOING)
+                        .addTransition(DefaultState.CANCELLED, DefaultState.ONGOING)
+                        .addTransition(DefaultState.REJECTED, DefaultState.ONGOING)
+                        .addTransition(DefaultState.FAILED, DefaultState.ONGOING)
                         .create();
         }
     }

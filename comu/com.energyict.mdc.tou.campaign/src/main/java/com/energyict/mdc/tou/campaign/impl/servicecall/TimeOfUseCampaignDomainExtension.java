@@ -18,6 +18,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.impl.EventType;
@@ -28,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, TimeOfUseCampaign {
@@ -44,7 +46,12 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         ACTIVATION_DATE("activationDate", "activation_date"),
         UPDATE_TYPE("updateType", "update_type"),
         VALIDATION_TIMEOUT("validationTimeout", "validation_timeout"),
-        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name");
+        WITH_UNIQUE_CALENDAR_NAME("withUniqueCalendarName", "with_unique_calendar_name"),
+        VALIDATION_COMTASK_ID("validationComTaskId", "VALIDATION_COMTASK_ID"),
+        CALENDAR_UPLOAD_COMTASK_ID("calendarUploadComTaskId", "CALENDAR_UPLOAD_COMTASK_ID"),
+        VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
+        CALENDAR_UPLOAD_CONNECTIONSTRATEGY("calendarUploadConnectionStrategy", "CALENDAR_UPLOAD_CONSTRATEGY"),
+        ;
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -94,6 +101,10 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     private long validationTimeout;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean withUniqueCalendarName;
+    private long calendarUploadComTaskId;
+    private ConnectionStrategy calendarUploadConnectionStrategy;
+    private long validationComTaskId;
+    private ConnectionStrategy validationConnectionStrategy;
 
     @Inject
     public TimeOfUseCampaignDomainExtension(TimeOfUseCampaignServiceImpl timeOfUseCampaignService) {
@@ -192,6 +203,46 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     }
 
     @Override
+    public  Optional<ConnectionStrategy> getCalendarUploadConnectionStrategy() {
+        return Optional.ofNullable(calendarUploadConnectionStrategy);
+    }
+
+    @Override
+    public Optional<ConnectionStrategy> getValidationConnectionStrategy() {
+        return Optional.ofNullable(validationConnectionStrategy);
+    }
+
+    @Override
+    public void setCalendarUploadConnectionStrategy(ConnectionStrategy calendarUploadConnectionStrategy) {
+        this.calendarUploadConnectionStrategy = calendarUploadConnectionStrategy;
+    }
+
+    @Override
+    public void setValidationConnectionStrategy(ConnectionStrategy validationConnectionStrategy) {
+        this.validationConnectionStrategy = validationConnectionStrategy;
+    }
+
+    @Override
+    public long getCalendarUploadComTaskId() {
+        return calendarUploadComTaskId;
+    }
+
+    @Override
+    public long getValidationComTaskId() {
+        return validationComTaskId;
+    }
+
+    @Override
+    public void setCalendarUploadComTaskId(long calendarUploadComTaskId) {
+        this.calendarUploadComTaskId = calendarUploadComTaskId;
+    }
+
+    @Override
+    public void setValidationComTaskId(long validationComTaskId) {
+        this.validationComTaskId = validationComTaskId;
+    }
+
+    @Override
     public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
@@ -254,6 +305,10 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         this.setUpdateType((String) propertyValues.getProperty(FieldNames.UPDATE_TYPE.javaName()));
         this.setValidationTimeout((long) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setWithUniqueCalendarName((boolean) propertyValues.getProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName()));
+        this.setValidationComTaskId((long) propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
+        this.setCalendarUploadComTaskId((long) propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName()));
+        this.setValidationConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
+        this.setCalendarUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName()));
     }
 
     @Override
@@ -269,6 +324,10 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
         propertySetValues.setProperty(FieldNames.UPDATE_TYPE.javaName(), this.getUpdateType());
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
         propertySetValues.setProperty(FieldNames.WITH_UNIQUE_CALENDAR_NAME.javaName(), this.isWithUniqueCalendarName());
+        propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
+        propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName(), this.getCalendarUploadComTaskId());
+        propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().isPresent()?this.getValidationConnectionStrategy().get():null);
+        propertySetValues.setProperty(FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName(), this.getCalendarUploadConnectionStrategy().isPresent()?this.getCalendarUploadConnectionStrategy().get():null);
     }
 
     @Override
