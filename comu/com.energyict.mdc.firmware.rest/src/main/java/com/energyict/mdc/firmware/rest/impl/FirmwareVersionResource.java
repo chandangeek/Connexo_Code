@@ -217,7 +217,7 @@ public class FirmwareVersionResource {
         parseFirmwareStatusField(status).ifPresent(firmwareVersion::setFirmwareStatus);
         firmwareVersion.setMeterFirmwareDependency(meterFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(meterFWDependency));
         firmwareVersion.setCommunicationFirmwareDependency(comFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
-        firmwareVersion.setAuxiliaryFirmwareDependency(comFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(auxFWDependency));
+        firmwareVersion.setAuxiliaryFirmwareDependency(auxFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(auxFWDependency));
 
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
