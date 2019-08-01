@@ -45,7 +45,7 @@ public class ReplyUsagePointConfigServiceProvider
         implements ReplyUsagePointConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private static final String NOUN = "UsagePointConfig";
-    private static final String RESOURCE_WSDL = "/usagepointconfig/ReplyUsagePointConfig.wsdl";
+    private static final String RESOURCE_WSDL = "/wsdl/usagepointconfig/ReplyUsagePointConfig.wsdl";
 
     private volatile CustomPropertySetService customPropertySetService;
 

@@ -17,6 +17,11 @@
         Contains servicecall issue templates
     </description>
 
+    <properties>
+        <baseline>(,${project.version})</baseline>
+    </properties>
+
+
     <build>
         <plugins>
             <plugin>

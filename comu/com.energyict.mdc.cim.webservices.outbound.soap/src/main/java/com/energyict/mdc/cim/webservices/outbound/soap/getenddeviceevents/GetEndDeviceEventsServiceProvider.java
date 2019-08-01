@@ -36,7 +36,7 @@ import java.util.Map;
 public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointProvider<GetEndDeviceEventsPort> implements ReplyGetEndDeviceEventsWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private static final String NOUN = "GetEndDeviceEvents";
-    private static final String RESOURCE_WSDL = "/getenddeviceevents/GetEndDeviceEvents.wsdl";
+    private static final String RESOURCE_WSDL = "/wsdl/getenddeviceevents/GetEndDeviceEvents.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
             = new ch.iec.tc57._2011.schema.message.ObjectFactory();

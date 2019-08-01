@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<wsdl:definitions
+        name="ExecuteUsagePointConfig"
+        targetNamespace="http://iec.ch/TC57/2011/ExecuteUsagePointConfig"
+        xmlns:tns="http://iec.ch/TC57/2011/ExecuteUsagePointConfig"
+        xmlns:http="http://schemas.xmlsoap.org/wsdl/http/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:infoMessage="http://iec.ch/TC57/2011/UsagePointConfigMessage">
+    <wsdl:types>
+        <xs:schema targetNamespace="http://iec.ch/TC57/2011/ExecuteUsagePointConfig"
+                   elementFormDefault="qualified">
+            <xs:import
+                    namespace="http://iec.ch/TC57/2011/UsagePointConfigMessage"
+                    schemaLocation="xsd/UsagePointConfigMessage.xsd"/>
+        </xs:schema>
+    </wsdl:types>
+    <!-- Message Definitions -->
+    <wsdl:message name="CreateUsagePointConfigRequestMessage">
+        <wsdl:part name="CreateUsagePointConfigRequestMessage"
+                   element="infoMessage:CreateUsagePointConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ChangeUsagePointConfigRequestMessage">
+        <wsdl:part name="ChangeUsagePointConfigRequestMessage"
+                   element="infoMessage:ChangeUsagePointConfig"/>
+    </wsdl:message>
+    <wsdl:message name="CloseUsagePointConfigRequestMessage">
+        <wsdl:part name="CloseUsagePointConfigRequestMessage"
+                   element="infoMessage:CloseUsagePointConfig"/>
+    </wsdl:message>
+    <wsdl:message name="CancelUsagePointConfigRequestMessage">
+        <wsdl:part name="CancelUsagePointConfigRequestMessage"
+                   element="infoMessage:CancelUsagePointConfig"/>
+    </wsdl:message>
+    <wsdl:message name="DeleteUsagePointConfigRequestMessage">
+        <wsdl:part name="DeleteUsagePointConfigRequestMessage"
+                   element="infoMessage:DeleteUsagePointConfig"/>
+    </wsdl:message>
+    <wsdl:message name="GetUsagePointConfigRequestMessage">
+        <wsdl:part name="GetUsagePointConfigRequestMessage"
+                   element="infoMessage:GetUsagePointConfig"/>
+    </wsdl:message>
+    <wsdl:message name="ResponseMessage">
+        <wsdl:part name="ResponseMessage"
+                   element="infoMessage:UsagePointConfigResponseMessage"/>
+    </wsdl:message>
+    <wsdl:message name="FaultMessage">
+        <wsdl:part name="FaultMessage"
+                   element="infoMessage:UsagePointConfigFaultMessage"/>
+    </wsdl:message>
+    <!-- Port Definitions -->
+    <wsdl:portType name="UsagePointConfig_Port">
+        <wsdl:operation name="CreateUsagePointConfig">
+            <wsdl:input name="CreateUsagePointConfigRequest"
+                        message="tns:CreateUsagePointConfigRequestMessage"/>
+            <wsdl:output name="CreateUsagePointConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="CreateUsagePointConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="ChangeUsagePointConfig">
+            <wsdl:input name="ChangeUsagePointConfigRequest"
+                        message="tns:ChangeUsagePointConfigRequestMessage"/>
+            <wsdl:output name="ChangeUsagePointConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="ChangeUsagePointConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="CancelUsagePointConfig">
+            <wsdl:input name="CancelUsagePointConfigRequest"
+                        message="tns:CancelUsagePointConfigRequestMessage"/>
+            <wsdl:output name="CancelUsagePointConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="CancelUsagePointConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="CloseUsagePointConfig">
+            <wsdl:input name="CloseUsagePointConfigRequest"
+                        message="tns:CloseUsagePointConfigRequestMessage"/>
+            <wsdl:output name="CloseUsagePointConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="CloseUsagePointConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="DeleteUsagePointConfig">
+            <wsdl:input name="DeleteUsagePointConfigRequest"
+                        message="tns:DeleteUsagePointConfigRequestMessage"/>
+            <wsdl:output name="DeleteUsagePointConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="DeleteUsagePointConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetUsagePointConfig">
+            <wsdl:input name="GetUsagePointConfigRequest"
+                        message="tns:GetUsagePointConfigRequestMessage"/>
+            <wsdl:output name="GetUsagePointConfigResponse"
+                         message="tns:ResponseMessage"/>
+            <wsdl:fault name="GetUsagePointConfigFault"
+                        message="tns:FaultMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="UsagePointConfig_Binding"
+                  type="tns:UsagePointConfig_Port">
+        <soap:binding style="document"
+                      transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="CreateUsagePointConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/UsagePointConfig/CreateUsagePointConfig" style="document"/>
+            <wsdl:input name="CreateUsagePointConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CreateUsagePointConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="CreateUsagePointConfigFault">
+                <soap:fault name="CreateUsagePointConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="ChangeUsagePointConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/UsagePointConfig/ChangeUsagePointConfig" style="document"/>
+            <wsdl:input name="ChangeUsagePointConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="ChangeUsagePointConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="ChangeUsagePointConfigFault">
+                <soap:fault name="ChangeUsagePointConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="CancelUsagePointConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/UsagePointConfig/CancelUsagePointConfig" style="document"/>
+            <wsdl:input name="CancelUsagePointConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CancelUsagePointConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="CancelUsagePointConfigFault">
+                <soap:fault name="CancelUsagePointConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="CloseUsagePointConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/UsagePointConfig/CloseUsagePointConfig" style="document"/>
+            <wsdl:input name="CloseUsagePointConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="CloseUsagePointConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="CloseUsagePointConfigFault">
+                <soap:fault name="CloseUsagePointConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="DeleteUsagePointConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/UsagePointConfig/DeleteUsagePointConfig" style="document"/>
+            <wsdl:input name="DeleteUsagePointConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="DeleteUsagePointConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="DeleteUsagePointConfigFault">
+                <soap:fault name="DeleteUsagePointConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetUsagePointConfig">
+            <soap:operation
+                    soapAction="http://iec.ch/TC57/2011/UsagePointConfig/GetUsagePointConfig" style="document"/>
+            <wsdl:input name="GetUsagePointConfigRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="GetUsagePointConfigResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="GetUsagePointConfigFault">
+                <soap:fault name="GetUsagePointConfigFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="ExecuteUsagePointConfig">
+        <wsdl:port name="UsagePointConfig_Port"
+                   binding="tns:UsagePointConfig_Binding">
+            <soap:address location="http://iec.ch/TC57/2011/ExecuteUsagePointConfig"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
