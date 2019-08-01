@@ -20220,9 +20220,9 @@ end</SQLClause>
     <calculatedFieldList>
       <viewField>
         <id>78764</id>
-        <columnName>LastValue</columnName>when LASTVALUE is null then '-'
+        <columnName>LastReading</columnName>
         <shortDescription>Last value</shortDescription>
-        <longDescription>LastValue</longDescription>
+        <longDescription>LastReading</longDescription>
         <sortOrder>2</sortOrder>
         <fieldTypeCode>DIMENSION</fieldTypeCode>
         <dataTypeCode>VARCHAR</dataTypeCode>

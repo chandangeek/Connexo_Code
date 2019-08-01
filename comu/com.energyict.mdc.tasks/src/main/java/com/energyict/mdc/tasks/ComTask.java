@@ -8,6 +8,8 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -17,6 +19,7 @@ import java.util.List;
  * @author gna
  * @since 19/04/12 - 13:52
  */
+@ProviderType
 public interface ComTask extends HasId, HasName {
 
     /**
@@ -124,6 +127,10 @@ public interface ComTask extends HasId, HasName {
      * @return true if this is a System defined ComTask, false otherwise
      */
     boolean isSystemComTask();
+
+    void setManualSystemTask(boolean manualSystemTask);
+
+    boolean isManualSystemTask();
 
     long getVersion();
 }

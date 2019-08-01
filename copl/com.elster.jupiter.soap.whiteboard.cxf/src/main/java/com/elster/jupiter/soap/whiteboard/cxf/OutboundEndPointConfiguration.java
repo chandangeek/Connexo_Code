@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Created by bvn on 5/4/16.
  */
+@ProviderType
 public interface OutboundEndPointConfiguration extends EndPointConfiguration {
     void setUsername(String name);
 

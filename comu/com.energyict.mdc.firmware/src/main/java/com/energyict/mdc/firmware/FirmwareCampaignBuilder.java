@@ -28,6 +28,14 @@ public interface FirmwareCampaignBuilder {
 
     FirmwareCampaignBuilder withManagementOption(ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions);
 
+    FirmwareCampaignBuilder withFirmwareUploadComTaskId(long id);
+
+    FirmwareCampaignBuilder withValidationComTaskId(long id);
+
+    FirmwareCampaignBuilder withFirmwareUploadConnectionStrategy(String name);
+
+    FirmwareCampaignBuilder withValidationConnectionStrategy(String name);
+
     FirmwareCampaign create();
 
     FirmwareCampaignBuilder addProperty(PropertySpec propertySpec, Object propertyValue);
