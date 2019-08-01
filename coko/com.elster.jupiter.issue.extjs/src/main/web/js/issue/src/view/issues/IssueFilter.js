@@ -157,6 +157,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 dataIndex: 'showTopology',
                 layout: 'hbox',
                 defaults: {margin: '0 10 0 0'},
+                hidden: me.isOverviewFilter,
                 listeners: {
                     afterrender: function (field) {
                         if (Ext.isEmpty(this.up().down('combobox[itemId=issue-meter-filter]').getValue())) {
