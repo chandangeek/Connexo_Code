@@ -72,15 +72,13 @@ public class IssueDeviceFilterImpl implements IssueDeviceFilter {
                     continue;
                 }
 
-                TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(device);
-                relatedDevices.addAll(timeline.getAllDevices().stream()
-                        .filter(d -> hasNotEnded(timeline, d))
-                        .sorted(new DeviceRecentlyAddedComporator(timeline))
-                        .collect(Collectors.toList()));
+                relatedDevices.addAll(topologyService.getSlaveDevices(device));
             }
         }
 
-        return relatedDevices.stream().map(this::findEndDeviceByMdcDevice).flatMap(o -> o.isPresent() ? Stream.of(o.get()) : Stream.empty()).collect(Collectors.toList());
+        return relatedDevices.stream().map(this::findEndDeviceByMdcDevice)
+                .flatMap(o -> o.isPresent() ? Stream.of(o.get()) : Stream.empty())
+                .collect(Collectors.toList());
     }
 
     private Optional<EndDevice> findEndDeviceByMdcDevice(Device ed) {
@@ -93,53 +91,5 @@ public class IssueDeviceFilterImpl implements IssueDeviceFilter {
             }
         }
         return Optional.empty();
-    }
-
-    private static class DeviceRecentlyAddedComporator implements Comparator<Device> {
-
-        private TopologyTimeline timeline;
-        DeviceRecentlyAddedComporator(TopologyTimeline timeline) {
-            this.timeline = timeline;
-        }
-
-        @Override
-        public int compare(Device d1, Device d2) {
-            Optional<Instant> d1AddTime = this.timeline.mostRecentlyAddedOn(d1);
-            Optional<Instant> d2AddTime = this.timeline.mostRecentlyAddedOn(d2);
-            if (!d1AddTime.isPresent() && !d2AddTime.isPresent()) {
-                return 0;
-            } else if (!d1AddTime.isPresent() && d2AddTime.isPresent()) {
-                return 1;
-            } else if (!d2AddTime.isPresent() && d1AddTime.isPresent()) {
-                return -1;
-            }
-            return -1 * d1AddTime.get().compareTo(d2AddTime.get());
-        }
-
-    }
-
-    private static boolean hasNotEnded(TopologyTimeline timeline, Device device) {
-        List<TopologyTimeslice> x1 = timeline.getSlices()
-                .stream()
-                .filter(s -> contains(s, device)).collect(Collectors.toList());
-
-        List<TopologyTimeslice> x2 = timeline.getSlices()
-                .stream()
-                .filter(s -> contains(s, device))
-                .sorted((s1, s2) -> s2.getPeriod().lowerEndpoint().compareTo(s1.getPeriod().lowerEndpoint()))
-                .collect(Collectors.toList());
-
-        Optional<TopologyTimeslice> first = timeline.getSlices()
-                .stream()
-                .filter(s -> contains(s, device))
-                .sorted((s1, s2) -> s2.getPeriod().lowerEndpoint().compareTo(s1.getPeriod().lowerEndpoint()))
-                .findFirst();
-        return first.filter(topologyTimeslice -> !topologyTimeslice.getPeriod().hasUpperBound()).isPresent();
-    }
-
-    private static boolean contains(TopologyTimeslice timeslice, Device device) {
-        return timeslice.getDevices()
-                .stream()
-                .anyMatch(d -> d.getId() == device.getId());
     }
 }
