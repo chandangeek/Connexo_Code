@@ -77,6 +77,10 @@ public interface ServiceCallService {
         return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, null);
     }
 
+    default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, null);
+    }
+
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, DefaultState retryState) {
         return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, retryState);
     }
@@ -99,7 +103,7 @@ public interface ServiceCallService {
      * @return
      */
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName) {
-        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get(), null);
+        return createServiceCallType(name, versionName, getDefaultServiceCallLifeCycle().get());
     }
 
     /**

@@ -55,7 +55,7 @@ public class UpgraderV10_7 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        try (Connection connection = dataModel.getConnection(false);
+        try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {
             firmwareCampaignServiceCallLifeCycleInstaller.createServiceCallTypes();
             execute(statement, "DELETE FROM EVT_EVENTTYPE WHERE COMPONENT = 'FWC'");

@@ -10,10 +10,13 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface TimeOfUseCampaign {
 
     String getName();
