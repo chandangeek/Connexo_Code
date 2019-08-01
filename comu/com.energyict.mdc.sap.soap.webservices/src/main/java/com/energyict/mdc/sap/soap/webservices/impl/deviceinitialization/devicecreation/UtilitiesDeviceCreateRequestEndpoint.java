@@ -4,12 +4,11 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -38,14 +37,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UtilitiesDeviceCreateRequestEndpoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn {
+public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn, ApplicationSpecific {
 
     private final DeviceService deviceService;
     private final Clock clock;
     private final SAPCustomPropertySets sapCustomPropertySets;
-    private final ThreadPrincipalService threadPrincipalService;
-    private final UserService userService;
-    private final TransactionService transactionService;
     private final EndPointConfigurationService endPointConfigurationService;
     private final Thesaurus thesaurus;
 
@@ -53,29 +49,26 @@ public class UtilitiesDeviceCreateRequestEndpoint implements UtilitiesDeviceERPS
 
     @Inject
     UtilitiesDeviceCreateRequestEndpoint(DeviceService deviceService, Clock clock, SAPCustomPropertySets sapCustomPropertySets,
-                                         ThreadPrincipalService threadPrincipalService, UserService userService, TransactionService transactionService,
                                          EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus) {
         this.deviceService = deviceService;
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
-        this.threadPrincipalService = threadPrincipalService;
-        this.userService = userService;
-        this.transactionService = transactionService;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
     }
 
     @Override
     public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg request) {
-        setPrincipal();
+        runInTransactionWithOccurrence(() -> {
+            if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                        UtilitiesDeviceCreateConfirmation.NAME);
+            }
 
-        if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
-                    UtilitiesDeviceCreateConfirmation.NAME);
-        }
-
-        Optional.ofNullable(request)
-                .ifPresent(requestMessage -> handleMessage(requestMessage));
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage -> handleMessage(requestMessage));
+            return null;
+        });
     }
 
     private void handleMessage(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
@@ -87,9 +80,8 @@ public class UtilitiesDeviceCreateRequestEndpoint implements UtilitiesDeviceERPS
                     Device device = devices.get(0);
                     String sapDeviceId = getDeviceId(msg);
 
-                    try (TransactionContext context = transactionService.getContext()) {
+                    try{
                         sapCustomPropertySets.addSapDeviceId(device, sapDeviceId);
-                        context.commit();
                     } catch (SAPWebServiceException ex) {
                         sendProcessError(msg, (MessageSeeds) ex.getMessageSeed(), ex.getMessageArgs());
                         return;
@@ -109,6 +101,8 @@ public class UtilitiesDeviceCreateRequestEndpoint implements UtilitiesDeviceERPS
     }
 
     private void sendProcessError(UtilsDvceERPSmrtMtrCrteReqMsg msg, MessageSeeds messageSeed, Object... args) {
+        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(args));
+
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
         confirmMsg.setMessageHeader(createMessageHeader(getRequestId(msg), clock.instant()));
         confirmMsg.setUtilitiesDevice(createUtilitiesDevice(getDeviceId(msg)));
@@ -122,10 +116,10 @@ public class UtilitiesDeviceCreateRequestEndpoint implements UtilitiesDeviceERPS
                 .forEach(service -> service.call(msg));
     }
 
-    private boolean isAnyActiveEndpoint(String name){
+    private boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
                 .findEndPointConfigurations().find().stream()
-                .filter(epc->epc.getWebServiceName().equals(name))
+                .filter(epc -> epc.getWebServiceName().equals(name))
                 .filter(EndPointConfiguration::isActive)
                 .findAny().isPresent();
     }
@@ -222,10 +216,8 @@ public class UtilitiesDeviceCreateRequestEndpoint implements UtilitiesDeviceERPS
                 .orElse(null);
     }
 
-    private void setPrincipal() {
-        if (threadPrincipalService.getPrincipal() == null) {
-            userService.findUser(WebServiceActivator.BATCH_EXECUTOR_USER_NAME, userService.getRealm())
-                    .ifPresent(threadPrincipalService::set);
-        }
+    @Override
+    public String getApplication() {
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

@@ -3,10 +3,9 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceBulkCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreateconfirmation.UtilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut;
@@ -18,41 +17,32 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component(name = UtilitiesDeviceBulkCreateConfirmation.NAME,
         service = {UtilitiesDeviceBulkCreateConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceBulkCreateConfirmation.NAME})
-public class UtilitiesDeviceBulkCreateConfirmationProvider implements UtilitiesDeviceBulkCreateConfirmation,
-        OutboundSoapEndPointProvider {
-
-    private final Map<String, UtilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut> ports = new HashMap<>();
-
-    private volatile Thesaurus thesaurus;
+public class UtilitiesDeviceBulkCreateConfirmationProvider extends AbstractOutboundEndPointProvider<UtilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut> implements UtilitiesDeviceBulkCreateConfirmation,
+        OutboundSoapEndPointProvider, ApplicationSpecific {
 
     public UtilitiesDeviceBulkCreateConfirmationProvider() {
         // for OSGI purposes
     }
 
     @Reference
-    public void setThesaurus(WebServiceActivator webServiceActivator) {
-        thesaurus = webServiceActivator.getThesaurus();
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addRequestConfirmationPort(UtilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut port,
                                            Map<String, Object> properties) {
-        Optional.ofNullable(properties)
-                .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
-                .map(String.class::cast)
-                .ifPresent(url -> ports.put(url, port));
+        super.doAddEndpoint(port, properties);
     }
 
     public void removeRequestConfirmationPort(UtilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut port) {
-        ports.values().removeIf(entryPort -> port == entryPort);
+        super.doRemoveEndpoint(port);
     }
 
     @Override
@@ -67,6 +57,17 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider implements UtilitiesD
 
     @Override
     public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
-        ports.values().stream().findFirst().get().utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut(msg.getConfirmationMessage());
+        using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut")
+                .send(msg.getConfirmationMessage());
+    }
+
+    @Override
+    protected String getName() {
+        return UtilitiesDeviceBulkCreateConfirmation.NAME;
+    }
+
+    @Override
+    public String getApplication() {
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

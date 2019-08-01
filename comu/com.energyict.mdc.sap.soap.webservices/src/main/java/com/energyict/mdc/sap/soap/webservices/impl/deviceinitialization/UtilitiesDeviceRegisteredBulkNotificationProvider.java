@@ -3,10 +3,9 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredBulkNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.BusinessDocumentMessageHeader;
@@ -29,24 +28,20 @@ import javax.inject.Inject;
 import javax.xml.ws.Service;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Component(name = UtilitiesDeviceRegisteredBulkNotification.NAME,
         service = {UtilitiesDeviceRegisteredBulkNotification.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceRegisteredBulkNotification.NAME})
-public class UtilitiesDeviceRegisteredBulkNotificationProvider implements UtilitiesDeviceRegisteredBulkNotification,
-        OutboundSoapEndPointProvider {
+public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractOutboundEndPointProvider<UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> implements UtilitiesDeviceRegisteredBulkNotification,
+        OutboundSoapEndPointProvider, ApplicationSpecific {
 
-    private final Map<String, UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut> ports = new HashMap<>();
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     private volatile  Clock clock;
-    private volatile Thesaurus thesaurus;
 
     public UtilitiesDeviceRegisteredBulkNotificationProvider() {
         // for OSGI purposes
@@ -59,8 +54,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider implements Utilit
     }
 
     @Reference
-    public void setThesaurus(WebServiceActivator webServiceActivator) {
-        thesaurus = webServiceActivator.getThesaurus();
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 
     @Reference
@@ -68,18 +63,14 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider implements Utilit
         this.clock = clock;
     }
 
-
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addRequestConfirmationPort(UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut port,
                                            Map<String, Object> properties) {
-        Optional.ofNullable(properties)
-                .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
-                .map(String.class::cast)
-                .ifPresent(url -> ports.put(url, port));
+        super.doAddEndpoint(port, properties);
     }
 
     public void removeRequestConfirmationPort(UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut port) {
-        ports.values().removeIf(entryPort -> port == entryPort);
+        super.doRemoveEndpoint(port);
     }
 
     @Override
@@ -93,6 +84,16 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider implements Utilit
     }
 
     @Override
+    protected String getName() {
+        return UtilitiesDeviceRegisteredBulkNotification.NAME;
+    }
+
+    @Override
+    public String getApplication() {
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
+    }
+
+    @Override
     public void call(List<String> deviceIds) {
         Instant createTime = clock.instant();
         UtilsDvceERPSmrtMtrRegedBulkNotifMsg notificationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegedBulkNotifMsg();
@@ -102,7 +103,8 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider implements Utilit
             notificationMessage.getUtilitiesDeviceERPSmartMeterRegisteredNotificationMessage().add(createChildMessage(deviceId, createTime));
         });
 
-        ports.values().stream().findFirst().get().utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut(notificationMessage);
+        using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut")
+                .send(notificationMessage);
     }
 
     private BusinessDocumentMessageHeader createMessageHeader(Instant now) {

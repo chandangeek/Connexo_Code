@@ -3,16 +3,17 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.outboundwebservice;
 
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceRegisteredBulkNotificationProvider;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisteredbulknotification.UtilsDvceERPSmrtMtrRegedBulkNotifMsg;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +23,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutboundWebserviceTest {
@@ -32,49 +35,54 @@ public class UtilitiesDeviceRegisteredBulkNotificationTest extends AbstractOutbo
     @Mock
     private UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut port;
     @Mock
-    private UtilsDvceERPSmrtMtrRegedBulkNotifMsg notificationMsg;
-    @Mock
     private Clock clock;
 
     private List<String> deviceIds;
+    UtilitiesDeviceRegisteredBulkNotificationProvider provider;
 
     @Before
     public void setUp() {
+        provider = spy(new UtilitiesDeviceRegisteredBulkNotificationProvider(clock));
+        when(webServiceCallOccurrence.getId()).thenReturn(1l);
+        when(webServicesService.startOccurrence(any(EndPointConfiguration.class), anyString(), anyString())).thenReturn(webServiceCallOccurrence);
+        inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
+        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
+        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
         deviceIds = Arrays.asList("100000000524205", "100000000524206", "100000000524207");
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
 
     @Test
     public void testCall() {
+        when(provider.using(anyString())).thenReturn(requestSender);
         Map<String, Object> properties = new HashMap<>();
         properties.put(WebServiceActivator.URL_PROPERTY, getURL());
+        properties.put("epcId", 1l);
 
-        UtilitiesDeviceRegisteredBulkNotificationProvider provider = new UtilitiesDeviceRegisteredBulkNotificationProvider(clock);
         provider.addRequestConfirmationPort(port, properties);
         provider.call(deviceIds);
 
-        Mockito.verify(port).utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut(anyObject());
+        verify(provider).using("utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut");
+        verify(requestSender).send(any(UtilsDvceERPSmrtMtrRegedBulkNotifMsg.class));
     }
 
     @Test
     public void testCallWithoutPort() {
-        UtilitiesDeviceRegisteredBulkNotificationProvider provider = new UtilitiesDeviceRegisteredBulkNotificationProvider(clock);
-        provider.setThesaurus(webServiceActivator);
-
-        expectedException.expect(SAPWebServiceException.class);
+        inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(new ArrayList());
+        expectedException.expect(LocalizedException.class);
+        expectedException.expectMessage("No web service endpoints are available to send the request using 'SAP UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out'.");
 
         provider.call(deviceIds);
     }
 
     @Test
     public void testGetService() {
-        UtilitiesDeviceRegisteredBulkNotificationProvider provider = new UtilitiesDeviceRegisteredBulkNotificationProvider(clock);
         Assert.assertEquals(provider.getService(), UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut.class);
     }
 
     @Test
     public void testGet() {
-        UtilitiesDeviceRegisteredBulkNotificationProvider provider = new UtilitiesDeviceRegisteredBulkNotificationProvider(clock);
         Assert.assertEquals(provider.get().getClass(), UtilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOutService.class);
     }
 }

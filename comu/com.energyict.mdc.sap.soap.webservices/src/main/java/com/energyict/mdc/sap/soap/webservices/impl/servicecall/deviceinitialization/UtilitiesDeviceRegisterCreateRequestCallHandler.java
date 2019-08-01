@@ -7,7 +7,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 

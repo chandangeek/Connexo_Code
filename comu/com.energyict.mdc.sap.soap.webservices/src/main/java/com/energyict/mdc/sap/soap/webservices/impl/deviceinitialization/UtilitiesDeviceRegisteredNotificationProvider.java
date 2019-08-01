@@ -7,9 +7,10 @@ import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
 import com.energyict.mdc.device.data.DeviceService;
@@ -28,8 +29,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednoti
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.ObjectFactory;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
-import org.apache.cxf.jaxws.JaxWsClientProxy;
-import org.apache.cxf.message.Message;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -37,11 +36,8 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.xml.ws.Service;
-import java.lang.reflect.Proxy;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,10 +48,9 @@ import java.util.stream.Collectors;
         service = {UtilitiesDeviceRegisteredNotification.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesDeviceRegisteredNotification.NAME})
-public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesDeviceRegisteredNotification, StateTransitionWebServiceClient,
-        OutboundSoapEndPointProvider{
+public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutboundEndPointProvider<UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut> implements UtilitiesDeviceRegisteredNotification, StateTransitionWebServiceClient,
+        OutboundSoapEndPointProvider, ApplicationSpecific {
 
-    private final Map<String, UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut> ports = new HashMap<>();
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     private volatile Thesaurus thesaurus;
@@ -116,14 +111,11 @@ public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesD
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addRequestConfirmationPort(UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut port,
                                            Map<String, Object> properties) {
-        Optional.ofNullable(properties)
-                .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
-                .map(String.class::cast)
-                .ifPresent(url -> ports.put(url, port));
+        super.doAddEndpoint(port, properties);
     }
 
     public void removeRequestConfirmationPort(UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut port) {
-        ports.values().removeIf(entryPort -> port == entryPort);
+        super.doRemoveEndpoint(port);
     }
 
     @Override
@@ -137,8 +129,18 @@ public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesD
     }
 
     @Override
-    public String getWebServiceName() {
+    protected String getName() {
         return NAME;
+    }
+
+    @Override
+    public String getWebServiceName() {
+        return getName();
+    }
+
+    @Override
+    public String getApplication() {
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 
     @Override
@@ -166,29 +168,15 @@ public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesD
     public void call(String sapDeviceId) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
 
-        ports.values().stream().findFirst().get().utilitiesDeviceERPSmartMeterRegisteredNotificationCOut(notificationMessage);
+        using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
+                .send(notificationMessage);
     }
 
     private void call(String sapDeviceId, List<EndPointConfiguration> endPointConfigurations) {
-        endPointConfigurations.forEach(endPointConfiguration -> {
-            try {
-                getStateTransitionWebServiceClients().values().stream()
-                        .filter(port -> isValidEndDeviceConfigPortService(port, endPointConfiguration))
-                        .findFirst()
-                        .ifPresent(portService -> {
-                            try {
-                                UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
-                                portService.utilitiesDeviceERPSmartMeterRegisteredNotificationCOut(notificationMessage);
-                                endPointConfiguration.log(LogLevel.INFO, String.format("Send registered notification to web service %s with the URL", endPointConfiguration.getWebServiceName(), endPointConfiguration
-                                        .getUrl()));
-                            } catch (Exception faultMessage) {
-                                endPointConfiguration.log(faultMessage.getMessage(), faultMessage);
-                            }
-                        });
-            } catch (Exception e) {
-                endPointConfiguration.log(String.format("registered notification to web service %s with the URL", endPointConfiguration.getWebServiceName(), endPointConfiguration.getUrl()), e);
-            }
-        });
+        UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
+        using("utilitiesDeviceERPSmartMeterRegisteredNotificationCOut")
+                .toEndpoints(endPointConfigurations)
+                .send(notificationMessage);
     }
 
     private UtilsDvceERPSmrtMtrRegedNotifMsg createNotificationMessage(String sapDeviceId) {
@@ -223,16 +211,6 @@ public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesD
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
-    }
-
-    public Map<String, UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut> getStateTransitionWebServiceClients() {
-        return Collections.unmodifiableMap(this.ports);
-    }
-
-    private boolean isValidEndDeviceConfigPortService(UtilitiesDeviceERPSmartMeterRegisteredNotificationCOut port, EndPointConfiguration endPointConfiguration) {
-        return endPointConfiguration.getUrl()
-                .toLowerCase()
-                .contains(((String) ((JaxWsClientProxy) (Proxy.getInvocationHandler(port))).getRequestContext().get(Message.ENDPOINT_ADDRESS)).toLowerCase());
     }
 
     private BusinessDocumentMessageHeader createMessageHeader(Instant now) {

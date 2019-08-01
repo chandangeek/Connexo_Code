@@ -4,16 +4,14 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationCIn;
@@ -27,52 +25,46 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotific
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class PointOfDeliveryAssignedNotification implements SmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationCIn {
+public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInboundEndPoint implements SmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationCIn, ApplicationSpecific {
 
     private final SAPCustomPropertySets sapCustomPropertySets;
-    private final ThreadPrincipalService threadPrincipalService;
-    private final UserService userService;
-    private final TransactionService transactionService;
     private final Thesaurus thesaurus;
 
     @Inject
-    PointOfDeliveryAssignedNotification(SAPCustomPropertySets sapCustomPropertySets, ThreadPrincipalService threadPrincipalService,
-                                        UserService userService, TransactionService transactionService, Thesaurus thesaurus) {
+    PointOfDeliveryAssignedNotificationEndpoint(SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus) {
         this.sapCustomPropertySets = sapCustomPropertySets;
-        this.threadPrincipalService = threadPrincipalService;
-        this.userService = userService;
-        this.transactionService = transactionService;
         this.thesaurus = thesaurus;
     }
 
     @Override
-    public void smartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationCIn(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg request) {
-        setPrincipal();
-        Optional.ofNullable(request)
-                .ifPresent(requestMessage -> handleMessage(requestMessage));
+    public String getApplication() {
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 
-    private void setPrincipal() {
-        if (threadPrincipalService.getPrincipal() == null) {
-            userService.findUser(WebServiceActivator.BATCH_EXECUTOR_USER_NAME, userService.getRealm())
-                    .ifPresent(threadPrincipalService::set);
-        }
+    @Override
+    public void smartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationCIn(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg request) {
+        runInTransactionWithOccurrence(() -> {
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage -> handleMessage(requestMessage));
+            return null;
+        });
     }
 
     private void handleMessage(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
         PodMessage podMsg = new PodMessage(msg);
         if (podMsg.isValid()) {
-            try (TransactionContext context = transactionService.getContext()) {
-                Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
-                if (device.isPresent()) {
+            Optional<Device> device = sapCustomPropertySets.getDevice(podMsg.deviceId);
+            if (device.isPresent()) {
+                try {
                     sapCustomPropertySets.setPod(device.get(), podMsg.podId);
-                }else{
-                    throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, podMsg.deviceId);
+                } catch (SAPWebServiceException ex) {
+                    log(LogLevel.WARNING, thesaurus.getFormat(ex.getMessageSeed()).format(ex.getMessageArgs()));
                 }
-                context.commit();
+            } else {
+                log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID).format(podMsg.deviceId));
             }
-        }else{
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_MESSAGE_FORMAT);
+        } else {
+            log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.INVALID_MESSAGE_FORMAT).format());
         }
     }
 

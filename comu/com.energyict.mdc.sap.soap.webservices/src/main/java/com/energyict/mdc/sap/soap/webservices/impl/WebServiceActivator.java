@@ -39,8 +39,8 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryAssignedNotification;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryBulkAssignedNotification;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryAssignedNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryBulkAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceLocationBulkNotificationEndpoint;
@@ -302,10 +302,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 () -> dataModel.getInstance(UtilitiesDeviceLocationBulkNotificationEndpoint.class),
                 InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_LOCATION_BULK_NOTIFICATION_C_IN.getName());
         registerInboundSoapEndpoint(bundleContext,
-                () -> dataModel.getInstance(PointOfDeliveryAssignedNotification.class),
+                () -> dataModel.getInstance(PointOfDeliveryAssignedNotificationEndpoint.class),
                 InboundServices.SAP_POINT_OF_DELIVERY_ASSIGNED_NOTIFICATION_C_IN.getName());
         registerInboundSoapEndpoint(bundleContext,
-                () -> dataModel.getInstance(PointOfDeliveryBulkAssignedNotification.class),
+                () -> dataModel.getInstance(PointOfDeliveryBulkAssignedNotificationEndpoint.class),
                 InboundServices.SAP_POINT_OF_DELIVERY_BULK_ASSIGNED_NOTIFICATION_C_IN.getName());
     }
 
