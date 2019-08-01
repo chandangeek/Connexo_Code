@@ -20,7 +20,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -56,40 +56,31 @@ import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Component(name = UtilitiesTimeSeriesBulkCreateRequestProvider.NAME,
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateRequestProvider.NAME})
-public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilsTmeSersERPItmBulkCrteReqMsg> {
+public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut, UtilsTmeSersERPItmBulkCrteReqMsg> implements ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out";
     private static final QName QNAME = new QName("urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkcreaterequest",
             "UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutService");
-
-    private Map<String, UtilitiesTimeSeriesERPItemBulkCreateRequestCOut> createRequestPorts = new ConcurrentHashMap<>();
 
     public UtilitiesTimeSeriesBulkCreateRequestProvider() {
         // for OSGi purposes
     }
 
     @Inject
-    public UtilitiesTimeSeriesBulkCreateRequestProvider(WebServicesService webServicesService, PropertySpecService propertySpecService,
+    public UtilitiesTimeSeriesBulkCreateRequestProvider(PropertySpecService propertySpecService,
                                                         DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                         SAPCustomPropertySets sapCustomPropertySets) {
-        super(webServicesService, propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets);
+        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets);
     }
 
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService) {
-        super.setWebServicesService(webServicesService);
-    }
-
+    @Override
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
@@ -105,11 +96,13 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         super.setThesaurus(translationsProvider.getThesaurus());
     }
 
+    @Override
     @Reference
     public void setClock(Clock clock) {
         super.setClock(clock);
     }
 
+    @Override
     @Reference
     public void setSapCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         super.setSapCustomPropertySets(sapCustomPropertySets);
@@ -121,27 +114,32 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addCreateRequestPort(UtilitiesTimeSeriesERPItemBulkCreateRequestCOut createRequestPort, Map<String, Object> properties) {
-        createRequestPorts.put(getUrl(properties), createRequestPort);
+    public void addCreateRequestEndpoint(UtilitiesTimeSeriesERPItemBulkCreateRequestCOut createRequestPort, Map<String, Object> properties) {
+        super.doAddEndpoint(createRequestPort, properties);
     }
 
-    public void removeCreateRequestPort(UtilitiesTimeSeriesERPItemBulkCreateRequestCOut createRequestPort) {
-        createRequestPorts.values().removeIf(port -> createRequestPort == port);
+    public void removeCreateRequestEndpoint(UtilitiesTimeSeriesERPItemBulkCreateRequestCOut createRequestPort) {
+        super.doRemoveEndpoint(createRequestPort);
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 
     @Override
-    Optional<Consumer<UtilsTmeSersERPItmBulkCrteReqMsg>> getPort(EndPointConfiguration endPointConfiguration) {
-        return Optional.ofNullable(createRequestPorts.values().stream().findFirst().get())
-                .map(port -> (Consumer<UtilsTmeSersERPItmBulkCrteReqMsg>) port::utilitiesTimeSeriesERPItemBulkCreateRequestCOut);
+    String getMessageSenderMethod() {
+        return UtilitiesTimeSeriesERPItemBulkCreateRequestCOut.class.getMethods()[0].getName();
     }
 
     @Override
     public Service get() {
-        return new UtilitiesTimeSeriesERPItemBulkCreateRequestCOutService();
+        return new UtilitiesTimeSeriesERPItemBulkCreateRequestCOutService(
+                UtilitiesTimeSeriesERPItemBulkCreateRequestCOutService.class.getResource("/wsdl/sap/UtilitiesTimeSeriesERPItemBulkCreateRequest_E_OutService.wsdl"), QNAME);
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut> getService() {
         return UtilitiesTimeSeriesERPItemBulkCreateRequestCOut.class;
     }
 
@@ -266,5 +264,10 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         typeCode.setValue(code);
         status.setUtilitiesTimeSeriesItemTypeCode(typeCode);
         return status;
+    }
+
+    @Override
+    public String getApplication(){
+        return WebServiceApplicationName.MULTISENSE.getName();
     }
 }

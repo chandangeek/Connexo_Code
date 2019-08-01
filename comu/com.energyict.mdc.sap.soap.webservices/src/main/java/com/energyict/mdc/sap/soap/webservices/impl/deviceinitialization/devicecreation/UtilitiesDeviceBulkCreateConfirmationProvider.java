@@ -67,9 +67,6 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider implements UtilitiesD
 
     @Override
     public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
-        if (ports.isEmpty()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
-        }
         ports.values().stream().findFirst().get().utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut(msg.getConfirmationMessage());
     }
 }

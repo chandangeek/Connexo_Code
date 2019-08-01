@@ -69,9 +69,6 @@ public class UtilitiesDeviceCreateConfirmationProvider implements UtilitiesDevic
 
     @Override
     public void call(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
-        if (ports.isEmpty()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
-        }
         ports.values().stream().findFirst().get().utilitiesDeviceERPSmartMeterCreateConfirmationCOut(msg);
     }
 }

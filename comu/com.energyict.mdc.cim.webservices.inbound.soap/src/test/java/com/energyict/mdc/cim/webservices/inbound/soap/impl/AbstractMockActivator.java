@@ -43,6 +43,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 
 import org.osgi.framework.BundleContext;
 
+import java.lang.reflect.Field;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
@@ -192,5 +193,15 @@ public abstract class AbstractMockActivator {
         when(mock.isActive()).thenReturn(true);
         when(mock.isInbound()).thenReturn(false);
         return mock;
+    }
+
+    protected static void inject(Class<?> clazz, Object instance, String fieldName, Object value) {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

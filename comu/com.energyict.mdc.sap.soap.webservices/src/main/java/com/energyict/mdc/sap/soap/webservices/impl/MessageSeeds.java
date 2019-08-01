@@ -13,8 +13,8 @@ public enum MessageSeeds implements MessageSeed {
     // General
     INVALID_MESSAGE_FORMAT(1, "InvalidMessageFormat", "Invalid message format"),
     MESSAGE_ALREADY_EXISTS(2, "MessageAlreadyExists", "Message already exists"),
-    NO_WEB_SERVICE_ENDPOINTS(3, "NoWebServiceEndpoints", "No published web service endpoint is found to send the request."),
-    UNEXPECTED_CONFIRMATION_MESSAGE(4, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
+    UNEXPECTED_CONFIRMATION_MESSAGE(3, "UnexpectedConfirmationMessage", "Received confirmation message for unknown request with UUID {0}."),
+    WEB_SERVICE_ENDPOINTS_NOT_PROCESSED(4, "WebServiceEndpointsNotProcessed", "Failed to properly send request to the following web service endpoint(s): {0}."),
     INTERVAL_INVALID(5, "wrongInterval", "Invalid interval [{0},{1})"),
 
     // Custom property set

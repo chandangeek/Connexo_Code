@@ -56,7 +56,6 @@ public class UtilitiesDeviceRegisterCreateConfirmationTest extends AbstractOutbo
         provider.setThesaurus(webServiceActivator);
 
         expectedException.expect(SAPWebServiceException.class);
-        expectedException.expectMessage(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS.getDefaultFormat());
 
         provider.call(outboundMessage);
     }

@@ -8,6 +8,7 @@ import com.atos.worldline.jss.api.cardmanagement.ECDSASignatureAlgorithm;
 import com.atos.worldline.jss.api.cardmanagement.RSASignatureAlgorithm;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;

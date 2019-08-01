@@ -7,12 +7,10 @@ package com.elster.jupiter.issue.servicecall.impl.action;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
-import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 import com.elster.jupiter.issue.servicecall.impl.i18n.TranslationKeys;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
-import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -20,7 +18,6 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
@@ -120,15 +117,12 @@ public class StartProcessAction extends AbstractIssueAction {
         return builder.build();
     }
 
-    private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition){
+    private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition) {
         Object props = processDefinition.getProperties().get(PROPERTY_NAME);
-        if (props instanceof List) {
-           return ASSOCIATION.equals(processDefinition.getAssociation()) &&
-                   ((List<Object>) props).stream()
-                           .filter(HasIdAndName.class::isInstance)
-                    .anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName));
-        }
-        return false;
+        return ASSOCIATION.equals(processDefinition.getAssociation())
+                && (reasonName == null
+                || props instanceof List
+                && ((List<?>) props).stream().filter(HasIdAndName.class::isInstance).anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName)));
     }
 
     @Override

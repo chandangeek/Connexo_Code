@@ -102,10 +102,6 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider implements Utilit
             notificationMessage.getUtilitiesDeviceERPSmartMeterRegisteredNotificationMessage().add(createChildMessage(deviceId, createTime));
         });
 
-        if (ports.isEmpty()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
-        }
-
         ports.values().stream().findFirst().get().utilitiesDeviceERPSmartMeterRegisteredBulkNotificationCOut(notificationMessage);
     }
 

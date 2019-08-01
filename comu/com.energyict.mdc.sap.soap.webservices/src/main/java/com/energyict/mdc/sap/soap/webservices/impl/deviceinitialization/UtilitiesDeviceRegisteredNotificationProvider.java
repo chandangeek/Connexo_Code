@@ -166,10 +166,6 @@ public class UtilitiesDeviceRegisteredNotificationProvider implements UtilitiesD
     public void call(String sapDeviceId) {
         UtilsDvceERPSmrtMtrRegedNotifMsg notificationMessage = createNotificationMessage(sapDeviceId);
 
-        if (ports.isEmpty()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
-        }
-
         ports.values().stream().findFirst().get().utilitiesDeviceERPSmartMeterRegisteredNotificationCOut(notificationMessage);
     }
 
