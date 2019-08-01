@@ -883,7 +883,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         RTU_Discovery_Old_ObisCode("0.18.128.0.0.255"),
         RTU_Discovery_New_ObisCode("0.18.128.0.0.255 "),
         Web_Portal_Config_Old_ObisCode("0.0.128.0.13.255"),
-        Web_Portal_Config_New_ObisCode("0.0.128.0.13.255");
+        Web_Portal_Config_New_ObisCode("0.128.96.197.0.255");
 
         private final String obis;
 

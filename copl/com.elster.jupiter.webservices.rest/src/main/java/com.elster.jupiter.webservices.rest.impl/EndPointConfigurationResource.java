@@ -87,7 +87,7 @@ public class EndPointConfigurationResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
                                                    @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                    @Context UriInfo uriInfo) {
@@ -123,7 +123,7 @@ public class EndPointConfigurationResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return endPointConfigurationService.getEndPointConfiguration(id)
                 .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
@@ -231,8 +231,7 @@ public class EndPointConfigurationResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}/logs")
-    @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getAllLogs(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));

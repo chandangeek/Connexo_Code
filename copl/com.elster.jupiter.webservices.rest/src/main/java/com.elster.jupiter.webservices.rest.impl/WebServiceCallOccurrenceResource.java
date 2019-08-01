@@ -55,12 +55,12 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getAllOccurrences(@BeanParam JsonQueryParameters queryParameters,
                                            @BeanParam JsonQueryFilter filter,
                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                            @Context UriInfo uriInfo) {
-        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES);
+        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES);
 
         Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
 
@@ -77,11 +77,11 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public WebServiceCallOccurrenceInfo getOccurrence(@PathParam("id") long id,
                                                       @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                       @Context UriInfo uriInfo) {
-        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES);
+        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES);
 
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
 
@@ -114,12 +114,12 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}/log")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getLogForOccurrence(@PathParam("id") long id,
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                              @BeanParam JsonQueryParameters queryParameters,
                                              @Context UriInfo uriInfo) {
-        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES);
+        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES);
 
         WebServiceCallOccurrence epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));

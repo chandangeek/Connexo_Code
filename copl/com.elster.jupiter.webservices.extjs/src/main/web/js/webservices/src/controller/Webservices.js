@@ -76,7 +76,6 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             view,
             store = me.getStore('Wss.store.Endpoints');
-
         view = Ext.widget('webservices-setup', {
             router: me.getController('Uni.controller.history.Router'),
             adminView: Uni.util.Application.getAppNamespace() === 'SystemApp'
@@ -129,7 +128,6 @@ Ext.define('Wss.controller.Webservices', {
                         {
                             showRetry = true;
                         }
-
                         var view = Ext.widget('webservice-history-occurence', {
                             router: me.getController('Uni.controller.history.Router'),
                             adminView: showRetry,

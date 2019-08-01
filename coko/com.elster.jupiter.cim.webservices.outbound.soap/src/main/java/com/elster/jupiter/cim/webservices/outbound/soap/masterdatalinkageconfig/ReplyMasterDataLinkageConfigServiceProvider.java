@@ -45,7 +45,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		implements ReplyMasterDataLinkageConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
 	private static final String NOUN = "MasterDateLinkageConfig";
-	private static final String RESOURCE_WSDL = "/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl";
+	private static final String RESOURCE_WSDL = "/wsdl/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl";
 
 	private final Map<String, MasterDataLinkageConfigPort> masterDataLinkageConfigPorts = new ConcurrentHashMap<>();
 
