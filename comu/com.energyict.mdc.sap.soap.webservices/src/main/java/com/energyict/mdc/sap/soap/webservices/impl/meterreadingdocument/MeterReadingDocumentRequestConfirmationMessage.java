@@ -7,6 +7,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 
+import java.time.Instant;
+
 public class MeterReadingDocumentRequestConfirmationMessage {
 
     private static final CreateBulkMessageFactory BULK_MESSAGE_FACTORY = new CreateBulkMessageFactory();
@@ -37,20 +39,20 @@ public class MeterReadingDocumentRequestConfirmationMessage {
         private Builder() {
         }
 
-        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage) {
+        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, now);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, now);
             }
             return this;
         }
 
-        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed) {
+        public Builder from(MeterReadingDocumentCreateRequestMessage requestMessage, MessageSeeds messageSeed, Instant now) {
             if (requestMessage.isBulk()) {
-                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed);
+                bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(requestMessage, messageSeed, now);
             }
             return this;
         }

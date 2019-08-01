@@ -14,6 +14,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreatec
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
 
+import java.time.Instant;
+
 public class CreateMessageFactory {
 
     private static final ObjectFactory OBJECT_FACTORY = new ObjectFactory();
@@ -21,9 +23,9 @@ public class CreateMessageFactory {
     public CreateMessageFactory() {
     }
 
-    public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage) {
+    public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
-        confirmationMessage.setMessageHeader(createHeader(requestMessage));
+        confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
 
         requestMessage.getMeterReadingDocumentCreateMessages()
                 .forEach(message -> {
@@ -42,21 +44,22 @@ public class CreateMessageFactory {
     }
 
     public SmrtMtrMtrRdngDocERPCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
-                                                         MessageSeeds messageSeeds) {
+                                                         MessageSeeds messageSeeds, Instant now) {
         SmrtMtrMtrRdngDocERPCrteConfMsg confirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPCrteConfMsg();
 
-        confirmationMessage.setMessageHeader(createHeader(requestMessage));
+        confirmationMessage.setMessageHeader(createHeader(requestMessage, now));
         confirmationMessage.setLog(createLog(messageSeeds));
 
         return confirmationMessage;
     }
 
-    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage) {
+    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
         BusinessDocumentMessageID messageID = OBJECT_FACTORY.createBusinessDocumentMessageID();
         messageID.setValue(requestMessage.getId());
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
         messageHeader.setReferenceID(messageID);
+        messageHeader.setCreationDateTime(now);
 
         return messageHeader;
     }

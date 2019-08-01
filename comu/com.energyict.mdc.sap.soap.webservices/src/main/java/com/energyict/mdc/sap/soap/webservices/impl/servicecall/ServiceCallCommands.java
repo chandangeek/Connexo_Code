@@ -334,7 +334,7 @@ public class ServiceCallCommands {
 
         return MeterReadingDocumentRequestConfirmationMessage
                 .builder()
-                .from(requestMessage)
+                .from(requestMessage, clock.instant())
                 .build();
     }
 
@@ -465,7 +465,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus))
+                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -473,7 +473,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MeterReadingDocumentCreateRequestMessage message, MessageSeeds messageSeed) {
         MeterReadingDocumentRequestConfirmationMessage confirmationMessage =
                 MeterReadingDocumentRequestConfirmationMessage.builder()
-                        .from(message, messageSeed)
+                        .from(message, messageSeed, clock.instant())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
@@ -481,7 +481,7 @@ public class ServiceCallCommands {
     private void sendProcessError(String exceptionCode, String exceptionInfo, StatusChangeRequestCreateMessage message) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, exceptionCode, exceptionInfo)
+                        .from(message, exceptionCode, exceptionInfo, clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -507,7 +507,7 @@ public class ServiceCallCommands {
                                             String deviceId) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId))
+                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
                         .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
                         .build();
         sendMessage(confirmationMessage);

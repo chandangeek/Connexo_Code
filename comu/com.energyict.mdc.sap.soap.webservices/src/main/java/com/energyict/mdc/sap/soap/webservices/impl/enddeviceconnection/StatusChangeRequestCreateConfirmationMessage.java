@@ -56,15 +56,16 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
         private Builder() {
             confirmationMessage = OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfMsg();
-            confirmationMessage.setMessageHeader(createHeader());
         }
 
-        public Builder from(ServiceCall parent, List<ServiceCall> childs) {
+        public Builder from(ServiceCall parent, List<ServiceCall> childs, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(parent, childs));
             return this;
         }
 
-        public Builder from(StatusChangeRequestCreateMessage message, String exceptionID, String exceptionMessage) {
+        public Builder from(StatusChangeRequestCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message));
             confirmationMessage.setLog(createLog(exceptionID, "PRE", exceptionMessage));
             return this;
@@ -91,8 +92,11 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return this;
         }
 
-        private BusinessDocumentMessageHeader createHeader() {
-            return OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+        private BusinessDocumentMessageHeader createHeader(Instant now) {
+            BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+            header.setCreationDateTime(now);
+
+            return header;
         }
 
         private SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq createBaseBody() {
