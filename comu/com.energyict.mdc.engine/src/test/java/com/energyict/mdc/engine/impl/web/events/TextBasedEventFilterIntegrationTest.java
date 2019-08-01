@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.when;
  * @since 2012-11-05 (14:54)
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class TextBasedEventFilterIntegrationTest extends EventFilterBaseIT {
 
     @Mock
