@@ -15,7 +15,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 
 public class ImportCertificateCommand extends EndDeviceCommandImpl {
@@ -26,8 +25,9 @@ public class ImportCertificateCommand extends EndDeviceCommandImpl {
 
     @Override
     public List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
-        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, Instant.now(),
-                Arrays.asList(DeviceMessageId.SECURITY_IMPORT_CERTIFICATE, DeviceMessageId.IMPORT_CLIENT_END_DEVICE_CERTIFICATE, DeviceMessageId.IMPORT_SERVER_END_DEVICE_CERTIFICATE));
+        //Here we should filter and select only the message(s) that provides us the server import certificate capability for our device
+        //At protocol level we should have only one message that provides this functionality, otherwise we'll need to change the design in order to have the possibility to specify the proper command
+        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, Instant.now(), possibleDeviceMessageIds);
     }
 
 }

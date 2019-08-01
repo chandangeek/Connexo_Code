@@ -19,6 +19,7 @@ public enum AuditDomainContextType {
     USAGEPOINT_GENERAL_ATTRIBUTES("auditDomainContext.usagePointGeneralAttributes", AuditDomainType.USAGEPOINT),
     USAGEPOINT_TECHNICAL_ATTRIBUTES("auditDomainContext.usagePointTechnicalAttributes", AuditDomainType.USAGEPOINT),
     USAGEPOINT_CUSTOM_ATTRIBUTES("auditDomainContext.usagePointCustomAttributes", AuditDomainType.USAGEPOINT),
+    USAGEPOINT_METROLOGY_CONFIGURATION("auditDomainContext.usagePointMetrologyConfiguration", AuditDomainType.USAGEPOINT),
     ;
 
     private final String domainContextType;
