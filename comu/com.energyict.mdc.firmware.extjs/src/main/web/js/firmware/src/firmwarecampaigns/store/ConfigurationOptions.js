@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Fwc.firmwarecampaigns.store.FirmvareVersionsOptions', {
+Ext.define('Fwc.firmwarecampaigns.store.ConfigurationOptions', {
     extend: 'Ext.data.Store',
     model: 'Fwc.firmwarecampaigns.model.FirmvareVersionsOption',
     proxy: {

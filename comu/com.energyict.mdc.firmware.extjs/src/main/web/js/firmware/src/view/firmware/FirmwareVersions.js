@@ -13,6 +13,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
         'Uni.view.button.SortItemButton'
     ],
     deviceType: null,
+    isFirmwareCampaignVersions: null,
 
     initComponent: function () {
         var me = this;
@@ -35,7 +36,8 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                             router: this.router,
                             scroll: 'vertical',
                             maxHeight:402,
-                            autoHeight: true
+                            autoHeight: true,
+                            isFirmwareCampaignVersions: me.isFirmwareCampaignVersions
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -54,15 +56,18 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                             ]
                         }
                     }
-                ],
-                dockedItems: [
+                ]
+            }
+        ];
+
+        if (!me.isFirmwareCampaignVersions){
+             me.content['dockedItems'] = [
                     {
                         dock: 'top',
                         xtype: 'fwc-view-firmware-versions-topfilter'
                     }
-                ]
-            }
-        ];
+             ]
+        }
 
         this.callParent(arguments);
     }

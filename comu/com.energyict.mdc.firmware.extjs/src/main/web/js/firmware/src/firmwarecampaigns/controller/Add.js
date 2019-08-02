@@ -105,6 +105,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         page.setLoading();
         var record = form.getRecord();
         var propertyForm = form.down('property-form');
+        var firmwareVersionsView = form.down('firmware-version-options');
 
         if(record.get('managementOption')){
             record.set('validationTimeout', {
@@ -115,6 +116,9 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
 
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
+
+        var versionOptions = firmwareVersionsView.getDataFromChecks();
+        record.set('checkOptions', versionOptions);
 
         record.save({
             backUrl: page.returnLink,
