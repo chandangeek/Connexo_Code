@@ -6,6 +6,7 @@ package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
@@ -24,10 +25,12 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -43,6 +46,9 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
     private InboundEndPointConfiguration inboundEndPointConfiguration;
     private OutboundEndPointConfiguration outboundEndPointConfiguration;
     private InboundEndPointConfiguration inboundRestEndPointConfiguration;
+
+    @Mock
+    DataModel dataModel;
 
     @Override
     @Before
@@ -66,6 +72,11 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
             public WebServiceProtocol getProtocol() {
                 return WebServiceProtocol.SOAP;
             }
+
+            @Override
+            public String getApplicationName() {
+                return "MultiSense";
+            }
         }));
         when(webServicesService.getWebService("someOutboundService")).thenReturn(Optional.of(new WebService() {
             @Override
@@ -81,6 +92,11 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
             @Override
             public WebServiceProtocol getProtocol() {
                 return WebServiceProtocol.SOAP;
+            }
+
+            @Override
+            public String getApplicationName() {
+                return "MultiSense";
             }
         }));
         when(webServicesService.getWebService("someRestService")).thenReturn(Optional.of(new WebService() {
@@ -98,14 +114,22 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
             public WebServiceProtocol getProtocol() {
                 return WebServiceProtocol.REST;
             }
+
+            @Override
+            public String getApplicationName() {
+                return "MultiSense";
+            }
         }));
+
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when(user.getPrivileges(anyString())).thenReturn(Collections.singleton(privilege));
     }
 
     @Test
     public void testGetAllEndpoints() throws Exception {
         Finder<EndPointConfiguration> finder = mockFinder(Arrays.asList(inboundEndPointConfiguration, outboundEndPointConfiguration));
         when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
-        Response response = target("/endpointconfigurations").request().get();
+        Response response = target("/endpointconfigurations").request().header("X-CONNEXO-APPLICATION-NAME", "SYS").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("total")).isEqualTo(2);
@@ -253,7 +277,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         verify(inboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
         verify(inboundEndPointConfiguration).setUrl("/srv");
         verify(inboundEndPointConfiguration).save();
-
     }
 
     @Test
@@ -289,7 +312,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         verify(inboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
         verify(inboundEndPointConfiguration).setUrl("/srv");
         verify(inboundEndPointConfiguration).save();
-
     }
 
     @Test
@@ -347,6 +369,6 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         verify(outboundEndPointConfiguration).setLogLevel(LogLevel.SEVERE);
         verify(outboundEndPointConfiguration).setUrl("/srv");
         verify(outboundEndPointConfiguration).save();
-
     }
+
 }
