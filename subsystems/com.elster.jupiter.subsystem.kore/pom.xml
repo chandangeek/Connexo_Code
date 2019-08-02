@@ -298,6 +298,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>webservice.issue.rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue.webservice.extjs</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
