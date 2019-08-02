@@ -86,9 +86,9 @@ public class GetMeterReadingsRequestBuilder {
         UsagePoint usagePoint = new UsagePoint();
         usagePoint.setMRID(mRID);
         List<Name> names = usagePoint.getNames();
-        name(name, UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType()).ifPresent(names::add);
+        name(name, UsagePointNameType.USAGE_POINT_NAME.getNameType()).ifPresent(names::add);
         Arrays.stream(purposeNames)
-                .map(purposeName -> name(purposeName, UsagePointNameTypeEnum.PURPOSE.getNameType()))
+                .map(purposeName -> name(purposeName, UsagePointNameType.PURPOSE.getNameType()))
                 .flatMap(Functions.asStream())
                 .forEach(names::add);
         getMeterReadings.getUsagePoint().add(usagePoint);

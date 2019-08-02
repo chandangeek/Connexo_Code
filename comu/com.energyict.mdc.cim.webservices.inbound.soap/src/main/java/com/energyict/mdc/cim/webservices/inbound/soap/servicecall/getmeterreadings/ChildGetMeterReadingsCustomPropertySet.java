@@ -134,28 +134,32 @@ public class ChildGetMeterReadingsCustomPropertySet implements CustomPropertySet
                         .stringSpec()
                         .named(ChildGetMeterReadingsDomainExtension.FieldNames.COMMUNICATION_TASK.javaName(), TranslationKeys.COMMUNICATION_TASK)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(ChildGetMeterReadingsDomainExtension.FieldNames.TRIGGER_DATE.javaName(), TranslationKeys.TRIGGER_DATE)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_START_DATE.javaName(), TranslationKeys.ACTUAL_START_DATE)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_END_DATE.javaName(), TranslationKeys.ACTUAL_END_DATE)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
 
     private class ChildGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ChildGetMeterReadingsDomainExtension> {
-        private final String TABLE_NAME = "GMR_METER_READINGS_CPS_GM3";
-        private final String FK = "FK_GMR_MRSCCPS_GM3";
+        private final String TABLE_NAME = "GMR_CHILD_CPS";
+        private final String FK = "FK_GMR_CHILD_CPS";
 
         @Override
         public String componentName() {

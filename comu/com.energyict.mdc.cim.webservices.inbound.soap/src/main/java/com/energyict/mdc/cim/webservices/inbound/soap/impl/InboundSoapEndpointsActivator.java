@@ -86,7 +86,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -250,7 +249,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, InstallerImpl.class,
                 ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
                                 version(10, 7), UpgraderV10_7.class));
 

@@ -17,7 +17,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 
-@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.CheckConfirmationTimeoutHandlerFactory",
+@Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.FutureComTaskExecutionHandlerFactory",
         service = MessageHandlerFactory.class,
         property = {"subscriber=" + FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_SUBSCRIBER,
                 "destination=" + FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION},
@@ -25,7 +25,7 @@ import java.time.Clock;
 public class FutureComTaskExecutionHandlerFactory implements MessageHandlerFactory {
     public static final String FUTURE_COM_TASK_EXECUTION_DESTINATION = "FutureComTaskExecTopic";
     public static final String FUTURE_COM_TASK_EXECUTION_SUBSCRIBER = "FutureComTaskExecSubscriber";
-    public static final String FUTURE_COM_TASK_EXECUTION_DISPLAYNAME = "Handle future communication task executions";
+    public static final String FUTURE_COM_TASK_EXECUTION_DISPLAYNAME = "Handle future communication task executions for meter readings web service";
 
     private volatile TaskService taskService;
     private volatile Clock clock;
@@ -33,12 +33,16 @@ public class FutureComTaskExecutionHandlerFactory implements MessageHandlerFacto
     private volatile DeviceService deviceService;
 
     public FutureComTaskExecutionHandlerFactory() {
+        // for OSGi purpose
     }
 
     @Inject
-    public FutureComTaskExecutionHandlerFactory(TaskService taskService, ServiceCallService serviceCallService) {
+    public FutureComTaskExecutionHandlerFactory(TaskService taskService, Clock clock, ServiceCallService serviceCallService,
+                                                DeviceService deviceService) {
         setTaskService(taskService);
+        setClock(clock);
         setServiceCallService(serviceCallService);
+        setDeviceService(deviceService);
     }
 
     @Override

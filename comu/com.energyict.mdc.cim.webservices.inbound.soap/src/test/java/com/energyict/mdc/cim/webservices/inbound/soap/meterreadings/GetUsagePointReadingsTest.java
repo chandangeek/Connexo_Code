@@ -127,8 +127,10 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private static final String ANOTHER_NAME = "Io roma, io barvală";
     private static final String END_DEVICE1_MRID = "f86cdede-c8ee-42c8-8c58-dc8f26fe41ac";
     private static final String END_DEVICE1_NAME = "SPE01000001";
+    private static final long END_DEVICE1_AMRID = 1;
     private static final String END_DEVICE2_MRID = "a74e77e1-c397-41c8-8c3c-6ddab969047c";
     private static final String END_DEVICE2_NAME = "SPE01000002";
+    private static final long END_DEVICE2_AMRID = 2;
     private static final String BILLING_NAME = "Billing";
     private static final String INFORMATION_NAME = "Information";
     private static final String CHECK_NAME = "Check";
@@ -315,7 +317,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 assertThat(name.getNameType()).isNotNull();
             });
             assertThat(names.stream()
-                    .filter(name -> UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType()
+                    .filter(name -> UsagePointNameType.USAGE_POINT_NAME.getNameType()
                             .equals(name.getNameType().getName()))
                     .findFirst()
                     .map(ch.iec.tc57._2011.meterreadings.Name::getName))
@@ -325,7 +327,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .map(MeterReading::getUsagePoint)
                 .map(ch.iec.tc57._2011.meterreadings.UsagePoint::getNames)
                 .flatMap(List::stream)
-                .filter(name -> UsagePointNameTypeEnum.PURPOSE.getNameType().equals(name.getNameType().getName()))
+                .filter(name -> UsagePointNameType.PURPOSE.getNameType().equals(name.getNameType().getName()))
                 .map(ch.iec.tc57._2011.meterreadings.Name::getName)
                 .collect(Collectors.toList()))
                 .containsOnly(purposeNames);
@@ -334,7 +336,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private static MeterReading getReadingsByPurposeName(List<MeterReading> meterReadings, String purposeName) {
         return meterReadings.stream()
                 .filter(purpose -> purpose.getUsagePoint().getNames().stream()
-                        .filter(name -> UsagePointNameTypeEnum.PURPOSE.getNameType()
+                        .filter(name -> UsagePointNameType.PURPOSE.getNameType()
                                 .equals(name.getNameType().getName()))
                         .map(ch.iec.tc57._2011.meterreadings.Name::getName)
                         .anyMatch(purposeName::equals))
@@ -434,6 +436,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         mockMetrologyConfigurations();
         mockUsagePoint();
         mockEndDevices();
+        mockDevices();
     }
 
     private void mockUsagePoint() {
@@ -545,7 +548,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
 //        when(mock.isInbound()).thenReturn(false);
 //        return mock;
 //    }
-
+//
 //    private <T> Finder<T> mockFinder(List<T> list) {
 //        Finder<T> finder = mock(Finder.class);
 //
@@ -558,21 +561,23 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
 //    }
 
     private void mockEndDevices() {
-        mockEndDevice(meter1, END_DEVICE1_MRID, END_DEVICE1_NAME);
-        mockEndDevice(meter2, END_DEVICE2_MRID, END_DEVICE2_NAME);
+        mockEndDevice(meter1, END_DEVICE1_MRID, END_DEVICE1_NAME, String.valueOf(END_DEVICE1_AMRID));
+        mockEndDevice(meter2, END_DEVICE2_MRID, END_DEVICE2_NAME, String.valueOf(END_DEVICE2_AMRID));
     }
 
-    private void mockEndDevice(com.elster.jupiter.metering.EndDevice mock, String MRID, String name) {
+    private void mockEndDevice(com.elster.jupiter.metering.EndDevice mock, String MRID, String name, String amrId) {
         when(mock.getMRID()).thenReturn(MRID);
         when(mock.getName()).thenReturn(name);
+        when(mock.getAmrId()).thenReturn(amrId);
     }
 
     private void mockDevices() {
-
+        mockDevice(device1, END_DEVICE1_AMRID);
+        mockDevice(device2, END_DEVICE2_AMRID);
     }
 
-    private void mockDevice() {
-
+    private void mockDevice(Device mock, long amrid) {
+        when(deviceService.findDeviceById(amrid)).thenReturn(Optional.of(mock));
     }
 
     private void mockReadingTypesOnDevices() {
@@ -1577,7 +1582,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), JUNE_1ST.toInstant(), JULY_1ST.toInstant())
                 .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
                 .get();
-        Name another = GetMeterReadingsRequestBuilder.name(ANOTHER_NAME, UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType()).orElse(null);
+        Name another = GetMeterReadingsRequestBuilder.name(ANOTHER_NAME, UsagePointNameType.USAGE_POINT_NAME.getNameType()).orElse(null);
         request.getGetMeterReadings().getUsagePoint().get(0).getNames().add(another);
         getMeterReadingsRequestMessage.setRequest(request);
 
@@ -1718,6 +1723,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         request.getGetMeterReadings().getReading().get(0).setTimePeriod(null);
         getMeterReadingsRequestMessage.setRequest(request);
         mockFindReadingTypes(dailyReadingType);
+        mockEffectiveMetrologyConfigurationsWithData();
 
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
@@ -1812,6 +1818,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .get();
         getMeterReadingsRequestMessage.setRequest(request);
         mockFindReadingTypes(dailyReadingType);
+        mockEffectiveMetrologyConfigurationsWithData();
 
         // Business method & assertions
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),

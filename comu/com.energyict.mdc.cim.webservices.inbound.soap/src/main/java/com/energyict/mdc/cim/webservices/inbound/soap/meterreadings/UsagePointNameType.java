@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
-public enum UsagePointNameTypeEnum {
+public enum UsagePointNameType {
 
     PURPOSE("Purpose"),
     USAGE_POINT_NAME("UsagePointName");
 
     private final String nameType;
 
-    UsagePointNameTypeEnum(String nameType) {
+    UsagePointNameType(String nameType) {
         this.nameType = nameType;
     }
 

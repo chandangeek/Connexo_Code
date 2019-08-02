@@ -102,12 +102,16 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
     public boolean call(MeterReadings meterReadings, HeaderType header, EndPointConfiguration endPointConfiguration) {
         String method;
         MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, header);
-        if (header.getVerb().equals(HeaderType.Verb.CREATED) || header.getVerb().equals(HeaderType.Verb.REPLY)) {
-            method = "createdMeterReadings";
-        } else if (header.getVerb().equals(HeaderType.Verb.CHANGED)) {
-            method = "changedMeterReadings";
-        } else {
-            throw new UnsupportedOperationException(header.getVerb() + " isn't supported.");
+        switch(header.getVerb()) {
+            case CREATED:
+            case REPLY:
+                method = "createdMeterReadings";
+                break;
+            case CHANGED:
+                method = "changedMeterReadings";
+                break;
+            default:
+                throw new UnsupportedOperationException(header.getVerb() + " isn't supported.");
         }
         Map response = using(method)
                 .toEndpoints(endPointConfiguration)

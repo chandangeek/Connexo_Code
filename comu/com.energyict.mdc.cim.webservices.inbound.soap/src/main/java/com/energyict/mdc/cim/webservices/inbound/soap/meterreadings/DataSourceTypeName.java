@@ -5,15 +5,16 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
 import java.util.Arrays;
+import java.util.Optional;
 
-public enum DataSourceTypeNameEnum {
+public enum DataSourceTypeName {
 
     REGISTER_GROUP("Register group"),
     LOAD_PROFILE("Load profile");
 
     private final String name;
 
-    DataSourceTypeNameEnum(String name) {
+    DataSourceTypeName(String name) {
         this.name = name;
     }
 
@@ -21,9 +22,9 @@ public enum DataSourceTypeNameEnum {
         return name;
     }
 
-    public static DataSourceTypeNameEnum getByName(String name) {
-        return Arrays.stream(DataSourceTypeNameEnum.values())
+    public static Optional<DataSourceTypeName> getByName(String name) {
+        return Arrays.stream(DataSourceTypeName.values())
                 .filter(typeName -> typeName.getName().equalsIgnoreCase(name))
-                .findFirst().orElse(null);
+                .findFirst();
     }
 }

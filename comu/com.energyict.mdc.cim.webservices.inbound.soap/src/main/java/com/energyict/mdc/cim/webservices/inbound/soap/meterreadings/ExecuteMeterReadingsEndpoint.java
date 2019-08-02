@@ -53,6 +53,7 @@ import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -86,7 +87,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private static final String USAGE_POINT_ITEM = USAGE_POINTS_LIST_ITEM + "[0]";
     private static final String USAGE_POINT_MRID = USAGE_POINT_ITEM + ".mRID";
     private static final String USAGE_POINT_NAME_ITEMS = USAGE_POINT_ITEM
-            + ".Names[?(@.NameType.name=='" + UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType() + "')]";
+            + ".Names[?(@.NameType.name=='" + UsagePointNameType.USAGE_POINT_NAME.getNameType() + "')]";
     private static final String USAGE_POINT_NAME = USAGE_POINT_NAME_ITEMS + ".name";
     private static final String DATA_SOURCE = READING_ITEM + ".dataSource";
     private static final String DATA_SOURCE_NAME = DATA_SOURCE + ".name";
@@ -155,8 +156,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 if (CollectionUtils.isNotEmpty(endDevices)) {
                     fillMetersInfo(endDevices.stream().limit(1).collect(Collectors.toList()));
                     builder.withEndDevices(syncReplyIssue.getExistedMeters());
-                    fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), async);
-                    if (!async && (CollectionUtils.isEmpty(syncReplyIssue.getExistedReadingTypes()))) {
+                    fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), false);
+                    if (CollectionUtils.isEmpty(syncReplyIssue.getExistedReadingTypes())) {
                         throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES)
                                 .get();
                     }
@@ -177,9 +178,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                         .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
 
                 setUsagePointInfo(builder, usagePoint);
-                fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), async);
+                fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), false);
                 MeterReadings meterReadings = builder
-                        .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameTypeEnum.PURPOSE))
+                        .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameType.PURPOSE))
                         .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
                         .build();
                 MeterReadingsResponseMessageType meterReadingsResponseMessageType =
@@ -239,10 +240,10 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             // readingTypes from readingTypes + registerGroups
             Set<com.elster.jupiter.metering.ReadingType> combinedReadingTypes = new HashSet<>(syncReplyIssue.getExistedReadingTypes());
             if (reading.getDataSource() != null && !reading.getDataSource().isEmpty()) {
-                DataSourceTypeNameEnum dsTypeName = getDataSourceNameType(reading.getDataSource(), i);
-                List<String> dsNames = getDataSourceNames(reading.getDataSource(), i);
-                if (dsTypeName != null && !dsNames.isEmpty()) {
-                    fillDataSource(dsTypeName, dsNames, i, combinedReadingTypes);
+                Optional<DataSourceTypeName> dsTypeName = getDataSourceNameType(reading.getDataSource(), i);
+                Set<String> dsNames = getDataSourceNames(reading.getDataSource(), i);
+                if (dsTypeName.isPresent() && !dsNames.isEmpty()) {
+                    fillDataSource(dsTypeName.get(), dsNames, i, combinedReadingTypes);
                 } else {
                     syncReplyIssue.addNotUsedReadingsDueToDataSources(i);
                     continue;
@@ -260,7 +261,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 continue;
             }
 
-            serviceCallCommands.createParentGetMeterReadingsServiceCallWithChilds(getMeterReadingsRequestMessage.getHeader(),
+            serviceCallCommands.createParentGetMeterReadingsServiceCallWithChildren(getMeterReadingsRequestMessage.getHeader(),
                     reading, i, syncReplyIssue, combinedReadingTypes);
             syncReplyIssue.addExistedReadingsIndexes(i);
         }
@@ -428,14 +429,14 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return manuallyScheduledComTaskExecution;
     }
 
-    private void fillDataSource(DataSourceTypeNameEnum dsTypeName, List<String> dsNames, int index,
+    private void fillDataSource(DataSourceTypeName dsTypeName, Set<String> dsNames, int index,
                                 Set<com.elster.jupiter.metering.ReadingType> combinedReadingTypes) {
-        if (dsTypeName == DataSourceTypeNameEnum.LOAD_PROFILE) {
+        if (dsTypeName == DataSourceTypeName.LOAD_PROFILE) {
             Set<LoadProfileType> existedLoadProfiles = getExistedLoadProfiles(dsNames, index);
             syncReplyIssue.addReadingsExistedLoadProfilesMap(index, existedLoadProfiles.stream()
                     .map(lpt -> lpt.getName())
                     .collect(Collectors.toSet()));
-        } else if (dsTypeName == DataSourceTypeNameEnum.REGISTER_GROUP) {
+        } else if (dsTypeName == DataSourceTypeName.REGISTER_GROUP) {
             Set<RegisterGroup> existedRegisterGroups = getExistedRegisterGroups(dsNames, index);
             syncReplyIssue.addReadingExistedRegisterGroupMap(index, existedRegisterGroups.stream()
                     .map(rg -> rg.getName())
@@ -469,12 +470,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     private Set<Device> getDevices(Set<com.elster.jupiter.metering.Meter> existedMeters) {
-        return existedMeters.stream()
-                .map(meter -> {
-                    Long deviceId = Long.parseLong(meter.getAmrId());
-                    return deviceService.findDeviceById(deviceId).get();
-                })
-                .collect(Collectors.toSet());
+        return ImmutableSet.copyOf(deviceService.findAllDevices(where("id").in(existedMeters.stream()
+                .map(meter -> meter.getAmrId())
+                .collect(Collectors.toList()))).stream().collect(Collectors.toSet()));
     }
 
     private boolean checkDataSources(DateTimeInterval timePeriod, String source, int index) {
@@ -538,14 +536,15 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .equalsIgnoreCase(connectionMethod);
     }
 
-    private Set<LoadProfileType> getExistedLoadProfiles(List<String> loadProfileNames, int index) {
+    private Set<LoadProfileType> getExistedLoadProfiles(Set<String> loadProfileNames, int index) {
         Set<LoadProfileType> existedLoadProfiles = new HashSet<>();
         if (loadProfileNames != null) {
             Map<String, LoadProfileType> lpNameLoadProfileMap = masterDataService.findAllLoadProfileTypes().stream()
                     .collect(Collectors.toMap(LoadProfileType::getName, lp -> lp, (a, b) -> a));
             loadProfileNames.forEach(lpName -> {
-                if (lpNameLoadProfileMap.containsKey(lpName)) {
-                    existedLoadProfiles.add(lpNameLoadProfileMap.get(lpName));
+                LoadProfileType loadProfileType = lpNameLoadProfileMap.get(lpName);
+                if (loadProfileType != null) {
+                    existedLoadProfiles.add(loadProfileType);
                 } else {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILE_NOT_FOUND, null,
                             lpName, String.format(READING_ITEM, index)));
@@ -555,14 +554,15 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return existedLoadProfiles;
     }
 
-    private Set<RegisterGroup> getExistedRegisterGroups(List<String> existedRegisterGroupsNames, int index) {
+    private Set<RegisterGroup> getExistedRegisterGroups(Set<String> existedRegisterGroupsNames, int index) {
         Set<RegisterGroup> registerGroups = new HashSet<>();
         if (existedRegisterGroupsNames != null) {
             Map<String, RegisterGroup> rgNameRegisterGroupMap = masterDataService.findAllRegisterGroups().stream()
                     .collect(Collectors.toMap(RegisterGroup::getName, rg -> rg));
             existedRegisterGroupsNames.forEach(rgName -> {
-                if (rgNameRegisterGroupMap.containsKey(rgName)) {
-                    registerGroups.add(rgNameRegisterGroupMap.get(rgName));
+                RegisterGroup registerGroup = rgNameRegisterGroupMap.get(rgName);
+                if (registerGroup != null) {
+                    registerGroups.add(registerGroup);
                 } else {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_GROUP_NOT_FOUND, null,
                             rgName, String.format(READING_ITEM, index)));
@@ -573,9 +573,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     // LoadProfile or RegisterGroup
-    private DataSourceTypeNameEnum getDataSourceNameType(List<DataSource> dataSources, int index) throws
+    private Optional<DataSourceTypeName> getDataSourceNameType(List<DataSource> dataSources, int index) throws
             ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        DataSourceTypeNameEnum dsNameType = null;
+        Optional<DataSourceTypeName> accumulatedDataSourceNameType = null;
         for (DataSource dataSource : dataSources) {
             if (dataSource.getNameType() == null) {
                 throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,
@@ -584,23 +584,25 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT,
                         String.format(DATA_SOURCE_NAME_TYPE_NAME, index)).get();
             }
-            if (dsNameType != null && dsNameType != DataSourceTypeNameEnum.getByName(dataSource.getNameType()
-                    .getName())) {
+            Optional<DataSourceTypeName> dataSourceTypeName = DataSourceTypeName.getByName(dataSource.getNameType().getName());
+            if (accumulatedDataSourceNameType != null && accumulatedDataSourceNameType.isPresent()
+                    && dataSourceTypeName.isPresent()
+                    && accumulatedDataSourceNameType.get() != dataSourceTypeName.get()) {
                 throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.DIFFERENT_DATA_SOURCES,
                         String.format(READING_ITEM, index)).get();
             } else {
-                dsNameType = DataSourceTypeNameEnum.getByName(dataSource.getNameType().getName());
-                if (dsNameType == null) {
+                accumulatedDataSourceNameType = dataSourceTypeName;
+                if (!accumulatedDataSourceNameType.isPresent()) {
                     throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.DATA_SOURCE_NAME_TYPE_NOT_FOUND,
                             dataSource.getNameType().getName(), String.format(READING_ITEM, index)).get();
                 }
             }
         }
-        return dsNameType;
+        return accumulatedDataSourceNameType;
     }
 
-    private List<String> getDataSourceNames(List<DataSource> dataSources, int index) {
-        List<String> dsNames = new ArrayList<>();
+    private Set<String> getDataSourceNames(List<DataSource> dataSources, int index) {
+        Set<String> dsNames = new HashSet<>();
         for (DataSource dataSource : dataSources) {
             String dsName = dataSource.getName(); // e.g. 15min Electricity A+
             if (!Strings.isNullOrEmpty(dataSource.getName())) {
@@ -754,18 +756,12 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
     private Set<com.elster.jupiter.metering.Meter> fromEndDevicesWithMRIDsAndNames(Set<String> mRIDs, Set<String> names) throws
             FaultMessage {
-        List<com.elster.jupiter.metering.EndDevice> existedEndDevices = meteringService.getEndDeviceQuery()
+        List<com.elster.jupiter.metering.Meter> existedMeters = meteringService.getMeterQuery()
                 .select(where("mRID").in(new ArrayList<>(mRIDs)).or(where("name").in(new ArrayList<>(names))));
-        if (CollectionUtils.isEmpty(existedEndDevices)) {
+        if (CollectionUtils.isEmpty(existedMeters)) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICES).get();
         }
-        Set<com.elster.jupiter.metering.Meter> existedMeters = new HashSet<>();
-        for (com.elster.jupiter.metering.EndDevice endDevice : existedEndDevices) {
-            if (endDevice instanceof com.elster.jupiter.metering.Meter) {
-                existedMeters.add((com.elster.jupiter.metering.Meter) endDevice);
-            }
-        }
-        return existedMeters;
+        return new HashSet<>(existedMeters);
     }
 
     private Set<com.elster.jupiter.metering.ReadingType> getReadingTypes(Set<String> readingTypesMRIDs,
@@ -790,18 +786,18 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             collectDeviceMridsAndNames(endDevices.get(i), i, mRIDs, fullAliasNames);
         }
 
-        Set<com.elster.jupiter.metering.Meter> meterList = fromEndDevicesWithMRIDsAndNames(mRIDs, fullAliasNames);
-        syncReplyIssue.setExistedMeters(meterList);
-        fillNotFoundEndDevicesMRIDsAndNames(meterList, mRIDs, fullAliasNames);
-        return meterList;
+        Set<com.elster.jupiter.metering.Meter> meters = fromEndDevicesWithMRIDsAndNames(mRIDs, fullAliasNames);
+        syncReplyIssue.setExistedMeters(meters);
+        fillNotFoundEndDevicesMRIDsAndNames(meters, mRIDs, fullAliasNames);
+        return meters;
     }
 
-    private void fillNotFoundEndDevicesMRIDsAndNames(Set<com.elster.jupiter.metering.Meter> MeterList,
+    private void fillNotFoundEndDevicesMRIDsAndNames(Set<com.elster.jupiter.metering.Meter> meters,
                                                      Set<String> requiredMRIDs, Set<String> requiredNames) {
-        Set<String> existedNames = MeterList.stream()
+        Set<String> existedNames = meters.stream()
                 .map(endDevice -> endDevice.getName())
                 .collect(Collectors.toSet());
-        Set<String> existedmRIDs = MeterList.stream()
+        Set<String> existedmRIDs = meters.stream()
                 .map(endDevice -> endDevice.getMRID())
                 .collect(Collectors.toSet());
         syncReplyIssue.setNotFoundMRIDs(requiredMRIDs.stream()
@@ -901,8 +897,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             if (hasIrregularReadingTypes()) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
             }
-        }
-        if (interval != null) { //optional
+        } else {
             Instant start = interval.getStart();
             Instant end = interval.getEnd();
             if (!asyncFlag) {
@@ -970,7 +965,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private void setUsagePointInfo(MeterReadingsBuilder builder, UsagePoint usagePoint) throws FaultMessage {
         String mRID = usagePoint.getMRID();
         if (mRID == null) {
-            Set<String> names = extractNamesWithType(usagePoint.getNames(), UsagePointNameTypeEnum.USAGE_POINT_NAME);
+            Set<String> names = extractNamesWithType(usagePoint.getNames(), UsagePointNameType.USAGE_POINT_NAME);
             if (names.size() > 1) {
                 throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
                         MessageSeeds.UNSUPPORTED_LIST_SIZE, USAGE_POINT_NAME_ITEMS, 1).get();
@@ -979,7 +974,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     .findFirst()
                     .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(
                             MessageSeeds.MISSING_MRID_OR_NAME_WITH_TYPE_FOR_ELEMENT,
-                            UsagePointNameTypeEnum.USAGE_POINT_NAME.getNameType(), USAGE_POINT_ITEM));
+                            UsagePointNameType.USAGE_POINT_NAME.getNameType(), USAGE_POINT_ITEM));
             checkIsEmpty(name, USAGE_POINT_NAME);
             builder.fromUsagePointWithName(name);
         } else {
@@ -988,7 +983,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
     }
 
-    private Set<String> extractNamesWithType(List<Name> names, UsagePointNameTypeEnum type) {
+    private Set<String> extractNamesWithType(List<Name> names, UsagePointNameType type) {
         return names.stream()
                 .filter(name -> Optional.ofNullable(name.getNameType())
                         .map(NameType::getName)

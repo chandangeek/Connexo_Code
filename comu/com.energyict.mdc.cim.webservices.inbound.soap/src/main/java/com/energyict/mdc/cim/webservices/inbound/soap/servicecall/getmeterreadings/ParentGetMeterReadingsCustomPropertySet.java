@@ -133,6 +133,7 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                         .stringSpec()
                         .named(ParentGetMeterReadingsDomainExtension.FieldNames.SOURCE.javaName(), TranslationKeys.SOURCE)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
@@ -171,7 +172,7 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRAGEGY.javaName(), TranslationKeys.SCHEDULE_STRAGEGY)
+                        .named(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRATEGY.javaName(), TranslationKeys.SCHEDULE_STRAGEGY)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -183,8 +184,8 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
     }
 
     private static class ParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, ParentGetMeterReadingsDomainExtension> {
-        private static final String TABLE_NAME = "GMR_METER_READINGS_CPS_GM1";
-        private static final String FK = "FK_GMR_MRSCCPS_GM1";
+        private static final String TABLE_NAME = "GMR_PARENT_CPS";
+        private static final String FK = "FK_GMR_PARENT_CPS";
 
         @Override
         public String componentName() {
@@ -258,9 +259,9 @@ public class ParentGetMeterReadingsCustomPropertySet implements CustomPropertySe
                     .varChar()
                     .map(ParentGetMeterReadingsDomainExtension.FieldNames.REGISTER_GROUPS.javaName())
                     .add();
-            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRAGEGY.databaseName())
+            table.column(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRATEGY.databaseName())
                     .varChar()
-                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRAGEGY.javaName())
+                    .map(ParentGetMeterReadingsDomainExtension.FieldNames.SCHEDULE_STRATEGY.javaName())
                     .add();
             table.column(ParentGetMeterReadingsDomainExtension.FieldNames.CONNECTION_METHOD.databaseName())
                     .varChar()

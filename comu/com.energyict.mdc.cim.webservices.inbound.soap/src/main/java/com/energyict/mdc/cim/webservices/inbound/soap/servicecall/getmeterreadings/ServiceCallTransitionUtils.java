@@ -16,39 +16,31 @@ public class ServiceCallTransitionUtils {
         resultTransition(serviceCall, false);
     }
 
-    public static void resultTransition(ServiceCall serviceCall, boolean trickyLogic) {
-        List<ServiceCall> childs = findAllChildren(serviceCall);
-        if (isLastChild(childs) && (serviceCall.getState() == DefaultState.WAITING
+    public static void resultTransition(ServiceCall serviceCall, boolean initiateReading) {
+        List<ServiceCall> children = findAllChildren(serviceCall);
+        if (isLastChild(children) && (serviceCall.getState() == DefaultState.WAITING
                 || serviceCall.getState() == DefaultState.ONGOING)) {
-            if (hasAllChildrenStates(childs, DefaultState.SUCCESSFUL)) {
-                if (trickyLogic) {
-                    transitServiceCallToResultState(serviceCall, DefaultState.PAUSED);
-                    transitServiceCallToResultState(serviceCall, DefaultState.ONGOING);
+            if (hasAllChildrenStates(children, DefaultState.SUCCESSFUL)) {
+                if (initiateReading) {
+                    transitToStateAfterOngoing(serviceCall, DefaultState.PAUSED);
+                    transitToStateAfterOngoing(serviceCall, DefaultState.ONGOING);
                 } else {
-                    transitServiceCallToResultState(serviceCall, DefaultState.SUCCESSFUL);
+                    transitToStateAfterOngoing(serviceCall, DefaultState.SUCCESSFUL);
                 }
-            } else if (hasAllChildrenStates(childs, DefaultState.CANCELLED)) {
-                transitServiceCallToResultState(serviceCall, DefaultState.CANCELLED);
-            } else if (hasAllChildrenStates(childs, DefaultState.PARTIAL_SUCCESS)
-                    || hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
-                if (trickyLogic) {
-                    transitServiceCallToResultState(serviceCall, DefaultState.PAUSED);
-                    transitServiceCallToResultState(serviceCall, DefaultState.ONGOING);
+            } else if (hasAllChildrenStates(children, DefaultState.CANCELLED)) {
+                transitToStateAfterOngoing(serviceCall, DefaultState.CANCELLED);
+            } else if (hasAllChildrenStates(children, DefaultState.PARTIAL_SUCCESS)
+                    || hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
+                if (initiateReading) {
+                    transitToStateAfterOngoing(serviceCall, DefaultState.PAUSED);
+                    transitToStateAfterOngoing(serviceCall, DefaultState.ONGOING);
                 } else {
-                    transitServiceCallToResultState(serviceCall, DefaultState.PARTIAL_SUCCESS);
+                    transitToStateAfterOngoing(serviceCall, DefaultState.PARTIAL_SUCCESS);
                 }
             } else {
-                transitServiceCallToResultState(serviceCall, DefaultState.FAILED);
+                transitToStateAfterOngoing(serviceCall, DefaultState.FAILED);
             }
         }
-    }
-
-    public static boolean isFinalState(ServiceCall serviceCall) {
-        return serviceCall.getState().equals(DefaultState.CANCELLED)
-                || serviceCall.getState().equals(DefaultState.FAILED)
-                || serviceCall.getState().equals(DefaultState.REJECTED)
-                || serviceCall.getState().equals(DefaultState.SUCCESSFUL)
-                || serviceCall.getState().equals(DefaultState.PARTIAL_SUCCESS);
     }
 
     public static boolean hasAnyChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
@@ -65,10 +57,10 @@ public class ServiceCallTransitionUtils {
 
     private static boolean isLastChild(List<ServiceCall> serviceCalls) {
         return serviceCalls.stream()
-                .allMatch(sc -> isFinalState(sc));
+                .allMatch(sc -> !sc.getState().isOpen());
     }
 
-    private static void transitServiceCallToResultState(ServiceCall serviceCall, DefaultState finalState) {
+    private static void transitToStateAfterOngoing(ServiceCall serviceCall, DefaultState finalState) {
         if (serviceCall.getState() != finalState) {
             if (serviceCall.getState() != DefaultState.ONGOING) {
                 serviceCall.requestTransition(DefaultState.ONGOING);

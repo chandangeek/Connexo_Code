@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
@@ -29,7 +30,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         READING_TYPES("readingTypes", "READING_TYPES"),
         LOAD_PROFILES("loadProfiles", "LOAD_PROFILES"),
         REGISTER_GROUPS("registerGroups", "REGISTER_GROUPS"),
-        SCHEDULE_STRAGEGY("scheduleStrategy", "SCHEDULE_STRAGEGY"),
+        SCHEDULE_STRATEGY("scheduleStrategy", "SCHEDULE_STRATEGY"),
         CONNECTION_METHOD("connectionMethod", "CONNECTION_METHOD"),
         ;
 
@@ -50,14 +51,14 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         }
     }
 
+    @IsPresent
     private Reference<ServiceCall> serviceCall = Reference.empty();
-
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String source;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackUrl;
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String correlationId;
     private Instant timePeriodStart;
     private Instant timePeriodEnd;
@@ -67,21 +68,13 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
     private String loadProfiles;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String registerGroups;
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String scheduleStrategy;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String connectionMethod;
 
     public ParentGetMeterReadingsDomainExtension() {
         super();
-    }
-
-    public Reference<ServiceCall> getServiceCall() {
-        return serviceCall;
-    }
-
-    public void setServiceCall(Reference<ServiceCall> serviceCall) {
-        this.serviceCall = serviceCall;
     }
 
     public String getSource() {
@@ -175,7 +168,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         this.setReadingTypes((String) propertyValues.getProperty(FieldNames.READING_TYPES.javaName()));
         this.setLoadProfiles((String) propertyValues.getProperty(FieldNames.LOAD_PROFILES.javaName()));
         this.setRegisterGroups((String) propertyValues.getProperty(FieldNames.REGISTER_GROUPS.javaName()));
-        this.setScheduleStrategy((String) propertyValues.getProperty(FieldNames.SCHEDULE_STRAGEGY.javaName()));
+        this.setScheduleStrategy((String) propertyValues.getProperty(FieldNames.SCHEDULE_STRATEGY.javaName()));
         this.setConnectionMethod((String) propertyValues.getProperty(FieldNames.CONNECTION_METHOD.javaName()));
     }
 
@@ -189,7 +182,7 @@ public class ParentGetMeterReadingsDomainExtension extends AbstractPersistentDom
         propertySetValues.setProperty(FieldNames.READING_TYPES.javaName(), this.getReadingTypes());
         propertySetValues.setProperty(FieldNames.LOAD_PROFILES.javaName(), this.getLoadProfiles());
         propertySetValues.setProperty(FieldNames.REGISTER_GROUPS.javaName(), this.getRegisterGroups());
-        propertySetValues.setProperty(FieldNames.SCHEDULE_STRAGEGY.javaName(), this.getScheduleStrategy());
+        propertySetValues.setProperty(FieldNames.SCHEDULE_STRATEGY.javaName(), this.getScheduleStrategy());
         propertySetValues.setProperty(FieldNames.CONNECTION_METHOD.javaName(), this.getConnectionMethod());
     }
 

@@ -180,6 +180,7 @@ public abstract class AbstractMockActivator {
         when(builder.extendedWith(any())).thenReturn(builder);
         when(builder.create()).thenReturn(serviceCall);
         when(serviceCallType.newServiceCall()).thenReturn(builder);
+        when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
         when(messageService.getDestinationSpec(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION)).thenReturn(Optional.of(destinationSpec));
         when(messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")).thenReturn(Optional.of(queueTableSpec));
         when(queueTableSpec.createDestinationSpec(anyString(), anyInt())).thenReturn(destinationSpec);

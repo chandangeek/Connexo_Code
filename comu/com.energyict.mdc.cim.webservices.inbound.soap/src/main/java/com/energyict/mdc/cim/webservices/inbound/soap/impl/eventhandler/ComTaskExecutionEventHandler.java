@@ -41,9 +41,10 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
 
 
     @Inject
-    public ComTaskExecutionEventHandler( Clock clock) {
+    public ComTaskExecutionEventHandler(Clock clock, ServiceCallService serviceCallService) {
         super(LocalEvent.class);
-        this.clock = clock;
+        setClock(clock);
+        setServiceCallService(serviceCallService);
     }
 
     public ComTaskExecutionEventHandler() {
@@ -83,7 +84,12 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
     }
 
     private void handleForFailure(ServiceCall serviceCall) {
-        serviceCall.log(LogLevel.SEVERE, "Communication task execution is failed");
+        ChildGetMeterReadingsDomainExtension domainExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+
+        Instant triggerDate = domainExtension.getTriggerDate();
+        serviceCall.log(LogLevel.SEVERE, String.format("Communication task execution '%s'(trigger date: %s) is failed",
+                domainExtension.getCommunicationTask(), triggerDate));
         serviceCall.requestTransition(DefaultState.ONGOING);
         serviceCall.requestTransition(DefaultState.FAILED);
     }
@@ -105,7 +111,8 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
 
         Instant triggerDate = domainExtension.getTriggerDate();
         if (clock.instant().isAfter(triggerDate)) {
-            serviceCall.log(LogLevel.FINE, "Communication task execution is completed");
+            serviceCall.log(LogLevel.FINE, String.format("Communication task execution '%s'(trigger date: %s) is completed",
+                    domainExtension.getCommunicationTask(), triggerDate));
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         }

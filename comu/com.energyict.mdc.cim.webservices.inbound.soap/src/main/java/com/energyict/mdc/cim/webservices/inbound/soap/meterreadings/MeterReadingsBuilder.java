@@ -415,8 +415,8 @@ public class MeterReadingsBuilder {
     private ch.iec.tc57._2011.meterreadings.UsagePoint createUsagePointPurpose(String purpose) {
         ch.iec.tc57._2011.meterreadings.UsagePoint meterReadingUsagePoint = new ch.iec.tc57._2011.meterreadings.UsagePoint();
         meterReadingUsagePoint.setMRID(usagePoint.getMRID());
-        meterReadingUsagePoint.getNames().add(createNameWithType(usagePoint.getName(), UsagePointNameTypeEnum.USAGE_POINT_NAME));
-        meterReadingUsagePoint.getNames().add(createNameWithType(purpose, UsagePointNameTypeEnum.PURPOSE));
+        meterReadingUsagePoint.getNames().add(createNameWithType(usagePoint.getName(), UsagePointNameType.USAGE_POINT_NAME));
+        meterReadingUsagePoint.getNames().add(createNameWithType(purpose, UsagePointNameType.PURPOSE));
         return meterReadingUsagePoint;
     }
 
@@ -450,7 +450,7 @@ public class MeterReadingsBuilder {
         return info;
     }
 
-    private Name createNameWithType(String itemName, UsagePointNameTypeEnum itemType) {
+    private Name createNameWithType(String itemName, UsagePointNameType itemType) {
         NameType nameType = new NameType();
         nameType.setName(itemType.getNameType());
 

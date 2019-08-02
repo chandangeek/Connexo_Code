@@ -6,14 +6,14 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
 import java.util.Arrays;
 
-public enum ScheduleStrategyEnum {
+public enum ScheduleStrategy {
 
     RUN_NOW("Run now"),
     USE_SCHEDULE("Use schedule");
 
     private final String name;
 
-    ScheduleStrategyEnum(String name) {
+    ScheduleStrategy(String name) {
         this.name = name;
     }
 
@@ -21,8 +21,8 @@ public enum ScheduleStrategyEnum {
         return name;
     }
 
-    public static ScheduleStrategyEnum getByName(String name) {
-        return Arrays.stream(ScheduleStrategyEnum.values())
+    public static ScheduleStrategy getByName(String name) {
+        return Arrays.stream(ScheduleStrategy.values())
                 .filter(strategy -> strategy.getName().equalsIgnoreCase(name))
                 .findFirst().orElse(null);
     }

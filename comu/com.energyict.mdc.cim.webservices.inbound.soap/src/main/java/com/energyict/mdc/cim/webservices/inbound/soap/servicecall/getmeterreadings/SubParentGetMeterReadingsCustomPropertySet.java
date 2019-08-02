@@ -130,18 +130,20 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
                         .stringSpec()
                         .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_NAME.javaName(), TranslationKeys.END_DEVICE_NAME)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_MRID.javaName(), TranslationKeys.END_DEVICE_MRID)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
 
     private static class SubParentGetMeterReadingsCustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, SubParentGetMeterReadingsDomainExtension> {
-        private static final String TABLE_NAME = "GMR_METER_READINGS_CPS_GM2";
-        private static final String FK = "FK_GMR_MRSCCPS_GM2";
+        private static final String TABLE_NAME = "GMR_SUBPARENT_CPS";
+        private static final String FK = "FK_GMR_SUBPARENT_CPS";
 
         @Override
         public String componentName() {

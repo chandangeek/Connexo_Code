@@ -26,15 +26,8 @@ public class SubParentGetMeterReadingsServiceCallHandler implements ServiceCallH
 
     @Override
     public void onChildStateChange(ServiceCall subParentServiceCall, ServiceCall childServiceCall, DefaultState oldState, DefaultState newState) {
-        switch (newState) {
-            case SUCCESSFUL:
-            case PARTIAL_SUCCESS:
-            case CANCELLED:
-            case FAILED:
-                if (subParentServiceCall.getState() == DefaultState.WAITING) {
+        if (!newState.isOpen() && subParentServiceCall.getState() == DefaultState.WAITING) {
                     ServiceCallTransitionUtils.resultTransition(subParentServiceCall);
-                }
-                break;
         }
     }
 }
