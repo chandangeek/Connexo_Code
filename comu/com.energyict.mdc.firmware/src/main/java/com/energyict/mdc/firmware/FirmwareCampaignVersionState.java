@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.firmware;
 
-import java.util.List;
 
 public interface FirmwareCampaignVersionState {
 
@@ -12,5 +11,14 @@ public interface FirmwareCampaignVersionState {
 
     void delete();
 
-    void setFirmwareVersionState(List<FirmwareVersion> firmwareVersion);
+    long getId();
+
+    String getFirmwareVersion();
+    String getFirmwareType();
+    String getFirmwareStatus();
+    String getImageIdentifier();
+    String getRank();
+    String getMeterFirmwareDependency();
+    String getCommunicationFirmwareDependency();
+
 }

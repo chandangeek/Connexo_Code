@@ -12,6 +12,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
@@ -519,8 +520,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public FirmwareCampaignVersionState newFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign){
-        return dataModel.getInstance(FirmwareCampaignVersionStateImpl.class).init(firmwareCampaign);
+    public void newFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign,FirmwareVersion foundFirmware){
+        dataModel.getInstance(FirmwareCampaignVersionStateImpl.class).init(firmwareCampaign, foundFirmware).save();
+    }
+
+    @Override
+    public List<FirmwareCampaignVersionState> findFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign){
+        return dataModel.query(FirmwareCampaignVersionState.class).select(where("firmwareCampaign").isEqualTo(firmwareCampaign));
     }
 
     @Override

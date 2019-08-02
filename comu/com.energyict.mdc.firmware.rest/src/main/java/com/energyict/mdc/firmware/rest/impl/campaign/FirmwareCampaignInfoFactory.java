@@ -4,13 +4,11 @@
 
 package com.energyict.mdc.firmware.rest.impl.campaign;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
@@ -22,16 +20,12 @@ import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
 import com.energyict.mdc.firmware.rest.impl.CheckManagementOptionInfo;
+import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignVersionStateInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
-import com.energyict.mdc.firmware.rest.impl.FirmwareTypeFieldAdapter;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
-import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.IdWithLocalizedValue;
 import com.energyict.mdc.firmware.rest.impl.ManagementOptionInfo;
@@ -51,7 +45,6 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -192,9 +185,7 @@ public class FirmwareCampaignInfoFactory {
         });
         options.save();
 
-        FirmwareCampaignVersionState firmwareCampaignVersionState = firmwareService.newFirmwareCampaignVersionState(firmwareCampaign);
-        firmwareCampaignVersionState.setFirmwareVersionState(foundFirmwares);
-        firmwareCampaignVersionState.save();
+        foundFirmwares.forEach(ff->firmwareService.newFirmwareCampaignVersionState(firmwareCampaign,ff));
 
         return firmwareCampaign;
     }
@@ -231,5 +222,11 @@ public class FirmwareCampaignInfoFactory {
 
     public static long getSecondsInDays(int days) {
         return days * 86400;
+    }
+
+    public List<FirmwareCampaignVersionStateInfo> getFirmwareCampaignVersionStateInfos(List<FirmwareCampaignVersionState> firmwareCampaignVersionStates){
+        List<FirmwareCampaignVersionStateInfo> firmwareCampaignVersionStateInfos = new ArrayList<>();
+        firmwareCampaignVersionStates.forEach(fvs->firmwareCampaignVersionStateInfos.add(new FirmwareCampaignVersionStateInfo(fvs)));
+        return firmwareCampaignVersionStateInfos;
     }
 }

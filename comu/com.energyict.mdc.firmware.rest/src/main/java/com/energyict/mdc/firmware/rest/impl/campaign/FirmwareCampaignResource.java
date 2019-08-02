@@ -23,8 +23,10 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignVersionStateInfo;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.energyict.mdc.firmware.security.Privileges;
@@ -44,7 +46,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/campaigns")
@@ -166,15 +170,19 @@ public class FirmwareCampaignResource {
         return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", deviceInCampaignInfo, queryParameters)).build();
     }
 
-    /*@GET
+    @GET
     @Transactional
     @Path("/{id}/firmwareversions")
     @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response getDevicesForFirmwareCampaign() {
-
-        return Response.ok(PagedInfoList.fromPagedList()).build();
-    }*/
+    public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId,@BeanParam JsonQueryParameters queryParameters) {
+        Optional<FirmwareCampaign> firmwareCampaign = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId);
+        List<FirmwareCampaignVersionState> firmwareCampaignVersionStates = new ArrayList<>();
+        if(firmwareCampaign.isPresent()) {
+            firmwareCampaignVersionStates = firmwareService.findFirmwareCampaignVersionState(firmwareCampaign.get());
+        }
+        return Response.ok(PagedInfoList.fromPagedList("firmwareCampaignVersionStateInfos",campaignInfoFactory.getFirmwareCampaignVersionStateInfos(firmwareCampaignVersionStates),queryParameters)).build();
+    }
 
     public Long getCurrentCampaignVersion(long id) {
         return firmwareCampaignService.getFirmwareCampaignById(id).map(FirmwareCampaign::getVersion).orElse(null);

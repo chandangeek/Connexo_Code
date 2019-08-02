@@ -10,12 +10,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessor;
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.impl.DeviceTypeImpl;
-import com.energyict.mdc.device.config.impl.SecurityAccessorTypeOnDeviceTypeImpl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
@@ -137,19 +134,24 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<FirmwareCampaignVersionState> table = dataModel.addTable(name(), FirmwareCampaignVersionState.class);
             table.map(FirmwareCampaignVersionStateImpl.class);
+            Column idColumn = table.addAutoIdColumn();
             Column firmwareCampaignColumn = table.column("FWRCAMPAIGN").number().notNull().add();
-            table.setJournalTableName("FWC_FWRCPVERSIONSTATEJRNL").since(version(10, 7));
+            table.setJournalTableName("FWC_CPVERSIONSTATEJRNL").since(version(10, 7));
             //table.addAuditColumns();
             Column cps = table.column("CPS_ID")
                     .number()
                     .since(version(10, 7))
                     .add();
-            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_FINAL, "'Y'");
-            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_TEST, "'Y'");
-            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_CURRENT_FW, "'N'");
-            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_FINAL, "'Y'");
-            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_TEST, "'N'");
-            table.primaryKey("FWC_PK_FWRCPVERSIONSTATE").on(firmwareCampaignColumn).add();
+
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignVersionStateImpl.Fields.FIRMWAREVERSION);
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignVersionStateImpl.Fields.FIRMWARETYPE);
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignVersionStateImpl.Fields.FIRMWARESTATUS);
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignVersionStateImpl.Fields.IMAGEIDENTIFIER);
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignVersionStateImpl.Fields.RANK);
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignVersionStateImpl.Fields.METER_FW_DEP);
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignVersionStateImpl.Fields.COM_FW_DEP);
+
+            table.primaryKey("FWC_PK_FWRCPVERSIONSTATE").on(idColumn).add();
             table.foreignKey("FK_FWC_VRST_TO_CAMPAIGN")
                     .on(firmwareCampaignColumn, cps)
                     .since(version(10, 7))
@@ -159,61 +161,12 @@ public enum TableSpecs {
                     .add();
         }
 
-        private Column addCheckConfigurationColumnFor10_7(Table<FirmwareCampaignManagementOptions> table, FirmwareCampaignManagementOptionsImpl.Fields descriptor, String defaultValue) {
+        private Column addCheckConfigurationColumnFor10_7(Table<FirmwareCampaignVersionState> table, FirmwareCampaignVersionStateImpl.Fields descriptor) {
             return table.column(descriptor.name())
-                    .bool()
+                    .varChar(Table.MAX_STRING_LENGTH)
                     .map(descriptor.fieldName())
                     .since(Version.version(10, 7))
-                    .installValue(defaultValue)
                     .add();
-        }
-    },
-
-    FWC_FWRVERSIONSTATE{
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<FirmwareVersionState> table = dataModel.addTable(name(), FirmwareVersionState.class)
-                    .since(version(10, 7))
-                    .map(FirmwareVersionState.class);
-            Column firmwareCampaignVersionStateColumn = table.column("FWRCVERSIONSTATE").number().notNull().add();
-
-
-
-
-
-
-
-
-
-
-
-            Table<SecurityAccessorTypeOnDeviceTypeImpl> table = dataModel.addTable(name(), SecurityAccessorTypeOnDeviceTypeImpl.class)
-                    .since(version(10, 4))
-                    .map(SecurityAccessorTypeOnDeviceTypeImpl.class);
-            Column deviceTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.name()).number().notNull().add();
-            Column secAccTypeColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.name()).number().notNull().add();
-            Column defaultKeyColumn = table.column(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.name())
-                    .varChar(Table.MAX_STRING_LENGTH)
-                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEFAULTKEY.fieldName())
-                    .since(Version.version(10, 6))
-                    .add();
-            table.setJournalTableName(Constants.DTC_SECACCTYPES_ON_DEVICETYPE_JOURNAL_TABLE).since(version(10, 4));
-            table.addAuditColumns();
-            table.primaryKey("DTC_PK_SECACTYPEONDEVTYPE").on(deviceTypeColumn, secAccTypeColumn).add();
-            table.foreignKey("DTC_FK_SECACTYPEONDEVTYPE2DT")
-                    .references(DTC_DEVICETYPE.name())
-                    .on(deviceTypeColumn)
-                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.DEVICETYPE.fieldName())
-                    .reverseMap(DeviceTypeImpl.Fields.SECURITY_ACCESSOR_TYPES.fieldName())
-                    .composition()
-                    .add();
-            table.foreignKey("DTC_FK_SECACTYPEONDEVTYPE2SAT")
-                    .references(SecurityAccessorType.class)
-                    .on(secAccTypeColumn)
-                    .map(SecurityAccessorTypeOnDeviceTypeImpl.Fields.SECACCTYPE.fieldName())
-                    .add();
-
-
         }
     },
 

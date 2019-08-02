@@ -125,5 +125,6 @@ public interface FirmwareService {
 
     FirmwareCampaignManagementOptions newFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign);
     Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign);
-    FirmwareCampaignVersionState newFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign);
+    void newFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign,FirmwareVersion foundFirmware);
+    List<FirmwareCampaignVersionState> findFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign);
 }
