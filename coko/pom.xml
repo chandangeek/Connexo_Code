@@ -380,6 +380,12 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.webservice.extjs</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -453,6 +459,7 @@
                 <module>com.elster.jupiter.customtask.rest</module>
                 <module>com.elster.jupiter.webservice.issue</module>
                 <module>com.elster.jupiter.webservice.issue.rest</module>
+                <module>com.elster.jupiter.issue.webservice.extjs</module>
             </modules>
         </profile>
         <profile>

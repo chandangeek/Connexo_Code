@@ -111,7 +111,8 @@ Ext.define('MdcApp.controller.Main', {
         'Idl.controller.Main',
         'Tou.controller.Main',
         'Itk.controller.Main',
-        'Wss.controller.Main'
+        'Wss.controller.Main',
+        'Iws.controller.Main'
     ],
 
     init: function () {
