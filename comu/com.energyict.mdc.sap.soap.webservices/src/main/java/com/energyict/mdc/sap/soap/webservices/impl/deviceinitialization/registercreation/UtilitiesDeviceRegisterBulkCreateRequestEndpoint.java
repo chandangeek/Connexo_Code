@@ -29,20 +29,23 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
 
     @Override
     public void utilitiesDeviceERPSmartMeterRegisterBulkCreateRequestCIn(UtilsDvceERPSmrtMtrRegBulkCrteReqMsg request) {
-        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
-            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
-                    UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);
-        }
+        runInTransactionWithOccurrence(() -> {
+            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
+                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                        UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);
+            }
 
-        if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredBulkNotification.NAME)) {
-            throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
-                    UtilitiesDeviceRegisteredBulkNotification.NAME);
-        }
+            if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredBulkNotification.NAME)) {
+                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                        UtilitiesDeviceRegisteredBulkNotification.NAME);
+            }
 
-        Optional.ofNullable(request)
-                .ifPresent(requestMessage -> createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage.builder()
-                        .from(requestMessage)
-                        .build()));
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage -> createServiceCallAndTransition(UtilitiesDeviceRegisterCreateRequestMessage.builder()
+                            .from(requestMessage)
+                            .build()));
+            return null;
+        });
 
     }
 }

@@ -42,8 +42,11 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
 
     @Override
     public void utilitiesDeviceERPSmartMeterLocationNotificationCIn(UtilsDvceERPSmrtMtrLocNotifMsg request) {
-        Optional.ofNullable(request)
-                .ifPresent(requestMessage -> handleMessage(requestMessage));
+        runInTransactionWithOccurrence(() -> {
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage -> handleMessage(requestMessage));
+            return null;
+        });
     }
 
     private void handleMessage(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
