@@ -4,8 +4,11 @@
 
 package com.elster.jupiter.tasks;
 
+import com.elster.jupiter.util.conditions.Order;
+
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,4 +22,9 @@ public class RecurrentTaskFilterSpecification {
     public Instant startedOnFrom;
     public Instant startedOnTo;
     public Set<String> suspended = new HashSet<>();
+    public Instant nextExecutionFrom;
+    public Instant nextExecutionTo;
+    public Integer priorityFrom;
+    public Integer priorityTo;
+    public List<Order> sortingColumns;
 }
