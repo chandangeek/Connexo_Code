@@ -230,7 +230,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Reference
-    public void setTaskService(TaskService taskService){
+    public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
     }
 
@@ -544,8 +544,10 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     deviceMessage.setReleaseDate(timeOfUseCampaign.getUploadPeriodStart());
                     deviceMessage.save();
                     findCalendarsComTaskExecutions(timeOfUseItemDomainExtension.getDevice())
-                            .findAny().ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
-                            .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd()));
+                            .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId())
+                            .findAny()
+                            .ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
+                                    .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd()));
                 }));
     }
 
@@ -577,8 +579,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .anyMatch(task -> task instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
-                        .noneMatch(protocolTask -> protocolTask instanceof MessagesTask))
                 .filter(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
                         || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
                 .findAny();
@@ -593,8 +593,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                         .flatMap(List::stream)
                         .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0))
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
-                        .noneMatch(protocolTask -> protocolTask instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
                         || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
                 .findAny();
@@ -606,7 +604,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public ComTask getComTaskById(long id){
+    public ComTask getComTaskById(long id) {
         return taskService.findComTask(id).get();
     }
 }
