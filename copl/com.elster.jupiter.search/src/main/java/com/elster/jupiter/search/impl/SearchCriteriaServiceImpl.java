@@ -20,6 +20,7 @@ import javax.validation.MessageInterpolator;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -75,8 +76,13 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
     @Override
     public Query<SearchCriteria> getCreationRuleQuery(Class<?>... eagers) {
         Query<SearchCriteria> query = query(SearchCriteria.class, eagers);
-        query.setRestriction(where("obsoleteTime").isNull());
+        //query.setRestriction(where("obsoleteTime").isNull());
         return query;
+    }
+
+    @Override
+    public Optional<SearchCriteria> findSearchCriteriaByUser(String userName) {
+        return dataModel.mapper(SearchCriteria.class).getOptional(userName);
     }
 
     private <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {

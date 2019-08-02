@@ -16,6 +16,7 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableSet;
@@ -46,17 +47,7 @@ public class SearchApplication extends Application implements MessageSeedProvide
     private volatile Thesaurus thesaurus;
     private volatile InfoFactoryService infoFactoryService;
     private volatile RestQueryService restQueryService;
-
-    @Reference
-    public void setRestQueryService(RestQueryService restQueryService) {
-        this.restQueryService = restQueryService;
-    }
-
-    @Reference
-    public void setSearchCriteriaService(SearchCriteriaService searchCriteriaService) {
-        this.searchCriteriaService = searchCriteriaService;
-    }
-
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile SearchCriteriaService searchCriteriaService;
 
     @Override
@@ -94,6 +85,22 @@ public class SearchApplication extends Application implements MessageSeedProvide
         this.infoFactoryService = infoFactoryService;
     }
 
+    @Reference
+    public void setService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setRestQueryService(RestQueryService restQueryService) {
+        this.restQueryService = restQueryService;
+    }
+
+    @Reference
+    public void setSearchCriteriaService(SearchCriteriaService searchCriteriaService) {
+        this.searchCriteriaService = searchCriteriaService;
+    }
+
+
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -104,9 +111,11 @@ public class SearchApplication extends Application implements MessageSeedProvide
         return Arrays.asList(MessageSeeds.values());
     }
 
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(searchCriteriaService).to(SearchCriteriaService.class);
             bind(searchService).to(SearchService.class);

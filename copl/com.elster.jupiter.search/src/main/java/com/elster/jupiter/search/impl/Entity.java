@@ -8,7 +8,7 @@ import java.time.Instant;
 @ProviderType
 public interface Entity {
 
-    long getId();
+   /* long getId();*/
 
     long getVersion();
 
