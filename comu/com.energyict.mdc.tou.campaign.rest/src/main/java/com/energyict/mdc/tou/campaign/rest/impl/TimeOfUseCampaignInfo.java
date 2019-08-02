@@ -32,6 +32,7 @@ public class TimeOfUseCampaignInfo {
     public long validationTimeout;
     public long version;
     public boolean withUniqueCalendarName;
+    public IdWithNameInfo serviceCall;
 
     public IdWithNameInfo sendCalendarComTask;
     public IdWithNameInfo sendCalendarConnectionStrategy;

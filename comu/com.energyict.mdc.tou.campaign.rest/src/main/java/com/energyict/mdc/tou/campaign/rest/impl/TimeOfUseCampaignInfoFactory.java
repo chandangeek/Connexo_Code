@@ -115,6 +115,7 @@ public class TimeOfUseCampaignInfoFactory {
         campaign.getNumbersOfChildrenWithStatuses().forEach((deviceStatus, quantity) ->
                 info.devices.stream().filter(devicesStatusAndQuantity -> devicesStatusAndQuantity.status.equals(getDeviceStatus(deviceStatus, thesaurus)))
                         .findAny().ifPresent(devicesStatusAndQuantity -> devicesStatusAndQuantity.quantity = quantity));
+        info.serviceCall = new IdWithNameInfo(campaignsServiceCall.getId(), campaignsServiceCall.getNumber());
         return info;
     }
 
