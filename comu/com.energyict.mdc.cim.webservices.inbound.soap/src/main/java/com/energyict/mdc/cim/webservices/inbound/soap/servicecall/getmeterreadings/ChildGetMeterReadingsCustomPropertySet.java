@@ -5,7 +5,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings;
 
 import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
@@ -51,10 +50,9 @@ public class ChildGetMeterReadingsCustomPropertySet implements CustomPropertySet
     }
 
     @Inject
-    public ChildGetMeterReadingsCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+    public ChildGetMeterReadingsCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this();
         this.setPropertySpecService(propertySpecService);
-        this.setCustomPropertySetService(customPropertySetService);
         this.thesaurus = thesaurus;
     }
 
@@ -68,12 +66,6 @@ public class ChildGetMeterReadingsCustomPropertySet implements CustomPropertySet
     @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference

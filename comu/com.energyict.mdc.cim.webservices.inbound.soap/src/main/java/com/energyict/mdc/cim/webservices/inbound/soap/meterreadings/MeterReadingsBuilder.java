@@ -84,8 +84,8 @@ public class MeterReadingsBuilder {
     private Set<String> readingTypeMRIDs = Collections.emptySet();
     private Set<String> readingTypeFullAliasNames = Collections.emptySet();
     private RangeSet<Instant> timePeriods;
-    private Set<LoadProfileType> loadProfiles = Collections.emptySet();
-    private Set<RegisterGroup> registerGroups = Collections.emptySet();
+    private Set<LoadProfileType> loadProfiles = new HashSet<>();
+    private Set<RegisterGroup> registerGroups = new HashSet<>();
 
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
@@ -148,8 +148,7 @@ public class MeterReadingsBuilder {
         return this;
     }
 
-    public MeterReadingsBuilder withLoadProfiles(Set<String> loadProfilesNames) throws FaultMessage {
-        loadProfiles = new HashSet<>();
+    public MeterReadingsBuilder withLoadProfiles(Set<String> loadProfilesNames) {
         if (loadProfilesNames != null) {
             loadProfiles.addAll(masterDataService.findAllLoadProfileTypes().stream()
                         .filter(loadProfile -> loadProfilesNames.contains(loadProfile.getName()))
@@ -158,8 +157,7 @@ public class MeterReadingsBuilder {
         return this;
     }
 
-    public MeterReadingsBuilder withRegisterGroups(Set<String> registerGroupsNames) throws FaultMessage {
-        registerGroups = new HashSet<>();
+    public MeterReadingsBuilder withRegisterGroups(Set<String> registerGroupsNames) {
         if (registerGroupsNames != null) {
             registerGroups.addAll(masterDataService.findAllRegisterGroups().stream()
                     .filter(rg -> registerGroupsNames.contains(rg.getName()))
@@ -292,12 +290,13 @@ public class MeterReadingsBuilder {
             for (ReadingType readingType: channel.getReadingTypes()) {
                 if (readingTypeFullAliasNames.contains(readingType.getFullAliasName())
                         || readingTypeMRIDs.contains(readingType.getMRID())) {
-                    if (channel.getCimChannel(readingType).isPresent()) {
+                    Optional<CimChannel> cimChannel = channel.getCimChannel(readingType);
+                    if (cimChannel.isPresent()) {
                         /// if readingType has own time period
                         if (readingTypesMRIDsTimeRangeMap != null && !readingTypesMRIDsTimeRangeMap.isEmpty()) {
                             currentTimePeriods = readingTypesMRIDsTimeRangeMap.get(readingType.getMRID());
                         }
-                        result.put(readingType, getReadingsWithQualities(channel.getCimChannel(readingType).get(), currentTimePeriods));
+                        result.put(readingType, getReadingsWithQualities(cimChannel.get(), currentTimePeriods));
                     }
                 }
             }

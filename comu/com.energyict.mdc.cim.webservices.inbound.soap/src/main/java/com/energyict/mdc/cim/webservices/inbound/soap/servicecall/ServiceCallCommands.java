@@ -373,7 +373,7 @@ public class ServiceCallCommands {
                         processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
                                 actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                     } else if (start != null && end == null) { // shift the 'next reading block start' to the 'time period start'
-                        setLastReading(syncReplyIssue.getExistedReadingTypes(), device, start);
+                        updateLoadProfileNextRedingBlockStart(syncReplyIssue.getExistedReadingTypes(), device, start);
                         processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
                                 actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                     } else if (!trigger.isAfter(now)) {
@@ -400,16 +400,15 @@ public class ServiceCallCommands {
         Set<LoadProfile> loadProfiles = getExistedOnDeviceLoadProfiles(device, index, syncReplyIssue);
         Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
         loadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
-
-        ComTaskExecution deviceMessagesComTaskExecution = syncReplyIssue.getDeviceMessagesComTaskExecutionMap()
-                .get(device.getId());
-        if (deviceMessagesComTaskExecution == null) {
-            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory()
-                    .errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES, null,
-                            device.getName()));
-            return;
-        }
         if (CollectionUtils.isNotEmpty(loadProfiles)) {
+            ComTaskExecution deviceMessagesComTaskExecution = syncReplyIssue.getDeviceMessagesComTaskExecutionMap()
+                    .get(device.getId());
+            if (deviceMessagesComTaskExecution == null) {
+                syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory()
+                        .errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES, null,
+                                device.getName()));
+                return;
+            }
             Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);
             loadProfiles.forEach(loadProfile -> {
                 ServiceCall childServiceCall = createChildGetMeterReadingServiceCall(subParentServiceCall,
@@ -494,7 +493,7 @@ public class ServiceCallCommands {
         return trigger;
     }
 
-    private void setLastReading(Set<ReadingType> readingTypes, Device device, Instant start) {
+    private void updateLoadProfileNextRedingBlockStart(Set<ReadingType> readingTypes, Device device, Instant start) {
         device.getLoadProfiles().stream()
                 .filter(loadProfile -> loadProfile.getChannels().stream()
                             .anyMatch(channel -> readingTypes.contains(channel.getReadingType()))
