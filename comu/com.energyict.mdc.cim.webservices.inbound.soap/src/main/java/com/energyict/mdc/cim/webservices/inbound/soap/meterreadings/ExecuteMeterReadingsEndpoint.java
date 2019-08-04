@@ -143,6 +143,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 if (getMeterReadingsRequestMessage.getHeader() != null) {
                     async = Optional.ofNullable(getMeterReadingsRequestMessage.getHeader().isAsyncReplyFlag())
                             .orElse(false);
+                    syncReplyIssue.setAsyncFlag(async);
                 }
                 checkGetMeterReading(getMeterReadings, async);
                 // run async
@@ -625,7 +626,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             replyType = replyTypeFactory.okReplyType();
         } else {
             ReplyType.Result replyTypeRes = ReplyType.Result.PARTIAL;
-            if (syncReplyIssue.getExistedReadingsIndexes().isEmpty()) {
+            if (syncReplyIssue.isAsyncFlag() && syncReplyIssue.getExistedReadingsIndexes().isEmpty()) {
                 replyTypeRes = ReplyType.Result.FAILED;
             }
             replyType = replyTypeFactory.failureReplyType(replyTypeRes, errorTypes.stream()

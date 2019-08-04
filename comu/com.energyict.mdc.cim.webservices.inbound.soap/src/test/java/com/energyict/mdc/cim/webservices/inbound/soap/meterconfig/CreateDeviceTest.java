@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.mockito.Mock;
@@ -610,6 +611,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
+    @Ignore
     @Test
     public void testNoReplyAddress() throws Exception {
         MeterConfig meterConfig = new MeterConfig();

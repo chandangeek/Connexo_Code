@@ -30,6 +30,8 @@ public class SyncReplyIssue {
 
     private final ReplyTypeFactory replyTypeFactory;
 
+    private boolean asyncFlag = false;
+
     // Meters aka EndDevices
     private Set<String> notFoundMRIDs;
     private Set<String> notFoundNames;
@@ -68,6 +70,14 @@ public class SyncReplyIssue {
 
     public ReplyTypeFactory getReplyTypeFactory() {
         return replyTypeFactory;
+    }
+
+    public boolean isAsyncFlag() {
+        return asyncFlag;
+    }
+
+    public void setAsyncFlag(boolean asyncFlag) {
+        this.asyncFlag = asyncFlag;
     }
 
     public Set<String> getNotFoundMRIDs() {
@@ -395,12 +405,12 @@ public class SyncReplyIssue {
                     String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToComTaskExecutions()))));
         }
 
-        if (getDeviceRegularComTaskExecutionMap().isEmpty() && getDeviceIrregularComTaskExecutionMap().isEmpty()
+        if (asyncFlag && getDeviceRegularComTaskExecutionMap().isEmpty() && getDeviceIrregularComTaskExecutionMap().isEmpty()
                 && getDeviceMessagesComTaskExecutionMap().isEmpty()) {
             errorTypes.add(replyTypeFactory.errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOUND, null));
         }
 
-        if (getExistedReadingsIndexes().isEmpty()) {
+        if (asyncFlag && getExistedReadingsIndexes().isEmpty()) {
             errorTypes.add(replyTypeFactory.errorType(MessageSeeds.NO_READINGS_TO_READ, null));
         }
 
