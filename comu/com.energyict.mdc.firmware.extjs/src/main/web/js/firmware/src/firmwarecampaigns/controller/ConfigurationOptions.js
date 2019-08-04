@@ -30,8 +30,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
     showConfigurationOptions: function (firmwareCampaignId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-
+            pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            view;
 
         pageView.setLoading();
         me.getModel('Fwc.firmwarecampaigns.model.FirmwareCampaign').load(firmwareCampaignId, {
@@ -39,13 +39,18 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
                 model.load(2, {
                     success: function (deviceType) {
-                        me.getApplication().fireEvent('changecontentevent', Ext.widget('firmware-campaign-configuration', {
+                        me.getApplication().fireEvent('changecontentevent', (view = Ext.widget('firmware-campaign-configuration', {
                             itemId: 'firmware-campaign-configuration',
                             router: router,
                             deviceType: deviceType
-                        }));
+                        })));
                         me.getSideMenu().setHeader(record.get('name'));
                         me.getApplication().fireEvent('loadFirmwareCampaign', record);
+                        var widget = view.down('firmware-specifications'),
+                            form = widget ? widget.down('#form') : null;
+                        if (form) {
+                            form.loadRecord(record.getFirmvareVersionsOptions());
+                        }
                     }
                 });
             },

@@ -35,7 +35,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsSpecification', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                name: 'targetOptions',
+                                name: 'targetFirmwareCheck',
                                 itemId: 'target-options',
                                 fieldLabel: Uni.I18n.translate('general.targetManagementOptions', 'FWC', 'Target firmware status'),
                                 renderer: function (value, field) {
@@ -46,20 +46,20 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsSpecification', {
                                       } else {
                                               var targetFirmwareCheck = value;
 
-                                              if  (!targetFirmwareCheck || !targetFirmwareCheck.activated) {
+                                              if  (!targetFirmwareCheck) {
                                                   field.hide();
                                                   return;
                                               }
                                               field.show();
 
-                                              if (targetFirmwareCheck && targetFirmwareCheck.activated){
+                                              if (targetFirmwareCheck){
                                                   var targetFirmwareOptionTemplate = [];
                                                   var targetFirmwareOptionsValues = {
                                                       'FINAL' : Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of the target firmware'),
                                                       'TEST' :  Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of the target firmware')
                                                   };
-                                                  targetFirmwareCheck['statuses'].sort();
-                                                  targetFirmwareCheck['statuses'].forEach(function(item){
+                                                  targetFirmwareCheck.sort();
+                                                  targetFirmwareCheck.forEach(function(item){
                                                       targetFirmwareOptionTemplate.push({"localizedValue" : targetFirmwareOptionsValues[item]});
                                                   })
                                                   if (targetFirmwareOptionTemplate && targetFirmwareOptionTemplate.length){
@@ -73,27 +73,24 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsSpecification', {
                             },
                             {
                                 xtype: 'displayfield',
-                                name: 'currOptions',
+                                name: 'curFirmwareCheck',
                                 itemId: 'cur-options',
                                 fieldLabel: Uni.I18n.translate('general.rankManagementOptions', 'FWC', 'Dependencies check'),
                                 renderer: function (value, field) {
                                     var result = '',
                                         record = field.up('form').getRecord();
-                                    if (record) {
+                                    if (!record) {
                                         field.hide();
                                     } else {
                                         var currentFirmwareCheck  = value;
 
-                                        if  (!currentFirmwareCheck || !currentFirmwareCheck.activated) {
+                                        if  (!currentFirmwareCheck || !currentFirmwareCheck.length) {
                                             field.hide();
                                             return;
                                         }
                                         field.show();
 
-
-                                        if (currentFirmwareCheck && currentFirmwareCheck.activated){
-                                            result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version");
-                                        }
+                                        result =  Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', "The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version");
 
                                         var me  = this;
                                     }
@@ -102,40 +99,40 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsSpecification', {
                                 listeners:{
                                 		afterrender:function(){
                                 		   var me = this;
-                                		   this.el.hover(function(e){
+                                		   /*this.el.hover(function(e){
                                 		       if (this.querySelector("div").getAttribute("data-qtip")) this.querySelector("div").removeAttribute("data-qtip");
                                 		       me.el.removeAllListeners();
-                                           });
+                                           });*/
                                 		}
                                 }
                             },
                             {
                                 xtype: 'displayfield',
-                                name: 'masterOptions',
+                                name: 'masterFirmwareCheck',
                                 itemId: 'master-options',
                                 fieldLabel: ' ',
                                 renderer: function (value, field) {
                                     var result = '',
                                         record = field.up('form').getRecord();
-                                    if (record) {
+                                    if (!record) {
                                         field.hide();
                                     } else {
                                         var masterFirmwareCheck = value;
 
-                                        if  (!masterFirmwareCheck || !masterFirmwareCheck.activated) {
+                                        if  (!masterFirmwareCheck) {
                                             field.hide();
                                             return;
                                         }
                                         field.show();
 
-                                        if (masterFirmwareCheck && masterFirmwareCheck.activated){
+                                        if (masterFirmwareCheck){
                                             var masterFirmwareOptionTemplate = [];
                                             var masterFirmwareOptionsValues = {
                                                        'FINAL' : Uni.I18n.translate('general.masterFirmwareFinalOption', 'FWC', 'Final status of firmware on master device'),
                                                        'TEST' : Uni.I18n.translate('general.masterFirmwareTestOption', 'FWC', 'Test status of firmware on master device')
                                                     };
-                                            masterFirmwareCheck['statuses'].sort();
-                                            masterFirmwareCheck['statuses'].forEach(function(item){
+                                            masterFirmwareCheck.sort();
+                                            masterFirmwareCheck.forEach(function(item){
                                                 masterFirmwareOptionTemplate.push({"localizedValue" : masterFirmwareOptionsValues[item]});
                                             })
                                             if (masterFirmwareOptionTemplate && masterFirmwareOptionTemplate.length){
