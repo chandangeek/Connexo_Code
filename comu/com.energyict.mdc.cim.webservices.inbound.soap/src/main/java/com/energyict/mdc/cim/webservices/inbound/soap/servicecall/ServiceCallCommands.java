@@ -159,13 +159,14 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createMeterConfigMasterServiceCall(MeterConfig meterConfig, EndPointConfiguration outboundEndPointConfiguration,
-                                                          OperationEnum operation) throws FaultMessage {
+                                                          OperationEnum operation, String correlationId) throws FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_METER_CONFIG);
 
         MeterConfigMasterDomainExtension meterConfigMasterDomainExtension = new MeterConfigMasterDomainExtension();
         meterConfigMasterDomainExtension.setActualNumberOfSuccessfulCalls(0l);
         meterConfigMasterDomainExtension.setActualNumberOfFailedCalls(0l);
         meterConfigMasterDomainExtension.setExpectedNumberOfCalls(Long.valueOf(meterConfig.getMeter().size()));
+        meterConfigMasterDomainExtension.setCorrelationId(correlationId);
         setCallBackUrl(meterConfigMasterDomainExtension, outboundEndPointConfiguration);
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
@@ -215,7 +216,8 @@ public class ServiceCallCommands {
 
     @TransactionRequired
     public ServiceCall createGetEndDeviceEventsMasterServiceCall(List<ch.iec.tc57._2011.getenddeviceevents.Meter> meters,
-                                                                 Range<Instant> interval, EndPointConfiguration outboundEndPointConfiguration)
+                                                                 Range<Instant> interval, EndPointConfiguration outboundEndPointConfiguration,
+                                                                 String correlationId)
             throws ch.iec.tc57._2011.getenddeviceevents.FaultMessage {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.GET_END_DEVICE_EVENTS);
 
@@ -230,6 +232,7 @@ public class ServiceCallCommands {
         domainExtension.setFromDate(interval.lowerEndpoint());
         domainExtension.setToDate(interval.upperEndpoint());
         domainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());
+        domainExtension.setCorrelationId(correlationId);
 
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall()
                 .origin("MultiSense")

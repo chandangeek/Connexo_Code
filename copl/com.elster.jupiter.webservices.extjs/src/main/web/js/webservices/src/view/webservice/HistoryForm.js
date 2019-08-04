@@ -69,14 +69,22 @@ Ext.define('Wss.view.webservice.HistoryForm', {
                 name: 'startTime',
                 fieldLabel: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    if (value){
+                        var date = new Date(value);
+                        return Uni.DateTime.formatDateLong(date) + ' at ' + Uni.DateTime.formatTimeShort(date);
+                    }
+                    return '-';
                 }
             },
             {
                 name: 'endTime',
                 fieldLabel: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    if (value){
+                        var date = new Date(value);
+                        return Uni.DateTime.formatDateLong(date) + ' at ' + Uni.DateTime.formatTimeShort(date);
+                    }
+                    return '-';
                 }
             },
             {

@@ -129,6 +129,9 @@ public class ServiceCallCommands {
         domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
         domainExtension.setExpectedNumberOfCalls(
                 BigDecimal.valueOf(config.getPayload().getMasterDataLinkageConfig().getUsagePoint().size()));
+        String correlationId = config.getHeader() == null ? null : config.getHeader().getCorrelationID();
+        domainExtension.setCorrelationId(correlationId);
+
         if (endPointConfiguration.isPresent()) {
             domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
         }
@@ -175,6 +178,9 @@ public class ServiceCallCommands {
         domainExtension.setActualNumberOfFailedCalls(BigDecimal.ZERO);
         domainExtension.setExpectedNumberOfCalls(
                 BigDecimal.valueOf(config.getPayload().getUsagePointConfig().getUsagePoint().size()));
+        String correlationId = config.getHeader() == null ? null : config.getHeader().getCorrelationID();
+        domainExtension.setCorrelationId(correlationId);
+
         if (endPointConfiguration.isPresent()) {
             domainExtension.setCallbackURL(endPointConfiguration.get().getUrl());
         }

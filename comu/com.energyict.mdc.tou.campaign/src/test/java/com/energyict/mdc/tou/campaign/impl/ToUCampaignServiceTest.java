@@ -157,6 +157,7 @@ public class ToUCampaignServiceTest {
         customPropertySetValues.setProperty("device", device);
         customPropertySetValues.setProperty("parentServiceCallId", 11L);
         customPropertySetValues.setProperty("deviceMessage", null);
+        customPropertySetValues.setProperty("stepOfUpdate", 0L);
         timeOfUseItem.copyFrom(serviceCall, customPropertySetValues);
         when(device.getId()).thenReturn(1L);
         EndDevice endDevice = mock(EndDevice.class);
@@ -208,6 +209,7 @@ public class ToUCampaignServiceTest {
         customPropertySetValues.setProperty("device", device);
         customPropertySetValues.setProperty("parentServiceCallId", 11L);
         customPropertySetValues.setProperty("deviceMessage", null);
+        customPropertySetValues.setProperty("stepOfUpdate", 0L);
         timeOfUseItem.copyFrom(serviceCall, customPropertySetValues);
 
         timeOfUseItem.retry();

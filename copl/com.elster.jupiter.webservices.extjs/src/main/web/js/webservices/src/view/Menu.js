@@ -29,7 +29,7 @@ Ext.define('Wss.view.Menu', {
             {
                 text: Uni.I18n.translate('general.history', 'WSS', 'History'),
                 itemId: 'webservice-history-link',
-                privileges: Wss.privileges.Webservices.viewHistory,
+                privileges: ['privilege.viewHistory.webservices', 'privilege.administrate.webservices', 'privilege.view.webservices'],
                 href: me.router
                     .getRoute(basename + '/view/history')
                     .buildUrl({endpointId: me.record.get('id')})

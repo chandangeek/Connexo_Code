@@ -36,7 +36,7 @@ import java.util.Map;
 public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointProvider<GetEndDeviceEventsPort> implements ReplyGetEndDeviceEventsWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     private static final String NOUN = "GetEndDeviceEvents";
-    private static final String RESOURCE_WSDL = "/getenddeviceevents/GetEndDeviceEvents.wsdl";
+    private static final String RESOURCE_WSDL = "/wsdl/getenddeviceevents/GetEndDeviceEvents.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory
             = new ch.iec.tc57._2011.schema.message.ObjectFactory();
@@ -79,20 +79,22 @@ public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointP
     }
 
     @Override
-    public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents) {
-        GetEndDeviceEventsRequestMessageType message = createResponseMessage(createEndDeviceEvents(endDeviceEvents));
+    public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents, String correlationId) {
+        GetEndDeviceEventsRequestMessageType message = createResponseMessage(createEndDeviceEvents(endDeviceEvents), correlationId);
         using("getEndDeviceEvents")
                 .toEndpoints(endPointConfiguration)
                 .send(message);
     }
 
-    private GetEndDeviceEventsRequestMessageType createResponseMessage(EndDeviceEvents endDeviceEvents) {
+    private GetEndDeviceEventsRequestMessageType createResponseMessage(EndDeviceEvents endDeviceEvents, String correlationId) {
         GetEndDeviceEventsRequestMessageType responseMessage = getEndDeviceEventsMessageObjectFactory.createGetEndDeviceEventsRequestMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun(NOUN);
+        header.setCorrelationID(correlationId);
+
         responseMessage.setHeader(header);
 
         // set payload

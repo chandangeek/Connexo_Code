@@ -13,7 +13,6 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.Map;
 
-
 @ProviderType
 public interface ServiceCallInfoFactory {
 

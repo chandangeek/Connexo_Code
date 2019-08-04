@@ -88,6 +88,7 @@ public class ServiceCallCommandsTest {
     private static final DateTimeInterval DATE_TIME_INTERVAL = new DateTimeInterval();
     private static final Instant START = Instant.now().minus(16, ChronoUnit.MINUTES);
     private static final Instant END = Instant.now().plus(16, ChronoUnit.MINUTES);
+    private static final String CORRELATION_ID = "CorrelationID";
     static {
         DATE_TIME_INTERVAL.setStart(START);
         DATE_TIME_INTERVAL.setEnd(END);
@@ -197,6 +198,7 @@ public class ServiceCallCommandsTest {
                 ServiceCallTypes.USAGE_POINT_CONFIG.getTypeVersion())).thenReturn(Optional.of(childServiceCallType));
         when(upConfig.getPayload().getUsagePointConfig().getUsagePoint()).thenReturn(Arrays.asList(usagePointObj));
         when(upConfig.getHeader().getTimestamp()).thenReturn(UP_REQUEST_TIMESTAMP);
+        when(upConfig.getHeader().getCorrelationID()).thenReturn(CORRELATION_ID);
         when(jsonService.serialize(usagePointObj)).thenReturn(SERIALIZED_USAGE_POINT_OBJECT_FOR_USAGE_POINT_CONFIG);
         when(parentServiceCallBuilder.extendedWith(Mockito.any(UsagePointConfigMasterDomainExtension.class)))
                 .thenReturn(parentServiceCallBuilder);
@@ -303,6 +305,7 @@ public class ServiceCallCommandsTest {
         assertEquals(BigDecimal.ZERO, masterValue.getActualNumberOfFailedCalls());
         assertEquals(BigDecimal.ONE, masterValue.getExpectedNumberOfCalls());
         assertEquals(CALLBACK_URL, masterValue.getCallbackURL());
+        assertEquals(CORRELATION_ID, masterValue.getCorrelationId());
         ArgumentCaptor<UsagePointConfigDomainExtension> childCaptor = ArgumentCaptor
                 .forClass(UsagePointConfigDomainExtension.class);
         verify(childServiceCallBuilder).extendedWith(childCaptor.capture());

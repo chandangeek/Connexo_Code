@@ -40,7 +40,7 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
     private static final Logger LOGGER = Logger.getLogger(SendMeterReadingsProviderImpl.class.getName());
 
     private static final QName QNAME = new QName("http://iec.ch/TC57/2011/SendMeterReadings", "SendMeterReadings");
-    private static final String RESOURCE = "/meterreadings/SendMeterReadings.wsdl";
+    private static final String RESOURCE = "/wsdl/meterreadings/SendMeterReadings.wsdl";
     private static final String NOUN = "MeterReadings";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
