@@ -159,7 +159,7 @@ public abstract class BaseIT {
     }
 
     protected WebServiceCallOccurrence createWebServiceCallOccurrence(EndPointConfiguration endPointConfiguration) {
-        WebServiceCallOccurrence occurrence = endPointConfiguration.createEndPointOccurrence(FIXED_TIME, "giveMe", "APP", "<Envelope><Body><GiveMe>try</GiveMe></Body></Envelope>");
+        WebServiceCallOccurrence occurrence = endPointConfiguration.createWebServiceCallOccurrence(FIXED_TIME, "giveMe", "APP", "<Envelope><Body><GiveMe>try</GiveMe></Body></Envelope>");
         occurrence.setStatus(WebServiceCallOccurrenceStatus.FAILED);
         occurrence.setEndTime(FIXED_TIME.plusSeconds(1));
         occurrence.save();

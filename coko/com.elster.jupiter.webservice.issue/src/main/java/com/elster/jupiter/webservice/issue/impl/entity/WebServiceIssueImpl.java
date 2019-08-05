@@ -109,7 +109,7 @@ public class WebServiceIssueImpl implements WebServiceIssue {
     }
 
     @Override
-    public CreationRule getRule() {
+    public Optional<CreationRule> getRule() {
         return getBaseIssue().getRule();
     }
 

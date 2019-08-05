@@ -111,7 +111,7 @@ public class WebServiceIssueServiceIT extends BaseIT {
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(creationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(creationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(WebServiceIssueService.WEB_SERVICE_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getAssignee().getUser().getId()).isEqualTo(assignee.getId());
@@ -139,7 +139,7 @@ public class WebServiceIssueServiceIT extends BaseIT {
         assertThat(issues).hasSize(1);
         WebServiceIssue issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(creationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(creationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(WebServiceIssueService.WEB_SERVICE_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -167,7 +167,7 @@ public class WebServiceIssueServiceIT extends BaseIT {
         assertThat(issues).hasSize(1);
         WebServiceIssue issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(creationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(creationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(WebServiceIssueService.WEB_SERVICE_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getWebServiceCallOccurrence()).isEqualTo(webServiceCallOccurrence);
@@ -193,7 +193,7 @@ public class WebServiceIssueServiceIT extends BaseIT {
         assertThat(issues).hasSize(1);
         WebServiceIssue issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(creationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(creationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(WebServiceIssueService.WEB_SERVICE_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getWebServiceCallOccurrence()).isEqualTo(webServiceCallOccurrence);
@@ -220,7 +220,7 @@ public class WebServiceIssueServiceIT extends BaseIT {
         assertThat(issues).hasSize(1);
         WebServiceIssue issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(creationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(creationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(WebServiceIssueService.WEB_SERVICE_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -294,7 +294,7 @@ public class WebServiceIssueServiceIT extends BaseIT {
         Optional<WebServiceHistoricalIssue> historicalIssue = webServiceIssueService.findHistoricalIssue(openIssue.getId());
         assertThat(historicalIssue).isPresent();
         assertThat(historicalIssue.get().getId()).isEqualTo(openIssue.getId());
-        assertThat(historicalIssue.get().getRule().getId()).isEqualTo(creationRule.getId());
+        assertThat(historicalIssue.get().getRule().get().getId()).isEqualTo(creationRule.getId());
         assertThat(historicalIssue.get().getReason().getKey()).isEqualTo(WebServiceIssueService.WEB_SERVICE_ISSUE_REASON);
         assertThat(historicalIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
         assertThat(historicalIssue.get().getWebServiceCallOccurrence()).isEqualTo(webServiceCallOccurrence);

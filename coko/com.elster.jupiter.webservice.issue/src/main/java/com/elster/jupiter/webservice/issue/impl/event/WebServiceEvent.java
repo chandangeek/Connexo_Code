@@ -77,7 +77,7 @@ public class WebServiceEvent implements IssueEvent {
     }
 
     public Optional<WebServiceCallOccurrence> getOccurrence() {
-        return webServiceCallOccurrenceService.getEndPointOccurrence(occurrenceId);
+        return webServiceCallOccurrenceService.getWebServiceCallOccurrence(occurrenceId);
     }
 
     private WebServiceCallOccurrence getOccurrenceOrThrowException() {

@@ -79,7 +79,7 @@ public class WebServiceIssueCreationRuleTemplateIT extends BaseIT {
         issues = webServiceIssueService.findAllWebServiceIssues(new WebServiceIssueFilter()).find();
         assertThat(issues).hasSize(1);
         assertThat(issues.get(0).getWebServiceCallOccurrence()).isEqualTo(occurrence);
-        assertThat(issues.get(0).getRule().getId()).isEqualTo(rule.getId());
+        assertThat(issues.get(0).getRule().get().getId()).isEqualTo(rule.getId());
     }
 
     @Test
