@@ -23,6 +23,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
@@ -246,15 +247,16 @@ public class DynamicSearchResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/saveCriteria/{name}")
-    public Response saveSearchCriteria(@PathParam("name") String name,
-                                       @FormParam("filter") String filter) {
+    public Response saveSearchCriteria(@NotNull @PathParam("name") String name,
+                                              @NotNull @FormParam("filter") String filter,
+                                              @NotNull @FormParam("domain") String domainId) {
         try (TransactionContext transactionContext = getTransactionService().getContext()) {
             SearchCriteriaBuilder searchCriteriaBuilder = getSearchCriteriaService().newSearchCriteria();
             searchCriteriaBuilder.setUserName(threadPrincipalService.getPrincipal().getName());
             searchCriteriaBuilder.setCriteria(filter);
             searchCriteriaBuilder.setName(name);
-            searchCriteriaBuilder.setDomain("TestName");
-            if (checkForUpdate(name))
+            searchCriteriaBuilder.setDomain(domainId);
+            if (checkForSearchUpdate(name))
                 searchCriteriaBuilder.update();
             else
                 searchCriteriaBuilder.complete();
@@ -289,7 +291,7 @@ public class DynamicSearchResource extends BaseResource {
         return Response.ok(Response.Status.OK).build();
     }
 
-    public boolean checkForUpdate(String name) {
+    private boolean checkForSearchUpdate(String name) {
         Query<SearchCriteria> searchCriteriaQuery = getSearchCriteriaService().getCreationRuleQuery();
         long size = searchCriteriaQuery.select(Where.where("userName").isEqualTo(threadPrincipalService.getPrincipal().getName())
                 .and(Where.where("name").isEqualTo(name))).size();
