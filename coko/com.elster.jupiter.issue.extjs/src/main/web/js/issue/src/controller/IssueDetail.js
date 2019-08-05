@@ -36,7 +36,7 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel,
             widget;
 
-        if (issueType === 'datacollection' || issueType === 'devicelifecycle' || issueType === 'task' || issueType === 'servicecall') {
+        if (issueType === 'datacollection' || issueType === 'devicelifecycle' || issueType === 'task' || issueType === 'servicecall' || issueType === 'webservice') {
             processStore.getProxy().setUrl(id);
             processStore.load(function (records) {
             });
@@ -78,7 +78,12 @@ Ext.define('Isu.controller.IssueDetail', {
         } else if(issueType ==='manual'){
             widgetXtype = 'manual-issue-detail';
             issueModel='Isu.model.ManualIssue';
-         } else {
+         } else if (issueType === 'webservice') {
+            widgetXtype = 'webservice-issue-detail';
+            issueModel = 'Iws.model.Issue';
+            me.webServiceLogStore = 'Iws.store.Logs'
+        }
+          else {
             widgetXtype = me.widgetXtype;
             issueModel = me.issueModel;
         }
@@ -136,6 +141,9 @@ Ext.define('Isu.controller.IssueDetail', {
         }
         if ((issueType === 'servicecall')) {
             me.addServiceCallIssueLogs(widget);
+        }
+        if (issueType === 'webservice') {
+            me.addWebServiceIssueLogs(widget);
         }
     },
 
@@ -221,7 +229,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
                 commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && me.canComment());
-                if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall')) {
+                if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall') || (issueType === 'webservice')) {
                     me.loadTimeline(commentsStore);
                 }
                 me.constructComments(commentsView, commentsStore);
@@ -230,7 +238,7 @@ Ext.define('Isu.controller.IssueDetail', {
             }
         });
         if (router.queryParams.addComment) {
-            if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall')) {
+            if ((issueType === 'datacollection') || (issueType === 'alarm') || (issueType === 'devicelifecycle') || (issueType === 'task') || (issueType === 'servicecall') || (issueType === 'webservice')) {
                 this.showCommentForm();
             } else {
                 this.showCommentFormValidation();
@@ -629,6 +637,44 @@ Ext.define('Isu.controller.IssueDetail', {
         });
     },
 
+    addWebServiceIssueLogs: function(widget) {
+        var me = this;
+
+        me.getApplication().on('issueLoad', function (rec) {
+            var panel = widget.down('#webservice-issue-detail-log'),
+                detailsForm = widget.down('#webservice-details-form');
+
+            if (rec.raw.serviceCallInfo.logs && panel) {
+                var data = [],
+                    store;
+
+                rec.raw.serviceCallInfo.logs.map(function (log) {
+                    data.push(Ext.apply({}, {
+                        timestamp: log.timestamp,
+                        details: log.details,
+                        logLevel: log.logLevel,
+                    }, log))
+                });
+                if (data.length) {
+                    store = Ext.create(me.webServiceLogStore, {
+                        data: data,
+                        sorters: [
+                            {
+                                property: 'timestamp',
+                                direction: 'DESC'
+                            }
+                        ],});
+                    panel.getView().bindStore(store);
+                }
+            }
+            
+            detailsForm.loadRecord(rec);
+
+        }, me, {
+            single: true
+        });
+    },
+
     refreshGrid: function (widget) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -650,7 +696,10 @@ Ext.define('Isu.controller.IssueDetail', {
             issueModel = 'Isu.model.ManualIssue';
         } else if (issueType === 'servicecall') {
             issueModel = 'Isc.model.Issue';
-        } else {
+        } else if (issueType === 'webservice') {
+            issueModel = 'Iws.model.Issue';
+        }
+         else {
             issueModel = me.issueModel;
         }
 
@@ -692,6 +741,9 @@ Ext.define('Isu.controller.IssueDetail', {
         }
         if (issueType === 'servicecall') {
             me.addServiceCallIssueLogs(widget);
+        }
+        if (issueType === 'webservice') {
+            me.addWebServiceIssueLogs(widget);
         }
     },
 
