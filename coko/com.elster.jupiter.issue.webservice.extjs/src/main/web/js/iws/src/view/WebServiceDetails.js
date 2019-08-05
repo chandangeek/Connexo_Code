@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Iws.view.ServiceCallDetails', {
+Ext.define('Iws.view.WebServiceDetails', {
     extend: 'Ext.form.Panel',
     alias: 'widget.webservice-details-form',
     defaults: {
