@@ -4,6 +4,7 @@
 
 package com.elster.insight.issue.datavalidation.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.BpmService;
@@ -249,6 +250,7 @@ public class InMemoryIntegrationPersistence {
             bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
 
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 
