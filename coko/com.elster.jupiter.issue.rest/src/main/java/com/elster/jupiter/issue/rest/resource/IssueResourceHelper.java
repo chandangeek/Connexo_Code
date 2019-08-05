@@ -240,6 +240,7 @@ public class IssueResourceHelper {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DATA_VALIDATION.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.TASK.getName()).orElse(null));
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.MANUAL.getName()).orElse(null));
                 } else if (jsonFilter.getString(IssueRestModuleConst.APPLICATION).compareToIgnoreCase("INS") == 0) {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).orElse(null));

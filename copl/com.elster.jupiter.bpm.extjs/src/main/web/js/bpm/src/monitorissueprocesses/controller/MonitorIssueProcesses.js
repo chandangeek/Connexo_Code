@@ -113,6 +113,10 @@ Ext.define('Bpm.monitorissueprocesses.controller.MonitorIssueProcesses', {
         {
             issueModel = 'Itk.model.Issue';
         }
+        else if (router.queryParams.issueType === "servicecall")
+        {
+            issueModel = 'Isc.model.Issue';
+        }
         viewport.setLoading();
 
 

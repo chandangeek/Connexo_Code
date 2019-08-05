@@ -499,7 +499,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
                 bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
                 bind(MeteringZoneService.class).to(MeteringZoneServiceImpl.class).in(Scopes.SINGLETON);
-                bind(AppService.class).toInstance(mock(AppService.class));}
+                bind(AppService.class).toInstance(mock(AppService.class));
+            }
         }
 
         public static class SpyEventService implements EventService {

@@ -103,6 +103,10 @@ public class CertificateExportProcessor {
 
     private byte[] getSignature(byte[] bytes) {
         SecurityAccessor<CertificateWrapper> securityAccessor = (SecurityAccessor<CertificateWrapper>) properties.get(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey());
+        if (securityAccessor==null){
+            // no signature available
+            return "".getBytes();
+        }
         CertificateWrapper certificateWrapper = securityAccessor.getActualValue()
                 .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));
         return getSignature(certificateWrapper, bytes, logger.getThesaurus());
