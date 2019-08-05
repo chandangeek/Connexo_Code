@@ -245,7 +245,7 @@ public class DynamicSearchResource extends BaseResource {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/searchCriteria/{name}")
+    @Path("/saveCriteria/{name}")
     public Response saveSearchCriteria(@PathParam("name") String name,
                                        @FormParam("filter") String filter) {
         try (TransactionContext transactionContext = getTransactionService().getContext()) {

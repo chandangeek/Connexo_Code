@@ -24,7 +24,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DYN_SEARCHCRITERIA").on(key, userName).add();
             table.column("CRITERIA").map("criteria").varChar(NAME_LENGTH).notNull().add();
             table.column("DOMAIN").map("domain").varChar(NAME_LENGTH).notNull().add();
-            //Column idColumn = table.addAutoIdColumn();
+            table.addAutoIdColumn();
 
         }
     };
