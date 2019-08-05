@@ -32,7 +32,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
 
     private final EndDevice endDevice;
     private final EndDeviceControlType endDeviceControlType;
-    private final List<DeviceMessageId> possibleDeviceMessageIds;
+    protected final List<DeviceMessageId> possibleDeviceMessageIds;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceService deviceService;
     private final Thesaurus thesaurus;

@@ -14,6 +14,7 @@
     "com.elster.jupiter.fileimport.extjs@10.7.0",
     "com.elster.jupiter.export.extjs@10.7.0",
     "com.elster.jupiter.estimation.extjs@10.7.0",
-    "com.elster.jupiter.yellowfin.extjs@10.7.0"
+    "com.elster.jupiter.yellowfin.extjs@10.7.0",
+    "com.elster.jupiter.webservices.extjs@10.7.0"
   ]
 }
