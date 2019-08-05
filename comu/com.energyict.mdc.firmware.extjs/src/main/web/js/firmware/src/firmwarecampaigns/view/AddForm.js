@@ -23,7 +23,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     defaults: {
         labelWidth: 260,
-        width: 600,
+        width: 800,
         msgTarget: 'under'
     },
     initComponent: function () {
@@ -43,7 +43,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 name: 'name',
                 fieldLabel: Uni.I18n.translate('general.name', 'FWC', 'Name'),
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+                width: 600
             },
             {
                 xtype: 'combobox',
@@ -57,6 +58,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 queryMode: 'local',
                 displayField: 'localizedValue',
                 valueField: 'id',
+                width: 600,
                 listeners: {
                     change: {
                         fn: Ext.bind(me.onDeviceTypeChange, me)
@@ -192,7 +194,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 hidden: true,
                 isDisabled: me.campaignRecordBeingEdited,
                 defaults: {
-                    width: 600,
+                    width: 1000,
                     labelWidth: 260
                 },
             },

@@ -18,26 +18,84 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
 
         me.items = [{
-                xtype: 'checkboxgroup',
-                required: false,
-                itemId: 'firmwareTargetFileStatus',
-                columns: 1,
-                vertical: true,
+                xtype: 'fieldcontainer',
+                itemId: 'targetOptions',
+                layout: 'hbox',
+                flex: 1,
+                width: 1000,
                 fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
-                name: 'targetFirmwareCheck',
                 items: [
                     {
-                        beforeSubTpl: '<span style="font-style:italic;color: grey;padding: 0 5px 5px 0;">' + Uni.I18n.translate('general.upload.fw.target.firm.status', 'FWC', 'Check if the uploaded firmware has this status') + '</span>',
-                        itemId: 'targetFirmwareCheckFinal',
-                        boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckFinalOption', 'FWC', 'Final status of target firmware'),
-                        inputValue: 'FINAL',
+                        xtype: 'checkboxgroup',
+                        required: false,
+                        itemId: 'firmwareTargetFileStatus',
+                        columns: 1,
+                        vertical: true,
+                        width: 200,
+                        name: 'targetFirmwareCheck',
+                        items: [
+                            {
+                                beforeSubTpl: '<span style="font-style:italic;color: grey;padding: 0 5px 15px 0;">' + Uni.I18n.translate('general.upload.fw.target.firm.status', 'FWC', 'Check if the uploaded firmware has this status') + '</span>',
+                                itemId: 'targetFirmwareCheckFinal',
+                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckFinalOption', 'FWC', 'Final status of target firmware'),
+                                inputValue: 'FINAL',
+                                margin: '10 0',
+                                listeners: {
+                                    change: function(checkBox, value){
+                                        if (this.originalValue !== value){
+                                            me.down('#targetFirmwareCheckFinalReset').enable();
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                itemId: 'targetFirmwareCheckTest',
+                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of target firmware'),
+                                inputValue: 'TEST',
+                                margin: '10 0',
+                                listeners: {
+                                    change: function(checkBox, value){
+                                        if (this.originalValue !== value){
+                                             me.down('#targetFirmwareCheckTestReset').enable();
+                                        }
+                                    }
+                                }
+                            }
+                        ],
                     },
                     {
-                        itemId: 'targetFirmwareCheckTest',
-                        boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of target firmware'),
-                        inputValue: 'TEST',
+                        xtype: 'fieldcontainer',
+                        itemId: 'resetBtns',
+                        layout: {
+                            type: 'vbox',
+                        },
+                        fieldLabel: '',
+                        margin: '45 0 0 0',
+                        items: [
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'targetFirmwareCheckFinalReset',
+                                hidden: false,
+                                disabled: true,
+                                handler: function(){
+                                     me.down('#targetFirmwareCheckFinal').reset();
+                                     this.disable();
+                                }
+                            },
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'targetFirmwareCheckTestReset',
+                                hidden: false,
+                                disabled: true,
+                                handler: function(){
+                                     me.down('#targetFirmwareCheckFinal').reset();
+                                     this.disable();
+                                }
+                            }
+                        ]
                     }
                 ]
+
             },
             {
                 xtype: 'displayfield',
@@ -50,18 +108,58 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 }
             },
             {
-                xtype: 'checkboxgroup',
+                xtype: 'fieldcontainer',
+                itemId: 'curOptions',
+                layout: 'hbox',
+                flex: 1,
+                width: 750,
                 fieldLabel: Uni.I18n.translate('general.firmwareDependenciesCheck', 'FWC', 'Dependencies check'),
-                required: false,
-                itemId: 'dependenciesCheckTargetOption',
-                columns: 1,
-                vertical: true,
-                name: 'curFirmwareCheck',
                 items: [
+                     {
+                        xtype: 'checkboxgroup',
+                        required: false,
+                        itemId: 'dependenciesCheckTargetOption',
+                        columns: 1,
+                        vertical: true,
+                        name: 'curFirmwareCheck',
+                        fieldLabel:'',
+                        width: 400,
+                        items: [
+                            {
+                                itemId: 'curFirmwareCheck',
+                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version') + '</b>',
+                                inputValue: 'COMMON',
+                                margin: '10 0',
+                                listeners: {
+                                    change: function(checkBox, value){
+                                        if (this.originalValue !== value){
+                                             me.down('#curFirmwareCheckReset').enable();
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
                     {
-                        itemId: 'curFirmwareCheck',
-                        boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.currentFirmwareCheck', 'FWC', 'The target firmware version should have a higher rank than the current firmware version on the device with the same type. All firmware types present in the device should have a rank not less than that of the version with the minimal level configured on the target version') + '</b>',
-                        inputValue: 'COMMON'
+                        xtype: 'fieldcontainer',
+                        itemId: 'curFirmwareCheckResetBtns',
+                        layout: {
+                            type: 'vbox',
+                        },
+                        fieldLabel: '',
+                        margin: '25 0 0 0',
+                        items: [
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'curFirmwareCheckReset',
+                                hidden: false,
+                                disabled: true,
+                                handler: function(){
+                                     me.down('#curFirmwareCheck').reset();
+                                     this.disable();
+                                }
+                            }
+                        ]
                     }
                 ]
             },
@@ -73,6 +171,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 columns: 1,
                 vertical: true,
                 name: 'masterFirmwareWasSelectedCheck',
+                width: 800,
                 items: [
                     {
                         itemId: 'masterFirmwareCheck',
@@ -83,24 +182,84 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 ]
             },
             {
-                xtype: 'checkboxgroup',
-                required: false,
-                itemId: 'masterFirmwareCheckOptions',
-                columns: 1,
-                vertical: true,
+                xtype: 'fieldcontainer',
+                itemId: 'masterOptions',
+                layout: 'hbox',
+                flex: 1,
+                width: 800,
                 fieldLabel: ' ',
-                margin: '0 0 0 30',
-                name: 'masterFirmwareCheck',
                 items: [
                     {
-                        itemId: 'masterFirmwareCheckFinal',
-                        boxLabel: Uni.I18n.translate('general.upload.fw.masterFirmwareCheckFinalOption', 'FWC', 'Final status of firmware on master device'),
-                        inputValue: 'FINAL',
+                        xtype: 'checkboxgroup',
+                        required: false,
+                        itemId: 'masterFirmwareCheckOptions',
+                        columns: 1,
+                        vertical: true,
+                        fieldLabel: '',
+                        margin: '0 0 0 30',
+                        name: 'masterFirmwareCheck',
+                        width: 300,
+                        items: [
+                            {
+                                itemId: 'masterFirmwareCheckFinal',
+                                boxLabel: Uni.I18n.translate('general.upload.fw.masterFirmwareCheckFinalOption', 'FWC', 'Final status of firmware on master device'),
+                                inputValue: 'FINAL',
+                                margin: '10 0',
+                                listeners: {
+                                    change: function(checkBox, value){
+                                        if (this.originalValue !== value){
+                                            me.down('#masterFirmwareCheckFinalReset').enable();
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                itemId: 'masterFirmwareCheckTest',
+                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of firmware on master device'),
+                                inputValue: 'TEST',
+                                margin: '10 0',
+                                listeners: {
+                                    change: function(checkBox, value){
+                                        if (this.originalValue !== value){
+                                            me.down('#masterFirmwareCheckTestReset').enable();
+                                        }
+                                    }
+                                }
+                            }
+                        ]
                     },
                     {
-                        itemId: 'masterFirmwareCheckTest',
-                        boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of firmware on master device'),
-                        inputValue: 'TEST',
+                        xtype: 'fieldcontainer',
+                        itemId: 'resetBtns',
+                        layout: {
+                            type: 'vbox',
+                        },
+                        fieldLabel: '',
+                        margin: '10 0 0 0',
+                        items: [
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'masterFirmwareCheckFinalReset',
+                                hidden: false,
+                                disabled: true,
+                                handler: function(){
+                                     me.down('#masterFirmwareCheckFinal').reset();
+                                     this.disable();
+                                     if (!me.down('#masterFirmwareCheckFinal').getValue() && !me.down('#masterFirmwareCheckTest').getValue()) me.down('#masterFirmwareMainOption').setValue(false);
+                                }
+                            },
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'masterFirmwareCheckTestReset',
+                                hidden: false,
+                                disabled: true,
+                                handler: function(){
+                                     me.down('#masterFirmwareCheckTest').reset();
+                                     this.disable();
+                                     if (!me.down('#masterFirmwareCheckFinal').getValue() && !me.down('#masterFirmwareCheckTest').getValue()) me.down('#masterFirmwareMainOption').setValue(false);
+                                }
+                            }
+                        ]
                     }
                 ]
             },
@@ -128,9 +287,11 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                         if ( key !== 'id' && ( checkgroup = me.down('[name=' + key + ']') )){
                              checkgroup.items.each(function(item){
                                  if ( data[key].indexOf(item.inputValue) !== -1 ){
+                                    item.originalValue = true;
                                     item.setValue(true);
                                     hasEnabledOption = true;
                                  }else{
+                                    item.originalValue = false;
                                     item.setValue(false);
                                  }
                              });
