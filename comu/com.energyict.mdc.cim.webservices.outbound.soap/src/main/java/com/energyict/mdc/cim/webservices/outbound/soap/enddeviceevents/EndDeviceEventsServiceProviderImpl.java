@@ -36,6 +36,7 @@ import javax.xml.ws.Service;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents.provider",
@@ -108,6 +109,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.CREATED);
         header.setNoun(END_DEVICE_EVENTS);
+        header.setCorrelationID(UUID.randomUUID().toString());
         responseMessage.setHeader(header);
 
         // set payload
@@ -146,6 +148,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.CREATED);
         header.setNoun(END_DEVICE_EVENTS);
+        header.setCorrelationID(UUID.randomUUID().toString());
         responseMessage.setHeader(header);
 
         // set payload
