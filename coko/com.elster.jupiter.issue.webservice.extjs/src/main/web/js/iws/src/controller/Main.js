@@ -48,29 +48,29 @@ Ext.define('Iws.controller.Main', {
             items = [];
 
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.workspace','Iws','Workspace'),
+                text: Uni.I18n.translate('general.workspace','IWS','Workspace'),
                 glyph: 'workspace',
                 portal: 'workspace',
                 index: 30
             }));
 
                 items.push({
-                    text: Uni.I18n.translate('general.issues','Iws','Issues'),
+                    text: Uni.I18n.translate('general.issues','IWS','Issues'),
                     itemId: 'webservice-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['webservice']})
                 });
                 items.push({
-                    text: Uni.I18n.translate('general.myOpenIssues','Iws','My open issues'),
+                    text: Uni.I18n.translate('general.myOpenIssues','IWS','My open issues'),
                     itemId: 'webservice-my-open-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['webservice'], myopenissues: true, status: ['status.open', 'status.in.progress']})
                 });
                 items.push({
-                    text: Uni.I18n.translate('general.myWorkgroupsIssues', 'Iws', 'My workgroups issues'),
+                    text: Uni.I18n.translate('general.myWorkgroupsIssues', 'IWS', 'My workgroups issues'),
                     itemId: 'webservice-my-workgroup-issues',
                     href: router.getRoute('workspace/issues').buildUrl({}, {issueType: ['webservice'], myworkgroupissues: true, status: ['status.open', 'status.in.progress']})
                 });
             webserviceIssue = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.webservices','Iws','Service calls'),
+                title: Uni.I18n.translate('general.webservices','IWS','Web services'),
                 portal: 'workspace',
                 items:  items
             });

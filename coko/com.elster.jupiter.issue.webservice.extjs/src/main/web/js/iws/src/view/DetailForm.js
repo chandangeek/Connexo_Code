@@ -46,7 +46,7 @@ Ext.define('Iws.view.DetailForm', {
                         renderer: function (value) {
                             return value.name ? value.name : '-';
                         }
-                    }
+                    },
                     {
                         itemId: 'webservice-issue-endpoint',
                         fieldLabel: Uni.I18n.translate('general.label.endpoint', 'IWS', 'Web service endpoint'),
@@ -54,7 +54,7 @@ Ext.define('Iws.view.DetailForm', {
                         renderer: function (value) {
                             return value.name ? value.name : '-';
                         }
-                    }
+                    },
                     {
                         itemId: 'webservice-issue-ws',
                         fieldLabel: Uni.I18n.translate('general.label.webService', 'IWS', 'Web service'),
