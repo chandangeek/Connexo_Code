@@ -44,7 +44,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
-        if (collectedLoadProfile.getChannelInfo().stream().anyMatch(channelInfo -> channelInfo.getReadingTypeMRID() == null || channelInfo.getReadingTypeMRID().isEmpty())) {
+        if (collectedLoadProfile.getChannelInfo().stream().anyMatch(channelInfo -> channelInfo.getReadingTypeMRID() != null || !channelInfo.getReadingTypeMRID().isEmpty())) {
             PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
                 preStoredLoadProfile.updateCommand(this.meterDataStoreCommand);
