@@ -48,6 +48,8 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
             try {
                 this.hsmConfigurationLoader = HsmResourceLoader.getInstance(new HsmRefreshableConfigResourceBuilder(new File(configFile)));
                 this.hsmJssLoader = HsmJssLoader.getInstance(new HsmRefreshableFileResourceBuilder(new File(hsmConfigurationLoader.load().getJssInitFile())));
+                // following line is needed while underneath it will start stop JSS context... ugly I know but effective, when I will have time I will change this
+                hsmJssLoader.load();
             } catch (HsmBaseException e) {
                 // Doing nothing while other bundles might fail because this one was not properly initialized.
                 // As an example: HSM is down but we want other bundles to work even is HSM is not available for the time being, yet we need to activate it later by hand when HSM is back (like using gogo)
