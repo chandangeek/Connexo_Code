@@ -1,14 +1,13 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.cim.webservices.inbound.soap.meterreadings;
+package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TranslationKeys;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -30,6 +29,12 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.meterreadings.DateTimeInterval;
@@ -45,6 +50,7 @@ import ch.iec.tc57._2011.meterreadings.ReadingInterharmonic;
 import ch.iec.tc57._2011.meterreadings.ReadingQuality;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -69,27 +75,35 @@ public class MeterReadingsBuilder {
     private final MeteringService meteringService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
+    private final DeviceService deviceService;
+    private final MasterDataService masterDataService;
 
     private UsagePoint usagePoint;
-    private List<EndDevice> endDevices;
+    private Set<Meter> endDevices;
     private Set<MetrologyPurpose> purposes;
     private Set<String> readingTypeMRIDs = Collections.emptySet();
     private Set<String> readingTypeFullAliasNames = Collections.emptySet();
     private RangeSet<Instant> timePeriods;
+    private Set<LoadProfileType> loadProfiles = new HashSet<>();
+    private Set<RegisterGroup> registerGroups = new HashSet<>();
 
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
+    private Map<String, RangeSet<Instant>> readingTypesMRIDsTimeRangeMap;
 
     @Inject
     public MeterReadingsBuilder(MeteringService meteringService,
                          MetrologyConfigurationService metrologyConfigurationService,
-                         MeterReadingFaultMessageFactory faultMessageFactory) {
+                         MeterReadingFaultMessageFactory faultMessageFactory, DeviceService deviceService,
+                         MasterDataService masterDataService) {
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.faultMessageFactory = faultMessageFactory;
+        this.deviceService = deviceService;
+        this.masterDataService = masterDataService;
     }
 
-    public MeterReadingsBuilder withEndDevices(List<EndDevice> endDevices) {
+    public MeterReadingsBuilder withEndDevices(Set<Meter> endDevices) {
         this.endDevices = endDevices;
         return this;
     }
@@ -134,11 +148,36 @@ public class MeterReadingsBuilder {
         return this;
     }
 
+    public MeterReadingsBuilder withLoadProfiles(Set<String> loadProfilesNames) {
+        if (loadProfilesNames != null) {
+            loadProfiles.addAll(masterDataService.findAllLoadProfileTypes().stream()
+                        .filter(loadProfile -> loadProfilesNames.contains(loadProfile.getName()))
+                        .collect(Collectors.toSet()));
+        }
+        return this;
+    }
+
+    public MeterReadingsBuilder withRegisterGroups(Set<String> registerGroupsNames) {
+        if (registerGroupsNames != null) {
+            registerGroups.addAll(masterDataService.findAllRegisterGroups().stream()
+                    .filter(rg -> registerGroupsNames.contains(rg.getName()))
+                    .collect(Collectors.toSet()));
+        }
+        return this;
+    }
+
+    public MeterReadingsBuilder withReadingTypesMRIDsTimeRangeMap(Map<String, RangeSet<Instant>> readingTypesMRIDsTimeRangeMap) {
+        this.readingTypesMRIDsTimeRangeMap = readingTypesMRIDsTimeRangeMap;
+        return this;
+    }
+
     public MeterReadings build() throws FaultMessage {
         MeterReadings meterReadings = new MeterReadings();
         List<MeterReading> meterReadingsList = meterReadings.getMeterReading();
         List<ch.iec.tc57._2011.meterreadings.ReadingType> readingTypeList = meterReadings.getReadingType();
         List<ch.iec.tc57._2011.meterreadings.ReadingQualityType> readingQualityTypeList = meterReadings.getReadingQualityType();
+        List<ch.iec.tc57._2011.meterreadings.LoadProfile> loadProfileList = meterReadings.getLoadProfile();
+        List<ch.iec.tc57._2011.meterreadings.RegisterGroup> registerGroupList = meterReadings.getRegisterGroup();
         referencedReadingTypes = new HashSet<>();
         referencedReadingQualityTypes = new HashSet<>();
 
@@ -150,18 +189,39 @@ public class MeterReadingsBuilder {
                     .forEach((purposeName, readingsByReadingTypes) -> wrapInMeterReading(purposeName, null, readingsByReadingTypes)
                             .ifPresent(meterReadingsList::add));
         } else if (endDevices.stream().anyMatch(ed -> ed instanceof Meter)) {
-                endDevices.stream()
-                        .filter(ed -> ed instanceof Meter)
-                        .forEach(ed -> {
-                                Meter meter = (Meter) ed;
-                                meter.getChannelsContainers().stream()
-                                .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
-                                .map(this::fetchReadingsFromContainer)
-                                .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
-                                        .ifPresent(meterReadingsList::add));
-                });
-        }
+            if (!loadProfiles.isEmpty()) {
+                readingTypeMRIDs.addAll(loadProfiles.stream()
+                        .map (LoadProfileType::getChannelTypes)
+                        .flatMap(Collection::stream)
+                        .map(channelType -> channelType.getReadingType().getMRID())
+                        .collect(Collectors.toSet()));
+            }
+            if (!registerGroups.isEmpty()) {
+                readingTypeMRIDs.addAll(registerGroups.stream()
+                        .map(RegisterGroup::getRegisterTypes)
+                        .flatMap(Collection::stream)
+                        .map(registerType -> registerType.getReadingType().getMRID())
+                        .collect(Collectors.toSet()));
+            }
 
+            // if start date is not defined - reading types can have own timeRange
+            if (readingTypesMRIDsTimeRangeMap != null && !readingTypesMRIDsTimeRangeMap.isEmpty()) {
+                timePeriods = TreeRangeSet.create(readingTypesMRIDsTimeRangeMap.values().stream()
+                        .map(rangeSet -> rangeSet.asRanges())
+                        .flatMap(Collection::stream)
+                        .collect(Collectors.toSet()));
+            }
+            endDevices.stream()
+                    .filter(ed -> ed instanceof Meter)
+                    .forEach(ed -> {
+                            Meter meter = (Meter) ed;
+                            meter.getChannelsContainers().stream()
+                            .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
+                            .map(this::fetchReadingsFromContainer)
+                            .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
+                                    .ifPresent(meterReadingsList::add));
+                    });
+        }
         // filled in in scope of wrapInMeterReading
         referencedReadingTypes.stream()
                 .map(MeterReadingsBuilder::createReadingType)
@@ -170,6 +230,16 @@ public class MeterReadingsBuilder {
         referencedReadingQualityTypes.stream()
                 .map(MeterReadingsBuilder::createReadingQualityType)
                 .forEach(readingQualityTypeList::add);
+
+        Set<String>referencedReadingTypesMrids = referencedReadingTypes.stream()
+                .map(readingType -> readingType.getMRID())
+                .collect(Collectors.toSet());
+        loadProfiles.stream()
+                .map(loadProfile ->  createLoadProfile(loadProfile, referencedReadingTypesMrids))
+                .forEach(loadProfileList::add);
+        registerGroups.stream()
+                .map(registerGroup -> createRegisterGroup(registerGroup, referencedReadingTypesMrids))
+                .forEach(registerGroupList::add);
 
         return meterReadings;
     }
@@ -220,9 +290,14 @@ public class MeterReadingsBuilder {
             for (ReadingType readingType: channel.getReadingTypes()) {
                 if (readingTypeFullAliasNames.contains(readingType.getFullAliasName())
                         || readingTypeMRIDs.contains(readingType.getMRID())) {
-                    channel.getCimChannel(readingType).ifPresent(cimChannel -> {
-                        result.put(readingType, getReadingsWithQualities(cimChannel, currentTimePeriods));
-                    });
+                    Optional<CimChannel> cimChannel = channel.getCimChannel(readingType);
+                    if (cimChannel.isPresent()) {
+                        /// if readingType has own time period
+                        if (readingTypesMRIDsTimeRangeMap != null && !readingTypesMRIDsTimeRangeMap.isEmpty()) {
+                            currentTimePeriods = readingTypesMRIDsTimeRangeMap.get(readingType.getMRID());
+                        }
+                        result.put(readingType, getReadingsWithQualities(cimChannel.get(), currentTimePeriods));
+                    }
                 }
             }
         }
@@ -339,8 +414,8 @@ public class MeterReadingsBuilder {
     private ch.iec.tc57._2011.meterreadings.UsagePoint createUsagePointPurpose(String purpose) {
         ch.iec.tc57._2011.meterreadings.UsagePoint meterReadingUsagePoint = new ch.iec.tc57._2011.meterreadings.UsagePoint();
         meterReadingUsagePoint.setMRID(usagePoint.getMRID());
-        meterReadingUsagePoint.getNames().add(createNameWithType(usagePoint.getName(), UsagePointNameTypeEnum.USAGE_POINT_NAME));
-        meterReadingUsagePoint.getNames().add(createNameWithType(purpose, UsagePointNameTypeEnum.PURPOSE));
+        meterReadingUsagePoint.getNames().add(createNameWithType(usagePoint.getName(), UsagePointNameType.USAGE_POINT_NAME));
+        meterReadingUsagePoint.getNames().add(createNameWithType(purpose, UsagePointNameType.PURPOSE));
         return meterReadingUsagePoint;
     }
 
@@ -374,7 +449,7 @@ public class MeterReadingsBuilder {
         return info;
     }
 
-    private Name createNameWithType(String itemName, UsagePointNameTypeEnum itemType) {
+    private Name createNameWithType(String itemName, UsagePointNameType itemType) {
         NameType nameType = new NameType();
         nameType.setName(itemType.getNameType());
 
@@ -478,6 +553,40 @@ public class MeterReadingsBuilder {
         return info;
     }
 
+    private static ch.iec.tc57._2011.meterreadings.LoadProfile createLoadProfile(LoadProfileType loadProfile, Set<String>referencedReadingTypesMrids) {
+        ch.iec.tc57._2011.meterreadings.LoadProfile info = new ch.iec.tc57._2011.meterreadings.LoadProfile();
+        info.setName(loadProfile.getName());
+        List<ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType> readingTypes = info.getReadingType();
+
+        loadProfile.getChannelTypes().stream()
+                .map(channel -> channel.getReadingType().getMRID())
+                .filter(mrid -> referencedReadingTypesMrids.contains(mrid))
+                .forEach(mrid -> {
+                        ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType readingType =
+                                new ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType();
+                        readingType.setRef(mrid);
+                    readingTypes.add(readingType);
+                });
+        return info;
+    }
+
+    private static ch.iec.tc57._2011.meterreadings.RegisterGroup createRegisterGroup(RegisterGroup registerGroup, Set<String>referencedReadingTypesMrids) {
+        ch.iec.tc57._2011.meterreadings.RegisterGroup info = new ch.iec.tc57._2011.meterreadings.RegisterGroup();
+        info.setName(registerGroup.getName());
+        List<ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType> readingTypes = info.getReadingType();
+
+        registerGroup.getRegisterTypes().stream()
+                .map(channel -> channel.getReadingType().getMRID())
+                .filter(mrid -> referencedReadingTypesMrids.contains(mrid))
+                .forEach(mrid -> {
+                    ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType readingType =
+                            new ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType();
+                    readingType.setRef(mrid);
+                    readingTypes.add(readingType);
+                });
+        return info;
+    }
+
     private static RationalNumber createRationalNumber(com.elster.jupiter.cbo.RationalNumber rational) {
         return Optional.ofNullable(rational)
                 .filter(number -> !com.elster.jupiter.cbo.RationalNumber.NOTAPPLICABLE.equals(number))
@@ -525,5 +634,11 @@ public class MeterReadingsBuilder {
                             || readingTypeFullAliasNames.contains(readingType.getFullAliasName()));
         }
         return readingTypes;
+    }
+
+    private Device findDeviceForEndDevice(com.elster.jupiter.metering.Meter meter) throws FaultMessage {
+        long deviceId = Long.parseLong(meter.getAmrId());
+        return deviceService.findDeviceById(deviceId)
+                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_DEVICE_WITH_MRID, meter.getAmrId()));
     }
 }

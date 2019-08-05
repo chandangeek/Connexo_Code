@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
@@ -7,20 +7,17 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.elster.jupiter.upgrade.FullInstaller;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 
 import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.Optional;
-import java.util.logging.Logger;
 
-public class Installer implements FullInstaller {
+public class Installer {
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
 
@@ -30,16 +27,7 @@ public class Installer implements FullInstaller {
         this.customPropertySetService = customPropertySetService;
     }
 
-    @Override
-    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
-        doTry(
-                "Create service call types",
-                this::createServiceCallTypes,
-                logger
-        );
-    }
-
-    private void createServiceCallTypes() {
+    public void createServiceCallTypes() {
         for (ServiceCallCommands.ServiceCallTypes serviceCallType : ServiceCallCommands.ServiceCallTypes.values()) {
             createServiceCallType(serviceCallType);
         }

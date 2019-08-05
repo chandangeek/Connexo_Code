@@ -7,9 +7,7 @@ import com.elster.jupiter.cim.webservices.inbound.soap.impl.DataLinkageConfigChe
 import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageAction;
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.MasterDataLinkageFaultMessageFactory;
-import com.elster.jupiter.cim.webservices.inbound.soap.meterreadings.MeterReadingFaultMessageFactory;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.ServiceCallCommands.ServiceCallTypes;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.ConfigEventInfo;
@@ -19,10 +17,8 @@ import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointcon
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterDomainExtension;
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.Action;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.impl.NlsModule.FakeThesaurus;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -39,7 +35,6 @@ import ch.iec.tc57._2011.masterdatalinkageconfig.UsagePoint;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigFaultMessageType;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigRequestMessageType;
-import oracle.sql.TIMESTAMP;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -134,9 +129,6 @@ public class ServiceCallCommandsTest {
     @Mock
     private MessageService messageService;
 
-    @Mock
-    private MeterReadingFaultMessageFactory faultMessageFactory;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private UsagePointConfigRequestMessageType upConfig;
 
@@ -212,15 +204,9 @@ public class ServiceCallCommandsTest {
                 .thenReturn(parentServiceCallBuilder);
         when(childServiceCallBuilder.extendedWith(Mockito.any(UsagePointConfigDomainExtension.class)))
                 .thenReturn(childServiceCallBuilder);
-        when(serviceCallService.findServiceCallType(ServiceCallTypes.PARENT_GET_METER_READINGS.getTypeName(),
-                ServiceCallTypes.PARENT_GET_METER_READINGS.getTypeVersion()))
-                        .thenReturn(Optional.of(masterServiceCallType));
-        when(parentServiceCallBuilder.extendedWith(Mockito.any(ParentGetMeterReadingsDomainExtension.class)))
-                .thenReturn(parentServiceCallBuilder);
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(readingType.getMRID()).thenReturn(READING_TYPE_MRID);
-        testable = new ServiceCallCommands(serviceCallService, jsonService, FakeThesaurus.INSTANCE, faultMessageFactory,
-                messageService);
+        testable = new ServiceCallCommands(serviceCallService, jsonService, FakeThesaurus.INSTANCE, messageService);
     }
 
     @Test
@@ -305,23 +291,6 @@ public class ServiceCallCommandsTest {
             verify(masterDataLinkageFaultMessageFactory).createMasterDataLinkageFaultMessage(
                     MasterDataLinkageAction.CREATE, MessageSeeds.DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS, 1, 2);
         }
-    }
-
-    @Test
-    public void testCreateParentGetMeterReadingsServiceCall_Success()
-            throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        testable.createParentGetMeterReadingsServiceCall(SOURCE, REPLY_ADDRESS, DATE_TIME_INTERVAL,
-                Arrays.asList(endDevice), Arrays.asList(readingType));
-        ArgumentCaptor<ParentGetMeterReadingsDomainExtension> captor = ArgumentCaptor
-                .forClass(ParentGetMeterReadingsDomainExtension.class);
-        verify(parentServiceCallBuilder).extendedWith(captor.capture());
-        ParentGetMeterReadingsDomainExtension value = captor.getValue();
-        assertEquals(SOURCE, value.getSource());
-        assertEquals(REPLY_ADDRESS, value.getCallbackUrl());
-        assertEquals(START, value.getTimePeriodStart());
-        assertEquals(END, value.getTimePeriodEnd());
-        assertEquals(END_DEVICE_MRID, value.getEndDevices());
-        assertEquals(READING_TYPE_MRID, value.getReadingTypes());
     }
 
     @Test

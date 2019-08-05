@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.mockito.Mock;
@@ -182,6 +183,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         assertThat(responseMeter.getMeterCustomAttributeSet().get(2).getId()).isEqualTo(VERSIONED_CPS_ID);
     }
 
+    @Ignore
     @Test
     public void testNoReplyAddress() throws Exception {
         MeterConfig meterConfig = new MeterConfig();

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.cim.webservices.inbound.soap.meterreadings;
+package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.elster.jupiter.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.elster.jupiter.nls.Thesaurus;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;

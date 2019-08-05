@@ -85,30 +85,33 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
 
     public void call(List<ReadingInfo> readingInfos, HeaderType.Verb requestVerb) {
         MeterReadings meterReadings = readingBuilderProvider.build(readingInfos);
-        String method;
-        MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, requestVerb);
-        if (requestVerb.equals(HeaderType.Verb.CREATED)) {
-            method = "createdMeterReadings";
-        } else if (requestVerb.equals(HeaderType.Verb.CHANGED)) {
-            method = "changedMeterReadings";
-        } else {
-            throw new UnsupportedOperationException(requestVerb + " isn't supported.");
+        if (checkMeterReadings(meterReadings)) {
+            String method;
+            MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, getHeader(requestVerb));
+            if (requestVerb.equals(HeaderType.Verb.CREATED)) {
+                method = "createdMeterReadings";
+            } else if (requestVerb.equals(HeaderType.Verb.CHANGED)) {
+                method = "changedMeterReadings";
+            } else {
+                throw new UnsupportedOperationException(requestVerb + " isn't supported.");
+            }
+            using(method).send(message);
         }
-        using(method).send(message);
     }
 
-    public boolean call(MeterReadings meterReadings, HeaderType.Verb requestVerb, EndPointConfiguration endPointConfiguration) {
-        if (!checkMeterReadingsAndMeterReadingsPorts(meterReadings)) {
-            return false;
-        }
+    public boolean call(MeterReadings meterReadings, HeaderType header, EndPointConfiguration endPointConfiguration) {
         String method;
-        MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, requestVerb);
-        if (requestVerb.equals(HeaderType.Verb.CREATED)) {
-            method = "createdMeterReadings";
-        } else if (requestVerb.equals(HeaderType.Verb.CHANGED)) {
-            method = "changedMeterReadings";
-        } else {
-            throw new UnsupportedOperationException(requestVerb + " isn't supported.");
+        MeterReadingsEventMessageType message = createMeterReadingsEventMessage(meterReadings, header);
+        switch(header.getVerb()) {
+            case CREATED:
+            case REPLY:
+                method = "createdMeterReadings";
+                break;
+            case CHANGED:
+                method = "changedMeterReadings";
+                break;
+            default:
+                throw new UnsupportedOperationException(header.getVerb() + " isn't supported.");
         }
         Map response = using(method)
                 .toEndpoints(endPointConfiguration)
@@ -119,13 +122,10 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
         return true;
     }
 
-    protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType.Verb requestVerb) {
+    protected MeterReadingsEventMessageType createMeterReadingsEventMessage(MeterReadings meterReadings, HeaderType header) {
         MeterReadingsEventMessageType meterReadingsResponseMessageType = meterReadingsMessageObjectFactory.createMeterReadingsEventMessageType();
 
         // set header
-        HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setVerb(requestVerb);
-        header.setNoun(NOUN);
         meterReadingsResponseMessageType.setHeader(header);
 
         // set payload
@@ -136,12 +136,19 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
         return meterReadingsResponseMessageType;
     }
 
-    private boolean checkMeterReadingsAndMeterReadingsPorts(MeterReadings meterReadings) {
+    private boolean checkMeterReadings(MeterReadings meterReadings) {
         if (meterReadings.getMeterReading().isEmpty()) {
             LOGGER.log(Level.SEVERE, "No meter readings to send.");
             return false;
         }
         return true;
+    }
+
+    private HeaderType getHeader(HeaderType.Verb requestVerb) {
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setVerb(requestVerb);
+        header.setNoun(NOUN);
+        return header;
     }
 
     @Override
