@@ -13,6 +13,13 @@ Ext.define('Sct.view.ActionMenu', {
                 privileges: Sct.privileges.ServiceCallType.admin,
                 action: 'changeLogLevel',
                 section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'set-queue-priority-sct',
+                text: Uni.I18n.translate('general.setQueueAndPriority', 'SCT', 'Set queue and priority'),
+                privileges: Sct.privileges.ServiceCallType.admin,
+                action: 'setQueueAndPriority',
+                section: this.SECTION_ACTION
             }
         ];
         this.callParent(arguments);

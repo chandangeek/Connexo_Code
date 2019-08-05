@@ -214,6 +214,9 @@ Ext.define('Cfg.audit.controller.Audit', {
             case 'USAGEPOINT_TECHNICAL_ATTRIBUTES':
                 rendererLink = isRemoved == true ? value : '<a href="#/usagepoints/' + record.get('auditReference').name + '/attributes">' + me.formatEntityWithNameContext(record, value) + '</a>';
                 break;
+            case 'USAGEPOINT_CUSTOM_ATTRIBUTES':
+                rendererLink = isRemoved == true ? me.formatDeviceCustomAttributeContext(record, value) : '<a href="#/usagepoints/' + record.get('auditReference').name + '/attributes">' + me.formatDeviceCustomAttributeContext(record, value) + '</a>';
+                break;
             default:
                 rendererLink = value;
         }

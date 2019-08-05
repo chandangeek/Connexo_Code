@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -62,6 +63,7 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
     private static final String SUCCESS_USAGE_POINT_MRID = "my success usagepoint mrid";
     private static final String ERROR_CODE = "my error code";
     private static final String ERROR_MESSAGE = "my error message";
+    private static final String CORRELATION_ID = "CorrelationID";
     private ReplyMasterDataLinkageConfigServiceProvider provider;
     @Mock
     private EndPointConfiguration endPointConfiguration;
@@ -77,6 +79,9 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
     private WebServiceCallOccurrence webServiceCallOccurrence;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    protected OutboundEndPointProvider.RequestSender requestSender;
+
 
     @Before
     public void setup() {
@@ -88,6 +93,8 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", thesaurus);
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         provider.addMasterDataLinkageConfigPort(masterDataLinkageConfigPort, ImmutableMap.of("url", url, "epcId", 1l));
+        when(provider.using(anyString())).thenReturn(requestSender);
+        when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
 
         when(endPointConfiguration.getUrl()).thenReturn(url);
 
@@ -132,15 +139,17 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                 Meter meter = meters.get(0);
                                 UsagePoint usagePoint = usagePoints.get(0);
                                 verifyLinkage(meter, usagePoint);
-
+                                assertEquals(CORRELATION_ID, message.getHeader().getCorrelationID());
                                 return null;
                             }
 
                         });
 
-        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
+        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
 
         verify(provider).using("createdMasterDataLinkageConfig");
+        verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
     @Test
@@ -163,13 +172,17 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                 assertEquals(1, message.getReply().getError().size());
                                 ErrorType failure = message.getReply().getError().get(0);
                                 verifyFailure(failure);
+                                assertEquals(CORRELATION_ID ,message.getHeader().getCorrelationID());
+
                                 return null;
                             }
                         });
 
-        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
+        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
 
         verify(provider).using("closedMasterDataLinkageConfig");
+        verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
     @Test
@@ -205,14 +218,19 @@ public class ReplyMasterDataLinkageConfigServiceProviderTest {
                                 for (int index = 0; index < successfulLinkages.size(); index++) {
                                     verifyLinkage(meters.get(index), usagePoints.get(index));
                                 }
+
+                                assertEquals(CORRELATION_ID, message.getHeader().getCorrelationID());
+
                                 return null;
                             }
 
                         });
 
-        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls);
+        provider.call(endPointConfiguration, operation, successfulLinkages, failedLinkages, expectedNumberOfCalls, CORRELATION_ID);
 
         verify(provider).using("closedMasterDataLinkageConfig");
+        verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).send(any(MasterDataLinkageConfigEventMessageType.class));
     }
 
     private void verifyFailure(ErrorType failure) {

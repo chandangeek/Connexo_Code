@@ -6,12 +6,10 @@ package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -64,16 +62,6 @@ public class UtilitiesTimeSeriesBulkCreateConfirmationReceiver extends AbstractI
     @Reference
     public void setTranslationsProvider(WebServiceActivator translationsProvider) {
         this.thesaurus = translationsProvider.getThesaurus();
-    }
-
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
     }
 
     @Override

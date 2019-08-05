@@ -85,6 +85,10 @@ public final class DeviceMessageConstants {
     public static final String MaxCyclesDefaultTranslation = "Maximum cycles";
     public static final String RequestedBlockSize = "FirmwareDeviceMessage.RequestedBlockSize";
     public static final String RequestedBlockSizeDefaultTranslation = "Requested block size";
+    public static final String MulticastGroup = "FirmwareDeviceMessage.MulticastGroup";
+    public static final String MulticastGroupDefaultTranslation = "Multicast group";
+    public static final String UdpMeterPort = "FirmwareDeviceMessage.UdpMeterPort";
+    public static final String UdpMeterPortDefaultTranslation = "UDP meter port";
     public static final String PadLastBlock = "FirmwareDeviceMessage.PadLastBlock";
     public static final String PadLastBlockDefaultTranslation = "Pad the last block";
     public static final String UseTransferredBlockStatus = "FirmwareDeviceMessage.UseTransferredBlockStatus";

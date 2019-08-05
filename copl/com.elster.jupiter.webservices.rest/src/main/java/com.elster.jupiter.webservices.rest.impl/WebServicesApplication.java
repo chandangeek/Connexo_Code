@@ -17,6 +17,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -58,6 +59,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
         return ImmutableSet.of(
                 RestValidationExceptionMapper.class,
                 EndPointConfigurationResource.class,
+                WebServiceCallOccurrenceResource.class,
                 WebServicesResource.class,
                 WebServicesFieldResource.class
         );
@@ -79,7 +81,8 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(WebServicesService.COMPONENT_NAME, Layer.DOMAIN)));
     }
 
     @Reference
@@ -111,7 +114,9 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     public void setOrmService(OrmService ormService){this.ormService = ormService;}
 
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService){this.threadPrincipalService = threadPrincipalService;}
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
 
     @Override
     public String getComponentName() {
@@ -141,7 +146,7 @@ public class WebServicesApplication extends Application implements MessageSeedPr
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(EndPointConfigurationInfoFactory.class).to(EndPointConfigurationInfoFactory.class);
             bind(WebServicesInfoFactory.class).to(WebServicesInfoFactory.class);
-            bind(WebServiceCallOccurrenceLogInfoFactory.class).to(WebServiceCallOccurrenceLogInfoFactory.class);
+            bind(EndPointLogInfoFactory.class).to(EndPointLogInfoFactory.class);
             bind(WebServiceCallOccurrenceInfoFactory.class).to(WebServiceCallOccurrenceInfoFactory.class);
             bind(ormService).to(OrmService.class);
             bind(webServicesService).to(WebServicesService.class);

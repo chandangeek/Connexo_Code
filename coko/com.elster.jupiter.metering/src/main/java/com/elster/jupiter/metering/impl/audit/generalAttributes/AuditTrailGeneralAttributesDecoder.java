@@ -70,14 +70,19 @@ public class AuditTrailGeneralAttributesDecoder extends AbstractUsagePointAuditD
                         .sorted(Comparator.comparing(UsagePoint::getVersion))
                         .collect(Collectors.toList());
 
-                UsagePoint from = allEntries.get(0);
-                UsagePoint to = allEntries.get(allEntries.size() - 1);
-                getAuditLogChangeForString(from.getName(), to.getName(), PropertyTranslationKeys.USAGEPOINT_NAME).ifPresent(auditLogChanges::add);
-                getAuditLogChangeForLocation(from, to).ifPresent(auditLogChanges::add);
-                getAuditLogChangeForCoordinates(from, to).ifPresent(auditLogChanges::add);
-                getAuditLogChangeForString(getThesaurus().getString(from.getLifeCycle().getName(), from.getLifeCycle().getName()), getThesaurus().getString(to.getLifeCycle().getName(), to.getLifeCycle().getName()), PropertyTranslationKeys.USAGEPOINT_LIFE_CYCLE_NAME).ifPresent(auditLogChanges::add);
-                getAuditLogChangeForString(from.getReadRoute(), to.getReadRoute(), PropertyTranslationKeys.USAGEPOINT_READROUTE).ifPresent(auditLogChanges::add);
-                getAuditLogChangeForString(from.getServiceDeliveryRemark(), to.getServiceDeliveryRemark(), PropertyTranslationKeys.USAGEPOINT_SERVICE_DELIVERY_REMARK).ifPresent(auditLogChanges::add);
+                getAuditLogChangeForState().ifPresent(auditLogChanges::add);
+
+                if (allEntries.size()>=2) {
+                    UsagePoint from = allEntries.get(0);
+                    UsagePoint to = allEntries.get(allEntries.size() - 1);
+                    getAuditLogChangeForString(from.getName(), to.getName(), PropertyTranslationKeys.USAGEPOINT_NAME).ifPresent(auditLogChanges::add);
+                    getAuditLogChangeForLocation(from, to).ifPresent(auditLogChanges::add);
+                    getAuditLogChangeForCoordinates(from, to).ifPresent(auditLogChanges::add);
+                    getAuditLogChangeForString(getThesaurus().getString(from.getLifeCycle().getName(), from.getLifeCycle().getName()), getThesaurus().getString(to.getLifeCycle()
+                            .getName(), to.getLifeCycle().getName()), PropertyTranslationKeys.USAGEPOINT_LIFE_CYCLE_NAME).ifPresent(auditLogChanges::add);
+                    getAuditLogChangeForString(from.getReadRoute(), to.getReadRoute(), PropertyTranslationKeys.USAGEPOINT_READROUTE).ifPresent(auditLogChanges::add);
+                    getAuditLogChangeForString(from.getServiceDeliveryRemark(), to.getServiceDeliveryRemark(), PropertyTranslationKeys.USAGEPOINT_SERVICE_DELIVERY_REMARK).ifPresent(auditLogChanges::add);
+                }
             });
             return auditLogChanges;
         } catch (Exception e) {
@@ -184,6 +189,18 @@ public class AuditTrailGeneralAttributesDecoder extends AbstractUsagePointAuditD
         return formattedLocationMembers.stream()
                 .flatMap(List::stream).filter(Objects::nonNull)
                 .collect(Collectors.joining(", "));
+    }
+
+    private Optional<AuditLogChange> getAuditLogChangeForState() {
+        return new StateDecoder(this).getAuditLog();
+    }
+
+    public OrmService getOrmService(){
+        return ormService;
+    }
+
+    public Optional<UsagePoint> getUsagePoint(){
+        return usagePoint;
     }
 
 

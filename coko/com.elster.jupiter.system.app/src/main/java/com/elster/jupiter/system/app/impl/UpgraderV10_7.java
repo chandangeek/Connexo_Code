@@ -17,12 +17,12 @@ public class UpgraderV10_7 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        userService.grantGroupWithPrivilege(UserService.SYSTEM_ADMIN_ROLE, SysAppService.APPLICATION_KEY, getNewMeterExpertPrivileges());
+        userService.grantGroupWithPrivilege(UserService.SYSTEM_ADMIN_ROLE, SysAppService.APPLICATION_KEY, getNewSysAdminPrivileges());
     }
 
-    private String[] getNewMeterExpertPrivileges() {
+    private String[] getNewSysAdminPrivileges() {
         return new String[]{
-                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORTY_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES
         };
     }

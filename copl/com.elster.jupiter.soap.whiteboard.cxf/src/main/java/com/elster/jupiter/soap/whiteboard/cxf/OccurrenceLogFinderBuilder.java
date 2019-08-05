@@ -7,13 +7,13 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface OccurrenceLogFinderBuilder {
 
-    public OccurrenceLogFinderBuilder withEndPointConfiguration(EndPointConfiguration epc);
+    OccurrenceLogFinderBuilder withEndPointConfiguration(EndPointConfiguration epc);
 
-    public OccurrenceLogFinderBuilder withEmptyOccurrence();
+    OccurrenceLogFinderBuilder withNoOccurrence();
 
-    public OccurrenceLogFinderBuilder withOccurrenceId(WebServiceCallOccurrence epoc);
+    OccurrenceLogFinderBuilder withOccurrenceId(WebServiceCallOccurrence epoc);
 
-    public Finder<EndPointLog> build();
+    Finder<EndPointLog> build();
 
 }
 

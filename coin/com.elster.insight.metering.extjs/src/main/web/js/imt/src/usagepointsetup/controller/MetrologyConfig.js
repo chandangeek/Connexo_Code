@@ -75,7 +75,9 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
         var me = this,
             page = me.getPage(),
             usagePoint = btn.usagePoint,
-            meterActivations = me.getMetersForm().getValue();
+            meterActivations = me.getMetersForm().getValue(),
+            confirmationMessage = '<p>' + Uni.I18n.translate('metrologyconfiguration.general.activate.confirmation.bodyOne', 'IMT', "If you have unlinked a meter it wouldn't be displayed on usage point history page. Use this option if the meter has been linked by mistake.") + '</p>'
+            + Uni.I18n.translate('metrologyconfiguration.general.activate.confirmation.bodyTwo', 'IMT', 'To keep meter history after unlinking use the action on metrology configuration page.');
 
         meterActivations = _.filter(meterActivations, function (meterActivation) {
             return meterActivation['isAddRow'] != true;
@@ -140,7 +142,25 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             }
         };
         usagePoint.set('meterActivations', meterActivations);
-        usagePoint.activateMeters(callback, failure);
-    }
 
+        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.button.save', 'IMT', 'Save'),
+            
+        });
+        confirmationWindow.show({
+            htmlEncode: false,
+            msg: confirmationMessage,
+            title: Uni.I18n.translate('metrologyconfiguration.general.activate.save.title', 'IMT', 'Save linked meters?'),
+            fn: function (button) {
+                if (button === 'confirm') {
+                    usagePoint.activateMeters(callback, failure);
+                } else if (button === 'cancel') {
+                    if (page) {
+                        window.location.href = "#/usagepoints/Test/metrologyconfiguration/activatemeters";
+                    }
+                }
+            }
+        });
+
+    }
 });

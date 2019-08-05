@@ -11,6 +11,7 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
   fieldMaxWidth: 600,
   lineHeight: 16,
   lines: 10,
+  maxLength: 19000,
 
   requires: [
     'Ext.form.field.TextArea'
@@ -73,7 +74,6 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
       .replace(/\t/g, me.separator)
       .replace(/\r\n/g, me.separator)
       .replace(/\n/g, me.separator)
-      .replace(/\s/g, me.separator)
       .split(me.separator)
     ;
 
@@ -113,7 +113,8 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
       minWidth: me.fieldMaxWidth,
       height: (me.lines * me.lineHeight) + 8, // 8 - padding
       grow: false,
-      maxLength: 5000,
+      maxLength: me.maxLength,
+      maxLengthText: Uni.I18n.translate('search.field.internal.textarea.maxSymbLimit','UNI','Maximum symbol limit reached ({0})', [me.maxLength]),
       allowBlank: !me.isFilterField,
       validateOnBlur: false,
       validator: function() {

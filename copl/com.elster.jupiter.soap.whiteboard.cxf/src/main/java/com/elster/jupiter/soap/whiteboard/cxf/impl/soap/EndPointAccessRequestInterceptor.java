@@ -16,9 +16,6 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
-import javax.xml.bind.JAXBContext;
-
-
 
 /**
  * This is an interceptor, however, depending on the direction of the webservice, must be connected as Out or In interceptor in the appropriate stream
@@ -39,7 +36,6 @@ public class EndPointAccessRequestInterceptor extends AbstractPhaseInterceptor<M
     }
 
 
-    /*HADLE MESSAGE!!!*/
     @Override
     public void handleMessage(Message message) throws Fault {
         if (message != null) {

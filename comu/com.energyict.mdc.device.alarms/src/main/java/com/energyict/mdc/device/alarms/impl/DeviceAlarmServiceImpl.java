@@ -31,6 +31,7 @@ import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -47,6 +48,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -77,6 +79,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -352,6 +355,13 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         return eagerClasses;
     }
 
+    private Condition getDeviceGroupSearchCondition(Collection<EndDeviceGroup> endDeviceGroups) {
+        return endDeviceGroups.stream()
+                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), "baseIssue.device"))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
+    }
+
     private Condition buildConditionFromFilter(DeviceAlarmFilter filter) {
         Condition condition = Condition.TRUE;
         //filter by issue id
@@ -402,6 +412,10 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         //filter by device
         if (!filter.getDevices().isEmpty()) {
             condition = condition.and(where("baseIssue.device").in(filter.getDevices()));
+        }
+        //filter by device group
+        if (!filter.getDeviceGroups().isEmpty()) {
+            condition = condition.and(getDeviceGroupSearchCondition(filter.getDeviceGroups()));
         }
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {

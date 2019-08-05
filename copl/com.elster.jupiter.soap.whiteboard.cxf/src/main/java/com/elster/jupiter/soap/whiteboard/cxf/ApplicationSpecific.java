@@ -6,9 +6,9 @@ import aQute.bnd.annotation.ConsumerType;
 public interface ApplicationSpecific {
 
     enum WebServiceApplicationName{
-        MULTISENSE("Multisense"),
+        MULTISENSE("MultiSense"),
         INSIGHT("Insight"),
-        MULTISENSE_INSIGHT("Multisense/Insight"),
+        MULTISENSE_INSIGHT("MultiSense/Insight"),
         UNDEFINED("Application name hasn't been specified");
 
         private String name;

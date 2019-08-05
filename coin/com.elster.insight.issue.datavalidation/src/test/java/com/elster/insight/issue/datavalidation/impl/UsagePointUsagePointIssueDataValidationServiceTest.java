@@ -216,7 +216,7 @@ public class UsagePointUsagePointIssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getAssignee().getUser().getId()).isEqualTo(assignee.getId());
@@ -246,7 +246,7 @@ public class UsagePointUsagePointIssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         UsagePointIssueDataValidation issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -284,7 +284,7 @@ public class UsagePointUsagePointIssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getDevice()).isEqualTo(usagePoint);
@@ -315,7 +315,7 @@ public class UsagePointUsagePointIssueDataValidationServiceTest {
         assertThat(issues).hasSize(1);
         UsagePointIssueDataValidation issue = issues.get(0);
         assertThat(issue.getId()).isEqualTo(baseIssues.get(0).getId());
-        assertThat(issue.getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(issue.getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(issue.getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
 
@@ -609,7 +609,7 @@ public class UsagePointUsagePointIssueDataValidationServiceTest {
         Optional<UsagePointHistoricalIssueDataValidation> historicalIssue = usagePointIssueDataValidationService.findHistoricalIssue(openIssue.getId());
         assertThat(historicalIssue).isPresent();
         assertThat(historicalIssue.get().getId()).isEqualTo(openIssue.getId());
-        assertThat(historicalIssue.get().getRule().getId()).isEqualTo(issueCreationRule.getId());
+        assertThat(historicalIssue.get().getRule().get().getId()).isEqualTo(issueCreationRule.getId());
         assertThat(historicalIssue.get().getReason().getKey()).isEqualTo(UsagePointIssueDataValidationService.DATA_VALIDATION_ISSUE_REASON);
         assertThat(historicalIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
         List<UsagePointNotEstimatedBlock> usagePointNotEstimatedBlocks = historicalIssue.get().getNotEstimatedBlocks();

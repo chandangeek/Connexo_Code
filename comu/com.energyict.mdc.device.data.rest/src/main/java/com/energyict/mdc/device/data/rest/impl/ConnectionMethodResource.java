@@ -132,7 +132,19 @@ public class ConnectionMethodResource {
         if(isOutboundTLS(task) && !getConnnectionTaskProperty(props, "ServerTLSCertificate").isPresent()) {
             return false;
         }
-        return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+
+        // TCP/IP
+        if(isOutBoundTcpIp(task)){
+            return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+        }
+
+        //Serial Optical
+        return (Objects.nonNull(task.getComPortPool()));
+    }
+
+    private boolean isOutBoundTcpIp(ConnectionTask<?,?> task) {
+        //todo: use com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys.OutboundTcpIpConnectionType
+        return task.getPluggableClass().getName().equals("Outbound TCP/IP");
     }
 
     private boolean isOutboundTLS(ConnectionTask<?,?> task) {

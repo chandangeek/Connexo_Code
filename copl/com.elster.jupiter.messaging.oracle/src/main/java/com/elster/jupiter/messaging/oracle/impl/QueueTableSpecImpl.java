@@ -34,6 +34,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     private String payloadType;
     private boolean multiConsumer;
     private boolean active;
+    private boolean isPrioritized;
 
     @SuppressWarnings("unused")
     private long version;
@@ -56,16 +57,21 @@ public class QueueTableSpecImpl implements QueueTableSpec {
         this.thesaurus = thesaurus;
     }
 
-    QueueTableSpecImpl init(String name, String payloadType, boolean multiConsumer) {
+    QueueTableSpecImpl init(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
         this.name = name;
         this.payloadType = payloadType;
         this.multiConsumer = multiConsumer;
+        this.isPrioritized = isPrioritized;
         this.fromDB = false;
         return this;
     }
 
     static QueueTableSpecImpl from(DataModel dataModel, String name, String payloadType, boolean multiConsumer) {
-        return dataModel.getInstance(QueueTableSpecImpl.class).init(name, payloadType, multiConsumer);
+        return dataModel.getInstance(QueueTableSpecImpl.class).init(name, payloadType, multiConsumer, false);
+    }
+
+    static QueueTableSpecImpl from(DataModel dataModel, String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
+        return dataModel.getInstance(QueueTableSpecImpl.class).init(name, payloadType, multiConsumer, isPrioritized);
     }
 
     @Override
@@ -182,6 +188,11 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     }
 
     @Override
+    public boolean isPrioritized() {
+        return isPrioritized;
+    }
+
+    @Override
     public String getPayloadType() {
         return payloadType;
     }
@@ -191,20 +202,20 @@ public class QueueTableSpecImpl implements QueueTableSpec {
         return active;
     }
 
-    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
-        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled);
+    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized) {
+        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, retries, buffered, isDefault, queueTypeName, isExtraQueueCreationEnabled, isPrioritized);
         spec.save();
         return spec;
     }
 
     @Override
-    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
-        return createDestinationSpec(name, retryDelay, retries, false, isDefault, queueTypeName, isExtraQueueCreationEnabled);
+    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled, boolean isPrioritized) {
+        return createDestinationSpec(name, retryDelay, retries, false, isDefault, queueTypeName, isExtraQueueCreationEnabled, isPrioritized);
     }
 
     @Override
     public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries, boolean isDefault, String queueTypeName, boolean isExtraQueueCreationEnabled) {
-        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName, isExtraQueueCreationEnabled);
+        return createDestinationSpec(name, retryDelay, retries, true, isDefault, queueTypeName, isExtraQueueCreationEnabled,false);
     }
 
     @Override

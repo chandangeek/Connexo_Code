@@ -7,6 +7,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequest;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.SOAUtilitiesSmartMeterEventERPBulkCreateRequestService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPBulkCrteReqMsg;
@@ -19,9 +20,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Singleton;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @Singleton
 @Component(name = MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT,
@@ -29,7 +28,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
         property = {"name=" + MeterEventCreateRequestProvider.SAP_CREATE_UTILITIES_SMART_METER_EVENT})
 public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPointProvider<SOAUtilitiesSmartMeterEventERPBulkCreateRequest> implements MeterEventCreateRequestProvider, OutboundSoapEndPointProvider, ApplicationSpecific {
 
-    private final List<SOAUtilitiesSmartMeterEventERPBulkCreateRequest> endpoints = new CopyOnWriteArrayList<>();
     private static final QName QNAME = new QName("http://dewa.gov.ae/AMI/Bulk", "SOA_UtilitiesSmartMeterEventERPBulkCreateRequestService");
     private static final String RESOURCE = "/wsdl/sap/UtilitiesSmartMeterEventERPBulkCreateRequestService.wsdl";
 
@@ -44,6 +42,11 @@ public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPoin
 
     public void removeSOAUtilitiesSmartMeterEventERPBulkCreateRequest(SOAUtilitiesSmartMeterEventERPBulkCreateRequest out) {
         super.doRemoveEndpoint(out);
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 
     @Override

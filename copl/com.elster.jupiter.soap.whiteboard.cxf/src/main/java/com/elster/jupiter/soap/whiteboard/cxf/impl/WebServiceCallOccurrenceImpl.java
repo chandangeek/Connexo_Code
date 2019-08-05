@@ -34,13 +34,13 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
 
     public enum Fields {
         ID("id"),
-        startTime("startTime"),
-        endTime("endTime"),
-        requestName("requestName"),
-        endPointConfiguration("endPointConfiguration"),
-        status("status"),
-        applicationName("applicationName"),
-        payload("payload");
+        START_TIME("startTime"),
+        END_TIME("endTime"),
+        REQUEST_NAME("requestName"),
+        ENDPOINT_CONFIGURATION("endPointConfiguration"),
+        STATUS("status"),
+        APPLICATION_NAME("applicationName"),
+        PAYLOAD("payload");
 
         private final String javaFieldName;
 

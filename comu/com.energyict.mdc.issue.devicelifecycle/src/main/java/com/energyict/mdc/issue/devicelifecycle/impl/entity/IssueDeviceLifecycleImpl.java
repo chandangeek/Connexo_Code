@@ -113,7 +113,7 @@ public class IssueDeviceLifecycleImpl implements IssueDeviceLifecycle {
     }
 
     @Override
-    public CreationRule getRule() {
+    public Optional<CreationRule> getRule() {
         return getBaseIssue().getRule();
     }
 

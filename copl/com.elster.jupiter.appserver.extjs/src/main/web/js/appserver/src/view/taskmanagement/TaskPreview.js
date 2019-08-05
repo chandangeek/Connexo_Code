@@ -55,8 +55,16 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
                                             name: 'name'
                                         },
                                         {
+                                            fieldLabel: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                                            name: 'queueType'
+                                        },
+                                        {
                                             fieldLabel: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
                                             name: 'queue'
+                                        },
+                                        {
+                                            fieldLabel: Uni.I18n.translate('general.priority', 'APR', 'Priority'),
+                                            name: 'priority'
                                         }
                                     ]
                                 },
@@ -89,6 +97,14 @@ Ext.define('Apr.view.taskmanagement.TaskPreview', {
                                             fieldLabel: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
                                             itemId: 'nextRunField',
                                             name: 'nextRun'
+                                        },
+                                        {
+                                            fieldLabel: Uni.I18n.translate('general.suspendedTask', 'APR', 'Suspended'),
+                                            itemId: 'suspendedField',
+                                            name: 'suspendUntilTime',
+                                            renderer: function(value) {
+                                                return value ? Uni.I18n.translate('general.suspended.yes', 'APR', 'Yes <br/>has been suspended until next run') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
+                                            }
                                         }
                                     ]
                                 }

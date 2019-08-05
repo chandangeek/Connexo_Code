@@ -30,6 +30,7 @@ import java.util.Optional;
 public class UsagePointConfigServiceCallHandler extends AbstractServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "UsagePointConfigServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = null;
 
     private final Provider<UsagePointBuilder> usagePointBuilderProvider;
     private final JsonService jsonService;

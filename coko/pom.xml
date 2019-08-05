@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>kore</artifactId>
@@ -244,6 +244,24 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
+                <artifactId>issue.servicecall</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>issue.servicecall.rest</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>issue.servicecall.extjs</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
                 <artifactId>slp.importers</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
@@ -441,6 +459,9 @@
                 <module>com.elster.jupiter.metering.zone</module>
                 <module>com.elster.jupiter.parties</module>
                 <module>com.elster.jupiter.parties.rest</module>
+                <module>com.elster.jupiter.issue.servicecall</module>
+                <module>com.elster.jupiter.issue.servicecall.rest</module>
+                <module>com.elster.jupiter.issue.servicecall.extjs</module>
                 <module>com.elster.jupiter.slp.importers</module>
                 <module>com.elster.jupiter.system.app</module>
                 <module>com.elster.jupiter.system.app.help</module>

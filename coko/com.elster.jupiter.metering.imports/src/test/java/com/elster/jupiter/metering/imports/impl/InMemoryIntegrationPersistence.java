@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.imports.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -164,6 +165,7 @@ public class InMemoryIntegrationPersistence {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
 
         }
     }

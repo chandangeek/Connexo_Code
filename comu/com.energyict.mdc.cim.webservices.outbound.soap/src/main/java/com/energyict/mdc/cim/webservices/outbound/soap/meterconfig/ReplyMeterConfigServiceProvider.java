@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
@@ -44,6 +45,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
         service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, TranslationKeyProvider.class},
@@ -53,7 +55,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     private static final String COMPONENT_NAME = "SIM";
     private static final String NOUN = "MeterConfig";
-    private static final String RESOURCE_WSDL = "/meterconfig/ReplyMeterConfig.wsdl";
+    private static final String RESOURCE_WSDL = "/wsdl/meterconfig/ReplyMeterConfig.wsdl";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -80,6 +82,11 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     public void removeMeterConfigPort(MeterConfigPort meterConfigPort) {
         super.doRemoveEndpoint(meterConfigPort);
+    }
+
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -128,7 +135,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     @Override
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
-            MeterConfigEventMessageType message = createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED);
+            MeterConfigEventMessageType message = createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED, null);
             using("changedMeterConfig")
                     .toEndpoints(endPointConfiguration)
                     .send(message);
@@ -139,21 +146,21 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls) {
+                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, String correlationId) {
         String method;
         MeterConfigEventMessageType message;
         switch (operation) {
             case CREATE:
                 method = "createdMeterConfig";
-                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED);
+                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
                 break;
             case UPDATE:
                 method = "changedMeterConfig";
-                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED);
+                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
                 method = "replyMeterConfig";
-                message = createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY);
+                message = createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
                 break;
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
@@ -192,13 +199,15 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return meterConfigFactory.asGetMeterConfig(devices);
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb) {
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb, String correlationId) {
         MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
+        header.setCorrelationID(correlationId);
+
         meterConfigEventMessageType.setHeader(header);
 
         // set reply
@@ -215,8 +224,8 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb) {
-        MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb);
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
+        MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb, correlationId);
 
         // set reply
         ReplyType replyType = cimMessageObjectFactory.createReplyType();

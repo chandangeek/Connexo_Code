@@ -162,13 +162,18 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                     }));
         }
 
-        Optional<EventTypeInfo> newEventProps = openIssue.getRule()
-                .getProperties()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().equals(RADIOGROUP))
-                .findFirst()
-                .map(found -> (EventTypeInfo) found.getValue());
+        Optional<EventTypeInfo> newEventProps;
+        if (openIssue.getRule().isPresent()) {
+            newEventProps = openIssue.getRule().get()
+                    .getProperties()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey().equals(RADIOGROUP))
+                    .findFirst()
+                    .map(found -> (EventTypeInfo) found.getValue());
+        } else {
+            newEventProps = Optional.empty();
+        }
         if (newEventProps.isPresent() &&
                 newEventProps.get().hasIncreaseUrgency()) {
             openIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()

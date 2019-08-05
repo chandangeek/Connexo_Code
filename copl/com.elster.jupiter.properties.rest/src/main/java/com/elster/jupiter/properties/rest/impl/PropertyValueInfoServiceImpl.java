@@ -225,6 +225,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.LIFECYCLETRANSITION
                 && propertyType != SimplePropertyType.TASK
                 && propertyType != SimplePropertyType.DEVICEGROUPTYPE
+                && propertyType != SimplePropertyType.SERVICE_CALL
+                && propertyType != SimplePropertyType.SERVICE_CALL_STATE
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
@@ -235,7 +237,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST || propertyType == SimplePropertyType.METROLOGYCONFIGURATIONLIST ||
                         propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE ||
-                        propertyType == SimplePropertyType.RADIO_GROUP || propertyType == SimplePropertyType.DEVICEGROUPTYPE || propertyType == SimplePropertyType.LIFECYCLETRANSITION || propertyType == SimplePropertyType.RECURRENCE_SELECTION_PROPS || propertyType == SimplePropertyType.TASK) {
+                        propertyType == SimplePropertyType.RADIO_GROUP || propertyType == SimplePropertyType.DEVICEGROUPTYPE || propertyType == SimplePropertyType.LIFECYCLETRANSITION || propertyType == SimplePropertyType.RECURRENCE_SELECTION_PROPS ||
+                        propertyType == SimplePropertyType.TASK || propertyType == SimplePropertyType.SERVICE_CALL || propertyType == SimplePropertyType.SERVICE_CALL_STATE) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
                 } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.IDWITHNAMELIST ||
                         propertyType == SimplePropertyType.BPM_PROCESS || propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT) {

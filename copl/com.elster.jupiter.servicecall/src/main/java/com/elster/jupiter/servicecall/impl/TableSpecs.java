@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallLog;
@@ -22,9 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME;
 
 /**
  * Created by bvn on 2/4/16.
@@ -88,7 +91,20 @@ public enum TableSpecs {
                     .conversion(ColumnConversion.NUMBER2ENUM)
                     .map(ServiceCallTypeImpl.Fields.currentLifeCycleState.fieldName())
                     .add();
+            table.column("APPKEY")
+                    .since(Version.version(10, 7))
+                    .varChar(NAME_LENGTH)
+                    .map(ServiceCallTypeImpl.Fields.appKey.fieldName())
+                    .add();
+            table.column("RETRY_STATE")
+                    .since(Version.version(10, 7))
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map(ServiceCallTypeImpl.Fields.retryState.fieldName())
+                    .add();
             Column serviceCallLifeCycle = table.column("LIFECYCLE").number().notNull().add();
+            table.column("DESTINATION").varChar(30).map("destination").notNull().since(version(10, 7)).installValue("'" + SERVICE_CALLS_DESTINATION_NAME + "'").add();
+            table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").since(version(10, 7)).add();
             table.addAuditColumns();
             table.foreignKey("FK_LIFECYCLE")
                     .references(ServiceCallLifeCycle.class)

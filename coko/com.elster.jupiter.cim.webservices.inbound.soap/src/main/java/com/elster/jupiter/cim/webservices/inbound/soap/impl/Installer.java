@@ -26,6 +26,5 @@ public class Installer extends AbstractInstaller implements FullInstaller {
 	@Override
 	public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
 		doTry("Create service call types", this::createServiceCallTypes, logger);
-		doTry("Create destination specs", this::createDestinationSpecs, logger);
 	}
 }

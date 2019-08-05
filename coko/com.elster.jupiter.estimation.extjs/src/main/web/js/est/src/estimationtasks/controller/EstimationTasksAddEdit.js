@@ -57,7 +57,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getEstimationPeriodCombo().store.load({
             params: {
-                category: 'relativeperiod.category.estimation'
+                category: 'relativeperiod.category.estimation',
+                pageSize:0
             },
             callback: function () {
                 dataSourcesContainer.loadGroupStore();

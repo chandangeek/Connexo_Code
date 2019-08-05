@@ -29,7 +29,7 @@ public class PrivilegesProviderV10_7 implements PrivilegesProvider {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 Privileges.RESOURCE_WEB_SERVICES.getKey(), Privileges.RESOURCE_WEB_SERVICES_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_HISTORTY_WEB_SERVICES,
+                Arrays.asList(Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
                         Privileges.Constants.RETRY_WEB_SERVICES)));
         return resources;
     }

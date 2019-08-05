@@ -8,7 +8,6 @@ import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -73,10 +72,6 @@ public class WebServiceIssueApplication extends Application {
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(WebServiceIssueService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
     }
 
     @Override

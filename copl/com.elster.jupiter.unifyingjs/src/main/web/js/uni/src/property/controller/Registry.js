@@ -70,6 +70,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         'Uni.property.view.property.Recurrence',
         'Uni.property.view.property.Task',
+        'Uni.property.view.property.ServiceCallIssueType',
+        'Uni.property.view.property.ServiceCallIssueState',
         'Uni.property.view.property.webservices.WebServiceIssue',
     ],
 
@@ -138,6 +140,8 @@ Ext.define('Uni.property.controller.Registry', {
         ANY_READINGTYPE: 'Uni.property.view.property.ReadingType',
         INTEGER: 'Uni.property.view.property.Number',
         WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference',
+        SERVICE_CALL: 'Uni.property.view.property.ServiceCallIssueType',
+        SERVICE_CALL_STATE: 'Uni.property.view.property.ServiceCallIssueState',
         IDWITHNAMELIST: 'Uni.property.view.property.webservices.WebServiceIssue',
     },
 

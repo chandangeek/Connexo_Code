@@ -10,11 +10,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import ch.iec.tc57._2011.meterreadings.MeterReadings;
+import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsEventMessageType;
 import ch.iec.tc57._2011.meterreadingsmessage.MeterReadingsResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
@@ -24,6 +26,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -61,7 +65,11 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
     private WebServiceCallOccurrence webServiceCallOccurrence;
     @Mock
     private Thesaurus thesaurus;
-    SendMeterReadingsProviderImpl provider;
+    @Mock
+    private OutboundEndPointProvider.RequestSender requestSender;
+    @Mock
+    private MeterReadingsResponseMessageType response;
+    private SendMeterReadingsProviderImpl provider;
 
     private void mockIntervalReadings() {
         mockIntervalReading(dailyReading, Range.openClosed(JAN_1ST.minusDays(1).toInstant(), JAN_1ST.toInstant()), 1.05);
@@ -75,12 +83,16 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         inject(AbstractOutboundEndPointProvider.class, provider, "endPointConfigurationService", endPointConfigurationService);
-        inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", thesaurus);
         when(webServiceCallOccurrence.getId()).thenReturn(1l);
         when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
         Map<String, Object> properties = ImmutableMap.of("url", "some_url", "epcId", 1l);
         provider.addMeterReadingsPort(meterReadingsPort, properties);
+        when(provider.using(anyString())).thenReturn(requestSender);
+        when(requestSender.toEndpoints(endPointConfiguration)).thenReturn(requestSender);
+        Map responseMap = new HashMap();
+        responseMap.put(endPointConfiguration, response);
+        when(requestSender.send(any())).thenReturn(responseMap);
     }
 
     @Test
@@ -92,10 +104,13 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
         listReadingInfo.add(readingInfo);
         when(readingStorer.getReadings()).thenReturn(listReadingInfo);
         mockIntervalReadings();
+        when(endPointConfiguration.isActive()).thenReturn(true);
+        when(endPointConfigurationService.getEndPointConfigurationsForWebService(anyString())).thenReturn(Arrays.asList(endPointConfiguration));
 
         provider.call(listReadingInfo, HeaderType.Verb.CREATED);
 
         verify(provider).using("createdMeterReadings");
+        verify(requestSender).send(any(MeterReadingsEventMessageType.class));
     }
 
     @Test
@@ -118,8 +133,13 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
                 .thenReturn(meterReadingsResponseMessageType);
 
         when(endPointConfiguration.getUrl()).thenReturn("some_url");
-        assertTrue(provider.call(meterReadings, HeaderType.Verb.CREATED, endPointConfiguration));
+        ReplyType reply = mock(ReplyType.class);
+        when(response.getReply()).thenReturn(reply);
+        when(reply.getResult()).thenReturn(ReplyType.Result.OK);
+        assertTrue(provider.call(meterReadings, getHeader(HeaderType.Verb.CREATED), endPointConfiguration));
         verify(provider).using("createdMeterReadings");
+        verify(requestSender).toEndpoints(endPointConfiguration);
+        verify(requestSender).send(any(MeterReadingsEventMessageType.class));
     }
 
     @Test
@@ -132,6 +152,13 @@ public class SendMeterReadingsProviderImplTest extends SendMeterReadingsTest {
     public void testGet() {
         SendMeterReadingsProviderImpl provider = new SendMeterReadingsProviderImpl();
         Assert.assertEquals(provider.get().getClass(), ch.iec.tc57._2011.sendmeterreadings.SendMeterReadings.class);
+    }
+
+    private HeaderType getHeader(HeaderType.Verb requestVerb) {
+        HeaderType header = new HeaderType();
+        header.setVerb(requestVerb);
+        header.setNoun("MeterReadings");
+        return header;
     }
 
     private static void inject(Class<?> clazz, Object instance, String fieldName, Object value) {

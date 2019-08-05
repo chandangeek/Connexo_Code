@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 
@@ -35,6 +36,7 @@ import javax.xml.ws.Service;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.enddeviceevents.provider",
@@ -66,9 +68,14 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
         super.doRemoveEndpoint(events);
     }
 
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
+    }
+
     @Override
     public Service get() {
-        return new SendEndDeviceEvents(this.getClass().getResource("/enddeviceevents/SendEndDeviceEvents.wsdl"));
+        return new SendEndDeviceEvents(this.getClass().getResource("/wsdl/enddeviceevents/SendEndDeviceEvents.wsdl"));
     }
 
     @Override
@@ -102,6 +109,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.CREATED);
         header.setNoun(END_DEVICE_EVENTS);
+        header.setCorrelationID(UUID.randomUUID().toString());
         responseMessage.setHeader(header);
 
         // set payload
@@ -140,6 +148,7 @@ public class EndDeviceEventsServiceProviderImpl extends AbstractOutboundEndPoint
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.CREATED);
         header.setNoun(END_DEVICE_EVENTS);
+        header.setCorrelationID(UUID.randomUUID().toString());
         responseMessage.setHeader(header);
 
         // set payload

@@ -55,6 +55,6 @@ public class InstallerTest {
         installer.install(dataModelUpgrader, logger);
 
         verify(serviceCallService, times(ServiceCallTypes.values().length)).createServiceCallType(anyString(),
-                anyString());
+                anyString(), anyString());
     }
 }

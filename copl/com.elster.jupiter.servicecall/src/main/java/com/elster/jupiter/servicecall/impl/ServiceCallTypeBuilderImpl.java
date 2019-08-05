@@ -7,6 +7,7 @@ package com.elster.jupiter.servicecall.impl;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.InvalidPropertySetDomainTypeException;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -23,14 +24,17 @@ class ServiceCallTypeBuilderImpl implements ServiceCallTypeBuilder {
     private final List<RegisteredCustomPropertySet> toBeRegisteredCustomPropertySets = new ArrayList<>();
     private final Thesaurus thesaurus;
 
-    public ServiceCallTypeBuilderImpl(IServiceCallService serviceCallService, String name, String versionName, IServiceCallLifeCycle serviceCallLifeCycle, DataModel dataModel, Thesaurus thesaurus) {
+    public ServiceCallTypeBuilderImpl(IServiceCallService serviceCallService, String name, String versionName, String reservedByApplication, IServiceCallLifeCycle serviceCallLifeCycle, String destination, DefaultState retryState, DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         instance = dataModel.getInstance(ServiceCallTypeImpl.class);
         instance.setName(name);
         instance.setVersionName(versionName);
         instance.setServiceCallLifeCycle(serviceCallLifeCycle);
+        instance.setDestination(destination);
         instance.setLogLevel(LogLevel.WARNING);
+        instance.setApplication(reservedByApplication);
+        instance.setRetryState(retryState);
     }
 
     @Override

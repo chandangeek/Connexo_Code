@@ -90,9 +90,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
     }
 
     public TimeDuration(int count, TimeUnit timeUnit) {
-        System.out.println("TIMEDURATION count="+count);
         this.count = count;
-        System.out.println("TIMEUNIT="+timeUnit.toString());
         this.timeUnit = timeUnit;
         this.timeUnitCode = timeUnit.getCode();
         //validate that the number of seconds doesn't cause an int overflow.
