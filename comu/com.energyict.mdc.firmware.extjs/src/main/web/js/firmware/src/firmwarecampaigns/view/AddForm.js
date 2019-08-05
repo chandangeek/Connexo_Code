@@ -280,7 +280,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             success: function (record) {
                 var firmvareVersionsView = me.down('#firmware-version-options');
                 var firmvareVersionsStore = firmvareVersionsView.store;
-                firmvareVersionsStore.loadRawData([record.data]);
+                firmvareVersionsStore.loadRawData([record.data.checkOptions]);
                 firmvareVersionsView.fillChecksAccordingStore();
                 firmvareVersionsView.show();
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
@@ -389,7 +389,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 }
                 var firmvareVersionsView = me.down('#firmware-version-options');
                 var firmvareVersionsStore = firmvareVersionsView.store;
-                firmvareVersionsStore.loadRawData([campaignRecord.data]);
+                firmvareVersionsStore.loadRawData([campaignRecord.data.checkOptions]);
                 firmvareVersionsView.fillChecksAccordingStore();
                 firmvareVersionsView.show();
                 firmvareVersionsView.disable();

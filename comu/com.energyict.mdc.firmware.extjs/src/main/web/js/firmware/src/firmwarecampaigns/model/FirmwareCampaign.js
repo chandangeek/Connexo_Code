@@ -88,7 +88,12 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             name: 'checkOptions',
             model: 'Fwc.firmwarecampaigns.model.FirmvareVersionsOption',
             associationKey: 'checkOptions',
-            foreignKey: 'checkOptions'
+            foreignKey: 'checkOptions',
+            getterName: 'getFirmvareVersionsOptions',
+            setterName: 'setFirmvareVersionsOptions',
+            reader: {
+                type: 'json'
+            }
         }
     ],
     proxy: {

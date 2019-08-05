@@ -54,12 +54,12 @@ Ext.define('Fwc.firmwarecampaigns.view.ConfigurationOptions', {
                             title: Uni.I18n.translate('general.firmwareVersions', 'FWC', 'Firmware versions'),
                             itemId: 'mdc-versions-tab',
                             items: [
-                                {
+                                /*{
                                     xtype: 'firmware-versions',
                                     deviceType: me.deviceType,
                                     isFirmwareCampaignVersions: true,
                                     router: me.router
-                                }
+                                }*/
                             ]
                         }
                 ]

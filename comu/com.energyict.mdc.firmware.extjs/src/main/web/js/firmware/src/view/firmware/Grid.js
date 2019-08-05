@@ -83,7 +83,9 @@ Ext.define('Fwc.view.firmware.Grid', {
 
         if (me.router && me.router.queryParams && me.router.queryParams.editOrder) me.editOrder = Boolean(me.router.queryParams.editOrder);
 
-        Ext.getStore(this.store).on('load', function(store, records, successful, eOpts){
+        var firmwareVersionStore = Ext.getStore(this.store)||Ext.create(this.store);
+
+        firmwareVersionStore.on('load', function(store, records, successful, eOpts){
             me.maxRankValue = records && records[0] && records[0].data && records[0].data.rank ? records[0].data.rank : 0;
         })
 
