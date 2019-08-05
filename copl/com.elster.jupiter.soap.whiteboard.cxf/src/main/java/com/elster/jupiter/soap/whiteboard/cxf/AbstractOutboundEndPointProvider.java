@@ -7,6 +7,7 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointException;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageSeeds;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.util.Pair;
@@ -14,15 +15,22 @@ import com.elster.jupiter.util.Pair;
 import aQute.bnd.annotation.ConsumerType;
 import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.NotAuthorizedException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.soap.MessageFactory;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,12 +39,21 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * Basic abstract class for implementation of {@link OutboundSoapEndPointProvider}s and (in the future) {@link OutboundRestEndPointProvider}s.
+ * Acts as a container of injected web service endpoints and provides unified interface {@link OutboundEndPointProvider} for simple sending of outbound requests.
+ * Creation of related web service call occurrences and (if needed) web service issues is implemented inside.
+ * <b>NB:</b> During the implementation please don't forget to introduce explicit dependency on {@link WebServicesService} in the subclass,
+ * otherwise the provider may not register on whiteboard and thus may work incorrectly (e.g. some fields below won't be injected).
+ * @param <EP> The type of web service endpoint (port).
+ */
 @ConsumerType
 public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEndPointProvider {
     public static final String URL_PROPERTY = "url";
@@ -53,10 +70,19 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     private Map<Long, EP> endpoints = new ConcurrentHashMap<>();
 
+    /**
+     * Must be overridden or re-implemented as a reference addition method in any subclass to inject endpoints; addition should be delegated to this method.
+     * @param endpoint An endpoint injected with the help of multiple/dynamic {@link Reference}.
+     * @param properties Properties of the injected endpoint.
+     */
     protected void doAddEndpoint(EP endpoint, Map<String, Object> properties) {
         endpoints.put(getEndpointConfigurationId(properties), endpoint);
     }
 
+    /**
+     * Must be overridden or re-implemented as a reference removal method in any subclass to remove injected endpoints; removal should be delegated to this method.
+     * @param endpoint An endpoint to remove; previously injected with the help of multiple/dynamic {@link Reference}.
+     */
     protected void doRemoveEndpoint(EP endpoint) {
         endpoints.values().removeIf(ep -> endpoint == ep);
     }
@@ -66,11 +92,24 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         return new RequestSenderImpl(methodName);
     }
 
+    /**
+     * Checks if there're any endpoints registered in this provider (i.e. published and ready for communication).
+     * @return
+     */
     protected boolean hasEndpoints() {
         return !endpoints.isEmpty();
     }
 
+    /**
+     * Returns the {@link Class} representing considered endpoints (ports).
+     * @return The {@link Class} representing considered endpoints (ports).
+     */
     protected abstract Class<EP> getService();
+
+    /**
+     * Returns the web service name.
+     * @return The web service name.
+     */
     protected abstract String getName();
 
     private void publish(EndPointConfiguration endPointConfiguration) {
@@ -84,7 +123,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         return properties == null ? null : (Long) properties.get(ENDPOINT_CONFIGURATION_ID_PROPERTY);
     }
 
-    protected final class RequestSenderImpl implements RequestSender {
+    private final class RequestSenderImpl implements RequestSender {
         private final String methodName;
         private Collection<EndPointConfiguration> endPointConfigurations;
 
@@ -136,7 +175,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         .filter(EndPointConfiguration::isActive)
                         .collect(Collectors.toSet());
                 if (endPointConfigurations.isEmpty()) {
-                    LOGGER.severe(thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINTS).format(getName()));
+                    throw new EndPointException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS, getName());
                 }
             }
             return endPointConfigurations.stream()
@@ -156,13 +195,13 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             Class<?> type = method.getParameterTypes()[0];
 
             try {
+                InputStream inputStream = new ByteArrayInputStream(message.getBytes());
+                SOAPMessage msg = MessageFactory.newInstance().createMessage(null, inputStream);
                 JAXBContext jaxbContext = JAXBContext.newInstance(type);
                 Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                StringReader sReader = new StringReader(message);
-                StreamSource streamSource = new StreamSource(sReader);
-                JAXBElement<?> root = jaxbUnmarshaller.unmarshal(streamSource, type);
+                JAXBElement<?> root = jaxbUnmarshaller.unmarshal(msg.getSOAPBody().extractContentAsDocument(), type);
                 return doSend(method, root.getValue());
-            } catch (JAXBException e) {
+            } catch (JAXBException | SOAPException | IOException e) {
                 getEndpoints().keySet().forEach(endPointConfiguration -> {
                     long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), message).getId();
                     webServicesService.failOccurrence(id,
@@ -224,7 +263,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         }
                     })
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
+                    .collect(HashMap::new, (map, pair) -> map.put(pair.getFirst(), pair.getLast()), Map::putAll); // to avoid NPE in case response is null
         }
 
         private String getApplicationName() {

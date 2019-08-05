@@ -25,12 +25,12 @@ import java.util.Optional;
 public class EndPointLogImpl implements EndPointLog, HasId {
 
     enum Fields {
-        timestamp("timestamp"),
-        logLevel("logLevel"),
-        endPointConfiguration("endPointConfiguration"),
-        message("message"),
-        stacetrace("stackTrace"),
-        occurrence("occurrence");
+        TIMESTAMP("timestamp"),
+        LOG_LEVEL("logLevel"),
+        ENDPOINT_CONFIGURATION("endPointConfiguration"),
+        MESSAGE("message"),
+        STACKTRACE("stackTrace"),
+        OCCURRENCE("occurrence");
 
         private final String javaFieldName;
 
@@ -66,7 +66,7 @@ public class EndPointLogImpl implements EndPointLog, HasId {
         this.timestamp = timestamp;
         this.logLevel = logLevel;
         this.endPointConfiguration.set(endPointConfiguration);
-        this.message = message;
+        this.message = message == null ? "null" : message;
         return this;
     }
 

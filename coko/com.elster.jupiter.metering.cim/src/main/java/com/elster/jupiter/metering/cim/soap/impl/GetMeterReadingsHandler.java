@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
-import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadings;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadingsPort;
 import ch.iec.tc57._2011.getmeterreadings.ReadingType;
@@ -63,7 +62,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
             Holder<MeterReadingsPayloadType> payload,
             @WebParam(name = "Reply", targetNamespace = "http://iec.ch/TC57/2011/GetMeterReadingsMessage", mode = WebParam.Mode.OUT)
             Holder<ReplyType> reply
-    ) throws FaultMessage {
+    ) {
         if (request != null) {
             Set<com.elster.jupiter.metering.ReadingType> requestedReadingTypes = requestedReadingTypes(request);
             if (!requestedReadingTypes.isEmpty()) {
@@ -145,8 +144,8 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     }
 
     private void addForRequestedEndDevices(GetMeterReadingsRequestType request, MeterReadingsPayloadType meterReadingsPayloadType, Range<Instant> range) {
-        for (String endDeviceMrid : requestedEndDevices(request)) {
-            Optional<com.elster.jupiter.metering.EndDevice> found = meteringService.findEndDeviceByMRID(endDeviceMrid);
+        for (String endDeviceName : requestedEndDevices(request)) {
+            Optional<com.elster.jupiter.metering.EndDevice> found = meteringService.findEndDeviceByName(endDeviceName);
             if (found.isPresent() && found.get() instanceof Meter) {
                 addForMeter(meterReadingsPayloadType, (Meter) found.get(), range);
             }
@@ -239,14 +238,15 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     }
 
     private List<String> requestedEndDevices(GetMeterReadingsRequestType request) {
-        List<String> endDeviceMrids = new ArrayList<>();
+        List<String> endDeviceNames = new ArrayList<>();
         if (request.getGetMeterReadings() != null) {
             GetMeterReadings getMeterReadings = request.getGetMeterReadings();
             for (EndDevice endDevice : getMeterReadings.getEndDevice()) {
-                endDeviceMrids.add(endDevice.getMRID());
+                if(endDevice.getNames().size() > 0 )
+                    endDeviceNames.add(endDevice.getNames().get(0).getName());
             }
         }
-        return endDeviceMrids;
+        return endDeviceNames;
     }
 
     private List<String> requestedUsagePointGroups(GetMeterReadingsRequestType request) {

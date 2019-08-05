@@ -7,17 +7,14 @@ import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 
 public class WebServiceCallOccurrenceInfoFactory {
-    private final Thesaurus thesaurus;
-    EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
+    private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
 
     @Inject
-    public WebServiceCallOccurrenceInfoFactory(Thesaurus thesaurus,
-                                               EndPointConfigurationInfoFactory endPointConfigurationInfoFactory) {
-        this.thesaurus = thesaurus;
+    public WebServiceCallOccurrenceInfoFactory(EndPointConfigurationInfoFactory endPointConfigurationInfoFactory) {
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
     }
 
-    public WebServiceCallOccurrenceInfo from(WebServiceCallOccurrence endPointOccurrence, UriInfo uriInfo, Boolean withPayload) {
+    public WebServiceCallOccurrenceInfo from(WebServiceCallOccurrence endPointOccurrence, UriInfo uriInfo, boolean withPayload) {
         WebServiceCallOccurrenceInfo info = new WebServiceCallOccurrenceInfo();
 
         info.id = endPointOccurrence.getId();

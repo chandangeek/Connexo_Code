@@ -12,11 +12,10 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -25,40 +24,40 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     private DataModel dataModel;
     private Condition condition;
 
-    WebServiceCallOccurrenceFinderBuilderImpl(DataModel dataModel, Condition condition) {
+    WebServiceCallOccurrenceFinderBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.condition = condition;
+        this.condition = Condition.TRUE;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withApplicationNames(Set<String> applicationNames){
-        if (!applicationNames.isEmpty())
-        {
-            List<String> namesList = new ArrayList<>(applicationNames);
-            this.condition = this.condition.and(where("applicationName").in(namesList));
+    public WebServiceCallOccurrenceFinderBuilder withApplicationNames(Set<String> applicationNames) {
+        if (!applicationNames.isEmpty()) {
+            this.condition = this.condition.and(where("applicationName").in(ImmutableList.copyOf(applicationNames)));
         }
         return this;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withStatusIn(List<WebServiceCallOccurrenceStatus> statuses) {
+    public WebServiceCallOccurrenceFinderBuilder withStatuses(Set<WebServiceCallOccurrenceStatus> statuses) {
         if (!statuses.isEmpty()) {
-            this.condition = this.condition.and(where("status").in(statuses));
+            this.condition = this.condition.and(where("status").in(ImmutableList.copyOf(statuses)));
         }
         return this;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withWebServiceName(String webServiceName) {
-        if (!webServiceName.isEmpty()) {
-            this.condition = this.condition.and(where("importScheduleId").isEqualTo(webServiceName));
+    public WebServiceCallOccurrenceFinderBuilder withWebServiceNames(Set<String> webServiceNames) {
+        if (!webServiceNames.isEmpty()) {
+            this.condition = this.condition.and(where("endPointConfiguration.webServiceName").in(ImmutableList.copyOf(webServiceNames)));
         }
         return this;
     }
 
     @Override
-    public WebServiceCallOccurrenceFinderBuilder withEndPointConfiguration(EndPointConfiguration epc) {
-        this.condition = this.condition.and(where("endPointConfiguration").isEqualTo(epc));
+    public WebServiceCallOccurrenceFinderBuilder withEndPointConfigurations(Set<EndPointConfiguration> endPointConfigurations) {
+        if (!endPointConfigurations.isEmpty()) {
+            this.condition = this.condition.and(where("endPointConfiguration").in(ImmutableList.copyOf(endPointConfigurations)));
+        }
         return this;
     }
 
@@ -90,7 +89,7 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
 
     @Override
     public Finder<WebServiceCallOccurrence> build() {
-        return DefaultFinder.of(WebServiceCallOccurrence.class, this.condition, this.dataModel)
+        return DefaultFinder.of(WebServiceCallOccurrence.class, this.condition, this.dataModel, EndPointConfiguration.class)
                 .defaultSortColumn("startTime");
     }
 }

@@ -18,5 +18,5 @@ public interface SendMeterReadingsProvider {
     String NAME = "CIM SendMeterReadings";
 
     void call(List<ReadingInfo> readingInfos, HeaderType.Verb requestVerb);
-    boolean call(MeterReadings meterReadings, HeaderType.Verb requestVerb, EndPointConfiguration endPointConfiguration);
+    boolean call(MeterReadings meterReadings, HeaderType header, EndPointConfiguration endPointConfiguration);
 }

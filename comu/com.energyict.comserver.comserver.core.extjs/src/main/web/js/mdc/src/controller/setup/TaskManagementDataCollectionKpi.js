@@ -308,7 +308,7 @@ Ext.define('Mdc.controller.setup.TaskManagementDataCollectionKpi', {
             });
 
         pageMainContent.setLoading(true);
-
+        widget.down('#data-collection-kpi-suspend').setValue(taskManagementRecord.get('suspendUntilTime'));
         Ext.Ajax.request({
             url: '/api/ddr/kpis/recurrenttask/' + taskManagementRecord.get('id'),
             method: 'GET',

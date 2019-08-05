@@ -211,7 +211,7 @@ public class MeterTopology extends AbstractMeterTopology {
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
         int address;
 
-        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
+        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equals(monthlyObisCode)) {
             address = 0;
         } else {
             address = getPhysicalAddress(serialNumber);

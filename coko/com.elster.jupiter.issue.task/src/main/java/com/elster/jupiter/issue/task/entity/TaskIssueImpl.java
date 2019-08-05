@@ -129,7 +129,7 @@ public class TaskIssueImpl implements TaskIssue {
     }
 
     @Override
-    public CreationRule getRule() {
+    public Optional<CreationRule> getRule() {
         return getBaseIssue().getRule();
     }
 

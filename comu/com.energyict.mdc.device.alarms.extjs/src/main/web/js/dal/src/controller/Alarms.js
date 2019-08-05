@@ -22,7 +22,8 @@ Ext.define('Dal.controller.Alarms', {
         'Dal.store.ClearStatus',
         'Dal.store.DueDate',
         'Dal.store.Devices',
-        'Dal.store.AlarmAssignees'
+        'Dal.store.AlarmAssignees',
+        'Dal.store.DeviceGroups'
     ],
 
     models: [
@@ -32,7 +33,8 @@ Ext.define('Dal.controller.Alarms', {
         'Dal.model.AlarmAssignee',
         'Dal.model.AlarmReason',
         'Dal.model.AlarmStatus',
-        'Dal.model.Device'
+        'Dal.model.Device',
+        'Dal.model.DeviceGroup'
     ],
 
 

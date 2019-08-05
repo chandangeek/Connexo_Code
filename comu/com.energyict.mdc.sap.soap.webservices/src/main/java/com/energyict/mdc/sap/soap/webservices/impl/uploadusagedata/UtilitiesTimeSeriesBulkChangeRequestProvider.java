@@ -122,6 +122,11 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         super.doRemoveEndpoint(changeRequestPort);
     }
 
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
+    }
+
     @Override
     String getMessageSenderMethod() {
         return UtilitiesTimeSeriesERPItemBulkChangeRequestEOut.class.getMethods()[0].getName();

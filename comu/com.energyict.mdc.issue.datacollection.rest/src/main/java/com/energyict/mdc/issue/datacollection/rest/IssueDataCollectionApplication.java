@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -72,6 +73,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile TopologyService topologyService;
     private volatile BpmService bpmService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     public IssueDataCollectionApplication() {
     }
@@ -106,6 +108,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
         this.issueActionService = issueService.getIssueActionService();
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference
@@ -220,6 +227,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(jsonService).to(JsonService.class);
             bind(DataCollectionIssueInfoFactory.class).to(DataCollectionIssueInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);

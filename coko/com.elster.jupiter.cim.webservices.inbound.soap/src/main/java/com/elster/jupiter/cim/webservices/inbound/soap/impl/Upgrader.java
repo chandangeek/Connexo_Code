@@ -26,7 +26,6 @@ public class Upgrader extends AbstractInstaller implements com.elster.jupiter.up
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         doTry("Create service call types", this::createServiceCallTypes, logger);
-        doTry("Create destination specs", this::createDestinationSpecs, logger);
     }
 
     void doTry(String description, Runnable runnable, Logger logger) {

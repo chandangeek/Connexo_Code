@@ -874,6 +874,10 @@ public enum TableSpecs {
                     .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainReferences("FK_MTR_UPMTRCONFIG_UP")
+                    .build();
         }
     },
     MTR_MULTIPLIERTYPE {
@@ -915,6 +919,10 @@ public enum TableSpecs {
                     .references(MultiplierType.class)
                     .map("type")
                     .add();
+            /*table.audit("")
+                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
+                    .domainReferences("FK_MTR_MULTIPLIERVALUE_MA", "FK_MTR_METERACTMETER")
+                    .build();*/
         }
     },
     MTR_METER_CONFIG {
@@ -1735,7 +1743,11 @@ public enum TableSpecs {
             table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
             Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
-
+            table.addVersionCountColumn("VERSIONCOUNT", "number", "version").since(version(10, 7));
+            table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 7));
+            table.addModTimeColumn("MODTIME", "modTime").since(version(10, 7));
+            table.addUserNameColumn("USERNAME", "userName").since(version(10, 7));
+            table.setJournalTableName("MTR_EFFECTIVE_CONTRACT_JRNL").since(version(10, 7));
             table.primaryKey("PK_MTR_EFFECTIVE_CONTRACT").on(idColumn).add();
             table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
                     .on(effectiveConfColumn)
@@ -1749,6 +1761,11 @@ public enum TableSpecs {
                     .references(MetrologyContract.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.fieldName())
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainReferences("MTR_EF_CONTRACT_2_EF_CONF", "FK_MTR_UPMTRCONFIG_UP")
+                    .contextReferenceColumn(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name())
+                    .build();
         }
     },
     MTR_CHANNEL_CONTAINER {
@@ -2008,6 +2025,10 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("state")
                     .add();
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_GENERAL_ATTRIBUTES.ordinal())
+                    .domainReferenceColumn("USAGE_POINT")
+                    .build();
         }
     },
     MTR_CALENDAR_ON_USAGEPOINT {

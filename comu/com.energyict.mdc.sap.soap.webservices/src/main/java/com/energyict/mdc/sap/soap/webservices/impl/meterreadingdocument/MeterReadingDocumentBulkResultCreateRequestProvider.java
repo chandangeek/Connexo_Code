@@ -7,6 +7,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkResult;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestEOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestEOutService;
 
@@ -17,7 +18,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.util.HashMap;
 import java.util.Map;
 
 @Component(name = "com.energyict.mdc.sap.meterreadingdocumentbulkresult.outbound.provider",
@@ -25,8 +25,6 @@ import java.util.Map;
         immediate = true,
         property = {"name=" + MeterReadingDocumentBulkResult.SAP_METER_READING_DOCUMENT_BULK_RESULT})
 public class MeterReadingDocumentBulkResultCreateRequestProvider extends AbstractOutboundEndPointProvider<MeterReadingDocumentERPResultBulkCreateRequestEOut> implements MeterReadingDocumentBulkResult, OutboundSoapEndPointProvider, ApplicationSpecific {
-
-    private final Map<String, MeterReadingDocumentERPResultBulkCreateRequestEOut> ports = new HashMap<>();
 
     public MeterReadingDocumentBulkResultCreateRequestProvider() {
         // for OSGI purposes
@@ -40,6 +38,11 @@ public class MeterReadingDocumentBulkResultCreateRequestProvider extends Abstrac
 
     public void removeBulkResultsPort(MeterReadingDocumentERPResultBulkCreateRequestEOut port) {
         super.doRemoveEndpoint(port);
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 
     @Override

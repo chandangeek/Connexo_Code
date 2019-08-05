@@ -4,28 +4,19 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
-
-import com.google.common.collect.ImmutableSet;
-import org.osgi.service.device.Device;
-
-import java.time.Clock;
-import java.util.Set;
-import java.util.stream.Stream;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -34,6 +25,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.service.device.Device;
+
+import java.time.Clock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -56,6 +50,8 @@ public class ServiceCallServiceImplTest {
     private CustomPropertySetService customPropertyService;
     @Mock
     private MessageService messageService;
+    @Mock
+    private AppService appService;
     @Mock
     private JsonService jsonService;
     @Mock
@@ -98,6 +94,7 @@ public class ServiceCallServiceImplTest {
                 customPropertyService,
                 messageService,
                 jsonService,
+                appService,
                 upgradeService,
                 Clock.systemDefaultZone()
         );

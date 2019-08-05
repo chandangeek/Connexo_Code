@@ -62,7 +62,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 Privileges.RESOURCE_WEB_SERVICES.getKey(), Privileges.RESOURCE_WEB_SERVICES_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.VIEW_WEB_SERVICES,
                         Privileges.Constants.ADMINISTRATE_WEB_SERVICES,
-                        Privileges.Constants.VIEW_HISTORTY_WEB_SERVICES,
+                        Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
                         Privileges.Constants.RETRY_WEB_SERVICES)));
         return resources;
     }

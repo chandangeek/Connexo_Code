@@ -1,12 +1,9 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-import aQute.bnd.annotation.ProviderType;
-
-@ProviderType
 public enum WebServiceCallOccurrenceStatus {
-    ONGOING("Ongoing"),
-    FAILED("Failed"),
-    SUCCESSFUL("Successful");
+    ONGOING("ongoing"),
+    FAILED("failed"),
+    SUCCESSFUL("successful");
 
     private String name;
 
@@ -16,5 +13,19 @@ public enum WebServiceCallOccurrenceStatus {
 
     WebServiceCallOccurrenceStatus(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
+
+    public static WebServiceCallOccurrenceStatus fromString(String text) {
+        for (WebServiceCallOccurrenceStatus status : WebServiceCallOccurrenceStatus.values()) {
+            if (status.name.equalsIgnoreCase(text)) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException();
     }
 }

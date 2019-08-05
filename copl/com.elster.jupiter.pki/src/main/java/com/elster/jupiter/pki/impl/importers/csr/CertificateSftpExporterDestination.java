@@ -20,10 +20,10 @@ public class CertificateSftpExporterDestination implements CertificateExportDest
     public CertificateSftpExporterDestination(FtpClientService ftpClientService, Clock clock, Map<String, Object> properties) {
         this.ftpClientService = ftpClientService;
         this.clock = clock;
-        host = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_HOSTNAME.getPropertyKey());
-        port = ((Long) properties.get(CSRImporterTranslatedProperty.EXPORT_PORT.getPropertyKey())).intValue();
-        username = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_USER.getPropertyKey());
-        password = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_PASSWORD.getPropertyKey());
+        host = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_SFTP_HOSTNAME.getPropertyKey());
+        port = ((Long) properties.get(CSRImporterTranslatedProperty.EXPORT_SFTP_PORT.getPropertyKey())).intValue();
+        username = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_SFTP_USER.getPropertyKey());
+        password = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_SFTP_PASSWORD.getPropertyKey());
         filename = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_NAME.getPropertyKey());
         directory = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_LOCATION.getPropertyKey());
         extension = (String) properties.get(CSRImporterTranslatedProperty.EXPORT_FILE_EXTENSION.getPropertyKey());

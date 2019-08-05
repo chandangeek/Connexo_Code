@@ -184,7 +184,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                     ImmutableMap.of(
                             version(10, 2), UpgraderV10_2.class,
                             version(10, 3), UpgraderV10_3.class,
-                            version(10,5), V10_5SimpleUpgrader.class
+                            version(10,5), V10_5SimpleUpgrader.class,
+                            version(10, 7), UpgraderV10_7.class
                     ));
         } catch (Exception e) {
             e.printStackTrace();

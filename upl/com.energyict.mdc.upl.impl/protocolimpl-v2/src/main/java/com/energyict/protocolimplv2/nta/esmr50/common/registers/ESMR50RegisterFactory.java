@@ -598,7 +598,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
             } else if(rObisCode.equalsIgnoreBChannel(P1_PORT_DSMR_VERSION)){
                 return new RegisterValue(register, abstractDataType.getOctetString().stringValue());
-            } else if (rObisCode.equals(MBUS_EVENT_LOG)) {
+            } else if (rObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
                 return new RegisterValue(adjustToMbusOC(rObisCode), new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.UNITLESS)), null, null, null, new Date(), 0, new String("MBUS_EVENT_LOG value: " + Long.toString(abstractDataType.longValue())));
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_CONFIGURATION)) {
                 MBusConfigurationObject configurationObject = new MBusConfigurationObject(abstractDataType);

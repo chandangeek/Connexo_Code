@@ -122,6 +122,11 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         super.doRemoveEndpoint(createRequestPort);
     }
 
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
+    }
+
     @Override
     String getMessageSenderMethod() {
         return UtilitiesTimeSeriesERPItemBulkCreateRequestEOut.class.getMethods()[0].getName();

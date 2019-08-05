@@ -142,9 +142,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public List<CreationRuleTemplate> getCreationRuleTemplates() {
-        List<CreationRuleTemplate> templates = new ArrayList<>();
-        templates.addAll(issueService.getCreationRuleTemplates().values());
-        return templates;
+        return new ArrayList<>(issueService.getCreationRuleTemplates().values());
     }
 
     @Override
@@ -228,6 +226,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         baseIssue.setOverdue(false);
         baseIssue.setRule(firedRule);
         baseIssue.setPriority(firedRule.getPriority());
+        baseIssue.setType(firedRule.getIssueType());
         event.getEndDevice().ifPresent(baseIssue::setDevice);
         event.getUsagePoint().ifPresent(baseIssue::setUsagePoint);
         baseIssue.save();

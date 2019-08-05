@@ -251,9 +251,15 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     }
 
     @Override
-    public CollectedFirmwareVersion getFirmwareVersions() {
-        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
 
+        if (serialNumber!=null){
+            if (!serialNumber.equals(getSerialNumber())){
+                return collectSlaveFirmwareVersions(serialNumber);
+            }
+        }
+
+        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(this.offlineDevice.getId()));
 
         collectFirmwareVersionMeterCore(result);
 
@@ -327,31 +333,5 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         return null;
     }
 
-    /**
-     * Return a B-Field corrected ObisCode.
-     *
-     * @param obisCode     the ObisCode to correct
-     * @param serialNumber the serialNumber of the device for which this ObisCode must be corrected
-     * @return the corrected ObisCode
-     */
-    @Override
-    public ObisCode getPhysicalAddressCorrectedObisCode(final ObisCode obisCode, final String serialNumber) {
-        int address;
-
-        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
-            address = 0;
-        } else {
-            address = getPhysicalAddressFromSerialNumber(serialNumber);
-        }
-
-        if ((address == 0 && obisCode.getB() != -1 && obisCode.getB() != 128)) { // then don't correct the obisCode
-            return obisCode;
-        }
-
-        if (address != -1) {
-            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
-        }
-        return null;
-    }
 
 }

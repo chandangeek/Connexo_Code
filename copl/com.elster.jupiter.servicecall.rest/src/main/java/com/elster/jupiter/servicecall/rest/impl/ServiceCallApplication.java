@@ -5,6 +5,7 @@
 package com.elster.jupiter.servicecall.rest.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -50,6 +51,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
     private volatile ReferenceResolver referenceResolver;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MessageService messageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -88,7 +90,6 @@ public class ServiceCallApplication extends Application implements TranslationKe
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
         translationKeys.addAll(Arrays.asList(LogLevel.values()));
         translationKeys.addAll(Arrays.asList(Status.values()));
         return translationKeys;
@@ -124,6 +125,11 @@ public class ServiceCallApplication extends Application implements TranslationKe
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -139,6 +145,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
             bind(thesaurus).to(Thesaurus.class);
             bind(referenceResolver).to(ReferenceResolver.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(messageService).to(MessageService.class);
         }
     }
 }

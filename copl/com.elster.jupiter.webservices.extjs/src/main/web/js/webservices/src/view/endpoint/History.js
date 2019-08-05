@@ -10,7 +10,7 @@ Ext.define('Wss.view.endpoint.History', {
 
   requires: [
     'Wss.view.Menu',
-    'Wss.store.endpoint.EndpointOccurrence',
+    'Wss.store.endpoint.Occurrence',
     'Wss.view.HistoryTopFilter',
     'Wss.view.webservice.HistoryPreviewContainer',
     'Uni.grid.commander.SortingPanel',
@@ -50,14 +50,14 @@ Ext.define('Wss.view.endpoint.History', {
         dockedItems: [
           {
             dock: 'top',
-            store: 'Wss.store.endpoint.EndpointOccurrence',
+            store: 'Wss.store.endpoint.Occurrence',
             xtype: 'mss-view-history-history-topfilter',
             itemId: 'mss-view-history-history-topfilter',
             endpoint: me.record
           },
           {
             dock: 'top',
-            store: 'Wss.store.endpoint.EndpointOccurrence',
+            store: 'Wss.store.endpoint.Occurrence',
             xtype: 'uni-grid-commander-sortingpanel',
             menu: 'wss-webservice-sort-menu',
             items: [

@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import ch.iec.tc57._2011.masterdatalinkageconfig.MasterDataLinkageConfig;
 import ch.iec.tc57._2011.masterdatalinkageconfig.Meter;
@@ -44,7 +45,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		implements ReplyMasterDataLinkageConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
 
 	private static final String NOUN = "MasterDateLinkageConfig";
-	private static final String RESOURCE_WSDL = "/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl";
+	private static final String RESOURCE_WSDL = "/wsdl/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl";
 
 	private final Map<String, MasterDataLinkageConfigPort> masterDataLinkageConfigPorts = new ConcurrentHashMap<>();
 
@@ -61,10 +62,15 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		super.doRemoveEndpoint(masterDataLinkageConfigPort);
 	}
 
+	@Reference
+	public void addWebServicesService(WebServicesService webServicesService) {
+		// Just to inject WebServicesService
+	}
+
 	@Override
 	public void call(EndPointConfiguration endPointConfiguration, String operation,
 			List<LinkageOperation> successfulLinkages, List<FailedLinkageOperation> failedLinkages,
-			BigDecimal expectedNumberOfCalls) {
+			BigDecimal expectedNumberOfCalls, String correlationId) {
 		String method;
 		MasterDataLinkageConfigEventMessageType message;
 		switch (operation) {
@@ -72,13 +78,13 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 				method = "createdMasterDataLinkageConfig";
 				message = createResponseMessage(
 						createMasterDataLinkageConfig(successfulLinkages), failedLinkages,
-						expectedNumberOfCalls.intValue(), HeaderType.Verb.CREATED);
+						expectedNumberOfCalls.intValue(), HeaderType.Verb.CREATED, correlationId);
 				break;
 			case "CLOSE":
 				method = "closedMasterDataLinkageConfig";
 				message = createResponseMessage(
 						createMasterDataLinkageConfig(successfulLinkages), failedLinkages,
-						expectedNumberOfCalls.intValue(), HeaderType.Verb.CLOSED);
+						expectedNumberOfCalls.intValue(), HeaderType.Verb.CLOSED, correlationId);
 				break;
 			default:
 				throw new UnsupportedOperationException(operation + " isn't supported.");
@@ -124,11 +130,12 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	}
 
 	private MasterDataLinkageConfigEventMessageType createResponseMessage(
-			MasterDataLinkageConfig masterDataLinkageConfig, HeaderType.Verb verb) {
+			MasterDataLinkageConfig masterDataLinkageConfig, HeaderType.Verb verb, String correlationId) {
 		MasterDataLinkageConfigEventMessageType response = new MasterDataLinkageConfigEventMessageType();
 		HeaderType header = headerTypeFactory.createHeaderType();
 		header.setNoun(NOUN);
 		header.setVerb(verb);
+		header.setCorrelationID(correlationId);
 		response.setHeader(header);
 		ReplyType replyType = headerTypeFactory.createReplyType();
 		replyType.setResult(ReplyType.Result.OK);
@@ -141,8 +148,8 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 
 	private MasterDataLinkageConfigEventMessageType createResponseMessage(
 			MasterDataLinkageConfig masterDataLinkageConfig, List<FailedLinkageOperation> failedLinkages,
-			int expectedNumberOfCalls, HeaderType.Verb verb) {
-		MasterDataLinkageConfigEventMessageType response = createResponseMessage(masterDataLinkageConfig, verb);
+			int expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
+		MasterDataLinkageConfigEventMessageType response = createResponseMessage(masterDataLinkageConfig, verb, correlationId);
 		final ReplyType replyType = headerTypeFactory.createReplyType();
 		if (expectedNumberOfCalls == masterDataLinkageConfig.getMeter().size()) {
 			replyType.setResult(ReplyType.Result.OK);

@@ -6,12 +6,10 @@ package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -45,8 +43,6 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
 
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
-    private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile UserService userService;
 
     public UtilitiesTimeSeriesBulkChangeConfirmationReceiver() {
         // for OSGi purposes
@@ -66,16 +62,6 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
     @Reference
     public void setTranslationsProvider(WebServiceActivator translationsProvider) {
         this.thesaurus = translationsProvider.getThesaurus();
-    }
-
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
     }
 
     @Override
@@ -154,13 +140,6 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
                 return item2;
             }
             return i1 < i2 ? item2 : item1;
-        }
-    }
-
-    private void setPrincipal() {
-        if (threadPrincipalService.getPrincipal() == null) {
-            userService.findUser(WebServiceActivator.BATCH_EXECUTOR_USER_NAME, userService.getRealm())
-                    .ifPresent(threadPrincipalService::set);
         }
     }
 

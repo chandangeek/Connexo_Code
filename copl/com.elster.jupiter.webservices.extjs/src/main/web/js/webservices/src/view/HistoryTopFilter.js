@@ -34,24 +34,14 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 text: Uni.I18n.translate('importService.history.finished', 'WSS', 'Finished between')
             },
             {
-                type: 'combobox',
+                type: Boolean(me.endpoint) ? 'noui' : 'combobox',
                 dataIndex: 'webServiceEndPoint',
                 itemId: 'history-topfilter-webServiceEndPoint',
                 emptyText: Uni.I18n.translate('general.webServiceEndpoint', 'WSS', 'Web service endpoint'),
-                hidden: Boolean(me.endpoint),
                 displayField: 'name',
                 valueField: 'id',
-                store: endpointStore
-            },
-            {
-                type: 'combobox',
-                dataIndex: 'status',
-                itemId: 'history-topfilter-status',
-                emptyText: Uni.I18n.translate('general.status', 'WSS', 'Status'),
-                multiSelect: true,
-                displayField: 'display',
-                valueField: 'value',
-                store: 'Wss.store.endpoint.Status'
+                store: endpointStore,
+                value: me.endpoint ? me.endpoint.getId() : undefined
             },
             {
                 type: 'combobox',
@@ -63,6 +53,16 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 displayField: 'display',
                 valueField: 'value',
                 store: 'Wss.store.endpoint.Type'
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'status',
+                itemId: 'history-topfilter-status',
+                emptyText: Uni.I18n.translate('general.status', 'WSS', 'Status'),
+                multiSelect: true,
+                displayField: 'display',
+                valueField: 'value',
+                store: 'Wss.store.endpoint.Status'
             }
         ];
 

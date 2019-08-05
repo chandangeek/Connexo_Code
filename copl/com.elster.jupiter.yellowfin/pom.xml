@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.0.1-Heracles-SNAPSHOT</version>
     </parent>
     <artifactId>yellowfin</artifactId>
     <name>[Jupiter] com.elster.jupiter.yellowfin</name>
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>com.yellowfin</groupId>
             <artifactId>yellowfin-ws</artifactId>
-            <version>7.4</version>
+            <version>8.0</version>
         </dependency>
 
         <dependency>

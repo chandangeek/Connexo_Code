@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.provider",
         service = {TopicHandler.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
@@ -66,8 +67,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
 
     @Inject
     public EndDeviceConfigServiceProvider(MeteringService meteringService,
-                                          EndPointConfigurationService endPointConfigurationService,
-                                          WebServicesService webServicesService) {
+                                          EndPointConfigurationService endPointConfigurationService) {
         this();
         setMeteringService(meteringService);
         setEndPointConfigurationService(endPointConfigurationService);
@@ -97,6 +97,11 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
         this.endDeviceAttributesProviders.add(endDeviceAttributesProvider);
     }
 
+    @Reference
+    public void addWebServicesService(WebServicesService webServicesService) {
+        // Just to inject WebServicesService
+    }
+
     public void removeEndDeviceAttributesProvider(EndDeviceAttributesProvider endDeviceAttributesProvider) {
         endDeviceAttributesProviders.stream()
                 .filter(e -> e.getClass().equals(endDeviceAttributesProvider.getClass()))
@@ -123,7 +128,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
 
     @Override
     public Service get() {
-        return new ReplyEndDeviceConfig(this.getClass().getResource("/enddeviceconfig/ReplyEndDeviceConfig.wsdl"));
+        return new ReplyEndDeviceConfig(this.getClass().getResource("/wsdl/enddeviceconfig/ReplyEndDeviceConfig.wsdl"));
     }
 
     @Override
@@ -169,22 +174,22 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
     }
 
     private void call(EndDevice endDevice, List<EndPointConfiguration> endPointConfigurations, String state, Instant effectiveDate, boolean isCreated) {
-        endPointConfigurations.forEach(endPointConfiguration -> {
-            EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate, endDeviceAttributesProviders);
-            getEndDeviceConfigExtendedDataFactories().forEach(endDeviceConfigExtendedDataFactory -> {
-                endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
-            });
-            EndDeviceConfigEventMessageType message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGED);
-            String methodName;
-            if (isCreated) {
-                methodName = "createdEndDeviceConfig";
-            } else {
-                methodName = "changedEndDeviceConfig";
-            }
-            using(methodName)
-                    .toEndpoints(endPointConfiguration)
-                    .send(message);
+        EndDeviceConfig endDeviceConfig = endDeviceConfigDataFactory.asEndDevice(endDevice, state, effectiveDate, endDeviceAttributesProviders);
+        getEndDeviceConfigExtendedDataFactories().forEach(endDeviceConfigExtendedDataFactory -> {
+            endDeviceConfigExtendedDataFactory.extendData(endDevice, endDeviceConfig);
         });
+        EndDeviceConfigEventMessageType message;
+        String methodName;
+        if (isCreated) {
+            methodName = "createdEndDeviceConfig";
+            message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CREATED);
+        } else {
+            methodName = "changedEndDeviceConfig";
+            message = createResponseMessage(endDeviceConfig, HeaderType.Verb.CHANGED);
+        }
+        using(methodName)
+                .toEndpoints(endPointConfigurations)
+                .send(message);
     }
 
     private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
@@ -202,6 +207,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
+        header.setCorrelationID(UUID.randomUUID().toString());
         endDeviceConfigEventMessageType.setHeader(header);
 
         // set reply

@@ -454,5 +454,10 @@ public class AllRequiredCustomPropertySetsHaveValuesValidatorTest {
         public boolean isComplete(MetrologyContract metrologyContract) {
             return false;
         }
+
+        @Override
+        public long getVersion() {
+            return 0;
+        }
     }
 }

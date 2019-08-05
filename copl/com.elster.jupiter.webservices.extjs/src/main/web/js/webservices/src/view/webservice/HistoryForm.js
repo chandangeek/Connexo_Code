@@ -14,15 +14,20 @@ Ext.define('Wss.view.webservice.HistoryForm', {
     loadRecord: function(record) {
         this.callParent(arguments);
         var endpoint = record.getEndpoint();
+        var duration;
         var time = Uni.DateTime.formatDateTimeShort(record.get('startTime'));
+        if (record.get('endTime')){
+            duration = record.get('endTime') - record.get('startTime');
+        }else{
+            duration = "-"
+        }
 
         this.getForm().setValues({
             endpoint: endpoint,
             webServiceName: endpoint.get('webServiceName'),
             direction: endpoint.get('direction'),
             logLevel: endpoint.get('logLevel'),
-            duration: record.get('endTime')
-                && Uni.util.String.formatDuration(record.get('startTime') - record.get('endTime')),
+            duration: duration
         });
 
         this.setTitle(time);
@@ -64,19 +69,34 @@ Ext.define('Wss.view.webservice.HistoryForm', {
                 name: 'startTime',
                 fieldLabel: Uni.I18n.translate('general.startedOn', 'WSS', 'Started on'),
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    if (value){
+                        var date = new Date(value);
+                        return Uni.DateTime.formatDateLong(date) + ' at ' + Uni.DateTime.formatTimeShort(date);
+                    }
+                    return '-';
                 }
             },
             {
                 name: 'endTime',
                 fieldLabel: Uni.I18n.translate('general.finishedOn', 'WSS', 'Finished on'),
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    if (value){
+                        var date = new Date(value);
+                        return Uni.DateTime.formatDateLong(date) + ' at ' + Uni.DateTime.formatTimeShort(date);
+                    }
+                    return '-';
                 }
             },
             {
                 name: 'duration',
-                fieldLabel: Uni.I18n.translate('general.duration', 'WSS', 'Duration')
+                fieldLabel: Uni.I18n.translate('general.duration', 'WSS', 'Duration'),
+                renderer: function (value) {
+                    if (value && value !== "-") {
+                        return Uni.util.String.formatDuration(value) ;
+                    }
+
+                    return '-';
+                }
             },
             {
                 name: 'applicationName',

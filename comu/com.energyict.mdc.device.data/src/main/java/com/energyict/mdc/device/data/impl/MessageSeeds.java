@@ -210,6 +210,7 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_PROPERTY(2183, Keys.UNKNOWN_PROPERTY, "Unknown property {name}"),
     NO_SUCH_ZONE(2184, "NoSuchZone", "No zone with id {0}"),
     ZONE_REMOVED(2185, "ZoneRemoved", "Zone {0} removed from {1}"),
+    NO_SUCH_LOAD_PROFILE_ON_DEVICE(2186, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
 
     ;
 

@@ -11,21 +11,29 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class IssueFilterImpl implements IssueFilter {
     private String issueId;
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
-    private List<EndDevice> devices = new ArrayList<>();
+    private Set<EndDevice> devices = new HashSet<>();
+    private List<EndDeviceGroup> deviceGroups = new ArrayList<>();
     private List<UsagePoint> usagePoints = new ArrayList<>();
+    private List<UsagePointGroup> usagePointGroup = new ArrayList<>();
     private List<User> assignees = new ArrayList<>();
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
@@ -65,9 +73,31 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
+    public void addDeviceGroup(EndDeviceGroup deviceGroup) {
+            this.deviceGroups.add(deviceGroup);
+    }
+
+    @Override
+    public List<EndDeviceGroup> getDeviceGroups() {
+        return this.deviceGroups;
+    }
+
+    @Override
     public void addUsagePoint(UsagePoint usagePoint) {
         if (usagePoint != null) {
             this.usagePoints.add(usagePoint);
+        }
+    }
+
+    @Override
+    public List<UsagePointGroup> getUsagePointGroups() {
+        return this.usagePointGroup;
+    }
+
+    @Override
+    public void addUsagePointGroup(UsagePointGroup usagePointGroup) {
+        if (usagePointGroup != null) {
+            this.usagePointGroup.add(usagePointGroup);
         }
     }
 
@@ -124,7 +154,7 @@ public class IssueFilterImpl implements IssueFilter {
 
     @Override
     public List<EndDevice> getDevices() {
-        return this.devices;
+        return ImmutableList.copyOf(this.devices);
     }
 
     @Override
