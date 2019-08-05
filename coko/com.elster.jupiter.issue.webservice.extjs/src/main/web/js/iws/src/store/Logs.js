@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Isc.store.Logs', {
+Ext.define('Iws.store.Logs', {
     extend: 'Ext.data.Store',
     fields: [
         { name: 'timestamp', type: 'auto' },

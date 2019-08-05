@@ -55,7 +55,7 @@
         <profile>
             <id>sencha-build</id>
             <properties>
-                <js.dir>js/isc</js.dir>
+                <js.dir>js/iws</js.dir>
                 <package.name>${project.groupId}.${project.artifactId}</package.name>
             </properties>
         </profile>
