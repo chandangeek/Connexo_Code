@@ -26,7 +26,6 @@ import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignVersionStateInfo;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.energyict.mdc.firmware.security.Privileges;
@@ -175,7 +174,7 @@ public class FirmwareCampaignResource {
     @Path("/{id}/firmwareversions")
     @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId,@BeanParam JsonQueryParameters queryParameters) {
+    public Response getFirmwareVersionsForFirmwareCampaign(@PathParam("id") long firmwareCampaignId,@BeanParam JsonQueryParameters queryParameters) {
         Optional<FirmwareCampaign> firmwareCampaign = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId);
         List<FirmwareCampaignVersionState> firmwareCampaignVersionStates = new ArrayList<>();
         if(firmwareCampaign.isPresent()) {

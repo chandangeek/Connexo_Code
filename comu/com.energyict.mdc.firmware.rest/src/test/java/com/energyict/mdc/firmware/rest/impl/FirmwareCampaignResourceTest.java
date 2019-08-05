@@ -5,6 +5,8 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -16,9 +18,14 @@ import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionFilter;
+import com.energyict.mdc.firmware.impl.FirmwareCampaignVersionStateImpl;
 import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInfo;
 import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfo;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -32,6 +39,9 @@ import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -41,6 +51,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -118,6 +129,29 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
     }
 
     @Test
+    public void testGetFirmwareVersionsForFirmwareCampaign(){
+        FirmwareCampaign firmwareCampaign = createCampaignMock();
+        List<FirmwareCampaignVersionState> firmwareCampaignVersionStates = new ArrayList<>();
+        FirmwareCampaignVersionState fcvs = mock(FirmwareCampaignVersionState.class);
+        when(fcvs.getFirmwareVersion()).thenReturn("fvVersion");
+        when(fcvs.getFirmwareType()).thenReturn("fvType");
+        when(fcvs.getFirmwareStatus()).thenReturn("fvStatus");
+        when(fcvs.getImageIdentifier()).thenReturn("fvImg");
+        when(fcvs.getRank()).thenReturn("fvRank");
+        when(fcvs.getMeterFirmwareDependency()).thenReturn("fvMDep");
+        when(fcvs.getCommunicationFirmwareDependency()).thenReturn("fvCdep");
+        firmwareCampaignVersionStates.add(fcvs);
+        when(firmwareCampaignService.getFirmwareCampaignById(anyLong())).thenReturn(Optional.ofNullable(firmwareCampaign));
+        when(firmwareService.findFirmwareCampaignVersionState(firmwareCampaign)).thenReturn(firmwareCampaignVersionStates);
+
+        String json = target("campaigns/3/firmwareversions").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<List<DeviceInFirmwareCampaignInfo>>get("$.firmwareCampaignVersionStateInfos").size() == 1);
+        assertThat(jsonModel.<String>get("$.firmwareCampaignVersionStateInfos[0].firmwareVersion")).isEqualTo("fvVersion");
+        assertThat(jsonModel.<String>get("$.firmwareCampaignVersionStateInfos[0].firmwareStatus")).isEqualTo("fvStatus");
+    }
+
+    @Test
     public void testCreateFirmwareCampaign() throws Exception {
         FirmwareCampaign firmwareCampaign = createCampaignMock();
         FirmwareCampaignBuilder fakeBuilder = FakeBuilder.initBuilderStub(firmwareCampaign, FirmwareCampaignBuilder.class);
@@ -125,13 +159,20 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("TestDeviceType");
-        when(deviceConfigurationService.findDeviceType(1L)).thenReturn(Optional.ofNullable(deviceType));
+        when(deviceConfigurationService.findDeviceType(anyLong())).thenReturn(Optional.ofNullable(deviceType));
         when(firmwareCampaignService.newFirmwareCampaign("TestCampaign")).thenReturn(fakeBuilder);
         FirmwareVersion firmwareVersion = firmwareCampaign.getFirmwareVersion();
         when(firmwareService.getFirmwareVersionById(8)).thenReturn(Optional.ofNullable(firmwareVersion));
         when(firmwareService.bestSuitableFirmwareUpgradeMessageId(any(), any(), any())).thenReturn(Optional.of(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE));
         Optional<DeviceMessageSpec> deviceMessageSpec = firmwareCampaign.getFirmwareMessageSpec();
         when(firmwareService.getFirmwareMessageSpec(any(), any(), any())).thenReturn(deviceMessageSpec);
+        Finder<FirmwareVersion> firmwaresFinder = mockFinder(Collections.singletonList(firmwareVersion));
+        FirmwareVersionFilter firmwareVersionFilter = mock(FirmwareVersionFilter.class);
+        when(firmwareService.filterForFirmwareVersion(deviceType)).thenReturn(firmwareVersionFilter);
+        when(firmwareService.findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType))).thenReturn(firmwaresFinder);
+        FirmwareCampaignManagementOptions options = mock(FirmwareCampaignManagementOptions.class);
+        when(firmwareService.newFirmwareCampaignManagementOptions(firmwareCampaign)).thenReturn(options);
+
         Response response = target("campaigns").request().post(Entity.json(createCampaignInfo()));
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Number>get("$.id")).isEqualTo(((Number) firmwareCampaign.getId()).intValue());
@@ -188,6 +229,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         ArrayList<PropertyInfo> propertyInfos = new ArrayList<>();
         propertyInfos.add(new PropertyInfo("Firmware file", "FirmwareDeviceMessage.upgrade.userfile", new PropertyValueInfo<>(8, ""), null, true));
         firmwareCampaignInfo.properties = propertyInfos;
+        firmwareCampaignInfo.checkOptions = mock(EnumMap.class);
         return firmwareCampaignInfo;
     }
 
@@ -222,6 +264,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
         when(firmwareCampaign.getFirmwareVersion()).thenReturn(firmwareVersion);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
+        FirmwareCampaignManagementOptions firmwareCampaignMgtOptions = mock(FirmwareCampaignManagementOptions.class);
+        when(firmwareService.findFirmwareCampaignManagementOptions(firmwareCampaign)).thenReturn(Optional.of(firmwareCampaignMgtOptions));
         return firmwareCampaign;
     }
 }

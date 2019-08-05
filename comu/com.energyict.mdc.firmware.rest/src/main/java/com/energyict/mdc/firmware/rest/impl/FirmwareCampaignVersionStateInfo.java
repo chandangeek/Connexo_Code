@@ -8,9 +8,6 @@ import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FirmwareCampaignVersionStateInfo {
     public String firmwareVersion;

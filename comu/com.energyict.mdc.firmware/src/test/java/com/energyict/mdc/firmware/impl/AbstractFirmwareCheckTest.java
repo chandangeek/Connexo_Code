@@ -11,6 +11,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
@@ -105,12 +106,12 @@ public abstract class AbstractFirmwareCheckTest {
     protected void expectError(String message) {
         expectedException.expect(FirmwareCheck.FirmwareCheckException.class);
         expectedException.expectMessage(message);
-        firmwareCheck.execute(null,firmwareManagementDeviceUtils, uploadedFirmware);
+        firmwareCheck.execute(Optional.empty(),firmwareManagementDeviceUtils, uploadedFirmware);
     }
 
     protected void expectSuccess() {
         try {
-            firmwareCheck.execute(null,firmwareManagementDeviceUtils, uploadedFirmware);
+            firmwareCheck.execute(Optional.empty(),firmwareManagementDeviceUtils, uploadedFirmware);
         } catch (Throwable throwable) {
             throw new AssertionError("Unexpected exception during call of firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware) : "
                     + System.lineSeparator()
