@@ -49,7 +49,7 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
                         .map(firmwareService::getFirmwareManagementDeviceUtilsFor)
                         .ifPresent(masterDeviceUtils -> {
                             Device master = masterDeviceUtils.getDevice();
-                            if (noGhostFirmwareCheck.hasGhostMeterOrCommunicationFirmware(master)) {
+                            if (noGhostFirmwareCheck.hasGhostMeterOrCommunicationOrAuxiliaryFirmware(master)) {
                                 throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_HAS_GHOST_FIRMWARE);
                             }
                             if (!masterDeviceUtils.isReadOutAfterLastFirmwareUpgrade()) {

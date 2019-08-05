@@ -407,7 +407,7 @@ public final class FirmwareVersionImpl implements FirmwareVersion {
 
         @Override
         public FirmwareVersionBuilder setAuxiliaryFirmwareDependency(FirmwareVersion auxiliaryFirmwareDependency) {
-            underConstruction.setCommunicationFirmwareDependency(auxiliaryFirmwareDependency);
+            underConstruction.setAuxiliaryFirmwareDependency(auxiliaryFirmwareDependency);
             return this;
         }
 

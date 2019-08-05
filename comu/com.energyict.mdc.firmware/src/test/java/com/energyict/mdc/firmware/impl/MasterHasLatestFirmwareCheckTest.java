@@ -136,6 +136,14 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
     }
 
     @Test
+    public void testOldAuxFWOnMaster() {
+        FirmwareVersion oldVersion = mock(FirmwareVersion.class);
+        when(activatedAuxiliaryFirmware.getFirmwareVersion()).thenReturn(oldVersion);
+
+        expectError("Firmware types on the master don't have the highest level (among firmware types with the acceptable status).");
+    }
+
+    @Test
     public void testNoActiveMeterFWOnMaster() {
         when(firmwareService.getActiveFirmwareVersion(master, FirmwareType.METER)).thenReturn(Optional.empty());
 
@@ -145,6 +153,13 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
     @Test
     public void testNoActiveCommFWOnMaster() {
         when(firmwareService.getActiveFirmwareVersion(master, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
+
+        expectError("Firmware types on the master don't have the highest level (among firmware types with the acceptable status).");
+    }
+
+    @Test
+    public void testNoActiveAuxFWOnMaster() {
+        when(firmwareService.getActiveFirmwareVersion(master, FirmwareType.AUXILIARY)).thenReturn(Optional.empty());
 
         expectError("Firmware types on the master don't have the highest level (among firmware types with the acceptable status).");
     }
@@ -164,12 +179,28 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
     }
 
     @Test
+    public void testNoAuxFWOnMaster() {
+        when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.AUXILIARY)), anySetOf(FirmwareStatus.class))).thenReturn(Optional.empty());
+
+        expectError("Firmware types on the master don't have the highest level (among firmware types with the acceptable status).");
+    }
+
+    @Test
     public void testCommunicationFWNotSupported() {
         when(firmwareService.isFirmwareTypeSupported(masterDeviceType, FirmwareType.COMMUNICATION)).thenReturn(false);
 
         expectSuccess();
         verify(firmwareService, never()).getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.COMMUNICATION)), anySetOf(FirmwareStatus.class));
         verify(firmwareService, never()).getActiveFirmwareVersion(master, FirmwareType.COMMUNICATION);
+    }
+
+    @Test
+    public void testAuxiliaryFWNotSupported() {
+        when(firmwareService.isFirmwareTypeSupported(masterDeviceType, FirmwareType.AUXILIARY)).thenReturn(false);
+
+        expectSuccess();
+        verify(firmwareService, never()).getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.AUXILIARY)), anySetOf(FirmwareStatus.class));
+        verify(firmwareService, never()).getActiveFirmwareVersion(master, FirmwareType.AUXILIARY);
     }
 
     @Test
