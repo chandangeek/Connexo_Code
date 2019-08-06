@@ -6,6 +6,8 @@ Ext.define('Mdc.model.AutoclosureExclusion', {
     extend: 'Uni.model.Version',
     requires: [
         'Mdc.model.AutoclosureExclusionIssueType',
+		'Mdc.model.AutoclosureExclusionTemplate',
+		'Mdc.model.AutoclosureExclusionReason'
     ],
     idProperty: 'id',
     fields: [
@@ -46,10 +48,25 @@ Ext.define('Mdc.model.AutoclosureExclusion', {
             name: 'dueIn',
             type: 'auto'
         },
+		{
+            name: 'title',
+            persist: false,
+            mapping: 'name'
+        },
         {
             name: 'issueType_name',
             persist: false,
             mapping: 'issueType.name'
+        },
+		{
+            name: 'reason_name',
+            persist: false,
+            mapping: 'reason.name'
+        },
+        {
+            name: 'template_name',
+            persist: false,
+            mapping: 'template.displayName'
         },
         {
             name: 'active'
@@ -64,6 +81,22 @@ Ext.define('Mdc.model.AutoclosureExclusion', {
             associationKey: 'issueType',
             getterName: 'getIssueType',
             setterName: 'setIssueType'
+        },
+		{
+            type: 'hasOne',
+            model: 'Mdc.model.AutoclosureExclusionTemplate',
+            associatedName: 'template',
+            associationKey: 'template',
+            getterName: 'getTemplate',
+            setterName: 'setTemplate'
+        },
+        {
+            type: 'hasOne',
+            model: 'Mdc.model.AutoclosureExclusionReason',
+            associatedName: 'reason',
+            associationKey: 'reason',
+            getterName: 'getReason',
+            setterName: 'setReason'
         }
     ],
 

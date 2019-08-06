@@ -12,7 +12,9 @@ Ext.define('Mdc.controller.setup.AutoclosureExclusions', {
     models: [
         'Mdc.model.Device',
 		'Mdc.model.AutoclosureExclusion',
-		'Mdc.model.AutoclosureExclusionIssueType'
+		'Mdc.model.AutoclosureExclusionIssueType',
+		'Mdc.model.AutoclosureExclusionTemplate',
+		'Mdc.model.AutoclosureExclusionReason'
     ],
 
     stores: [
@@ -25,11 +27,17 @@ Ext.define('Mdc.controller.setup.AutoclosureExclusions', {
     ],
 
     refs: [
+		{
+            ref: 'itemPanel',
+            selector: 'autoclosure-exclusions-setup autoclosure-exclusion-item-preview'
+        }
     ],
 
     init: function () {
         this.control({
-			
+			'autoclosure-exclusions-setup autoclosure-exclusions-grid': {
+                select: this.showPreview
+            }
 		});
     },
 
@@ -47,7 +55,16 @@ Ext.define('Mdc.controller.setup.AutoclosureExclusions', {
 				me.getApplication().fireEvent('changecontentevent', widget);
 				viewport.setLoading(false);
             }
-        });
-		
-    }
+        });		
+    },
+	
+	showPreview: function (selectionModel, record) {
+        var me = this,
+            itemPanel = this.getItemPanel(),
+            form = itemPanel.down('form');
+        Ext.suspendLayouts();
+        form.loadRecord(record);
+        itemPanel.setTitle(Ext.String.htmlEncode(record.get('title')));
+        Ext.resumeLayouts(true);
+    },
 });

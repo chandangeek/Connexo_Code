@@ -23,7 +23,12 @@ Ext.define('Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsGrid', {
             {
                 header: Uni.I18n.translate('creationRule.ruleName', 'MDC', 'Rule name'),
                 dataIndex: 'name',
-                flex: 2
+                flex: 1
+            },
+			{
+                header: Uni.I18n.translate('creationRule.ruleTemplate', 'MDC', 'Rule template'),
+                dataIndex: 'template_name',
+                flex: 1
             },
             {
                 header: Uni.I18n.translate('creationRule.issueType', 'MDC', 'Issue type'),

@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsSetup', {
     alias: 'widget.autoclosure-exclusions-setup',
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsGrid'
+        'Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsGrid',
+		'Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsPreview'
     ],
     deviceId: null,
     device: null,
@@ -37,7 +38,11 @@ Ext.define('Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsSetup', {
                             ],
                             stepItems: [
                             ]
-                        }
+                        },
+						previewComponent: {
+							xtype: 'autoclosure-exclusion-item-preview',
+							itemId: 'autoclosure-exclusion-item-preview'
+						}
                     }
                 ]}
         ];
