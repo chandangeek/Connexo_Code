@@ -157,16 +157,21 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     private String getContent(Issue issue) {
         int totalPriority= issue.getPriority().getImpact() + issue.getPriority().getUrgency();
-        DateTimeFormatter formatter  =  DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss");
+        DateTimeFormatter formatter  =  DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss zzz");
         long unixTime = issue.getCreateDateTime().getEpochSecond();
         String current = Instant.ofEpochSecond(unixTime)
-                .atZone(ZoneId.of("GMT-4"))
+                .atZone(ZoneId.systemDefault())
                 .format(formatter);
         Optional<String> user=Optional.of("Unassigned");
         if(issue.getAssignee().getUser() != null)
             user = Optional.of(issue.getAssignee().getUser().getName());
-        return "Alarm Id : " +issue.getIssueId() + "\n" + "Alarm reason : " + issue.getReason().getName() + "\n" +
-                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" + "User : " + user.get()+ "\n" + "Priority : " + totalPriority + "\n" + "Creation Date : " + current;
+        return "Alarm Id : " +issue.getIssueId() + "\n" +
+                "Alarm reason : " + issue.getReason().getName() + "\n" +
+                "Alarm type : " + issue.getReason().getIssueType().getName()+ "\n" +
+                "Device : " +  issue.getDevice().getName()+ "\n" +
+                "User : " + user.get()+ "\n" +
+                "Priority : " + totalPriority + "\n" +
+                "Creation Date : " + current;
     }
     @Override
     public List<PropertySpec> getPropertySpecs() {
