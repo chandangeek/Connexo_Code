@@ -304,12 +304,35 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 })
 
         },
-        getDataFromChecks : function(){
+        validateData: function(versionOptions){
+
+            var me = this;
+            var result = versionOptions;
+            var masterOptions = versionOptions && versionOptions['MASTER_FIRMWARE_CHECK'] && versionOptions['MASTER_FIRMWARE_CHECK'].statuses;
+            var targetOptions = versionOptions && versionOptions['TARGET_FIRMWARE_STATUS_CHECK'] && versionOptions['TARGET_FIRMWARE_STATUS_CHECK'].statuses;
+
+            if (!targetOptions.length){
+                me.down('#firmwareTargetOptionsError').show();
+                result = undefined;
+            }else{
+                me.down('#firmwareTargetOptionsError').hide();
+            }
+
+            if (me.down('#masterFirmwareCheck').getValue() && (!masterOptions || !masterOptions.length)){
+                  me.down('#masterOptionsError').show();
+                  result = undefined;
+            }else{
+                  me.down('#masterOptionsError').hide();
+            }
+
+            return result;
+        },
+        getDataFromChecks : function(needDataValidation){
             var me = this,
                 store = me.store;
                 var record = store.getAt(0);
 
-                var checkgroups = Ext.ComponentQuery.query('firmware-version-options > checkboxgroup');
+                var checkgroups = Ext.ComponentQuery.query('firmware-version-options checkboxgroup');
                 var versionOptions = {};
 
                 Ext.Array.each( checkgroups, function(checkgroup){
@@ -338,8 +361,11 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
 
                     }
                 });
-
-                return versionOptions;
+                if (needDataValidation){
+                    return me.validateData(versionOptions);
+                } else {
+                    return versionOptions;
+                }
         },
         setChecksDependencies: function (mainOptionId, finalOptionId, testOptionId, modelData){
             var me = this;
