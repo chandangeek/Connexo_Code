@@ -99,6 +99,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private final ObjectFactory getMeterReadingsMessageObjectFactory = new ObjectFactory();
 
     private final Provider<MeterReadingsBuilder> readingBuilderProvider;
+    private final Provider<SyncReplyIssue> syncReplyIssueProvider;
     private final ReplyTypeFactory replyTypeFactory;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
     private final Clock clock;
@@ -108,10 +109,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final MasterDataService masterDataService;
-    private SyncReplyIssue syncReplyIssue;
+
 
     @Inject
     public ExecuteMeterReadingsEndpoint(Provider<MeterReadingsBuilder> readingBuilderProvider,
+                                        Provider<SyncReplyIssue> syncReplyIssueProvider,
                                         ReplyTypeFactory replyTypeFactory,
                                         MeterReadingFaultMessageFactory faultMessageFactory,
                                         Clock clock, ServiceCallCommands serviceCallCommands,
@@ -119,6 +121,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                                         WebServicesService webServicesService, MeteringService meteringService,
                                         DeviceService deviceService, MasterDataService masterDataService) {
         this.readingBuilderProvider = readingBuilderProvider;
+        this.syncReplyIssueProvider = syncReplyIssueProvider;
         this.replyTypeFactory = replyTypeFactory;
         this.faultMessageFactory = faultMessageFactory;
         this.clock = clock;
@@ -135,7 +138,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             try {
-                syncReplyIssue = new SyncReplyIssue(replyTypeFactory);
+                SyncReplyIssue syncReplyIssue = syncReplyIssueProvider.get();
                 GetMeterReadings getMeterReadings = Optional.ofNullable(getMeterReadingsRequestMessage.getRequest()
                         .getGetMeterReadings())
                         .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_METER_READINGS_ITEM));
@@ -148,30 +151,30 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 checkGetMeterReading(getMeterReadings, async);
                 // run async
                 if (async) {
-                    return runAsyncMode(getMeterReadingsRequestMessage);
+                    return runAsyncMode(getMeterReadingsRequestMessage, syncReplyIssue);
                 }
                 // run sync
                 // -EndDevice
                 List<EndDevice> endDevices = getMeterReadings.getEndDevice();
                 MeterReadingsBuilder builder = readingBuilderProvider.get();
                 if (CollectionUtils.isNotEmpty(endDevices)) {
-                    fillMetersInfo(endDevices.stream().limit(1).collect(Collectors.toList()));
+                    fillMetersInfo(endDevices.stream().limit(1).collect(Collectors.toList()), syncReplyIssue);
                     builder.withEndDevices(syncReplyIssue.getExistedMeters());
-                    fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), false);
+                    fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), false, syncReplyIssue);
                     if (CollectionUtils.isEmpty(syncReplyIssue.getExistedReadingTypes())) {
                         throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_READING_TYPES)
                                 .get();
                     }
-                    fillNotFoundReadingTypesOnDevices();
+                    fillNotFoundReadingTypesOnDevices(syncReplyIssue);
 
                     if (endDevices.size() > 1) {
                         syncReplyIssue.addErrorType((replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null, END_DEVICE_LIST_ITEM)));
                     }
                     MeterReadings meterReadings = builder
-                            .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
+                            .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading(), syncReplyIssue))
                             .build();
                     return createMeterReadingsResponseMessageType(meterReadings, syncReplyIssue.getResultErrorTypes(),
-                            getMeterReadingsRequestMessage.getHeader().getCorrelationID());
+                            getMeterReadingsRequestMessage.getHeader().getCorrelationID() ,syncReplyIssue);
                 }
                 // -UsagePoint
                 List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
@@ -179,10 +182,10 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                         .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
 
                 setUsagePointInfo(builder, usagePoint);
-                fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), false);
+                fillReadingTypesInfo(builder, getMeterReadings.getReadingType(), false, syncReplyIssue);
                 MeterReadings meterReadings = builder
                         .fromPurposes(extractNamesWithType(usagePoint.getNames(), UsagePointNameType.PURPOSE))
-                        .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading()))
+                        .inTimeIntervals(getTimeIntervals(getMeterReadings.getReading(), syncReplyIssue))
                         .build();
                 MeterReadingsResponseMessageType meterReadingsResponseMessageType =
                         createMeterReadingsResponseMessageType(meterReadings, null);
@@ -198,7 +201,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         });
     }
 
-    private MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage) throws
+    private MeterReadingsResponseMessageType runAsyncMode(GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage, SyncReplyIssue syncReplyIssue) throws
             FaultMessage {
         String correlationId = getMeterReadingsRequestMessage.getHeader().getCorrelationID();
         if (correlationId != null) {
@@ -216,22 +219,17 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             throw (faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, END_DEVICE_LIST_ITEM))
                     .get();
         }
-        fillReadingTypesInfo(null, readingTypes, true);
-        fillMetersInfo(endDevices);
+        fillReadingTypesInfo(null, readingTypes, true, syncReplyIssue);
+        fillMetersInfo(endDevices, syncReplyIssue);
         Set<Device> devices = getDevices(syncReplyIssue.getExistedMeters());
-        fillNotFoundReadingTypesOnDevices();
+        fillNotFoundReadingTypesOnDevices(syncReplyIssue);
 
         publishOutboundEndPointConfiguration(replyAddress);
         for (int i = 0; i < readings.size(); ++i) {
             final String readingItem = String.format(READING_ITEM, i);
             Reading reading = readings.get(i);
-            if (!checkTimeInterval(reading, readingItem, true)) {
+            if (!checkTimeInterval(reading, readingItem, true, syncReplyIssue)) {
                 syncReplyIssue.addNotUsedReadingsDueToTimeStamp(i);
-                continue;
-            }
-
-            if (!checkConnectionMethod(reading.getConnectionMethod(), readingItem, devices)) {
-                syncReplyIssue.addNotUsedReadingsDueToConnectionMethod(i);
                 continue;
             }
 
@@ -242,23 +240,28 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             Set<com.elster.jupiter.metering.ReadingType> combinedReadingTypes = new HashSet<>(syncReplyIssue.getExistedReadingTypes());
             if (reading.getDataSource() != null && !reading.getDataSource().isEmpty()) {
                 Optional<DataSourceTypeName> dsTypeName = getDataSourceNameType(reading.getDataSource(), i);
-                Set<String> dsNames = getDataSourceNames(reading.getDataSource(), i);
+                Set<String> dsNames = getDataSourceNames(reading.getDataSource(), i, syncReplyIssue);
                 if (dsTypeName.isPresent() && !dsNames.isEmpty()) {
-                    fillDataSource(dsTypeName.get(), dsNames, i, combinedReadingTypes);
+                    fillDataSource(dsTypeName.get(), dsNames, i, combinedReadingTypes, syncReplyIssue);
                 } else {
                     syncReplyIssue.addNotUsedReadingsDueToDataSources(i);
                     continue;
                 }
             }
 
-            if (!checkDataSources(reading.getTimePeriod(), reading.getSource(), i)) {
+            if (!checkDataSources(reading.getTimePeriod(), reading.getSource(), i, syncReplyIssue)) {
                 syncReplyIssue.addNotUsedReadingsDueToDataSources(i);
                 continue;
             }
 
-            fillDevicesComTaskExecutions(devices, reading, i);
-            if (!checkComTaskExecutions(devices, readingItem)) {
+            fillDevicesComTaskExecutions(devices, reading, i, syncReplyIssue);
+            if (!checkComTaskExecutions(devices, readingItem, syncReplyIssue)) {
                 syncReplyIssue.addNotUsedReadingsDueToComTaskExecutions(i);
+                continue;
+            }
+
+            if (!checkConnectionMethod(reading.getConnectionMethod(), readingItem, devices, syncReplyIssue)) {
+                syncReplyIssue.addNotUsedReadingsDueToConnectionMethod(i);
                 continue;
             }
 
@@ -269,10 +272,10 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
         // no meter readings on sync reply! It's built in parent service call
         MeterReadings meterReadings = null;
-        return createMeterReadingsResponseMessageType(meterReadings, syncReplyIssue.getResultErrorTypes(), correlationId);
+        return createMeterReadingsResponseMessageType(meterReadings, syncReplyIssue.getResultErrorTypes(), correlationId, syncReplyIssue);
     }
 
-    private boolean checkComTaskExecutions(Set<Device> devices, String readingItem) {
+    private boolean checkComTaskExecutions(Set<Device> devices, String readingItem, SyncReplyIssue syncReplyIssue) {
         for (Device device : devices) {
             if (syncReplyIssue.getDeviceIrregularComTaskExecutionMap().get(device.getId()) == null
                     && syncReplyIssue.getDeviceRegularComTaskExecutionMap().get(device.getId()) == null
@@ -286,20 +289,20 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return false;
     }
 
-    private void fillDevicesComTaskExecutions(Set<Device> devices, Reading reading, int index) {
-        if (isDeviceMessageComTaskRequired(reading, index)) {
-            fillDevicesMessagesComTaskExecutions(devices);
+    private void fillDevicesComTaskExecutions(Set<Device> devices, Reading reading, int index, SyncReplyIssue syncReplyIssue) {
+        if (isDeviceMessageComTaskRequired(reading, index, syncReplyIssue)) {
+            fillDevicesMessagesComTaskExecutions(devices, syncReplyIssue);
         }
-        if (isRegularReadingTypesComTaskRequired(reading, index)) {
-            fillDevicesComTaskExecutions(devices, true);
+        if (isRegularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
+            fillDevicesComTaskExecutions(devices, true, syncReplyIssue);
         }
 
-        if (isIrregularReadingTypesComTaskRequired(reading, index)) {
-            fillDevicesComTaskExecutions(devices, false);
+        if (isIrregularReadingTypesComTaskRequired(reading, index, syncReplyIssue)) {
+            fillDevicesComTaskExecutions(devices, false, syncReplyIssue);
         }
     }
 
-    private void fillDevicesMessagesComTaskExecutions(Set<Device> devices) {
+    private void fillDevicesMessagesComTaskExecutions(Set<Device> devices, SyncReplyIssue syncReplyIssue) {
         devices.forEach(device -> {
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
                 Optional<ComTaskExecution> comTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
@@ -310,7 +313,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         });
     }
 
-    private void fillDevicesComTaskExecutions(Set<Device> devices, boolean isRegular) {
+    private void fillDevicesComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue) {
         for (Device device : devices) {
             final Class<?> clazz;
             if (isRegular) {
@@ -355,7 +358,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .findAny();
     }
 
-    private boolean isDeviceMessageComTaskRequired(Reading reading, int index) {
+    private boolean isDeviceMessageComTaskRequired(Reading reading, int index, SyncReplyIssue syncReplyIssue) {
         DateTimeInterval timePeriod = reading.getTimePeriod();
         if (timePeriod != null && timePeriod.getStart() != null && timePeriod.getEnd() != null) {
             if (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes())
@@ -368,7 +371,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return false;
     }
 
-    private boolean isRegularReadingTypesComTaskRequired(Reading reading, int index) {
+    private boolean isRegularReadingTypesComTaskRequired(Reading reading, int index, SyncReplyIssue syncReplyIssue) {
         DateTimeInterval timePeriod = reading.getTimePeriod();
         if (timePeriod == null || timePeriod.getStart() == null || timePeriod.getEnd() == null) {
             if (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes())
@@ -381,7 +384,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return false;
     }
 
-    private boolean isIrregularReadingTypesComTaskRequired(Reading reading, int index) {
+    private boolean isIrregularReadingTypesComTaskRequired(Reading reading, int index, SyncReplyIssue syncReplyIssue) {
         DateTimeInterval timePeriod = reading.getTimePeriod();
         if (timePeriod != null && timePeriod.getStart() != null) {
             if (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes())
@@ -431,14 +434,14 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     private void fillDataSource(DataSourceTypeName dsTypeName, Set<String> dsNames, int index,
-                                Set<com.elster.jupiter.metering.ReadingType> combinedReadingTypes) {
+                                Set<com.elster.jupiter.metering.ReadingType> combinedReadingTypes, SyncReplyIssue syncReplyIssue) {
         if (dsTypeName == DataSourceTypeName.LOAD_PROFILE) {
-            Set<LoadProfileType> existedLoadProfiles = getExistedLoadProfiles(dsNames, index);
+            Set<LoadProfileType> existedLoadProfiles = getExistedLoadProfiles(dsNames, index, syncReplyIssue);
             syncReplyIssue.addReadingsExistedLoadProfilesMap(index, existedLoadProfiles.stream()
                     .map(lpt -> lpt.getName())
                     .collect(Collectors.toSet()));
         } else if (dsTypeName == DataSourceTypeName.REGISTER_GROUP) {
-            Set<RegisterGroup> existedRegisterGroups = getExistedRegisterGroups(dsNames, index);
+            Set<RegisterGroup> existedRegisterGroups = getExistedRegisterGroups(dsNames, index, syncReplyIssue);
             syncReplyIssue.addReadingExistedRegisterGroupMap(index, existedRegisterGroups.stream()
                     .map(rg -> rg.getName())
                     .collect(Collectors.toSet()));
@@ -450,13 +453,13 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
     }
 
-    private boolean checkConnectionMethod(String connectionMethod, String readingItem, Set<Device> devices) throws
+    private boolean checkConnectionMethod(String connectionMethod, String readingItem, Set<Device> devices, SyncReplyIssue syncReplyIssue) throws
             FaultMessage {
         if (connectionMethod != null) {
             checkIsEmpty(connectionMethod, readingItem + ".connectionMethod");
             int numberOfDevicesWithConnection = 0;
             for (Device device : devices) {
-                if (!checkConnectionMethodExists(device, connectionMethod)) {
+                if (!checkConnectionMethodExistsOnDevice(device, connectionMethod, syncReplyIssue)) {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_ON_DEVICE, null,
                             connectionMethod, device.getName()));
                 } else {
@@ -476,7 +479,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .collect(Collectors.toList()))).stream().collect(Collectors.toSet()));
     }
 
-    private boolean checkDataSources(DateTimeInterval timePeriod, String source, int index) {
+    private boolean checkDataSources(DateTimeInterval timePeriod, String source, int index, SyncReplyIssue syncReplyIssue) {
         Set<String> existedLoadProfiles = syncReplyIssue.getReadingExistedLoadProfilesMap().get(index);
         Set<String> existedRegisterGroups = syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index);
 
@@ -517,14 +520,26 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return true;
     }
 
-    private boolean checkConnectionMethodExists(Device device, String connectionMethod) throws FaultMessage {
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-        for (ComTaskExecution cte : comTaskExecutions) { // foreach is used due to avoid exception handling inside lambda
-            if (checkConnectionMethodForComTaskExecution(cte, connectionMethod)) {
-                return true;
+    private boolean checkConnectionMethodExistsOnDevice(Device device, String connectionMethod, SyncReplyIssue syncReplyIssue) throws FaultMessage {
+        List<Map<Long, ComTaskExecution>> deviceComTaskExecutionMaps = new ArrayList<>();
+        deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceRegularComTaskExecutionMap());
+        deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceIrregularComTaskExecutionMap());
+        deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceMessagesComTaskExecutionMap());
+
+        boolean isOk = false;
+        for (Map<Long, ComTaskExecution> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda
+            if (!deviceComTaskExecutionMap.isEmpty()) {
+                ComTaskExecution comTaskExecution = deviceComTaskExecutionMap.get(device.getId());
+                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod)) {
+                    isOk = true;
+                } else {
+                    syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
+                            connectionMethod, comTaskExecution.getComTask().getName(), device.getName()));
+                    deviceComTaskExecutionMap.remove(device.getId());
+                }
             }
         }
-        return false;
+        return isOk;
     }
 
     private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws
@@ -537,7 +552,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 .equalsIgnoreCase(connectionMethod);
     }
 
-    private Set<LoadProfileType> getExistedLoadProfiles(Set<String> loadProfileNames, int index) {
+    private Set<LoadProfileType> getExistedLoadProfiles(Set<String> loadProfileNames, int index, SyncReplyIssue syncReplyIssue) {
         Set<LoadProfileType> existedLoadProfiles = new HashSet<>();
         if (loadProfileNames != null) {
             Map<String, LoadProfileType> lpNameLoadProfileMap = masterDataService.findAllLoadProfileTypes().stream()
@@ -555,7 +570,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return existedLoadProfiles;
     }
 
-    private Set<RegisterGroup> getExistedRegisterGroups(Set<String> existedRegisterGroupsNames, int index) {
+    private Set<RegisterGroup> getExistedRegisterGroups(Set<String> existedRegisterGroupsNames, int index, SyncReplyIssue syncReplyIssue) {
         Set<RegisterGroup> registerGroups = new HashSet<>();
         if (existedRegisterGroupsNames != null) {
             Map<String, RegisterGroup> rgNameRegisterGroupMap = masterDataService.findAllRegisterGroups().stream()
@@ -602,7 +617,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return accumulatedDataSourceNameType;
     }
 
-    private Set<String> getDataSourceNames(List<DataSource> dataSources, int index) {
+    private Set<String> getDataSourceNames(List<DataSource> dataSources, int index, SyncReplyIssue syncReplyIssue) {
         Set<String> dsNames = new HashSet<>();
         for (DataSource dataSource : dataSources) {
             String dsName = dataSource.getName(); // e.g. 15min Electricity A+
@@ -618,7 +633,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
     private MeterReadingsResponseMessageType createMeterReadingsResponseMessageType(MeterReadings meterReadings,
                                                                                     List<ErrorType> errorTypes,
-                                                                                    String correlationId) {
+                                                                                    String correlationId,
+                                                                                    SyncReplyIssue syncReplyIssue) {
         MeterReadingsResponseMessageType meterReadingsResponseMessageType =
                 createMeterReadingsResponseMessageType(meterReadings, correlationId);
         ReplyType replyType;
@@ -731,7 +747,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
     }
 
-    private void fillNotFoundReadingTypesOnDevices() {
+    private void fillNotFoundReadingTypesOnDevices(SyncReplyIssue syncReplyIssue) {
         Map<String, Set<String>> notFoundReadingTypesOnDevices = new HashMap<>();
 
         for (com.elster.jupiter.metering.EndDevice endDevice : syncReplyIssue.getExistedMeters()) {
@@ -780,7 +796,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return readingTypes;
     }
 
-    private Set<com.elster.jupiter.metering.Meter> fillMetersInfo(List<EndDevice> endDevices) throws FaultMessage {
+    private Set<com.elster.jupiter.metering.Meter> fillMetersInfo(List<EndDevice> endDevices, SyncReplyIssue syncReplyIssue) throws FaultMessage {
         Set<String> mRIDs = new HashSet<>();
         Set<String> fullAliasNames = new HashSet<>();
         for (int i = 0; i < endDevices.size(); ++i) {
@@ -789,12 +805,13 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
         Set<com.elster.jupiter.metering.Meter> meters = fromEndDevicesWithMRIDsAndNames(mRIDs, fullAliasNames);
         syncReplyIssue.setExistedMeters(meters);
-        fillNotFoundEndDevicesMRIDsAndNames(meters, mRIDs, fullAliasNames);
+        fillNotFoundEndDevicesMRIDsAndNames(meters, mRIDs, fullAliasNames, syncReplyIssue);
         return meters;
     }
 
     private void fillNotFoundEndDevicesMRIDsAndNames(Set<com.elster.jupiter.metering.Meter> meters,
-                                                     Set<String> requiredMRIDs, Set<String> requiredNames) {
+                                                     Set<String> requiredMRIDs, Set<String> requiredNames,
+                                                     SyncReplyIssue syncReplyIssue) {
         Set<String> existedNames = meters.stream()
                 .map(endDevice -> endDevice.getName())
                 .collect(Collectors.toSet());
@@ -811,7 +828,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     private void fillReadingTypesInfo(MeterReadingsBuilder builder, List<ReadingType> readingTypes,
-                                      boolean asyncFlag) throws FaultMessage {
+                                      boolean asyncFlag, SyncReplyIssue syncReplyIssue) throws FaultMessage {
         Set<String> mRIDs = new HashSet<>();
         Set<String> fullAliasNames = new HashSet<>();
         for (int i = 0; i < readingTypes.size(); ++i) {
@@ -822,10 +839,10 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             builder.ofReadingTypesWithFullAliasNames(fullAliasNames);
         }
         syncReplyIssue.setExistedReadingTypes(getReadingTypes(mRIDs, fullAliasNames, asyncFlag));
-        fillNotFoundReadingTypesMRIDsAndNames(mRIDs, fullAliasNames);
+        fillNotFoundReadingTypesMRIDsAndNames(mRIDs, fullAliasNames, syncReplyIssue);
     }
 
-    private void fillNotFoundReadingTypesMRIDsAndNames(Set<String> requiredMRIDs, Set<String> requiredNames) {
+    private void fillNotFoundReadingTypesMRIDsAndNames(Set<String> requiredMRIDs, Set<String> requiredNames, SyncReplyIssue syncReplyIssue) {
         Set<String> existedmRIDs = syncReplyIssue.getExistedReadingTypes().stream()
                 .map(readingType -> readingType.getMRID())
                 .collect(Collectors.toSet());
@@ -864,14 +881,14 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
     }
 
-    private RangeSet<Instant> getTimeIntervals(List<Reading> readings) throws FaultMessage {
+    private RangeSet<Instant> getTimeIntervals(List<Reading> readings, SyncReplyIssue syncReplyIssue) throws FaultMessage {
         if (readings.isEmpty()) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, READING_LIST_ITEM)
                     .get();
         }
         RangeSet<Instant> result = TreeRangeSet.create();
         for (int i = 0; i < readings.size(); ++i) {
-            if (!checkTimeInterval(readings.get(i), String.format(READING_ITEM, i), false)) {
+            if (!checkTimeInterval(readings.get(i), String.format(READING_ITEM, i), false, syncReplyIssue)) {
                 syncReplyIssue.addNotUsedReadingsDueToTimeStamp(i);
                 continue;
             }
@@ -884,7 +901,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return Range.openClosed(reading.getTimePeriod().getStart(), reading.getTimePeriod().getEnd());
     }
 
-    private boolean checkTimeInterval(Reading reading, String readingItem, boolean asyncFlag) {
+    private boolean checkTimeInterval(Reading reading, String readingItem, boolean asyncFlag, SyncReplyIssue syncReplyIssue) {
         DateTimeInterval interval = reading.getTimePeriod();
         if (interval == null) {
             if (reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
@@ -895,7 +912,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD, null));
                 return false;
             }
-            if (hasIrregularReadingTypes()) {
+            if (syncReplyIssue.getExistedReadingTypes().stream()
+                    .anyMatch(readingType -> !readingType.isRegular())) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
             }
         } else {
@@ -917,7 +935,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.SYSTEM_SOURCE_EMPTY_TIME_PERIOD, null));
                     return false;
                 }
-                if (hasIrregularReadingTypes()) {
+                if (syncReplyIssue.getExistedReadingTypes().stream()
+                        .anyMatch(readingType -> !readingType.isRegular())) {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
                 }
             }
@@ -933,11 +952,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             }
         }
         return true;
-    }
-
-    private boolean hasIrregularReadingTypes() {
-        return syncReplyIssue.getExistedReadingTypes().stream()
-                .anyMatch(readingType -> !readingType.isRegular());
     }
 
     private void collectDeviceMridsAndNames(EndDevice endDevice, int index, Set<String> mRIDs, Set<String> deviceNames) throws

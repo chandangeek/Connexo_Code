@@ -74,7 +74,7 @@ Ext.define('Isc.view.ServiceCallDetails', {
                     },
                     {
                         itemId: 'servicecall-issue-details-status',
-                        fieldLabel: Uni.I18n.translate('general.servicecall.status', 'ISC', 'Service call status'),
+                        fieldLabel: Uni.I18n.translate('general.servicecall.status.causing.issue', 'ISC', 'Service call status causing issue'),
                         name: 'onState',
                         renderer: function (value) {
                             return value ? value.name : '-';

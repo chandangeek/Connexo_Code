@@ -105,7 +105,7 @@ public enum MessageSeeds implements MessageSeed {
     SCHEDULE_STRATEGY_NOT_SUPPORTED(6017, "ScheduleStrategyNotSupported", "Schedule strategy ''{0}'' is not supported. The possible values are: ''Run now'' and ''Use schedule''"),
     NO_CONNECTION_TASK(6018, "NoConnectionTask", "No connection task has been found for communication task execution of communication task ''{0}''."),
     CONNECTION_METHOD_NOT_FOUND_ON_DEVICE(6019, "ConnectionMethodNotFoundOnDevice", "The required connection method ''{0}'' wasn''t found on the device ''{1}''.", Level.WARNING),
-    CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK(6020, "ConnectionMethodNotFoundForComTask", "The required connection method ''{0}'' wasn''t found for communication task ''{0}''.", Level.WARNING),
+    CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK(6020, "ConnectionMethodNotFoundForComTask", "The required connection method ''{0}'' wasn''t found for communication task ''{1}'' of device ''{2}''.", Level.WARNING),
     DATA_SOURCE_NAME_TYPE_NOT_FOUND(6021, "DataSourceNameTypeNotFound", "Data source name type ''{0}'' is not found in the element ''{1}''. Possible values: Load Profile or Register Group."),
     NO_DATA_SOURCES(6022, "NoDataSources", "At least one correct ''GetMeterReadings.ReadingType'' or ''GetMeterReadings.Reading.dataSource'' must be specified in the request under element ''{0}''", Level.WARNING),
     REGISTER_GROUP_NOT_FOUND(6023, "RegisterGroupNotFound", "Couldn''t find register group with name ''{0}'' under element ''{1}''.", Level.WARNING),
