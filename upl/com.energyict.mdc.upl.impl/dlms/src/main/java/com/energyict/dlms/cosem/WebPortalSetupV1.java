@@ -616,7 +616,7 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 	 * @throws 		IOException		If an IO error occurs.
 	 */
 	public final void setLockoutDuration(final long duration) throws IOException {
-		if (duration < 0 || duration > 0xFFFFFFFF) {
+		if (duration < 0 || duration > 0xFFFFFFFFL) {
 			throw new IllegalArgumentException("Duration should be between 0 and 0xFFFFFFFF, you specified " + duration);
 		}
 		
