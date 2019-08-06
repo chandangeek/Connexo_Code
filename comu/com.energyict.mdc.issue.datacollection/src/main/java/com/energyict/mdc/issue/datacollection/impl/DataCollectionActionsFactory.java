@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -34,6 +35,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.MessageInterpolator;
+
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -51,6 +54,8 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     private volatile PropertySpecService propertySpecService;
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile MeteringGroupsService meteringGroupsService;
+    private volatile Clock clock;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -68,7 +73,9 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
                                         CommunicationTaskReportService communicationTaskReportService,
                                         IssueService issueService,
                                         PropertySpecService propertySpecService,
-                                        ThreadPrincipalService threadPrincipalService) {
+                                        ThreadPrincipalService threadPrincipalService,
+                                        MeteringGroupsService meteringGroupsService,
+                                        Clock clock) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
@@ -77,6 +84,8 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
         setThreadPrincipalService(threadPrincipalService);
+        setMeteringGroupsService(meteringGroupsService);
+        setClock(clock);
 
         activate();
     }
@@ -95,6 +104,8 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
                 bind(IssueService.class).toInstance(issueService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                bind(Clock.class).toInstance(clock);
             }
         });
 
@@ -149,7 +160,17 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
-
+    
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+    
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+    
     private void addDefaultActions() {
         try {
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));

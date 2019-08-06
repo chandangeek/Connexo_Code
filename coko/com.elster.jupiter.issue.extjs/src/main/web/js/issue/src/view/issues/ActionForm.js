@@ -29,7 +29,8 @@ Ext.define('Isu.view.issues.ActionForm', {
                 defaults: {
                     labelWidth: me.defaults.labelWidth,
                     width: 320,
-                    resetButtonHidden: true
+                    resetButtonHidden: true,
+					hiddenFieldKeys: ['CloseIssueAction.excludedGroups']
                 }
             },
             {

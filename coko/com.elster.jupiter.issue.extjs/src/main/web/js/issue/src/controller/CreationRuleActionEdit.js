@@ -101,7 +101,7 @@ Ext.define('Isu.controller.CreationRuleActionEdit', {
 
         Ext.util.History.un('change', me.checkRoute, me);
 
-        if (!Ext.Array.findBy(allowableRoutes, function (item) {return item === currentRoute})) {
+        if (!Ext.Array.findBy(allowableRoutes, function (item) {return (currentRoute === item || currentRoute.startsWith(item + '/'))})) {
             me.getStore('Isu.store.Clipboard').clear('issuesCreationRuleState');
         }
     },

@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -33,6 +34,8 @@ public interface IssueCreationService {
     Optional<CreationRule> findAndLockCreationRuleByIdAndVersion(long id, long version);
 
     Query<CreationRule> getCreationRuleQuery(Class<?>... eagers);
+    
+    List<CreationRuleAction> findActionsByMultiValueProperty(List<IssueTypes> issueTypes, String propertyKey, List<String> groupIdsList);
 
     Optional<CreationRuleTemplate> findCreationRuleTemplate(String name);
 

@@ -14,10 +14,12 @@ import com.elster.jupiter.properties.rest.DeviceGroupPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
+import com.elster.jupiter.properties.rest.EndDeviceGroupPropertyFactory;
 import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
+import com.elster.jupiter.util.HasId;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +63,9 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
             return SimplePropertyType.ENDDEVICEEVENTTYPE;
         }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceGroupPropertyFactory) {
+            return SimplePropertyType.ENDDEVICEGROUPLIST;
+        }
         return SimplePropertyType.LISTVALUE;
     }
 
@@ -77,8 +82,15 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            List<HasIdAndName> value = (List<HasIdAndName>) domainValue;
-            return value.stream().map(HasIdAndName::getId).collect(Collectors.toList());
+            final Class valueType = ((ListValueFactory) propertySpec.getValueFactory()).getActualFactory()
+                    .getValueType();
+            if (HasId.class.isAssignableFrom(valueType)) {
+                List<HasId> value = (List<HasId>) domainValue;
+                return value.stream().map(HasId::getId).collect(Collectors.toList());
+            } else if (HasIdAndName.class.isAssignableFrom(valueType)) {
+                List<HasIdAndName> value = (List<HasIdAndName>) domainValue;
+                return value.stream().map(HasIdAndName::getId).collect(Collectors.toList());
+            }
         }
         return null;
     }
