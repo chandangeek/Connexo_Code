@@ -133,7 +133,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
                 .startingConfigurationOn(getStart());
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder);
         getDevice().getDeviceConfiguration().getRegisterSpecs().stream()
-                .filter(registerSpec -> registerSpec.getReadingType() != this.readingType)
+                .filter(registerSpec -> registerSpec.getReadingType() != this.readingType && registerSpec instanceof NumericalRegisterSpec)
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
                 .forEach(registerSpec ->
                         configureReadingType(

@@ -100,8 +100,7 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
                 "end\n" +
                 "rule \"Auto-resolution section @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : ServiceCallStateChangedEvent(stateId == " + DefaultState.SUCCESSFUL.ordinal() + ", " +
-                " serviceCallTypeId in (@{" + TranslationKeys.SERVICE_CALL_TYPE.getKey() + "})," +
+                "\tevent : ServiceCallStateChangedEvent(stateId not in (@{" + TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey() + "}), " +
                 "@{" + AUTORESOLUTION + "} == 1" +
                 ")\n" +
                 "then\n" +

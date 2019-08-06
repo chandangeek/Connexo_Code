@@ -6,6 +6,7 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -96,4 +97,14 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
     void update();
 
     long getVersion();
+
+    /**
+     * Gets the Set of {@link PropertySpec}s that are the result of the selected security levels.
+     *
+     * @return The Set of PropertySpecs
+     */
+
+    void setAdditionalPropertyIfApplicable(PropertyInfo info);
+
+    List<PropertyInfo> processAdditionalPropertyInfos(List<PropertyInfo> properties);
 }

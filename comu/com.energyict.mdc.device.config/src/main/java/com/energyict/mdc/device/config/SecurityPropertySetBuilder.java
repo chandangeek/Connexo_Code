@@ -8,6 +8,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import java.util.Set;
 
@@ -27,6 +28,8 @@ public interface SecurityPropertySetBuilder {
     SecurityPropertySetBuilder responseSecurityLevel(int level);
 
     SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor);
+
+    SecurityPropertySetBuilder additionalPropertyIfApplicable(PropertyInfo info);
 
     /**
      * Gets the Set of {@link PropertySpec}s that are the result
