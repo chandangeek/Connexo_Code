@@ -9,10 +9,9 @@ import com.elster.jupiter.issue.rest.response.issue.IssueInfo;
 import com.elster.jupiter.webservice.issue.WebServiceIssue;
 
 public class WebServiceIssueInfo<T extends DeviceInfo> extends IssueInfo<T, WebServiceIssue> {
-    public long webServiceCallOccurrenceId;
+    public WebServiceCallOccurrenceInfo webServiceCallOccurrence;
 
-    public WebServiceIssueInfo(WebServiceIssue issue, Class<T> deviceInfoClass) {
+    WebServiceIssueInfo(WebServiceIssue issue, Class<T> deviceInfoClass) {
         super(issue, deviceInfoClass);
-        webServiceCallOccurrenceId = issue.getWebServiceCallOccurrence().getId();
     }
 }
