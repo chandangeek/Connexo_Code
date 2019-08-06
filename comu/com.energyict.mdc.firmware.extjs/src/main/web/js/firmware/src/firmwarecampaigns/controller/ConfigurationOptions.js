@@ -51,6 +51,14 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
                         if (form) {
                             form.loadRecord(record.getFirmvareVersionsOptions());
                         }
+                        var firmwareStore = Ext.getStore('Fwc.firmwarecampaigns.store.FirmwareVersionsList');
+                        firmwareStore.getProxy().setUrl(firmwareCampaignId);
+                        var options = {
+                            callback: function () {
+                                pageView.setLoading(false);
+                            }
+                        }
+                        firmwareStore.load(options);
                     }
                 });
             },

@@ -54,12 +54,21 @@ Ext.define('Fwc.firmwarecampaigns.view.ConfigurationOptions', {
                             title: Uni.I18n.translate('general.firmwareVersions', 'FWC', 'Firmware versions'),
                             itemId: 'mdc-versions-tab',
                             items: [
-                                /*{
-                                    xtype: 'firmware-versions',
-                                    deviceType: me.deviceType,
-                                    isFirmwareCampaignVersions: true,
-                                    router: me.router
-                                }*/
+                                {
+                                    xtype: 'uni-form-info-message',
+                                    itemId: 'firmware-versions-info-message',
+                                    text: Uni.I18n.translate('firmwareVersions.infoMsg', 'FIM', 'This page only represents the firmware versions at the moment of campaign creation. The actual configuration could have been changed afterwards'),
+                                },
+                                {
+                                    xtype: 'firmware-grid',
+                                    store: 'Fwc.firmwarecampaigns.store.FirmwareVersionsList',
+                                    showImageIdentifierColumn: me.deviceType.get('needsImageIdentifierForFirmware'),
+                                    router: me.router,
+                                    scroll: 'vertical',
+                                    maxHeight:402,
+                                    autoHeight: true,
+                                    isFirmwareCampaignVersions: true
+                                }
                             ]
                         }
                 ]

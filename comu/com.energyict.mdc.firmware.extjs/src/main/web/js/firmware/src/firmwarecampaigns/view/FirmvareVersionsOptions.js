@@ -17,7 +17,17 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
         var me = this;
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
 
-        me.items = [{
+        me.items = [
+            {
+                xtype: 'displayfield',
+                itemId: 'firmwareDeviceTypeVersionsWarn',
+                fieldLabel: '&nbsp',
+                width: 800,
+                renderer: function (value, field) {
+                    return '<span style="color:#808080;">' + Uni.I18n.translate('firmware.device.type.versions.warn', 'FWC', 'Default values for the following fields are taken from the device type. Firmware checks will be used on the campaign as specified below') + '</span>';
+                }
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'targetOptions',
                 layout: 'hbox',

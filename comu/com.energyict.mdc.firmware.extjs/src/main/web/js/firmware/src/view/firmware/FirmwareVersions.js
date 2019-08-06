@@ -12,6 +12,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
         'Fwc.view.firmware.FirmwareVersionsTopFilter',
         'Uni.view.button.SortItemButton'
     ],
+    store: null,
     deviceType: null,
     isFirmwareCampaignVersions: null,
 
@@ -31,7 +32,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                         xtype: 'emptygridcontainer',
                         grid: {
                             xtype: 'firmware-grid',
-                            store: 'Fwc.store.Firmwares',
+                            store: me.store,
                             showImageIdentifierColumn: me.deviceType.get('needsImageIdentifierForFirmware'),
                             router: this.router,
                             scroll: 'vertical',
