@@ -354,12 +354,6 @@ public class ServiceCallCommands {
         if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, delay)) {
             Set<ComTaskExecution> existedComTaskExecutions = getComTaskExecutions(meter, start, end, combinedReadingTypes, syncReplyIssue);
             for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
-                if (reading.getConnectionMethod() != null
-                        && !checkConnectionMethodForComTaskExecution(comTaskExecution, reading.getConnectionMethod())) {
-                    syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
-                            reading.getConnectionMethod(), comTaskExecution.getComTask().getName()));
-                    continue;
-                }
                 Instant actualStart = getActualStart(start, actualEnd, comTaskExecution);
 
                 if (actualEnd.isBefore(actualStart)) {
@@ -580,16 +574,6 @@ public class ServiceCallCommands {
     private Device findDeviceForEndDevice(com.elster.jupiter.metering.Meter meter) {
         long deviceId = Long.parseLong(meter.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
-    }
-
-    private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws
-            ch.iec.tc57._2011.getmeterreadings.FaultMessage {
-        return comTaskExecution.getConnectionTask()
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_CONNECTION_TASK,
-                        comTaskExecution.getComTask().getName()))
-                .getPartialConnectionTask()
-                .getName()
-                .equalsIgnoreCase(connectionMethod);
     }
 
     private void initiateReading(ServiceCall serviceCall) {

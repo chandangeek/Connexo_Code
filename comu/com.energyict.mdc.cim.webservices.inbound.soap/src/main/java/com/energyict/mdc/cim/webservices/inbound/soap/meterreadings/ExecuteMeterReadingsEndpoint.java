@@ -233,11 +233,6 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 continue;
             }
 
-            if (!checkConnectionMethod(reading.getConnectionMethod(), readingItem, devices, syncReplyIssue)) {
-                syncReplyIssue.addNotUsedReadingsDueToConnectionMethod(i);
-                continue;
-            }
-
             if (reading.getScheduleStrategy() != null) {
                 checkIsEmpty(reading.getScheduleStrategy(), readingItem + ".scheduleStrategy");
             }
@@ -262,6 +257,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             fillDevicesComTaskExecutions(devices, reading, i, syncReplyIssue);
             if (!checkComTaskExecutions(devices, readingItem, syncReplyIssue)) {
                 syncReplyIssue.addNotUsedReadingsDueToComTaskExecutions(i);
+                continue;
+            }
+
+            if (!checkConnectionMethod(reading.getConnectionMethod(), readingItem, devices, syncReplyIssue)) {
+                syncReplyIssue.addNotUsedReadingsDueToConnectionMethod(i);
                 continue;
             }
 
@@ -459,7 +459,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             checkIsEmpty(connectionMethod, readingItem + ".connectionMethod");
             int numberOfDevicesWithConnection = 0;
             for (Device device : devices) {
-                if (!checkConnectionMethodExists(device, connectionMethod)) {
+                if (!checkConnectionMethodExistsOnDevice(device, connectionMethod, syncReplyIssue)) {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_ON_DEVICE, null,
                             connectionMethod, device.getName()));
                 } else {
@@ -520,14 +520,26 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return true;
     }
 
-    private boolean checkConnectionMethodExists(Device device, String connectionMethod) throws FaultMessage {
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-        for (ComTaskExecution cte : comTaskExecutions) { // foreach is used due to avoid exception handling inside lambda
-            if (checkConnectionMethodForComTaskExecution(cte, connectionMethod)) {
-                return true;
+    private boolean checkConnectionMethodExistsOnDevice(Device device, String connectionMethod, SyncReplyIssue syncReplyIssue) throws FaultMessage {
+        List<Map<Long, ComTaskExecution>> deviceComTaskExecutionMaps = new ArrayList<>();
+        deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceRegularComTaskExecutionMap());
+        deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceIrregularComTaskExecutionMap());
+        deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceMessagesComTaskExecutionMap());
+
+        boolean isOk = false;
+        for (Map<Long, ComTaskExecution> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda
+            if (!deviceComTaskExecutionMap.isEmpty()) {
+                ComTaskExecution comTaskExecution = deviceComTaskExecutionMap.get(device.getId());
+                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod)) {
+                    isOk = true;
+                } else {
+                    syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
+                            connectionMethod, comTaskExecution.getComTask().getName(), device.getName()));
+                    deviceComTaskExecutionMap.remove(device.getId());
+                }
             }
         }
-        return false;
+        return isOk;
     }
 
     private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws
