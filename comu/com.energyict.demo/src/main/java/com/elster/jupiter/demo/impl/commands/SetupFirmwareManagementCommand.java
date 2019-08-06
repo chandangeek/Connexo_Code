@@ -7,6 +7,7 @@ package com.elster.jupiter.demo.impl.commands;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -17,7 +18,9 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 
 public class SetupFirmwareManagementCommand extends CommandWithTransaction{
@@ -60,6 +63,9 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
             if (firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType).isEmpty()) {
                 FirmwareManagementOptions options = firmwareService.newFirmwareManagementOptions(deviceType);
+                if(deviceType.getId() == 2 && deviceType.getName().equals("Actaris SL7000")){
+                    options.activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK,new HashSet<>(Arrays.asList(FirmwareStatus.FINAL)));
+                }
                 options.setOptions(supportedOptions);
                 options.save();
             }
@@ -82,8 +88,4 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
         inputStream.read(bytes);
         return bytes;
     }
-
-
-
-
 }
