@@ -151,7 +151,7 @@ public class MailIssueAction extends AbstractIssueAction {
 
     private String getContent(Issue issue) {
         int totalPriority = issue.getPriority().getImpact() + issue.getPriority().getUrgency();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss zzz");
         long unixTime = issue.getCreateDateTime().getEpochSecond();
         String formattedDtm = Instant.ofEpochSecond(unixTime)
                 .atZone(ZoneId.of("GMT-4"))
@@ -161,8 +161,8 @@ public class MailIssueAction extends AbstractIssueAction {
             user = Optional.of(issue.getAssignee().getUser().getName());
         }
 
-        return "ID:" + issue.getIssueId() + "\n" + "Issue reason: " + issue.getReason().getName() + "\n" +
-                "Issue type: " + issue.getReason().getIssueType().getName() + "\n" + "User: " + user.get() + "\n" +
+        return "Issue ID:" + issue.getIssueId() + "\n" + "Issue reason: " + issue.getReason().getName() + "\n" +
+                "Issue type: " + issue.getReason().getIssueType().getName() + "\n" +"Device : " +  issue.getDevice().getName()+ "\n" + "User: " + user.get() + "\n" +
                 "Priority: " + totalPriority + "\n" + "Creation Time: " + formattedDtm + "\n";
     }
 
