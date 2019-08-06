@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
@@ -229,7 +230,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name) {
         this.deviceType.set(deviceType);
         setName(name);
-        if (!getDeviceType().isDataloggerSlave() && ! getDeviceType().isMultiElementSlave()) {
+        if (!getDeviceType().isDataloggerSlave() && !getDeviceType().isMultiElementSlave()) {
             this.getDeviceType()
                     .getDeviceProtocolPluggableClass()
                     .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
@@ -1405,7 +1406,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (usage != null) {
             return usage.isRuleSetActive();
         }
-        throw new UnsupportedOperationException("Unable to retrieve the validation rule set status for validation rule set with name: "+validationRuleSet.getName());
+        throw new UnsupportedOperationException("Unable to retrieve the validation rule set status for validation rule set with name: " + validationRuleSet.getName());
     }
 
     private DeviceConfValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
@@ -1479,7 +1480,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (estimationRuleSetUsage.isPresent()) {
             return estimationRuleSetUsage.get().isRuleSetActive();
         }
-        throw new UnsupportedOperationException("Unable to retrieve the estimation rule set status for estimation rule set with name: "+estimationRuleSet.getName());
+        throw new UnsupportedOperationException("Unable to retrieve the estimation rule set status for estimation rule set with name: " + estimationRuleSet.getName());
     }
 
     @Override
@@ -1542,10 +1543,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public void setDataloggerEnabled(boolean dataloggerEnabled) {
         if (isActive() && dataloggerEnabled != this.dataloggerEnabled) {
-            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG , this);
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG, this);
         }
         this.dataloggerEnabled = dataloggerEnabled;
     }
+
     @Override
     public boolean isDataloggerEnabled() {
         return this.dataloggerEnabled;
@@ -1553,7 +1555,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public void setMultiElementEnabled(boolean multiElementEnabled) {
         if (isActive() && multiElementEnabled != this.multiElementEnabled) {
-            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG ,this);
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG, this);
         }
         this.multiElementEnabled = multiElementEnabled;
     }
@@ -1577,7 +1579,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         super.save();
     }
 
-    private void clearOldDefault(){
+    private void clearOldDefault() {
         getDataModel()
                 .query(DeviceConfigurationImpl.class)
                 .select(where(Fields.IS_DEFAULT.fieldName()).isEqualTo(true)
@@ -1648,7 +1650,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                     constraintViolations.addAll(e.getConstraintViolations());
                 }
             });
-            if(constraintViolations.size() > 0 ) {
+            if (constraintViolations.size() > 0) {
                 throw new VerboseConstraintViolationException(constraintViolations);
             }
             protocolProperties.addAll(this.newProperties.values());
@@ -1705,6 +1707,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor) {
             underConstruction.addConfigurationSecurityProperty(name, keyAccessor);
+            return this;
+        }
+
+
+        /*
+         Description: Method used for storing aditional propertyspecs values which cannot be converted to KeyAccessorType
+         */
+        @Override
+        public SecurityPropertySetBuilder additionalPropertyIfApplicable(PropertyInfo info) {
+            underConstruction.setAdditionalPropertyIfApplicable(info);
             return this;
         }
 

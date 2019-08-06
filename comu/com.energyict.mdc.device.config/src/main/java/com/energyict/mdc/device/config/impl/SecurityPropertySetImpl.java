@@ -17,6 +17,8 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
@@ -38,6 +40,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -85,6 +88,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String clientDbValue;
     private Object client;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String C12User;
+    private int C12UserID;
+    private boolean PasswordBinary;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String C12CalledAPTitle;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String C12SecurityKey;
     private int securitySuiteId = -1;
     private SecuritySuite securitySuite;
     private int requestSecurityLevelId = -1;
@@ -97,7 +108,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
     private final ProtocolPluggableService protocolPluggableService;
-    @SuppressWarnings("unused")
+
     private String userName;
     @SuppressWarnings("unused")
     private long version;
@@ -113,6 +124,55 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    /*
+     *   Description: Method used for storing aditional propertyspecs values which cannot be converted to KeyAccessorType
+     *      The values are stored in database therefore the value is retrieved from specific db objects.
+     */
+
+    public  List<PropertyInfo> processAdditionalPropertyInfos(List<PropertyInfo> properties){
+        for (PropertyInfo prop:properties) {
+            if(prop.key.equals(SecurityPropertySpecTranslationKeys.ANSI_C12_USER.getKey())){
+                prop.propertyValueInfo = new PropertyValueInfo<>(C12User, null, null, true);
+            }
+            else if(prop.key.equals(SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.getKey())){
+                prop.propertyValueInfo = new PropertyValueInfo<>(C12UserID, null, null, true);
+            }
+            else if(prop.key.equals(SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.getKey())){
+                prop.propertyValueInfo = new PropertyValueInfo<>(PasswordBinary, null, null, true);
+            }
+            else if(prop.key.equals(SecurityPropertySpecTranslationKeys.ANSI_CALLED_AP_TITLE.getKey())){
+                prop.propertyValueInfo = new PropertyValueInfo<>(C12CalledAPTitle, null, null, true);
+            }
+            else if(prop.key.equals(SecurityPropertySpecTranslationKeys.ANSI_SECURITY_KEY.getKey())){
+                prop.propertyValueInfo = new PropertyValueInfo<>(C12SecurityKey, null, null, true);
+            }
+        }
+        return properties;
+    }
+
+    /*
+     *   Description: Method used for storing aditional propertyspecs values which cannot be converted to KeyAccessorType
+     *      The values need to be stored in database therefore specific db objects are required for these properties
+     */
+    @Override
+    public void setAdditionalPropertyIfApplicable(PropertyInfo info){
+        if (hasValue(info)) {
+            if (info.key.equals(SecurityPropertySpecTranslationKeys.ANSI_C12_USER.getKey())) {
+                this.C12User = info.getPropertyValueInfo().getValue().toString();
+            } else if (info.key.equals(SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.getKey())) {
+                this.C12UserID = Integer.valueOf(info.getPropertyValueInfo().getValue().toString());
+            } else if (info.key.equals(SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.getKey())) {
+                this.PasswordBinary = Boolean.valueOf(info.getPropertyValueInfo().getValue().toString());
+            }
+            else if(info.key.equals(SecurityPropertySpecTranslationKeys.ANSI_CALLED_AP_TITLE.getKey())){
+                this.C12CalledAPTitle = info.getPropertyValueInfo().getValue().toString();
+            }
+            else if(info.key.equals(SecurityPropertySpecTranslationKeys.ANSI_SECURITY_KEY.getKey())){
+                this.C12SecurityKey = info.getPropertyValueInfo().getValue().toString();
+            }
+        }
     }
 
     @Override
@@ -164,6 +224,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     protected boolean validateUniqueName() {
         return this.findOtherByName(this.getName()) == null;
+    }
+
+    private boolean hasValue(PropertyInfo propertyInfo) {
+        PropertyValueInfo<?> propertyValueInfo = propertyInfo.getPropertyValueInfo();
+        return propertyValueInfo != null && propertyValueInfo.getValue() != null && !"".equals(propertyValueInfo.getValue());
     }
 
     private SecurityPropertySet findOtherByName(String name) {
