@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -63,8 +64,8 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
             if (firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType).isEmpty()) {
                 FirmwareManagementOptions options = firmwareService.newFirmwareManagementOptions(deviceType);
-                if(deviceType.getId() == 2 && deviceType.getName().equals("Actaris SL7000")){
-                    options.activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK,new HashSet<>(Arrays.asList(FirmwareStatus.FINAL)));
+                if(deviceType.getName().equals("Actaris SL7000")){
+                    options.activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK, Collections.singleton(FirmwareStatus.FINAL));
                 }
                 options.setOptions(supportedOptions);
                 options.save();
