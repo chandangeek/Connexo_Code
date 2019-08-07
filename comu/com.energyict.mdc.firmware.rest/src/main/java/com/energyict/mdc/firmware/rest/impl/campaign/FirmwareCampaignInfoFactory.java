@@ -25,7 +25,9 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.rest.impl.CheckManagementOptionInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignVersionStateInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareStatusInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
+import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.IdWithLocalizedValue;
 import com.energyict.mdc.firmware.rest.impl.ManagementOptionInfo;
@@ -226,7 +228,19 @@ public class FirmwareCampaignInfoFactory {
 
     public List<FirmwareCampaignVersionStateInfo> getFirmwareCampaignVersionStateInfos(List<FirmwareCampaignVersionState> firmwareCampaignVersionStates){
         List<FirmwareCampaignVersionStateInfo> firmwareCampaignVersionStateInfos = new ArrayList<>();
-        firmwareCampaignVersionStates.forEach(fvs->firmwareCampaignVersionStateInfos.add(new FirmwareCampaignVersionStateInfo(fvs)));
+        firmwareCampaignVersionStates.forEach(fvs->firmwareCampaignVersionStateInfos.add(createFirmwareVersionInfo(fvs)));
         return firmwareCampaignVersionStateInfos;
+    }
+
+    private FirmwareCampaignVersionStateInfo createFirmwareVersionInfo(FirmwareCampaignVersionState firmwareCampaignVersionState){
+        FirmwareCampaignVersionStateInfo firmwareVersionInfo = new FirmwareCampaignVersionStateInfo();
+        firmwareVersionInfo.firmwareVersion = firmwareCampaignVersionState.getFirmwareVersion();
+        firmwareVersionInfo.firmwareType = firmwareCampaignVersionState.getFirmwareType();
+        firmwareVersionInfo.firmwareStatus = firmwareCampaignVersionState.getFirmwareStatus();
+        firmwareVersionInfo.imageIdentifier = firmwareCampaignVersionState.getImageIdentifier();
+        firmwareVersionInfo.rank = firmwareCampaignVersionState.getRank();
+        firmwareVersionInfo.meterFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionState.getMeterFirmwareDependency());
+        firmwareVersionInfo.communicationFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionState.getCommunicationFirmwareDependency());
+        return firmwareVersionInfo;
     }
 }

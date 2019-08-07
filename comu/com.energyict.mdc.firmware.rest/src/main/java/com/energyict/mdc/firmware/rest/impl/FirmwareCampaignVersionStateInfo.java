@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -15,17 +16,6 @@ public class FirmwareCampaignVersionStateInfo {
     public String firmwareStatus;
     public String imageIdentifier;
     public String rank;
-    public String meterFirmwareDependency;
-    public String communicationFirmwareDependency;
-
-    public FirmwareCampaignVersionStateInfo(FirmwareCampaignVersionState firmwareCampaignVersionState){
-        this.firmwareVersion = firmwareCampaignVersionState.getFirmwareVersion();
-        this.firmwareType = firmwareCampaignVersionState.getFirmwareType();
-        this.firmwareStatus = firmwareCampaignVersionState.getFirmwareStatus();
-        this.imageIdentifier = firmwareCampaignVersionState.getImageIdentifier();
-        this.rank = firmwareCampaignVersionState.getRank();
-        this.meterFirmwareDependency = firmwareCampaignVersionState.getMeterFirmwareDependency();
-        this.communicationFirmwareDependency = firmwareCampaignVersionState.getCommunicationFirmwareDependency();
-    }
-
+    public IdWithNameInfo meterFirmwareDependency;
+    public IdWithNameInfo communicationFirmwareDependency;
 }
