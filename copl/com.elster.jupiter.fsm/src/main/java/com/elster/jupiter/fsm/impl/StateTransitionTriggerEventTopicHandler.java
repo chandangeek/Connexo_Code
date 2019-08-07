@@ -186,11 +186,11 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         return configuration;
     }
 
-    private abstract static class StartExternalProcesses {
+    public abstract static class StartExternalProcesses {
         private static final String DEVICE = "com.energyict.mdc.device.data.Device";
         private static final String DEVICE_ASSOCIATION = "device";
         private static final String USAGEPOINT_ASSOCIATION = "usagepoint";
-        private static final String USAGEPOINT = "com.elster.jupiter.metering.UsagePoint";
+        public static final String USAGEPOINT = "com.elster.jupiter.metering.UsagePoint";
         private static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
         private static final String AUTH_TYPE = "Bearer ";
         private final List<ProcessReference> processReferences;
@@ -316,7 +316,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
     }
 
-    private static class StartExternalProcessesOnEntry extends StartExternalProcesses {
+    public static class StartExternalProcessesOnEntry extends StartExternalProcesses {
         StartExternalProcessesOnEntry(BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider, List<ProcessReference> processReferences, String sourceId, State state, String sourceType) {
             super(bpmService, usagePointProvider, processReferences, sourceId, state, sourceType);
         }
@@ -327,7 +327,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
     }
 
-    private static class StartExternalProcessesOnExit extends StartExternalProcesses {
+    public static class StartExternalProcessesOnExit extends StartExternalProcesses {
         StartExternalProcessesOnExit(BpmService bpmService, StateTransitionPropertiesProvider usagePointProvider, List<ProcessReference> processReferences, String sourceId, State state, String sourceType) {
             super(bpmService, usagePointProvider, processReferences, sourceId, state, sourceType);
         }
@@ -338,7 +338,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
     }
 
-    private static class CallWebServiceClientOnEntry extends CallWebServiceClient {
+    public static class CallWebServiceClientOnEntry extends CallWebServiceClient {
         CallWebServiceClientOnEntry(List<StateTransitionWebServiceClient> stateTransitionWebServiceClients,
                                     List<EndPointConfigurationReference> endPointConfigurationReferences,
                                     String sourceId, State state, String sourceType) {
@@ -351,7 +351,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
     }
 
-    private static class CallWebServiceClientOnExit extends CallWebServiceClient {
+    public static class CallWebServiceClientOnExit extends CallWebServiceClient {
         CallWebServiceClientOnExit(List<StateTransitionWebServiceClient> stateTransitionWebServiceClients,
                                    List<EndPointConfigurationReference> endPointConfigurationReferences,
                                    String sourceId, State state, String sourceType) {

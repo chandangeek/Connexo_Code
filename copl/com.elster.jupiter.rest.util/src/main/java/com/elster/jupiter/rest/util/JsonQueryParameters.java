@@ -12,6 +12,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import org.json.JSONArray;
@@ -54,6 +55,13 @@ public class JsonQueryParameters implements QueryParameters {
         queryParameters = uriInfo.getQueryParameters();
     }
 
+    public JsonQueryParameters(Integer start, Integer limit) {
+        this.start = start;
+        this.limit = limit;
+        queryParameters = new MultivaluedHashMap<>();
+        queryParameters.add("start",start.toString());
+        queryParameters.add("limit",limit.toString());
+    }
     /**
      * @summary Paging parameter denoting the index of the first element in the total list to be returned in the answer.
      * To get a paged answer, make sure you always specify both paging parameters <i>start</i> <b>and</b> <i>limit</i>

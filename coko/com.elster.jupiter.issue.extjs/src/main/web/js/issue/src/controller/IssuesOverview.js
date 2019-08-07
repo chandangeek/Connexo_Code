@@ -17,6 +17,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.model.Device',
         'Isu.model.Location',
         'Uni.component.sort.model.Sort'
+        'Isu.model.DeviceGroup'
     ],
 
     stores: [
@@ -30,7 +31,8 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.store.Locations',
         'Isu.store.IssueGrouping',
         'Isu.store.Groups',
-        'Isu.store.Clipboard'
+        'Isu.store.Clipboard',
+        'Isu.store.DeviceGroups'
     ],
 
     views: [

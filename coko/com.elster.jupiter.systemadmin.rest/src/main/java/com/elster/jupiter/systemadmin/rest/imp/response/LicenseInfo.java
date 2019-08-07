@@ -5,9 +5,7 @@
 package com.elster.jupiter.systemadmin.rest.imp.response;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 public class LicenseInfo extends LicenseShortInfo {
 
@@ -15,6 +13,6 @@ public class LicenseInfo extends LicenseShortInfo {
     public int graceperiod;
     public String type;
     public String description;
-    public Set<Map.Entry<String, Object>> content = new HashSet<>();
+    public List<LicenseProperty> content;
 
 }

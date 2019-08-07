@@ -76,9 +76,10 @@ Ext.define('Fwc.view.firmware.Grid', {
     initComponent: function () {
         var me = this;
         var buttons = [];
-        if (!this.showImageIdentifierColumn) {
+        /*if (!this.showImageIdentifierColumn) {
             this.columns = Ext.Array.filter(this.columns, function(col){ return col.dataIndex!=="imageIdentifier" });
-        }
+        }*/
+
 
         if (me.router && me.router.queryParams && me.router.queryParams.editOrder) me.editOrder = Boolean(me.router.queryParams.editOrder);
 

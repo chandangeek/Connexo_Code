@@ -4,19 +4,15 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.rest.impl.MessagingApplication;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-
-import org.osgi.service.component.annotations.Reference;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
-
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -37,6 +33,8 @@ public class MessagingApplicationTest extends FelixRestApplicationJerseyTest {
     private Thesaurus thesaurus;
     @Mock
     private TaskService taskService;
+    @Mock
+    protected ServiceCallService serviceCallService;
 
     @Override
     protected Application getApplication() {
@@ -50,6 +48,7 @@ public class MessagingApplicationTest extends FelixRestApplicationJerseyTest {
         application.setAppService(appService);
         application.setNlsService(nlsService);
         application.setTaskService(taskService);
+        application.setServiceCallService(serviceCallService);
 
         return application;
     }

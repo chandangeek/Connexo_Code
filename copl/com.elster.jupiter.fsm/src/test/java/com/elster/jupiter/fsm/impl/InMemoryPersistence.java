@@ -12,6 +12,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -121,6 +122,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(BpmService.class);
             this.injector.getInstance(EndPointConfigurationService.class);
             this.injector.getInstance(WebServicesService.class);
+            this.injector.getInstance(MessageService.class);
             this.finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
             this.dataModel = this.finiteStateMachineService.getDataModel();
             ctx.commit();

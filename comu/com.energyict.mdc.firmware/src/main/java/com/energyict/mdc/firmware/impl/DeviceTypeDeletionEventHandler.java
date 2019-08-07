@@ -8,6 +8,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 
@@ -24,11 +25,12 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-07-14 (14:44)
  */
-@Component(name="com.energyict.mdc.firmware.delete.devicetype", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.firmware.delete.devicetype", service = TopicHandler.class, immediate = true)
 @SuppressWarnings("unused")
 public class DeviceTypeDeletionEventHandler implements TopicHandler {
 
     private volatile FirmwareService firmwareService;
+    private volatile FirmwareCampaignService firmwareCampaignService;
 
     // For OSGi purpose
     public DeviceTypeDeletionEventHandler() {
@@ -36,7 +38,7 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
     }
 
     @Inject
-    public DeviceTypeDeletionEventHandler(FirmwareService firmwareService) {
+    public DeviceTypeDeletionEventHandler(FirmwareService firmwareService, FirmwareCampaignService firmwareCampaignService) {
         this();
         this.setFirmwareService(firmwareService);
     }
@@ -44,6 +46,7 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
     }
 
     @Override
@@ -66,7 +69,7 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
     }
 
     private void deleteFirmwareCampaigns(DeviceType deviceType) {
-        this.firmwareService.findFirmwareCampaigns(deviceType).forEach(FirmwareCampaign::delete);
+        this.firmwareCampaignService.findFirmwareCampaigns(deviceType).forEach(FirmwareCampaign::delete);
     }
 
 }

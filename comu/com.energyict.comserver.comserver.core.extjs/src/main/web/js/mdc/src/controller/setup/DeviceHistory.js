@@ -33,7 +33,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         'Mdc.store.device.MeterActivations',
         'Isu.store.Issues',
         'Mdc.store.device.IssuesAlarms',
-        'Mdc.audit.store.DeviceAudit'
+        'Mdc.store.DeviceAudit'
     ],
 
     models: [
@@ -152,13 +152,13 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
 
     showAuditTrail: function (deviceId) {
         var me = this,
-            auditController = me.getController('Mdc.audit.controller.Audit'),
+            auditController = me.getController('Cfg.audit.controller.Audit'),
             auditTrailTab = me.getPage().down('#device-history-audit-trail-tab'),
             dependenciesLoaded = function () {
-                var deviceDeviceAudit = me.getStore('Mdc.audit.store.DeviceAudit');
+                var deviceDeviceAudit = me.getStore('Mdc.store.DeviceAudit');
                 deviceDeviceAudit.getProxy().setUrl(deviceId);
                 auditTrailTab.add(auditController.getAuditTrailView(deviceDeviceAudit));
-                auditController.prepareForDevice(auditTrailTab.down('audit-setup-view'));
+                auditController.prepareForSpecificObject(auditTrailTab.down('audit-setup-view'));
             };
 
         auditController.loadDependencies(this, dependenciesLoaded);

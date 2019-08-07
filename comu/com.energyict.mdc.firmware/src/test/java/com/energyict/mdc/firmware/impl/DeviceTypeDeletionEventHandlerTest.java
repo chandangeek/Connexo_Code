@@ -7,6 +7,7 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 
@@ -36,6 +37,8 @@ public class DeviceTypeDeletionEventHandlerTest {
     @Mock
     private FirmwareService firmwareService;
     @Mock
+    FirmwareCampaignService firmwareCampaignService;
+    @Mock
     private LocalEvent event;
     @Mock
     private DeviceType deviceType;
@@ -43,6 +46,7 @@ public class DeviceTypeDeletionEventHandlerTest {
     @Before
     public void initializeMocks() {
         when(this.event.getSource()).thenReturn(this.deviceType);
+        when(firmwareService.getFirmwareCampaignService()).thenReturn(firmwareCampaignService);
     }
 
     @Test
@@ -53,7 +57,7 @@ public class DeviceTypeDeletionEventHandlerTest {
     @Test
     public void deleteDeviceTypeWithoutOptions() {
         when(this.firmwareService.findFirmwareManagementOptions(this.deviceType)).thenReturn(Optional.empty());
-        when(this.firmwareService.findFirmwareCampaigns(this.deviceType)).thenReturn(Collections.emptyList());
+        when(this.firmwareService.getFirmwareCampaignService().findFirmwareCampaigns(this.deviceType)).thenReturn(Collections.emptyList());
 
         // Business method
         this.getInstance().handle(this.event);
@@ -66,7 +70,7 @@ public class DeviceTypeDeletionEventHandlerTest {
     public void deleteDeviceTypeWithOptions() {
         FirmwareManagementOptions options = mock(FirmwareManagementOptions.class);
         when(this.firmwareService.findFirmwareManagementOptions(this.deviceType)).thenReturn(Optional.of(options));
-        when(this.firmwareService.findFirmwareCampaigns(this.deviceType)).thenReturn(Collections.emptyList());
+        when(this.firmwareService.getFirmwareCampaignService().findFirmwareCampaigns(this.deviceType)).thenReturn(Collections.emptyList());
 
         // Business method
         this.getInstance().handle(this.event);
@@ -78,20 +82,20 @@ public class DeviceTypeDeletionEventHandlerTest {
     @Test
     public void deleteDeviceTypeWithoutCampaigns() {
         when(this.firmwareService.findFirmwareManagementOptions(this.deviceType)).thenReturn(Optional.empty());
-        when(this.firmwareService.findFirmwareCampaigns(this.deviceType)).thenReturn(Collections.emptyList());
+        when(this.firmwareService.getFirmwareCampaignService().findFirmwareCampaigns(this.deviceType)).thenReturn(Collections.emptyList());
 
         // Business method
         this.getInstance().handle(this.event);
 
         // Asserts
-        verify(this.firmwareService).findFirmwareCampaigns(this.deviceType);
+        verify(this.firmwareCampaignService).findFirmwareCampaigns(this.deviceType);
     }
 
     @Test
     public void deleteDeviceTypeWithCampaigns() {
         FirmwareCampaign campaign = mock(FirmwareCampaign.class);
         when(this.firmwareService.findFirmwareManagementOptions(this.deviceType)).thenReturn(Optional.empty());
-        when(this.firmwareService.findFirmwareCampaigns(this.deviceType)).thenReturn(Collections.singletonList(campaign));
+        when(this.firmwareService.getFirmwareCampaignService().findFirmwareCampaigns(this.deviceType)).thenReturn(Collections.singletonList(campaign));
 
         // Business method
         this.getInstance().handle(this.event);
@@ -101,7 +105,7 @@ public class DeviceTypeDeletionEventHandlerTest {
     }
 
     private DeviceTypeDeletionEventHandler getInstance() {
-        return new DeviceTypeDeletionEventHandler(this.firmwareService);
+        return new DeviceTypeDeletionEventHandler(this.firmwareService, this.firmwareCampaignService);
     }
 
 }

@@ -11,6 +11,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -34,6 +35,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Provider;
 import javax.validation.Validator;
@@ -144,6 +146,10 @@ public class UsagePointImplTest {
     private UserService userService;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private MessageService messageService;
+    @Mock
+    private JsonService jsonService;
 
     @Before
     public void setUp() {
@@ -168,11 +174,11 @@ public class UsagePointImplTest {
         when(representation3.getDelegate()).thenReturn(user3);
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
-
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.empty());
         MessageBuilder messageBuilder = mock(MessageBuilder.class);
         when(this.destinationSpec.message(anyString())).thenReturn(messageBuilder);
         usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, meterActivationProvider, accountabilityProvider,
-                customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService)
+                customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService, messageService, jsonService)
                 .init(NAME, serviceCategory);
         usagePoint.setInstallationTime(Instant.EPOCH);
     }

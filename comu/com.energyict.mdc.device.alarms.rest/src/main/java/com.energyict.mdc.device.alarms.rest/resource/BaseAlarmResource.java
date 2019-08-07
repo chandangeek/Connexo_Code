@@ -13,6 +13,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 
 import javax.inject.Inject;
 
@@ -28,6 +29,7 @@ public class BaseAlarmResource {
     private IssueActionService issueActionService;
     private TransactionService transactionService;
     private IssueCreationService issueCreationService;
+    private MeteringGroupsService meteringGroupService;
 
     public BaseAlarmResource(){
 
@@ -112,5 +114,14 @@ public class BaseAlarmResource {
     @Inject
     public void setIssueCreationService(IssueCreationService issueCreationService) {
         this.issueCreationService = issueCreationService;
+    }
+
+    protected MeteringGroupsService getMeteringGroupService() {
+        return meteringGroupService;
+    }
+
+    @Inject
+    public void setMeteringGroupService(MeteringGroupsService meteringGroupService) {
+        this.meteringGroupService = meteringGroupService;
     }
 }

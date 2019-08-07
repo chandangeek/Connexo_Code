@@ -39,6 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class AuditResourceTest extends AuditApplicationJerseyTest {
+    static final String X_CONNEXO_APPLICATION_NAME = "X-CONNEXO-APPLICATION-NAME";
 
     private static final String USER_NAME_A = "ABC";
     private static final String USER_NAME_B = "BCD";
@@ -124,7 +125,7 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
 
     @Test
     public void testGetAudits() {
-        String json = target("audit").request().get(String.class);
+        String json = target("audit").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get(String.class);
 
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
@@ -148,7 +149,7 @@ public class AuditResourceTest extends AuditApplicationJerseyTest {
 
     @Test
     public void testGetCategories() {
-        List<IdWithNameInfo> categories = target("audit/categories").request().get(List.class);
+        List<IdWithNameInfo> categories = target("audit/categories").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").get(List.class);
         assertThat(categories.size()).isEqualTo(1);
         assertThat(((Map) categories.get(0)).get("name")).isEqualTo("Device");
         assertThat(((Map) categories.get(0)).get("id")).isEqualTo("DEVICE");

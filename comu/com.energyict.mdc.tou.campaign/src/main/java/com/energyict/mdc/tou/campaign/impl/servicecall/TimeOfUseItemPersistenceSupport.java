@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -95,6 +96,13 @@ public class TimeOfUseItemPersistenceSupport implements PersistenceSupport<Servi
                 .on(deviceMessage)
                 .map(TimeOfUseItemDomainExtension.FieldNames.DEVICE_MESSAGE.javaName())
                 .references(DeviceMessage.class)
+                .add();
+        table.column(TimeOfUseItemDomainExtension.FieldNames.STEP_OF_UPDATE.databaseName())
+                .installValue("0")
+                .since(Version.version(10, 7))
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(TimeOfUseItemDomainExtension.FieldNames.STEP_OF_UPDATE.javaName())
                 .add();
     }
 

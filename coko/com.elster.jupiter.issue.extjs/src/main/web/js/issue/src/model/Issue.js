@@ -88,7 +88,20 @@ Ext.define('Isu.model.Issue', {
         'comTaskId',
         'comTaskSessionId',
         'connectionTaskId',
-        'comSessionId'
+        'comSessionId',
+        {
+            name: 'serviceCall',
+            persist: false,
+            mapping: function (data) {
+                if (data.serviceCallInfo) {
+                    return {
+                        id: data.serviceCallInfo.id,
+                        name: data.serviceCallInfo.name
+                    }
+                }
+                return null;
+            }
+        },
     ],
     associations: [
         {

@@ -106,8 +106,10 @@ public class AuditTrailDeviceCPSDecoder extends AbstractCPSAuditDecoder {
         if (registeredCustomPropertySet.getCustomPropertySet().isVersioned()) {
             customPropertySetValues = customPropertySetService.getUniqueHistoryValuesForVersion(registeredCustomPropertySet.getCustomPropertySet(), dev, at, at);
             if (customPropertySetValues.isEmpty()) {
-                customPropertySetValues = customPropertySetService.getUniqueValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), dev, getAuditTrailReference().getModTimeStart(), getAuditTrailReference()
-                        .getModTimeEnd());
+                /*customPropertySetValues = customPropertySetService.getUniqueValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), dev, getAuditTrailReference().getModTimeStart(), getAuditTrailReference()
+                        .getModTimeEnd());*/
+                customPropertySetValues = (CustomPropertySetValues)customPropertySetService.getListOfValuesModifiedBetweenFor(registeredCustomPropertySet.getCustomPropertySet(), dev,
+                        getAuditTrailReference().getModTimeStart(), getAuditTrailReference().getModTimeEnd()).get(0);
             }
         } else {
             customPropertySetValues = customPropertySetService.getUniqueHistoryValuesFor(registeredCustomPropertySet.getCustomPropertySet(), dev, at);

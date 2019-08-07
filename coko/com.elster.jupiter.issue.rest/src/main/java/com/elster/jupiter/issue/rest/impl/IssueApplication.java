@@ -20,7 +20,9 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.search.location.SearchLocationService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -63,6 +65,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile IssueActionService issueActionService;
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile MeteringService meteringService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile LocationService locationService;
     private volatile SearchLocationService searchLocationService;
     private volatile NlsService nlsService;
@@ -81,6 +84,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
                     CreationRuleResource.class,
                     MeterResource.class,
                     LocationResource.class,
+                    DeviceGroupResource.class,
                     IssueTypeResource.class,
                     ActionResource.class,
                     WorkGroupsResource.class,
@@ -137,6 +141,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     }
 
     @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(ISSUE_REST_COMPONENT, Layer.REST);
@@ -188,6 +197,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(locationService).to(LocationService.class);
             bind(searchLocationService).to(SearchLocationService.class);
             bind(nlsService).to(NlsService.class);

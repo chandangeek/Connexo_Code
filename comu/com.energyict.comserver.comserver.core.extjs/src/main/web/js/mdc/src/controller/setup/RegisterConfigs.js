@@ -392,7 +392,8 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             router = this.getController('Uni.controller.history.Router');
 
         registerTypesOfDevicetypeStore.getProxy().setExtraParam('deviceType', deviceTypeId);
-
+        registerTypesOfDevicetypeStore.getProxy().startParam = null;
+        registerTypesOfDevicetypeStore.getProxy().limitParam = null;
         registerTypesOfDevicetypeStore.load({
             callback: function (store) {
                 var widget = Ext.widget('registerConfigEdit', {

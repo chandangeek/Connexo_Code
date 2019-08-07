@@ -28,4 +28,5 @@ public class IssueRestModuleConst {
     public static final String APPLICATION = "application";
     public static final String USAGEPOINT = "usagePoint";
     public static final String LOCATION = "location";
+    public static final String USAGEPOINT_GROUPS = "usagePointGroup";
 }

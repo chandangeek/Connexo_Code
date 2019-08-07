@@ -167,7 +167,7 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 CollectedLoadProfile collectedLoadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
                 try {
                     if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
-                    getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile [" + lpObisCode + "] data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
+                    getMeterProtocol().journal(Level.INFO, "Getting LoadProfile [" + lpObisCode + "] data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
                     profile = getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
                     Calendar fromCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
                     fromCalendar.setTime(lpr.getStartReadingTime());
@@ -203,14 +203,14 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                         //      - timestamps already contain an unwanted deviation, so will use MBus RMR timeZone to adjust
                     }
                     List<IntervalData> parsedIntervals = intervals.parseIntervals(lpc.getProfileInterval(), timeZone);
-                    this.getMeterProtocol().getLogger().info(" > load profile intervals parsed: " + parsedIntervals.size());
+                    this.getMeterProtocol().journal(" > load profile intervals parsed: " + parsedIntervals.size());
 //                    if (lpObisCode.equals(LTE_MONITORING_LOAD_PROFILE)) {
 //                        profileData.setChannelInfos(lpr.getChannelInfos()); TODO LTE_MONITORING_LOAD_PROFILE must be tested to see if it reads the channels correctly
 //                    }
 
                     collectedLoadProfile.setCollectedIntervalData(parsedIntervals, getChannelInfoMap().get(lpr));
                 } else {
-                    this.getMeterProtocol().getLogger().log(Level.WARNING, "Configuration for LoadProfile " + lpObisCode + " not found, will be skipped!");
+                    this.getMeterProtocol().journal(Level.WARNING, "Configuration for LoadProfile " + lpObisCode + " not found, will be skipped!");
                 }
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
@@ -339,11 +339,11 @@ public class ESMR50LoadProfileBuilder extends Dsmr40LoadProfileBuilder {
     }
 
     private List<CapturedRegisterObject> lteMonitoringLoadProfileMapping(List<CapturedRegisterObject> capturedRegisters) {
-        getMeterProtocol().getLogger().info("Processing LTE Monitoring Profile captured objects:");
+        getMeterProtocol().journal("Processing LTE Monitoring Profile captured objects:");
         ArrayList<CapturedRegisterObject> processedCapturedRegisterObjects = new ArrayList<CapturedRegisterObject>();
         for(CapturedRegisterObject capturedRegisterObject : capturedRegisters){
             ObisCode obisCode = capturedRegisterObject.getObisCode();
-            getMeterProtocol().getLogger().info(" - "+obisCode.toString());
+            getMeterProtocol().journal(" - "+obisCode.toString());
             //ObisCode processedObisCode = new ObisCode(obisCode.getA(), obisCode.getB(), obisCode.getC(), obisCode.getD(), 0, obisCode.getF());
             ObisCode processedObisCode = obisCode;
             //TODO removed capturedRegisterObject.getDlmsAttribute().getSnAttribute(), check if needed

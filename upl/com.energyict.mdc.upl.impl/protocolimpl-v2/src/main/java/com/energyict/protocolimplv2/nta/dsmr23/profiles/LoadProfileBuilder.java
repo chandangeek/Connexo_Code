@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
@@ -141,7 +142,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 continue;
             }
 
-            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
+            this.meterProtocol.journal( "Reading configuration from LoadProfile " + lpr);
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
                 try {
@@ -156,10 +157,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {
                         lpc.setSupportedByMeter(false);
+                        getMeterProtocol().journal("Load profile "+lpr+" is not supported by the meter: "+e.getLocalizedMessage());
                     }
                 }
             } else {
                 lpc.setSupportedByMeter(false);
+                getMeterProtocol().journal("Load profile configuration for "+lpr+" could not be retreived from local configuration.");
             }
             this.loadProfileConfigurationList.add(lpc);
         }
@@ -182,7 +185,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
                 validLoadProfileReaders.add(loadProfileReader);
             } else {
-                this.meterProtocol.getLogger().severe("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
+                this.meterProtocol.journal("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
             }
         }
         return validLoadProfileReaders;
@@ -208,8 +211,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     dlmsAttributes.add(cProfileConfig.getLoadProfileInterval());
                     dlmsAttributes.add(cProfileConfig.getLoadProfileCapturedObjects());
                     this.lpConfigMap.put(lpReader, cProfileConfig);
+                    this.meterProtocol.journal( "LoadProfile with ObisCode " + obisCode + " is in the meter object list");
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "LoadProfile with ObisCode " + obisCode + " for meter '" + lpReader.getMeterSerialNumber() + "' is not supported.");
+                    this.meterProtocol.journal( "LoadProfile with ObisCode " + obisCode + " for meter '" + lpReader.getMeterSerialNumber() + "' is not supported.");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -246,16 +250,18 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     List<CapturedRegisterObject> coRegisters = new ArrayList<>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
-//                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
-                        DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
-                        CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
+                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
+                            DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
+                            CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
-                        // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
-                            channelRegisters.add(reg);
+                            // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
+                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
+                                channelRegisters.add(reg);
+                            }
+                            coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
+                        } else {
+                            getMeterProtocol().journal(Level.WARNING, "Unexpected channel found in device which could not be mapped to the master device or to any of the slave devices: "+co.getLogicalName());
                         }
-                        coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
-//                        }
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
                 } //TODO should we log this if we didn't get it???
@@ -307,7 +313,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                         this.registerUnitMap.put(register, unitAttribute);
                     }
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "LoadProfile channel with ObisCode " + (rObisCode != null ? rObisCode : register.getObisCode()) + " is not supported.");
+                    this.meterProtocol.journal( "LoadProfile channel with ObisCode " + (rObisCode != null ? rObisCode : register.getObisCode()) + " is not supported.");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -329,7 +335,14 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         for (CapturedRegisterObject registerUnit : registers) {
             if (!"".equalsIgnoreCase(registerUnit.getSerialNumber()) && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
-                    ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
+                    DLMSAttribute scalerUnitAttribute = this.registerUnitMap.get(registerUnit);
+                    AbstractDataType rawValue = ccoRegisterUnits.getAttribute(scalerUnitAttribute);
+                    ScalerUnit su;
+                    if (rawValue.isStructure()){
+                        su = new ScalerUnit(rawValue.getStructure());
+                    } else {
+                        su = new ScalerUnit(0, rawValue.intValue());
+                    }
                     if (su.getUnitCode() != 0) {
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), su.getEisUnit(), registerUnit.getSerialNumber(), isCumulativeChannel(registerUnit.getObisCode()));
                         channelInfos.add(ci);
@@ -447,7 +460,6 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>();
         ProfileGeneric profile;
-        ProfileData profileData;
 
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
@@ -455,13 +467,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode(), getMeterProtocol().getOfflineDevice().getDeviceIdentifier()));
 
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
-                this.meterProtocol.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
+                this.meterProtocol.journal( "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
 
                 try {
                     List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
                     profile = this.meterProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
-                    profileData = new ProfileData(lpr.getLoadProfileId());
-                    profileData.setChannelInfos(channelInfos);
+
                     Calendar fromCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
                     fromCalendar.setTime(lpr.getStartReadingTime());
                     Calendar toCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
@@ -471,6 +482,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                             this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), getIntervalStatusBits());
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval());
 
+                    this.getMeterProtocol().journal(" > load profile intervals parsed: " + collectedIntervalData.size());
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSessionProperties().getRetries() + 1)) {

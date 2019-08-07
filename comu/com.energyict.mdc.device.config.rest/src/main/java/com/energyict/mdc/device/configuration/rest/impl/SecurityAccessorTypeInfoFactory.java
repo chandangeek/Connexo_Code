@@ -53,6 +53,7 @@ public class SecurityAccessorTypeInfoFactory {
             info.renewCapability = securityAccessorType.getHsmKeyType().getRenewCapability();
             info.keySize =  securityAccessorType.getHsmKeyType().getKeySize();
             info.isReversible = securityAccessorType.getHsmKeyType().isReversible();
+            info.isReversible = securityAccessorType.getHsmKeyType().isReversible();
         }
         return info;
     }

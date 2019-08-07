@@ -69,7 +69,9 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
         'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         'Uni.property.view.property.Recurrence',
-        'Uni.property.view.property.Task'
+        'Uni.property.view.property.Task',
+        'Uni.property.view.property.ServiceCallIssueType',
+        'Uni.property.view.property.ServiceCallIssueState'
     ],
 
     /**
@@ -136,7 +138,9 @@ Ext.define('Uni.property.controller.Registry', {
         REGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
         ANY_READINGTYPE: 'Uni.property.view.property.ReadingType',
         INTEGER: 'Uni.property.view.property.Number',
-        WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference'
+        WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference',
+        SERVICE_CALL: 'Uni.property.view.property.ServiceCallIssueType',
+        SERVICE_CALL_STATE: 'Uni.property.view.property.ServiceCallIssueState'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)

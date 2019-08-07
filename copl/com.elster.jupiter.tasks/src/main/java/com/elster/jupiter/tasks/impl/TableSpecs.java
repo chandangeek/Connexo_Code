@@ -38,12 +38,14 @@ enum TableSpecs {
             table.column("NEXTEXECUTION").number().conversion(NUMBER2INSTANT).map("nextExecution").notAudited().add();
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             Column destination = table.column("DESTINATION").varChar(30).notNull().map("destination").add();
+            table.column("PRIORITY").number().conversion(NUMBER2INT).map("priority").installValue("0").notNull().since(Version.version(10, 7)).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
             table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn).upTo(Version.version(10,2)).add();
             table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn, destination).since(Version.version(10,2)).add();
             table.column("LOGLEVEL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("logLevel").since(Version.version(10,3)).installValue("900").add();
+            table.column("SUSPENDUNTIL").number().conversion(NUMBER2INSTANT).map("suspendUntilTime").since(Version.version(10,7)).add();
         }
     },
     TSK_NEXT_RECURRENT_TASK {

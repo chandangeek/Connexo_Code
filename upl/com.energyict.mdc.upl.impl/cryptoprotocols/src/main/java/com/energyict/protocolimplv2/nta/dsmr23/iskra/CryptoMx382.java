@@ -51,7 +51,7 @@ public class CryptoMx382 extends Mx382 {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("Iskra Mx382 protocol init V2");
+        journal("Iskra Mx382 protocol init V2");
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         HHUSignOnV2 hhuSignOn = null;

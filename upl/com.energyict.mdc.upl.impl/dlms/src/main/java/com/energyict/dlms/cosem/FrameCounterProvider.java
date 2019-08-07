@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.methods.FrameCounterProviderMethods;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -98,6 +99,56 @@ public final class FrameCounterProvider extends AbstractCosemObject {
             getLogger().finest(" - response decoded, frameCounter=[" + counter + "], but first will validate the challenge ...");
 
             this.validateMac(mac.getOctetStr(), counter, challenge, authenticationKey, clientSystemTitle, serverSystemTitle);
+
+            getLogger().finest(" - finished with happy-ending, returning frameCounter=" + counter);
+
+            return counter;
+        } else {
+            if (response != null) {
+                throw new ProtocolException("FrameCounterProvider response received is not an structure: " + response.toString());
+            } else {
+                throw new ProtocolException("FrameCounterProvider null response");
+            }
+        }
+
+    }
+
+    /**
+     * WARNING! This method DOES NOT verify the frame counter because as of this writing
+     * the HSM cannot compute HMAC on authentication keys.
+     * @param authenticationKey currently not used
+     * @return value of the frame counter
+     * @throws IOException
+     */
+    public final long getFrameCounterHSM(IrreversibleKey authenticationKey) throws IOException {
+        getProtocolLink().getLogger().info("Getting secure frame counter with HSM validation ...");
+
+        final byte[] challenge = new byte[64];
+        new SecureRandom().nextBytes(challenge);
+
+        final byte[] clientSystemTitle = this.getProtocolLink().getAso().getAssociationControlServiceElement().getCallingApplicationProcessTitle();
+        final byte[] serverSystemTitle = this.getProtocolLink().getAso().getAssociationControlServiceElement().getRespondingAPTtitle();
+
+        if (clientSystemTitle == null) {
+            throw new ProtocolException("Cannot invoke get_frame_counter because getCallingApplicationProcessTitle is null.");
+        }
+
+        if (serverSystemTitle == null) {
+            throw new ProtocolException("Cannot invoke get_frame_counter because getRespondingAPTtitle is null.");
+        }
+
+        getLogger().finest(" - all validation passed cST=[" + clientSystemTitle + "], sST=[" + serverSystemTitle + "], invoking method  ...");
+        byte[] responseByteArray = this.methodInvoke(FrameCounterProviderMethods.GET_FRAME_COUNTER, OctetString.fromByteArray(challenge));
+
+        getLogger().finest(" - response received!");
+        Structure response = AXDRDecoder.decode(responseByteArray, Structure.class);
+        if (response != null && response.isStructure()) {
+            OctetString mac = response.getDataType(0).getOctetString();
+            long counter = response.getDataType(1).longValue();
+            getLogger().finest(" - response decoded, frameCounter=[" + counter + "], but first will validate the challenge ...");
+
+            // TODO uncomment or adapt code to verify the frame counter when this will be available
+            //Services.hsmService().verifyFramecounterHMAC(serverSystemTitle, clientSystemTitle, challenge, counter, authenticationKey, mac.getOctetStr());
 
             getLogger().finest(" - finished with happy-ending, returning frameCounter=" + counter);
 

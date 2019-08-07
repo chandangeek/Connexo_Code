@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -345,7 +345,7 @@ public enum QueryMethod {
         });
     }
 
-    private <T> T executeTransaction(ServiceProvider serviceProvider, Transaction<T> transaction) {
+    private <T> T executeTransaction(ServiceProvider serviceProvider, ExceptionThrowingSupplier<T, RuntimeException> transaction) {
         return serviceProvider.transactionService().execute(transaction);
     }
 
