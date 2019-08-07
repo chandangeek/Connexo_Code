@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('autoclosureExclusions.overview.title', 'MDC', 'Creation rules excluded from autoclosure for this device'),
+                title: Uni.I18n.translate('autoclosureExclusions.overview.title', 'MDC', 'Issue rules excluded from autoclosure'),
                 items: [
                     {
                         xtype: 'preview-container',
