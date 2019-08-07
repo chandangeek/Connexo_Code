@@ -113,7 +113,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private static final String MODULE_DESCRIPTION = "Data Export";
     private static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
     private static final Map<String, String[]> ALL_DATA_TYPES_MAP = ImmutableMap.of(DATA_TYPE_PROPERTY,
-            new String[]{STANDARD_EVENT_DATA_TYPE, STANDARD_READING_DATA_TYPE, STANDARD_USAGE_POINT_DATA_TYPE});
+            new String[]{STANDARD_EVENT_DATA_TYPE, STANDARD_READING_DATA_TYPE, STANDARD_USAGE_POINT_DATA_TYPE, CUSTOM_READING_DATA_TYPE});
 
     private volatile DataModel dataModel;
     private volatile TimeService timeService;
@@ -141,6 +141,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private volatile ThreadPrincipalService threadPrincipalService;
 
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
+
+    @Override
+    public Map<DataSelectorFactory, String> getDataSelectorFactories() {
+        return dataSelectorFactories;
+    }
+
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private Map<String, DataExportWebService> exportWebServices = new ConcurrentHashMap<>();
@@ -602,7 +608,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public List<DataExportWebService> getExportWebServicesMatching(DataSelectorFactory selectorFactory) {
         String dataType = dataSelectorFactories.get(selectorFactory);
         return exportWebServices.values().stream()
-                .filter(service -> dataType.equals(service.getSupportedDataType()))
+                .filter(service -> service.getSupportedDataType().contains(dataType))
                 .collect(Collectors.toList());
     }
 

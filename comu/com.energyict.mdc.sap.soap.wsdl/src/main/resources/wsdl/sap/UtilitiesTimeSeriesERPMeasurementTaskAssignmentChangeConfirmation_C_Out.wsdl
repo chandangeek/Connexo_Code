@@ -4,7 +4,7 @@
   <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
  </wsdl:documentation>
  <wsp:UsingPolicy wsdl:required="true"/>
- <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmation_In">
+ <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmation_C_Out">
   <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
   <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
   <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>

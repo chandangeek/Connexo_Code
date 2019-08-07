@@ -9,7 +9,7 @@ import com.elster.jupiter.util.HasId;
 
 import java.time.Instant;
 
-interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem, HasId {
+public interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem, HasId {
 
     void setLastRun(Instant lastRun);
 

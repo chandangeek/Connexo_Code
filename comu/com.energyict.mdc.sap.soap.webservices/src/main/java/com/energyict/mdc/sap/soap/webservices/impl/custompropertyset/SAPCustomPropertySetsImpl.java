@@ -26,6 +26,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -53,15 +55,22 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component(name = "com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.SAPCustomPropertySets",
         service = {SAPCustomPropertySets.class, TranslationKeyProvider.class},
@@ -201,6 +210,24 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
+    public Map<String, RangeSet<Instant>> getLrn(Channel channel, Range<Instant> range) {
+        return channel.getChannelsContainer().getMeter()
+                .map(Meter::getId)
+                .flatMap(deviceService::findDeviceByMeterId)
+                .map(device -> getLrn(device, channel, range))
+                .orElseGet(Collections::emptyMap);
+    }
+
+    @Override
+    public Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Channel channel, Range<Instant> range) {
+        return channel.getChannelsContainer().getMeter()
+                .map(Meter::getId)
+                .flatMap(deviceService::findDeviceByMeterId)
+                .map(device -> getLrnAndProfileId(device, channel, range))
+                .orElseGet(Collections::emptyMap);
+    }
+
+    @Override
     public void setLocation(Device device, String locationId){
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
         lockDeviceTypeOrThrowException(device.getDeviceType().getId());
@@ -214,15 +241,6 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         lockDeviceTypeOrThrowException(device.getDeviceType().getId());
 
         setDeviceCPSProperty(lockedDevice, deviceInfo.getId(), DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), podId);
-    }
-
-    @Override
-    public Map<String, RangeSet<Instant>> getLrn(Channel channel, Range<Instant> range) {
-        return channel.getChannelsContainer().getMeter()
-                .map(Meter::getId)
-                .flatMap(deviceService::findDeviceByMeterId)
-                .map(device -> getLrn(device, channel, range))
-                .orElseGet(Collections::emptyMap);
     }
 
     @Override
@@ -267,6 +285,99 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .flatMap(deviceIdAndReadingType -> getChannel(deviceIdAndReadingType.getFirst(), deviceIdAndReadingType.getLast(), when));
     }
 
+    @Override
+    public boolean isProfileIdAlreadyExists(String profileId, Range<Instant> interval) {
+        Condition whereOverlapped = getOverlappedCondition(interval);
+        return (getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .join(ChannelSpec.class)
+                .join(ReadingType.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId))
+                .filter(whereOverlapped).count() > 0);
+    }
+
+    @Override
+    public Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval) {
+        Condition whereOverlapped = getOverlappedCondition(interval);
+        Stream<DeviceChannelSAPInfoDomainExtension> stream = getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .join(ChannelSpec.class)
+                .join(ReadingType.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isEqualTo(lrn))
+                .filter(whereOverlapped);
+
+        Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
+        for (DeviceChannelSAPInfoDomainExtension e : stream.collect(Collectors.toList())) {
+            Range cutRange = cutRange(e.getRange());
+            if (cutRange != null) {
+                Pair<Long, ReadingType> key = Pair.of(e.getDeviceId(), e.getChannelSpec().getReadingType());
+                List list = map.getOrDefault(key, new ArrayList<>());
+                Range<Instant> rangeIntersection = cutRange.intersection(interval);
+                if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
+                    list.add(Pair.of(cutRange(e.getRange()).intersection(interval), e.getRange()));
+                }
+                map.put(key, list);
+            }
+        }
+        return map;
+    }
+
+    private Condition getOverlappedCondition(Range<Instant> range) {
+        Condition whereStartLess = Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start")
+                .isLessThan(range.lowerEndpoint().toEpochMilli());
+        Condition whereEndLess = Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".end")
+                .isLessThan(range.lowerEndpoint().toEpochMilli());
+        Condition whereStartGreater = Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start")
+                .isGreaterThanOrEqual(range.upperEndpoint().toEpochMilli());
+        Condition whereEndGreater = Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".end")
+                .isGreaterThanOrEqual(range.upperEndpoint().toEpochMilli());
+        return (whereStartLess.and(whereEndLess).or(whereStartGreater.and(whereEndGreater))).not();
+    }
+
+    private Range<Instant> cutRange(Range<Instant> range) {
+        Instant start = truncateToDays(range.lowerEndpoint()).equals(range.lowerEndpoint()) ?
+                range.lowerEndpoint() : truncateToDays(range.lowerEndpoint()).plus(1, DAYS);
+        Instant end = truncateToDays(range.upperEndpoint());
+
+        if (start.isBefore(end)) {
+            if (end.equals(range.upperEndpoint())) {
+                return Range.closedOpen(start, end);
+            } else {
+                return Range.closed(start, end);
+            }
+        }
+        return null;
+    }
+
+    private Instant truncateToDays(Instant dateTime) {
+        return ZonedDateTime.ofInstant(dateTime, ZoneId.systemDefault()).truncatedTo(DAYS).toInstant();
+    }
+
+    @Override
+    public List<ReadingType> findReadingTypesForProfileId(String profileId) {
+        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .join(ChannelSpec.class)
+                .join(ReadingType.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId))
+                .map(e -> e.getChannelSpec().getReadingType())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isRangesIntersected(List<Range<Instant>> ranges) {
+        List<Range<Instant>> previousRanges = new ArrayList<>();
+        for (Range<Instant> range : ranges) {
+            for (Range<Instant> previousRange : previousRanges) {
+                if (Ranges.does(range).overlap(previousRange)) {
+                    return true;
+                }
+            }
+            previousRanges.add(range);
+        }
+        return false;
+    }
+
     private Optional<Pair<Long, ReadingType>> getChannelIdentification(String lrn, Instant when) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
@@ -305,6 +416,20 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .orElseGet(Collections::emptyMap);
     }
 
+    private Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Device device, Channel channel, Range<Instant> range) {
+        Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileIdIntervals = new HashMap<>();
+        if (channel.isRegular()) {
+            Optional<Instant> any = anyPoint(range);
+            if (any.isPresent()) {
+                Optional<ChannelSpec> spec = getChannelSpec(device, channel.getReadingTypes(), any.get());
+                if (spec.isPresent()) {
+                    return getLrnAndProfileId(device, spec.get(), range);
+                }
+            }
+        }
+        return lrnAndProfileIdIntervals;
+    }
+
     private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
         return device.getHistory(when)
                 .map(Device::getDeviceConfiguration)
@@ -317,6 +442,27 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .map(Device::getDeviceConfiguration)
                 .map(DeviceConfiguration::getRegisterSpecs)
                 .flatMap(specs -> specs.stream().filter(spec -> readingTypes.contains(spec.getReadingType())).findAny());
+    }
+
+    private Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Device device, ChannelSpec channelSpec, Range<Instant> range) {
+        Stream<DeviceChannelSAPInfoDomainExtension> extensions = getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(channelSpec))
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(device.getId()))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range));
+        Map<Pair<String, String>, RangeSet<Instant>> map = new HashMap<>();
+        extensions.forEach(ext -> {
+            if (ext.getLogicalRegisterNumber().isPresent() && ext.getProfileId().isPresent()) {
+                RangeSet<Instant> rangeSet = map.get(Pair.of(ext.getLogicalRegisterNumber().get(), ext.getProfileId().get()));
+                if (rangeSet != null) {
+                    rangeSet.addAll(ImmutableRangeSet.of(ext.getRange().intersection(range)));
+                } else {
+                    rangeSet = ImmutableRangeSet.of(ext.getRange().intersection(range));
+                }
+                map.put(Pair.of(ext.getLogicalRegisterNumber().get(), ext.getProfileId().get()), rangeSet);
+            }
+        });
+        return map;
     }
 
     private Map<String, RangeSet<Instant>> getLrn(Device device, ChannelSpec channelSpec, Range<Instant> range) {

@@ -5,9 +5,11 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -25,10 +27,12 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
@@ -39,6 +43,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryBulkAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
@@ -48,12 +53,15 @@ import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.Utilitie
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateBulkEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultBulkCreateConfirmationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateConfirmationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultCustomPropertySet;
@@ -90,6 +98,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -100,6 +110,7 @@ import static com.elster.jupiter.orm.Version.version;
         property = {"name=" + WebServiceActivator.COMPONENT_NAME},
         immediate = true)
 public class WebServiceActivator implements MessageSeedProvider, TranslationKeyProvider {
+    private static final Logger LOGGER = Logger.getLogger(WebServiceActivator.class.getName());
 
     public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
@@ -119,6 +130,20 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final List<UtilitiesDeviceRegisterCreateConfirmation> UTILITIES_DEVICE_REGISTER_CREATE_CONFIRMATION = new CopyOnWriteArrayList<>();
     public static final List<UtilitiesDeviceRegisteredNotification> UTILITIES_DEVICE_REGISTERED_NOTIFICATION = new CopyOnWriteArrayList<>();
     public static final List<UtilitiesDeviceRegisteredBulkNotification> UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION = new CopyOnWriteArrayList<>();
+    public static final List<MeasurementTaskAssignmentChangeConfirmation> MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final String EXPORT_TASK_NAME = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.export.task";
+    public static final String EXPORT_TASK_DEVICE_GROUP_NAME = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.device.group";
+    public static final String LIST_OF_ROLE_CODES = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.role.codes";
+    public static final String EXPORT_TASK_START_ON_DATE = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.start.on";
+    public static final String EXPORT_TASK_EXPORT_WINDOW = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.export.window";
+    public static final String EXPORT_TASK_UPDATE_WINDOW = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.update.window";
+
+    private static String exportTaskName;
+    private static String exportTaskDeviceGroupName;
+    private static List<String> listOfRoleCodes;
+    private static String exportTaskStartOnDate;
+    private static String exportTaskExportWindow;
+    private static String exportTaskUpdateWindow;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -146,8 +171,36 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile TaskService taskService;
     private volatile BundleContext bundleContext;
+    private volatile MeteringGroupsService meteringGroupsService;
+    private volatile DataExportService dataExportService;
+    private volatile TimeService timeService;
+    private volatile MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+
+    public static String getExportTaskName() {
+        return exportTaskName;
+    }
+
+    public static String getExportTaskDeviceGroupName() {
+        return exportTaskDeviceGroupName;
+    }
+
+    public static List<String> getListOfRoleCodes() {
+        return listOfRoleCodes;
+    }
+
+    public static String getExportTaskStartOnDate() {
+        return exportTaskStartOnDate;
+    }
+
+    public static String getExportTaskExportWindow() {
+        return exportTaskExportWindow;
+    }
+
+    public static String getExportTaskUpdateWindow() {
+        return exportTaskUpdateWindow;
+    }
 
     public WebServiceActivator() {
         // for OSGI purposes
@@ -163,7 +216,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                                EndPointConfigurationService endPointConfigurationService, ServiceCallService serviceCallService,
                                JsonService jsonService, CustomPropertySetService customPropertySetService,
                                WebServicesService webServicesService, MessageService messageService,
-                               TaskService taskService, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService) {
+                               TaskService taskService, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService,
+                               MeteringGroupsService meteringGroupsService, DataExportService dataExportService,
+                               TimeService timeService,
+                               MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -188,6 +244,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         setTaskService(taskService);
         setSAPCustomPropertySets(sapCustomPropertySets);
         setOrmService(ormService);
+        seMeteringGroupsService(meteringGroupsService);
+        setDataExportService(dataExportService);
+        setTimeService(timeService);
+        setMeasurementTaskAssignmentChangeFactory(measurementTaskAssignmentChangeFactory);
         activate(bundleContext);
     }
 
@@ -221,6 +281,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 bind(TaskService.class).toInstance(taskService);
                 bind(BundleContext.class).toInstance(bundleContext);
                 bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                bind(DataExportService.class).toInstance(dataExportService);
+                bind(TimeService.class).toInstance(timeService);
+                bind(MeasurementTaskAssignmentChangeFactory.class).toInstance(measurementTaskAssignmentChangeFactory);
             }
         };
     }
@@ -237,6 +301,14 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 ImmutableMap.of(version(10, 7), UpgraderV10_7.class));
 
         registerServices(bundleContext);
+
+        exportTaskName = getPropertyValue(bundleContext, EXPORT_TASK_NAME);
+        exportTaskDeviceGroupName = getPropertyValue(bundleContext, EXPORT_TASK_DEVICE_GROUP_NAME);
+        listOfRoleCodes= new ArrayList<>();
+        Optional.ofNullable(getPropertyValue(bundleContext, LIST_OF_ROLE_CODES)).ifPresent(r -> listOfRoleCodes = Arrays.asList((r.split(","))));
+        exportTaskStartOnDate = getPropertyValue(bundleContext, EXPORT_TASK_START_ON_DATE);
+        exportTaskExportWindow = getPropertyValue(bundleContext, EXPORT_TASK_EXPORT_WINDOW);
+        exportTaskUpdateWindow = getPropertyValue(bundleContext, EXPORT_TASK_UPDATE_WINDOW);
     }
 
     @Deactivate
@@ -264,6 +336,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MeterReadingDocumentCreateRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MeterReadingDocumentCreateResultDomainExtension.class.getName(),
                 new MeterReadingDocumentCreateResultCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MeasurementTaskAssignmentChangeDomainExtension.class.getName(),
+                new MeasurementTaskAssignmentChangeCustomPropertySet(thesaurus, propertySpecService));
         return customPropertySetsMap;
     }
 
@@ -307,6 +381,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(PointOfDeliveryBulkAssignedNotificationEndpoint.class),
                 InboundServices.SAP_POINT_OF_DELIVERY_BULK_ASSIGNED_NOTIFICATION_C_IN.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(MeasurementTaskAssignmentChangeRequestEndpoint.class),
+                InboundServices.SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -423,6 +500,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeUtilitiesDeviceRegisteredBulkNotification(UtilitiesDeviceRegisteredBulkNotification result) {
         UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.remove(result);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMeasurementTaskAssignmentChangeRequestConfirmation(MeasurementTaskAssignmentChangeConfirmation measurementTaskAssignmentChangeRequestConfirmation) {
+        MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.add(measurementTaskAssignmentChangeRequestConfirmation);
+    }
+
+    public void removeMeasurementTaskAssignmentChangeRequestConfirmation(MeasurementTaskAssignmentChangeConfirmation measurementTaskAssignmentChangeRequestConfirmation) {
+            MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
     }
 
     @Reference
@@ -556,6 +642,26 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         this.taskService = taskService;
     }
 
+    @Reference
+    public void seMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    public void setDataExportService(DataExportService dataExportService) {
+        this.dataExportService = dataExportService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
+    @Reference
+    public void setMeasurementTaskAssignmentChangeFactory(MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory) {
+        this.measurementTaskAssignmentChangeFactory = measurementTaskAssignmentChangeFactory;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.SOAP;
@@ -578,5 +684,13 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    private String getPropertyValue(BundleContext context, String propertyName) {
+        String value = context.getProperty(propertyName);
+        if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
+            LOGGER.log(Level.WARNING, MessageSeeds.PROPERTY_IS_NOT_SET.getDefaultFormat(), propertyName);
+        }
+        return value;
     }
 }

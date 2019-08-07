@@ -21,6 +21,9 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestServiceCallHandler;
@@ -98,6 +101,12 @@ public enum ServiceCallTypes {
             UtilitiesDeviceCreateRequestCallHandler.APPLICATION,
             UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName(),
             UtilitiesDeviceCreateRequestDomainExtension.class.getName()),
+    MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST(
+            MeasurementTaskAssignmentChangeServiceCallHandler.NAME,
+            MeasurementTaskAssignmentChangeServiceCallHandler.VERSION,
+            UtilitiesDeviceCreateRequestCallHandler.APPLICATION,
+            MeasurementTaskAssignmentChangeCustomPropertySet.class.getSimpleName(),
+            MeasurementTaskAssignmentChangeDomainExtension.class.getName())
     ;
 
     private final String typeName;

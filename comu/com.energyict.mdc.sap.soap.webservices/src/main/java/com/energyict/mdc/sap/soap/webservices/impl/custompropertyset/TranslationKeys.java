@@ -22,7 +22,8 @@ public enum TranslationKeys implements TranslationKey {
     CPS_DEVICE_LOCATION_DESCRIPTION("device.cps.properties.deviceLocationIdentifier.description", "Device location in SAP"),
     CPS_POINT_OF_DELIVERY("device.cps.properties.pod", "Point of delivery identifier"),
     CPS_POINT_OF_DELIVERY_DESCRIPTION("device.cps.properties.pod.description", "Point of delivery identifier in SAP"),
-
+    CPS_DEVICE_CHANNEL_SAP_PROFILE_INFO("device.cps.properties.devicechannelsapprofileinfo", "Device channel SAP profile info"),
+    CPS_PROFILE_ID("device.cps.properties.profileId", "Profile ID"),
     ;
 
     private final String key;

@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 
 import com.google.inject.Module;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -87,19 +88,27 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(
-                this.propertySpecService
-                        .stringSpec()
-                        .named(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), TranslationKeys.CPS_LOGICAL_REGISTER_NUMBER)
-                        .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_IDENTIFIER_DESCRIPTION)
-                        .fromThesaurus(thesaurus)
-                        .finish());
+        List<PropertySpec> properties = new ArrayList<>();
+        properties.add(this.propertySpecService
+                .stringSpec()
+                .named(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), TranslationKeys.CPS_LOGICAL_REGISTER_NUMBER)
+                .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_IDENTIFIER_DESCRIPTION)
+                .fromThesaurus(thesaurus)
+                .finish());
+        properties.add(this.propertySpecService
+                .stringSpec()
+                .named(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), TranslationKeys.CPS_PROFILE_ID)
+                .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_IDENTIFIER_DESCRIPTION)
+                .fromThesaurus(thesaurus)
+                .finish());
+        return properties;
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ChannelSpec, DeviceChannelSAPInfoDomainExtension> {
         private final String TABLE_NAME = "SAP_CAS_DI2";
         private final String FK = "FK_SAP_CAS_DI2";
         private final String IDX = "IDX_SAP_CAS_DI2_LRN";
+        private final String IDX_P = "IDX_SAP_CAS_DI2_PROFILE_ID";
 
         @Override
         public String componentName() {
@@ -154,7 +163,12 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
                     .since(Version.version(10, 7))
                     .previously(lrnColumn)
                     .add();
+            Column profileColumn = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.databaseName())
+                    .varChar(80)
+                    .map(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName())
+                    .add();
             table.index(IDX).on(lrnColumnString).add();
+            table.index(IDX_P).on(profileColumn).add();
         }
 
         @Override

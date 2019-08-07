@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigImpl implements ReadingDataSelectorConfig {
+public abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigImpl implements ReadingDataSelectorConfig {
 
     private MissingDataOption exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
@@ -105,7 +105,7 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
         return exportOnlyIfComplete;
     }
 
-    abstract Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
+    public abstract Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
 
     @Override
     public void delete() {

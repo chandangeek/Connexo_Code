@@ -21,6 +21,9 @@ import javax.ws.rs.core.UriInfo;
 import java.util.Collections;
 import java.util.List;
 
+import static com.elster.jupiter.export.DataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR;
+import static com.elster.jupiter.export.DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
+
 @Path("/processors")
 public class FormattersResource {
 
@@ -59,10 +62,17 @@ public class FormattersResource {
     }
 
     private ProcessorInfos getAvailableFormatters(String selector) {
-        List<DataFormatterFactory> dataFormatterFactories = dataExportService.getDataSelectorFactory(selector)
-                .map(dataExportService::formatterFactoriesMatching)
-                .orElseGet(Collections::emptyList);
-        return toInfos(dataFormatterFactories);
+        if (selector.equals(CUSTOM_READINGTYPE_DATA_SELECTOR)) {
+            List<DataFormatterFactory> dataFormatterFactories = dataExportService.getDataSelectorFactory(STANDARD_READINGTYPE_DATA_SELECTOR)
+                    .map(dataExportService::formatterFactoriesMatching)
+                    .orElseGet(Collections::emptyList);
+            return toInfos(dataFormatterFactories);
+        } else {
+            List<DataFormatterFactory> dataFormatterFactories = dataExportService.getDataSelectorFactory(selector)
+                    .map(dataExportService::formatterFactoriesMatching)
+                    .orElseGet(Collections::emptyList);
+            return toInfos(dataFormatterFactories);
+        }
     }
 
 }

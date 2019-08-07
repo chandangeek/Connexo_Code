@@ -18,7 +18,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 import java.util.Optional;
 
 public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ChannelSpec>, Effectivity {
@@ -26,7 +25,8 @@ public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersis
     public enum FieldNames {
         DOMAIN("channelSpec", "CHANNELSPEC"),
         DEVICE_ID("device", "DEVICE"),
-        LOGICAL_REGISTER_NUMBER("logicalRegisterNumber", "LOGICAL_REGISTER_NUMBER");
+        LOGICAL_REGISTER_NUMBER("logicalRegisterNumber", "LOGICAL_REGISTER_NUMBER"),
+        PROFILE_ID("profileId", "PROFILE_ID");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -49,6 +49,8 @@ public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersis
     private Long device;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String logicalRegisterNumber;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String profileId;
 
     @Override
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
@@ -60,12 +62,14 @@ public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersis
         this.channelSpec.set(domainInstance);
         this.device = additionalPrimaryKeyValues.length > 0 ? (Long) additionalPrimaryKeyValues[0] : null;
         this.logicalRegisterNumber = (String) propertyValues.getProperty(FieldNames.LOGICAL_REGISTER_NUMBER.javaName());
+        this.profileId = (String) propertyValues.getProperty(FieldNames.PROFILE_ID.javaName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         additionalPrimaryKeyValues[0] = this.device;
         propertySetValues.setProperty(FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), this.logicalRegisterNumber);
+        propertySetValues.setProperty(FieldNames.PROFILE_ID.javaName(), this.profileId);
     }
 
     @Override
@@ -97,6 +101,10 @@ public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersis
 
     public Optional<String> getLogicalRegisterNumber() {
         return Optional.ofNullable(logicalRegisterNumber);
+    }
+
+    public Optional<String> getProfileId() {
+        return Optional.ofNullable(profileId);
     }
 }
 

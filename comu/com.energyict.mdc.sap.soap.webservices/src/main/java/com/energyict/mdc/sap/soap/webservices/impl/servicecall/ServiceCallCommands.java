@@ -3,15 +3,19 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -19,33 +23,53 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.BaseException;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.CategoryCode;
-import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateRequestMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentRequestConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateConfirmationRequestMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.time.Clock;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
+import static com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeServiceCallHandler.ROLE_INFO_PARAMETER_SEPARATOR;
+import static com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeServiceCallHandler.ROLE_INFO_SEPARATOR;
 
 public class ServiceCallCommands {
+    static final String NO_DATA = "-";
 
     private final Clock clock;
     private final MessageService messageService;
@@ -53,17 +77,33 @@ public class ServiceCallCommands {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
+    private final ThreadPrincipalService threadPrincipalService;
+    private final TransactionService transactionService;
+    private final UserService userService;
+    private volatile MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory;
 
     @Inject
     public ServiceCallCommands(Clock clock, MessageService messageService, MeteringService meteringService,
                                SAPCustomPropertySets sapCustomPropertySets, ServiceCallService serviceCallService,
-                               Thesaurus thesaurus) {
+                               Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService,
+                               TransactionService transactionService, UserService userService,
+                               CustomPropertySetService customPropertySetService,
+                               DeviceService deviceService,
+                               MeteringGroupsService meteringGroupsService,
+                               DataExportService dataExportService,
+                               TimeService timeService,
+                               EndPointConfigurationService endPointConfigurationService,
+                               MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory) {
         this.clock = clock;
         this.messageService = messageService;
         this.meteringService = meteringService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
+        this.threadPrincipalService = threadPrincipalService;
+        this.transactionService = transactionService;
+        this.userService = userService;
+        this.measurementTaskAssignmentChangeFactory = measurementTaskAssignmentChangeFactory;
     }
 
     public void createServiceCallAndTransition(StatusChangeRequestCreateMessage message) {
@@ -91,6 +131,81 @@ public class ServiceCallCommands {
             }
         } else {
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+        }
+    }
+
+    public void createServiceCallAndTransition(MeasurementTaskAssignmentChangeRequestMessage message) {
+        setSecurityContext();
+
+        if (!message.isValidId()) {
+            sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
+            return;
+        }
+
+        if (!message.isPeriodsValid()) {
+            sendProcessError(message, MessageSeeds.INVALID_TIME_PERIOD);
+            return;
+        }
+
+        if (sapCustomPropertySets.isRangesIntersected(message.getRoles().stream()
+                .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
+            sendProcessError(message, MessageSeeds.TIME_PERIODS_ARE_INTERSECTED);
+            return;
+        }
+
+        if (!hasMeasurementTaskAssignmentChangeServiceCall(message.getId())) {
+            getServiceCallType(ServiceCallTypes.MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST).ifPresent(serviceCallType -> {
+                ServiceCall serviceCall;
+                try (TransactionContext context = transactionService.getContext()) {
+                    serviceCall = createServiceCall(serviceCallType, message);
+                    context.commit();
+                }
+                try (TransactionContext context = transactionService.getContext()) {
+                    measurementTaskAssignmentChangeFactory.processServiceCall(message);
+                    // send successful response
+                    MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
+                            MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
+                                    .from()
+                                    .build();
+
+                    sendMessage(confirmationMessage);
+                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                    context.commit();
+                } catch (Exception ex) {
+                    transactionService.execute(() -> {
+                        serviceCall.requestTransition(DefaultState.FAILED);
+                        return null;
+                    });
+                    if (ex instanceof BaseException) {
+                        MessageSeed messageSeed = ((BaseException) ex).getMessageSeed();
+                        String errorMessage = ex.getLocalizedMessage();
+                        MeasurementTaskAssignmentChangeDomainExtension extension =
+                                serviceCall.getExtension(MeasurementTaskAssignmentChangeDomainExtension.class).get();
+                        extension.setErrorMessage(errorMessage);
+                        extension.setLevel(messageSeed.getLevel().getName());
+                        extension.setTypeId(String.valueOf(messageSeed.getNumber()));
+                        MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
+                                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
+                                        .from(messageSeed.getLevel().getName(), String.valueOf(messageSeed.getNumber()), errorMessage)
+                                        .build();
+                        sendMessage(confirmationMessage);
+                    } else {
+                        String errorMessage = MessageSeeds.UNKNOWN_ERROR.translate(thesaurus, ex.getLocalizedMessage());
+                        MeasurementTaskAssignmentChangeDomainExtension extension =
+                                serviceCall.getExtension(MeasurementTaskAssignmentChangeDomainExtension.class).get();
+                        extension.setErrorMessage(errorMessage);
+                        extension.setLevel(MessageSeeds.UNKNOWN_ERROR.getLevel().getName());
+                        extension.setTypeId(MessageSeeds.UNKNOWN_ERROR.code());
+                        MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
+                                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
+                                        .from(MessageSeeds.UNKNOWN_ERROR.getLevel().getName(), MessageSeeds.UNKNOWN_ERROR.code(), errorMessage)
+                                        .build();
+                        sendMessage(confirmationMessage);
+                    }
+                }
+            });
+        } else {
+            sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
         }
     }
 
@@ -246,6 +361,35 @@ public class ServiceCallCommands {
                 .build();
     }
 
+    private ServiceCall createServiceCall(ServiceCallType serviceCallType, MeasurementTaskAssignmentChangeRequestMessage message) {
+        MeasurementTaskAssignmentChangeDomainExtension measurementTaskAssignmentChangeDomainExtension =
+                new MeasurementTaskAssignmentChangeDomainExtension();
+        measurementTaskAssignmentChangeDomainExtension.setRequestID(message.getId());
+        measurementTaskAssignmentChangeDomainExtension.setProfileId(message.getProfileId());
+
+        String roles = message.getRoles().stream()/*.filter(r -> !WebServiceActivator.getListOfRoleCodes().contains(r.getRoleCode()))*/
+                .collect(Collectors.mapping((r) -> r.getLrn() +
+                                ROLE_INFO_PARAMETER_SEPARATOR + r.getStartDateTime().atZone(ZoneId.systemDefault()).toLocalDateTime() +
+                                ROLE_INFO_PARAMETER_SEPARATOR + r.getEndDateTime().atZone(ZoneId.systemDefault()).toLocalDateTime() +
+                                ROLE_INFO_PARAMETER_SEPARATOR + r.getRoleCode(),
+                        Collectors.joining(ROLE_INFO_SEPARATOR)));
+
+        measurementTaskAssignmentChangeDomainExtension.setRoles(roles);
+
+        measurementTaskAssignmentChangeDomainExtension.setLevel(NO_DATA);
+        measurementTaskAssignmentChangeDomainExtension.setTypeId(NO_DATA);
+        measurementTaskAssignmentChangeDomainExtension.setErrorMessage(NO_DATA);
+
+        ServiceCall serviceCall = serviceCallType.newServiceCall()
+                .origin(APPLICATION_NAME)
+                .extendedWith(measurementTaskAssignmentChangeDomainExtension)
+                .create();
+
+        serviceCall.requestTransition(DefaultState.PENDING);
+        serviceCall.requestTransition(DefaultState.ONGOING);
+        return serviceCall;
+    }
+
     public Optional<ServiceCallType> getServiceCallType(ServiceCallTypes serviceCallType) {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion());
     }
@@ -274,6 +418,15 @@ public class ServiceCallCommands {
                 .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
     }
 
+    private boolean hasMeasurementTaskAssignmentChangeServiceCall(String id) {
+        return findAvailableServiceCalls(ServiceCallTypes.MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST)
+                .stream()
+                .map(serviceCall -> serviceCall.getExtension(MeasurementTaskAssignmentChangeDomainExtension.class))
+                .filter(Objects::nonNull)
+                .map(Optional::get)
+                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+    }
+
     private void sendMessage(StatusChangeRequestCreateConfirmationMessage statusChangeRequestCreateConfirmationMessage) {
         WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS
                 .forEach(service -> service.call(statusChangeRequestCreateConfirmationMessage));
@@ -287,6 +440,11 @@ public class ServiceCallCommands {
             WebServiceActivator.METER_READING_DOCUMENT_REQUEST_CONFIRMATIONS
                     .forEach(service -> service.call(confirmationMessage));
         }
+    }
+
+    private void sendMessage(MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage) {
+        WebServiceActivator.MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS
+                .forEach(service -> service.call(confirmationMessage));
     }
 
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message) {
@@ -313,6 +471,14 @@ public class ServiceCallCommands {
         sendMessage(confirmationMessage);
     }
 
+    private void sendProcessError(MeasurementTaskAssignmentChangeRequestMessage message, MessageSeeds messageSeed, Object... args) {
+        MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
+                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
+                        .from(messageSeed.getLevel().getName(), messageSeed.code(), messageSeed.translate(thesaurus, args))
+                        .build();
+        sendMessage(confirmationMessage);
+    }
+
     private void sendProcessErrorWithStatus(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message,
                                             String deviceId) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
@@ -321,6 +487,18 @@ public class ServiceCallCommands {
                         .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
                         .build();
         sendMessage(confirmationMessage);
+    }
+
+    private void setSecurityContext() {
+        Principal principal = threadPrincipalService.getPrincipal();
+        if (principal == null) {
+            try (TransactionContext context = transactionService.getContext()) {
+                userService.findUser(WebServiceActivator.BATCH_EXECUTOR_USER_NAME, userService.getRealm()).ifPresent(user -> {
+                    threadPrincipalService.set(user);
+                    context.commit();
+                });
+            }
+        }
     }
 
     public ServiceCallType getServiceCallTypeOrThrowException(ServiceCallTypes serviceCallType) {
