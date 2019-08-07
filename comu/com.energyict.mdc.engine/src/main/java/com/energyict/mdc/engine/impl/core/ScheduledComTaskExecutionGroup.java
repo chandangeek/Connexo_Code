@@ -78,7 +78,7 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
             boolean connectionEstablished = false;
             this.createExecutionContext();
             commandRoot = this.prepareAll(this.comTaskExecutions);
-            if (!commandRoot.hasGeneralSetupErrorOccurred()) {
+            if (!commandRoot.hasGeneralSetupErrorOccurred() && !commandRoot.getCommands().isEmpty()) {
                 connectionEstablished = this.establishConnectionFor(this.getComPort());
             }
             commandRoot.execute(connectionEstablished);
@@ -88,7 +88,6 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
                 commandRoot.generalSetupErrorOccurred(e, getComTaskExecutions());
             }
             throw e;
-
         } finally {
             try {
                 this.completeConnection();

@@ -12,8 +12,8 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class InboundJobExecutionGroup extends JobExecution {
             boolean connectionEstablished = false;
             this.setExecutionContext(this.newExecutionContext(this.connectionTask, this.getComPort()));
             commandRoot = this.prepareAll(this.comTaskExecutions);
-            if (!commandRoot.hasGeneralSetupErrorOccurred()) {
+            if (!commandRoot.hasGeneralSetupErrorOccurred() && !commandRoot.getCommands().isEmpty()) {
                 connectionEstablished = this.getExecutionContext().connect();
             }
             commandRoot.execute(connectionEstablished);

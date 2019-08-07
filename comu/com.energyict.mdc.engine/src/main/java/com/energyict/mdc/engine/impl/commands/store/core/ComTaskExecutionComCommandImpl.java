@@ -96,13 +96,16 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     @Override
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedData = new ArrayList<>();
-        collectedData.add(
-                new ComTaskExecutionCollectedData(
-                        this.comTaskExecution,
-                        this.getNestedCollectedData(),
-                        this.getCommandRoot().getExecutionContext().getComPort().getComServer().getCommunicationLogLevel(),
-                        this.getCommandRoot().isExposeStoringException())
-        );
+        List<ServerCollectedData> nestedCollectedData = getNestedCollectedData();
+        if (!nestedCollectedData.isEmpty()) {
+            collectedData.add(
+                    new ComTaskExecutionCollectedData(
+                            comTaskExecution,
+                            nestedCollectedData,
+                            getCommandRoot().getExecutionContext().getComPort().getComServer().getCommunicationLogLevel(),
+                            getCommandRoot().isExposeStoringException())
+            );
+        }
         return collectedData;
     }
 

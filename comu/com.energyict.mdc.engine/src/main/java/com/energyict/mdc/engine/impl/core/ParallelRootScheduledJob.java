@@ -64,7 +64,7 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
             this.createExecutionContext();
             commandRoot = prepareAll(getComTaskExecutions());
 
-            if (!commandRoot.hasGeneralSetupErrorOccurred()) {
+            if (!commandRoot.hasGeneralSetupErrorOccurred() && !commandRoot.getCommands().isEmpty()) {
                 connectionEstablished = this.establishConnectionFor(this.getComPort());
                 if (connectionEstablished) {
 
