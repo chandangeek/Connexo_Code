@@ -175,7 +175,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>export.custom</artifactId>
-            <version>1.0.1-Heracles-SNAPSHOT</version>
         </dependency>
 
         <!-- Test dependencies -->
