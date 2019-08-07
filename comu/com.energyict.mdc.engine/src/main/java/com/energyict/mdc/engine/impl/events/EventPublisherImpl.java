@@ -27,6 +27,8 @@ import java.util.Set;
  */
 public class EventPublisherImpl implements EventPublisher {
 
+    private static EventPublisherImpl soleInstance;
+
     private final RunningComServer comServer;
     private FilteringEventReceiverFactory factory;
     private List<FilteringEventReceiver> filters = new LinkedList<>();
@@ -210,6 +212,10 @@ public class EventPublisherImpl implements EventPublisher {
             }
             this.notifyEventWasPublished();
         }
+    }
+
+    public static synchronized void setInstance (EventPublisherImpl eventPublisher) {
+        soleInstance = eventPublisher;
     }
 
 }

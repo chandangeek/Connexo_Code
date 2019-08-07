@@ -12,12 +12,10 @@ import java.util.logging.Logger;
 
 public class InstallerImpl implements FullInstaller {
     private final Installer installer;
-    private final InstallerV10_7 installerV10_7;
 
     @Inject
-    public InstallerImpl(Installer installer, InstallerV10_7 installerV10_7) {
+    public InstallerImpl(Installer installer) {
         this.installer = installer;
-        this.installerV10_7 = installerV10_7;
     }
 
     @Override
@@ -25,11 +23,6 @@ public class InstallerImpl implements FullInstaller {
         doTry(
                 "Create service call types",
                 installer::createServiceCallTypes,
-                logger
-        );
-        doTry(
-                "Create future com tasks execution task",
-                installerV10_7::createFutureComTasksExecutionTask,
                 logger
         );
     }
