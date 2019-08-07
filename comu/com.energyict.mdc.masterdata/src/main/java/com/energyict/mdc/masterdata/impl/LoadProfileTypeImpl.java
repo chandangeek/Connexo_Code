@@ -106,28 +106,12 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.setInterval(interval);
         Collection<RegisterType> failedRegisterTypes = new ArrayList<>();
         for (RegisterType registerType : registerTypes) {
-            if (this.commodityIsCompatible(registerType)) {
-                Optional<ChannelType> channelType = this.createChannelTypeForRegisterType(registerType);
-                if (!channelType.isPresent()) {
-                    failedRegisterTypes.add(registerType);
-                }
-            } else {
+            Optional<ChannelType> channelType = this.createChannelTypeForRegisterType(registerType);
+            if (!channelType.isPresent()) {
                 failedRegisterTypes.add(registerType);
             }
         }
         return failedRegisterTypes;
-    }
-
-    private boolean commodityIsCompatible(RegisterType registerType) {
-        return isItADataLoggerPulseReadingType(registerType) || loadProfileCompatibleCommodities().contains(registerType.getReadingType().getCommodity());
-    }
-
-    private Set<Commodity> loadProfileCompatibleCommodities() {
-        return EnumSet.complementOf(EnumSet.of(Commodity.NOTAPPLICABLE, Commodity.COMMUNICATION, Commodity.DEVICE));
-    }
-
-    private boolean isItADataLoggerPulseReadingType(RegisterType registerType) {
-        return registerType.getReadingType().getMeasurementKind().equals(MeasurementKind.RELAYCYCLE);
     }
 
     @Override
