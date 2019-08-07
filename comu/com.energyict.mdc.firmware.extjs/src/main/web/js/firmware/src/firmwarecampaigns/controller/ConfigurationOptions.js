@@ -31,13 +31,15 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             pageView = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            supportedFirmwareTypesStore = Ext.getStore('Fwc.store.SupportedFirmwareTypes') || Ext.create('Fwc.store.SupportedFirmwareTypes'),
             view;
 
         pageView.setLoading();
         me.getModel('Fwc.firmwarecampaigns.model.FirmwareCampaign').load(firmwareCampaignId, {
             success: function (record) {
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
-                model.load(2, {
+                var deviceTypeId = record.get('deviceType').id;
+                model.load(deviceTypeId, {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('changecontentevent', (view = Ext.widget('firmware-campaign-configuration', {
                             itemId: 'firmware-campaign-configuration',
@@ -59,6 +61,20 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
                             }
                         }
                         firmwareStore.load(options);
+                        supportedFirmwareTypesStore.getProxy().setUrl(deviceType.getId());
+                        supportedFirmwareTypesStore.load({
+                            scope: this,
+                            callback: function () {
+                                var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
+                                var firmwareGrid = view.down('firmware-grid');
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
+                                    firmwareGrid.down('#minMeterLevel').show();
+                                }
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
+                                    firmwareGrid.down('#minCommLevel').show();
+                                }
+                            }
+                        });
                     }
                 });
             },
