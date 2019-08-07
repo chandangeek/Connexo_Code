@@ -47,7 +47,8 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
               menu: {
                 itemId: 'webservices-endpoint-action-menu-id',
                 xtype: 'webservices-endpoint-action-menu',
-                record: me.occurrence
+                record: me.occurrence,
+                endpoint: me.endpoint
               }
           }
         ],

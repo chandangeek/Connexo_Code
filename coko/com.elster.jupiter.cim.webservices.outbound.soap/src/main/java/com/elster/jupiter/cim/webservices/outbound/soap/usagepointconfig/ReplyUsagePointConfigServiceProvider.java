@@ -103,19 +103,19 @@ public class ReplyUsagePointConfigServiceProvider
     @Override
     public void call(EndPointConfiguration endPointConfiguration, String operation,
             List<com.elster.jupiter.metering.UsagePoint> successList, List<FailedUsagePointOperation> failureList,
-            BigDecimal expectedNumberOfCalls) {
+            BigDecimal expectedNumberOfCalls, String correlationId) {
         String method;
         UsagePointConfigEventMessageType message;
         switch (operation) {
             case "CREATE":
                 method = "createdUsagePointConfig";
                 message = createResponseMessage(createUsagePointConfig(successList), failureList,
-                        expectedNumberOfCalls, HeaderType.Verb.CREATED);
+                        expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
                 break;
             case "UPDATE":
                 method = "changedUsagePointConfig";
                 message = createResponseMessage(createUsagePointConfig(successList), failureList,
-                        expectedNumberOfCalls, HeaderType.Verb.CHANGED);
+                        expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             default:
                 throw new UnsupportedOperationException(operation + " isn't supported.");
@@ -131,13 +131,14 @@ public class ReplyUsagePointConfigServiceProvider
     }
 
     private UsagePointConfigEventMessageType createResponseMessage(UsagePointConfig usagePointConfig,
-            HeaderType.Verb verb) {
+            HeaderType.Verb verb, String correlationId) {
         UsagePointConfigEventMessageType usagePointConfigEventMessageType = new UsagePointConfigEventMessageType();
 
         // set header
         HeaderType header = headerTypeFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
+        header.setCorrelationID(correlationId);
         usagePointConfigEventMessageType.setHeader(header);
 
         // set reply
@@ -155,9 +156,9 @@ public class ReplyUsagePointConfigServiceProvider
     }
 
     private UsagePointConfigEventMessageType createResponseMessage(UsagePointConfig usagePointConfig,
-            List<FailedUsagePointOperation> failedDevices, BigDecimal expectedNumberOfCalls, HeaderType.Verb verb) {
+            List<FailedUsagePointOperation> failedDevices, BigDecimal expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
         UsagePointConfigEventMessageType usagePointConfigEventMessageType = createResponseMessage(usagePointConfig,
-                verb);
+                verb, correlationId);
 
         // set reply
         ReplyType replyType = headerTypeFactory.createReplyType();

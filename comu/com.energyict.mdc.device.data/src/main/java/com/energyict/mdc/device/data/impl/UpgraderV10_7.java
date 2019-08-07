@@ -14,6 +14,8 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandlerFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
@@ -27,19 +29,36 @@ public class UpgraderV10_7 implements Upgrader {
     private final DataModel dataModel;
     private final MessageService messageService;
     private final ServiceCallService serviceCallService;
+    private final Installer installer;
 
     @Inject
-    public UpgraderV10_7(DataModel dataModel, MessageService messageService, ServiceCallService serviceCallService) {
+    public UpgraderV10_7(DataModel dataModel, MessageService messageService, ServiceCallService serviceCallService, Installer installer) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.serviceCallService = serviceCallService;
+        this.installer = installer;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
+        deleteOldDestinations();
+        installer.createPrioritizedMessageHandlers();
         createMessageHandlerLP();
         updateServiceCallTypes();
+    }
+
+    private void deleteOldDestinations() {
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME);
+        destinationSpec.ifPresent(destination -> {
+            destination.unSubscribe(CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME);
+            destination.delete();
+        });
+        destinationSpec = messageService.getDestinationSpec(DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION);
+        destinationSpec.ifPresent(destination -> {
+            destination.unSubscribe(DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION);
+            destination.delete();
+        });
     }
 
     private void createMessageHandlerLP() {

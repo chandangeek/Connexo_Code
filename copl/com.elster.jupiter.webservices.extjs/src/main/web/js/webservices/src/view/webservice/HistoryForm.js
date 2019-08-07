@@ -71,7 +71,7 @@ Ext.define('Wss.view.webservice.HistoryForm', {
                 renderer: function (value) {
                     if (value){
                         var date = new Date(value);
-                        return Uni.DateTime.formatDateLong(date) + ' at ' + Uni.DateTime.formatTimeShort(date);
+                        return Uni.DateTime.formatDateLong(date) + ' at ' + Uni.DateTime.formatTimeLong(date);
                     }
                     return '-';
                 }
@@ -82,7 +82,7 @@ Ext.define('Wss.view.webservice.HistoryForm', {
                 renderer: function (value) {
                     if (value){
                         var date = new Date(value);
-                        return Uni.DateTime.formatDateLong(date) + ' at ' + Uni.DateTime.formatTimeShort(date);
+                        return Uni.DateTime.formatDateLong(date) + ' at ' + Uni.DateTime.formatTimeLong(date);
                     }
                     return '-';
                 }

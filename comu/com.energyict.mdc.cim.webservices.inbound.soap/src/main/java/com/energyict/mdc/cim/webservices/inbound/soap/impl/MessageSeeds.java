@@ -4,9 +4,10 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
-import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import ch.iec.tc57._2011.schema.message.ErrorType;
 
 import java.text.DecimalFormat;
 import java.util.logging.Level;
@@ -24,6 +25,8 @@ public enum MessageSeeds implements MessageSeed {
             "Either element ''mRID'' or ''Names'' with ''NameType.name'' = ''{0}'' is required under ''{1}'' for identification purpose"),
     UNSUPPORTED_ELEMENT(9, "UnsupportedElement", "Element ''{0}'' under ''{1}'' is not supported"),
     UNSUPPORTED_VALUE(10, "UnsupportedValue", "Element ''{0}'' contains unsupported value ''{1}''. Must be one of: {2}"),
+    THIS_FIELD_IS_REQUIRED(11, Keys.THIS_FIELD_IS_REQUIRED, "This field is required"),
+    FIELD_TOO_LONG(12, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
 
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),
@@ -56,7 +59,6 @@ public enum MessageSeeds implements MessageSeed {
     START_DATE_LOWER_CREATED_DATE(1029, "StartDateLowerCreatedDate", "Start date must be greater or equal to created date of device {0}"),
     GET_DEVICE_IDENTIFIER_MISSING(1030, "GetDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
     UNABLE_TO_GET_METER_CONFIG_EVENTS(1031, "UnableToGetMeterConfigEvents", "Unable to get meter config events"),
-    UNABLE_TO_GET_DEVICE(1032, "UnableToGetDevice", "Unable to get device"),
 
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
@@ -83,6 +85,45 @@ public enum MessageSeeds implements MessageSeed {
     NAME_MUST_BE_UNIQUE(5001, "NameMustBeUnique", "Name and serial number must be unique."),
     ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY(5002, "ElementByRefNotFoundOrEmpty", "Element by reference ''{0}'' not found or has an empty value"),
     IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES(5003, "DuplicatedZoneType", "Is not allowed to send the same zone type more than once, a device can be assigned to only one zone from a zone type"),
+
+    // meter readings
+    UNABLE_TO_GET_READINGS(6001, "UnableToGetReadings", "Unable to get readings."),
+    NO_PURPOSES_WITH_NAMES(6002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
+    END_DEVICES_WITH_MRID_NOT_FOUND(6004, "DevicesWithMridNotFound", "Couldn''t find device(s) with MRID(s) ''{0}''.", Level.WARNING),
+    END_DEVICES_WITH_NAME_NOT_FOUND(6005, "DevicesWithNamesNotFound", "Couldn''t find device(s) with name(s) ''{0}''.", Level.WARNING),
+    END_DEVICES_NOT_FOUND(6006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    NO_END_DEVICES(6007, "NoDevices", "No devices have been found."),
+    NO_READING_TYPES(6008, "NoReadingTypes", "No reading types have been found."),
+    READING_TYPES_WITH_MRID_NOT_FOUND(6009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_WITH_NAME_NOT_FOUND(6010, "ReadingTypesWithNameNotFound", "Reading type(s) with name(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_NOT_FOUND_IN_THE_SYSTEM(6011, "ReadingTypesNotFoundInTheSystem", "Reading type(s) with MRID(s) ''{0}'' and name(s) ''{1}'' is(are) not found in the system.", Level.WARNING),
+    READING_TYPES_NOT_FOUND_ON_DEVICE(6012, "ReadingTypesNotFoundOnDevice", "Reading type(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
+    NO_USAGE_POINT_WITH_MRID(6013, "NoUsagePointWithMRID", "No usage point is found by MRID ''{0}''."),
+    NO_USAGE_POINT_WITH_NAME(6014, "NoUsagePointWithName", "No usage point is found by name ''{0}''."),
+    WRONG_TIME_PERIOD_COMBINATION(6015, "WrongTimePeriodCombination", "Can''t construct a valid time period with provided start ''{0}'' and the end ''{1}''.", Level.WARNING),
+    DIFFERENT_DATA_SOURCES(6016, "DifferentDataSources", "The request contains data sources of different types under element ''{0}''."),
+    SCHEDULE_STRATEGY_NOT_SUPPORTED(6017, "ScheduleStrategyNotSupported", "Schedule strategy ''{0}'' is not supported. The possible values are: ''Run now'' and ''Use schedule''"),
+    NO_CONNECTION_TASK(6018, "NoConnectionTask", "No connection task has been found for communication task execution of communication task ''{0}''."),
+    CONNECTION_METHOD_NOT_FOUND_ON_DEVICE(6019, "ConnectionMethodNotFoundOnDevice", "The required connection method ''{0}'' wasn''t found on the device ''{1}''.", Level.WARNING),
+    CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK(6020, "ConnectionMethodNotFoundForComTask", "The required connection method ''{0}'' wasn''t found for communication task ''{1}'' of device ''{2}''.", Level.WARNING),
+    DATA_SOURCE_NAME_TYPE_NOT_FOUND(6021, "DataSourceNameTypeNotFound", "Data source name type ''{0}'' is not found in the element ''{1}''. Possible values: Load Profile or Register Group."),
+    NO_DATA_SOURCES(6022, "NoDataSources", "At least one correct ''GetMeterReadings.ReadingType'' or ''GetMeterReadings.Reading.dataSource'' must be specified in the request under element ''{0}''", Level.WARNING),
+    REGISTER_GROUP_NOT_FOUND(6023, "RegisterGroupNotFound", "Couldn''t find register group with name ''{0}'' under element ''{1}''.", Level.WARNING),
+    LOAD_PROFILE_NOT_FOUND(6024, "LoadProfileNotFound", "Couldn''t find load profile with name ''{0}'' under element ''{1}''.", Level.WARNING),
+    NO_COM_TASK_EXECUTION(6025, "NoComTaskExecution", "The required communication task execution of type {0} wasn't found on the device {1}.", Level.WARNING),
+    REGISTER_GROUP_WRONG_TIME_PERIOD(6026, "RegisterGroupWrongTimePeriod", "Wrong time period for register group data source is provided under element ''{0}'': start ''{1}'', end ''{2}''.", Level.WARNING),
+    REGISTER_GROUP_EMPTY_TIME_PERIOD(6027, "RegisterGroupEmptyTimePeriod", "Empty time period for register group data source is provided under element ''{0}''.", Level.WARNING),
+    REGISTER_EMPTY_TIME_PERIOD(6028, "RegisterEmptyTimePeriod", "Empty time period for register is provided under element ''{0}''.", Level.WARNING),
+    SYSTEM_SOURCE_EMPTY_TIME_PERIOD(6029, "SystemSourceEmptyTimePeriod", "Empty time period for ''System'' source is provided.", Level.WARNING),
+    SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES(6030, "SystemSourceDoesntSupportLoadProfiles", "''System'' source doesn''t support ''Load profile'' data source. Element ''{0}''.", Level.WARNING),
+    NO_COM_TASK_EXECUTION_FOR_READING_TYPES(6031, "NoComTaskExecutionForReadingTypes", "No communication task execution has been found on device ''{0}'' for readingTypes ''{1}''.", Level.WARNING),
+    NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES(6032, "NoComTaskExecutionForLoadProfiles", "No communication task execution has been found for load profile device messages on device ''{0}''.", Level.WARNING),
+    NO_COM_TASK_EXECUTION_ON_DEVICE(6033, "NoComTaskExecutionOnDevice", "No proper communication task execution has been found for device ''{0}'' under element ''{1}''.", Level.WARNING),
+    NO_COM_TASK_EXECUTION_FOUND(6034, "NoComTaskExecutionFound", "No proper communication task execution has been found."),
+    LOAD_PROFILES_NOT_FOUND_ON_DEVICE(6035, "LoadProfilesNotFoundOnDevice", "LoadProfile(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
+    NO_READINGS_TO_READ(6036, "NoReadingsToRead", "Couldn''t find any correct  ''GetMeterReadings.Reading'' to read."),
+    READING_NOT_APPLICABLE(6037, "ReadingNotApplicable", "''{0}'' will be skipped due to issue in the element ''{1}''.", Level.WARNING),
+    READING_NOT_APPLICABLE_DUE_TO_COM_TASKS(6038, "ReadingNotApplicableDueToComTasks", "''{0}'' will be skipped due to inability to find proper communication tasks.", Level.WARNING),
     ;
 
     private final int number;

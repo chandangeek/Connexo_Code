@@ -458,7 +458,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         wizard.setLoading(false);
                     },
 
-                failure: function () {
+                failure: function (response) {
+                    var responseText = Ext.decode(response.responseText, true);
+                    statusPage.showChangeDeviceConfigFailure(responseText.message);
                     finishBtn.enable();
                     wizard.setLoading(false);
                 }
@@ -573,7 +575,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         wizard.setLoading(false);
                     },
 
-                    failure: function () {
+                    failure: function (response) {
+                        var responseText = Ext.decode(response.responseText, true);
+                        statusPage.showChangeDeviceConfigFailure(responseText.message);
                         finishBtn.enable();
                         wizard.setLoading(false);
                     }

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.provider",
         service = {TopicHandler.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
@@ -206,6 +207,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
+        header.setCorrelationID(UUID.randomUUID().toString());
         endDeviceConfigEventMessageType.setHeader(header);
 
         // set reply

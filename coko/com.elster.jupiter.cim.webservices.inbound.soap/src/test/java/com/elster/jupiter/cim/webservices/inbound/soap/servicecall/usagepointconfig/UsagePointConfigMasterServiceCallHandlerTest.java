@@ -51,6 +51,7 @@ import static org.mockito.Mockito.when;
 public class UsagePointConfigMasterServiceCallHandlerTest {
     private static final String NAME = "my name";
     private static final String MRID = "my mrid";
+    private static final String CORRELATION_ID = "CorrelationID";
     private UsagePointConfigMasterServiceCallHandler handler;
     @Mock
     private ServiceCall serviceCall;
@@ -141,6 +142,7 @@ public class UsagePointConfigMasterServiceCallHandlerTest {
         when(meteringService.findUsagePointByMRID(MRID)).thenReturn(Optional.of(meterUsagePoint));
 
         when(extension.getExpectedNumberOfCalls()).thenReturn(BigDecimal.valueOf(5));
+        when(extension.getCorrelationId()).thenReturn(CORRELATION_ID);
     }
 
     @Test
@@ -180,11 +182,11 @@ public class UsagePointConfigMasterServiceCallHandlerTest {
                 return null;
             }
         }).when(replyWebService).call(any(EndPointConfiguration.class), eq(Action.UPDATE.name()),
-                anyListOf(UsagePoint.class), anyListOf(FailedUsagePointOperation.class), eq(BigDecimal.valueOf(5)));
+                anyListOf(UsagePoint.class), anyListOf(FailedUsagePointOperation.class), eq(BigDecimal.valueOf(5)), eq(CORRELATION_ID));
 
         handler.sendReply(replyWebService, endPointConfiguration, serviceCall, extension);
 
         verify(replyWebService).call(any(EndPointConfiguration.class), eq(Action.UPDATE.name()),
-                anyListOf(UsagePoint.class), anyListOf(FailedUsagePointOperation.class), eq(BigDecimal.valueOf(5)));
+                anyListOf(UsagePoint.class), anyListOf(FailedUsagePointOperation.class), eq(BigDecimal.valueOf(5)), eq(CORRELATION_ID));
     }
 }

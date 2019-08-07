@@ -25,4 +25,6 @@ public interface TimeOfUseCampaignItem {
     ServiceCall cancel();
 
     long getParentServiceCallId();
+
+    long getStepOfUpdate();
 }
