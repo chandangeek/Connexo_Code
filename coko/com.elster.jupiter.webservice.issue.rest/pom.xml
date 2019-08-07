@@ -15,6 +15,10 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] webservice.issue.rest</name>
 
+    <properties>
+        <baseline>(,${project.version})</baseline>
+    </properties>
+
     <profiles>
         <profile>
             <id>restdoc</id>
