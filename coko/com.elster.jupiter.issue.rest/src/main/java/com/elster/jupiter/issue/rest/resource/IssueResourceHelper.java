@@ -76,8 +76,9 @@ public class IssueResourceHelper {
     private final UserService userService;
 
     @Inject
-    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, LocationService locationService,
+    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, LocationService locationService, MeteringGroupsService meteringGroupService,
                                UserService userService, IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext) {
+        this.transactionService = transactionService;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
         this.actionInfoFactory = actionFactory;
