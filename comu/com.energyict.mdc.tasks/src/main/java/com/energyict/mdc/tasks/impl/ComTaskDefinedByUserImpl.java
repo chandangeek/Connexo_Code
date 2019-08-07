@@ -42,5 +42,4 @@ class ComTaskDefinedByUserImpl extends ComTaskImpl {
     public boolean isSystemComTask() {
         return false;
     }
-
 }

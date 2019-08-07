@@ -18,7 +18,7 @@ use Digest::MD5 qw(md5_hex);
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170622";
+my $INSTALL_VERSION="v20190702";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -58,7 +58,7 @@ my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
 my $TOMCAT_BASE="$CONNEXO_DIR/partners";
-my $TOMCAT_ZIP="tomcat-9.0.21_1";
+my $TOMCAT_ZIP="tomcat-9.0.22";
 my $CATALINA_BASE="$TOMCAT_BASE/$TOMCAT_DIR";
 my $CATALINA_HOME=$CATALINA_BASE;
 $ENV{"CATALINA_HOME"}=$CATALINA_HOME;
@@ -843,6 +843,7 @@ sub activate_sso {
             }
 
             if ("$INSTALL_FLOW" eq "yes") {
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->","<!-- to enable Connexo Flow SSO uncomment the Connexo authentication filters below -->");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!--filter>","<filter>");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
@@ -860,6 +861,8 @@ sub activate_sso {
             }
 
             if ("$INSTALL_FACTS" eq "yes") {
+                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml",qq(<!ENTITY jsps SYSTEM "web-jsps.xml">),qq(<!ENTITY jsps SYSTEM "file:///$CATALINA_BASE/webapps/facts/WEB-INF/web-jsps.xml">));
+                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->","<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->");
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!--filter>","<filter>");
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
 

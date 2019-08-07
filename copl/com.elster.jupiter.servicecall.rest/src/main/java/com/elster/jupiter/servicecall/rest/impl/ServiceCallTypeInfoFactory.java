@@ -10,8 +10,11 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
+import com.google.common.collect.ImmutableMap;
+
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by bvn on 3/2/16.
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 public class ServiceCallTypeInfoFactory {
 
     private final Thesaurus thesaurus;
+    private static Map<String, String> APPS = ImmutableMap.of("MDC", "MultiSense", "INS", "Insight");
 
     @Inject
     public ServiceCallTypeInfoFactory(Thesaurus thesaurus) {
@@ -31,6 +35,8 @@ public class ServiceCallTypeInfoFactory {
         info.version = serviceCallType.getVersion();
         info.name = serviceCallType.getName();
         info.versionName = serviceCallType.getVersionName();
+        serviceCallType.getApplication().ifPresent(
+                key -> info.reservedByApplication = APPS.get(key));
         info.destination = serviceCallType.getDestinationName();
         info.priority = serviceCallType.getPriority();
         info.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus()
@@ -46,5 +52,4 @@ public class ServiceCallTypeInfoFactory {
                 .forEach(cps -> info.customPropertySets.add(new ServiceCallTypeCustomPropertySetInfo(cps)));
         return info;
     }
-
 }

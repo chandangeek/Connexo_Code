@@ -38,7 +38,8 @@ Ext.define('MdcApp.Application', {
         'Cfg.privileges.Audit',
         'Tou.privileges.TouCampaign',
         'Itk.privileges.Task',
-        'Mdc.privileges.CreationRule'
+        'Mdc.privileges.CreationRule',
+        'Wss.privileges.Webservices'
     ],
     controllers: [
         'MdcApp.controller.Main'

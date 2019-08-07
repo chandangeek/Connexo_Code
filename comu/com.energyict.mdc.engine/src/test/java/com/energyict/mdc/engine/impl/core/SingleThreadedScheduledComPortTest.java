@@ -554,14 +554,12 @@ public class SingleThreadedScheduledComPortTest {
         when(this.deviceCommandExecutor.acquireTokens(1)).thenReturn(tokens);
         DeviceCommandExecutor deviceCommandExecutor = new LatchDrivenDeviceCommandExecutor(this.deviceCommandExecutor, stopLatch);
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(runningComServer, comPort, comServerDAO, deviceCommandExecutor, this.serviceProvider);
-
         try {
             // Business method
             scheduledComPort.start();
 
             // Wait for all processes
             stopLatch.await();
-
             // Asserts
             verify(comServerDAO, atLeastOnce()).findExecutableOutboundComTasks(comPort);
             verify(this.serialConnectionTask1, atLeastOnce()).getCommunicationWindow();

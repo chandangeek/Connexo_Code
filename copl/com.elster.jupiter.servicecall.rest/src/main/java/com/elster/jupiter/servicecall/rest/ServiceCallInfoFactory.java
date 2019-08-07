@@ -13,7 +13,6 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.util.Map;
 
-
 @ProviderType
 public interface ServiceCallInfoFactory {
 
@@ -21,5 +20,5 @@ public interface ServiceCallInfoFactory {
 
     ServiceCallInfo summarized(ServiceCall serviceCall);
 
-    ServiceCallFilter convertToServiceCallFilter(JsonQueryFilter filter);
+    ServiceCallFilter convertToServiceCallFilter(JsonQueryFilter filter, String appKey);
 }

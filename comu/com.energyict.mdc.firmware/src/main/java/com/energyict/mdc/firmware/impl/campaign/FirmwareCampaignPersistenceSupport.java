@@ -7,10 +7,10 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 
@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.orm.Version.version;
 
 public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<ServiceCall, FirmwareCampaignDomainExtension> {
 
@@ -131,6 +130,30 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName() + ".timeUnitCode")
                 .notNull()
                 .installValue(Integer.toString(TimeDuration.TimeUnit.HOURS.getCode()))
+                .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName())
+                .since(Version.version(10, 7))
+                .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName())
+                .since(Version.version(10, 7))
+                .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.databaseName())
+                .varChar(Table.NAME_LENGTH)
+                .conversion(ColumnConversion.CHAR2ENUM)
+                .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName())
+                .since(Version.version(10, 7))
+                .add();
+        table.column(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.databaseName())
+                .varChar(Table.NAME_LENGTH)
+                .conversion(ColumnConversion.CHAR2ENUM)
+                .map(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName())
+                .since(Version.version(10, 7))
                 .add();
         table.foreignKey(FK_NAME + "_DT")
                 .on(deviceType)

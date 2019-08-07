@@ -71,9 +71,10 @@ public class ToUCampaignHandlerTest {
     private ServiceCall serviceCall = mock(ServiceCall.class);
     private ThreadPrincipalService threadPrincipalService = mock(ThreadPrincipalService.class);
     private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
-    private TimeOfUseCampaignItem timeOfUseItem = mock(TimeOfUseCampaignItem.class);
-    private TimeOfUseCampaign timeOfUseCampaign = createMockCampaign("withoutActivation");
-    private TimeOfUseCampaign timeOfUseCampaign2 = createMockCampaign("immediately");
+    private TimeOfUseCampaignItem timeOfUseItem = mock(TimeOfUseItemDomainExtension.class);
+    private ServiceCall parentSc = mock(ServiceCall.class);
+    private TimeOfUseCampaignDomainExtension timeOfUseCampaign = createMockCampaign("withoutActivation");
+    private TimeOfUseCampaignDomainExtension timeOfUseCampaign2 = createMockCampaign("immediately");
     private TimeOfUseItemDomainExtension timeOfUseItemDomainExtension = mock(TimeOfUseItemDomainExtension.class);
 
     @Before
@@ -86,6 +87,7 @@ public class ToUCampaignHandlerTest {
         when(event.getType()).thenReturn(eventType);
         when(timeOfUseItem.cancel()).thenReturn(serviceCall);
         when(timeOfUseItem.getServiceCall()).thenReturn(serviceCall);
+        when(timeOfUseCampaignService.findActiveTimeOfUseItemByDevice(any())).thenReturn(Optional.ofNullable(timeOfUseItem));
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(timeOfUseItem), QueryStream.class);
         when(timeOfUseCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
         timeOfUseCampaignHandler = new TimeOfUseCampaignHandler(timeOfUseCampaignService, clock, serviceCallService, thesaurus, threadPrincipalService, transactionService);
@@ -99,6 +101,8 @@ public class ToUCampaignHandlerTest {
         when(calendarComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_STARTED);
         when(event.getSource()).thenReturn(calendarComTaskExecution);
+        when(serviceCall.getState()).thenReturn(DefaultState.PENDING);
+        when(serviceCall.canTransitionTo(DefaultState.ONGOING)).thenReturn(true);
         timeOfUseCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
     }
@@ -110,6 +114,9 @@ public class ToUCampaignHandlerTest {
         when(calendarComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(calendarComTaskExecution);
+        when(parentSc.getExtension(any())).thenReturn(Optional.ofNullable(timeOfUseCampaign));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
         timeOfUseCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
     }
@@ -121,6 +128,9 @@ public class ToUCampaignHandlerTest {
         when(calendarComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_FAILED);
         when(event.getSource()).thenReturn(calendarComTaskExecution);
+        when(parentSc.getExtension(any())).thenReturn(Optional.ofNullable(timeOfUseCampaign));
+        when(serviceCall.getState()).thenReturn(DefaultState.ONGOING);
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
         timeOfUseCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
@@ -133,6 +143,10 @@ public class ToUCampaignHandlerTest {
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
+        when(timeOfUseItem.getStepOfUpdate()).thenReturn(1L);
+        when(parentSc.getExtension(any())).thenReturn(Optional.ofNullable(timeOfUseCampaign));
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
+        when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochSecond(5900));
         timeOfUseCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
     }
@@ -145,6 +159,10 @@ public class ToUCampaignHandlerTest {
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_FAILED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
+        when(timeOfUseItem.getStepOfUpdate()).thenReturn(1L);
+        when(parentSc.getExtension(any())).thenReturn(Optional.ofNullable(timeOfUseCampaign));
+        when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
+        when(serviceCall.getLastModificationTime()).thenReturn(Instant.ofEpochSecond(5900));
         timeOfUseCampaignHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
@@ -180,8 +198,8 @@ public class ToUCampaignHandlerTest {
         return comTaskExecution;
     }
 
-    private static TimeOfUseCampaign createMockCampaign(String activation) {
-        TimeOfUseCampaign timeOfUseCampaign = mock(TimeOfUseCampaign.class);
+    private static TimeOfUseCampaignDomainExtension createMockCampaign(String activation) {
+        TimeOfUseCampaignDomainExtension timeOfUseCampaign = mock(TimeOfUseCampaignDomainExtension.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(timeOfUseCampaign.getServiceCall()).thenReturn(serviceCall);
         when(serviceCall.getCreationTime()).thenReturn(Instant.ofEpochSecond(111));
