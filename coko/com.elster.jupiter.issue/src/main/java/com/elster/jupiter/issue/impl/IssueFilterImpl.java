@@ -33,7 +33,6 @@ public class IssueFilterImpl implements IssueFilter {
     private List<IssueReason> reasons = new ArrayList<>();
     private List<EndDevice> devices = new ArrayList<>();
     private List<Location> locations = new ArrayList<>();
-    private Set<EndDevice> devices = new HashSet<>();
     private List<EndDeviceGroup> deviceGroups = new ArrayList<>();
     private List<UsagePoint> usagePoints = new ArrayList<>();
     private List<UsagePointGroup> usagePointGroup = new ArrayList<>();
