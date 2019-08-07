@@ -4,5 +4,5 @@
 
 Ext.define('Uni.property.model.PropertyWebService', {
     extend: 'Ext.data.Model',
-    fields: ['id', 'name']
+    fields: ['id', 'name', 'direction']
 });

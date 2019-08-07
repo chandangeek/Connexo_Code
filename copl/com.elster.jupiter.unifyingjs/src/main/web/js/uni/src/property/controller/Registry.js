@@ -142,7 +142,7 @@ Ext.define('Uni.property.controller.Registry', {
         WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference',
         SERVICE_CALL: 'Uni.property.view.property.ServiceCallIssueType',
         SERVICE_CALL_STATE: 'Uni.property.view.property.ServiceCallIssueState',
-        IDWITHNAMELIST: 'Uni.property.view.property.webservices.WebServiceIssue',
+        ENDPOINT_CONFIGURATION_LIST: 'Uni.property.view.property.webservices.WebServiceIssue',
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)

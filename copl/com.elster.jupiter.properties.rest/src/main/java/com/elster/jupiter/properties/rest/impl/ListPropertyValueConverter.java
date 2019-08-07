@@ -14,10 +14,11 @@ import com.elster.jupiter.properties.rest.DeviceGroupPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
+import com.elster.jupiter.properties.rest.EndPointConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.properties.rest.ServiceCallTypeInfoPropertyFactory;
 import com.elster.jupiter.properties.rest.ServiceCallStateInfoPropertyFactory;
+import com.elster.jupiter.properties.rest.ServiceCallTypeInfoPropertyFactory;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
 import com.elster.jupiter.util.HasId;
@@ -69,6 +70,9 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof ServiceCallStateInfoPropertyFactory) {
             return SimplePropertyType.SERVICE_CALL_STATE;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndPointConfigurationPropertyFactory) {
+            return SimplePropertyType.ENDPOINT_CONFIGURATION_LIST;
         }
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory().isReference()) {
             return SimplePropertyType.IDWITHNAMELIST;

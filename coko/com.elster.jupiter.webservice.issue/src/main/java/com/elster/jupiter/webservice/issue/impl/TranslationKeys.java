@@ -29,6 +29,8 @@ public enum TranslationKeys implements TranslationKey {
     BAD_ACKNOWLEDGEMENT_ISSUE_RULE_TEMPLATE_NAME(BadAcknowledgementIssueCreationRuleTemplate.NAME, "Bad acknowledgement"),
     BAD_ACKNOWLEDGEMENT_ISSUE_RULE_TEMPLATE_DESCRIPTION(BadAcknowledgementIssueCreationRuleTemplate.NAME + ".description", "Create issue when endpoint responds with an error"),
     END_POINT_CONFIGURATIONS_PROPERTY(AuthFailureIssueCreationRuleTemplate.END_POINT_CONFIGURATIONS, "Web services"),
+    END_POINT_CONFIGURATION_DIRECTION_INBOUND("endPointConfiguration.direction.inbound", "Inbound"),
+    END_POINT_CONFIGURATION_DIRECTION_OUTBOUND("endPointConfiguration.direction.outbound", "Outbound"),
     SUBSCRIBER(WebServiceEventHandlerFactory.WEB_SERVICE_EVENT_SUBSCRIBER, "Create web service issues"),
     ACTION_START_PROCESS("ActionStartProcess", "Start process"),
     ACTION_START_PROCESS_PROPERTY_PROCESS(StartProcessWebServiceIssueAction.START_PROCESS, "Process"),
