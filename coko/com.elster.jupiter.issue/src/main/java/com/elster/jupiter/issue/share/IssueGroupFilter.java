@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.share;
@@ -53,6 +53,8 @@ public interface IssueGroupFilter {
 
     IssueGroupFilter withUserAssignee(long id);
 
+    IssueGroupFilter withMeter(long id);
+
     IssueGroupFilter withId(String id);
 
     String getId();
@@ -64,6 +66,8 @@ public interface IssueGroupFilter {
     String getMeterName();
 
     List<Long> getUserAssignees();
+
+    List<Long> getMeters();
 
     List<Long> getWorkGroupAssignees();
 

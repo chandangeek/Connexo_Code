@@ -4,7 +4,11 @@
 
 package com.energyict.mdc.engine.impl.web;
 
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
@@ -14,6 +18,7 @@ import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -37,10 +42,10 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
         return EmbeddedJettyServer.newForInboundDeviceCommunication(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer) {
+    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer, EventAPIStatistics eventAPIStatistics) {
         try {
             URI eventRegistrationUri = new URI(comServer.getEventRegistrationUriIfSupported());
-            return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri, new EmbeddedJettyServerServiceProvider());
+            return EmbeddedJettyServer.newForEventMechanism(eventRegistrationUri, eventAPIStatistics);
         }
         catch (UnsupportedOperationException e) {
             // Event registration is not supported
@@ -62,10 +67,10 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
     }
 
     @Override
-    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer runningComServer) {
+    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer runningComServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
         try {
             String queryApiPostUri = runningComServer.getComServer().getQueryApiPostUriIfSupported();
-            return EmbeddedJettyServer.newForQueryApi(new URI(queryApiPostUri), runningComServer);
+            return EmbeddedJettyServer.newForQueryApi(new URI(queryApiPostUri), runningComServer, comServerDAO, engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
         }
         catch (UnsupportedOperationException e) {
             // Event registration is not supported

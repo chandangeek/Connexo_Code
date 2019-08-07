@@ -487,13 +487,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         boolean hasRegisterGroups = CollectionUtils.isNotEmpty(existedRegisterGroups);
         boolean hasReadingTypes = CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes());
 
-        if (hasLoadProfiles) {
-            if (source.equals(ReadingSourceEnum.SYSTEM.getSource())) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES, null,
-                        String.format(READING_ITEM, index)));
-                return false;
-            }
-        } else if (hasRegisterGroups) {
+        if (hasRegisterGroups) {
             if (timePeriod == null) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_GROUP_EMPTY_TIME_PERIOD, null,
                         String.format(READING_ITEM, index)));
@@ -901,15 +895,16 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return Range.openClosed(reading.getTimePeriod().getStart(), reading.getTimePeriod().getEnd());
     }
 
-    private boolean checkTimeInterval(Reading reading, String readingItem, boolean asyncFlag, SyncReplyIssue syncReplyIssue) {
+    private boolean checkTimeInterval(Reading reading, String readingItem, boolean asyncFlag, SyncReplyIssue syncReplyIssue) throws
+            FaultMessage {
         DateTimeInterval interval = reading.getTimePeriod();
         if (interval == null) {
+            if (!asyncFlag) {
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD, null, null)
+                        .get();
+            }
             if (reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.SYSTEM_SOURCE_EMPTY_TIME_PERIOD, null));
-                return false;
-            }
-            if (!asyncFlag) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD, null));
                 return false;
             }
             if (syncReplyIssue.getExistedReadingTypes().stream()
@@ -921,9 +916,8 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             Instant end = interval.getEnd();
             if (!asyncFlag) {
                 if (start == null) {
-                    syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.MISSING_ELEMENT, null,
-                            readingItem + ".timePeriod.start"));
-                    return false;
+                    throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, readingItem + ".timePeriod.start")
+                            .get();
                 }
                 if (end == null) {
                     end = clock.instant();

@@ -815,8 +815,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
             assertThat(error.getDetails()).isEqualTo(expectedDetailedMessage);
             assertThat(error.getCode()).isEqualTo(expectedCode);
             assertThat(error.getLevel()).isEqualTo(ErrorType.Level.FATAL);
-
-            verifyNoMoreInteractions(transactionContext);
         } catch (Exception e) {
             e.printStackTrace();
             fail("Expected FaultMessage but got: " + System.lineSeparator() + e.toString());
