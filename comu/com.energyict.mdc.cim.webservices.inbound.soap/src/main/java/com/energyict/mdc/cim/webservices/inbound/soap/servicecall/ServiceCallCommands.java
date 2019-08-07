@@ -279,6 +279,9 @@ public class ServiceCallCommands {
         parentGetMeterReadingsDomainExtension.setCorrelationId(header.getCorrelationID());
         parentGetMeterReadingsDomainExtension.setTimePeriodStart(timePeriod == null ? null : timePeriod.getStart());
         parentGetMeterReadingsDomainExtension.setTimePeriodEnd(timePeriod == null ? null : timePeriod.getEnd());
+        if (ReadingSourceEnum.SYSTEM.getSource().equals(source) && parentGetMeterReadingsDomainExtension.getTimePeriodEnd() == null) {
+            parentGetMeterReadingsDomainExtension.setTimePeriodEnd(clock.instant());
+        }
         parentGetMeterReadingsDomainExtension.setReadingTypes(getReadingTypesString(syncReplyIssue.getExistedReadingTypes()));
         parentGetMeterReadingsDomainExtension.setLoadProfiles(getSemicolonSeparatedStringFromSet(syncReplyIssue.getReadingExistedLoadProfilesMap().get(index)));
         parentGetMeterReadingsDomainExtension.setRegisterGroups(getSemicolonSeparatedStringFromSet(syncReplyIssue.getReadingExistedRegisterGroupsMap().get(index)));
