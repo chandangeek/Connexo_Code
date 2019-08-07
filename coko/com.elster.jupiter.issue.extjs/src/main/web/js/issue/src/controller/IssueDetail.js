@@ -644,14 +644,14 @@ Ext.define('Isu.controller.IssueDetail', {
             var panel = widget.down('#webservice-issue-detail-log'),
                 detailsForm = widget.down('#webservice-details-form');
 
-            if (rec.raw.serviceCallInfo.logs && panel) {
+            if (rec.raw.webServiceCallOccurrence.logs && panel) {
                 var data = [],
                     store;
 
-                rec.raw.serviceCallInfo.logs.map(function (log) {
+                rec.raw.webServiceCallOccurrence.logs.map(function (log) {
                     data.push(Ext.apply({}, {
                         timestamp: log.timestamp,
-                        details: log.details,
+                        message: log.message,
                         logLevel: log.logLevel,
                     }, log))
                 });
@@ -667,7 +667,7 @@ Ext.define('Isu.controller.IssueDetail', {
                     panel.getView().bindStore(store);
                 }
             }
-            
+
             detailsForm.loadRecord(rec);
 
         }, me, {

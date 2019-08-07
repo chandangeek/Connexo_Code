@@ -50,17 +50,29 @@ Ext.define('Iws.view.DetailForm', {
                     {
                         itemId: 'webservice-issue-endpoint',
                         fieldLabel: Uni.I18n.translate('general.label.endpoint', 'IWS', 'Web service endpoint'),
-                        name: 'endpoint',
+                        name: 'webServiceEndpoint',
                         renderer: function (value) {
-                            return value.name ? value.name : '-';
+                            var url = '',
+                                result = '-';
+
+                            if (value) {
+                                if (value && Wss.privileges.Webservices.canView()) {
+                                    url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: value.id});
+                                    result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
+                                } else {
+                                    result = value.name;
+                                }
+                            }
+
+                            return result;
                         }
                     },
                     {
                         itemId: 'webservice-issue-ws',
                         fieldLabel: Uni.I18n.translate('general.label.webService', 'IWS', 'Web service'),
-                        name: 'webservice',
+                        name: 'webServiceName',
                         renderer: function (value) {
-                            return value.name ? value.name : '-';
+                            return value ? value : '-';
                         }
                     }
                 ]

@@ -49,7 +49,7 @@ Ext.define('Uni.property.view.property.webservices.WebServiceIssue', {
                         },
                         {
                             header: Uni.I18n.translate('general.type', 'UNI', 'Type'),
-                            dataIndex: 'name',
+                            dataIndex: 'direction',
                             flex: 1
                         },
                         {

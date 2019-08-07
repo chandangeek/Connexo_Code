@@ -23,12 +23,12 @@ Ext.define('Iws.view.LogGrid', {
             dataIndex: 'logLevel',
             flex: 1,
             renderer: function (value) {
-                return value ? Ext.String.htmlEncode(value) : '';
+                return value ? Ext.String.htmlEncode(value.name) : '';
             }
         },
         {
             text: Uni.I18n.translate('general.label.message', 'IWS', 'Message'),
-            dataIndex: 'details',
+            dataIndex: 'message',
             flex: 3,
             renderer: function (value) {
                 return value ? Ext.String.htmlEncode(value) : '';
