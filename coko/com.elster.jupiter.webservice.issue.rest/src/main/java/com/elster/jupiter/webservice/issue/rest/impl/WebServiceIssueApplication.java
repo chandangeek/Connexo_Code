@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.webservice.issue.WebServiceIssueService;
@@ -27,7 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.webservice.issue.rest.impl.WebServiceIssueApplication",
-        service = {Application.class},
+        service = {WebServiceIssueApplication.class, Application.class},
         immediate = true,
         property = {"alias=/wsi", "app=" + WebServiceIssueApplication.APP_KEY, "name=" + WebServiceIssueApplication.COMPONENT_NAME})
 public class WebServiceIssueApplication extends Application {
@@ -71,7 +72,8 @@ public class WebServiceIssueApplication extends Application {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(WebServiceIssueService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(WebServiceIssueService.COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(WebServicesService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override
@@ -80,6 +82,10 @@ public class WebServiceIssueApplication extends Application {
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     class HK2Binder extends AbstractBinder {
@@ -95,6 +101,8 @@ public class WebServiceIssueApplication extends Application {
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(WebServiceIssueInfoFactory.class).to(WebServiceIssueInfoFactory.class);
+            bind(WebServiceCallOccurrenceInfoFactory.class).to(WebServiceCallOccurrenceInfoFactory.class);
+            bind(EndPointLogEntryInfoFactory.class).to(EndPointLogEntryInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
         }

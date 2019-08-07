@@ -15,6 +15,12 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.issue.webservice.extjs</name>
 
+    <properties>
+        <baseline>(,${project.version})</baseline>
+        <js.dir>js/iws</js.dir>
+        <package.name>${project.groupId}.${project.artifactId}</package.name>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>

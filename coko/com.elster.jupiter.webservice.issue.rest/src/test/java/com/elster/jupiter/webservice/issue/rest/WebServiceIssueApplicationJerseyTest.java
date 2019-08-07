@@ -5,6 +5,8 @@
 package com.elster.jupiter.webservice.issue.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -12,7 +14,11 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -22,6 +28,8 @@ import com.elster.jupiter.webservice.issue.rest.impl.WebServiceIssueApplication;
 
 import javax.ws.rs.core.Application;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.mockito.Mock;
@@ -138,12 +146,42 @@ public abstract class WebServiceIssueApplicationJerseyTest extends FelixRestAppl
     }
 
     protected WebServiceCallOccurrence getDefaultOccurrence() {
-        return mockOccurrence(33);
+        return mockOccurrence(33, getDefaultEndPointConfiguration(), Instant.EPOCH, Instant.EPOCH.plusSeconds(2), WebServiceCallOccurrenceStatus.SUCCESSFUL);
     }
 
-    protected WebServiceCallOccurrence mockOccurrence(long id) {
+    protected WebServiceCallOccurrence mockOccurrence(long id, EndPointConfiguration endPointConfiguration, Instant start, Instant end, WebServiceCallOccurrenceStatus status) {
         WebServiceCallOccurrence occurrence = mock(WebServiceCallOccurrence.class);
         when(occurrence.getId()).thenReturn(id);
+        when(occurrence.getEndPointConfiguration()).thenReturn(endPointConfiguration);
+        when(occurrence.getStartTime()).thenReturn(start);
+        when(occurrence.getEndTime()).thenReturn(Optional.ofNullable(end));
+        when(occurrence.getStatus()).thenReturn(status);
+        List<EndPointLog> logs = new ArrayList<>(2);
+        if (end != null) {
+            logs.add(mockLog(end, status == WebServiceCallOccurrenceStatus.FAILED ? LogLevel.SEVERE : LogLevel.INFO, "This is the end"));
+        }
+        logs.add(mockLog(start, LogLevel.INFO, "Starting"));
+        when(occurrence.getLogs()).thenReturn(FakeBuilder.initBuilderStub(logs.stream(), Finder.class));
         return occurrence;
+    }
+
+    protected EndPointLog mockLog(Instant when, LogLevel level, String message) {
+        EndPointLog log = mock(EndPointLog.class);
+        when(log.getTime()).thenReturn(when);
+        when(log.getLogLevel()).thenReturn(level);
+        when(log.getMessage()).thenReturn(message);
+        return log;
+    }
+
+    protected EndPointConfiguration getDefaultEndPointConfiguration() {
+        return mockEndPointConfiguration(42, "MyService", "Service");
+    }
+
+    protected EndPointConfiguration mockEndPointConfiguration(long id, String name, String webService) {
+        EndPointConfiguration endPointConfiguration = mock(EndPointConfiguration.class);
+        when(endPointConfiguration.getId()).thenReturn(id);
+        when(endPointConfiguration.getName()).thenReturn(name);
+        when(endPointConfiguration.getWebServiceName()).thenReturn(webService);
+        return endPointConfiguration;
     }
 }
