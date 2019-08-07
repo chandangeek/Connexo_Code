@@ -102,6 +102,19 @@ Ext.define('Isu.model.Issue', {
                 return null;
             }
         },
+        {
+            name: 'webServiceEndpoint',
+            persist: false,
+            mapping: function (data) {
+                if (data.webServiceCallOccurrence) {
+                    return {
+                        id: data.webServiceCallOccurrence.endpoint.id,
+                        name: data.webServiceCallOccurrence.endpoint.name
+                    }
+                }
+                return null;
+            }
+        },
     ],
     associations: [
         {

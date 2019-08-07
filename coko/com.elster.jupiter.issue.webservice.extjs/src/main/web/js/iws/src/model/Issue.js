@@ -5,23 +5,25 @@
 Ext.define('Iws.model.Issue', {
     extend: 'Isu.model.Issue',
 
-    // fields: [
-    //     {name: 'parentServiceCall',  persist: false, mapping: 'serviceCallInfo.parentServiceCall'},
-    //     {name: 'serviceCallType', persist: false, mapping: 'serviceCallInfo.serviceCallType'},
-    //     {name: 'receivedTime',  persist: false, mapping: 'serviceCallInfo.receivedTime'},
-    //     {name: 'lastModifyTime', persist: false, mapping: 'serviceCallInfo.lastModifyTime'},
-    //     {name: 'onState',  persist: false, mapping: 'serviceCallInfo.onState'},
-    //     {
-    //         name: 'serviceCall',
-    //         persist: false,
-    //         mapping: function (data) {
-    //             return {
-    //                 id: data.serviceCallInfo.id,
-    //                 name: data.serviceCallInfo.name
-    //             }
-    //         }
-    //     },
-    // ],
+    fields: [
+        {name: 'status', persist: false, mapping: 'webServiceCallOccurrence.status'},
+        {name: 'webServiceEndpoint', persist: false, mapping: 'webServiceCallOccurrence.endpoint'},
+        {name: 'webServiceName', persist: false, mapping: 'webServiceCallOccurrence.webServiceName'},
+        {
+            name: 'occurrenceLink',
+            persist: false,
+            mapping: function (data) {
+                if (data.webServiceCallOccurrence) {
+                    return {
+                        ednpointId: data.id,
+                        occurrenceId: data.webServiceCallOccurrence.id,
+                        startTime: data.webServiceCallOccurrence.startTime
+                    }
+                }
+                return null;
+            }
+        },
+    ],
 
     proxy: {
         type: 'rest',

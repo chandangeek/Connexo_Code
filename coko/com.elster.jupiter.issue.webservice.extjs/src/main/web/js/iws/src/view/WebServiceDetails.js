@@ -17,13 +17,30 @@ Ext.define('Iws.view.WebServiceDetails', {
 
         me.items = [
             {
+                xtype: 'fieldcontainer',
+                layout: 'vbox',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                },
                 items: [
                     {
                         itemId: 'webservice-issue-details-run-started',
                         fieldLabel: Uni.I18n.translate('general.webservice.runStarted', 'IWS', 'Run started on'),
-                        name: 'serviceCallType',
+                        name: 'occurrenceLink',
                         renderer: function (value) {
-                            return value ? value.name : '-';
+                            var result = '-';
+
+                            if (value) {
+                                if (value && Wss.privileges.Webservices.canView()) {
+                                    url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: value.ednpointId, occurenceId: value.occurenceId});
+                                    result = '<a href="' + url + '">' + Ext.String.htmlEncode(Uni.DateTime.formatDateTimeLong(new Date(value.startTime))) + '</a>';
+                                } else {
+                                    result = Uni.DateTime.formatDateTimeLong(new Date(value.startTime));
+                                }
+                            }
+
+                            return result;
                         }
                     },
                     {
