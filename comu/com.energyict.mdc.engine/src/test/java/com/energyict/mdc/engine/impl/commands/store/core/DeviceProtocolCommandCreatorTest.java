@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -13,6 +12,9 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
@@ -33,9 +35,13 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Clock;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -49,6 +55,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -73,7 +80,18 @@ public class DeviceProtocolCommandCreatorTest {
     private DeviceService deviceService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConnectionTaskService connectionTaskService;
+    @Mock
+    private GroupedDeviceCommand clonedGroupedDeviceCommand;
+    @Mock
+    private ComTaskExecutionComCommandImpl comTaskRoot;
+    @Mock
+    private ComCommand comCommand;
+    @Mock
+    private ProtocolTask protocolTask;
+    @Mock
+    private ComTaskExecution scheduledComTask;
 
+    private List<ProtocolTask> protocolTasks;
     private Clock clock = Clock.systemDefaultZone();
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
@@ -95,6 +113,13 @@ public class DeviceProtocolCommandCreatorTest {
         when(this.executionContextServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.commandRootServiceProvider.clock()).thenReturn(clock);
         when(this.commandRootServiceProvider.deviceService()).thenReturn(this.deviceService);
+        when(clonedGroupedDeviceCommand.getComTaskRoot(scheduledComTask)).thenReturn(comTaskRoot);
+        Map<ComCommandType, ComCommand> comCommands = new HashMap<>();
+        comCommands.put(ComCommandTypes.BASIC_CHECK_COMMAND, comCommand);
+        when(comTaskRoot.getCommands()).thenReturn(comCommands);
+        ProtocolTask protocolTask = mock(ProtocolTask.class);
+        protocolTasks = new ArrayList<>();
+        protocolTasks.add(protocolTask);
     }
 
     @Test
@@ -105,7 +130,7 @@ public class DeviceProtocolCommandCreatorTest {
         GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
-        ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
+        doReturn(clonedGroupedDeviceCommand).when(groupedDeviceCommand).clone();
         when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
 
@@ -114,10 +139,11 @@ public class DeviceProtocolCommandCreatorTest {
                 groupedDeviceCommand,
                 TypedProperties.empty(),
                 ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                Collections.<ProtocolTask>emptyList(),
-                null, comTaskExecutionConnectionStep, null, issueService);
+                protocolTasks,
+                null, comTaskExecutionConnectionStep, scheduledComTask, issueService);
 
         InOrder order = Mockito.inOrder(groupedDeviceCommand);
+        order.verify(groupedDeviceCommand).clone();
         order.verify(groupedDeviceCommand).addCommand(isA(AddPropertiesCommand.class), any(ComTaskExecution.class));
         order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
         order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
@@ -134,7 +160,7 @@ public class DeviceProtocolCommandCreatorTest {
         GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
-        ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
+        doReturn(clonedGroupedDeviceCommand).when(groupedDeviceCommand).clone();
         when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createMiddleDeviceComTaskExecutionSteps();
 
@@ -143,9 +169,10 @@ public class DeviceProtocolCommandCreatorTest {
                 groupedDeviceCommand,
                 TypedProperties.empty(),
                 ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                Collections.<ProtocolTask>emptyList(),
-                null, comTaskExecutionConnectionStep, null, issueService);
+                protocolTasks,
+                null, comTaskExecutionConnectionStep, scheduledComTask, issueService);
 
+        verify(groupedDeviceCommand, times(1)).clone();
         // none of the 'connection' related commands should be called ...
         verify(groupedDeviceCommand, times(0)).addCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
         verify(groupedDeviceCommand, times(0)).addCommand(isA(LogOnCommand.class), any(ComTaskExecution.class));
@@ -165,7 +192,7 @@ public class DeviceProtocolCommandCreatorTest {
         GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
-        ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
+        doReturn(clonedGroupedDeviceCommand).when(groupedDeviceCommand).clone();
         when(scheduledComTask.getComTask()).thenReturn(comTask);
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createLastDeviceComTaskExecutionSteps();
 
@@ -174,10 +201,13 @@ public class DeviceProtocolCommandCreatorTest {
                 groupedDeviceCommand,
                 TypedProperties.empty(),
                 ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                Collections.<ProtocolTask>emptyList(),
-                null, comTaskExecutionConnectionStep, null, issueService);
+                protocolTasks,
+                null, comTaskExecutionConnectionStep,
+                scheduledComTask,
+                issueService);
 
         InOrder order = Mockito.inOrder(groupedDeviceCommand);
+        order.verify(groupedDeviceCommand).clone();
         order.verify(groupedDeviceCommand).addCommand(isA(LogOffCommand.class), any(ComTaskExecution.class));
         order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
         order.verify(groupedDeviceCommand).addCommand(isA(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
