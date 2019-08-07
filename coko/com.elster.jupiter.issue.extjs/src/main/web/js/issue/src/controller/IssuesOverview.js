@@ -16,7 +16,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.model.IssueReason',
         'Isu.model.Device',
         'Isu.model.Location',
-        'Uni.component.sort.model.Sort'
+        'Uni.component.sort.model.Sort',
         'Isu.model.DeviceGroup'
     ],
 

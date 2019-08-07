@@ -16,7 +16,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.Devices',
         'Isu.store.DueDate',
         'Isu.store.IssueReasons',
-        'Isu.store.DeviceGroups'
+        'Isu.store.DeviceGroups',
         'Isu.store.IssueReasons',
         'Isu.store.Locations'
     ],
@@ -150,7 +150,6 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 valueField: 'id',
                 store: 'Isu.store.DeviceGroups',
                 multiSelect: true,
-            },
             },
             {
                 type: 'combobox',
