@@ -16,6 +16,7 @@ import com.elster.jupiter.webservice.issue.WebServiceIssueFilter;
 import com.elster.jupiter.webservice.issue.WebServiceIssueService;
 import com.elster.jupiter.webservice.issue.impl.event.WebServiceEventDescription;
 import com.elster.jupiter.webservice.issue.impl.template.AuthFailureIssueCreationRuleTemplate;
+import com.elster.jupiter.webservice.issue.impl.template.EndPointConfigurationInfo;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,9 +45,10 @@ public class WebServiceIssueCreationRuleTemplateIT extends BaseIT {
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         assertThat(possibleValues.getAllValues()).hasSize(1);
 
-        EndPointConfiguration value = (EndPointConfiguration) possibleValues.getAllValues().get(0);
+        EndPointConfigurationInfo value = (EndPointConfigurationInfo) possibleValues.getAllValues().get(0);
         assertThat(value.getId()).isEqualTo(endPointConfiguration.getId());
         assertThat(value.getName()).isEqualTo(endPointConfiguration.getName());
+        assertThat(value.getDirection()).isEqualTo("Inbound");
     }
 
     @Test
