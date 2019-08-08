@@ -34,6 +34,7 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.store.SecurityAccessors',
         'Fwc.store.MeterFirmwareDepependencies',
         'Fwc.store.CommunicationFirmwareDepependencies',
+        'Fwc.store.AuxiliaryFirmwareDepependencies',
         'Fwc.store.MeterFirmwareDepependenciesEdit',
         'Fwc.store.CommunicationFirmwareDepependenciesEdit'
     ],
@@ -356,6 +357,7 @@ Ext.define('Fwc.controller.Firmware', {
         record = form.updateRecord().getRecord();
         var firmwareMinMeterVersionField = form.down('#firmware-min-meter-version');
         var firmwareMinCommunicationVersionField = form.down('#firmware-min-communication-version');
+        var firmwareMinAuxiliaryVersionField = form.down('#firmware-min-auxiliary-version');
 
         record.setFirmwareType(
             form.down('#radio-firmware-type')
@@ -377,6 +379,11 @@ Ext.define('Fwc.controller.Firmware', {
         if (firmwareMinCommunicationVersionField){
             record.setCommunicationFirmwareDependency(
                  firmwareMinCommunicationVersionField.getStore().getById(firmwareMinCommunicationVersionField.getValue())
+            );
+        }
+        if (firmwareMinAuxiliaryVersionField){
+            record.setAuxiliaryFirmwareDependency(
+                 firmwareMinAuxiliaryVersionField.getStore().getById(firmwareMinAuxiliaryVersionField.getValue())
             );
         }
 
@@ -621,6 +628,9 @@ Ext.define('Fwc.controller.Firmware', {
                                 }
                                 if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
                                     firmwareGrid.down('#minCommLevel').show();
+                                }
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "auxiliary"}).length){
+                                    firmwareGrid.down('#minAuxiliaryLevel').show();
                                 }
 
                                 var signatureCheckContainer = widget ? widget.down('#security-check-container') : null;
