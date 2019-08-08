@@ -12,7 +12,7 @@ public class SearchCriteriaImpl extends EntityImpl implements SearchCriteria {
 
     private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 280, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(min = 1, max = 250, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String userName;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 1020, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -21,7 +21,7 @@ public class SearchCriteriaImpl extends EntityImpl implements SearchCriteria {
     @Size(min = 1, max = 250, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 50, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(min = 1, max = 250, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String domain;
 
     private final Thesaurus thesaurus;
