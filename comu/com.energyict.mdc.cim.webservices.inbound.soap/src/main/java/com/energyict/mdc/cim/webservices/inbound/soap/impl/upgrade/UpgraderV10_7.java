@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.Installer;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.InstallerV10_7;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 
 import javax.inject.Inject;
@@ -27,16 +26,14 @@ public class UpgraderV10_7 implements Upgrader {
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
     private final Installer installer;
-    private final InstallerV10_7 installerV10_7;
 
     @Inject
     UpgraderV10_7(DataModel dataModel, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService,
-                  Installer installer, InstallerV10_7 installerV10_7) {
+                  Installer installer) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
         this.installer = installer;
-        this.installerV10_7 = installerV10_7;
     }
 
     @Override
@@ -44,7 +41,6 @@ public class UpgraderV10_7 implements Upgrader {
         updateOldGetMeterReadingsServiceCalls();
         updateServiceCallTypes();
         installer.createServiceCallTypes();
-        installerV10_7.createFutureComTasksExecutionTask();
     }
 
     private void updateOldGetMeterReadingsServiceCalls() {

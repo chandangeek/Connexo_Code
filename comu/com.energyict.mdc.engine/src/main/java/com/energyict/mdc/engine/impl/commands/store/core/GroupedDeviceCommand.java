@@ -112,11 +112,22 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     public void perform(ExecutionContext executionContext) {
-        if (!commandRoot.hasConnectionSetupError()) {
-            performAfterConnectionSetup(executionContext);
+        if (hasCommandsToExecute()) {
+            if (!commandRoot.hasConnectionSetupError()) {
+                performAfterConnectionSetup(executionContext);
+            } else {
+                executeForConnectionSetupError(executionContext);
+            }
         } else {
-            this.executeForConnectionSetupError(executionContext);
+            executeForNoCommands(executionContext);
         }
+    }
+
+    private boolean hasCommandsToExecute() {
+        if (comTaskExecutionComCommands.isEmpty()) {
+            return false;
+        }
+        return comTaskExecutionComCommands.values().stream().anyMatch(ctecc -> !ctecc.getCommands().isEmpty());
     }
 
     public void performAfterConnectionSetup(ExecutionContext executionContext) {
@@ -224,6 +235,14 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
         executeWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_SETUP_ERROR);
     }
 
+    void executeForNoCommands(ExecutionContext executionContext) {
+        executeWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_OTHER_COMTASK_EXECUTION_ERROR);
+//        comTaskExecutionComCommands.keySet().forEach(cte -> {
+//            executionContext.comTaskExecutionFailed(cte);
+//            executionContext.completeExecutedComTask(cte, ComTaskExecutionSession.SuccessIndicator.Failure);
+//        });
+    }
+
     /**
      * When there was a connection error during one of the ComTaskExecutions, all other ComTaskExecutions
      * will not be executed anymore. They will be marked with a proper problem and get rescheduled .
@@ -236,32 +255,27 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
 
     private void executeWithAProblem(ExecutionContext executionContext, MessageSeeds messageSeed) {
         for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : comTaskExecutionComCommands.values()) {
-            try {
-                executionContext.start(comTaskExecutionComCommand);
-                Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, messageSeed);
-                comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
-                comTaskExecutionComCommand.delegateToJournalistIfAny(executionContext);
-                executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
-            } finally {
-                executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), ComTaskExecutionSession.SuccessIndicator.Failure);
-            }
+            completeComCommandWithAProblem(executionContext, messageSeed, comTaskExecutionComCommand);
         }
     }
 
     void executeForGeneralSetupError(ExecutionContext executionContext, List<? extends ComTaskExecution> scheduledButNotPreparedComTaskExecutions) {
         for (ComTaskExecution scheduledButNotPreparedComTaskExecution : scheduledButNotPreparedComTaskExecutions) {
             ComTaskExecutionComCommandImpl comTaskExecutionComCommand = getComTaskRoot(scheduledButNotPreparedComTaskExecution);
-            try {
-                executionContext.start(comTaskExecutionComCommand);
-                Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR);
-                comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
-                comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
-                comTaskExecutionComCommand.delegateToJournalistIfAny(executionContext);
-                executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
-            } finally {
-                executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), ComTaskExecutionSession.SuccessIndicator.Failure);
-            }
+            completeComCommandWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR, comTaskExecutionComCommand);
+        }
+    }
+
+    private void completeComCommandWithAProblem(ExecutionContext executionContext, MessageSeeds messageSeed, ComTaskExecutionComCommandImpl comTaskExecutionComCommand) {
+        try {
+            executionContext.start(comTaskExecutionComCommand);
+            Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, messageSeed);
+            comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+            comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
+            comTaskExecutionComCommand.delegateToJournalistIfAny(executionContext);
+            executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
+        } finally {
+            executionContext.completeExecutedComTask(comTaskExecutionComCommand.getComTaskExecution(), ComTaskExecutionSession.SuccessIndicator.Failure);
         }
     }
 
@@ -540,7 +554,9 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     public MessagesCommand createMessagesCommand(MessagesTask messagesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
         MessagesCommand messagesCommand = new MessagesCommandImpl(this, messagesTask, comTaskExecution);
 
-        groupedDeviceCommand.addCommand(messagesCommand, comTaskExecution);
+        if (messagesCommand.hasPendingMessages()) {
+            groupedDeviceCommand.addCommand(messagesCommand, comTaskExecution);
+        }
         return messagesCommand;
     }
 
@@ -765,5 +781,10 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
                 }
             }
         }
+    }
+
+    @Override
+    protected GroupedDeviceCommand clone() {
+        return new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, deviceProtocolSecurityPropertySet);
     }
 }

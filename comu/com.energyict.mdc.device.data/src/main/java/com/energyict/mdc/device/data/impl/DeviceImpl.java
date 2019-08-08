@@ -2170,11 +2170,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             for (IntervalReadingRecord meterReading : meterReadings) {
                 List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, meterReading.getTimeStamp());
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                loadProfileReading.setChannelData(mdcChannel, meterReading);
-                //Previously collected readingqualities are filtered and added to the loadProfile Reading
-                loadProfileReading.setReadingQualities(mdcChannel, readingQualities.stream().filter(rq -> rq.getReadingTimestamp().equals(meterReading.getTimeStamp()))
-                        .filter(rq -> channelReadingTypes.contains(rq.getReadingType())).collect(Collectors.toList()));
-                loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+                if (loadProfileReading!=null) {
+                    loadProfileReading.setChannelData(mdcChannel, meterReading);
+                    //Previously collected readingqualities are filtered and added to the loadProfile Reading
+                    loadProfileReading.setReadingQualities(mdcChannel, readingQualities.stream().filter(rq -> rq.getReadingTimestamp().equals(meterReading.getTimeStamp()))
+                            .filter(rq -> channelReadingTypes.contains(rq.getReadingType())).collect(Collectors.toList()));
+                    loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
+                }
             }
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (koreChannel.isPresent()) {
@@ -2404,12 +2406,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
          * So in case meter activation is at 8h13, the first reported interval will be (8:00,8:15]
          *    in case meter activation is exactly 8h15 , the first reported interval will be (8:15,8:30]
          */
-        ZonedDateTime nextAttempt =
-                ZonedDateTime
-                        .ofInstant(
-                                requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                                zoneId)
-                        .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
+        ZonedDateTime zonedLowerBoundary = ZonedDateTime.ofInstant(
+                                                                    requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                                                                    zoneId);
+        ZonedDateTime nextAttempt = zonedLowerBoundary.truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
         ZonedDateTime latestAttemptBefore = nextAttempt;
         while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant()
                 .equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {

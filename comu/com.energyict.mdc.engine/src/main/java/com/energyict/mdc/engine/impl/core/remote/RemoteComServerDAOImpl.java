@@ -12,31 +12,58 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.PropertyValueType;
-import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.ServerProcess;
+import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketClient;
-import org.eclipse.jetty.websocket.WebSocketClientFactory;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,7 +73,12 @@ import java.net.URISyntaxException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -72,6 +104,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         EngineConfigurationService engineConfigurationService();
 
     }
+    public final static String CLIENT_PROPERTY = "client-name";
 
     private ServerProcess comServer;
     private String queryAPIPostUri;
@@ -591,10 +624,13 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     @Override
     public void start () {
         try {
-            WebSocketClientFactory factory = new WebSocketClientFactory();
-            factory.start();
-            WebSocketClient webSocketClient = factory.newWebSocketClient();
-            webSocketClient.open(new URI(this.queryAPIPostUri), this.webSocket, 5, TimeUnit.SECONDS);
+            WebSocketClient webSocketClient = new WebSocketClient();
+            webSocketClient.setConnectTimeout(TimeUnit.SECONDS.toMillis( 5));
+            webSocketClient.start();
+            ClientUpgradeRequest request = new ClientUpgradeRequest();
+            Future<Session> future = webSocketClient.connect(webSocket, new URI(queryAPIPostUri), request);
+            future.get();
+
             this.status = ServerProcessStatus.STARTED;
         }
         catch (URISyntaxException e) {
@@ -627,33 +663,41 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return ids;
     }
 
-    private class QueryWebSocket implements WebSocket.OnTextMessage {
 
-        private Connection connection;
+    private class QueryWebSocket  {
 
-        @Override
-        public void onOpen (Connection connection) {
-            this.connection = connection;
+        private Session session;
+
+        public QueryWebSocket() {
         }
 
-        @Override
-        public void onClose (int closeCode, String message) {
-            this.connection = null;
-            webSocketClosed();
+        public QueryWebSocket(Session session) {
+            this.session = session;
+        }
+
+        @OnWebSocketConnect
+        public void onOpen(Session session) {
+            this.session = session;
+        }
+
+        @OnWebSocketClose
+        public void onClose(int closeCode, String message) {
+            session = null;
+            //Note that after this, the recovery mechanism will try to setup a new connection to the online ComServer
         }
 
         public void disconnect () {
-            if (this.connection != null) {
-                this.connection.close();
+            if (this.session != null) {
+                this.session.close();
             }
         }
 
         public void post (Query query) throws IOException {
-            this.connection.sendMessage(query.getSpecs().toString());
+            this.session.getRemote().sendString(query.getSpecs().toString());
         }
 
-        @Override
-        public void onMessage (String data) {
+        @OnWebSocketMessage
+        public void onMessage(byte[] data, int offset, int length) {
             try {
                 JSONObject jsonObject = new JSONObject(data);
                 String queryId = String.valueOf(jsonObject.get(RemoteComServerQueryJSonPropertyNames.QUERY_ID));

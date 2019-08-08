@@ -266,4 +266,8 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         return sentMessages;
     }
 
+    @Override
+    public boolean hasPendingMessages() {
+        return !pendingMessages.isEmpty();
+    }
 }
