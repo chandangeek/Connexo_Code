@@ -826,6 +826,7 @@ Ext.define('Fwc.controller.Firmware', {
             if (!record.data) return;
             if (!record.data.meterFirmwareDependency) delete record.data.meterFirmwareDependency;
             if (!record.data.communicationFirmwareDependency) delete record.data.communicationFirmwareDependency;
+            if (!record.data.auxiliaryFirmwareDependency) delete record.data.auxiliaryFirmwareDependency;
             dataForSend.push(record.data);
         })
 
