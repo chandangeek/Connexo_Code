@@ -12,4 +12,5 @@ public interface MessagesCommand extends ComCommand {
 
     void updateAccordingTo(MessagesTask messagesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution);
 
+    boolean hasPendingMessages();
 }

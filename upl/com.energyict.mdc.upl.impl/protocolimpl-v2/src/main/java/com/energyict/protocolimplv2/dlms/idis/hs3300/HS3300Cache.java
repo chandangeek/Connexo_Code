@@ -145,6 +145,7 @@ public class HS3300Cache extends DLMSCache implements DeviceProtocolCache, Frame
         } else {
             this.gatewayObjectList.put(client, objectList);
         }
+        setChanged(true);
     }
 
     /**

@@ -1,10 +1,12 @@
 package com.elster.jupiter.appserver.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.rest.impl.DestinationSpecInfo;
 import com.elster.jupiter.messaging.rest.impl.DestinationSpecTypeName;
+import com.elster.jupiter.servicecall.ServiceCallType;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -44,11 +46,11 @@ public class DestinationSpecResourceTest extends MessagingApplicationTest {
         when(subscriberSpec.getDestination()).thenReturn(destinationSpec);
 
         QueueTableSpec queueTableSpec = mock(QueueTableSpec.class);
-        when(queueTableSpec.createDestinationSpec(anyString(), anyInt(), anyInt(), eq(false), anyString(), eq(true))).thenReturn(destinationSpec);
+        when(queueTableSpec.createDestinationSpec(anyString(), anyInt(), anyInt(), eq(false), anyString(), eq(true), eq(false))).thenReturn(destinationSpec);
 
         when(messageService.getSubscribers()).thenReturn(Arrays.asList(subscriberSpec));
         when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.empty());
-        when(messageService.createQueueTableSpec(anyString(), eq("RAW"), eq(false))).thenReturn(queueTableSpec);
+        when(messageService.createQueueTableSpec(anyString(), eq("RAW"), eq(false), eq(false))).thenReturn(queueTableSpec);
     }
 
     private void whenClientCallsPost(String uriPath, DestinationSpecInfo info) {
@@ -93,10 +95,17 @@ public class DestinationSpecResourceTest extends MessagingApplicationTest {
         assertEquals("DataExport", infos.data.get(0).value);
     }
 
+    private void givenServiceCallService() {
+        Finder<ServiceCallType> finder = mock(Finder.class);
+        when(finder.find()).thenReturn(new ArrayList<>());
+        when(serviceCallService.getServiceCallTypes()).thenReturn(finder);
+    }
+
     @Test
     public void testDeleteDestinationSpec() {
         givenMessagingService(false);
         givenDestinationSpecInfo("Expo", "DataExport");
+        givenServiceCallService();
         whenClientCallsDelete("/destinationspec/Expo", info);
         thenResponseStatusIs(Response.Status.OK.getStatusCode());
     }
@@ -106,6 +115,7 @@ public class DestinationSpecResourceTest extends MessagingApplicationTest {
         info.tasks = new ArrayList<>();
         info.name = name;
         info.queueTypeName = queueTypeName;
+        info.serviceCallTypes = new ArrayList<>();
     }
 
     private void whenClientCallsDelete(String uriPath, DestinationSpecInfo info) {

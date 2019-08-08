@@ -42,7 +42,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
     public void testGetUnexistingIssueById() {
         when(issueDataCollectionService.findIssue(1)).thenReturn(Optional.empty());
 
-        Response response = target("/issues/1").request().get();
+        Response response = target("issues/1").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 

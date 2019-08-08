@@ -9,9 +9,7 @@ import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EventType;
-
 import com.elster.jupiter.metering.groups.GroupEventData;
-
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmUtil;
 import com.energyict.mdc.device.alarms.impl.event.VetoDeviceGroupDeleteException;
@@ -20,6 +18,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component(name = "com.energyict.mdc.device.alarms.EndDeviceGroupDeletionVetoEventHandler", service = TopicHandler.class, immediate = true)
@@ -42,6 +41,7 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
+
     @Reference
     public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
         this.deviceAlarmService = deviceAlarmService;
@@ -52,21 +52,17 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
         GroupEventData eventSource = (GroupEventData) localEvent.getSource();
         EndDeviceGroup endDeviceGroup = (EndDeviceGroup) eventSource.getGroup();
         List<CreationRule> alarmCreationRules = DeviceAlarmUtil.getAlarmCreationRules(issueService);
+        alarmCreationRules
+                .forEach(rule -> {
+                    List<Long> endDeviceGroupIds = new ArrayList<>();
+                    rule.getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(BasicDeviceAlarmRuleTemplate.DEVICE_IN_GROUP))
+                            .findFirst().ifPresent(element ->
+                            ((ArrayList<BasicDeviceAlarmRuleTemplate.DeviceGroupInfo>) (element.getValue())).forEach(value -> endDeviceGroupIds.add(Long.parseLong(value.getId()))));
+                    if (endDeviceGroupIds.contains(endDeviceGroup.getId())) {
+                        throw new VetoDeviceGroupDeleteException(deviceAlarmService.thesaurus(), endDeviceGroup);
+                    }
+                });
 
-        deviceGroupInUse = false;
-        alarmCreationRules.stream()
-                .map(rule -> (List)rule.getProperties().get(BasicDeviceAlarmRuleTemplate.DEVICE_IN_GROUP))
-                .filter(list -> !list.isEmpty())
-                .forEach(objects->objects.stream().forEach(deviceGroup-> {
-                        BasicDeviceAlarmRuleTemplate.DeviceGroupInfo ruleInfo = (BasicDeviceAlarmRuleTemplate.DeviceGroupInfo) deviceGroup;
-                        if (Long.parseLong(ruleInfo.getId()) == endDeviceGroup.getId())
-                            deviceGroupInUse = true;
-                    })
-                );
-
-        if(deviceGroupInUse) {
-            throw new VetoDeviceGroupDeleteException(deviceAlarmService.thesaurus(), endDeviceGroup);
-        }
     }
 
     @Override

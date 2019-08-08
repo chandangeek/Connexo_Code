@@ -54,6 +54,15 @@ Ext.define('Mdc.view.setup.taskmanagement.DetailsDataCollectionKpi', {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('datacollectionkpis.kpiTarget', 'MDC', 'KPI target'),
                                 itemId: 'kpi-target'
+                            },
+                            {
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('datacollectionkpis.suspended', 'MDC', 'Suspended'),
+                                itemId: 'data-collection-kpi-suspend',
+                                name: 'suspendUntilTime',
+                                renderer: function(value){
+                                    return value  ? Uni.I18n.translate('general.suspended.yes','APR','Yes <br/>has been suspended until next run') : Uni.I18n.translate('general.suspended.no','APR','No')
+                                }
                             }
 
                         ]

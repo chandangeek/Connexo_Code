@@ -108,7 +108,7 @@ public enum EndDeviceControlTypeMapping {
             return Optional.of(new GenerateCSRCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
         }
     },
-    IMPORT_CERTIFICATE("0.12.21.105", Arrays.asList(DeviceMessageId.SECURITY_IMPORT_CERTIFICATE, DeviceMessageId.IMPORT_CLIENT_END_DEVICE_CERTIFICATE, DeviceMessageId.IMPORT_SERVER_END_DEVICE_CERTIFICATE)) {
+    IMPORT_CERTIFICATE("0.12.21.105", Arrays.asList(DeviceMessageId.IMPORT_SERVER_END_DEVICE_CERTIFICATE)) {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
             return Optional.of(new ImportCertificateCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));

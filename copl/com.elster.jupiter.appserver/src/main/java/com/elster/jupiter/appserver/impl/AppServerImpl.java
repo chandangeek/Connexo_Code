@@ -324,6 +324,16 @@ class AppServerImpl implements AppServer {
         return endPointConfigurations;
     }
 
+    @Override
+    public List<EndPointConfiguration> supportedInboundEndPoints() {
+        List<EndPointConfiguration> endPointConfigurations =
+                dataModel.stream(WebServiceForAppServer.class)
+                        .filter(where(EndPointForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this))
+                        .map(WebServiceForAppServer::getEndPointConfiguration)
+                        .collect(toList());
+        return endPointConfigurations;
+    }
+
     private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
         return getSubscriberExecutionSpecs().stream()
                 .filter(sp -> sp.getSubscriberSpec().getDestination().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getDestination().getName()))
@@ -350,7 +360,7 @@ class AppServerImpl implements AppServer {
 
     public void launchWebServices() {
         if (this.isActive()) {
-            this.supportedEndPoints()
+            this.supportedInboundEndPoints()
                     .stream()
                     .filter(EndPointConfiguration::isActive)
                     .forEach(webServicesService::publishEndPoint);

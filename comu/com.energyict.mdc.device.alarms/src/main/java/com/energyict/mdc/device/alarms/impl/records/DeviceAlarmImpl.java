@@ -132,7 +132,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     @Override
-    public CreationRule getRule() {
+    public Optional<CreationRule> getRule() {
         return getBaseIssue().getRule();
     }
 

@@ -7,12 +7,30 @@ Ext.define('Sct.model.ServiceCallType', {
     fields: [
         'name', 'versionName', 'logLevel', 'status', 'serviceCallLifeCycle', 'customPropertySets',
         {
+            name: 'reservedByApplication',
+            persist: false,
+            convert: function (value, record) {
+                if (Ext.isEmpty(value)) {
+                    return "MultiSense, Insight";
+                }
+                return value;
+            }
+        },
+        {
             name: 'version',
             defaultValue: 0
         },
         {
             name: 'id',
             type: 'int'
+        },
+        {
+            name: 'priority',
+            type: 'int'
+        },
+        {
+            name: 'destination',
+            type: 'string'
         },
         {
             name: 'lifecycle',

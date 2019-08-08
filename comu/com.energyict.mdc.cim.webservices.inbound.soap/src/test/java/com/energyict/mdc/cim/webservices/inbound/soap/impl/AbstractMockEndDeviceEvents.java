@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
@@ -22,8 +23,11 @@ import ch.iec.tc57._2011.enddeviceevents.Name;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsEventMessageType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.EndDeviceEventsPayloadType;
 import ch.iec.tc57._2011.enddeviceeventsmessage.ObjectFactory;
+import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.energyict.obis.ObisCode;
 
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,6 +69,12 @@ public abstract class AbstractMockEndDeviceEvents extends AbstractMockActivator 
     protected Device device;
     @Mock
     protected LogBook logBook;
+    @Mock
+    protected WebServiceContext webServiceContext;
+    @Mock
+    protected MessageContext messageContext;
+    @Mock
+    protected WebServiceCallOccurrence webServiceCallOccurrence;
 
     protected EndPointConfiguration mockEndPointConfiguration(String name) {
         EndPointConfiguration mock = mock(EndPointConfiguration.class);
@@ -112,6 +122,8 @@ public abstract class AbstractMockEndDeviceEvents extends AbstractMockActivator 
         payload.setEndDeviceEvents(endDeviceEvents);
         EndDeviceEventsEventMessageType message = endDeviceEventMessageFactory.createEndDeviceEventsEventMessageType();
         message.setPayload(payload);
+        HeaderType header = new HeaderType();
+        message.setHeader(header);
         return message;
     }
 

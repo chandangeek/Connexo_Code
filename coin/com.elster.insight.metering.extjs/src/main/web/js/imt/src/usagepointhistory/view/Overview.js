@@ -66,6 +66,10 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
                 ]
             };
 
+        if (Cfg.privileges.Audit.canViewAuditLog()) {
+            cfg.items.push(me.getAuditTrail());
+        }
+
         Ext.getStore(me.store).each(function (cas) {
             var id;
 
@@ -85,5 +89,13 @@ Ext.define('Imt.usagepointhistory.view.Overview', {
         });
 
         return cfg;
+    },
+
+    getAuditTrail: function() {
+        return {
+            title: Uni.I18n.translate('general.auditTrail', 'IMT', 'Audit trail'),
+            padding: '8 16 16 0',
+            itemId: 'up-audit-trail-tab'
+        };
     }
 });

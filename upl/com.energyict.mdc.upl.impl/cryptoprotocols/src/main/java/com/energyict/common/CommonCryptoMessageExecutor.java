@@ -1,6 +1,7 @@
 package com.energyict.common;
 
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -13,11 +14,13 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.FrameCounterCache;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
@@ -109,17 +112,46 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
         return new IrreversibleKeyImpl(irreversibleKeyAndLabel).toBase64ByteArray();
     }
 
-    public void changeHLSSecretUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage){
-        //TODO: ServiceKey not supported atm in Connexo
+    public void changeHLSSecretUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        getProtocol().journal("Writing service HLS secret");
+        byte[] wrappedServiceKey = getWrappedServiceKey(offlineDeviceMessage);
+        getProtocol().getDlmsSession().getCosemObjectFactory().getAssociationLN().changeHLSSecret(wrappedServiceKey);
     }
 
-    public void changeAuthenticationKeyUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage){
-        //TODO: ServiceKey not supported atm in Connexo
+    public void changeAuthenticationKeyUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        getProtocol().journal("Writing service authentication key");
+        byte[] wrappedServiceKey = getWrappedServiceKey(offlineDeviceMessage);
+        Array globalKeyArray = new Array();
+        Structure keyData = new Structure();
+        keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
+        keyData.addDataType(OctetString.fromByteArray(wrappedServiceKey));
+        globalKeyArray.addDataType(keyData);
+        SecuritySetup ss = getProtocol().getDlmsSession().getCosemObjectFactory().getSecuritySetup();
+        ss.transferGlobalKey(globalKeyArray);
     }
 
-    public void changeEncryptionKeyUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage){
-        //TODO: ServiceKey not supported atm in Connexo
+    public void changeEncryptionKeyUsingServiceKey(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        getProtocol().journal("Writing service encryption key");
+        byte[] wrappedServiceKey = getWrappedServiceKey(offlineDeviceMessage);
+        Array globalKeyArray = new Array();
+        Structure keyData = new Structure();
+        keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
+        keyData.addDataType(OctetString.fromByteArray(wrappedServiceKey));
+        globalKeyArray.addDataType(keyData);
+        SecuritySetup ss = getProtocol().getDlmsSession().getCosemObjectFactory().getSecuritySetup();
+        ss.transferGlobalKey(globalKeyArray);
     }
+
+    private byte[] getWrappedServiceKey(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+        byte[] preparedData = getDeviceMessageAttributeValue(offlineDeviceMessage, DeviceMessageConstants.preparedDataAttributeName).getBytes();
+        byte[] signature = getDeviceMessageAttributeValue(offlineDeviceMessage, DeviceMessageConstants.signatureAttributeName).getBytes();
+        String verifyKey = getDeviceMessageAttributeValue(offlineDeviceMessage, DeviceMessageConstants.verificationKeyAttributeName);
+
+        getProtocol().journal("Calling HSM to wrap the service key");
+        return Services.hsmService().wrapServiceKey(preparedData, signature, verifyKey);
+    }
+
+
 
     /* ** //TODO: ServiceKey not supported atm in Connexo
      * Writing of the global keys (AK and EK) must be combined.

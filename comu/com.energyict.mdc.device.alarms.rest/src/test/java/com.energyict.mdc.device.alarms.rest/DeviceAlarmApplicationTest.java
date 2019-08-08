@@ -32,6 +32,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -95,6 +96,8 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     MeteringService meteringService;
     @Mock
+    MeteringGroupsService meteringGroupsService;
+    @Mock
     IssueService issueService;
     @Mock
     UserService userService;
@@ -151,6 +154,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         deviceAlarmApplication.setDeviceAlarmService(deviceAlarmService);
         deviceAlarmApplication.setLogBookService(logBookService);
         deviceAlarmApplication.setMeteringService(meteringService);
+        deviceAlarmApplication.setMeteringGroupsService(meteringGroupsService);
         deviceAlarmApplication.setIssueService(issueService);
         deviceAlarmApplication.setUserService(userService);
         deviceAlarmApplication.setPropertyValueInfoService(propertyValueInfoService);

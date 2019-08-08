@@ -97,6 +97,8 @@ public class EndPointConfigurationInfoFactory {
         List<PropertySpec> propertySpecs = endPointConfiguration.getPropertySpecs();
         info.properties = propertySpecs.isEmpty() ? Collections.emptyList()
                 : propertyValueInfoService.getPropertyInfos(propertySpecs, endPointConfiguration.getPropertiesWithValue());
+
+        webService.ifPresent(ws -> info.applicationName = ws.getApplicationName());
         return info;
     }
 

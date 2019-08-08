@@ -109,15 +109,15 @@ public class ServiceCallsCommands {
     }
 
     public void createServiceCallType() {
-        System.out.println("Usage: createServiceCallType <name> <version name> <log level> <handler> [life cycle name] <cps ids> ]");
+        System.out.println("Usage: createServiceCallType <name> <version name> <log level> <handler> <application name> [life cycle name] <cps ids>");
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, String handler, Long... cpsIds) {
+    public void createServiceCallType(String name, String versionName, String logLevel, String handler, String appKey, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallTypeBuilder builder = serviceCallService
-                    .createServiceCallType(name, versionName)
+                    .createServiceCallType(name, versionName, appKey)
                     .handler(handler)
                     .logLevel(LogLevel.valueOf(logLevel));
 
@@ -129,14 +129,14 @@ public class ServiceCallsCommands {
         }
     }
 
-    public void createServiceCallType(String name, String versionName, String logLevel, String handler, String lifeCycleName, Long... cpsIds) {
+    public void createServiceCallType(String name, String versionName, String logLevel, String handler, String lifeCycleName, String appKey, Long... cpsIds) {
         List<Long> ids = Arrays.asList(cpsIds);
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
             ServiceCallLifeCycle serviceCallLifeCycle = serviceCallService.getServiceCallLifeCycle(lifeCycleName)
                     .orElseThrow(() -> new NoSuchElementException("No service call life cycle with name: " + lifeCycleName));
-            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle)
+            ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(name, versionName, serviceCallLifeCycle, appKey)
                     .logLevel(LogLevel.valueOf(logLevel))
                     .handler(handler);
 
@@ -169,7 +169,7 @@ public class ServiceCallsCommands {
                 .orElseThrow(() -> new IllegalArgumentException("No such service call"));
         System.out.println(sc.getNumber() + " "
                         + sc.getState().getKey() + " " + sc.getType().getName() + " "
-                + sc.getParent().map(p -> p.getNumber()).orElse("[no parent]") + " "
+                + sc.getParent().map(ServiceCall::getNumber).orElse("[no parent]") + " "
                 + sc.getOrigin().orElse("[no orig]") + " "
                 + sc.getExternalReference().orElse("[no ext ref]"));
         for (ServiceCallLog log : sc.getLogs().find()) {
@@ -186,7 +186,7 @@ public class ServiceCallsCommands {
                 .sorted(Comparator.comparing(ServiceCall::getId))
                 .map(sc -> sc.getNumber() + " "
                 + sc.getState().getKey() + " " + sc.getType().getName() + " "
-                + sc.getParent().map(p -> p.getNumber()).orElse("[no parent]") + " "
+                + sc.getParent().map(ServiceCall::getNumber).orElse("[no parent]") + " "
                 + sc.getOrigin().orElse("[no orig]") + " "
                 + sc.getExternalReference().orElse("[no ext ref]"))
                 .forEach(System.out::println);

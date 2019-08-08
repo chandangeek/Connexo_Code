@@ -4,12 +4,17 @@
 
 package com.energyict.mdc.engine.impl.web;
 
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 
 /**
  * Provides factory services for {@link EmbeddedWebServer}s.
@@ -18,7 +23,6 @@ import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
  * @since 2012-12-04 (12:03)
  */
 public interface EmbeddedWebServerFactory {
-
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts
      * the servlet that supports inbound communication
@@ -41,7 +45,7 @@ public interface EmbeddedWebServerFactory {
      * @param comServer The ComServer
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer);
+    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer, EventAPIStatistics eventAPIStatistics);
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts
@@ -52,6 +56,6 @@ public interface EmbeddedWebServerFactory {
      * @param comServer The RunningOnlineComServer
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer comServer);
+    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService);
 
 }

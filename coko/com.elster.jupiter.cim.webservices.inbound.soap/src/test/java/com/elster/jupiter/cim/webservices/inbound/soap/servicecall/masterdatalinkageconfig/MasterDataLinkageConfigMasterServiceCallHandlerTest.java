@@ -67,6 +67,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
 
     private static final String ERROR_MESSAGE = "my error message";
 
+    private static final String CORRELARION_ID = "CorrelationID";
+
     private MasterDataLinkageConfigMasterServiceCallHandler handler;
 
     private ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder;
@@ -126,6 +128,7 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
         when(masterExtension.getExpectedNumberOfCalls()).thenReturn(
                 BigDecimal.valueOf(NUMBER_OF_SUCCESSFUL_CALLS.intValue() + NUMBER_OF_FAILED_CALLS.intValue() + 1));
 
+        when(masterExtension.getCorrelationId()).thenReturn(CORRELARION_ID);
         when(serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)).thenReturn(true);
         when(serviceCall.canTransitionTo(DefaultState.FAILED)).thenReturn(true);
         when(serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)).thenReturn(true);
@@ -398,7 +401,6 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
                 List<LinkageOperation> linkageOperations = invocation.getArgumentAt(2, List.class);
                 assertThat(linkageOperations).hasSize(1);
                 verifyLinkageOperation(linkageOperations);
-
                 List<FailedLinkageOperation> failedLinkageOperations = invocation.getArgumentAt(3, List.class);
                 assertThat(failedLinkageOperations).hasSize(1);
                 verifyLinkageOperation(failedLinkageOperations);
@@ -417,12 +419,12 @@ public class MasterDataLinkageConfigMasterServiceCallHandlerTest {
                 assertThat(linkageOperation.getUsagePointName()).isEqualTo(USAGE_POINT_NAME);
             }
         }).when(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION.name()),
-                anyListOf(LinkageOperation.class), anyListOf(FailedLinkageOperation.class), eq(expectedNumberOfCalls));
+                anyListOf(LinkageOperation.class), anyListOf(FailedLinkageOperation.class), eq(expectedNumberOfCalls), eq(CORRELARION_ID));
 
         handler.onStateChange(serviceCall, DefaultState.ONGOING, endState);
-
+        
         verify(replyMasterDataLinkageConfigWebService).call(eq(endPointConfiguration), eq(OPERATION.name()),
-                anyListOf(LinkageOperation.class), anyListOf(FailedLinkageOperation.class), eq(expectedNumberOfCalls));
+                anyListOf(LinkageOperation.class), anyListOf(FailedLinkageOperation.class), eq(expectedNumberOfCalls), eq(CORRELARION_ID));
     }
 
 }

@@ -47,6 +47,10 @@ Ext.define('Isu.controller.SetPriority', {
             issueModel = me.getModel('Idl.model.Issue');
         }else if (issueType == 'task') {
             issueModel = me.getModel('Itk.model.Issue');
+        }else if (issueType == 'manual') {
+            issueModel = me.getModel('Isu.model.ManualIssue');
+        } else if (issueType == 'servicecall') {
+            issueModel = me.getModel('Isc.model.Issue');
         }
         else {
             issueModel = me.getModel(me.issueModel);

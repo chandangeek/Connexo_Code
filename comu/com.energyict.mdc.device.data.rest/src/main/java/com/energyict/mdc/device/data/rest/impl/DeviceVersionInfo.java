@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 public class DeviceVersionInfo {
 
+    public long id;
     public String name;
     public long version;
     public String mRID;
@@ -20,6 +21,7 @@ public class DeviceVersionInfo {
 
     public static DeviceVersionInfo from(Device device) {
         DeviceVersionInfo deviceVersionInfo = new DeviceVersionInfo();
+        deviceVersionInfo.id = device.getId();
         deviceVersionInfo.version = device.getVersion();
         deviceVersionInfo.name = device.getName();
         deviceVersionInfo.mRID = device.getmRID();

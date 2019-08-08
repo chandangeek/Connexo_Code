@@ -82,7 +82,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                     LGDLMSProfileIntervals intervals = new LGDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
                             getStatusMasksMap().get(lpr), this.channelMaskMap.get(lpr), getProfileIntervalStatusBits());
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval(), getMeterProtocol().getTimeZone());
-
+                    this.getMeterProtocol().journal(" > load profile intervals parsed: " + collectedIntervalData.size());
                     collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession().getProperties().getRetries() + 1)) {

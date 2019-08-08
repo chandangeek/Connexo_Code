@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.audit;
 
+import com.elster.jupiter.audit.ApplicationType;
 import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditService;
@@ -94,7 +95,7 @@ public class AuditDeviceBase extends PersistenceIntegrationTest {
 
     protected Optional<AuditTrail>  getLastAuditTrail(AuditService auditService){
         return auditService
-                .getAuditTrail(auditService.newAuditTrailFilter())
+                .getAuditTrail(auditService.newAuditTrailFilter(ApplicationType.MDC_APPLICATION_KEY))
                 .stream()
                 .findFirst();
     }

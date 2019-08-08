@@ -222,7 +222,7 @@ class TaskOccurrenceImpl implements TaskOccurrence {
             save();
 
             if (successful && (this.getRetryTime().isPresent() == false)) {
-                recurrentTask.triggetNewRecuurentTasks();
+                recurrentTask.triggerNewRecurrentTasks();
             }
         }
     }

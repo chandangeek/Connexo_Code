@@ -19,9 +19,11 @@ import com.energyict.mdc.engine.impl.web.events.commands.Request;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParseException;
 import com.energyict.mdc.engine.impl.web.events.commands.RequestParser;
 
-import org.eclipse.jetty.websocket.WebSocket;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.WebSocketListener;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 
@@ -32,12 +34,13 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-02 (17:17)
  */
-class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocket.OnTextMessage {
+public class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocketListener {
 
     private final WebSocketCloseEventListener closeEventListener;
     private EventPublisher eventPublisher;
-    private Connection connection;
+    private Session session;
     private RequestParser parser;
+    private boolean closed;
 
     WebSocketEventPublisher(RunningComServer comServer, RequestParser.ServiceProvider serviceProvider, EventPublisher eventPublisher, WebSocketCloseEventListener closeEventListener) {
         super();
@@ -63,7 +66,7 @@ class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocke
     private void sendMessage (String message) {
         try {
             if (this.isConnected()) {
-                this.connection.sendMessage(message);
+                this.session.getRemote().sendString(message);
             }
         }
         catch (IOException e) {
@@ -74,7 +77,7 @@ class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocke
     private void sendEvent (ComServerEvent event) {
         try {
             if (this.isConnected()) {
-                this.connection.sendMessage(event.toString());
+                this.session.getRemote().sendString(event.toString());
             }
         }
         catch (IOException e) {
@@ -82,12 +85,21 @@ class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocke
         }
     }
 
+    public boolean isClosed() {
+        return closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
+
     private boolean isConnected () {
-        return this.connection != null;
+        return this.session != null;
     }
 
     @Override
-    public void onMessage (String message) {
+    public void onWebSocketText (String message) {
         try {
             Request request = this.parser.parse(message);
             request.applyTo(this);
@@ -99,15 +111,31 @@ class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocke
     }
 
     @Override
-    public void onOpen (Connection connection) {
-        this.connection = connection;
+    public void onWebSocketConnect (Session session) {
+        this.session = session;
     }
 
     @Override
-    public void onClose (int closeCode, String message) {
-        this.connection = null;
+    public void onWebSocketClose (int closeCode, String message) {
+        this.session = null;
         this.eventPublisher.unregisterAllInterests(this);
         this.closeEventListener.closedFrom(this);
+        setClosed(true);
+    }
+
+    @Override
+    public void onWebSocketBinary(byte[] payload, int offset, int len) {
+        try {
+            if (isConnected()) {
+                session.getRemote().sendBytes(ByteBuffer.wrap(payload));
+            }
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
+    }
+    @Override
+    public void onWebSocketError(Throwable cause) {
+        cause.printStackTrace(System.err);
     }
 
     @Override
@@ -117,7 +145,7 @@ class WebSocketEventPublisher implements EventReceiver, EventPublisher, WebSocke
 
     @Override
     public void shutdown() {
-        this.connection.close();
+        this.session.close();
     }
 
     @Override

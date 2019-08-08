@@ -35,6 +35,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE,
 
                 //issue configuration
                 com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE,
@@ -218,6 +219,7 @@ class MdcAppPrivileges {
 
                 //tasks
                 com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
+                com.elster.jupiter.tasks.security.Privileges.Constants.SUSPEND_TASK_OVERVIEW,
 
                 // security accessors management
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
@@ -231,7 +233,12 @@ class MdcAppPrivileges {
 
                 // time of use campaigns management
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS,
-                com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS
+                com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS,
+
+                //web services
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES
         );
     }
 }
