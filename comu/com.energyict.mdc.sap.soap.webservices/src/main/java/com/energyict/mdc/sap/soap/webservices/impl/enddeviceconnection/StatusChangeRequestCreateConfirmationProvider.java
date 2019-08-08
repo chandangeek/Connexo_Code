@@ -3,7 +3,10 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCreateConfirmation;
@@ -19,7 +22,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Singleton;
 import javax.xml.ws.Service;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Singleton
 @Component(name = "com.energyict.mdc.sap.statuschangerequest.outbound.provider",
@@ -72,7 +78,35 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
     }
 
     @Override
-    public String getApplication(){
+    public boolean call(StatusChangeRequestCreateConfirmationMessage confirmationMessage, ServiceCall parent) {
+        boolean retValue = true;
+        List<EndPointConfiguration> endpoints = getEndPointConfigurationsForWebService();
+        SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg message = confirmationMessage.getConfirmationMessage();
+
+        Set<EndPointConfiguration> successEndpoints = using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut")
+                .toEndpoints(endpoints)
+                .send(message).keySet();
+
+        endpoints.removeAll(successEndpoints);
+        if (!endpoints.isEmpty()) {
+            retValue = false;
+            parent.log(LogLevel.INFO, "Confirmation is not sent for the following endpoints: " + endpoints.stream()
+                    .map(EndPointConfiguration::getName)
+                    .collect(Collectors.joining(", ")));
+        }
+
+        if (!successEndpoints.isEmpty()) {
+            parent.log(LogLevel.INFO, "Confirmation is sent for the following endpoints: " + successEndpoints.stream()
+                    .map(EndPointConfiguration::getName)
+                    .collect(Collectors.joining(", ")));
+        }else{
+            retValue = false;
+        }
+        return retValue;
+    }
+
+    @Override
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

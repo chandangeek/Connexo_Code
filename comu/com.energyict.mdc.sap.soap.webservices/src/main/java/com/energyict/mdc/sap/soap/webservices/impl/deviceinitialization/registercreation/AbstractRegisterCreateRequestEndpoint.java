@@ -97,6 +97,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         if (serviceCall.findChildren().stream().count() > 0) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
+            serviceCall.requestTransition(DefaultState.REJECTED);
             sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }

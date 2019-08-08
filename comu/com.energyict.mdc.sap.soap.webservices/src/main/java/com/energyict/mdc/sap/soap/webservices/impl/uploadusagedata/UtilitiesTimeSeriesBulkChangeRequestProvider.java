@@ -67,7 +67,7 @@ import java.util.stream.Stream;
 public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkChangeRequestCOut, UtilsTmeSersERPItmBulkChgReqMsg> implements ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeRequest_C_Out";
     private static final QName QNAME = new QName("urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkchangerequest",
-            "UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutService");
+            "UtilitiesTimeSeriesERPItemBulkChangeRequest_C_OutService");
 
     public UtilitiesTimeSeriesBulkChangeRequestProvider() {
         // for OSGi purposes
@@ -134,8 +134,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
 
     @Override
     public Service get() {
-        return new UtilitiesTimeSeriesERPItemBulkChangeRequestCOutService(
-                UtilitiesTimeSeriesERPItemBulkChangeRequestCOutService.class.getResource("/wsdl/sap/UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutService.wsdl"), QNAME);
+        return new UtilitiesTimeSeriesERPItemBulkChangeRequestCOutService();
     }
 
     @Override

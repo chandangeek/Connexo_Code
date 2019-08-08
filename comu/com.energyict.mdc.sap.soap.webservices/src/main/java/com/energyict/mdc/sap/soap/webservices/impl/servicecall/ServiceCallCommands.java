@@ -40,8 +40,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMe
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
@@ -213,8 +215,24 @@ public class ServiceCallCommands {
         message.getDeviceConnectionStatus()
                 .forEach((key, value) -> sendCommand(serviceCall, key, message));
 
-        serviceCall.requestTransition(DefaultState.WAITING);
+        List<ServiceCall> children = findChildren(serviceCall);
+
+        if (children.size() > 0 && !hasAllChildState(children, DefaultState.FAILED)) {
+            serviceCall.requestTransition(DefaultState.WAITING);
+        } else {
+            serviceCall.requestTransition(DefaultState.FAILED);
+        }
     }
+
+    private List<ServiceCall> findChildren(ServiceCall serviceCall) {
+        return serviceCall.findChildren().stream().collect(Collectors.toList());
+    }
+
+    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
+    }
+
+
 
     private MeterReadingDocumentRequestConfirmationMessage createServiceCall(ServiceCallType serviceCallType, MeterReadingDocumentCreateRequestMessage requestMessage) {
         MasterMeterReadingDocumentCreateRequestDomainExtension meterReadingDocumentDomainExtension =
