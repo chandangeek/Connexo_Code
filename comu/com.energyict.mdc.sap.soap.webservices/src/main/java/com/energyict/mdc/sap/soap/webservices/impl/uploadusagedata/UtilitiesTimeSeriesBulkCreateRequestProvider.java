@@ -17,10 +17,9 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -37,7 +36,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreate
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmCrteReqItmSts;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkcreaterequest.UtilsTmeSersERPItmCrteReqUtilsTmeSers;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import org.osgi.service.component.annotations.Component;
@@ -46,18 +44,24 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component(name = UtilitiesTimeSeriesBulkCreateRequestProvider.NAME,
@@ -65,9 +69,7 @@ import java.util.stream.Stream;
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkCreateRequestProvider.NAME})
 public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkCreateRequestCOut, UtilsTmeSersERPItmBulkCrteReqMsg> implements ApplicationSpecific {
-    static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out";
-    private static final QName QNAME = new QName("urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkcreaterequest",
-            "UtilitiesTimeSeriesERPItemBulkCreateRequest_C_OutService");
+    public static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkCreateRequest_C_Out";
 
     public UtilitiesTimeSeriesBulkCreateRequestProvider() {
         // for OSGi purposes
@@ -185,40 +187,112 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     private void addDataItem(UtilsTmeSersERPItmBulkCrteReqMsg msg, MeterReadingData item, Instant now) {
+        Range<Instant> allReadingsRange;
         ReadingType readingType = item.getItem().getReadingType();
         TemporalAmount interval = readingType.getIntervalLength()
                 .orElse(Duration.ZERO);
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         MeterReading meterReading = item.getMeterReading();
         IdentifiedObject meter = item.getItem().getDomainObject();
-        Range<Instant> allReadingsRange = getRange(meterReading);
-        item.getItem().getReadingContainer().getChannelsContainers().stream()
-                .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(allReadingsRange))
-                .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange().intersection(allReadingsRange)))
-                .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
-                .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
-                        .map(channel -> Pair.of(channel, ccAndRange.getLast())))
-                .flatMap(Functions.asStream())
-                .flatMap(channelAndRange -> getTimeSlicedLRN(channelAndRange.getFirst(), channelAndRange.getLast(), meter).entrySet().stream())
-                .map(lrnAndRange -> createRequestItem(lrnAndRange.getKey(), lrnAndRange.getValue(), meterReading, interval, unit, now))
-                .forEach(msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage()::add);
+        if (item.isCustomSelector()) {
+            allReadingsRange = item.getExportInterval();
+            List<Map.Entry<Pair<String, String>, RangeSet<Instant>>> lrnAndProfileRanges = item.getItem().getReadingContainer().getChannelsContainers().stream()
+                    .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(allReadingsRange))
+                    .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange().intersection(allReadingsRange)))
+                    .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
+                    .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
+                            .map(channel -> Pair.of(channel, ccAndRange.getLast())))
+                    .flatMap(Functions.asStream())
+                    .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter).entrySet().stream()).collect(Collectors.toList());
+
+            Map<String, List<RangeSet<Instant>>> profileRanges = new HashMap<>();
+            for (Map.Entry<Pair<String, String>, RangeSet<Instant>> entry : lrnAndProfileRanges) {
+                List<RangeSet<Instant>> listR = profileRanges.getOrDefault(entry.getKey().getLast(), new ArrayList<>());
+                listR.add(entry.getValue());
+                profileRanges.put(entry.getKey().getLast(), listR);
+            }
+            profileRanges.entrySet().stream().map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(),
+                    meterReading, interval, unit, now, allReadingsRange))
+                    .forEach(msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage()::add);
+        } else {
+            allReadingsRange = getRange(meterReading);
+            item.getItem().getReadingContainer().getChannelsContainers().stream()
+                    .filter(cc -> cc.getInterval().toOpenClosedRange().isConnected(allReadingsRange))
+                    .map(cc -> Pair.of(cc, cc.getInterval().toOpenClosedRange().intersection(allReadingsRange)))
+                    .filter(ccAndRange -> !ccAndRange.getLast().isEmpty())
+                    .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
+                            .map(channel -> Pair.of(channel, ccAndRange.getLast())))
+                    .flatMap(Functions.asStream())
+                    .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter).entrySet().stream())
+                    .map(lrnAndProfileIdAndRange -> createRequestItem(lrnAndProfileIdAndRange.getKey().getLast(), lrnAndProfileIdAndRange.getValue(),
+                            meterReading, interval, unit, now))
+                    .forEach(msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage()::add);
+        }
     }
 
-    private static UtilsTmeSersERPItmCrteReqMsg createRequestItem(String lrn, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now) {
+    private static UtilsTmeSersERPItmCrteReqMsg createRequestItem(String profileId, List<RangeSet<Instant>> rangeSets,
+                                                                  MeterReading meterReading, TemporalAmount interval, String unit,
+                                                                  Instant now, Range<Instant> range) {
         UtilsTmeSersERPItmCrteReqMsg msg = new UtilsTmeSersERPItmCrteReqMsg();
         msg.setMessageHeader(createMessageHeader(UUID.randomUUID().toString(), now));
-        msg.setUtilitiesTimeSeries(createTimeSeries(lrn, rangeSet, meterReading, interval, unit));
+        msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSets, meterReading, interval, unit, range));
         return msg;
     }
 
-    private static UtilsTmeSersERPItmCrteReqUtilsTmeSers createTimeSeries(String lrn, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit) {
+    private static UtilsTmeSersERPItmCrteReqUtilsTmeSers createTimeSeries(String profileId, List<RangeSet<Instant>> rangeSets, MeterReading meterReading,
+                                                                          TemporalAmount interval, String unit, Range<Instant> range) {
         UtilsTmeSersERPItmCrteReqUtilsTmeSers timeSeries = new UtilsTmeSersERPItmCrteReqUtilsTmeSers();
-        timeSeries.setID(createTimeSeriesID(lrn));
+        timeSeries.setID(createTimeSeriesID(profileId));
+        List<Instant> instants = new ArrayList<>();
+        Instant instant = truncateToDays(range.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
+
+        while (instant.isBefore(range.upperEndpoint()) || instant.equals(range.upperEndpoint())) {
+            instants.add(instant);
+            instant = instant.plus(1, ChronoUnit.HOURS);
+        }
+
+        for (IntervalBlock intervalBlock : meterReading.getIntervalBlocks()) {
+            for (Instant time : instants) {
+                Optional<IntervalReading> readingOpt = intervalBlock.getIntervals().stream()
+                        .filter(r -> containsTimeStamp(r.getTimeStamp(), rangeSets)).filter(r -> r.getTimeStamp().equals(time)).findAny();
+                if (readingOpt.isPresent()) {
+                    timeSeries.getItem().add(createItem(readingOpt.get(), interval, unit, true));
+                } else {
+                    timeSeries.getItem().add(createZeroItem(time, interval, unit));
+                }
+            }
+        }
+        return timeSeries;
+    }
+
+    private static boolean containsTimeStamp(Instant timeStamp, List<RangeSet<Instant>> rangeSets) {
+        for (RangeSet<Instant> rangeSet : rangeSets) {
+            if (rangeSet.contains(timeStamp)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Instant truncateToDays(Instant dateTime) {
+        return ZonedDateTime.ofInstant(dateTime, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).toInstant();
+    }
+
+    private static UtilsTmeSersERPItmCrteReqMsg createRequestItem(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit, Instant now) {
+        UtilsTmeSersERPItmCrteReqMsg msg = new UtilsTmeSersERPItmCrteReqMsg();
+        msg.setMessageHeader(createMessageHeader(UUID.randomUUID().toString(), now));
+        msg.setUtilitiesTimeSeries(createTimeSeries(profileId, rangeSet, meterReading, interval, unit));
+        return msg;
+    }
+
+    private static UtilsTmeSersERPItmCrteReqUtilsTmeSers createTimeSeries(String profileId, RangeSet<Instant> rangeSet, MeterReading meterReading, TemporalAmount interval, String unit) {
+        UtilsTmeSersERPItmCrteReqUtilsTmeSers timeSeries = new UtilsTmeSersERPItmCrteReqUtilsTmeSers();
+        timeSeries.setID(createTimeSeriesID(profileId));
         meterReading.getIntervalBlocks().stream()
                 .map(IntervalBlock::getIntervals)
                 .flatMap(List::stream)
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
-                .map(reading -> createItem(reading, interval, unit))
+                .map(reading -> createItem(reading, interval, unit, false))
                 .forEach(timeSeries.getItem()::add);
         meterReading.getReadings().stream()
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
@@ -227,18 +301,32 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         return timeSeries;
     }
 
-    private static UtilitiesTimeSeriesID createTimeSeriesID(String lrn) {
+    private static UtilitiesTimeSeriesID createTimeSeriesID(String profileId) {
         UtilitiesTimeSeriesID id = new UtilitiesTimeSeriesID();
-        id.setValue(lrn);
+        id.setValue(profileId);
         return id;
     }
 
-    private static UtilsTmeSersERPItmCrteReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit) {
+    private static UtilsTmeSersERPItmCrteReqItm createZeroItem(Instant time, TemporalAmount interval, String unit) {
+        UtilsTmeSersERPItmCrteReqItm item = new UtilsTmeSersERPItmCrteReqItm();
+        item.setUTCValidityStartDateTime(time.minus(interval));
+        item.setUTCValidityEndDateTime(time);
+        item.setQuantity(createQuantity(BigDecimal.ZERO, unit));
+        item.getItemStatus().add(createStatus(INVL_STATUS));
+        return item;
+    }
+
+    private static UtilsTmeSersERPItmCrteReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit, boolean isCustomSelector) {
         UtilsTmeSersERPItmCrteReqItm item = new UtilsTmeSersERPItmCrteReqItm();
         item.setUTCValidityStartDateTime(reading.getTimeStamp().minus(interval));
         item.setUTCValidityEndDateTime(reading.getTimeStamp());
-        item.setQuantity(createQuantity(reading.getValue(), unit));
-        item.getItemStatus().add(createStatus("0"));
+        if (isCustomSelector) {
+            item.setQuantity(createQuantity(reading.getValue(), unit));
+            item.getItemStatus().add(createStatus(ACTL_STATUS));
+        } else {
+            item.setQuantity(createQuantity(reading.getValue(), unit));
+            item.getItemStatus().add(createStatus("0"));
+        }
         return item;
     }
 
@@ -266,7 +354,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
     }
 
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return WebServiceApplicationName.MULTISENSE.getName();
     }
 }

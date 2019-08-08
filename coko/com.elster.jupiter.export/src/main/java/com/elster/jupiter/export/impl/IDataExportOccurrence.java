@@ -8,7 +8,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
-interface IDataExportOccurrence extends DataExportOccurrence {
+public interface IDataExportOccurrence extends DataExportOccurrence {
 
     void persist();
 

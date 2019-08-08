@@ -129,6 +129,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
+				<artifactId>export.custom</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
 				<artifactId>ids</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -418,6 +424,7 @@
 				<module>com.elster.jupiter.estimation.rest</module>
 				<module>com.elster.jupiter.estimators</module>
 				<module>com.elster.jupiter.export</module>
+				<module>com.elster.jupiter.export.custom</module>
 				<module>com.elster.jupiter.export.extjs</module>
 				<module>com.elster.jupiter.export.processors</module>
 				<module>com.elster.jupiter.export.rest</module>

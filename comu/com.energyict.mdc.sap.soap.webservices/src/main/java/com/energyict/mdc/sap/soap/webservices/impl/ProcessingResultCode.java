@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
+package com.energyict.mdc.sap.soap.webservices.impl;
 
 public enum ProcessingResultCode {
 

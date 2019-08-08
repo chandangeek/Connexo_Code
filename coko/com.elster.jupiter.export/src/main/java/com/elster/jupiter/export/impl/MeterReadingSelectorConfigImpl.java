@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl implements MeterReadingSelectorConfig {
+public class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl implements MeterReadingSelectorConfig {
 
     static final String IMPLEMENTOR_NAME = "MeterReadingSelectorConfig";
 
@@ -85,7 +85,7 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
     }
 
     @Override
-    Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+    public Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
         return decorate(getEndDeviceGroup()
                 .getMembers(occurrence.getDefaultSelectorOccurrence()
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)

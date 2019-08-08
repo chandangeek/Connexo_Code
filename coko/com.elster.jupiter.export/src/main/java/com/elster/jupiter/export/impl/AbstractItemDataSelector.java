@@ -391,7 +391,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                 .map(channelsContainer -> channelsContainer.getChannel(item.getReadingType()))
                 .flatMap(Functions.asStream())
                 .flatMap(channel -> {
-                    Range<Instant> intervalOfInterest =  Ranges.copy(channel.getChannelsContainer().getRange().intersection(exportInterval)).asOpenClosed();
+                    Range<Instant> intervalOfInterest = Ranges.copy(channel.getChannelsContainer().getRange().intersection(exportInterval)).asOpenClosed();
                     List<BaseReadingRecord> readingsOfInterest = readings.stream()
                             .filter(reading -> intervalOfInterest.contains(reading.getTimeStamp()))
                             .collect(Collectors.toList());

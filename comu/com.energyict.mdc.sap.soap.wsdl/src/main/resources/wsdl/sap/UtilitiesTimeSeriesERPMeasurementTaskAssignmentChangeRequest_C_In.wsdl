@@ -4,12 +4,12 @@
   <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
  </wsdl:documentation>
  <wsp:UsingPolicy wsdl:required="true"/>
- <wsp:Policy wsu:Id="IF_IF_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_Out">
+ <wsp:Policy wsu:Id="IF_IF_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_In">
   <sapsession:Session xmlns:sapsession="http://www.sap.com/webas/630/soap/features/session/">
    <sapsession:enableSession>false</sapsession:enableSession>
   </sapsession:Session>
  </wsp:Policy>
- <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_Out">
+ <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_In">
   <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
   <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
   <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>
@@ -732,20 +732,38 @@
  <wsdl:message name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest">
   <wsdl:part name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest" element="n1:UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest"/>
  </wsdl:message>
- <wsdl:portType name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_Out">
+ <wsdl:portType name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In">
   <wsdl:documentation>
    <sapdoc:sapdoc xmlns:sapdoc="urn:sap:esi:documentation">
     <sapdoc:docitem applicationComponent="IS-U"/>
    </sapdoc:sapdoc>
   </wsdl:documentation>
   <wsp:Policy>
-   <wsp:PolicyReference URI="#IF_IF_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_Out"/>
+   <wsp:PolicyReference URI="#IF_IF_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In"/>
   </wsp:Policy>
-  <wsdl:operation name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_Out">
+  <wsdl:operation name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In">
    <wsp:Policy>
-    <wsp:PolicyReference URI="#OP_IF_OP_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_Out"/>
+    <wsp:PolicyReference URI="#OP_IF_OP_UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In"/>
    </wsp:Policy>
    <wsdl:input message="tns:UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest"/>
   </wsdl:operation>
  </wsdl:portType>
+ <wsdl:binding name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_InBinding"
+               type="tns:UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In">
+  <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"
+                xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+  <wsdl:operation name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In">
+   <soap:operation soapAction="http://sap.com/xi/WebService/soap1.1"
+                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+   <wsdl:input>
+    <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
+   </wsdl:input>
+  </wsdl:operation>
+ </wsdl:binding>
+ <wsdl:service name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestService" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:port binding="tns:UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_InBinding"
+             name="UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequestPort">
+   <soap:address location="http://localhost:8080"/>
+  </wsdl:port>
+ </wsdl:service>
 </wsdl:definitions>

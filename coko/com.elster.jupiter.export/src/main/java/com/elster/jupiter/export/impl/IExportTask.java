@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-interface IExportTask extends ExportTask, HasAuditInfo {
+public interface IExportTask extends ExportTask, HasAuditInfo {
 
     PropertySpec getPropertySpec(String name);
 

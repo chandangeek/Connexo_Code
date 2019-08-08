@@ -161,6 +161,13 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
+    public MeterReadingSelectorBuilder selectingMeterReadings(String selector) {
+        defaultSelector = SelectorType.READINGTYPES;
+        dataSelector = selector;
+        return new MeterReadingSelectorBuilderImpl();
+    }
+
+    @Override
     public EventSelectorBuilder selectingEventTypes() {
         defaultSelector = SelectorType.EVENTTYPES;
         dataSelector = DataExportService.STANDARD_EVENT_DATA_SELECTOR;

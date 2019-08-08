@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:
+Export-Package: com.elster.jupiter.export.custom
+Import-Package: javax.mail,\
+    *

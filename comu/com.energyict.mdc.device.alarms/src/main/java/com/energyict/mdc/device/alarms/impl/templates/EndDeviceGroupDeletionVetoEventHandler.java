@@ -56,7 +56,7 @@ public class EndDeviceGroupDeletionVetoEventHandler implements TopicHandler {
         deviceGroupInUse = false;
         alarmCreationRules.stream()
                 .map(rule -> (List)rule.getProperties().get(BasicDeviceAlarmRuleTemplate.DEVICE_IN_GROUP))
-                .filter(list -> !list.isEmpty())
+                .filter(list -> list != null && !list.isEmpty())
                 .forEach(objects->objects.stream().forEach(deviceGroup-> {
                         BasicDeviceAlarmRuleTemplate.DeviceGroupInfo ruleInfo = (BasicDeviceAlarmRuleTemplate.DeviceGroupInfo) deviceGroup;
                         if (Long.parseLong(ruleInfo.getId()) == endDeviceGroup.getId())

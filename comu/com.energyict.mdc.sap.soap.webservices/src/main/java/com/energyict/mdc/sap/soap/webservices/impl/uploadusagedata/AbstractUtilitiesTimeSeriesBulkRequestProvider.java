@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> extends AbstractOutboundEndPointProvider<EP> implements DataExportWebService, OutboundSoapEndPointProvider {
-    private volatile PropertySpecService propertySpecService;
+    public static final String ACTL_STATUS = "ACTL";
+    public static final String INVL_STATUS = "INVL";
+
+	private volatile PropertySpecService propertySpecService;
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
@@ -91,8 +95,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     }
 
     @Override
-    public String getSupportedDataType() {
-        return DataExportService.STANDARD_READING_DATA_TYPE;
+    public List<String> getSupportedDataType() {
+        return Arrays.asList(DataExportService.STANDARD_READING_DATA_TYPE, "customReadingDataType");
     }
 
     @Override
@@ -182,5 +186,15 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
                     meter.getName());
         }
         return lrn;
+    }
+
+    Map<Pair<String, String>, RangeSet<Instant>> getTimeSlicedLrnAndProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter) {
+        Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileId = sapCustomPropertySets.getLrnAndProfileId(channel, range);
+        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL,
+                    channel.getMainReadingType().getFullAliasName(),
+                    meter.getName());
+        }
+        return lrnAndProfileId;
     }
 }

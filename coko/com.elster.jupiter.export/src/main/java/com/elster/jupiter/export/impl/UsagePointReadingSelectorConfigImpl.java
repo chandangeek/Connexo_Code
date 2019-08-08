@@ -87,7 +87,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
     }
 
     @Override
-    Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+    public Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
         Range<Instant> exportInterval = occurrence.getDefaultSelectorOccurrence()
                 .map(DefaultSelectorOccurrence::getExportedDataInterval)
                 .orElse(Range.all());

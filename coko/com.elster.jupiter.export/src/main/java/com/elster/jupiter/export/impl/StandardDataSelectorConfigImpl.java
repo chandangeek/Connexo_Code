@@ -88,7 +88,8 @@ abstract class StandardDataSelectorConfigImpl implements DataSelectorConfig {
         return userName;
     }
 
-    DataModel getDataModel() {
+    @Override
+    public DataModel getDataModel() {
         return dataModel;
     }
 

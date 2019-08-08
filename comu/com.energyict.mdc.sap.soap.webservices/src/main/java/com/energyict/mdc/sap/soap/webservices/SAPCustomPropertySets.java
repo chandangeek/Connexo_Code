@@ -4,6 +4,8 @@
 package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 
@@ -11,6 +13,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -50,4 +53,14 @@ public interface SAPCustomPropertySets {
     void setLocation(Device device, String locationId);
 
     void setPod(Device device, String podId);
+
+    Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval);
+
+    boolean isProfileIdAlreadyExists(String profileId, Range<Instant> interval);
+
+    List<ReadingType> findReadingTypesForProfileId(String profileId);
+
+    boolean isRangesIntersected(List<Range<Instant>> ranges);
+
+    Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Channel channel, Range<Instant> range);
 }
