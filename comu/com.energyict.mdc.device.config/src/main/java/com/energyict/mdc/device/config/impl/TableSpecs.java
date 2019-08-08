@@ -612,11 +612,6 @@ public enum TableSpecs {
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
             table.column("CLIENT").varChar().map("clientDbValue").since(version(10, 3)).add();
-            table.column("C12User").varChar().map("C12User").since(version(10, 7)).add();
-            table.column("C12UserID").number().conversion(NUMBER2INT).notNull().map("C12UserID").since(version(10, 7)).add();
-            table.column("PasswordBinary").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("PasswordBinary").since(version(10, 7)).add();
-            table.column("C12CalledAPTitle").varChar().map("C12CalledAPTitle").since(version(10, 7)).add();
-            table.column("C12SecurityKey").varChar().map("C12SecurityKey").since(version(10, 7)).add();
             table.column("SECURITYSUITE").number().conversion(NUMBER2INT).notNull().installValue("-1").map("securitySuiteId").since(version(10, 3)).add();
             table.column("REQUESTSECURITYLEVEL").number().conversion(NUMBER2INT).notNull().installValue("-1").map("requestSecurityLevelId").since(version(10, 3)).add();
             table.column("RESPONSESECURITYLEVEL").number().conversion(NUMBER2INT).notNull().installValue("-1").map("responseSecurityLevelId").since(version(10, 3)).add();

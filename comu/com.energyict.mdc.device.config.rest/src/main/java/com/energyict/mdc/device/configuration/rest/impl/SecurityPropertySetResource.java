@@ -13,7 +13,11 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -137,20 +141,10 @@ public class SecurityPropertySetResource {
                 .responseSecurityLevel(info.responseSecurityLevelId);
         if (info.properties != null && !info.properties.isEmpty()) {
             for (PropertySpec propertySpec : builder.getPropertySpecs()) {
-                SecurityAccessorType newKeyAccessor = null;
-                if (propertySpec instanceof KeyAccessorPropertySpecWithPossibleValues) {
-                    newKeyAccessor = (SecurityAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);   // Cast to KeyAccessorType should work fine
-                    if (newKeyAccessor != null) {                                                                                           // unless front-end has send wrong data, but then it's ok to throw an error
-                        builder.addConfigurationSecurityProperty(propertySpec.getName(), newKeyAccessor);
-                    }
-                } else {
-                    for (PropertyInfo propertyInfo : info.properties) {
-                        if (propertySpec.getName().equals(propertyInfo.key) /*&& hasValue(propertyInfo) */) {
-                            builder.additionalPropertyIfApplicable(propertyInfo);
-                        }
-                    }
+                SecurityAccessorType newKeyAccessor = (SecurityAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);   // Cast to KeyAccessorType should work fine
+                if (newKeyAccessor != null) {                                                                                           // unless front-end has send wrong data, but then it's ok to throw an error
+                    builder.addConfigurationSecurityProperty(propertySpec.getName(), newKeyAccessor);
                 }
-
             }
         }
 
@@ -171,7 +165,7 @@ public class SecurityPropertySetResource {
         SecurityPropertySet securityPropertySet = resourceHelper.lockSecurityPropertySetOrThrowException(info);
         Optional<PropertySpec> clientPropertySpec = getClientPropertySpec(deviceConfiguration.getDeviceType());
         Object propertyValue = null;
-        if (clientPropertySpec.isPresent()) {
+        if(clientPropertySpec.isPresent()) {
             propertyValue = mdcPropertyUtils.findPropertyValue(clientPropertySpec.get(), Collections.singletonList(info.client));
         }
         info.writeTo(securityPropertySet, propertyValue);
@@ -179,25 +173,15 @@ public class SecurityPropertySetResource {
         List<ConfigurationSecurityProperty> configurationSecurityProperties = securityPropertySet.getConfigurationSecurityProperties();
         if (info.properties != null && !info.properties.isEmpty()) {
             for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
-                if(propertySpec instanceof  KeyAccessorPropertySpecWithPossibleValues) {
-                    SecurityAccessorType keyAccessor = (SecurityAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);  // Cast to KeyAccessorType should work fine
-                    // unless front-end has send wrong data, but then it's ok to throw an error
-
-                    Optional<ConfigurationSecurityProperty> existingSecurityProperty = configurationSecurityProperties.stream()
-                            .filter(property -> property.getName().equals(propertySpec.getName()))
-                            .findFirst();
-                    if (existingSecurityProperty.isPresent()) {
-                        securityPropertySet.updateConfigurationSecurityProperty(propertySpec.getName(), keyAccessor);
-                    } else if (keyAccessor != null) {
-                        securityPropertySet.addConfigurationSecurityProperty(propertySpec.getName(), keyAccessor);
-                    }
-                }
-                else {
-                    for (PropertyInfo propertyInfo : info.properties) {
-                        if (propertySpec.getName().equals(propertyInfo.key) /*&& hasValue(propertyInfo) */) {
-                            securityPropertySet.setAdditionalPropertyIfApplicable(propertyInfo);
-                        }
-                    }
+                SecurityAccessorType keyAccessor = (SecurityAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);  // Cast to KeyAccessorType should work fine
+                // unless front-end has send wrong data, but then it's ok to throw an error
+                Optional<ConfigurationSecurityProperty> existingSecurityProperty = configurationSecurityProperties.stream()
+                        .filter(property -> property.getName().equals(propertySpec.getName()))
+                        .findFirst();
+                if (existingSecurityProperty.isPresent()) {
+                    securityPropertySet.updateConfigurationSecurityProperty(propertySpec.getName(), keyAccessor);
+                } else if (keyAccessor != null) {
+                    securityPropertySet.addConfigurationSecurityProperty(propertySpec.getName(), keyAccessor);
                 }
             }
             // Remove the no longer used configuration security properties
