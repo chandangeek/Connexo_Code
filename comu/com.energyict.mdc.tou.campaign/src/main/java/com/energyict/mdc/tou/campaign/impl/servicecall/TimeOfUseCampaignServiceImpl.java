@@ -41,7 +41,6 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
@@ -50,7 +49,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.ComTask;
@@ -64,10 +62,10 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.Installer;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
-import com.energyict.mdc.tou.campaign.impl.UpgraderV10_7;
 import com.energyict.mdc.tou.campaign.impl.ServiceCallTypes;
 import com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignBuilderImpl;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
+import com.energyict.mdc.tou.campaign.impl.UpgraderV10_7;
 import com.energyict.mdc.tou.campaign.security.Privileges;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
@@ -86,7 +84,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -575,18 +572,19 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .findAny().orElse(null);
     }
 
-    Optional<ComTaskEnablement> getActiveVerificationTask(Device device) {
+    boolean isActiveVerificationTask(Device device, long taskId) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == taskId)
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .anyMatch(task -> task instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                .filter(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
-                        || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
-                .findAny();
+                .anyMatch(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
+                        || (!findComTaskExecution(device, comTaskEnablement).isOnHold()));
     }
 
-    List<ComTaskEnablement> getActiveTaskForCalendars(Device device) {
+    Optional<ComTaskEnablement> getActiveTaskForCalendarsById(Device device, long taskId) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == taskId)
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .filter(task -> task instanceof MessagesTask)
@@ -597,7 +595,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
                 .filter(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
                         || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
-                .collect(Collectors.toList());
+                .findAny();
     }
 
     boolean isWithVerification(TimeOfUseCampaign timeOfUseCampaign) {

@@ -33,6 +33,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.issue.devicelifecycle.FailedTransition;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 import com.energyict.mdc.issue.devicelifecycle.OpenIssueDeviceLifecycle;
+import com.elster.jupiter.metering.LocationService;
 
 import javax.ws.rs.core.Application;
 import java.time.Instant;
@@ -69,6 +70,8 @@ public abstract class DeviceLifecycleIssueApplicationTest extends FelixRestAppli
     JsonService jsonService;
     @Mock
     CommunicationTaskService communicationTaskService;
+    @Mock
+    LocationService locationService;
 
 
     @Override
@@ -84,6 +87,7 @@ public abstract class DeviceLifecycleIssueApplicationTest extends FelixRestAppli
         when(nlsService.getThesaurus(IssueDeviceLifecycleService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         application.setDeviceService(deviceService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setLocationService(locationService);
         return application;
     }
 
