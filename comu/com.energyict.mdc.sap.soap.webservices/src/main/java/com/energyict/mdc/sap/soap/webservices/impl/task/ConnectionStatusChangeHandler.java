@@ -7,6 +7,7 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -15,6 +16,8 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 
 import java.time.Clock;
 import java.util.List;
@@ -90,13 +93,24 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
             if (parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
             }
-            parent.requestTransition(finalState);
+
+            ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
+            parent.log(LogLevel.INFO, "Sending confirmation for Disconnection Order number: " + extension.getId());
+
+            StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
+                    .builder(sapCustomPropertySets)
+                    .from(parent, findAllChilds(parent), clock.instant())
+                    .build();
+
+            WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {
+                        if (sender.call(responseMessage, parent)) {
+                            parent.requestTransition(finalState);
+                        } else {
+                            parent.requestTransition(DefaultState.FAILED);
+                        }
+                    }
+            );
             context.commit();
         }
-        StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
-                .builder(sapCustomPropertySets)
-                .from(parent, findAllChilds(parent), clock.instant())
-                .build();
-        WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage));
     }
 }

@@ -389,7 +389,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                         findFirst().
                         isPresent())
                 .findAny()
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_COMTASK_FOR_COMMAND).format()))));
+                .orElseThrow(() -> NoSuchElementException.comTaskCouldNotBeLocated(thesaurus))));
         return comTaskEnablements.stream().distinct();
     }
 

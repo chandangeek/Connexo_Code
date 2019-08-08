@@ -3,6 +3,8 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl;
 
+import com.elster.jupiter.servicecall.ServiceCall;
+
 import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 
@@ -15,4 +17,6 @@ public interface StatusChangeRequestCreateConfirmation {
      * Invoked by the service call when the SAP status change request completed or failed
      */
     void call(StatusChangeRequestCreateConfirmationMessage confirmationMessage);
+
+    boolean call(StatusChangeRequestCreateConfirmationMessage confirmationMessage, ServiceCall parent);
 }

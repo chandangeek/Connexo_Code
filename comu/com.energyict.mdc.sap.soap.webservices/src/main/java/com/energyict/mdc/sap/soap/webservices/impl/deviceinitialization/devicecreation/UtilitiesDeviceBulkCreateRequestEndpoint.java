@@ -106,6 +106,7 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
         if (serviceCall.findChildren().stream().count() > 0) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
+            serviceCall.requestTransition(DefaultState.REJECTED);
             sendProcessError(requestMessage, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
