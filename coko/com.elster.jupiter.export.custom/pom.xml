@@ -14,6 +14,13 @@
     <artifactId>export.custom</artifactId>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.export.custom</name>
+    <description>
+        Contains custom exporter selector logic
+    </description>
+
+    <properties>
+        <baseline>(,${project.version})</baseline>
+    </properties>
 
     <dependencies>
         <dependency>
