@@ -216,6 +216,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
         when(firmwareVersion.getFirmwareType()).thenReturn(firmwareType);
         when(firmwareVersion.getCommunicationFirmwareDependency()).thenReturn(Optional.of(firmwareVersion));
+        when(firmwareVersion.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(firmwareVersion));
         when(firmwareVersion.getMeterFirmwareDependency()).thenReturn(Optional.of(firmwareVersion));
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
         when(firmwareCampaign.getFirmwareType()).thenReturn(firmwareType);
