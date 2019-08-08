@@ -67,7 +67,6 @@ public class SecurityPropertySetInfoFactory {
 
         TypedProperties typedProperties = this.toTypedProperties(securityPropertySet.getConfigurationSecurityProperties());
         info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(securityPropertySet.getPropertySpecs(), typedProperties);
-        info.properties = securityPropertySet.processAdditionalPropertyInfos(info.properties);
         Collections.sort(info.properties, Comparator.comparing(propertyInfo -> propertyInfo.name)); // Properties are sorted by their name
         return info;
     }

@@ -15,7 +15,10 @@ import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -716,11 +719,6 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
         @Override
         public com.energyict.mdc.device.config.SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor) {
-            return this;
-        }
-
-        @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder additionalPropertyIfApplicable(PropertyInfo info) {
             return this;
         }
 

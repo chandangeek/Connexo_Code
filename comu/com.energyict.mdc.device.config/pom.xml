@@ -179,12 +179,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>datavault</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>protocolcommon</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- Testing -->
         <dependency>

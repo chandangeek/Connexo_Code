@@ -20,6 +20,7 @@ import com.elster.jupiter.issue.task.OpenTaskIssue;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -70,6 +71,8 @@ public abstract class TaskIssueApplicationJerseyTest extends FelixRestApplicatio
     MeteringGroupsService meteringGroupService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    LocationService locationService;
 
     @Override
     protected Application getApplication() {
@@ -89,6 +92,7 @@ public abstract class TaskIssueApplicationJerseyTest extends FelixRestApplicatio
         application.setJsonService(jsonService);
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setMeteringGroupsService(meteringGroupService);
+        application.setLocationService(locationService);
         return application;
     }
 

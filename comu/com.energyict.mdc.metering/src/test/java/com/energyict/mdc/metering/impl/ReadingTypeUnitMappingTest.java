@@ -185,7 +185,7 @@ public class ReadingTypeUnitMappingTest {
                                 return asciiSymbol.equals("ImperialGal");
                             } else if (baseUnit.getDlmsCode() == BaseUnit.US_GALLONPERHOUR) {
                                 return asciiSymbol.equals("USGal/h");
-                            } else if (baseUnit.getDlmsCode() == BaseUnit.DECIBELPOWERRATIO) {
+                            } else if (baseUnit.getDlmsCode() == BaseUnit.DECIBELMILLIWAT) {
                                 return asciiSymbol.equals("Bm");
                             } else if (baseUnit.getDlmsCode() == BaseUnit.IMP_GALLONPERHOUR) {
                                 return asciiSymbol.equals("ImperialGal/h");
