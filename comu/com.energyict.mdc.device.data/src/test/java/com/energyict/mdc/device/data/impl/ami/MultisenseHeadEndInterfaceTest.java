@@ -213,6 +213,7 @@ public class MultisenseHeadEndInterfaceTest {
 
         ComTask comTask = mock(ComTask.class);
         when(comTask.getId()).thenReturn(COMTASK_ID);
+        when(comTask.isManualSystemTask()).thenReturn(true);
         when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
