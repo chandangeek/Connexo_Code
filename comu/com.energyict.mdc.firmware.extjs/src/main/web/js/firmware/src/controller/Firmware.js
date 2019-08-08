@@ -36,7 +36,8 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.store.CommunicationFirmwareDepependencies',
         'Fwc.store.AuxiliaryFirmwareDepependencies',
         'Fwc.store.MeterFirmwareDepependenciesEdit',
-        'Fwc.store.CommunicationFirmwareDepependenciesEdit'
+        'Fwc.store.CommunicationFirmwareDepependenciesEdit',
+        'Fwc.store.AuxiliaryFirmwareDepependenciesEdit'
     ],
 
     refs: [
