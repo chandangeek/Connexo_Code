@@ -50,7 +50,7 @@ public interface ComPort extends HasId, HasName  {
      *
      * @return The timestamp of the last modification
      */
-    Instant getModificationDate();
+    Instant getModTime();
 
     /**
      * Gets the {@link ComServer} to which this ComPort belongs.
@@ -58,6 +58,13 @@ public interface ComPort extends HasId, HasName  {
      * @return The ComServer that owns this ComPort
      */
     ComServer getComServer ();
+
+    /**
+     * Sets the {@link ComServer} to which this ComPort belongs.
+     *
+     * @arg The ComServer that owns this ComPort
+     */
+     void setComServer (ComServer comServer);
 
     /**
      * Tests if this ComPort is active.

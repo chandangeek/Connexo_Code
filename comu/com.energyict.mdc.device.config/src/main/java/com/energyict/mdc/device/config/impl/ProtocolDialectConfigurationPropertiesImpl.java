@@ -31,17 +31,20 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
+public class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<ProtocolDialectConfigurationProperties> implements ProtocolDialectConfigurationProperties {
 
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
 
-    private final DataModel dataModel;
+    private DataModel dataModel;
 
     private DeviceProtocolDialect protocolDialect;
     @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -64,6 +67,10 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     // transient
     private transient TypedProperties typedProperties;
 
+    ProtocolDialectConfigurationPropertiesImpl() {
+        super();
+    }
+
     @Inject
     ProtocolDialectConfigurationPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ProtocolDialectConfigurationProperties.class, dataModel, eventService, thesaurus);
@@ -80,6 +87,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
         return name;
     }
@@ -90,11 +98,13 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration.get();
     }
 
     @Override
+    @XmlTransient
     public DeviceProtocolDialect getDeviceProtocolDialect() {
         if (this.protocolDialect == null) {
             this.protocolDialect = getDeviceProtocolDialect(this.protocolDialectName);
@@ -121,11 +131,17 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    @XmlElement(name = "deviceProtocolDialectName")
     public String getDeviceProtocolDialectName() {
         return this.protocolDialectName;
     }
 
+    public void setDeviceProtocolDialectName(String name) {
+        // For xml unmarshalling purposes only
+    }
+
     @Override
+    @XmlAttribute
     public TypedProperties getTypedProperties() {
         if (typedProperties == null) {
             typedProperties = initializeTypedProperties();
@@ -281,4 +297,12 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         }
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }

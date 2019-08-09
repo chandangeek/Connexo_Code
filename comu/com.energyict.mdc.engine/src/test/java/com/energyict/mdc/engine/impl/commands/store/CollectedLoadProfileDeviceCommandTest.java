@@ -14,7 +14,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.config.ComServer;
@@ -193,7 +193,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         long deviceId = device.getId();
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device))).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device, ))).thenReturn(Optional.of(device));
 
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
 
@@ -243,7 +243,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device))).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device, ))).thenReturn(Optional.of(device));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
@@ -327,7 +327,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(device.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device))).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device, ))).thenReturn(Optional.of(device));
 
         CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
@@ -388,7 +388,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(loadProfile);
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(device.getId())).thenReturn(Optional.of(device));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device))).thenReturn(Optional.of(device));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(device, ))).thenReturn(Optional.of(device));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(device);
@@ -421,7 +421,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         CollectedLoadProfile collectedLoadProfile = createCollectedLoadProfile(dataLogger.getLoadProfiles().get(0));
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(deviceId)).thenReturn(Optional.of(dataLogger));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(dataLogger))).thenReturn(Optional.of(dataLogger));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(dataLogger, ))).thenReturn(Optional.of(dataLogger));
 
         final CollectedLoadProfileDeviceCommand collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, null, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         OfflineLoadProfile offlineLoadProfile = createOfflineLoadProfile(dataLogger);
@@ -480,9 +480,9 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
         when(this.getComServerDAOServiceProvider().deviceService()).thenReturn(this.deviceService);
         when(this.deviceService.findDeviceById(dataLoggerId)).thenReturn(Optional.of(dataLogger));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(dataLogger))).thenReturn(Optional.of(dataLogger));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(dataLogger, ))).thenReturn(Optional.of(dataLogger));
         when(this.deviceService.findDeviceById(slaveId)).thenReturn(Optional.of(slave));
-        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(slave))).thenReturn(Optional.of(slave));
+        when(this.deviceService.findDeviceByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(slave, ))).thenReturn(Optional.of(slave));
 
         Map<com.energyict.mdc.device.data.Channel, com.energyict.mdc.device.data.Channel> channelMap = new HashMap<>();
         // Linking the slave

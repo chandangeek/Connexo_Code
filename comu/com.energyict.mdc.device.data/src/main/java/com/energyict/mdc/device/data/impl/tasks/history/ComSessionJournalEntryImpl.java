@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.engine.config.ComServer;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -34,12 +35,16 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
     private String stackTrace;
     private Instant modDate;
 
+    public ComSessionJournalEntryImpl() {
+    }
+
     @Inject
     ComSessionJournalEntryImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ComSessionJournalEntry.class, dataModel, eventService, thesaurus);
     }
 
     @Override
+    @XmlTransient
     public ComSession getComSession () {
         return comSession.get();
     }

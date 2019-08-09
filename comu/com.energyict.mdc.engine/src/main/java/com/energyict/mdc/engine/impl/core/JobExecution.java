@@ -49,6 +49,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -310,7 +311,7 @@ public abstract class JobExecution implements ScheduledJob {
 
     private void addCompletionEvent() {
         ExecutionContext executionContext = this.getExecutionContext();
-        if (executionContext != null) {
+        if (executionContext != null && serviceProvider.engineService().isOnlineMode()) {
             if (!executionContext.connectionFailed()) {
                 executionContext.getStoreCommand().add(
                         new PublishConnectionCompletionEvent(
@@ -325,7 +326,7 @@ public abstract class JobExecution implements ScheduledJob {
             // Failure was in the preparation that creates the ExecutionContext
             LOGGER.log(
                     Level.FINE,
-                    "Attempt to publish an event that a ConnectionTask has completed without an ExecutionContext!",
+                    "Attempt to publish an event that a ConnectionTask has completed for OfflineEngine or no ExecutionContext!",
                     new Exception("For diagnostic purposes only"));
         }
     }
@@ -456,6 +457,8 @@ public abstract class JobExecution implements ScheduledJob {
 
         FirmwareService firmwareService();
 
+        ProtocolPluggableService protocolPluggableService();
+
     }
 
     /**
@@ -495,7 +498,7 @@ public abstract class JobExecution implements ScheduledJob {
                 for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : deviceOrganizedComTaskExecutions) {
 
                     final OfflineDeviceForComTaskGroup offlineDeviceForComTaskGroup = new OfflineDeviceForComTaskGroup(deviceOrganizedComTaskExecution.getComTaskExecutions());
-                    DeviceIdentifier deviceIdentifier = getComCommandServiceProvider().identificationService().createDeviceIdentifierForAlreadyKnownDevice(deviceOrganizedComTaskExecution.getDevice());
+                    DeviceIdentifier deviceIdentifier = getComCommandServiceProvider().identificationService().createDeviceIdentifierForAlreadyKnownDevice(deviceOrganizedComTaskExecution.getDevice().getId(), deviceOrganizedComTaskExecution.getDevice().getmRID());
                     OfflineDevice offlineDevice = getComServerDAO().findOfflineDevice(deviceIdentifier, offlineDeviceForComTaskGroup).get();
                     DeviceProtocolPluggableClass deviceProtocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();
                     DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
@@ -584,6 +587,11 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public DeviceMessageService deviceMessageService() {
             return JobExecution.this.serviceProvider.deviceMessageService();
+        }
+
+        @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return JobExecution.this.serviceProvider.protocolPluggableService();
         }
     }
 }

@@ -11,7 +11,6 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfo;
-import com.energyict.mdc.device.configuration.rest.impl.KeyTypeInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.SecurityAccessor;
@@ -63,8 +62,8 @@ public class SecurityAccessorInfoFactory {
         List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
 
         TypedProperties actualTypedProperties = securityAccessorInfoFactory.getPropertiesActualValue(securityAccessor);
-        boolean userHasViewPrivilege = securityAccessor.getKeyAccessorType().isCurrentUserAllowedToViewProperties("MDC");
-        boolean userHasEditPrivilege = securityAccessor.getKeyAccessorType().isCurrentUserAllowedToEditProperties("MDC");
+        boolean userHasViewPrivilege = securityAccessor.getKeyAccessorTypeReference().isCurrentUserAllowedToViewProperties("MDC");
+        boolean userHasEditPrivilege = securityAccessor.getKeyAccessorTypeReference().isCurrentUserAllowedToEditProperties("MDC");
 
         MdcPropertyUtils.ValueVisibility valueVisibility = userHasViewPrivilege && userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
         MdcPropertyUtils.PrivilegePresence withoutPrivileges = userHasViewPrivilege ? WITH_PRIVILEGES : WITHOUT_PRIVILEGES;
@@ -80,13 +79,13 @@ public class SecurityAccessorInfoFactory {
         List<Group> groups = userService.getGroups();
         for (SecurityAccessor<?> securityAccessor: securityAccessors) {
             SecurityAccessorInfo info = asKey(securityAccessor);
-            Set<SecurityAccessorUserAction> userActions = securityAccessor.getKeyAccessorType().getUserActions();
+            Set<SecurityAccessorUserAction> userActions = securityAccessor.getKeyAccessorTypeReference().getUserActions();
             info.editLevels = executionLevelInfoFactory.getEditPrivileges(userActions, groups);
             info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
-            device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessor.getKeyAccessorType())
+            device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessor.getKeyAccessorTypeReference())
                     .ifPresent(v -> info.defaultServiceKey = v);
 
-            info.keyType = securityAccessor.getKeyAccessorType().getKeyType().getName();
+            info.keyType = securityAccessor.getKeyAccessorTypeReference().getKeyType().getName();
 
             securityAccessorInfos.add(info);
         }

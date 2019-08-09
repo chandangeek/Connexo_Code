@@ -7,6 +7,7 @@ package com.energyict.mdc.engine;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,4 +46,12 @@ public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
         }
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }

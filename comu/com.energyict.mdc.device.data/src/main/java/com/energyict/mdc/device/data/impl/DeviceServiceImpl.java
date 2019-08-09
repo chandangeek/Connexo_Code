@@ -421,7 +421,10 @@ class DeviceServiceImpl implements ServerDeviceService {
                     .map(Collections::singletonList)
                     .orElseGet(Collections::emptyList);
         } else if (introspector.getTypeName().equals(IntrospectorTypes.Actual.name())) {
-            return Collections.singletonList((Device) introspector.getValue(IntrospectorTypes.Actual.roles[0]));
+            return this
+                    .findDeviceById((long)introspector.getValue(IntrospectorTypes.Actual.roles[0]))
+                    .map(Collections::singletonList)
+                    .orElseGet(Collections::emptyList);
         } else if (introspector.getTypeName().equals(IntrospectorTypes.Name.name())) {
             String deviceName = (String) introspector.getValue(IntrospectorTypes.Name.roles[0]);
             return findDeviceByName(deviceName)

@@ -109,7 +109,7 @@ public class OfflineLoadProfileImplTest {
         assertThat(offlineLoadProfile).isNotNull();
         assertThat(offlineLoadProfile.getObisCode()).isEqualTo(loadProfileObisCode);
         assertThat(offlineLoadProfile.getLoadProfileId()).isEqualTo(LOAD_PROFILE_ID);
-        assertThat(offlineLoadProfile.interval()).isEqualTo(PROFILE_INTERVAL.asTemporalAmount());
+        assertThat(offlineLoadProfile.getInterval()).isEqualTo(PROFILE_INTERVAL.asTemporalAmount());
         assertThat(offlineLoadProfile.getLastReading()).isEqualTo(Date.from(LAST_READING));
         assertThat(offlineLoadProfile.getDeviceId()).isEqualTo(RTU_ID);
         assertThat(offlineLoadProfile.getLoadProfileTypeId()).isEqualTo(LOAD_PROFILE_TYPE_ID);

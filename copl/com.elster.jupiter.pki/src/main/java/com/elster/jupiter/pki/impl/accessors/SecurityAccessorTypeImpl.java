@@ -29,9 +29,11 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.ShouldHaveUniqueName;
 import com.elster.jupiter.util.UniqueName;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.inject.Inject;
 
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -49,9 +51,9 @@ import static java.util.stream.Collectors.toList;
 @DurationPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @TrustStorePresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 public class SecurityAccessorTypeImpl implements SecurityAccessorType, PersistenceAware, ShouldHaveUniqueName {
-    private final DataModel dataModel;
-    private final ThreadPrincipalService threadPrincipalService;
-    private final EventService eventService;
+    private DataModel dataModel;
+    private ThreadPrincipalService threadPrincipalService;
+    private EventService eventService;
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -84,6 +86,10 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     @SuppressWarnings("unused")
     private Instant modTime;
 
+    public SecurityAccessorTypeImpl() {
+        super();
+    }
+
     @Inject
     public SecurityAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, EventService eventService) {
         this.dataModel = dataModel;
@@ -111,6 +117,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     }
 
     @Override
+    @XmlTransient
+    @JsonIgnore
     public KeyType getKeyType() {
         return keyType.get();
     }
@@ -203,6 +211,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     }
 
     @Override
+    @XmlTransient
+    @JsonIgnore
     public HsmKeyType getHsmKeyType() {
         return new HsmKeyType(hsmJssKeyType, label, importCapability, renewCapability, keySize, isReversible);
     }

@@ -115,6 +115,8 @@ public interface UserService {
 
     List<User> getAllUsers(long id);
 
+    List<User> getAllUsers();
+
     LdapUserDirectory createActiveDirectory(String domain);
 
     LdapUserDirectory createApacheDirectory(String domain);

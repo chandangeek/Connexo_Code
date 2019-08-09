@@ -22,6 +22,7 @@ import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *  Provides an implementation for an {@link com.energyict.mdc.device.config.PartialOutboundConnectionTask}
@@ -74,6 +75,7 @@ abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskIm
     }
 
     @Override
+    @XmlTransient
     public TemporalExpression getTemporalExpression() {
         return this.nextExecutionSpecs.get().getTemporalExpression();
     }

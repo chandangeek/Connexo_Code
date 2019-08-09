@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -88,4 +89,14 @@ public class MockOutboundConnectionType implements ConnectionType {
         return Optional.empty();
     }
 
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
+    }
 }

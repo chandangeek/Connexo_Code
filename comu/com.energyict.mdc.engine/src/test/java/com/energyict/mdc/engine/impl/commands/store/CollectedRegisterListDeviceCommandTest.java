@@ -89,7 +89,7 @@ public class CollectedRegisterListDeviceCommandTest {
         when(comServerDAO.findOfflineRegister(any(RegisterIdentifier.class), any(Instant.class))).thenReturn(Optional.of(offlineRegister));
         when(offlineRegister.getRegisterId()).thenReturn(REGISTER_ID);
         when(offlineRegister.getObisCode()).thenReturn(REGISTER_OBIS);
-        when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
+        when(offlineRegister.getOverFlow()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(offlineRegister.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 

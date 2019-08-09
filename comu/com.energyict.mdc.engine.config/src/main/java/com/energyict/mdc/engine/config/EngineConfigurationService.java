@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.config;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
@@ -40,6 +41,13 @@ public interface EngineConfigurationService {
     Finder<ComServer> findAllComServers();
 
     /**
+     * Filter all ComServers including the ones that were made obsolete.
+     *
+     * @return All the ComServers, including the obsolete ones that comply with the condition
+     */
+    public Finder<ComServer> filterComServers(Condition condition);
+
+    /**
      * Finds the ComServer with the name of the system that is currently running this software.
      *
      * @return the ComServer or <code>null</code> if no such ComServer exists
@@ -67,6 +75,14 @@ public interface EngineConfigurationService {
      * @return a List of {@link} RemoteComServer remoteComServers}
      */
     List<RemoteComServer> findRemoteComServersForOnlineComServer(OnlineComServer onlineComServer);
+
+    /**
+     * Finds all {@link OfflineComServer}s that rely on the {@link OnlineComServer}.
+     *
+     * @param onlineComServer The OnlineComServer
+     * @return a List of {@link} OfflineComServer offlineComServers}
+     */
+    List<OfflineComServer> findOfflineComServersForOnlineComServer(OnlineComServer onlineComServer);
 
     /**
      * Finds all {@link OfflineComServer}s.

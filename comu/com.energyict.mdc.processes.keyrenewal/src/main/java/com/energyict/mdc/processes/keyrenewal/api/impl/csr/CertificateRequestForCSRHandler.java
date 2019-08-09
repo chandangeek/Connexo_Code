@@ -58,10 +58,10 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
             ClientCertificateWrapper certificateWrapper;//securityManagementService.findCertificateWrapper(certificateRequestForCSRMessage.alias).get();
             Device device = deviceService.findDeviceById(certificateRequestForCSRMessage.device).get();
             SecurityAccessor securityAccessor = device.getSecurityAccessors().stream()
-                    .filter(sa -> sa.getKeyAccessorType()
+                    .filter(sa -> sa.getKeyAccessorTypeReference()
                             .equals(securityManagementService.findSecurityAccessorTypeByName(certificateRequestForCSRMessage.securityAccessor).get()))
                     .findFirst().get();
-            String alias = getCertificateType(securityAccessor.getKeyAccessorType()).getPrefix() + device.getSerialNumber();
+            String alias = getCertificateType(securityAccessor.getKeyAccessorTypeReference()).getPrefix() + device.getSerialNumber();
             certificateWrapper = securityManagementService
                     .findCertificateWrappers(Where.where("alias").like("*-" + alias))
                     .stream()

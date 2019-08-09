@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -152,6 +153,7 @@ class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessageEnable
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getDeviceConfiguration() {
         return deviceConfiguration.get();
     }

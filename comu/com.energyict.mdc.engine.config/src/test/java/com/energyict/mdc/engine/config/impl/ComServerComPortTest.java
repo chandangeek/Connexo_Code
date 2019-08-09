@@ -174,7 +174,7 @@ public class ComServerComPortTest extends PersistenceTest {
         OnlineComServer onlineComServer = createOnlineComServer();
         int numberOfComPorts = 3;
         this.addComPorts(onlineComServer, numberOfComPorts);
-        Instant modificationDate = onlineComServer.getModificationDate();
+        Instant modificationDate = onlineComServer.getModTime();
 
         // Business method
         onlineComServer.setActive(false);
@@ -193,7 +193,7 @@ public class ComServerComPortTest extends PersistenceTest {
 
         // Reload to make sure to have emptied the cache of ComPorts;
         OnlineComServer reloaded = (OnlineComServer) getEngineModelService().findComServer(onlineComServer.getId()).get();
-        Instant reloadedModificationDate = reloaded.getModificationDate();
+        Instant reloadedModificationDate = reloaded.getModTime();
         assertThat(reloaded.getOutboundComPorts().size()).isEqualTo(numberOfComPorts);
         for (OutboundComPort comPort : reloaded.getOutboundComPorts()) {
             assertThat(comPort.getName().startsWith("Updated")).as("Was expecting the name has changed").isTrue();

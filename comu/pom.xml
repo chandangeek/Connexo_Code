@@ -17,7 +17,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<jetty-server.version>7.6.3.v20120416</jetty-server.version>
+		<jetty-server.version>9.4.11.v20180605</jetty-server.version>
 		<serialio.version>10.0.4.2</serialio.version>
 		<org.rxtx.version>2.2pre2</org.rxtx.version>
 		<json.version>20090211</json.version>
@@ -375,6 +375,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.energyict</groupId>
+				<artifactId>mdc.offline</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.energyict</groupId>
 				<artifactId>mdc.pluggable</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -542,7 +548,13 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-jsr310</artifactId>
-				<version>2.3.2</version>
+				<version>2.9.9</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jdk8</artifactId>
+				<version>2.9.9</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -566,9 +578,49 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-websocket</artifactId>
+				<artifactId>jetty-webapp</artifactId>
 				<version>${jetty-server.version}</version>
 				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-jaas</artifactId>
+				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
+			</dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-client</artifactId>
+                <version>${jetty-server.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-server</artifactId>
+                <version>${jetty-server.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-servlet</artifactId>
+                <version>${jetty-server.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-api</artifactId>
+                <version>${jetty-server.version}</version>
+                <scope>provided</scope>
+            </dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-util</artifactId>
+				<version>${jetty-server.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-util-ajax</artifactId>
+				<version>${jetty-server.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -725,6 +777,7 @@
 				<module>com.energyict.mdc.masterdata</module>
 				<module>com.energyict.mdc.masterdata.rest</module>
 				<module>com.energyict.mdc.metering</module>
+				<module>com.energyict.mdc.offline</module>
 				<module>com.energyict.mdc.pluggable</module>
 				<module>com.energyict.mdc.pluggable.rest</module>
 				<module>com.energyict.mdc.processes.keyrenewal</module>

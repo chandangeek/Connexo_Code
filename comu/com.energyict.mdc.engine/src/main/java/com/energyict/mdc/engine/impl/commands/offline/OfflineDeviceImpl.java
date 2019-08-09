@@ -19,7 +19,9 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.core.remote.MapXmlMarshallAdapter;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -27,6 +29,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.DeviceProtocolPluggableClassImpl;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -41,6 +44,10 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,12 +66,14 @@ import java.util.stream.Collectors;
  * @author gna
  * @since 12/04/12 - 13:58
  */
+@XmlRootElement
 public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     /**
      * The Device which is going offline
      */
-    private final Device device;
+    private Device device;
+    private DeviceIdentifier deviceIdentifier;
     private ServiceProvider serviceProvider;
 
     /**
@@ -90,17 +99,17 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     /**
      * Contains the {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice}.
      */
-    private List<OfflineLoadProfile> masterLoadProfiles = Collections.emptyList();
+    private List<OfflineLoadProfile> masterLoadProfiles = new ArrayList<>();
 
     /**
      * Contains all {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice} <b>AND</b> OR any slave device.
      */
-    private List<OfflineLoadProfile> allLoadProfiles = Collections.emptyList();
+    private List<OfflineLoadProfile> allOfflineLoadProfiles = new ArrayList<>();
 
     /**
      * Contains all {@link OfflineLogBook offlineLogBooks} which are owned by this {@link OfflineDevice}.
      */
-    private List<OfflineLogBook> allLogBooks = Collections.emptyList();
+    private List<OfflineLogBook> allOfflineLogBooks = new ArrayList<>();
 
     /**
      * Contains all {@link OfflineRegister rtuRegisters} which are owned by this {@link OfflineDevice} or a slave which has the
@@ -146,6 +155,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private List<OfflineKeyAccessor> keyAccessors = Collections.emptyList();
     private HashMap<String, TypedProperties> securityPropertySetAttributeToKeyAccessorTypeMapping;
     private String mRid;
+    private TimeZone timeZone;
+
+    public OfflineDeviceImpl() {
+        super();
+    }
 
     public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
         this.device = device;
@@ -163,7 +177,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         setUsagePoint(device.getUsagePoint().map(Object::toString).orElse(""));
         setId(this.device.getId());
         setSerialNumber(this.device.getSerialNumber());
-        setmRid(this.device.getmRID());
+        setmRID(this.device.getmRID());
         addProperties(this.device.getDeviceProtocolProperties());
 
         if (this.device.getDeviceProtocolPluggableClass().isPresent()) {
@@ -189,7 +203,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
             setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
         setAllKeyAccessors(convertToOfflineKeyAccessors(this.device.getSecurityAccessors()));
-        setSecurityPropertySetAttributeToKeyAccessorTypeMapping(this.device);
+        setSecurityPropertySetAttributeToKeyAccessorType(this.device);
         if (context.needsPendingMessages()) {
             try {
                 serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
@@ -349,6 +363,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public long getId() {
         return id;
     }
@@ -358,11 +373,20 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public TimeZone getTimeZone() {
-        return this.device.getTimeZone();
+        if (this.device != null) {
+            timeZone = this.device.getTimeZone();
+        }
+        return timeZone;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 
     @Override
+    @XmlAttribute
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -372,11 +396,12 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public String getmRID() {
         return mRid;
     }
 
-    public void setmRid(String mRid) {
+    public void setmRID(String mRid) {
         this.mRid = mRid;
     }
 
@@ -386,6 +411,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public String getLocation() {
         return location;
     }
@@ -393,8 +419,9 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     public void setLocation(String location) {
         this.location = location;
     }
-
     @Override
+
+    @XmlAttribute
     public String getUsagePoint() {
         return usagePoint;
     }
@@ -409,26 +436,31 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public List<OfflineDevice> getAllSlaveDevices() {
         return slaveDevices;
     }
 
     @Override
+    @XmlElement(type = OfflineLoadProfileImpl.class)
     public List<OfflineLoadProfile> getMasterOfflineLoadProfiles() {
         return this.masterLoadProfiles;
     }
 
     @Override
+    @XmlElement(type = OfflineLoadProfileImpl.class)
     public List<OfflineLoadProfile> getAllOfflineLoadProfiles() {
-        return this.allLoadProfiles;
+        return this.allOfflineLoadProfiles;
     }
 
     @Override
+    @XmlElement(type = OfflineLogBookImpl.class)
     public List<OfflineLogBook> getAllOfflineLogBooks() {
-        return this.allLogBooks;
+        return this.allOfflineLogBooks;
     }
 
     @Override
+    @XmlElement(type = OfflineRegisterImpl.class)
     public List<OfflineRegister> getAllOfflineRegisters() {
         return allOfflineRegisters;
     }
@@ -461,6 +493,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public List<OfflineDeviceMessage> getAllPendingDeviceMessages() {
         return this.pendingDeviceMessages;
     }
@@ -471,6 +504,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlAttribute
     public List<OfflineDeviceMessage> getAllSentDeviceMessages() {
         return this.sentDeviceMessages;
     }
@@ -566,11 +600,11 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     private void setAllLoadProfiles(final List<OfflineLoadProfile> allLoadProfiles) {
-        this.allLoadProfiles = allLoadProfiles;
+        this.allOfflineLoadProfiles = allLoadProfiles;
     }
 
     private void setAllLogBooks(List<OfflineLogBook> allLogBooks) {
-        this.allLogBooks = allLogBooks;
+        this.allOfflineLogBooks = allLogBooks;
     }
 
     private void setAllPendingMessages(final List<OfflineDeviceMessage> allPendingMessages) {
@@ -585,6 +619,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         this.sentDeviceMessages = allSentMessages;
     }
 
+    @XmlElement(type = DeviceProtocolPluggableClassImpl.class)
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
         return deviceProtocolPluggableClass;
     }
@@ -600,7 +635,10 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(device);
+        if (deviceIdentifier == null) {
+            deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(getId(), getmRID());
+        }
+        return deviceIdentifier;
     }
 
     @Override
@@ -637,11 +675,17 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    @XmlElement
+    @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)
     public Map<String, TypedProperties> getSecurityPropertySetAttributeToKeyAccessorTypeMapping() {
         return securityPropertySetAttributeToKeyAccessorTypeMapping;
     }
 
-    private void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(Device device) {
+    public void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(HashMap<String, TypedProperties> securityPropertySetAttributeToKeyAccessorTypeMapping) {
+        this.securityPropertySetAttributeToKeyAccessorTypeMapping = securityPropertySetAttributeToKeyAccessorTypeMapping;
+    }
+
+    private void setSecurityPropertySetAttributeToKeyAccessorType(Device device) {
         securityPropertySetAttributeToKeyAccessorTypeMapping = new HashMap<>();
         device.getDeviceConfiguration().getSecurityPropertySets().stream().forEach(this::addSecurityPropertySetAttributeToKeyAccessorTypeMappings);
 

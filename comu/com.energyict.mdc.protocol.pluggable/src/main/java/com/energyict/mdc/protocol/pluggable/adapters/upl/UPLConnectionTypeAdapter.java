@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -143,5 +144,16 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
     @Override
     public int hashCode() {
         return uplConnectionType != null ? uplConnectionType.hashCode() : 0;
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

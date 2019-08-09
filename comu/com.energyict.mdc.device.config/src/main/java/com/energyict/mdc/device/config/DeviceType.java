@@ -19,7 +19,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 
 import aQute.bnd.annotation.ProviderType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -35,6 +40,11 @@ import java.util.Optional;
  * @author Karel
  */
 @ProviderType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface DeviceType extends HasId, HasName {
 
     /**
@@ -60,6 +70,7 @@ public interface DeviceType extends HasId, HasName {
      *
      * @return description
      */
+    @XmlAttribute
     String getDescription();
 
     void setDescription(String newDescription);
@@ -105,6 +116,7 @@ public interface DeviceType extends HasId, HasName {
      *
      * @return true if devices of this type are logical slaves
      */
+    @XmlAttribute
     boolean isLogicalSlave();
 
     /**
@@ -277,6 +289,12 @@ public interface DeviceType extends HasId, HasName {
     Optional<String> getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
     void updateDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType, String value);
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 
     interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);

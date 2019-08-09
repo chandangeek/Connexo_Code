@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.UnmodifiableTypedProperties;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     }
 
     @Override
+    @XmlTransient
     public DeviceConfigurationImpl getDeviceConfiguration() {
         return this.deviceConfiguration;
     }

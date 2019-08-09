@@ -12,17 +12,27 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.energyict.mdc.device.config.impl.DeviceTypeImpl;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 
 import aQute.bnd.annotation.ProviderType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 @ProviderType
 public interface DeviceConfiguration extends HasId, HasName, DeviceCommunicationConfiguration {
 
@@ -32,6 +42,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     void setDescription(String description);
 
+    @XmlElement(type = DeviceTypeImpl.class, name = "deviceType")
     DeviceType getDeviceType();
 
     List<RegisterSpec> getRegisterSpecs();
@@ -181,4 +192,10 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
      * @param value true if setAsDefault, false if removeAsDefault
      */
     void setDefaultStatus(boolean value);
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 }

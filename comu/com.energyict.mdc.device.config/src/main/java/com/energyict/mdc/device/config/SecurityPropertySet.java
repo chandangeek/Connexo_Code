@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.device.config.impl.ConfigurationSecurityPropertyImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -18,7 +19,12 @@ import com.energyict.mdc.protocol.api.security.SecurityPropertySpecProvider;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
 import aQute.bnd.annotation.ProviderType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,12 +42,19 @@ import java.util.Set;
  * @since 2012-12-14 (10:29)
  */
 @ProviderType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpecProvider {
 
     void setName(String name);
 
+    @XmlAttribute
     AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel();
 
+    @XmlAttribute
     EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
 
     Object getClient();
@@ -64,6 +77,7 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     ResponseSecurityLevel getResponseSecurityLevel();
 
+    @XmlElement(type = ConfigurationSecurityPropertyImpl.class)
     List<ConfigurationSecurityProperty> getConfigurationSecurityProperties();
 
     void addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor);
@@ -96,7 +110,16 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     void update();
 
+    @XmlAttribute
     long getVersion();
+
+    @XmlElement(name = "type")
+    default String getXmlType() {
+        return getClass().getName();
+    }
+
+    default void setXmlType(String ignore) {
+    }
 
     /**
      * Gets the Set of {@link PropertySpec}s that are the result of the selected security levels.

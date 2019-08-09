@@ -39,4 +39,6 @@ public interface RunningComServer extends ServerProcess {
 
     public void refresh(ComPort comPort);
 
+    public void restartAllComPorts();
+
 }

@@ -8,7 +8,11 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.upl.TypedProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.List;
 
@@ -18,6 +22,11 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-27 (14:56)
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface PluggableClass extends HasId, HasName {
 
     void setName(String name);
@@ -34,6 +43,7 @@ public interface PluggableClass extends HasId, HasName {
      *
      * @return the java class name
      */
+    @XmlElement
     String getJavaClassName();
 
     /**
@@ -74,4 +84,13 @@ public interface PluggableClass extends HasId, HasName {
     void delete();
 
     long getEntityVersion();
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public default String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public default void setXmlType(String ignore) {
+    }
 }

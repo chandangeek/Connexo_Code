@@ -27,6 +27,7 @@ import com.google.inject.Provider;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ import java.util.List;
 @UniqueUri(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_DUPLICATE_COM_SERVER_URI + "}")
 public final class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
-    private final EngineConfigurationService engineConfigurationService;
+    private EngineConfigurationService engineConfigurationService;
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
@@ -57,6 +58,16 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     private int numberOfStoreTaskThreads;
     @Range(min=MINIMUM_STORE_TASK_THREAD_PRIORITY, max=MAXIMUM_STORE_TASK_THREAD_PRIORITY, message = "{"+ MessageSeeds.Keys.MDC_VALUE_NOT_IN_RANGE+"}", groups = {Save.Update.class, Save.Create.class})
     private int storeTaskThreadPriority;
+    private boolean compressingEnabled = true;
+    private String statusUri;
+    private String eventRegistrationUriIfSupported;
+    private String eventRegistrationUri;
+    private String queryApiPostUriIfSupported;
+    private String queryApiPostUri;
+
+    protected OnlineComServerImpl() {
+        super();
+    }
 
     @Inject
     public OnlineComServerImpl(DataModel dataModel, EngineConfigurationService engineConfigurationService, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
@@ -107,6 +118,7 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
+    @XmlElement(name = "name")
     public String getServerName() {
         return serverName;
     }
@@ -119,20 +131,24 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     @Override
     @XmlElement
     public String getQueryApiPostUri () {
-        return queryApiPort != 0 ? this.buildQueryApiPostUri(serverName, queryApiPort) : "";
+        queryApiPostUri = queryApiPort != 0 ? this.buildQueryApiPostUri(serverName, queryApiPort) : "";
+        return queryApiPostUri;
     }
 
     @Override
+    @XmlElement
     public String getQueryApiPostUriIfSupported () {
         if (Checks.is(this.getQueryApiPostUri()).emptyOrOnlyWhiteSpace()) {
             return super.getQueryApiPostUriIfSupported();
         }
         else {
-            return this.getQueryApiPostUri();
+            queryApiPostUriIfSupported = this.getQueryApiPostUri();
+            return queryApiPostUriIfSupported;
         }
     }
 
     @Override
+    @XmlElement
     public int getQueryApiPort() {
         return queryApiPort;
     }
@@ -145,20 +161,24 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     @Override
     @XmlElement
     public String getEventRegistrationUri () {
-        return eventRegistrationPort != 0 ? this.buildEventRegistrationUri(serverName, eventRegistrationPort) : null;
+        eventRegistrationUri =  eventRegistrationPort != 0 ? this.buildEventRegistrationUri(serverName, eventRegistrationPort) : null;
+        return eventRegistrationUri;
     }
 
     @Override
+    @XmlElement
     public String getEventRegistrationUriIfSupported () {
         if (Checks.is(this.getEventRegistrationUri()).emptyOrOnlyWhiteSpace()) {
             return super.getEventRegistrationUriIfSupported();
         }
         else {
-            return this.getEventRegistrationUri();
+            eventRegistrationUriIfSupported = this.getEventRegistrationUri();
+            return eventRegistrationUriIfSupported;
         }
     }
 
     @Override
+    @XmlElement
     public int getEventRegistrationPort() {
         return eventRegistrationPort;
     }
@@ -169,6 +189,7 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
+    @XmlElement
     public int getStatusPort() {
         return statusPort;
     }
@@ -179,9 +200,14 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     }
 
     @Override
-    @XmlElement
+    @XmlElement(name = "statusUri")
     public String getStatusUri () {
-        return statusPort != 0 ? this.buildStatusUri(serverName, statusPort) : null;
+        if (statusPort != 0) {
+            statusUri = this.buildStatusUri(serverName, statusPort);
+        } else {
+            statusUri = null;
+        }
+        return statusUri;
     }
 
     @Override
@@ -200,6 +226,12 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     @XmlElement
     public int getStoreTaskThreadPriority () {
         return storeTaskThreadPriority;
+    }
+
+    @Override
+    @XmlAttribute
+    public boolean isCompressingEnabled() {
+        return compressingEnabled;
     }
 
     @Override

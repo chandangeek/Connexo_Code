@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.engine.impl.web;
 
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.LongFactory;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
@@ -15,24 +17,30 @@ import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.EventServlet;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
-
-import org.eclipse.jetty.server.AbstractHttpConnection;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
+import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.upl.TypedProperties;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ErrorHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ByteArrayISO8859Writer;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.joda.time.DateTimeConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,12 +63,21 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
 
     }
 
+    private static final int GRACEFUL_SHUTDOWN_SECONDS = 3;
+    private Server jetty;
+    private String threadPoolName;
+
+    private EmbeddedJettyServer (ShutdownFailureLogger shutdownFailureLogger) {
+        super();
+        this.shutdownFailureLogger = shutdownFailureLogger;
+    }
+
     /**
      * The number of seconds that accepted requests are allowed to complete
      * during the graceful shutdown.
      */
-    private static final int GRACEFUL_SHUTDOWN_SECONDS = 3;
-    private Server jetty;
+
+    private final static String INBOUND_COMPORT_SERVICE = "Jetty_InboundComportService";
 
     /**
      * Constructs a new EmbeddedJettyServer that will host
@@ -80,30 +97,45 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
 
     private EmbeddedJettyServer(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
-        this.jetty = new Server();
+        threadPoolName = INBOUND_COMPORT_SERVICE;
+        QueuedThreadPool threadPool = new QueuedThreadPool();
+        threadPool.setName(threadPoolName);
+        jetty = new Server(threadPool);
         this.shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
+        ServerConnector connector;
         if (comPort.isHttps()) {
             SslContextFactory sslContextFactory = new SslContextFactory();
             sslContextFactory.setKeyStorePath(comPort.getKeyStoreSpecsFilePath());
             sslContextFactory.setKeyStorePassword(comPort.getKeyStoreSpecsPassword());
-            sslContextFactory.setTrustStore(comPort.getTrustStoreSpecsFilePath());
+            sslContextFactory.setTrustStorePath(comPort.getTrustStoreSpecsFilePath());
             sslContextFactory.setTrustStorePassword(comPort.getTrustStoreSpecsPassword());
-            SslSocketConnector sslConnector = new SslSocketConnector(sslContextFactory);
-            sslConnector.setPort(comPort.getPortNumber());
-            this.jetty.addConnector(sslConnector);
+            connector = new ServerConnector(jetty, sslContextFactory);
         }
         else {
-            SelectChannelConnector connector = new SelectChannelConnector();
-            connector.setPort(comPort.getPortNumber());
-            this.jetty.addConnector(connector);
+            connector = new ServerConnector(jetty);
         }
+        connector.setPort(comPort.getPortNumber());
+        connector.setIdleTimeout(getMaxIdleTime(comPort));
+        jetty.addConnector(connector);
 
         initCustomErrorHandling();
-
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
         ComServlet servlet = new ComServlet(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         handler.addServlet(new ServletHolder(servlet), this.getContextPath(comPort));
         this.jetty.setHandler(handler);
+    }
+
+    private static final String MAX_IDLE_TIME = "maxIdleTime";
+    private static final BigDecimal MAX_IDLE_TIME_DEFAULT_VALUE = BigDecimal.valueOf(200000);
+
+    /**
+     * Get the maxIdleTime property that is defined on the discovery protocol of the ComPort pool.
+     */
+    private int getMaxIdleTime(ServletBasedInboundComPort comPort) {
+        BasicPropertySpec idleTime = new BasicPropertySpec(new LongFactory());
+        PluggableClass discoveryProtocolPluggableClass = comPort.getComPortPool().getDiscoveryProtocolPluggableClass();
+        TypedProperties properties = discoveryProtocolPluggableClass.getProperties(Arrays.asList(idleTime));
+        return properties.getTypedProperty(MAX_IDLE_TIME, MAX_IDLE_TIME_DEFAULT_VALUE).intValue();
     }
 
     private void initCustomErrorHandling() {
@@ -125,24 +157,28 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
         }
     }
 
+    private final static String EVENT_MECHANISM = "Jetty_EventMechanism";
+
     /**
      * Creates a new EmbeddedJettyServer that will host the servlet for the event mechanism.
      *
      * @param eventRegistrationUri The URI on which the servlet should be listening
      * @param serviceProvider The ServiceProvider
      */
-    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
+    public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider, EventAPIStatistics eventAPIStatistics) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new EventMechanismShutdownFailureLogger(eventRegistrationUri));
-        server.addEventMechanism(eventRegistrationUri, serviceProvider);
+        server.addEventMechanism(eventRegistrationUri, serviceProvider, eventAPIStatistics);
         return server;
     }
 
-    public void addEventMechanism (URI eventRegistrationUri, ServiceProvider serviceProvider) {
+    public void addEventMechanism(URI eventRegistrationUri, ServiceProvider serviceProvider, EventAPIStatistics eventAPIStatistics) {
         this.jetty = new Server(getPortNumber(eventRegistrationUri, ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER));
+        ContextHandlerCollection handlerCollection = new ContextHandlerCollection();
+        this.jetty.setHandler(handlerCollection);
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        ServletHolder servletHolder = new ServletHolder(new EventServlet(serviceProvider.webSocketEventPublisherFactory()));
+        ServletHolder servletHolder = new ServletHolder(new EventServlet(serviceProvider.webSocketEventPublisherFactory(), eventAPIStatistics));
         handler.addServlet(servletHolder, eventRegistrationUri.getPath());
-        this.jetty.setHandler(handler);
+        handlerCollection.setHandlers(new Handler[]{handler});
     }
 
     /**
@@ -153,23 +189,18 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * @param queryApiPostUri The URI on which the servlet should be listening
      * @param comServer The OnlineComServer
      */
-    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
+    public static EmbeddedJettyServer newForQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new QueryAPIShutdownFailureLogger(queryApiPostUri));
-        server.addQueryApi(queryApiPostUri, comServer);
+        server.addQueryApi(queryApiPostUri, comServer, queryAPIStatistics);
         return server;
     }
 
-    public void addQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer) {
+    public void addQueryApi (URI queryApiPostUri, RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
         this.jetty = new Server(getPortNumber(queryApiPostUri, ComServer.DEFAULT_QUERY_API_PORT_NUMBER));
         ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        ServletHolder servletHolder = new ServletHolder(new QueryApiServlet(comServer));
+        ServletHolder servletHolder = new ServletHolder(new QueryApiServlet(comServer, queryAPIStatistics));
         handler.addServlet(servletHolder, queryApiPostUri.getPath());
         this.jetty.setHandler(handler);
-    }
-
-    private EmbeddedJettyServer (ShutdownFailureLogger shutdownFailureLogger) {
-        super();
-        this.shutdownFailureLogger = shutdownFailureLogger;
     }
 
     private static int getPortNumber (URI uri, int defaultPort) {
@@ -212,11 +243,14 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
 
     @Override
     public void start () {
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
         try {
             this.jetty.start();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace(System.err);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
         }
     }
 
@@ -233,12 +267,11 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
     private void shutdown (boolean immediate) {
         try {
             if (immediate) {
-                this.jetty.setGracefulShutdown(0);
-                this.jetty.setStopAtShutdown(false);
+                jetty.setStopTimeout(0);
+                jetty.setStopAtShutdown(false);
             }
             else {
-                this.jetty.setGracefulShutdown(DateTimeConstants.MILLIS_PER_SECOND * GRACEFUL_SHUTDOWN_SECONDS);
-                this.jetty.setStopAtShutdown(true);
+                this.jetty.setStopTimeout(DateTimeConstants.MILLIS_PER_SECOND * GRACEFUL_SHUTDOWN_SECONDS);
             }
             this.jetty.stop();
         }
@@ -324,17 +357,15 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
          */
         @Override
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
-            AbstractHttpConnection connection = baseRequest.getConnection();
-            connection.getRequest().setHandled(true);
+            baseRequest.setHandled(true);
             String method = request.getMethod();
             if (method.equals("GET") || method.equals("POST") || method.equals("HEAD")) {
                 response.setContentType("text/html;charset=ISO-8859-1");
                 if(this.getCacheControl() != null) {
                     response.setHeader("Cache-Control", this.getCacheControl());
                 }
-
                 ByteArrayISO8859Writer writer = new ByteArrayISO8859Writer(4096);
-                this.handleErrorPage(request, writer, connection.getResponse().getStatus(), connection.getResponse().getReason());
+                this.handleErrorPage(request, writer, baseRequest.getResponse().getStatus(), baseRequest.getResponse().getReason());
                 writer.flush();
                 response.setContentLength(writer.size());
                 writer.writeTo(response.getOutputStream());

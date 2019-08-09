@@ -26,6 +26,8 @@ public interface EngineService {
 
     String COMPONENTNAME = "CES";
 
+    boolean isOnlineMode();
+
     IdentificationService identificationService();
 
     NlsService nlsService();

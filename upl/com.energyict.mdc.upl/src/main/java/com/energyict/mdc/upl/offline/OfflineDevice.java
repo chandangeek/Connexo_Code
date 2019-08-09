@@ -1,5 +1,6 @@
 package com.energyict.mdc.upl.offline;
 
+import com.energyict.mdc.identifiers.*;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -10,8 +11,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.*;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -26,6 +26,7 @@ import java.util.TimeZone;
         use = JsonTypeInfo.Id.CLASS,
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface OfflineDevice extends Offline {
 
     /**
@@ -52,7 +53,7 @@ public interface OfflineDevice extends Offline {
     @XmlAttribute
     String getSerialNumber();
 
-    @XmlAttribute
+    @XmlElement(name = "mRID")
     String getmRID();
 
     /**
@@ -60,7 +61,6 @@ public interface OfflineDevice extends Offline {
      *
      * @return the external name
      */
-    @XmlAttribute
     String getExternalName();
 
     /**
@@ -84,7 +84,7 @@ public interface OfflineDevice extends Offline {
      *
      * @return all properties
      */
-    @XmlAttribute
+    @XmlElement
     TypedProperties getAllProperties();
 
     /**
@@ -169,9 +169,11 @@ public interface OfflineDevice extends Offline {
      *
      * @return the used {@link DeviceProtocolCache}
      */
-    @XmlAttribute
     DeviceProtocolCache getDeviceProtocolCache();
 
+    @XmlElements(
+            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class)}
+    )
     DeviceIdentifier getDeviceIdentifier();
 
     List<OfflineCalendar> getCalendars();

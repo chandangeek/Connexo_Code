@@ -9,9 +9,13 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
+@XmlRootElement
 public class OfflineDeviceForComTaskGroup implements OfflineDeviceContext {
 
     private final List<ComTaskExecution> comTaskGroup = new ArrayList<>();
@@ -26,6 +30,13 @@ public class OfflineDeviceForComTaskGroup implements OfflineDeviceContext {
             }
         }
         this.flags = flags;
+    }
+
+    /**
+     * For JSON serializing only
+     */
+    private OfflineDeviceForComTaskGroup() {
+        this.flags = new DeviceOfflineFlags();
     }
 
     @Override
@@ -71,5 +82,19 @@ public class OfflineDeviceForComTaskGroup implements OfflineDeviceContext {
     @Override
     public boolean needsAllLoadProfiles() {
         return flags.needsAllLoadProfiles();
+    }
+
+    @XmlAttribute
+    public DeviceOfflineFlags getFlags() {
+        return flags;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

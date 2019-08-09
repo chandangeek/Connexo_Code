@@ -12,8 +12,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineLogBookSpec;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
@@ -29,8 +29,8 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     /**
      * The {@link com.energyict.mdc.upl.meterdata.LogBook} which is going offline
      */
-    private final LogBook logBook;
-    private final Device device;
+    private LogBook logBook;
+    private Device device;
     private IdentificationService identificationService;
 
     /**
@@ -54,7 +54,13 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     /**
      * The Date from where to start fetching data from the {@link com.energyict.mdc.upl.meterdata.LogBook}
      */
-    private Date lastLogBook;
+    private Date lastReading;
+
+    private LogBookIdentifier logBookIdentifier;
+
+    public OfflineLogBookImpl() {
+        super();
+    }
 
     public OfflineLogBookImpl(LogBook logBook, IdentificationService identificationService) {
         this.logBook = logBook;
@@ -87,7 +93,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     }
 
     @Override
-    @XmlAttribute
+    @XmlElement(type = OfflineLogBookSpecImpl.class)
     public OfflineLogBookSpec getOfflineLogBookSpec() {
         return offlineLogBookSpec;
     }
@@ -116,21 +122,30 @@ public class OfflineLogBookImpl implements OfflineLogBook {
 
     @Override
     public Date getLastReading() {
-        return lastLogBook;
+        return lastReading;
     }
 
     void setLastLogBook(Date lastLogBook) {
-        this.lastLogBook = lastLogBook;
+        this.lastReading = lastLogBook;
     }
 
     @Override
+    @XmlTransient
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+        if (identificationService != null) {
+            return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        }
+        return null;
     }
 
     @Override
+    //@XmlElement(type = LogBookIdentifierForAlreadyKnowLogBook.class)
+    @XmlTransient
     public LogBookIdentifier getLogBookIdentifier() {
-        return this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook, getDeviceIdentifier());
+        if (identificationService != null) {
+            logBookIdentifier = this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook, getDeviceIdentifier());
+        }
+        return logBookIdentifier;
     }
 
     @XmlElement(name = "type")

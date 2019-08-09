@@ -8,10 +8,11 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierByDeviceAndObisCode;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -62,7 +63,7 @@ public class LogBookIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device);
+        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
     }
 
     @Test
@@ -115,7 +116,7 @@ public class LogBookIdentifierResolvingTest extends PersistenceIntegrationTest {
     public void testProtocolLogBookIdentifierByObisCodeAndDevice() throws Exception {
         LogBookServiceImpl spiedService = spy(logBookService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, LOGBOOK_OBIS_CODE));
+        spiedService.findByIdentifier(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, LOGBOOK_OBIS_CODE));
         verify(spiedService).findByDeviceAndObisCode(device, LOGBOOK_OBIS_CODE);
     }
 }

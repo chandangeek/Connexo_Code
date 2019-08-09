@@ -137,8 +137,8 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     }
 
     private Optional<Object> handlePlainTextPassphrase(PlaintextPassphrase plaintextPassphrase) {
-        if (plaintextPassphrase.getPassphrase().isPresent()) {
-            return Optional.of(plaintextPassphrase.getPassphrase().get());
+        if (plaintextPassphrase.getEncryptedPassphrase().isPresent()) {
+            return Optional.of(plaintextPassphrase.getEncryptedPassphrase().get());
         }
         return Optional.empty();
     }

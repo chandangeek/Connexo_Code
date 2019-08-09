@@ -68,6 +68,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exceptions.CommunicationException;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -618,5 +619,16 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     @Override
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.propertiesAdapter.copyProperties(properties);
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

@@ -6,9 +6,9 @@ package com.energyict.mdc.engine.impl.web.queryapi;
 
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
-
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketServlet;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
+import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -23,24 +23,26 @@ import java.util.Map;
  */
 public class QueryApiServlet extends WebSocketServlet {
 
-    private RunningOnlineComServer comServer;
+    private QueryAPIStatistics queryAPIStatistics;
+    private RunningOnlineComServer runningOnlineComServer;
     private Map<String, WebSocketQueryApiService> queryApiServices = new HashMap<>();
 
-    public QueryApiServlet (RunningOnlineComServer comServer) {
+    public QueryApiServlet (RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics) {
         super();
-        this.comServer = comServer;
+        this.runningOnlineComServer = comServer;
+        this.queryAPIStatistics = queryAPIStatistics;
     }
 
-    public OnlineComServer getComServer () {
-        return comServer.getComServer();
+    public OnlineComServer getOnlineComServer() {
+        return runningOnlineComServer.getComServer();
     }
 
     @Override
-    public WebSocket doWebSocketConnect (HttpServletRequest request, String protocol) {
-        return this.findOrCreateQueryApiService(request);
+    public void configure(WebSocketServletFactory webSocketServletFactory) {
+        webSocketServletFactory.setCreator(new WebSocketQueryApiCreator(runningOnlineComServer, queryAPIStatistics));
     }
 
-    private WebSocketQueryApiService findOrCreateQueryApiService (HttpServletRequest request) {
+    public WebSocketQueryApiService findOrCreateQueryApiService (HttpServletRequest request) {
         HttpSession httpSession = request.getSession(true);
         String httpSessionId = httpSession.getId();
         WebSocketQueryApiService queryApiService = this.queryApiServices.get(httpSessionId);
@@ -52,8 +54,8 @@ public class QueryApiServlet extends WebSocketServlet {
     }
 
     private WebSocketQueryApiService createQueryApiService () {
-        WebSocketQueryApiService queryApiService = this.comServer.newWebSocketQueryApiService();
-        this.comServer.queryApiClientRegistered();
+        WebSocketQueryApiService queryApiService = this.runningOnlineComServer.newWebSocketQueryApiService();
+        this.runningOnlineComServer.queryApiClientRegistered();
         return queryApiService;
     }
 

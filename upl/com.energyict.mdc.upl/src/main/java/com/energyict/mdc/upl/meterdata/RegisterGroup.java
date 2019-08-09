@@ -1,5 +1,6 @@
 package com.energyict.mdc.upl.meterdata;
 
+import com.elster.jupiter.util.HasId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlElement;

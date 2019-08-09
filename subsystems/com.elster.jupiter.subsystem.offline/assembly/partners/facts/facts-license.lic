@@ -1,0 +1,26 @@
+Licensor=Yellowfin
+Licensee=Honeywell (formerly Elster EnergyICT)
+ServerName=localhost
+DataSources=9999
+Consumers=9999
+Writers=9999
+Dashboard=9999
+MultiCast=9999
+IssueDate=2019-04-22
+Locale=EN
+Language=EN
+LicenceId=312694
+ConcurrentUsers=9999
+ServerCores=9999
+NamedUsers=9999
+EmailUsers=9999
+ClientDataSources=9999
+SignalsUsers=9999
+ClusterSignalsCores=9999
+ClusterCores=9999
+ConcurrentMode=DISABLED
+Clients=9999
+LicenseType=DEVELOPMENT
+Expiration=2019-06-22
+
+Signature=302C02144F4C95C786561ACCCE21C58B46E8577B6A79F8B302146F01EC3526B2474CFB902266AEFF4EDAFC7701DE

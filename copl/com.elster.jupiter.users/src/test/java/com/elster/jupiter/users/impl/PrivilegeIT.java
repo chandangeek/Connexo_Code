@@ -27,6 +27,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.privileges.PrivilegeImpl;
 import com.elster.jupiter.util.UtilModule;
 
 import com.google.inject.AbstractModule;

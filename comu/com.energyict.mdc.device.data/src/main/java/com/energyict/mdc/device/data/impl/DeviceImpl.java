@@ -212,6 +212,9 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -260,41 +263,42 @@ import static java.util.stream.Collectors.toList;
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @DeviceImpl.HasValidShipmentDate(groups = {Save.Create.class})
 @ValidOverruledAttributes(groups = {Save.Update.class})
+@XmlRootElement
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDevice {
 
     public static final String IP_V6_ADDRESS = "IPv6Address";
     private static final String HOST_PROPERTY_SPEC_NAME = "host";
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
     private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
-    private final DataModel dataModel;
-    private final EventService eventService;
-    private final IssueService issueService;
-    private final Thesaurus thesaurus;
-    private final Clock clock;
-    private final MeteringService meteringService;
-    private final ValidationService validationService;
-    private final MeteringGroupsService meteringGroupsService;
-    private final CustomPropertySetService customPropertySetService;
-    private final ServerDeviceService deviceService;
-    private final LockService lockService;
-    private final SecurityManagementService securityManagementService;
-    private final MdcReadingTypeUtilService readingTypeUtilService;
-    private final ThreadPrincipalService threadPrincipalService;
-    private final UserPreferencesService userPreferencesService;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private DataModel dataModel;
+    private EventService eventService;
+    private IssueService issueService;
+    private Thesaurus thesaurus;
+    private Clock clock;
+    private MeteringService meteringService;
+    private ValidationService validationService;
+    private MeteringGroupsService meteringGroupsService;
+    private CustomPropertySetService customPropertySetService;
+    private ServerDeviceService deviceService;
+    private LockService lockService;
+    private SecurityManagementService securityManagementService;
+    private MdcReadingTypeUtilService readingTypeUtilService;
+    private ThreadPrincipalService threadPrincipalService;
+    private UserPreferencesService userPreferencesService;
+    private DeviceConfigurationService deviceConfigurationService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private final List<SecurityAccessor> keyAccessors = new ArrayList<>();
     private final Reference<DeviceType> deviceType = ValueReference.absent();
     @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
-    private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
-    private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
-    private final Provider<ComTaskExecutionImpl> comTaskExecutionProvider;
-    private final Reference<Batch> batch = ValueReference.absent();
-    private final ConnectionTaskService connectionTaskService;
-    private final MeteringZoneService meteringZoneService;
+    private Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
+    private Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
+    private Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
+    private Provider<ComTaskExecutionImpl> comTaskExecutionProvider;
+    private Reference<Batch> batch = ValueReference.absent();
+    private ConnectionTaskService connectionTaskService;
+    private MeteringZoneService meteringZoneService;
 
     @SuppressWarnings("unused")
     private long id;
@@ -345,6 +349,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient List<SyncDeviceWithKoreMeter> syncsWithKore = new ArrayList<>();
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(DeviceImpl.class.getName());
+
+    public DeviceImpl() {
+        super();
+    }
 
     @Inject
     public DeviceImpl(
@@ -822,6 +830,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.estimationActive = false;
     }
 
+    @Override
+    @XmlAttribute
     public long getId() {
         return id;
     }
@@ -877,7 +887,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
-        findOrCreateKoreUpdater().setSerialNumber(serialNumber);
+        if (deviceService != null && eventService != null && readingTypeUtilService != null) {
+            findOrCreateKoreUpdater().setSerialNumber(serialNumber);
+        }
     }
 
     @Override
@@ -1002,15 +1014,25 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         for (ConfigurationSecurityProperty configurationSecurityProperty : securityPropertySet.getConfigurationSecurityProperties()) {
             Optional<SecurityAccessor> optionalKeyAccessor = getSecurityAccessors()
                     .stream()
-                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getSecurityAccessorType().getName()))
+                    .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().getName().equals(configurationSecurityProperty.getSecurityAccessorType().getName()))
                     .findFirst();
-            if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
-                Object actualValue = optionalKeyAccessor.get().getActualValue().get();
+            if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualPassphraseWrapperReference().isPresent()) {
+                Object actualValue = optionalKeyAccessor.get().getActualPassphraseWrapperReference().get();
                 Object adaptedValue = TypedPropertiesValueAdapter.adaptActualValueToUPLValue(actualValue, configurationSecurityProperty.getSecurityAccessorType());
                 securityProperties.setProperty(configurationSecurityProperty.getName(), adaptedValue);
             }
         }
         return securityProperties;
+    }
+
+    @Override
+    public Optional<SecurityAccessor> getSecurityAccessorByName(String securityAccessorName) {
+        Optional<SecurityAccessor> optionalKeyAccessor = getSecurityAccessors()
+                .stream()
+                .filter(keyAccessor -> keyAccessor.getName().equals(securityAccessorName))
+                .findFirst();
+
+        return optionalKeyAccessor;
     }
 
     @Override
@@ -1534,7 +1556,20 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         findOrCreateKoreUpdater().setModelVersion(modelVersion);
     }
 
+    /**
+     * Only used for JSON serializing
+     */
     @Override
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+    }
+
+    @Override
+    @XmlElement(type = PassphraseAccessorImpl.class)
     public List<SecurityAccessor> getSecurityAccessors() {
         List<SecurityAccessor> securityAccessorsManagedCentrally = getSecurityAccessorsManagedCentrally();
         List<SecurityAccessor> securityAccessors = new ArrayList<>(keyAccessors.size() + securityAccessorsManagedCentrally.size());
@@ -1546,7 +1581,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType) {
         Optional<SecurityAccessor> securityAccessor = keyAccessors.stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == securityAccessorType.getId())
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().getId() == securityAccessorType.getId())
                 .findAny();
         if (securityAccessor.isPresent()) {
             return securityAccessor;
@@ -1594,8 +1629,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void removeSecurityAccessor(SecurityAccessor securityAccessor) {
-        validateManageable(securityAccessor.getKeyAccessorType());
-        this.getSecurityAccessor(securityAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
+        validateManageable(securityAccessor.getKeyAccessorTypeReference());
+        this.getSecurityAccessor(securityAccessor.getKeyAccessorTypeReference()).ifPresent(keyAccessors::remove);
     }
 
     @Override
@@ -1689,6 +1724,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         koreUpdater.setSpatialCoordinates(spatialCoordinates);
     }
 
+    @XmlAttribute
     public String getName() {
         return name;
     }
@@ -1703,7 +1739,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public DeviceType getDeviceType() {
-        return this.getDeviceConfiguration().getDeviceType();
+        return this.deviceType.get();
+    }
+
+    @Override
+    public void setDeviceType(DeviceType deviceType) {
+        this.deviceType.set(deviceType);
     }
 
     @Override
@@ -1726,6 +1767,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public DeviceConfiguration getDeviceConfiguration() {
         return this.deviceConfiguration.orNull();
+    }
+
+    @Override
+    public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        this.deviceConfiguration.set(deviceConfiguration);
     }
 
     public TimeZone getTimeZone() {
@@ -1950,6 +1996,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return Optional.empty();
+    }
+
+    public List<DeviceProtocolProperty> getDeviceProperties() {
+        return new ArrayList(deviceProperties);
     }
 
     private void notifyUpdate(DeviceProtocolProperty property) {
@@ -2927,9 +2977,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private List<SecurityAccessor> getSecurityAccessorsManagedCentrally() {
         List<SecurityAccessorType> securityAccessorTypes = getDeviceType().getSecurityAccessorTypes();
-        return securityManagementService.getDefaultValues(securityAccessorTypes.toArray(new SecurityAccessorType[securityAccessorTypes.size()])).stream()
-                .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa))
-                .collect(toList());
+        if (securityManagementService != null) {
+            return securityManagementService.getDefaultValues(securityAccessorTypes.toArray(new SecurityAccessorType[securityAccessorTypes.size()])).stream()
+                    .map(sa -> CentrallyManagedDeviceSecurityAccessor.of(thesaurus, this, sa))
+                    .collect(toList());
+        }
+        return new ArrayList<>();
     }
 
     private void validateManageable(SecurityAccessorType securityAccessorType) {

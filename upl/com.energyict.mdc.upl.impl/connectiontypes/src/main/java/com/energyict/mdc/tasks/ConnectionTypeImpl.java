@@ -19,6 +19,8 @@ import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -31,6 +33,7 @@ import java.net.Socket;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (15:19)
  */
+@XmlRootElement
 public abstract class ConnectionTypeImpl implements ConnectionType {
 
     private TypedProperties properties = TypedProperties.empty();
@@ -142,5 +145,16 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
     @Override
     public boolean equals(Object obj) {
         return obj != null && this.getClass() == obj.getClass();
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

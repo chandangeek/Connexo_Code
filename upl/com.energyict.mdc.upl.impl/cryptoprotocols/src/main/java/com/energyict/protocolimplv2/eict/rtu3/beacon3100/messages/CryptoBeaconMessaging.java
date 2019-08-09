@@ -36,7 +36,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100Securit
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.CryptoMasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.CryptoMasterDataSync;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;

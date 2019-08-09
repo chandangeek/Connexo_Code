@@ -10,6 +10,8 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 /**
  * Provides factory services for {@link EmbeddedWebServer}s.
@@ -41,7 +43,7 @@ public interface EmbeddedWebServerFactory {
      * @param comServer The ComServer
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer);
+    public EmbeddedWebServer findOrCreateEventWebServer (ComServer comServer, EventAPIStatistics eventAPIStatistics);
 
     /**
      * Finds or creates the {@link EmbeddedWebServer} that hosts
@@ -52,6 +54,6 @@ public interface EmbeddedWebServerFactory {
      * @param comServer The RunningOnlineComServer
      * @return The EmbeddedWebServer
      */
-    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer comServer);
+    public EmbeddedWebServer findOrCreateRemoteQueryWebServer (RunningOnlineComServer comServer, QueryAPIStatistics queryAPIStatistics);
 
 }

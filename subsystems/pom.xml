@@ -22,5 +22,6 @@
 		<module>com.elster.jupiter.subsystem.kore</module>
 		<module>com.elster.jupiter.subsystem.mdc</module>
 		<module>com.elster.insight.subsystem</module>
+		<module>com.elster.jupiter.subsystem.offline</module>
 	</modules>
 </project>

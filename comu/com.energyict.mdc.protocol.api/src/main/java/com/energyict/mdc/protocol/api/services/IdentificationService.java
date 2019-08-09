@@ -6,7 +6,6 @@ package com.energyict.mdc.protocol.api.services;
 
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.Register;
@@ -43,7 +42,7 @@ public interface IdentificationService {
 
     DeviceIdentifier createDeviceIdentifierByCallHomeId(String callHomeId);
 
-    DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(Device device);
+    DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(long deviceId, String deviceMrId);
 
     RegisterIdentifier createRegisterIdentifierByAlreadyKnownRegister(Register register);
 

@@ -99,7 +99,7 @@ public class LoadProfileCommandHelperTest extends CommonCommandImplTests {
         OfflineLoadProfileChannel loadProfileChannel2 = createMockedOfflineLoadProfileChannel(channelObisCodes[1]);
         OfflineLoadProfileChannel loadProfileChannel3 = createMockedOfflineLoadProfileChannel(channelObisCodes[2]);
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);
-        when(offlineLoadProfile.interval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
+        when(offlineLoadProfile.getInterval()).thenReturn(FIXED_LOAD_PROFILE_INTERVAL.asTemporalAmount());
         when(offlineLoadProfile.getOfflineChannels()).thenReturn(Arrays.asList(loadProfileChannel1, loadProfileChannel2, loadProfileChannel3));
 
         OfflineLoadProfileChannel mockChannel1 = getMockChannel(channelObisCodes[0]);

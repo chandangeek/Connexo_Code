@@ -21,6 +21,8 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ConnectionTask getConnectionTask();
 
+    void setConnectionTask(ConnectionTask connectionTask);
+
     ComSessionBuilder connectDuration(Duration duration);
 
     ComSessionBuilder talkDuration(Duration duration);

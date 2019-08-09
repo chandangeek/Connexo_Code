@@ -44,6 +44,8 @@ import com.elster.jupiter.users.UserDirectorySecurityProvider;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
+import com.elster.jupiter.users.privileges.PrivilegeInGroup;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -228,6 +230,14 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return dataModel.mapper(User.class).find()
                 .stream()
                 .filter(s -> s.getUserDirectoryId() == id)
+                .sorted((s1, s2) -> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return dataModel.mapper(User.class).find()
+                .stream()
                 .sorted((s1, s2) -> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
                 .collect(Collectors.toList());
     }

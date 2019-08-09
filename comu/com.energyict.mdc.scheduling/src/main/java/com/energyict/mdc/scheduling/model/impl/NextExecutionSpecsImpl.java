@@ -15,6 +15,7 @@ import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
@@ -52,6 +53,10 @@ public final class NextExecutionSpecsImpl extends PersistentIdObject<NextExecuti
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+
+    public NextExecutionSpecsImpl() {
+        super();
+    }
 
     @Inject
     public NextExecutionSpecsImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -99,4 +104,14 @@ public final class NextExecutionSpecsImpl extends PersistentIdObject<NextExecuti
         return this.getTemporalExpression().nextOccurrence(lastExecution);
     }
 
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
+    }
 }

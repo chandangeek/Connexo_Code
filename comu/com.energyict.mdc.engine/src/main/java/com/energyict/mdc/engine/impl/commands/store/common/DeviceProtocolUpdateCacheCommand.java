@@ -36,10 +36,12 @@ public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         DeviceProtocolCache deviceCache = deviceProtocol.getDeviceCache();
         if (shouldStoreCache(deviceCache)) {
-            UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(device.getDeviceIdentifier());
-            updatedDeviceCache.setCollectedDeviceCache(deviceCache);
-            this.deviceCache = updatedDeviceCache.getCollectedDeviceCache();
-            addCollectedDataItem(updatedDeviceCache);
+            if (deviceCache != null) {
+                UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(device.getDeviceIdentifier());
+                updatedDeviceCache.setCollectedDeviceCache(deviceCache);
+                this.deviceCache = updatedDeviceCache.getCollectedDeviceCache();
+                addCollectedDataItem(updatedDeviceCache);
+            }
         }
     }
 

@@ -44,6 +44,8 @@ public interface ComSession extends HasId, TaskExecutionSummary {
 
     ConnectionTask getConnectionTask();
 
+    void setConnectionTask(ConnectionTask connectionTask);
+
     ComPort getComPort();
 
     ComPortPool getComPortPool();

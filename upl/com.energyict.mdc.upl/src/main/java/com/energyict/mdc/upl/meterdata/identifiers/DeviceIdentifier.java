@@ -2,6 +2,7 @@ package com.energyict.mdc.upl.meterdata.identifiers;
 
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.Optional;
 import java.util.Set;
@@ -35,6 +36,10 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-12 (10:56)
  */
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public interface DeviceIdentifier extends Identifier {
 
     interface Finder {

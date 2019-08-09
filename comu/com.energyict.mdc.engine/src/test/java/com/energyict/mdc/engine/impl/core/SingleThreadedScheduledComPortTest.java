@@ -679,14 +679,14 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     private ComJob toComJob(ComTaskExecution comTask) {
-        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup(((OutboundConnectionTask) comTask.getConnectionTask().get()).getId());
+        ComTaskExecutionGroup comTaskExecutionGroup = new ComTaskExecutionGroup(((OutboundConnectionTask) comTask.getConnectionTask().get()));
         comTaskExecutionGroup.add(comTask);
         return comTaskExecutionGroup;
     }
 
     private List<ComJob> toComJob(List<ComTaskExecution> serialComTasks) {
         ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask().get();
-        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask.getId());
+        ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
         serialComTasks.forEach(group::add);
         return Arrays.asList(group);
     }

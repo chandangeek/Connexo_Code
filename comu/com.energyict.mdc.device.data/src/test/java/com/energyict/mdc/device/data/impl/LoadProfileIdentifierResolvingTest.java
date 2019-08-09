@@ -8,11 +8,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierFirstOnDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierForAlreadyKnownLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
@@ -64,7 +63,7 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
 
     @Before
     public void setUp() throws Exception {
-        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device);
+        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
     }
 
     @Test
@@ -89,7 +88,7 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
         LoadProfileService spiedService = spy(loadProfileService);
         LoadProfile myLoadProfile = mock(LoadProfile.class);
         when(myLoadProfile.getDevice()).thenReturn(device);
-        Optional<LoadProfile> foundLoadProfile = spiedService.findByIdentifier(new LoadProfileIdentifierForAlreadyKnownLoadProfile(myLoadProfile, LOADPROFILE_OBIS_CODE));
+        Optional<LoadProfile> foundLoadProfile = spiedService.findByIdentifier(new LoadProfileIdentifierByObisCodeAndDevice(LOADPROFILE_OBIS_CODE, myLoadProfile.getDeviceIdentifier()));
         assertThat(foundLoadProfile).isPresent();
         assertThat(foundLoadProfile.get()).isEqualTo(myLoadProfile);
     }
@@ -126,7 +125,7 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
     public void testProtocolLoadProfileIdentifierById() throws Exception {
         LoadProfileService spiedService = spy(loadProfileService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById(1L, LOADPROFILE_OBIS_CODE, deviceIdentifier));
+        spiedService.findByIdentifier(new com.energyict.mdc.identifiers.LoadProfileIdentifierById(1L, LOADPROFILE_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findById(1L);
     }
 
@@ -135,7 +134,7 @@ public class LoadProfileIdentifierResolvingTest extends PersistenceIntegrationTe
     public void testProtocolLoadProfileIdentifierByObisCodeAndDevice() throws Exception {
         LoadProfileServiceImpl spiedService = spy(loadProfileService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice(LOADPROFILE_OBIS_CODE, deviceIdentifier));
+        spiedService.findByIdentifier(new com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice(LOADPROFILE_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findByDeviceAndObisCode(device, LOADPROFILE_OBIS_CODE);
     }
 

@@ -11,6 +11,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedDeviceCacheEvent;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
@@ -45,14 +46,7 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDevi
         if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
             DeviceIdentifier deviceIdentifier = this.deviceCache.getDeviceIdentifier();
             try {
-                Optional<DeviceCache> deviceCache = this.getEngineService().findDeviceCacheByDeviceIdentifier(deviceIdentifier);
-                if (deviceCache.isPresent()) {
-                    DeviceCache actualDeviceCache = deviceCache.get();
-                    actualDeviceCache.setCacheObject(collectedDeviceCache);
-                    actualDeviceCache.update();
-                } else {
-                    this.getEngineService().newDeviceCache(deviceIdentifier, collectedDeviceCache);
-                }
+                comServerDAO.createOrUpdateDeviceCache(new DeviceProtocolCacheXmlWrapper(deviceIdentifier, collectedDeviceCache));
             } catch (IllegalArgumentException e) {
                 //Device could not be found
                 this.addIssue(CompletionCode.ConfigurationWarning,

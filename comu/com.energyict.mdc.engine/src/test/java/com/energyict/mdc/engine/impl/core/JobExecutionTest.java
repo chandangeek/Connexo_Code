@@ -215,7 +215,7 @@ public class JobExecutionTest {
         when(this.jobExecutionServiceProvider.mdcReadingTypeUtilService()).thenReturn(this.mdcReadingTypeUtilService);
 
         IdentificationService identificationService = mock(IdentificationService.class);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(mock(DeviceIdentifier.class));
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class), )).thenReturn(mock(DeviceIdentifier.class));
         when(this.jobExecutionServiceProvider.identificationService()).thenReturn(identificationService);
 
         when(this.commandRootServiceProvider.transactionService()).thenReturn(TransactionModule.FakeTransactionService.INSTANCE);

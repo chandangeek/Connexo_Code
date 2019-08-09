@@ -23,12 +23,12 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     /**
      * The {@link Channel} which is going offline
      */
-    private final Channel channel;
+    private Channel channel;
 
     /**
      * The ObisCode used by the {@link com.energyict.mdc.upl.meterdata.LoadProfile} for this channel
      */
-    private ObisCode channelObisCode;
+    private ObisCode obisCode;
     /**
      * The {@link Unit} for this channel
      */
@@ -52,11 +52,17 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     /**
      * The SerialNumber of the {@link com.energyict.mdc.upl.meterdata.Device Device} which owns this {@link Channel}
      */
-    private String serialNumber;
+    private String masterSerialNumber;
     /**
      * The ReadingType MRID (string) of the Kore channel that will store the data
      */
     private String readingTypeMRID;
+
+    private String name;
+
+    public OfflineLoadProfileChannelImpl() {
+        super();
+    }
 
     public OfflineLoadProfileChannelImpl(Channel channel) {
         this.channel = channel;
@@ -69,7 +75,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     protected void goOffline() {
-        setChannelObisCode(this.channel.getObisCode());
+        setObisCode(this.channel.getObisCode());
         setUnit(this.channel.getUnit());
         setDeviceId(this.channel.getDevice().getId());
         setLoadProfileId(this.channel.getLoadProfile().getId());
@@ -80,7 +86,8 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
 
     @Override
     public String getName() {
-        return getReadingTypeMRID();
+        name = getReadingTypeMRID();
+        return name;
     }
 
     /**
@@ -90,7 +97,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      */
     @Override
     public ObisCode getObisCode() {
-        return this.channelObisCode;
+        return this.obisCode;
     }
 
     /**
@@ -156,7 +163,7 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
      */
     @Override
     public String getMasterSerialNumber() {
-        return serialNumber;
+        return masterSerialNumber;
     }
 
     @XmlElement(name = "type")
@@ -178,11 +185,11 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         this.readingTypeMRID = readingTypeMRID;
     }
 
-    private void setChannelObisCode(final ObisCode channelObisCode) {
-        this.channelObisCode = channelObisCode;
+    private void setObisCode(final ObisCode obisCode) {
+        this.obisCode = obisCode;
     }
 
     private void setSerialNumber(final String serialNumber) {
-        this.serialNumber = serialNumber;
+        this.masterSerialNumber = serialNumber;
     }
 }

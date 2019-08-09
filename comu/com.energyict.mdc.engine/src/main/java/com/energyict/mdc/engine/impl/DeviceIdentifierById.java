@@ -6,6 +6,8 @@ package com.energyict.mdc.engine.impl;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,6 +39,11 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     private DeviceIdentifierById(long id) {
         this();
         this.id = id;
+    }
+
+    @XmlAttribute
+    public long getId() {
+        return id;
     }
 
     @Override
@@ -88,4 +95,12 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
         }
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }

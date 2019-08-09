@@ -17,6 +17,9 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,13 +29,20 @@ import java.util.Set;
  * Serves as template for wrappers.
  */
 abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
-    protected final ConnectionType connectionType;
+    protected ConnectionType connectionType;
+
+    private ConnectionTypeDirection direction;
+
+    protected AbstractConnectionTypeDelegate() {
+        super();
+    }
 
     protected AbstractConnectionTypeDelegate(ConnectionType connectionType) {
         this.connectionType = connectionType;
     }
 
     @Override
+    @XmlTransient
     public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
         return this.connectionType.getCustomPropertySet();
     }
@@ -73,8 +83,12 @@ abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
     }
 
     @Override
+    @XmlAttribute
     public ConnectionTypeDirection getDirection() {
-        return this.connectionType.getDirection();
+        if (connectionType != null) {
+            direction = this.connectionType.getDirection();
+        }
+        return direction;
     }
 
     @Override
@@ -101,5 +115,16 @@ abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.connectionType.setUPLProperties(properties);
 
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

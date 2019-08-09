@@ -28,7 +28,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
             throw new PkiLocalizedException(thesaurus, MessageSeeds.ACTUAL_VALUE_NOT_SET);
         }
 
-        HsmKey masterKey = (HsmKey) getDevice().getSecurityAccessor(masterKeyAccessorType).get().getActualValue().get();
+        HsmKey masterKey = (HsmKey) getDevice().getSecurityAccessor(masterKeyAccessorType).get().getActualPassphraseWrapperReference().get();
 
         if (tempSymmetricKeyWrapperReference.isPresent()) {
             clearTempValue();
@@ -38,7 +38,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
     }
 
     private void doRenewValue(HsmKey masterKey) {
-        SecurityAccessorType keyAccessorType = getKeyAccessorType();
+        SecurityAccessorType keyAccessorType = getKeyAccessorTypeReference();
         HsmKey symmetricKeyWrapper = (HsmKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
         symmetricKeyWrapper.generateValue(keyAccessorType, masterKey);
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);

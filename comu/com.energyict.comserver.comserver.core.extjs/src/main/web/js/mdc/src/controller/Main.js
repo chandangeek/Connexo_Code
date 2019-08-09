@@ -38,6 +38,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ComServerEdit',
         'Mdc.controller.setup.ComServerOverview',
         'Mdc.controller.setup.ComServersView',
+        'Mdc.controller.setup.OfflineComServerEdit',
+        'Mdc.controller.setup.OfflineComServerOverview',
+        'Mdc.controller.setup.OfflineComServersView',
         'Mdc.controller.setup.Comtasks',
         'Mdc.controller.setup.ConnectionMethods',
         'Mdc.controller.setup.DeviceCommunicationProtocols',
@@ -275,7 +278,13 @@ Ext.define('Mdc.controller.Main', {
                     route: 'devicecommunication',
                     items: [
                         {
-                            text: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
+                            text: Uni.I18n.translate('general.offlineComServers', 'MDC', 'Mobile Communication servers'),
+                            href: '#/administration/offlinecomservers',
+                            privileges: Mdc.privileges.Communication.view,
+                            route: 'offlinecomservers'
+                        },
+                        {
+                            text: Uni.I18n.translate('general.comServers', 'MDC', 'Online Communication servers'),
                             href: '#/administration/comservers',
                             privileges: Mdc.privileges.Communication.view,
                             route: 'comservers'

@@ -131,6 +131,17 @@ public class CodingException extends ComServerRuntimeException {
         return new CodingException(messageSeed, comTaskExecution.getComTask().getName());
     }
 
+    /**
+     * Constructs a CodingException that represents a failure to parse the essential part of a identifier<br>
+     * (either a DeviceIdentifier/RegisterIdentifier/...)
+     * @param identifierDescription The description of the identifier
+     * @param e tThe cause
+     * @return The CodingException
+     */
+    public static CodingException failedToParseIdentifierData(Exception e, MessageSeed messageSeed, String identifierDescription) {
+        return new CodingException(e, messageSeed, identifierDescription);
+    }
+
     public static CodingException malformedObjectName(ComServer comServer, MalformedObjectNameException e, MessageSeed messageSeed) {
         return malformedComServerObjectName(comServer.getName(), e, messageSeed);
     }

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgement;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -40,7 +40,7 @@ public class UpdateDeviceMessageTest {
 
     @Test
     public void testToJournalMessageDescriptionOnInfoLogLevel() throws Exception {
-        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage);
+        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierById(deviceMessage);
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");
@@ -56,7 +56,7 @@ public class UpdateDeviceMessageTest {
     @Test
     public void testToJournalMessageDescriptionOnDebugLogLevel() throws Exception {
         Instant sentDate = Instant.now();
-        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage);
+        final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierById(deviceMessage);
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");

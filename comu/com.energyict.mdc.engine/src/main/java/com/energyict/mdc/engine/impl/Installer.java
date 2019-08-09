@@ -9,11 +9,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
+import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.security.Privileges;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -24,7 +27,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-05-14 (14:08)
  */
-class Installer implements FullInstaller {
+class Installer implements FullInstaller, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -56,6 +59,7 @@ class Installer implements FullInstaller {
                 this::publishEvents,
                 logger
         );
+        userService.addModulePrivileges(this);
     }
 
     private void createComServerUser() {
@@ -84,4 +88,17 @@ class Installer implements FullInstaller {
                 });
     }
 
+    @Override
+    public String getModuleName() {
+        return EngineService.COMPONENTNAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                Privileges.RESOURCE_MOBILE_COMSERVER.getKey(), Privileges.RESOURCE_MOBILE_COMSERVER_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.OPERATE_MOBILE_COMSERVER)));
+        return resources;
+    }
 }

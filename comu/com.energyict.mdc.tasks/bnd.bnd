@@ -1,7 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
 
-Private-Package:  \
-	com.energyict.mdc.tasks.impl
 Export-Package:  \
-	com.energyict.mdc.tasks
+	com.energyict.mdc.tasks,\
+	com.energyict.mdc.tasks.impl

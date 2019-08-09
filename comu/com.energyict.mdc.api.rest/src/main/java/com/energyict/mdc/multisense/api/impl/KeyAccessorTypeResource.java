@@ -136,7 +136,7 @@ public class KeyAccessorTypeResource {
                                               @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        getSecurityAccessorOrThrowException(keyAccessorTypeId, device).getActualValue()
+        getSecurityAccessorOrThrowException(keyAccessorTypeId, device).getActualPassphraseWrapperReference()
                 .filter(CertificateWrapper.class::isInstance)
                 .map(CertificateWrapper.class::cast)
                 .ifPresent(certificateWrapper -> {

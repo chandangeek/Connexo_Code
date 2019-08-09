@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.impl.core.remote.TemporalAmountXmlAdapter;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -18,6 +19,8 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,10 +41,10 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     /**
      * The {@link LoadProfile} which is going offline
      */
-    private final LoadProfile loadProfile;
-    private final Device device;
-    private final TopologyService topologyService;
-    private final Map<Device, List<Device>> deviceTopologies;
+    private LoadProfile loadProfile;
+    private Device device;
+    private TopologyService topologyService;
+    private Map<Device, List<Device>> deviceTopologies;
     private IdentificationService identificationService;
 
     /**
@@ -67,13 +70,13 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     /**
      * The {@link ObisCode} of the {@link LoadProfile}
      */
-    private ObisCode loadProfileObisCode;
+    private ObisCode obisCode;
+
 
     /**
      * The interval of the {@link LoadProfile}
      */
-    private TemporalAmount loadProfileInterval;
-
+    private TemporalAmount interval;
     /**
      * The date of the last correctly stored interval of this {@link LoadProfile}
      */
@@ -82,16 +85,20 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     /**
      * The serialNumber of the master {@link com.energyict.mdc.upl.meterdata.Device Device}
      */
-    private String serialNumber;
+    private String masterSerialNumber;
     /**
      * Represents a list of {@link OfflineLoadProfileChannel offlineLoadProfileChannels} which are owned by the master {@link com.energyict.mdc.upl.meterdata.Device Device}
      */
-    private List<OfflineLoadProfileChannel> loadProfileChannels;
+    private List<OfflineLoadProfileChannel> offlineChannels;
     /**
      * Represents a list of  {@link OfflineLoadProfileChannel offlineLoadProfileChannels} which are owned by the master
      * <b>OR</b> slave devices belonging to the {@link LoadProfile} of the same type
      */
-    private List<OfflineLoadProfileChannel> allLoadProfileChannels;
+    private List<OfflineLoadProfileChannel> allOfflineChannels;
+
+    public OfflineLoadProfileImpl() {
+        super();
+    }
 
     public OfflineLoadProfileImpl(final LoadProfile loadProfile, TopologyService topologyService, IdentificationService identificationService) {
         this(loadProfile, topologyService, identificationService, new HashMap<>());
@@ -121,8 +128,8 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         setLastReading(this.loadProfile.getLastReading());
         setLoadProfileInterval(this.loadProfile.getLoadProfileSpec().getInterval().asTemporalAmount());
         setLoadProfileObisCode(this.loadProfile.getLoadProfileSpec().getDeviceObisCode());
-        setLoadProfileChannels(convertToOfflineChannels(this.loadProfile.getChannels()));
-        setAllLoadProfileChannels(convertToOfflineChannels(getAllChannelsForLoadProfile(this.loadProfile)));
+        setOfflineChannels(convertToOfflineChannels(this.loadProfile.getChannels()));
+        setAllOfflineChannels(convertToOfflineChannels(getAllChannelsForLoadProfile(this.loadProfile)));
     }
 
     private List<Channel> getAllChannelsForLoadProfile(LoadProfile loadProfile) {
@@ -200,7 +207,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      */
     @Override
     public ObisCode getObisCode() {
-        return loadProfileObisCode;
+        return obisCode;
     }
 
     /**
@@ -209,8 +216,13 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * @return the integration period.
      */
     @Override
-    public TemporalAmount interval() {
-        return loadProfileInterval;
+    @XmlJavaTypeAdapter(TemporalAmountXmlAdapter.class)
+    public TemporalAmount getInterval() {
+        return interval;
+    }
+
+    public void setInterval(TemporalAmount temporalAmount) {
+        interval = temporalAmount;
     }
 
     /**
@@ -248,7 +260,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      */
     @Override
     public String getMasterSerialNumber() {
-        return serialNumber;
+        return masterSerialNumber;
     }
 
     /**
@@ -260,8 +272,9 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * @return a <CODE>List</CODE> of {@link com.energyict.mdc.upl.offline.OfflineLoadProfileChannel} objects
      */
     @Override
+    @XmlElement(type = OfflineLoadProfileChannelImpl.class)
     public List<OfflineLoadProfileChannel> getOfflineChannels() {
-        return Collections.unmodifiableList(loadProfileChannels);
+        return Collections.unmodifiableList(offlineChannels);
     }
 
     /**
@@ -271,8 +284,9 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * @return a <CODE>List</CODE> of {@link com.energyict.mdc.upl.offline.OfflineLoadProfileChannel} objects
      */
     @Override
+    @XmlElement(type = OfflineLoadProfileChannelImpl.class)
     public List<OfflineLoadProfileChannel> getAllOfflineChannels() {
-        return Collections.unmodifiableList(allLoadProfileChannels);
+        return new ArrayList<OfflineLoadProfileChannel>(allOfflineChannels);
     }
 
     @XmlElement(name = "type")
@@ -286,32 +300,39 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     }
 
     @Override
+    @XmlTransient
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+        if (identificationService != null) {
+            return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        }
+        return null;
     }
 
     @Override
     public LoadProfileIdentifier getLoadProfileIdentifier() {
-        return this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, loadProfileObisCode);
+        if (identificationService != null) {
+            return this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, obisCode);
+        }
+        return null;
     }
 
-    protected void setAllLoadProfileChannels(final List<OfflineLoadProfileChannel> allLoadProfileChannels) {
-        this.allLoadProfileChannels = allLoadProfileChannels;
+    protected void setAllOfflineChannels(final List<OfflineLoadProfileChannel> allOfflineChannels) {
+        this.allOfflineChannels = allOfflineChannels;
     }
 
-    private void setLoadProfileChannels(final List<OfflineLoadProfileChannel> loadProfileChannels) {
-        this.loadProfileChannels = loadProfileChannels;
+    private void setOfflineChannels(final List<OfflineLoadProfileChannel> offlineChannels) {
+        this.offlineChannels = offlineChannels;
     }
 
     private void setLoadProfileInterval(TemporalAmount loadProfileInterval) {
-        this.loadProfileInterval = loadProfileInterval;
+        this.interval = loadProfileInterval;
     }
 
     private void setLoadProfileObisCode(final ObisCode loadProfileObisCode) {
-        this.loadProfileObisCode = loadProfileObisCode;
+        this.obisCode = loadProfileObisCode;
     }
 
     private void setSerialNumber(final String serialNumber) {
-        this.serialNumber = serialNumber;
+        this.masterSerialNumber = serialNumber;
     }
 }

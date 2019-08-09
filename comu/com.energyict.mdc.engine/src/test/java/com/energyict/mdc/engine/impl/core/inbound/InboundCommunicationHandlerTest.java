@@ -430,7 +430,6 @@ public class InboundCommunicationHandlerTest {
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<>(0));
 
         Future<? extends Object> future = mock(Future.class);
-        when(future.get()).thenReturn(true);
         doReturn(future).when(deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
 
         // Business method
@@ -472,7 +471,6 @@ public class InboundCommunicationHandlerTest {
         when(this.connectionTaskService.buildComSession(any(ConnectionTask.class), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).thenReturn(this.comSessionBuilder);
 
         Future<? extends Object> future = mock(Future.class);
-        when(future.get()).thenReturn(true);
         doReturn(future).when(deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
 
         // Business method
@@ -608,7 +606,6 @@ public class InboundCommunicationHandlerTest {
         when(this.connectionTaskService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).thenReturn(this.comSessionBuilder);
 
         Future<? extends Object> future = mock(Future.class);
-        when(future.get()).thenReturn(true);
         doReturn(future).when(deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
 
         // Business method
@@ -677,7 +674,6 @@ public class InboundCommunicationHandlerTest {
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
 
         Future<? extends Object> future = mock(Future.class);
-        when(future.get()).thenReturn(true);
         doReturn(future).when(deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
 
         // Business method

@@ -18,6 +18,10 @@ public class UPLAuthenticationLevelAdapter extends UPLDeviceAccessLevelAdapter i
         }
     }
 
+    public UPLAuthenticationLevelAdapter() {
+        super();
+    }
+
     public UPLAuthenticationLevelAdapter(DeviceAccessLevel uplDeviceAccessLevel, Thesaurus thesaurus) {
         super(uplDeviceAccessLevel, thesaurus);
     }

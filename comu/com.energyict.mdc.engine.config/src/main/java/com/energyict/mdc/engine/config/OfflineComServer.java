@@ -16,6 +16,23 @@ package com.energyict.mdc.engine.config;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (17:40)
  */
-public interface OfflineComServer extends ComServer, OutboundCapableComServer {
+public interface OfflineComServer extends ComServer, InboundCapableComServer, OutboundCapableComServer {
+
+    /**
+     * Gets the {@link OnlineComServer} that this remote ComServer
+     * will talk to when it needs information from the database
+     * or has information available that needs to be stored in the database.
+     *
+     * @return The OnlineComServer
+     */
+    public OnlineComServer getOnlineComServer();
+
+    public void setOnlineComServer(OnlineComServer onlineComServer);
+
+    interface OfflineComServerBuilder<OCS extends OfflineComServer> extends ComServerBuilder<OCS, OfflineComServer.OfflineComServerBuilder> {
+
+        public OfflineComServerBuilder onlineComServer(OnlineComServer onlineComServer);
+
+    }
 
 }

@@ -161,9 +161,9 @@ public class ComServerDAOImplTest {
     @Test
     public void testRefreshComServerThatHasNotChanged() {
         Instant modificationDate = Instant.now();
-        when(this.comServer.getModificationDate()).thenReturn(modificationDate);
+        when(this.comServer.getModTime()).thenReturn(modificationDate);
         OutboundCapableComServer reloaded = mock(OutboundCapableComServer.class);
-        when(reloaded.getModificationDate()).thenReturn(modificationDate);
+        when(reloaded.getModTime()).thenReturn(modificationDate);
         when(this.engineConfigurationService.findComServer(COMSERVER_ID)).thenReturn(Optional.<ComServer>of(reloaded));
 
         // Business method and asserts

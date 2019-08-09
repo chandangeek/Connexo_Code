@@ -14,7 +14,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-08 (16:46)
  */
-class AllComPortPoolsRequest implements Request {
+class AllComPortPoolsRequest extends RequestImpl {
 
     @Override
     public void applyTo (EventPublisher eventPublisher) {

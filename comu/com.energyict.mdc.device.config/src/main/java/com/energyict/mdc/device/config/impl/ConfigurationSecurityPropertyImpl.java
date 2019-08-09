@@ -10,11 +10,15 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Implementation of the {@link ConfigurationSecurityProperty} interface
@@ -48,10 +52,13 @@ public class ConfigurationSecurityPropertyImpl implements ConfigurationSecurityP
         return name;
     }
 
+    @XmlTransient
+    @JsonIgnore
     public SecurityPropertySet getSecurityPropertySet() {
         return securityPropertySet.get();
     }
 
+    @XmlElement(type = SecurityAccessorTypeImpl.class)
     public SecurityAccessorType getSecurityAccessorType() {
         return keyAccessorType.orNull();
     }

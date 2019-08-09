@@ -18,6 +18,9 @@ import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.WorkGroup;
 
+import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
+import com.elster.jupiter.users.privileges.PrivilegeImpl;
+import com.elster.jupiter.users.privileges.PrivilegeInGroup;
 import com.google.common.collect.ImmutableMap;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;

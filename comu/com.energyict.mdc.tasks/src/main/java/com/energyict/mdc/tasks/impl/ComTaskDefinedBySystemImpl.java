@@ -19,7 +19,7 @@ import javax.inject.Inject;
  */
 @UniqueComTaskForFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
 @OnlyOneProtocolTaskIfFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
-class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
+public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
 
     @Inject
     ComTaskDefinedBySystemImpl(DataModel dataModel, Thesaurus thesaurus,

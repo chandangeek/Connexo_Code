@@ -41,7 +41,10 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
 
     @Override
     public String getName() {
-        return this.actual.getName();
+        if (actual != null) {
+            return this.actual.getName();
+        }
+        return null;
     }
 
     @Override

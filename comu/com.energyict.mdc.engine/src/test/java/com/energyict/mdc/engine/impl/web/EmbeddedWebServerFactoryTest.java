@@ -19,9 +19,16 @@ import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 import com.google.inject.Provider;
 
 import org.junit.Before;
@@ -31,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,6 +62,16 @@ public class EmbeddedWebServerFactoryTest {
     @Mock
     Provider<OutboundComPort> outboundComPortProvider;
     @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock(extraInterfaces = ComServerMonitor.class)
+    private ComServerMonitorImplMBean comServerMonitor;
+    @Mock
+    private ServerEventAPIStatistics eventApiStatistics;
+    @Mock
+    private QueryAPIStatistics queryAPIStatistics;
+    @Mock
+    private RunningComServerImpl.ServiceProvider serviceProvider;
+    @Mock
     Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
     @Mock
     Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
@@ -72,6 +90,11 @@ public class EmbeddedWebServerFactoryTest {
     @Before
     public void setupFactoryUnderTest () {
         this.factory = new DefaultEmbeddedWebServerFactory(this.webSocketEventPublisherFactory);
+        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+        when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
+        ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
+        when(comServerMonitor.getEventApiStatistics()).thenReturn(this.eventApiStatistics);
+        when(comServerMonitor.getQueryApiStatistics()).thenReturn(this.queryAPIStatistics);
     }
 
     public void cleanUp(){
@@ -89,7 +112,7 @@ public class EmbeddedWebServerFactoryTest {
         OfflineComServer comServer = createOfflineComServer();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventApiStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -116,7 +139,7 @@ public class EmbeddedWebServerFactoryTest {
         OnlineComServer comServer = createOnlineComServer();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventApiStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -139,7 +162,7 @@ public class EmbeddedWebServerFactoryTest {
         RemoteComServer comServer = createRemoteComServerWithRegistrationPort();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventApiStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -152,7 +175,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, queryAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -167,7 +190,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, queryAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();

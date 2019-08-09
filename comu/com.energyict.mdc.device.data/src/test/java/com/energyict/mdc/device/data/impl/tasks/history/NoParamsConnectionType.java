@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -102,4 +103,14 @@ public class NoParamsConnectionType implements ConnectionType {
         return obj instanceof NoParamsConnectionType || super.equals(obj);
     }
 
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
+    }
 }

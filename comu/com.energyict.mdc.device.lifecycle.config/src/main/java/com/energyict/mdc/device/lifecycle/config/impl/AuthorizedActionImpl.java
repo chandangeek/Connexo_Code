@@ -14,6 +14,7 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Map;
@@ -84,6 +85,7 @@ public abstract class AuthorizedActionImpl implements AuthorizedAction, Persiste
     }
 
     @Override
+    @XmlTransient
     public DeviceLifeCycleImpl getDeviceLifeCycle() {
         return deviceLifeCycle.get();
     }

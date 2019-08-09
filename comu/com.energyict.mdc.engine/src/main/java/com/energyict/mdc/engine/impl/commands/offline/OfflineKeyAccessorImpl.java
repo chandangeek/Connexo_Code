@@ -41,15 +41,15 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     protected void goOffline() {
         setDeviceId((int) this.securityAccessor.getDevice().getId());
         setDeviceMRID(this.securityAccessor.getDevice().getmRID());
-        setSecurityAccessorType(this.securityAccessor.getKeyAccessorType());
-        setActualValue(this.securityAccessor.getActualValue());
+        setSecurityAccessorType(this.securityAccessor.getKeyAccessorTypeReference());
+        setActualValue(this.securityAccessor.getActualPassphraseWrapperReference());
         setTempValue(this.securityAccessor.getTempValue());
     }
 
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
     }
 
     public void setDeviceId(int deviceId) {

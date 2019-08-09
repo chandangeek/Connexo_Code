@@ -23,7 +23,7 @@ import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import com.energyict.cbo.Unit;
@@ -31,6 +31,7 @@ import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -130,10 +131,11 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDevice(this.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDevice(this.getDevice().getId(), this.getDevice().getmRID());
     }
 
     @Override
+    @XmlTransient
     public Device getDevice() {
         return this.device.get();
     }

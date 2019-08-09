@@ -16,8 +16,6 @@ import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -154,8 +152,8 @@ public class KeyAccessorCommands {
             if (keyAccessor.isPresent()) {
                 if (keyAccessor.get() instanceof CertificateAccessor) {
                     CertificateAccessor certificateAccessor = (CertificateAccessor) keyAccessor.get();
-                    if (certificateAccessor.getActualValue().isPresent() && certificateAccessor.getActualValue().get() instanceof ClientCertificateWrapper) {
-                        ClientCertificateWrapper actualValue = (ClientCertificateWrapper) certificateAccessor.getActualValue().get();
+                    if (certificateAccessor.getActualPassphraseWrapperReference().isPresent() && certificateAccessor.getActualPassphraseWrapperReference().get() instanceof ClientCertificateWrapper) {
+                        ClientCertificateWrapper actualValue = (ClientCertificateWrapper) certificateAccessor.getActualPassphraseWrapperReference().get();
                         actualExtraValue = toString(actualExtraValue, actualValue);
                     }
                     if (certificateAccessor.getTempValue().isPresent() && certificateAccessor.getTempValue().get() instanceof ClientCertificateWrapper) {
@@ -164,8 +162,8 @@ public class KeyAccessorCommands {
                     }
                 } else if (keyAccessor.get() instanceof SymmetricKeyAccessorImpl) {
                     SymmetricKeyAccessorImpl symmetricKeyAccessor = (SymmetricKeyAccessorImpl) keyAccessor.get();
-                    if (symmetricKeyAccessor.getActualValue().isPresent() && symmetricKeyAccessor.getActualValue().get() instanceof PlaintextSymmetricKey) {
-                        PlaintextSymmetricKey actualValue = (PlaintextSymmetricKey) symmetricKeyAccessor.getActualValue().get();
+                    if (symmetricKeyAccessor.getActualPassphraseWrapperReference().isPresent() && symmetricKeyAccessor.getActualPassphraseWrapperReference().get() instanceof PlaintextSymmetricKey) {
+                        PlaintextSymmetricKey actualValue = (PlaintextSymmetricKey) symmetricKeyAccessor.getActualPassphraseWrapperReference().get();
                         if (actualValue.getKey().isPresent()) {
                             actualExtraValue += actualValue.getKey().get().getAlgorithm();
                         }
@@ -180,7 +178,7 @@ public class KeyAccessorCommands {
             }
             collection.add(Arrays.asList(securityAccessorType.getName(),
                     securityAccessorType.getKeyType().getName(),
-                    keyAccessor.isPresent() && keyAccessor.get().getActualValue().isPresent() ? (actualExtraValue.isEmpty() ? "Accessor present" : actualExtraValue) : "",
+                    keyAccessor.isPresent() && keyAccessor.get().getActualPassphraseWrapperReference().isPresent() ? (actualExtraValue.isEmpty() ? "Accessor present" : actualExtraValue) : "",
                     keyAccessor.isPresent() && keyAccessor.get().getTempValue().isPresent() ? (tempExtraValue.isEmpty() ? "Accessor present" : tempExtraValue) : "",
                     securityAccessorType.isManagedCentrally() ? "Yes" : "No"
             ));
@@ -273,7 +271,7 @@ public class KeyAccessorCommands {
             Optional<com.elster.jupiter.pki.SecurityAccessor<CertificateWrapper>> securityAccessor = securityManagementService.getDefaultValues(certSecurityAccessorType)
                     .map(sa -> (com.elster.jupiter.pki.SecurityAccessor<CertificateWrapper>) sa);
             if (securityAccessor.isPresent()) {
-                securityAccessor.get().setActualValue(clientCertificateWrapper);
+                securityAccessor.get().setActualPassphraseWrapperReference(clientCertificateWrapper);
                 securityAccessor.get().save();
             } else {
                 securityManagementService.setDefaultValues(certSecurityAccessorType, clientCertificateWrapper, null);
@@ -322,7 +320,7 @@ public class KeyAccessorCommands {
 
             SecurityAccessor securityAccessor = device.getSecurityAccessor(certSecurityAccessorType)
                     .orElseGet(() -> device.newSecurityAccessor(certSecurityAccessorType));
-            securityAccessor.setActualValue(clientCertificateWrapper);
+            securityAccessor.setActualPassphraseWrapperReference(clientCertificateWrapper);
             securityAccessor.save();
             context.commit();
         }
@@ -347,13 +345,13 @@ public class KeyAccessorCommands {
                     .orElseThrow(() -> new RuntimeException("No such security accessor type on the device type: " + keyAccessorTypeName));
 
             SecurityAccessor securityAccessor = device.getSecurityAccessor(securityAccessorType).orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-            if (securityAccessor.getActualValue().isPresent()) {
-                PlaintextPassphrase actualValue = (PlaintextPassphrase) securityAccessor.getActualValue().get();
-                actualValue.setPassphrase(cleartextPassword);
+            if (securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
+                PlaintextPassphrase actualValue = (PlaintextPassphrase) securityAccessor.getActualPassphraseWrapperReference().get();
+                actualValue.setEncryptedPassphrase(cleartextPassword);
             } else {
                 PassphraseWrapper passphraseWrapper = securityManagementService.newPassphraseWrapper(securityAccessorType);
-                ((PlaintextPassphrase) passphraseWrapper).setPassphrase(cleartextPassword);
-                securityAccessor.setActualValue(passphraseWrapper);
+                ((PlaintextPassphrase) passphraseWrapper).setEncryptedPassphrase(cleartextPassword);
+                securityAccessor.setActualPassphraseWrapperReference(passphraseWrapper);
                 securityAccessor.save();
             }
             context.commit();
@@ -393,14 +391,14 @@ public class KeyAccessorCommands {
             Optional<SecurityAccessor> keyAccessorOptional = device.getSecurityAccessor(securityAccessorType);
             SecurityAccessor<SymmetricKeyWrapper> securityAccessor;
             if (keyAccessorOptional.isPresent()) {
-                if (keyAccessorOptional.get().getActualValue().isPresent()) {
-                    ((SymmetricKeyWrapper) keyAccessorOptional.get().getActualValue().get()).delete();
+                if (keyAccessorOptional.get().getActualPassphraseWrapperReference().isPresent()) {
+                    ((SymmetricKeyWrapper) keyAccessorOptional.get().getActualPassphraseWrapperReference().get()).delete();
                 }
                 securityAccessor = keyAccessorOptional.get();
             } else {
                 securityAccessor = device.newSecurityAccessor(securityAccessorType);
             }
-            securityAccessor.setActualValue(symmetricKeyWrapper);
+            securityAccessor.setActualPassphraseWrapperReference(symmetricKeyWrapper);
             securityAccessor.save();
             context.commit();
         }

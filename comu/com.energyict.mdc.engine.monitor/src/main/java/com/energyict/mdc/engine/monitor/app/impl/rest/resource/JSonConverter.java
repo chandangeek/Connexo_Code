@@ -205,7 +205,7 @@ public class JSonConverter {
 //        ComServer comServer =  comServerDAO.getThisComServer();
 //        List<JSONObject> remotes = new ArrayList<>();
 //        if (comServer.isOnline()){
-//            List<RemoteComServer> remoteComServers = ManagerFactory.getCurrent().getComServerFactory().findRemoteComServersWithOnlineComServer((OnlineComServer) monitor.getComServer());
+//            List<RemoteComServer> remoteComServers = ManagerFactory.getCurrent().getComServerFactory().findRemoteComServersWithOnlineComServer((OnlineComServer) monitor.getRunningOnlineComServer());
 //            QueryAPIStatistics queryAPIStatistics = monitor.getQueryApiStatistics();
 //            Map<String, Date> registeredClients = new HashMap<>();
 //            if (queryAPIStatistics != null){

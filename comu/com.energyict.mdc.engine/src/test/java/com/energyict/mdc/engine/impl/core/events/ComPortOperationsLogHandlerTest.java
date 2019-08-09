@@ -15,14 +15,20 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
@@ -39,6 +45,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -50,6 +57,8 @@ public class ComPortOperationsLogHandlerTest {
     ServiceProvider serviceProvider;
     @Mock
     private ComPort comPort;
+    @Mock
+    private RunningComServerImpl.ServiceProvider serviceComServerProvider;
     @Mock
     private DeviceService deviceService;
     @Mock
@@ -72,6 +81,12 @@ public class ComPortOperationsLogHandlerTest {
     private NlsService nlsService;
     @Mock
     private EventService eventService;
+    @Mock
+    private ServerEventAPIStatistics eventApiStatistics;
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock(extraInterfaces = ComServerMonitor.class)
+    private ComServerMonitorImplMBean comServerMonitor;
 
     private ComPortOperationsLogger comPortOperationsLogger;
     private static final String eventRegistrationURL = "ws://localhost:8282/events/registration";
@@ -81,6 +96,10 @@ public class ComPortOperationsLogHandlerTest {
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(serviceProvider.eventPublisher()).thenReturn(eventPublisher);
+        when(serviceComServerProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+        when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
+        ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
+        when(comServerMonitor.getEventApiStatistics()).thenReturn(this.eventApiStatistics);
 
         ComPortOperationsLogHandler comportOperationsLogHandler = new ComPortOperationsLogHandler(comPort, serviceProvider.eventPublisher(), serviceProvider);
         comPortOperationsLogger = LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, this.getAnonymousLogger(comportOperationsLogHandler));
@@ -95,7 +114,7 @@ public class ComPortOperationsLogHandlerTest {
                         this.identificationService,
                         serviceProvider.eventPublisher());
         EmbeddedWebServerFactory embeddedWebServerFactory = new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory);
-        embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics);
     }
 
     @Test

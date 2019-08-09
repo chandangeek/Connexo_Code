@@ -26,6 +26,7 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
 
     private final LogBook logBook;
     private final DeviceIdentifier deviceIdentifier;
+    private ObisCode logBookObisCode;
 
     // For JSON serialization only or in unit tests
     public LogBookIdentifierForAlreadyKnowLogBook() {
@@ -40,7 +41,8 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
 
     @Override
     public ObisCode getLogBookObisCode() {
-        return logBook.getDeviceObisCode();
+        logBookObisCode = logBook.getDeviceObisCode();
+        return logBookObisCode;
     }
 
     @Override

@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -19,6 +21,7 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.lang.reflect.Proxy;
 import java.time.Duration;
 import java.time.Instant;
@@ -57,6 +60,11 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         @Override
         public ConnectionTask getConnectionTask() {
             return this.comSession.getConnectionTask();
+        }
+
+        @Override
+        public void setConnectionTask(ConnectionTask connectionTask) {
+            this.comSession.setConnectionTask(connectionTask);
         }
 
         public ComSessionBuilder addReceivedBytes(long numberOfBytes) {
@@ -112,9 +120,19 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             return sentBytes.getValue();
         }
 
+        public void setSentBytes(long sentBytes) {
+            this.sentBytes = Counters.newStrictLongCounter();
+            this.sentBytes.add(sentBytes);
+        }
+
         @Override
         public long getReceivedBytes() {
             return receivedBytes.getValue();
+        }
+
+        public void setReceivedBytes(long receivedBytes) {
+            this.receivedBytes = Counters.newStrictLongCounter();
+            this.receivedBytes.add(receivedBytes);
         }
 
         @Override
@@ -122,9 +140,19 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             return sentPackets.getValue();
         }
 
+        public void setSentPackets(long sentPackets) {
+            this.sentPackets = Counters.newStrictLongCounter();
+            this.sentPackets.add(sentPackets);
+        }
+
         @Override
         public long getReceivedPackets() {
             return receivedPackets.getValue();
+        }
+
+        public void setReceivedPackets(long receivedPackets) {
+            this.receivedPackets = Counters.newStrictLongCounter();
+            this.receivedPackets.add(receivedPackets);
         }
 
         @Override
@@ -261,6 +289,10 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             return comTaskExecutions;
         }
 
+        private UnderConstruction(){
+            comSession = new ComSessionImpl();
+        }
+
         private UnderConstruction(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
             comSession = ComSessionImpl.from(dataModel, connectionTask, comPortPool, comPort, startTime);
         }
@@ -272,16 +304,27 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
 
     private ComSessionBuilder state;
 
+    public ComSessionBuilderImpl() {
+        state = new UnderConstruction();
+    }
+
     public ComSessionBuilderImpl(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
         state = new UnderConstruction(dataModel, connectionTask, comPortPool, comPort, startTime);
     }
 
     @Override
+    @XmlElement(type = ScheduledConnectionTaskImpl.class)
     public ConnectionTask getConnectionTask() {
         return state.getConnectionTask();
     }
 
     @Override
+    public void setConnectionTask(ConnectionTask connectionTask) {
+        state.setConnectionTask(connectionTask);
+    }
+
+    @Override
+    @XmlElement(type = ComTaskExecutionSessionBuilderImpl.class)
     public List<? extends ComTaskExecutionSessionBuilder> getComTaskExecutionSessionBuilders() {
         return state.getComTaskExecutionSessionBuilders();
     }
@@ -344,6 +387,26 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     @Override
     public long getReceivedPackets() {
         return state.getReceivedPackets();
+    }
+
+    @Override
+    public void setSentBytes(long sentBytes) {
+        state.setSentBytes(sentBytes);
+    }
+
+    @Override
+    public void setReceivedBytes(long receivedBytes) {
+        state.setReceivedBytes(receivedBytes);
+    }
+
+    @Override
+    public void setSentPackets(long sentPackets) {
+        state.setSentPackets(sentPackets);
+    }
+
+    @Override
+    public void setReceivedPackets(long receivedPackets) {
+        state.setReceivedPackets(receivedPackets);
     }
 
     @Override
@@ -431,7 +494,10 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     }
 
     @Override
+    @XmlElement(type = ComSessionJournalEntryImpl.class)
     public List<ComSessionJournalEntry> getJournalEntries() {
         return state.getJournalEntries();
     }
+
+
 }

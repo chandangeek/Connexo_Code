@@ -159,7 +159,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+        return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
     }
 
     @Override

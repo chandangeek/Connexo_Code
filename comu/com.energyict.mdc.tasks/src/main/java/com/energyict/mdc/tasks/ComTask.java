@@ -7,9 +7,14 @@ package com.energyict.mdc.tasks;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.upl.tasks.TopologyAction;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import aQute.bnd.annotation.ProviderType;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 /**
@@ -20,6 +25,11 @@ import java.util.List;
  * @since 19/04/12 - 13:52
  */
 @ProviderType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface ComTask extends HasId, HasName {
 
     /**
@@ -30,6 +40,7 @@ public interface ComTask extends HasId, HasName {
     /**
      * @return a List of {@link ProtocolTask ProtocolTasks} for this ComTask
      */
+    @XmlElement
     List<ProtocolTask> getProtocolTasks();
 
     /**
@@ -102,6 +113,7 @@ public interface ComTask extends HasId, HasName {
      *
      * @return the maximum number of consecutive failures that a ComTaskExecution using this ComTask can have
      */
+    @XmlAttribute
     int getMaxNumberOfTries();
 
     void save();
@@ -110,6 +122,7 @@ public interface ComTask extends HasId, HasName {
 
     void setName(String name);
 
+    @XmlAttribute
     int getMaxNrOfTries();
 
     void setMaxNrOfTries(int maxNrOfTries);
@@ -120,17 +133,24 @@ public interface ComTask extends HasId, HasName {
      * User ComTask should be maintained by the users
      * @return true if this is a User defined ComTask, false otherwise
      */
+    @XmlAttribute
     boolean isUserComTask();
+
+    void setUserComTask(boolean ignore);
 
     /**
      * System ComTasks should be maintained by the system
      * @return true if this is a System defined ComTask, false otherwise
      */
+    @XmlAttribute
     boolean isSystemComTask();
+
+    void setSystemComTask(boolean ignore);
 
     void setManualSystemTask(boolean manualSystemTask);
 
     boolean isManualSystemTask();
 
+    @XmlAttribute
     long getVersion();
 }

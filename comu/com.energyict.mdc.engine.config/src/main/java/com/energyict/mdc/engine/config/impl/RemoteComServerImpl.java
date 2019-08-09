@@ -14,19 +14,15 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.*;
 
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.config.RemoteComServer} interface.
@@ -34,6 +30,7 @@ import javax.xml.bind.annotation.XmlElement;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:40)
  */
+@XmlRootElement
 public final class RemoteComServerImpl extends ComServerImpl implements RemoteComServer {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
@@ -114,6 +111,16 @@ public final class RemoteComServerImpl extends ComServerImpl implements RemoteCo
     @Override
     public void setStatusPort(int statusPort) {
         this.statusPort = statusPort;
+    }
+
+    @Override
+    public List<InboundComPort> getInboundComPorts () {
+        return super.getInboundComPorts();
+    }
+
+    @Override
+    public List<OutboundComPort> getOutboundComPorts () {
+        return super.getOutboundComPorts();
     }
 
     @Override

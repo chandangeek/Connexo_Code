@@ -192,6 +192,11 @@
 				<version>2.9.9</version>
 			</dependency>
 			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jdk8</artifactId>
+				<version>2.9.9</version>
+			</dependency>
+			<dependency>
 				<groupId>org.glassfish.jersey.core</groupId>
 				<artifactId>jersey-common</artifactId>
 				<version>2.13</version>
@@ -453,6 +458,12 @@
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
 				<artifactId>bootstrap.oracle</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>offline.services</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
@@ -1151,6 +1162,7 @@
 				<module>com.elster.jupiter.audit.rest</module>
 				<module>com.elster.jupiter.bootstrap</module>
 				<module>com.elster.jupiter.bootstrap.oracle</module>
+				<module>com.elster.jupiter.offline.services</module>
 				<module>com.elster.jupiter.bpm</module>
 				<module>com.elster.jupiter.bpm.extjs</module>
 				<module>com.elster.jupiter.bpm.handler</module>

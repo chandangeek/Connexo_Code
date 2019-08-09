@@ -6,6 +6,7 @@ package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.time.TimeDuration;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import java.util.Optional;
 
 /**
@@ -24,6 +25,7 @@ public interface BasicCheckTask extends ProtocolTask {
      *
      * @return true if the clockDifference should be checked, false otherwise
      */
+    @XmlAttribute
     public boolean verifyClockDifference();
     public void setVerifyClockDifference(boolean verifyClockDifference);
 
@@ -32,6 +34,7 @@ public interface BasicCheckTask extends ProtocolTask {
      *
      * @return a {@link TimeDuration} containing the maximum allowed clock difference
      */
+    @XmlAttribute
     public Optional<TimeDuration> getMaximumClockDifference();
     public void setMaximumClockDifference(TimeDuration maximumClockDifference);
 
@@ -40,6 +43,7 @@ public interface BasicCheckTask extends ProtocolTask {
      *
      * @return true if the serialNumber should be checked, false otherwise
      */
+    @XmlAttribute
     public boolean verifySerialNumber();
     public void setVerifySerialNumber(boolean verifySerialNumber);
 

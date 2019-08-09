@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.tasks.history;
 
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
@@ -15,8 +16,11 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +30,17 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     private LongCounter receivedBytes = Counters.newStrictLongCounter();
     private LongCounter sentPackets = Counters.newStrictLongCounter();
     private LongCounter receivedPackets = Counters.newStrictLongCounter();
-    private final ComTaskExecution comTaskExecution;
-    private final ComTask comTask;
-    private final Instant startDate;
+    private ComTaskExecution comTaskExecution;
+    private ComTask comTask;
+    private Instant startDate;
     private Instant stopDate;
     private ComTaskExecutionSession.SuccessIndicator successIndicator;
-    private final ComSessionBuilder parentBuilder;
+    @XmlTransient
+    private ComSessionBuilder parentBuilder;
     private List<JournalEntryBuilder> journalEntryBuilders = new ArrayList<>();
+
+    public ComTaskExecutionSessionBuilderImpl() {
+    }
 
     ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, ComTask comTask, Instant startDate) {
         this.parentBuilder = parentBuilder;
@@ -96,6 +104,40 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
         return this;
     }
 
+    @XmlElement(type = ComTaskExecutionImpl.class)
+    public ComTaskExecution getComTaskExecution() {
+        return comTaskExecution;
+    }
+
+    @XmlElement(type = ComTaskDefinedByUserImpl.class)
+    public ComTask getComTask() {
+        return comTask;
+    }
+
+    public Instant getStartDate() {
+        return startDate;
+    }
+
+    public Instant getStopDate() {
+        return stopDate;
+    }
+
+    public void setComTaskExecution(ComTaskExecution comTaskExecution) {
+        this.comTaskExecution = comTaskExecution;
+    }
+
+    public void setComTask(ComTask comTask) {
+        this.comTask = comTask;
+    }
+
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setStopDate(Instant stopDate) {
+        this.stopDate = stopDate;
+    }
+
     ComTaskExecutionSessionImpl addTo(ComSessionImpl comSession) {
         ComTaskExecutionSessionImpl comTaskExecutionSession = comSession.createComTaskExecutionSession(comTaskExecution, comTask, comTaskExecution.getDevice(), Range.closed(startDate, stopDate), successIndicator);
         for (JournalEntryBuilder journalEntryBuilder : journalEntryBuilders) {
@@ -142,6 +184,26 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
 
     public long getSentPackets() {
         return sentPackets.getValue();
+    }
+
+    public void setSentBytes(long sentBytes) {
+        this.sentBytes = Counters.newStrictLongCounter();
+        this.sentBytes.add(sentBytes);
+    }
+
+    public void setReceivedBytes(long receivedBytes) {
+        this.receivedBytes = Counters.newStrictLongCounter();
+        this.receivedBytes.add(receivedBytes);
+    }
+
+    public void setSentPackets(long sentPackets) {
+        this.sentPackets = Counters.newStrictLongCounter();
+        this.sentPackets.add(sentPackets);
+    }
+
+    public void setReceivedPackets(long receivedPackets) {
+        this.receivedPackets = Counters.newStrictLongCounter();
+        this.receivedPackets.add(receivedPackets);
     }
 
     boolean isFor(ComTaskExecution comTaskExecution) {

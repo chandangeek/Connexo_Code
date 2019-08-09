@@ -5,7 +5,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
-import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
@@ -104,7 +103,7 @@ public class SecurityHelper {
 			wrapperValue = createPlaintextPassphraseWrapper(securityAccessorKey,
 					securityAccessorType);
 		}
-		securityAccessor.setActualValue(wrapperValue);
+		securityAccessor.setActualPassphraseWrapperReference(wrapperValue);
 		securityAccessor.save();
 	}
 
@@ -117,7 +116,7 @@ public class SecurityHelper {
 					device.getName(), securityInfo.getSecurityAccessorName());
 			return;
 		}
-		securityAccessor.setActualValue(prepareHsmKey(securityAccessorType, hsmEncryptedKey));
+		securityAccessor.setActualPassphraseWrapperReference(prepareHsmKey(securityAccessorType, hsmEncryptedKey));
 		securityAccessor.save();
 	}
 
@@ -151,7 +150,7 @@ public class SecurityHelper {
 			SecurityAccessorType securityAccessorType) {
 		PlaintextPassphrase instance = (PlaintextPassphrase) securityManagementService
 				.newPassphraseWrapper(securityAccessorType);
-		instance.setPassphrase(new String(bytes));
+		instance.setEncryptedPassphrase(new String(bytes));
 		return instance;
 	}
 

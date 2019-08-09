@@ -6,9 +6,9 @@ package com.energyict.obis;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -18,6 +18,11 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 @XmlRootElement
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public class ObisCode implements Serializable {
 
     public static final int CODE_D_CUMULATIVE_MAXUMUM_DEMAND = 2;
@@ -257,6 +262,7 @@ public class ObisCode implements Serializable {
         return useRelativeBillingPeriod() && f == 1;
     }
 
+    @XmlTransient
     public boolean isLastBillingPeriod() {
         return useRelativeBillingPeriod() && f == 0;
     }

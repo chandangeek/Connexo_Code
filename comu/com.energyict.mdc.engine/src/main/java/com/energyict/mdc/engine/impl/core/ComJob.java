@@ -6,8 +6,10 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.List;
 
 /**
@@ -25,7 +27,7 @@ import java.util.List;
 public interface ComJob {
 
     /**
-     * Gets the {@link ScheduledConnectionTask} to which all this
+     * Gets the {@link ScheduledConnectionTask} id to which all this
      * ComJob's ComTaskExecution relate.
      *
      * @return The ConnectionTask
@@ -33,10 +35,24 @@ public interface ComJob {
     long getConnectionTaskId();
 
     /**
+     * Gets the {@link ConnectionTask} to which all this
+     * ComJob's ComTaskExecution relate.
+     *
+     * @return The ConnectionTask
+     */
+    ConnectionTask getConnectionTask();
+
+    /**
      * Gets the {@link ComTaskExecution}s that need to be executed as part of this ComJob.
      *
      * @return The OutboundComTaskExecutions
      */
     List<ComTaskExecution> getComTaskExecutions();
+
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 
 }

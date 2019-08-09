@@ -7,6 +7,8 @@ package com.energyict.mdc.engine.impl.commands.offline;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.IdentificationServiceImpl;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -16,7 +18,9 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
@@ -33,13 +37,16 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The Register which will go Offline
      */
-    private final Register<?, ?> register;
-    private final Device device;
+    private Register<?, ?> register;
+    private Device device;
     private IdentificationService identificationService;
+
+    private DeviceIdentifier deviceIdentifier;
+    private RegisterIdentifier registerIdentifier;
     /**
      * The ObisCode of the register which is know/used by the Device
      */
-    private ObisCode deviceRegisterObisCode;
+    private ObisCode obisCode;
 
     /**
      * The ObisCode fo the register which is known/used by the AMR system
@@ -49,7 +56,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * The {@link Unit} of the Register
      */
-    private Unit registerUnit;
+    private Unit unit;
 
     /**
      * The Id of the rtuRegister
@@ -90,7 +97,13 @@ public class OfflineRegisterImpl implements OfflineRegister {
     /**
      * Indicates that this is a text register
      */
-    private boolean isText;
+    private boolean text;
+
+    private String name;
+
+    public OfflineRegisterImpl() {
+        super();
+    }
 
     public OfflineRegisterImpl(final Register<?, ?> register, IdentificationService identificationService) {
         this.register = register;
@@ -106,10 +119,10 @@ public class OfflineRegisterImpl implements OfflineRegister {
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     private void goOffline() {
-        this.registerId = (int) this.register.getRegisterSpecId();
-        this.deviceRegisterObisCode = this.register.getDeviceObisCode();
+        this.registerId = this.register.getRegisterSpecId();
+        this.obisCode = this.register.getDeviceObisCode();
         this.amrRegisterObisCode = this.register.getRegisterSpec().getObisCode();
-        this.registerUnit = this.register.getRegisterSpec().getRegisterType().getUnit();
+        this.unit = this.register.getRegisterSpec().getRegisterType().getUnit();
 
         // We don't use the rtuRegister.getOverruledRegisterGroup as this can be overruled!
         List<RegisterGroup> registerGroups = this.register.getRegisterSpec().getRegisterType().getRegisterGroups();
@@ -123,7 +136,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
         } else if (((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue().isPresent()) {
             this.overFlow = ((NumericalRegisterSpec) this.register.getRegisterSpec()).getOverflowValue().get();
         }
-        this.isText = this.register.getRegisterSpec().isTextual();
+        this.text = this.register.getRegisterSpec().isTextual();
         this.lastReadingDate = register.getLastReadingDate();
     }
 
@@ -139,7 +152,8 @@ public class OfflineRegisterImpl implements OfflineRegister {
 
     @Override
     public String getName() {
-        return getReadingTypeMRID();
+        name = getReadingTypeMRID();
+        return name;
     }
 
     @Override
@@ -154,10 +168,11 @@ public class OfflineRegisterImpl implements OfflineRegister {
 
     @Override
     public ObisCode getObisCode() {
-        return this.deviceRegisterObisCode;
+        return this.obisCode;
     }
 
     @Override
+    @XmlTransient
     public ObisCode getAmrRegisterObisCode() {
         return this.amrRegisterObisCode;
     }
@@ -173,8 +188,9 @@ public class OfflineRegisterImpl implements OfflineRegister {
     }
 
     @Override
+    @XmlAttribute
     public Unit getUnit() {
-        return this.registerUnit;
+        return this.unit;
     }
 
     @Override
@@ -189,12 +205,18 @@ public class OfflineRegisterImpl implements OfflineRegister {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        return identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
+        if (deviceIdentifier == null) {
+            deviceIdentifier = identificationService.createDeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
+        }
+        return deviceIdentifier;
     }
 
     @Override
     public RegisterIdentifier getRegisterIdentifier() {
-        return identificationService.createRegisterIdentifierByAlreadyKnownRegister(this.register);
+        if (registerIdentifier == null) {
+            registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(register);;
+        }
+        return registerIdentifier;
     }
 
     @Override
@@ -203,13 +225,14 @@ public class OfflineRegisterImpl implements OfflineRegister {
     }
 
     @Override
-    public BigDecimal getOverFlowValue() {
+    public BigDecimal getOverFlow() {
         return this.overFlow;
     }
 
     @Override
+    @XmlAttribute
     public boolean isText() {
-        return isText;
+        return text;
     }
 
     @Override
@@ -237,10 +260,10 @@ public class OfflineRegisterImpl implements OfflineRegister {
         if (getRegisterId() != that.getRegisterId()) {
             return false;
         }
-        if (!deviceRegisterObisCode.equals(that.deviceRegisterObisCode)) {
+        if (!obisCode.equals(that.obisCode)) {
             return false;
         }
-        if (registerUnit != null ? !registerUnit.equals(that.registerUnit) : that.registerUnit != null) {
+        if (unit != null ? !unit.equals(that.unit) : that.unit != null) {
             return false;
         }
         if (getSerialNumber() != null ? !getSerialNumber().equals(that.getSerialNumber()) : that.getSerialNumber() != null) {
@@ -252,8 +275,8 @@ public class OfflineRegisterImpl implements OfflineRegister {
 
     @Override
     public int hashCode() {
-        int result = deviceRegisterObisCode.hashCode();
-        result = 31 * result + (registerUnit != null ? registerUnit.hashCode() : 0);
+        int result = obisCode.hashCode();
+        result = 31 * result + (unit != null ? unit.hashCode() : 0);
         result = 31 * result + (int) (getRegisterId() ^ (getRegisterId() >>> 32));
         result = 31 * result + (getSerialNumber() != null ? getSerialNumber().hashCode() : 0);
         result = 31 * result + (getReadingTypeMRID() != null ? getReadingTypeMRID().hashCode() : 0);

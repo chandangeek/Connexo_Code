@@ -7,6 +7,12 @@ package com.energyict.mdc.scheduling;
 import com.elster.jupiter.time.TemporalExpression;
 
 import aQute.bnd.annotation.ProviderType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Models the specifications that will allow a component
@@ -19,6 +25,11 @@ import aQute.bnd.annotation.ProviderType;
  * @since 2012-04-11 (17:51)
  */
 @ProviderType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface NextExecutionSpecs extends NextExecutionCalculator {
 
     /**
@@ -26,6 +37,7 @@ public interface NextExecutionSpecs extends NextExecutionCalculator {
      *
      * @return The unique identifier
      */
+    @XmlAttribute
     long getId();
 
     /**
@@ -34,6 +46,7 @@ public interface NextExecutionSpecs extends NextExecutionCalculator {
      *
      * @return The recurring time
      */
+    @XmlAttribute
     TemporalExpression getTemporalExpression();
 
     void setTemporalExpression(TemporalExpression temporalExpression);
@@ -42,4 +55,9 @@ public interface NextExecutionSpecs extends NextExecutionCalculator {
 
     void delete();
 
+    // The element below is only used during JSON xml (un)marshalling.
+    @XmlElement(name = "type")
+    public String getXmlType();
+
+    public void setXmlType(String ignore);
 }

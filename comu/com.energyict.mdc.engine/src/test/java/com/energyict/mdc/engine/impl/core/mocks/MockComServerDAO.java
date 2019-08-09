@@ -9,19 +9,21 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
+import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -191,6 +193,11 @@ public class MockComServerDAO implements ComServerDAO {
         return this.doRefresh(comServer);
     }
 
+
+    public List<OfflineUserInfo> getUsersCredentialInformation() {
+        return Collections.emptyList();
+    }
+
     @Override
     public ComPort refreshComPort(ComPort comPort) {
         MockComPort mockComPort = (MockComPort) comPort;
@@ -268,6 +275,26 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
         return connectionTask.getProperties();
+    }
+
+    @Override
+    public List<DeviceMasterDataExtractor.SecurityProperty> getPropertiesFromSecurityPropertySet(DeviceIdentifier deviceIdentifier, Long securityPropertySetId) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public ComTaskEnablement findComTaskEnablementByDeviceAndComTask(DeviceIdentifier deviceIdentifier, long comTaskId) {
+        return null;
+    }
+
+    @Override
+    public List<SecurityPropertySet> findAllSecurityPropertySetsForDevice(DeviceIdentifier deviceIdentifier) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public TypedProperties findProtocolDialectPropertiesFor(long comTaskExecutionId) {
+        return null;
     }
 
     @Override
@@ -393,8 +420,23 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void createOrUpdateDeviceCache(DeviceProtocolCacheXmlWrapper cache) {
+    }
+
+    @Override
     public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
-        // Not storing readings in mock mode
+    }
+
+    @Override
+    public void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
+    }
+
+    @Override
+    public void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook) {
+    }
+
+    @Override
+    public void updateLogBookLastReading(LogBookIdentifier logBookIdentifier, Date lastExecutionStartTimestamp) {
     }
 
     @Override
@@ -418,6 +460,11 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
         return null;
     }
 
@@ -587,6 +634,11 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
+    public List<LookupEntry> getCompletionCodeLookupEntries() {
         return null;
     }
 

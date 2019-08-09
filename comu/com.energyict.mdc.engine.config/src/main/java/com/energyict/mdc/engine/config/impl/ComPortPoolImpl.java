@@ -21,6 +21,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAttribute;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +62,9 @@ public abstract class ComPortPoolImpl implements ComPortPool {
                     INBOUND_COMPORTPOOL_DISCRIMINATOR, InboundComPortPoolImpl.class,
                     OUTBOUND_COMPORTPOOL_DISCRIMINATOR, OutboundComPortPoolImpl.class);
 
-    protected final DataModel dataModel;
-    protected final Thesaurus thesaurus;
-    protected final EventService eventService;
+    protected DataModel dataModel;
+    protected Thesaurus thesaurus;
+    protected EventService eventService;
 
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
@@ -80,6 +81,11 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private long version;
     private Instant createTime;
     private Instant modTime;
+    private boolean obsolete;
+
+    protected ComPortPoolImpl() {
+        super();
+    }
 
     @Inject
     protected ComPortPoolImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService) {
@@ -94,23 +100,28 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
     @Override
+    @XmlAttribute
     public String getName() {
         return name;
     }
 
     @Override
+    @XmlAttribute
     public boolean isActive () {
         return active;
     }
 
     @Override
+    @XmlAttribute
     public String getDescription () {
         return description;
     }
 
     @Override
+    @XmlAttribute
     public boolean isObsolete () {
-        return this.obsoleteDate!=null;
+        obsolete = this.obsoleteDate!=null;
+        return obsolete;
     }
 
     @Override
@@ -129,11 +140,13 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
     @Override
+    @XmlAttribute
     public Instant getObsoleteDate () {
         return this.obsoleteDate;
     }
 
     @Override
+    @XmlAttribute
     public ComPortType getComPortType () {
         return comPortType;
     }
@@ -187,6 +200,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
     @Override
+    @XmlAttribute
     public long getVersion() {
         return this.version;
     }

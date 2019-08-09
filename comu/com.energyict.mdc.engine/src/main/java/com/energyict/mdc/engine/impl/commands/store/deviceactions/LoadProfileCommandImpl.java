@@ -145,7 +145,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      */
     public int findLoadProfileIntervalForLoadProfileReader(final LoadProfileReader loadProfileReader) {
         if (getLoadProfileReaderMap().containsKey(loadProfileReader)) {
-            return Temporals.toTimeDuration(getLoadProfileReaderMap().get(loadProfileReader).interval()).getSeconds();
+            return Temporals.toTimeDuration(getLoadProfileReaderMap().get(loadProfileReader).getInterval()).getSeconds();
         }
         return LoadProfileCommand.INVALID_LOAD_PROFILE_INTERVAL;
     }

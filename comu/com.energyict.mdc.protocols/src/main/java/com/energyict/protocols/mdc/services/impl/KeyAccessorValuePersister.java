@@ -46,10 +46,10 @@ public class KeyAccessorValuePersister {    //TODO: copy from demo - can we make
     public void persistKeyAccessorValue(Device device, String keyAccessorTypeName, String newContent) {
         SecurityAccessorType securityAccessorType = findCorrespondingKeyAccessorType(device.getDeviceConfiguration().getDeviceType(), keyAccessorTypeName);
         SecurityAccessor<SecurityValueWrapper> securityAccessor = findCorrespondingKeyAccessor(device, securityAccessorType);
-        if (!securityAccessor.getActualValue().isPresent()) {
+        if (!securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
             createNewActualValue(securityAccessor);
         }
-        setPropertyOnSecurityAccessor(securityAccessor.getActualValue().get(), newContent);
+        setPropertyOnSecurityAccessor(securityAccessor.getActualPassphraseWrapperReference().get(), newContent);
     }
 
     private SecurityAccessorType findCorrespondingKeyAccessorType(DeviceType deviceType, String keyAccessorTypeName) {
@@ -72,34 +72,34 @@ public class KeyAccessorValuePersister {    //TODO: copy from demo - can we make
      */
     public void persistKeyAccessorValue(Device device, SecurityAccessorType securityAccessorType, String newContent) {
         SecurityAccessor<SecurityValueWrapper> securityAccessor = findCorrespondingKeyAccessor(device, securityAccessorType);
-        if (!securityAccessor.getActualValue().isPresent()) {
+        if (!securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
             createNewActualValue(securityAccessor);
         }
-        setPropertyOnSecurityAccessor(securityAccessor.getActualValue().get(), newContent);
+        setPropertyOnSecurityAccessor(securityAccessor.getActualPassphraseWrapperReference().get(), newContent);
     }
 
     private SecurityAccessor<SecurityValueWrapper> findCorrespondingKeyAccessor(Device device, SecurityAccessorType securityAccessorType) {
         return device.getSecurityAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().equals(securityAccessorType))
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().equals(securityAccessorType))
                 .findFirst()
                 .orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
     }
 
     private void createNewActualValue(SecurityAccessor<SecurityValueWrapper> securityAccessor) {
         SecurityValueWrapper newValue;
-        switch (securityAccessor.getKeyAccessorType().getKeyType().getCryptographicType()) {
+        switch (securityAccessor.getKeyAccessorTypeReference().getKeyType().getCryptographicType()) {
             case SymmetricKey:
-                newValue = securityManagementService.newSymmetricKeyWrapper(securityAccessor.getKeyAccessorType());
+                newValue = securityManagementService.newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
                 break;
             case Passphrase:
-                newValue = securityManagementService.newPassphraseWrapper(securityAccessor.getKeyAccessorType());
+                newValue = securityManagementService.newPassphraseWrapper(securityAccessor.getKeyAccessorTypeReference());
                 break;
             default:
                 throw new IllegalStateException("Import of values of this security accessor is not supported: " + securityAccessor
-                        .getKeyAccessorType().getName());
+                        .getKeyAccessorTypeReference().getName());
         }
-        securityAccessor.setActualValue(newValue);
+        securityAccessor.setActualPassphraseWrapperReference(newValue);
         securityAccessor.save();
     }
 

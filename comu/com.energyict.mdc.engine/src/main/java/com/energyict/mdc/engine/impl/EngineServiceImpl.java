@@ -40,6 +40,7 @@ import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
+import com.energyict.mdc.engine.security.Privileges;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
@@ -65,6 +66,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -81,7 +83,6 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -90,6 +91,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
+import static com.elster.jupiter.appserver.AppService.SERVER_TYPE_PROPERTY_NAME;
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.engine",
         service = {EngineService.class, ServerEngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
@@ -191,6 +194,12 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setSecurityManagementService(securityManagementService);
         setUpgradeService(upgradeService);
         activate(componentContext.getBundleContext());
+    }
+
+    @Override
+    public boolean isOnlineMode() {
+        String serverType = getEngineProperty(SERVER_TYPE_PROPERTY_NAME);
+        return serverType == null || serverType.equalsIgnoreCase("online");
     }
 
     @Override
@@ -339,6 +348,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
         keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
+        keys.addAll(Arrays.asList(Privileges.values()));
         return keys;
     }
 
@@ -444,9 +454,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     public void activate(BundleContext bundleContext) {
         try{
             dataModel.register(this.getModule());
-            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                    version(10, 4, 7), Upgrader_V10_4_7.class));
 
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
+            setEngineProperty(SERVER_TYPE_PROPERTY_NAME, bundleContext.getProperty(SERVER_TYPE_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
 
             this.tryStartComServer();
@@ -499,15 +511,20 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     private void tryStartComServer() {
-        this.launcher = new ComServerLauncher(new RunningComServerServiceProvider());
-        this.setHostNameIfOverruled();
-        this.updatePortNumber();
-        this.protocolDeploymentListenerRegistration = this.protocolPluggableService.register(this.launcher);
-        this.launcher.startComServer();
-        if (this.launcher.isStarted()) {
-            System.out.println("ComServer " + HostName.getCurrent() + " started!");
+        String serverType = getEngineProperty(SERVER_TYPE_PROPERTY_NAME);
+        if (serverType == null || serverType.toLowerCase().equals("online")) {
+            this.launcher = new ComServerLauncher(new RunningComServerServiceProvider());
+            this.setHostNameIfOverruled();
+            this.updatePortNumber();
+            this.protocolDeploymentListenerRegistration = this.protocolPluggableService.register(this.launcher);
+            this.launcher.startComServer();
+            if (this.launcher.isStarted()) {
+                System.out.println("ComServer " + HostName.getCurrent() + " started!");
+            } else {
+                System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured, not active or start is delayed because not all required services are active yet (see OSGi log service)");
+            }
         } else {
-            System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured, not active or start is delayed because not all required services are active yet (see OSGi log service)");
+            System.out.println("ComServer with name " + HostName.getCurrent() + " is not configured to run on this installation");
         }
     }
 
@@ -616,10 +633,10 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(com.energyict.mdc.upl.meterdata.Device device) {
+        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(long deviceId, String deviceMrId) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(device))
+                    .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(deviceId, deviceMrId))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 

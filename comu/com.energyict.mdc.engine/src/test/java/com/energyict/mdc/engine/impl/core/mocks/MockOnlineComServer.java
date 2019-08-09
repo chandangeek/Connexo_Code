@@ -96,7 +96,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public Instant getModificationDate() {
+    public Instant getModTime() {
         return Instant.now();
     }
 
@@ -245,6 +245,11 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     @Override
     public int getStoreTaskThreadPriority() {
         return this.storeTaskThreadPriority;
+    }
+
+    @Override
+    public boolean isCompressingEnabled() {
+        return false;
     }
 
     @Override

@@ -8,7 +8,11 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import aQute.bnd.annotation.ProviderType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,6 +26,11 @@ import java.util.Set;
  * name of a SecurityAccessor.
  */
 @ProviderType
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
+@XmlAccessorType(XmlAccessType.NONE)
 public interface SecurityAccessorType extends HasId, HasName  {
 
 
@@ -34,6 +43,7 @@ public interface SecurityAccessorType extends HasId, HasName  {
      * This name will identify a key for a certain purpose. E.g. the Shipment file will map keys to KeyAccessorType by
      * name, that is, the keys from the shipment file will be labelled, the label matches the name of a KeyAccessor.
      */
+    @XmlElement
     String getName();
 
     /**

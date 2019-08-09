@@ -7,6 +7,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.pluggable.impl.PluggableClassImpl;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -16,6 +17,7 @@ import com.energyict.mdc.protocol.pluggable.PluggableClassCreationException;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElement;
 import java.net.URL;
 import java.time.Instant;
 import java.util.HashSet;
@@ -39,6 +41,11 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
     private EventService eventService;
     private Thesaurus thesaurus;
     private PluggableClass pluggableClass;
+    private String javaClassName;
+
+    public PluggableClassWrapper() {
+        super();
+    }
 
     @Inject
     protected PluggableClassWrapper(EventService eventService, Thesaurus thesaurus) {
@@ -54,6 +61,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
         return thesaurus;
     }
 
+    @XmlElement(type = PluggableClassImpl.class)
     protected PluggableClass getPluggableClass() {
         return pluggableClass;
     }
@@ -79,7 +87,8 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
     }
 
     public String getJavaClassName() {
-        return this.getPluggableClass().getJavaClassName();
+        javaClassName = this.getPluggableClass().getJavaClassName();
+        return javaClassName;
     }
 
     public Instant getModificationDate() {

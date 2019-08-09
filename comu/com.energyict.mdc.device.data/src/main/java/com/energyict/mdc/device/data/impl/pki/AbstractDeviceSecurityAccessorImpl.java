@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
+import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
@@ -15,6 +16,7 @@ import com.energyict.mdc.device.data.KeyAccessorStatus;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +25,7 @@ import java.util.Map;
 // A refactoring towards usage of that class can be attempted
 // TODO validate actual value is present, fix newBlaBla() first to take actual value!
 public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValueWrapper> implements SecurityAccessor<T> {
-    private final SecurityManagementService securityManagementService;
+    private SecurityManagementService securityManagementService;
 
     private Reference<SecurityAccessorType> keyAccessorTypeReference = Reference.empty();
     private Reference<Device> deviceReference = Reference.empty();
@@ -45,6 +47,10 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
                     "P", PassphraseAccessorImpl.class,
                     "S", PlainTextSymmetricKeyAccessorImpl.class,
                     "H", HsmSymmetricKeyAccessorImpl.class);
+
+    public AbstractDeviceSecurityAccessorImpl() {
+        super();
+    }
 
     protected AbstractDeviceSecurityAccessorImpl(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
@@ -80,8 +86,13 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     }
 
     @Override
-    public SecurityAccessorType getKeyAccessorType() {
+    @XmlElement(type = SecurityAccessorTypeImpl.class)
+    public SecurityAccessorType getKeyAccessorTypeReference() {
         return keyAccessorTypeReference.get();
+    }
+
+    public void setKeyAccessorTypeReference(SecurityAccessorType securityAccessorType) {
+        keyAccessorTypeReference.set(securityAccessorType);
     }
 
     @Override
@@ -91,7 +102,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return securityManagementService.getPropertySpecs(getKeyAccessorType());
+        return securityManagementService.getPropertySpecs(getKeyAccessorTypeReference());
     }
 
     @Override
@@ -123,7 +134,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
 
     @Override
     public KeyAccessorStatus getStatus() {
-        if (!getActualValue().isPresent() || getActualValue().get().getProperties().containsValue(null) || getActualValue().get().getProperties().size()!=getPropertySpecs().size()) {
+        if (!getActualPassphraseWrapperReference().isPresent() || getActualPassphraseWrapperReference().get().getProperties().containsValue(null) || getActualPassphraseWrapperReference().get().getProperties().size()!=getPropertySpecs().size()) {
             return KeyAccessorStatus.INCOMPLETE;
         }
         return KeyAccessorStatus.COMPLETE;

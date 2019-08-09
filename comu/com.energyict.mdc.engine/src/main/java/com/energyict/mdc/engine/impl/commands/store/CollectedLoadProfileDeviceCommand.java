@@ -64,7 +64,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
                                 this,
                                 MessageSeeds.LOAD_PROFILE_CONFIGURATION_MISMATCH,
                                 optionalLoadProfile.get().getObisCode().toString(),
-                                optionalLoadProfile.get().interval().toString()));
+                                optionalLoadProfile.get().getInterval().toString()));
             } else {
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,

@@ -4,9 +4,8 @@
 
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.engine.config.ComServer;
-
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.engine.config.ComServer;
 
 import java.time.Instant;
 

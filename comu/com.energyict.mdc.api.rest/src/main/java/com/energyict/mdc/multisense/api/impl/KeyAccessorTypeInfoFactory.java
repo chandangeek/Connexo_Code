@@ -52,7 +52,7 @@ public class KeyAccessorTypeInfoFactory extends SelectableFieldFactory<KeyAccess
     private UriBuilder getDeviceUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
                 .path(KeyAccessorTypeResource.class)
-                .path(KeyAccessorTypeResource.class, "getKeyAccessorType");
+                .path(KeyAccessorTypeResource.class, "getSecurityAccessorType");
     }
 
     public LinkInfo asLink(DeviceType deviceType, SecurityAccessorType securityAccessorType, Relation relation, UriInfo uriInfo) {
@@ -72,7 +72,7 @@ public class KeyAccessorTypeInfoFactory extends SelectableFieldFactory<KeyAccess
     private UriBuilder getDeviceTypeUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
                 .path(ConfigurationKeyAccessorTypeResource.class)
-                .path(ConfigurationKeyAccessorTypeResource.class, "getKeyAccessorType");
+                .path(ConfigurationKeyAccessorTypeResource.class, "getSecurityAccessorType");
     }
 
     public KeyAccessorTypeInfo from(SecurityAccessorType securityAccessorType, UriInfo uriInfo, Collection<String> fields) {

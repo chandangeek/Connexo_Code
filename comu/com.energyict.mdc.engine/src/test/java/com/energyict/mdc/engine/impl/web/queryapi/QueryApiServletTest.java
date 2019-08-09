@@ -5,9 +5,15 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
 import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 
-import org.eclipse.jetty.websocket.WebSocket;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 import org.fest.assertions.api.Assertions;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -41,6 +48,14 @@ public class QueryApiServletTest {
     private OnlineComServer comServer;
     @Mock
     private RunningOnlineComServer runningComServer;
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock(extraInterfaces = ComServerMonitor.class)
+    private ComServerMonitorImplMBean comServerMonitor;
+    @Mock
+    private QueryAPIStatistics queryAPIStatistics;
+    @Mock
+    private RunningComServerImpl.ServiceProvider serviceProvider;
 
     @Before
     public void initializeMockAndFactories () {
@@ -55,10 +70,14 @@ public class QueryApiServletTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getSession()).thenReturn(httpSession);
         when(request.getSession(anyBoolean())).thenReturn(httpSession);
-        QueryApiServlet servlet = new QueryApiServlet(this.runningComServer);
+        when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+        when(this.managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(this.comServerMonitor);
+        ComServerMonitor comServerMonitor = (ComServerMonitor) this.comServerMonitor;
+        when(comServerMonitor.getQueryApiStatistics()).thenReturn(this.queryAPIStatistics);
+        QueryApiServlet servlet = new QueryApiServlet(this.runningComServer, queryAPIStatistics);
 
         // Business method
-        servlet.doWebSocketConnect(request, "http");    // Don't care about the protocol
+        servlet.findOrCreateQueryApiService(request);    // Don't care about the protocol
 
         // Asserts
         verify(this.runningComServer).newWebSocketQueryApiService();
@@ -71,16 +90,17 @@ public class QueryApiServletTest {
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getSession()).thenReturn(httpSession);
         when(request.getSession(anyBoolean())).thenReturn(httpSession);
-        QueryApiServlet servlet = new QueryApiServlet(this.runningComServer);
-        WebSocket initialWebSocket = servlet.doWebSocketConnect(request, "http");// Don't care about the protocol
+        QueryApiServlet initialsServlet = new QueryApiServlet(this.runningComServer, queryAPIStatistics);
+        initialsServlet.findOrCreateQueryApiService(request);
         reset(this.runningComServer);
 
         // Business method
-        WebSocket webSocket = servlet.doWebSocketConnect(request, "http");// Don't care about the protocol
+        QueryApiServlet servlet = new QueryApiServlet(this.runningComServer, queryAPIStatistics);
+        servlet.findOrCreateQueryApiService(request);
 
         // Asserts
         verify(this.runningComServer, never()).newWebSocketQueryApiService();
-        Assertions.assertThat(webSocket).isSameAs(initialWebSocket);
+        Assertions.assertThat(servlet).isSameAs(servlet);
     }
 
 }

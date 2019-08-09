@@ -14,8 +14,12 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +31,7 @@ import java.util.Map;
  * @author gna
  * @since 23/04/12 - 11:47
  */
-abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceContext {
+public abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceContext {
     protected static final String BASIC_CHECK_DISCRIMINATOR = "0";
     protected static final String CLOCK_DISCRIMINATOR = "1";
     protected static final String MESSAGES_DISCRIMINATOR = "2";
@@ -37,6 +41,7 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
     protected static final String STATUS_INFORMATION_DISCRIMINATOR = "6";
     protected static final String TOPOLOGY_DISCRIMINATOR = "7";
     protected static final String FIRMWARE_DISCRIMINATOR = "8";
+    protected static final String MANUAL_METER_READINGS_DISCRIMINATOR = "9";
 
     static final Map<String, Class<? extends ProtocolTask>> IMPLEMENTERS = new HashMap<>();
     static {
@@ -49,9 +54,10 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
         IMPLEMENTERS.put(STATUS_INFORMATION_DISCRIMINATOR, StatusInformationTaskImpl.class);
         IMPLEMENTERS.put(TOPOLOGY_DISCRIMINATOR, TopologyTaskImpl.class);
         IMPLEMENTERS.put(FIRMWARE_DISCRIMINATOR, FirmwareManagementTaskImpl.class);
+        IMPLEMENTERS.put(MANUAL_METER_READINGS_DISCRIMINATOR, ManualMeterReadingsTaskImpl.class);
     }
 
-    private final DataModel dataModel;
+    private DataModel dataModel;
 
     enum Fields {
         COM_TASK("comTask");
@@ -73,6 +79,10 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
     private long version;
     private Instant createTime;
     private Instant modTime;
+
+    public ProtocolTaskImpl() {
+        super();
+    }
 
     @Inject
     ProtocolTaskImpl(DataModel dataModel) {
@@ -99,6 +109,7 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
         this.flags = flags;
     }
 
+    @XmlAttribute
     public long getId() {
         return id;
     }
@@ -115,6 +126,8 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
      * @return the ComTask of this ProtocolTask
      */
     @Override
+    @XmlTransient
+    @JsonIgnore
     public ComTask getComTask() {
         return comTask.get();
     }
@@ -183,4 +196,12 @@ abstract class ProtocolTaskImpl implements ServerProtocolTask, OfflineDeviceCont
      */
     abstract void deleteDependents();
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }

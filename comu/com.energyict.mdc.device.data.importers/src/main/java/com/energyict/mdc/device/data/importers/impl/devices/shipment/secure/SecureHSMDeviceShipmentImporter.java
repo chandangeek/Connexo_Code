@@ -63,13 +63,13 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
             com.elster.jupiter.hsm.model.keys.HsmKey hsmEncryptedKey = hsmEnergyService.importKey(ikr);
 
             Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
-            if (securityAccessorOptional.flatMap(SecurityAccessor::getActualValue).isPresent()) {
+            if (securityAccessorOptional.flatMap(SecurityAccessor::getActualPassphraseWrapperReference).isPresent()) {
                 log(logger, MessageSeeds.ACTUAL_VALUE_ALREADY_EXISTS, securityAccessorName, device.getName());
             } else {
                 SecurityAccessor securityAccessor = securityAccessorOptional.orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
                 HsmKey hsmKey = (HsmKey) securityManagementService.newSymmetricKeyWrapper(securityAccessorType);
                 hsmKey.setKey(hsmEncryptedKey.getKey(), hsmEncryptedKey.getLabel());
-                securityAccessor.setActualValue(hsmKey);
+                securityAccessor.setActualPassphraseWrapperReference(hsmKey);
                 securityAccessor.save();
             }
         } catch (HsmBaseException | InvalidKeyException e) {

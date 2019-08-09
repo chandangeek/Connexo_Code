@@ -6,15 +6,14 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceMessageIdentifierForAlreadyKnownMessage;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
-import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import org.reflections.Reflections;
 
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device);
+        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
     }
 
     @Test
@@ -88,7 +87,7 @@ public class MessageIdentifierResolvingTest extends PersistenceIntegrationTest {
         DeviceMessageService spiedService = spy(deviceMessageService);
         DeviceMessage myDeviceMessage = mock(DeviceMessage.class);
         when(myDeviceMessage.getDevice()).thenReturn(device);
-        Optional<DeviceMessage> foundLogBook = spiedService.findDeviceMessageByIdentifier(new DeviceMessageIdentifierForAlreadyKnownMessage(myDeviceMessage));
+        Optional<DeviceMessage> foundLogBook = spiedService.findDeviceMessageByIdentifier(new DeviceMessageIdentifierById(myDeviceMessage));
         assertThat(foundLogBook).isPresent();
         assertThat(foundLogBook.get()).isEqualTo(myDeviceMessage);
     }

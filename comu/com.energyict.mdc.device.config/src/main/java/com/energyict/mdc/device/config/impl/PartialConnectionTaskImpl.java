@@ -41,6 +41,7 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -159,6 +160,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
+    @XmlTransient
     public DeviceConfiguration getConfiguration() {
         return this.configuration.get();
     }
@@ -258,11 +260,13 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
     }
 
     @Override
+    @XmlTransient
     public ConnectionType getConnectionType() {
         return this.getPluggableClass().getConnectionType();
     }
 
     @Override
+    @XmlTransient
     public ConnectionTypePluggableClass getPluggableClass() {
         if (pluggableClass == null && pluggableClassId != 0) {
             pluggableClass = protocolPluggableService.findConnectionTypePluggableClass(pluggableClassId).get();

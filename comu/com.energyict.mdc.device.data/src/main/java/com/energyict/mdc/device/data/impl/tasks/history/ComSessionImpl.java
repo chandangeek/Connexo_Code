@@ -37,6 +37,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -93,9 +94,9 @@ public class ComSessionImpl implements ComSession {
     }
 
     private long id;
-    private final DataModel dataModel;
+    private DataModel dataModel;
     private Thesaurus thesaurus;
-    private final ConnectionTaskService connectionTaskService;
+    private ConnectionTaskService connectionTaskService;
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComPort> comPort = ValueReference.absent();
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
@@ -120,6 +121,10 @@ public class ComSessionImpl implements ComSession {
     private List<ComSessionJournalEntry> journalEntries = new ArrayList<>();
     private List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();
 
+    ComSessionImpl() {
+        super();
+    }
+
     @Inject
     ComSessionImpl(DataModel dataModel, ConnectionTaskService connectionTaskService, Thesaurus thesaurus) {
         super();
@@ -129,6 +134,7 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    @XmlAttribute
     public long getId() {
         return id;
     }
@@ -136,6 +142,11 @@ public class ComSessionImpl implements ComSession {
     @Override
     public ConnectionTask getConnectionTask() {
         return connectionTask.get();
+    }
+
+    @Override
+    public void setConnectionTask(ConnectionTask connectionTask) {
+        this.connectionTask.set(connectionTask);
     }
 
     @Override
@@ -171,7 +182,7 @@ public class ComSessionImpl implements ComSession {
 
     @Override
     public List<ComSessionJournalEntry> getJournalEntries() {
-        return Collections.unmodifiableList(this.journalEntries);
+        return this.journalEntries;
     }
 
     @Override

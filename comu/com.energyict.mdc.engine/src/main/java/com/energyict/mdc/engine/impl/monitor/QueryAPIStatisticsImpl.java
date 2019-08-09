@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.config.ComServer;
@@ -14,15 +10,18 @@ import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Provides an implementation for the {@link QueryAPIStatistics} interface.
+ * Provides an implementation for the {@link com.energyict.mdc.engine.monitor.QueryAPIStatistics} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-05 (13:16)
  */
-public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport implements ServerQueryAPIStatistics {
+public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport implements QueryAPIStatistics {
 
     public static final String NUMBER_OF_CLIENTS_ITEM_NAME = "numberOfClients";
     private static final String NUMBER_OF_CLIENTS_ITEM_DESCRIPTION = "number of clients";
@@ -35,8 +34,9 @@ public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport imp
     private int numberOfFailures;
     private JmxStatistics callStatistics;
     private String comServerName;
+    private Map<String, Date> registeredClientsSince = new HashMap<>();
 
-    public QueryAPIStatisticsImpl (ComServer comServer) {
+    public QueryAPIStatisticsImpl(ComServer comServer) {
         super();
         this.comServerName = comServer.getName();
         this.callStatistics = new JmxStatistics(this.comServerName);
@@ -66,21 +66,30 @@ public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport imp
     }
 
     @Override
-    public synchronized void clientRegistered () {
+    public Map<String, Date> getRegisteredClients() {
+        return registeredClientsSince;
+    }
+
+    @Override
+    public synchronized void clientRegistered (String clientName, Date lastSeen ) {
         /* Make sure this is properly guarded because clients
          * register via the internal jetty server
          * and that uses or may use different threads
          * for every http request. */
         this.numberOfClients++;
+        registeredClientsSince.put(clientName, lastSeen);
     }
 
     @Override
-    public synchronized void clientUnregistered () {
+    public synchronized void clientUnregistered (String clientName) {
         /* Make sure this is properly guarded because clients
          * register via the internal jetty server
          * and that uses or may use different threads
          * for every http request. */
         this.numberOfClients--;
+        /* as we still want to see when the client connected the last time,
+        * we do not remove the entree from the registeredClientSince map
+        */
     }
 
     @Override
@@ -116,22 +125,35 @@ public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport imp
                             JmxStatistics.doGetCompositeType()});
         }
         catch (OpenDataException e) {
-            throw CodingException.compositeTypeCreation(targetClass, e, MessageSeeds.COMPOSITE_TYPE_CREATION);
+            throw CodingException.compositeTypeCreation(targetClass, e, MessageSeeds.JSON_PARSING_ERROR);
         }
     }
 
     @Override
     protected void initializeAccessors (List<CompositeDataItemAccessor> accessors) {
-        accessors.add(new CompositeDataItemAccessor(NUMBER_OF_CLIENTS_ITEM_NAME, this::getNumberOfClients));
-        accessors.add(new CompositeDataItemAccessor(NUMBER_OF_FAILURES_ITEM_NAME, this::getNumberOfFailures));
         accessors.add(
-                new CompositeDataItemAccessor(CALL_STATISTICS_ITEM_NAME, () ->  {
-                     {
+                new CompositeDataItemAccessor(NUMBER_OF_CLIENTS_ITEM_NAME, new ValueProvider() {
+                    @Override
+                    public Object getValue () {
+                        return getNumberOfClients();
+                    }
+                }));
+        accessors.add(
+                new CompositeDataItemAccessor(NUMBER_OF_FAILURES_ITEM_NAME, new ValueProvider() {
+                    @Override
+                    public Object getValue () {
+                        return getNumberOfFailures();
+                    }
+                }));
+        accessors.add(
+                new CompositeDataItemAccessor(CALL_STATISTICS_ITEM_NAME, new ValueProvider() {
+                    @Override
+                    public Object getValue () {
                         try {
                             return getCallStatistics().getSupport();
                         }
                         catch (OpenDataException e) {
-                            throw CodingException.compositeDataCreation(JmxStatistics.class, e, MessageSeeds.COMPOSITE_TYPE_CREATION);
+                            throw CodingException.compositeDataCreation(JmxStatistics.class, e, MessageSeeds.JSON_PARSING_ERROR);
                         }
                     }
                 }));

@@ -80,10 +80,10 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
                     // TODO: try refactoring further code with DeviceSecretImporter
                     SecurityAccessor<SecurityValueWrapper> securityAccessor = device.getSecurityAccessor(securityAccessorType)
                             .orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
-                    if (!securityAccessor.getActualValue().isPresent()) {
+                    if (!securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
                         createNewActualValue(securityAccessor, securityAccessorType);
                     }
-                    setPropertyOnSecurityAccessor(data, propertySpec, securityAccessor.getActualValue().get());
+                    setPropertyOnSecurityAccessor(data, propertySpec, securityAccessor.getActualPassphraseWrapperReference().get());
                 }
             } catch (ConstraintViolationException e) {
                 throw new PropertySpecAwareConstraintViolationException(propertySpec, e);
@@ -118,7 +118,7 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
                 throw new IllegalStateException("Import of values of this security accessor is not supported: "+ securityAccessorType
                         .getName());
         }
-        securityAccessor.setActualValue(newValue);
+        securityAccessor.setActualPassphraseWrapperReference(newValue);
         securityAccessor.save();
     }
 

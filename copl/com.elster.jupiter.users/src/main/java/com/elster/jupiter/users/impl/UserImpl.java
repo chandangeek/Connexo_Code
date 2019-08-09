@@ -16,6 +16,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.WorkGroup;
 
+import com.elster.jupiter.util.Pair;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -274,8 +275,13 @@ public final class UserImpl implements User {
     }
 
     @Override
+    public Integer getSalt() {
+        return salt;
+    }
+
+    @Override
     public String getDigestHa1() {
-        throw new UnsupportedOperationException("Deprecated since 2.0");
+        return ha1;
     }
 
     @Override

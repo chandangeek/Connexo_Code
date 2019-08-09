@@ -8,8 +8,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.RegisterIdentifierByAlreadyKnownRegister;
+import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
+import com.energyict.mdc.identifiers.PrimeRegisterForChannelIdentifier;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -60,7 +62,7 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
 
     @Before
     public void setUp() throws Exception {
-        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device);
+        deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(device.getId(), device.getmRID());
         when(device.getRegisterWithDeviceObisCode(REGISTER_OBIS_CODE)).thenReturn(Optional.empty());
     }
 
@@ -87,7 +89,7 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
         RegisterService spiedService = spy(registerService);
         Register myRegister = mock(Register.class);
         when(myRegister.getDevice()).thenReturn(device);
-        Optional<Register> foundRegister = spiedService.findByIdentifier(new RegisterIdentifierByAlreadyKnownRegister(myRegister));
+        Optional<Register> foundRegister = spiedService.findByIdentifier(new RegisterDataIdentifierByObisCodeAndDevice(myRegister));
         assertThat(foundRegister).isPresent();
         assertThat(foundRegister.get()).isEqualTo(myRegister);
     }
@@ -97,7 +99,7 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
     public void tesProtocolRegisterIdentifierById() throws Exception {
         RegisterServiceImpl spiedService = spy(registerService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.RegisterIdentifierById(1, REGISTER_OBIS_CODE, deviceIdentifier));
+        spiedService.findByIdentifier(new RegisterIdentifierById(1, REGISTER_OBIS_CODE, deviceIdentifier));
         verify(spiedService).find(device, 1L);
     }
 
@@ -106,7 +108,7 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
     public void tesProtocolPrimeRegisterForChannelIdentifier() throws Exception {
         RegisterServiceImpl spiedService = spy(registerService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.PrimeRegisterForChannelIdentifier(deviceIdentifier, 1, REGISTER_OBIS_CODE));
+        spiedService.findByIdentifier(new PrimeRegisterForChannelIdentifier(deviceIdentifier, 1, REGISTER_OBIS_CODE));
         verify(spiedService).findByDeviceAndChannelIndex(device, 1);
     }
 
@@ -115,7 +117,7 @@ public class RegisterIdentifierResolvingTest extends PersistenceIntegrationTest 
     public void tesProtocolRegisterDataIdentifierByObisCodeAndDevice() throws Exception {
         RegisterServiceImpl spiedService = spy(registerService);
 
-        spiedService.findByIdentifier(new com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice(REGISTER_OBIS_CODE, deviceIdentifier));
+        spiedService.findByIdentifier(new RegisterDataIdentifierByObisCodeAndDevice(REGISTER_OBIS_CODE, deviceIdentifier));
         verify(spiedService).findByDeviceAndObisCode(device, REGISTER_OBIS_CODE);
     }
 }

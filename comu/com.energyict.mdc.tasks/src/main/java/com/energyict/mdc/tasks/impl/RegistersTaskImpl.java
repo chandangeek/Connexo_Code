@@ -10,6 +10,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -42,6 +43,10 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
     }
 
     private List<RegisterGroupUsage> registerGroupUsages = new ArrayList<>();
+
+    public RegistersTaskImpl() {
+        super();
+    }
 
     @Inject
     RegistersTaskImpl(DataModel dataModel) {
@@ -95,4 +100,8 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
         this.registerGroupUsages.clear();
     }
 
+    @XmlAttribute
+    public DeviceOfflineFlags getFlags() {
+        return FLAGS;
+    }
 }

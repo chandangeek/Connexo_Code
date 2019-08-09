@@ -145,7 +145,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
         assertThat(localLogBook).isPresent();
-        assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(3); // One exact duplicate should be filtered out, 2th entry with same private key combination should have its event time increased with 1 millisecond
+        assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(3); // One exact duplicate should be filtered out, 2th wrappers with same private key combination should have its event time increased with 1 millisecond
         assertEquals(eventTime1.getTime(), localLogBook.get().getLast().getEndDeviceEvents().get(0).getCreatedDateTime().toEpochMilli());
         assertEquals(eventTime2.getTime(), localLogBook.get().getLast().getEndDeviceEvents().get(1).getCreatedDateTime().toEpochMilli());
         assertEquals(eventTime1.getTime() + 1, localLogBook.get().getLast().getEndDeviceEvents().get(2).getCreatedDateTime().toEpochMilli());

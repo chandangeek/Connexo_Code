@@ -57,6 +57,9 @@ class MdcAppPrivileges {
                 //yellowfin reports
                 com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS,
 
+                //mdc.engine
+                com.energyict.mdc.engine.security.Privileges.Constants.OPERATE_MOBILE_COMSERVER,
+
                 //mdc.engine.config
                 com.energyict.mdc.engine.config.security.Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,
                 com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,

@@ -7,38 +7,27 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.HostName;
-import com.energyict.mdc.engine.config.InboundCapable;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundCapable;
-import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
-import com.energyict.mdc.engine.impl.core.RunningOnlineComServerImpl;
-import com.energyict.mdc.engine.impl.core.RunningRemoteComServerImpl;
-import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
+import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.engine.impl.core.offline.OfflineProperties;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
+import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -244,10 +233,9 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private void startRemoteComServer() {
-        /* Todo: uncomment when porting remote ComServer to Connexo
-         * Services.objectMapperService(new ObjectMapperServiceImpl(new RemoteJSONTypeMapper()));
-         */
-        RemoteComServerDAOImpl comServerDAO = new RemoteComServerDAOImpl(this.remoteQueryApiUrl, new RemoteComServerDaoServiceProvider());
+        Properties properties = OfflineProperties.getInstance().getProperties();
+        RemoteProperties remoteProperties = new RemoteProperties(properties);
+        RemoteComServerDAOImpl comServerDAO = new RemoteComServerDAOImpl(remoteProperties, new RemoteComServerDaoServiceProvider());
         comServerDAO.start();
         this.comServer = comServerDAO.getComServer(HostName.getCurrent());
         this.doStartRemoteComServer(comServerDAO);
@@ -348,6 +336,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         }
 
         @Override
+        public UserService userService() {
+            return serviceProvider.userService();
+        }
+
+        @Override
         public EventService eventService() {
             return serviceProvider.eventService();
         }
@@ -383,6 +376,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public EngineConfigurationService engineConfigurationService() {
             return serviceProvider.engineConfigurationService();
+        }
+
+        @Override
+        public ThreadPrincipalService threadPrincipalService() {
+            return serviceProvider.threadPrincipalService();
         }
 
     }

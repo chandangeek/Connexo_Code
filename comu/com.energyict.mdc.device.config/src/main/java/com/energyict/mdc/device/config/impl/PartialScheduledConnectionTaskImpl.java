@@ -36,7 +36,7 @@ import javax.validation.constraints.NotNull;
  * Provides an implementation for an {@link com.energyict.mdc.device.config.PartialScheduledConnectionTask}
  *
  * @author sva
- * @since 22/01/13 - 17:27
+ * @since 22/01/13 - 17:27setInitiationTask
  */
 @NextExecutionSpecsRequiredForMinimizeConnections(groups = {Save.Create.class, Save.Update.class})
 @NextExecutionSpecsValidForComWindow(groups = {Save.Create.class, Save.Update.class})
@@ -136,11 +136,6 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     @Override
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
         this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
-    }
-
-    @Override
-    public void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask) {
-        this.initiator.set(partialConnectionInitiationTask);
     }
 
     @Override

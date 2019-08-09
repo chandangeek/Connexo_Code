@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import java.time.Clock;
 import java.util.List;
 
@@ -29,7 +30,13 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     protected static final int DEFAULT_MAX_NUMBER_OF_TRIES = 3;
 
     private int currentRetryCount;
+    private int currentTryCount;
     private boolean lastExecutionFailed;
+    private TimeDuration rescheduleDelay;
+
+    protected OutboundConnectionTaskImpl() {
+        super();
+    }
 
     protected OutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
         super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, protocolPluggableService);
@@ -75,13 +82,16 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
+    @XmlAttribute
     public int getCurrentRetryCount() {
         return currentRetryCount;
     }
 
     @Override
+    @XmlAttribute
     public int getCurrentTryCount() {
-        return getCurrentRetryCount() + 1;
+        currentTryCount = getCurrentRetryCount() + 1;
+        return currentTryCount;
     }
 
     @Override
@@ -117,8 +127,12 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
     }
 
     @Override
+    @XmlAttribute
     public TimeDuration getRescheduleDelay() {
-        return this.getPartialConnectionTask().getRescheduleDelay();
+        if (this.getPartialConnectionTask() != null) {
+            rescheduleDelay = this.getPartialConnectionTask().getRescheduleDelay();
+        }
+        return rescheduleDelay;
     }
 
 }

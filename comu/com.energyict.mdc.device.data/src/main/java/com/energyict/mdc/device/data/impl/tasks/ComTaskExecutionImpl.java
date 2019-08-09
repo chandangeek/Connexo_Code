@@ -22,29 +22,12 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
-import com.energyict.mdc.device.data.impl.CreateEventType;
-import com.energyict.mdc.device.data.impl.DeleteEventType;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
-import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.PersistentIdObject;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.impl.TaskStatusTranslationKeys;
-import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.impl.*;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksMustBeEnabledByDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ManuallyScheduledNextExecSpecRequired;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SaveScheduled;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SharedScheduleComScheduleRequired;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
@@ -53,27 +36,19 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
+import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 @ManuallyScheduledNextExecSpecRequired(groups = {SaveScheduled.class})
@@ -89,10 +64,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR
     }
 
-    private final Clock clock;
+    private Clock clock;
 
-    private final CommunicationTaskService communicationTaskService;
-    private final SchedulingService schedulingService;
+    private CommunicationTaskService communicationTaskService;
+    private SchedulingService schedulingService;
     protected Reference<ComSchedule> comSchedule = ValueReference.absent();
     protected Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
 
@@ -147,6 +122,18 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     protected long connectionFunctionDbValue;
     private Optional<ConnectionFunction> connectionFunction = Optional.empty();
 
+    private boolean obsolete;
+    private boolean executing;
+    private boolean scheduledManually;
+    private String statusDisplayName;
+    private int maxNumberOfTries;
+    private TaskStatus taskStatus;
+    private int currentTryCount;
+
+    public ComTaskExecutionImpl() {
+        super();
+    }
+
     @Inject
     public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, CommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
@@ -176,20 +163,24 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
+    @XmlTransient
     public Behavior getBehavior() {
         if (this.behavior == null) {
-            switch (comTaskExecType) {
-                case FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR:
-                    this.behavior = new FirmwareBehavior();
-                    break;
-                case MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR:
-                    this.behavior = new ManualBehavior();
-                    break;
-                case SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR:
-                    this.behavior = new ScheduledBehavior();
-                    break;
-                default:
-                    this.behavior = new ManualBehavior();
+            if (comTaskExecType != null) {
+                switch (comTaskExecType) {
+                    case FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR:
+                        this.behavior = new FirmwareBehavior();
+                        break;
+                    case MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR:
+                        this.behavior = new ManualBehavior();
+                        break;
+                    case SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR:
+                        this.behavior = new ScheduledBehavior();
+                        break;
+                    default:
+                        this.behavior = new ManualBehavior();
+
+                }
             }
         }
         return behavior;
@@ -201,37 +192,56 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public boolean usesSharedSchedule() {
-        return this.getBehavior().usesSharedSchedule();
+        if (this.getBehavior() != null) {
+            return this.getBehavior().usesSharedSchedule();
+        }
+        return false;
     }
 
     @Override
+    @XmlAttribute
     public boolean isScheduledManually() {
-        return this.getBehavior().isScheduledManually();
+        if (this.getBehavior() != null) {
+            scheduledManually = this.getBehavior().isScheduledManually();
+        }
+        return scheduledManually;
     }
 
     @Override
+    @XmlTransient
     public boolean isAdHoc() {
         return this.getBehavior().isAdHoc();
     }
 
     @Override
+    @XmlTransient
     public boolean isFirmware() {
-        return this.getBehavior().isFirmware();
+        if (this.getBehavior() != null) {
+            return this.getBehavior().isFirmware();
+        }
+        return false;
     }
 
     @Override
+    @XmlElement(type = DeviceImpl.class, name = "device")
     public Device getDevice() {
         return this.device.get();   // we do an explicit get because Device is required and should not be null
     }
 
     @Override
+    public void setDevice(Device device) {
+        this.device.set(device);
+    }
+
+    @Override
+    @XmlTransient
     public ComPort getExecutingComPort() {
         return comPort.orNull();
     }
 
     @Override
     public boolean isExecuting() {
-        return this.comPort.isPresent()
+        executing =  this.comPort.isPresent()
                 || (this.connectionTask.isPresent() && this.connectionTask.getOptional().isPresent()
                 && (this.connectionTask.get().getExecutingComServer() != null)
                 && ((this.getNextExecutionTimestamp() != null
@@ -240,9 +250,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 && this.isIgnoreNextExecutionSpecsForInbound()
                 && this.connectionTask.get() instanceof InboundConnectionTask))
         );
+        return executing;
     }
 
     @Override
+    @XmlAttribute
     public int getExecutionPriority() {
         return this.executionPriority;
     }
@@ -252,28 +264,41 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlTransient
     public TaskStatus getStatus() {
-        return ServerComTaskStatus.getApplicableStatusFor(this, this.now());
+        if (this.now() != null) {
+            taskStatus = ServerComTaskStatus.getApplicableStatusFor(this, this.now());
+        }
+        return taskStatus;
     }
 
     @Override
+    @XmlAttribute
     public String getStatusDisplayName() {
-        return TaskStatusTranslationKeys.translationFor(getStatus(), getThesaurus());
+        if (getStatus() != null) {
+            statusDisplayName = TaskStatusTranslationKeys.translationFor(getStatus(), getThesaurus());
+        }
+        return statusDisplayName;
     }
 
     @Override
+    @XmlAttribute
     public Instant getNextExecutionTimestamp() {
         return this.nextExecutionTimestamp;
     }
 
     @Override
+    @XmlAttribute
     public int getMaxNumberOfTries() {
-        return this.device.get().getDeviceConfiguration().getComTaskEnablementFor(this.getComTask()).get().getMaxNumberOfTries();
+        maxNumberOfTries = this.device.get().getDeviceConfiguration().getComTaskEnablementFor(this.getComTask()).get().getMaxNumberOfTries();
+        return maxNumberOfTries;
     }
 
     @Override
+    @XmlAttribute
     public int getCurrentTryCount() {
-        return this.getCurrentRetryCount() + 1;
+        currentTryCount = this.getCurrentRetryCount() + 1;
+        return currentTryCount;
     }
 
     private int getCurrentRetryCount() {
@@ -286,6 +311,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlTransient
     public Optional<ConnectionFunction> getConnectionFunction() {
         if (!this.connectionFunction.isPresent() && this.connectionFunctionDbValue != 0) {
             Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = getDevice().getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
@@ -368,6 +394,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlAttribute
     public Instant getExecutionStartedTimestamp() {
         return this.executionStart;
     }
@@ -409,16 +436,20 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlAttribute
     public boolean isObsolete() {
-        return this.obsoleteDate != null;
+        obsolete = this.obsoleteDate != null;
+        return obsolete;
     }
 
     @Override
+    @XmlAttribute
     public Instant getObsoleteDate() {
         return this.obsoleteDate;
     }
 
     @Override
+    @XmlTransient
     public Optional<ConnectionTask<?, ?>> getConnectionTask() {
         return this.connectionTask.getOptional();
     }
@@ -447,6 +478,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlAttribute
     public Instant getLastExecutionStartTimestamp() {
         return this.lastExecutionTimestamp;
     }
@@ -478,6 +510,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlTransient
     public Optional<ComTaskExecutionSession> getLastSession() {
         Optional<ComTaskExecutionSession> optional = this.lastSession.getOptional();
         if (optional.isPresent()) {
@@ -488,16 +521,28 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlAttribute
     public Instant getLastSuccessfulCompletionTimestamp() {
         return this.lastSuccessfulCompletionTimestamp;
     }
 
     @Override
+    @XmlElement(type = NextExecutionSpecsImpl.class)
     public Optional<NextExecutionSpecs> getNextExecutionSpecs() {
-        return this.getBehavior().getNextExecutionSpecs();
+        if (this.getBehavior() != null) {
+            if (this.getBehavior().getNextExecutionSpecs().isPresent()) {
+                nextExecutionSpecs.set(this.getBehavior().getNextExecutionSpecs().get());
+            }
+        }
+        return nextExecutionSpecs.getOptional();
+    }
+
+    public void setNextExecutionSpecs(NextExecutionSpecs nextExecutionSpecs) {
+        this.nextExecutionSpecs.set(nextExecutionSpecs);
     }
 
     @Override
+    @XmlAttribute
     public boolean isIgnoreNextExecutionSpecsForInbound() {
         return this.ignoreNextExecutionSpecsForInbound;
     }
@@ -507,11 +552,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlAttribute
     public Instant getPlannedNextExecutionTimestamp() {
         return this.plannedNextExecutionTimestamp;
     }
 
     @Override
+    @XmlAttribute
     public int getPlannedPriority() {
         return this.plannedPriority;
     }
@@ -690,6 +737,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlAttribute
     public boolean isOnHold() {
         return this.onHold;
     }
@@ -738,11 +786,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlTransient
     public ComTaskExecutionUpdater getUpdater() {
         return new ComTaskExecutionUpdaterImpl(this);
     }
 
     @Override
+    @XmlTransient
     public List<ProtocolTask> getProtocolTasks() {
         return Collections.unmodifiableList(this.getComTask().getProtocolTasks());
     }
@@ -892,11 +942,13 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlAttribute
     public boolean isLastExecutionFailed() {
         return this.lastExecutionFailed;
     }
 
     @Override
+    @XmlAttribute
     public long getVersion() {
         return this.version;
     }
@@ -930,6 +982,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlTransient
     public List<ComTaskExecutionTrigger> getComTaskExecutionTriggers() {
         return comTaskExecutionTriggers;
     }
@@ -1041,7 +1094,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     protected Instant now() {
-        return clock.instant();
+        if (clock != null) {
+            return clock.instant();
+        }
+        return null;
     }
 
     protected void validateNotObsolete() {
@@ -1061,56 +1117,76 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @XmlTransient
     public List<ComTask> getComTasks() {
         return Collections.singletonList(getComTask());
     }
 
+    public void setComTasks(List<ComTask> ignore) {
+
+    }
+
     @Override
+    @XmlElement(type = ComTaskDefinedByUserImpl.class, name = "comTask")
     public ComTask getComTask() {
         return this.comTask.get();
     }
 
     @Override
+    public void setComTask(ComTask comTask) {
+        this.comTask.set(comTask);
+    }
+
+    @Override
+    @XmlTransient
     public Optional<ComSchedule> getComSchedule() {
         return this.comSchedule.getOptional();
     }
 
     @Override
+    @XmlTransient
     public boolean isConfiguredToCollectRegisterData() {
         return isConfiguredToCollectDataOfClass(RegistersTask.class);
     }
 
     @Override
+    @XmlTransient
     public boolean isConfiguredToCollectLoadProfileData() {
         return isConfiguredToCollectDataOfClass(LoadProfilesTask.class);
     }
 
     @Override
+    @XmlTransient
     public boolean isConfiguredToRunBasicChecks() {
         return isConfiguredToCollectDataOfClass(BasicCheckTask.class);
     }
 
     @Override
+    @XmlTransient
     public boolean isConfiguredToCheckClock() {
         return isConfiguredToCollectDataOfClass(ClockTask.class);
     }
 
     @Override
+    @XmlTransient
     public boolean isConfiguredToCollectEvents() {
         return isConfiguredToCollectDataOfClass(LogBooksTask.class);
     }
 
     @Override
+    @XmlTransient
     public boolean isConfiguredToSendMessages() {
         return isConfiguredToCollectDataOfClass(MessagesTask.class);
     }
 
     @Override
+    @XmlTransient
     public boolean isConfiguredToReadStatusInformation() {
         return isConfiguredToCollectDataOfClass(StatusInformationTask.class);
     }
 
     @Override
+    @XmlTransient
     public boolean isConfiguredToUpdateTopology() {
         return isConfiguredToCollectDataOfClass(TopologyTask.class);
     }
@@ -1672,5 +1748,16 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.comTaskExecution.nextExecutionSpecs = ValueReference.absent();
             return this;
         }
+    }
+
+    @Override
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    @Override
+    public void setXmlType(String ignore) {
+        //Ignore, only used for JSON
     }
 }

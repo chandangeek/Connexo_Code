@@ -20,6 +20,10 @@ public class UPLEncryptionLevelAdapter extends UPLDeviceAccessLevelAdapter imple
         }
     }
 
+    public UPLEncryptionLevelAdapter() {
+        super();
+    }
+
     private UPLEncryptionLevelAdapter(DeviceAccessLevel uplDeviceAccessLevel, Thesaurus thesaurus) {
         super(uplDeviceAccessLevel, thesaurus);
     }

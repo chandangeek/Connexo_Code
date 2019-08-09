@@ -11,6 +11,7 @@ import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
 import java.util.Optional;
 
 /**
@@ -41,6 +42,10 @@ class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask, Per
     private boolean verifyClockDifference;
     private boolean verifySerialNumber;
     private TimeDuration maximumClockDifference;
+
+    public BasicCheckTaskImpl() {
+
+    }
 
     @Inject
     BasicCheckTaskImpl(DataModel dataModel) {
@@ -86,5 +91,10 @@ class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask, Per
     @Override
     public void setMaximumClockDifference(TimeDuration maximumClockDifference) {
         this.maximumClockDifference = maximumClockDifference;
+    }
+
+    @XmlAttribute
+    public DeviceOfflineFlags getFlags() {
+        return FLAGS;
     }
 }
