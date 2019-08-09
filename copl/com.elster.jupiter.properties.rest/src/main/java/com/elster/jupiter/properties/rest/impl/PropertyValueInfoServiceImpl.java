@@ -227,6 +227,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.DEVICEGROUPTYPE
                 && propertyType != SimplePropertyType.SERVICE_CALL
                 && propertyType != SimplePropertyType.SERVICE_CALL_STATE
+                && propertyType != SimplePropertyType.ENDPOINT_CONFIGURATION_LIST
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
@@ -238,7 +239,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 if (propertyType == SimplePropertyType.SELECTIONGRID || propertyType == SimplePropertyType.LISTREADINGQUALITY || propertyType == SimplePropertyType.DEVICECONFIGURATIONLIST || propertyType == SimplePropertyType.METROLOGYCONFIGURATIONLIST ||
                         propertyType == SimplePropertyType.ENDDEVICEEVENTTYPE || propertyType == SimplePropertyType.LIFECYCLESTATUSINDEVICETYPE ||
                         propertyType == SimplePropertyType.RADIO_GROUP || propertyType == SimplePropertyType.DEVICEGROUPTYPE || propertyType == SimplePropertyType.LIFECYCLETRANSITION || propertyType == SimplePropertyType.RECURRENCE_SELECTION_PROPS ||
-                        propertyType == SimplePropertyType.TASK || propertyType == SimplePropertyType.SERVICE_CALL || propertyType == SimplePropertyType.SERVICE_CALL_STATE) {
+                        propertyType == SimplePropertyType.TASK || propertyType == SimplePropertyType.SERVICE_CALL || propertyType == SimplePropertyType.SERVICE_CALL_STATE || propertyType == SimplePropertyType.ENDPOINT_CONFIGURATION_LIST) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
                 } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.IDWITHNAMELIST ||
                         propertyType == SimplePropertyType.BPM_PROCESS || propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT) {

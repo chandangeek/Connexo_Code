@@ -111,9 +111,11 @@ abstract class AbstractWebServiceIssueCreationRuleTemplate implements CreationRu
         if (getEventType() != WebServiceEventDescription.AUTH_FAILURE) {
             epcStream = epcStream.filter(OutboundEndPointConfiguration.class);
         }
-        EndPointConfiguration[] possibleValues = epcStream.toArray(EndPointConfiguration[]::new);
+        EndPointConfigurationInfo[] possibleValues = epcStream
+                .map(epc -> new EndPointConfigurationInfo(epc, thesaurus))
+                .toArray(EndPointConfigurationInfo[]::new);
         return Collections.singletonList(propertySpecService
-                .referenceSpec(EndPointConfiguration.class)
+                .specForValuesOf(new EndPointConfigurationInfoValueFactory(thesaurus, endPointConfigurationService))
                 .named(END_POINT_CONFIGURATIONS, TranslationKeys.END_POINT_CONFIGURATIONS_PROPERTY)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()

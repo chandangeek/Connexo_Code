@@ -31,7 +31,9 @@ public class ReadingTypeIntervalOnlyForChannelValidator implements ConstraintVal
         ReadingType readingType = measurementType.getReadingType();
         if (readingType != null) {
             if (readingTypeInterval.measurementType().equals(MeasurementTypeImpl.REGISTER_DISCRIMINATOR)) {
-                if (validMacroPeriod(readingType) || readingType.getMeasuringPeriod().isApplicable()) {
+                if (validMacroPeriod(readingType)
+                // allow load profile capture registers        || readingType.getMeasuringPeriod().isApplicable()
+                ) {
                     constraintValidatorContext.disableDefaultConstraintViolation();
                     constraintValidatorContext.
                             buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE + "}").

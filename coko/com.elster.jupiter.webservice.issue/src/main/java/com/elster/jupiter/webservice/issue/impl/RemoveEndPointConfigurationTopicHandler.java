@@ -47,6 +47,7 @@ public class RemoveEndPointConfigurationTopicHandler implements TopicHandler {
                 .join(CreationRule.class)
                 .join(IssueReason.class)
                 .join(IssueType.class)
+                .filter(Where.where("rule.obsoleteTime").isNull())
                 .filter(Where.where("rule.reason.issueType.key").isEqualTo(WebServiceIssueService.ISSUE_TYPE_NAME))
                 .filter(Where.where("name").isEqualTo(AuthFailureIssueCreationRuleTemplate.END_POINT_CONFIGURATIONS))
                 .anyMatch(Where.where("value").matches("^(?:.*,)?" + endPointConfiguration.getId() + "(?:,.*)?$", ""));

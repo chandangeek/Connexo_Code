@@ -14,6 +14,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -30,6 +31,7 @@ import com.elster.jupiter.webservice.issue.impl.event.WebServiceEvent;
 import com.elster.jupiter.webservice.issue.impl.event.WebServiceEventDescription;
 import com.elster.jupiter.webservice.issue.impl.event.WebServiceEventHandlerFactory;
 import com.elster.jupiter.webservice.issue.impl.template.AuthFailureIssueCreationRuleTemplate;
+import com.elster.jupiter.webservice.issue.impl.template.EndPointConfigurationInfo;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -40,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -169,7 +172,8 @@ public abstract class BaseIT {
     protected CreationRule createRuleForEndPointConfigurations(String name, EndPointConfiguration... endPointConfigurations) {
         IssueCreationService.CreationRuleBuilder ruleBuilder = issueCreationService.newCreationRule();
         Map<String, Object> props = new HashMap<>();
-        props.put(AuthFailureIssueCreationRuleTemplate.END_POINT_CONFIGURATIONS, Arrays.asList(endPointConfigurations));
+        props.put(AuthFailureIssueCreationRuleTemplate.END_POINT_CONFIGURATIONS,
+                Arrays.stream(endPointConfigurations).map(epc -> new EndPointConfigurationInfo(epc, NlsModule.FakeThesaurus.INSTANCE)).collect(Collectors.toList()));
         return ruleBuilder.setTemplate(AuthFailureIssueCreationRuleTemplate.NAME)
                 .setName(name)
                 .setIssueType(issueService.findIssueType(WebServiceIssueService.ISSUE_TYPE_NAME).get())

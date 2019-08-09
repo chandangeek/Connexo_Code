@@ -65,9 +65,12 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import com.energyict.obis.ObisCode;
+import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -141,6 +144,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
     private Properties engineProperties = new Properties();
+    private BundleContext bundleContext = null;
 
     public EngineServiceImpl() {
     }
@@ -443,14 +447,14 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Activate
     public void activate(BundleContext bundleContext) {
         try{
+            this.bundleContext = bundleContext;
             dataModel.register(this.getModule());
             upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
             setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
             setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
 
-            this.tryStartComServer();
-
+            this.launchComServer();
         } catch(Exception e) {
             // Not so a good idea to disable: can't be restarted by using the command lcs ...
             // componentContext.disableComponent(componentContext.getBundleContext().getProperty(Constants.SERVICE_PID));
@@ -538,11 +542,30 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @SuppressWarnings("unused")
     public void launchComServer() {
         if (this.launcher == null || !this.launcher.isStarted()) {
+            if(bundleContext != null) {
+                ClassLoader original = Thread.currentThread().getContextClassLoader();
+                Bundle bundleJetty = getJettyBundle(bundleContext);
+                if(bundleJetty != null) {
+                    ClassLoader jettyClassLoader = bundleJetty.adapt(BundleWiring.class).getClassLoader();
+                    Thread.currentThread().setContextClassLoader(jettyClassLoader);
+                }
+            }
             this.tryStartComServer();
         } else {
             System.out.println("ComServer " + HostName.getCurrent() + " is already running");
         }
     }
+
+    public Bundle getJettyBundle(BundleContext bundleContext){
+        for (Bundle bundle:bundleContext.getBundles()){
+            String bundleName = bundle.getSymbolicName();
+            if (!Strings.isNullOrEmpty(bundleName) && bundleName.equals("org.apache.felix.http.jetty")) {
+                return  bundle;
+            }
+        }
+        return  null;
+    }
+
 
     @SuppressWarnings("unused")
     public void lcs() {
