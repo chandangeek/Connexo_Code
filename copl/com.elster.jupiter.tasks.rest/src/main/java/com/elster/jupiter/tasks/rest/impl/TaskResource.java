@@ -20,6 +20,9 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -88,8 +91,10 @@ public class TaskResource {
             filterSpec.suspended.addAll(filter.getStringList("suspended"));
             filterSpec.nextExecutionFrom = filter.getInstant("nextRunFrom");
             filterSpec.nextExecutionTo = filter.getInstant("nextRunTo");
-            filterSpec.priorityFrom = filter.getInteger("priorityFrom");
-            filterSpec.priorityTo = filter.getInteger("priorityTo");
+            if (filter.hasProperty("priority")) {
+                applyFilterWithOperator(filter, "priority", filterSpec.priority);
+                validateNumberBetweenFilterOrThrowException(filterSpec.priority);
+            }
             filterSpec.sortingColumns = queryParams.getSortingColumns();
         }
         TaskFinder finder = taskService.getTaskFinder(filterSpec, queryParams.getStart().get(), queryParams.getLimit().get() + 1);
@@ -262,5 +267,31 @@ public class TaskResource {
             }
         }
         return locale;
+    }
+
+    private void applyFilterWithOperator(JsonQueryFilter filter, String propertyName, RecurrentTaskFilterSpecification.NumberBetweenFilter specField) {
+        Pair<RecurrentTaskFilterSpecification.Operator, JsonNode> operatorWithValues = filter.getProperty(propertyName, this::parseRelationalOperator);
+        RecurrentTaskFilterSpecification.Operator operator = operatorWithValues.getFirst();
+        JsonNode values = operatorWithValues.getLast();
+        operator.apply(values, specField);
+    }
+
+    private Pair<RecurrentTaskFilterSpecification.Operator, JsonNode> parseRelationalOperator(JsonNode jsonNode) {
+        JsonNode operatorNode = jsonNode.get("operator");
+        JsonNode criteriaNode = jsonNode.get("criteria");
+        if (operatorNode == null || !operatorNode.isTextual() || criteriaNode == null || criteriaNode.isNull()) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        String operatorName = operatorNode.asText();
+        RecurrentTaskFilterSpecification.Operator operator = RecurrentTaskFilterSpecification.Operator.findOperator(operatorName).orElseThrow(
+                () ->new WebApplicationException(Response.Status.BAD_REQUEST));
+
+               return Pair.of(operator, criteriaNode);
+    }
+
+    private void validateNumberBetweenFilterOrThrowException(RecurrentTaskFilterSpecification.NumberBetweenFilter numberBetweenFilter) {
+        if (numberBetweenFilter.operator == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
     }
 }

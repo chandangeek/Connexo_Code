@@ -19,6 +19,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @LiteralSql
 public class RecurrentTaskFinder implements TaskFinder {
@@ -119,19 +120,29 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add priority between conditions
-        if ((filter.priorityFrom != null) || (filter.priorityTo != null)) {
+        if ((filter.priority != null) && (filter.priority.operator != null)) {
             builder.append(isFirstCondition ? " where ( " : " and ( ");
             isFirstCondition = false;
-            if (filter.priorityFrom != null) {
-                builder.append(" PRIORITY >= ");
-                builder.addInt(filter.priorityFrom);
-            }
-            if ((filter.priorityFrom != null) && (filter.priorityTo != null)) {
-                builder.append(" and ");
-            }
-            if (filter.priorityTo != null) {
-                builder.append(" PRIORITY <= ");
-                builder.addInt(filter.priorityTo);
+            switch (filter.priority.operator) {
+                case EQUAL:
+                    builder.append(" PRIORITY = ");
+                    builder.addLong(filter.priority.lowerBound);
+                    break;
+                case LESS_THAN:
+                    builder.append(" PRIORITY < ");
+                    builder.addLong(filter.priority.upperBound);
+                    break;
+                case GREATER_THAN:
+                    builder.append(" PRIORITY > ");
+                    builder.addLong(filter.priority.lowerBound);
+                    break;
+                case BETWEEN:
+                    // range should be open for consistency of the FE component behavior
+                    builder.append(" PRIORITY BETWEEN ");
+                    builder.addLong(filter.priority.lowerBound + 1);
+                    builder.append(" AND ");
+                    builder.addLong(filter.priority.upperBound - 1);
+                    break;
             }
             builder.append(") ");
         }
@@ -203,8 +214,8 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         // add sorting conditions
-        builder.append("order by ");
         if (!filter.sortingColumns.isEmpty()) {
+            builder.append("order by ");
             Order[] order = filter.sortingColumns.toArray(new Order[filter.sortingColumns.size()]);
             for (int i = 0; i < order.length; i++) {
                 switch (order[i].getName()) {
