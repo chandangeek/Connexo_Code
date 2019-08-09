@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.pki.CertificateWrapper;
@@ -12,11 +11,16 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -196,7 +200,7 @@ public interface DeviceService {
     List<Device> findActiveValidatedDevices(List<Device> domainObjects);
 
     /**
-     * Deletes all outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s<br/>
+     * Deletes all outdated {@link ComTaskExecutionTrigger}s<br/>
      * More specific, all ComTaskExecutionTriggers who have a trigger date more than 1 day in the past will be deleted
      */
     void deleteOutdatedComTaskExecutionTriggers();

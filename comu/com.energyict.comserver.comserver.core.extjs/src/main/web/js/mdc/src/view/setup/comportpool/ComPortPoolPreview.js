@@ -60,6 +60,14 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
                         renderer: function (value) {
                             return value && value.localizedValue;
                         }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comPortPool.form.percentageOfPriorityTasks', 'MDC', 'Percentage of priority tasks'),
+                        name: 'pctHighPrioTasks',
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('comPortPool.form.maxPriorityConnections', 'MDC', 'Max priority connections'),
+                        name: 'maxPriorityConnections'
                     }
                 ]
             },

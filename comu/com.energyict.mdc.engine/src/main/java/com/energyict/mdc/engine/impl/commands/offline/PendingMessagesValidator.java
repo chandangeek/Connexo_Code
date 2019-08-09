@@ -7,11 +7,11 @@ package com.energyict.mdc.engine.impl.commands.offline;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.EnumSet;
 import java.util.List;

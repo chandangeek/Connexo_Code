@@ -5,7 +5,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 
 import com.jayway.jsonpath.JsonModel;
 

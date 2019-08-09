@@ -5,14 +5,15 @@ package com.energyict.mdc.webservices.demo.meterreadingdocument;
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.RegistersTask;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

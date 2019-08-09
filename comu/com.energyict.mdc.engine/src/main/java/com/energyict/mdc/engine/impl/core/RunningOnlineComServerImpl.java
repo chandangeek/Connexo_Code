@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.monitor.ServerQueryAPIStatistics;
@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * Extends the {@link RunningComServerImpl} and specializes on
- * {@link com.energyict.mdc.engine.config.OnlineComServer}s.
+ * {@link OnlineComServer}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-08 (15:54)
@@ -26,17 +26,21 @@ import java.util.concurrent.ThreadFactory;
 public class RunningOnlineComServerImpl extends RunningComServerImpl implements RunningOnlineComServer {
 
     private EmbeddedWebServer remoteQueryApi;
+    private ServiceProvider serviceProvider;
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, null, null, new ComServerThreadFactory(comServer), serviceProvider);
+        this.serviceProvider = serviceProvider;
     }
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, serviceProvider);
+        this.serviceProvider = serviceProvider;
     }
 
     public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
         super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, embeddedWebServerFactory, serviceProvider);
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
@@ -58,7 +62,7 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
     }
 
     private void startQueryApiListener () {
-        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this);
+        this.remoteQueryApi = this.getEmbeddedWebServerFactory().findOrCreateRemoteQueryWebServer(this, getComServerDAO(),serviceProvider.engineConfigurationService() ,serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
         this.remoteQueryApi.start();
     }
 

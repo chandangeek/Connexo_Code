@@ -9,11 +9,12 @@ import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.State;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.EnumSet;

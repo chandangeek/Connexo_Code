@@ -5,7 +5,8 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
 
 /**
  * Models the behavior of a component that will listen for
@@ -29,7 +30,7 @@ public interface ComPortListener extends ComPortServerProcess {
      * changes interpoll delay changed.
      *
      * @param changesInterpollDelay The new scheduling interpoll delay
-     * @see com.energyict.mdc.engine.config.ComServer#getChangesInterPollDelay()
+     * @see ComServer#getChangesInterPollDelay()
      */
     void changesInterpollDelayChanged(TimeDuration changesInterpollDelay);
 
@@ -38,7 +39,7 @@ public interface ComPortListener extends ComPortServerProcess {
      * scheduling interpoll delay changed.
      *
      * @param schedulingInterpollDelay The new scheduling interpoll delay
-     * @see com.energyict.mdc.engine.config.ComServer#getSchedulingInterPollDelay()
+     * @see ComServer#getSchedulingInterPollDelay()
      */
     void schedulingInterpollDelayChanged(TimeDuration schedulingInterpollDelay);
 

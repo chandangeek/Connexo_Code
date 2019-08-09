@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 
 import java.util.Iterator;

@@ -8,8 +8,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
@@ -19,7 +20,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.tools.StackTracePrinter;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
@@ -29,10 +29,18 @@ import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.exceptions.*;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.CommunicationInterruptedException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ConnectionSetupException;
+import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.ModemException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,9 +95,19 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             if (!hasExecuted()) {
                 this.setCompletionCode(CompletionCode.Ok);  // First optimistic
                 boolean success = false;    // then pessimistic, does that make me manic
+                boolean connectionInterrupted = false;
                 try {
                     doExecute(deviceProtocol, executionContext);
                     success = true;
+                } catch (CommunicationInterruptedException e) {
+                    // Indicates the comports thread has been interrupted
+                    // This is most likely caused by the priority scheduler, who has interrupted a normal priority task in order to free the comport for execution of a priority task
+                    // The next comtasks for this connection will be set to 'not executed'.
+                    injectNlsServiceIfNeeded(e);
+                    connectionInterrupted = true;
+                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.Rescheduled);
+                    getGroupedDeviceCommand().connectionInterrupted();
+                    logTaskExecutionFailed(executionContext, e);
                 } catch (ConnectionCommunicationException e) {
                     injectNlsServiceIfNeeded(e);
                     if (e.getExceptionType().equals(ConnectionCommunicationException.Type.CONNECTION_STILL_INTACT)) {
@@ -102,32 +120,24 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                          * The next comtasks for this connection will be set to 'not executed'. */
                         connectionErrorOccurred(deviceProtocol, e);
                     }
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
-                            .getDevice()
-                            .getName());
+                    logTaskExecutionFailed(executionContext, e);
                 } catch (ConnectionSetupException | ModemException e) {
                     injectNlsServiceIfNeeded(e);
                     connectionErrorOccurred(deviceProtocol, e);
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
-                            .getDevice()
-                            .getName());
+                    logTaskExecutionFailed(executionContext, e);
                 } catch (CommunicationException | DataParseException e) {
                     injectNlsServiceIfNeeded(e);
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ProtocolError);
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
-                            .getDevice()
-                            .getName());
+                    logTaskExecutionFailed(executionContext, e);
                 } catch (DeviceConfigurationException | CanNotFindForIdentifier e) {
                     injectNlsServiceIfNeeded(e);
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ConfigurationError);
-                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread()
-                            .getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    logTaskExecutionFailedDueToProblems(executionContext);
                 } catch (NestedPropertyValidationException e) {
                     injectNlsServiceIfNeeded(e);
                     addIssue(getServiceProvider().issueService()
                             .newProblem(deviceProtocol, MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR, e.getUplException()), CompletionCode.ConfigurationError);
-                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread()
-                            .getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                    logTaskExecutionFailedDueToProblems(executionContext);
                 } catch (LegacyProtocolException e) {
                     injectNlsServiceIfNeeded(e);
                     if (isExceptionCausedByALegacyTimeout(e)) {
@@ -137,13 +147,13 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                                 .newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e, getCommunicationLogLevel(executionContext))), CompletionCode.UnexpectedError);
                     }
                     getGroupedDeviceCommand().skipOtherComTaskExecutions();
-                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
-                            .getDevice()
-                            .getName());
+                    logTaskExecutionFailed(executionContext, e);
                 } finally {
                     if (success) {
                         this.basicComCommandBehavior.setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
-                    } else {
+                    } else if (connectionInterrupted) {
+                        this.basicComCommandBehavior.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
+                    }else {
                         this.basicComCommandBehavior.setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
                     }
                 }
@@ -163,6 +173,17 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         if (e instanceof ProtocolRuntimeException) {
             ((ProtocolRuntimeException)e).injectNlsService(UPLNlsServiceAdapter.adaptTo(getServiceProvider().nlsService()));
         }
+    }
+
+    private void logTaskExecutionFailed(ExecutionContext executionContext, Throwable e) {
+        executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution()
+                .getDevice()
+                .getName());
+    }
+
+    private void logTaskExecutionFailedDueToProblems(ExecutionContext executionContext) {
+        executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread()
+                .getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
     }
 
     private String getComTasksDescription(ExecutionContext executionContext) {

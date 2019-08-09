@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.TranslationKey;

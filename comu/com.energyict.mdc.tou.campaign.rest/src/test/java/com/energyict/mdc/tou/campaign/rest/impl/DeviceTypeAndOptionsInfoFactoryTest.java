@@ -6,9 +6,9 @@ package com.energyict.mdc.tou.campaign.rest.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 

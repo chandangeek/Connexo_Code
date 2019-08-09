@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 
 /**
  * Value object containing the result of a single action that needs to be performed when the

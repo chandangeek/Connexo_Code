@@ -11,8 +11,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
@@ -49,7 +49,7 @@ public class ActivatedBreakerStatusImpl implements ActivatedBreakerStatus {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BreakerStatus breakerStatus;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    private Reference<com.energyict.mdc.device.data.Device> device = ValueReference.absent();
+    private Reference<Device> device = ValueReference.absent();
     private Instant lastChecked;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Interval interval;

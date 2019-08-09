@@ -7,8 +7,8 @@ package com.energyict.mdc.device.data.ami;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import java.time.Instant;
 import java.util.List;

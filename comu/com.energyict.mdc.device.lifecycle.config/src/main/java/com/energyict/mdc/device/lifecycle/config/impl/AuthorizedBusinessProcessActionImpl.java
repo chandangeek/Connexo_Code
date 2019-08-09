@@ -12,8 +12,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;

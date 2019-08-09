@@ -8,10 +8,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ReadingType;
-
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 
 import aQute.bnd.annotation.ProviderType;
 

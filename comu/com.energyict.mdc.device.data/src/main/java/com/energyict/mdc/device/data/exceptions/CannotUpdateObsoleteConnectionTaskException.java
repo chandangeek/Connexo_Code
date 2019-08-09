@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 /**
  * Models the exceptional situation that occurs when

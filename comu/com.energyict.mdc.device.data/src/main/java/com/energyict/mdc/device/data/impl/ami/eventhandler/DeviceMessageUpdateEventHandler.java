@@ -11,14 +11,15 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.TrackingCategory;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
-import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

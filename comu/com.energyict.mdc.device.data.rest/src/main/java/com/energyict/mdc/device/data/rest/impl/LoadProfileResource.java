@@ -12,14 +12,13 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LoadProfileReading;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.common.collect.Range;

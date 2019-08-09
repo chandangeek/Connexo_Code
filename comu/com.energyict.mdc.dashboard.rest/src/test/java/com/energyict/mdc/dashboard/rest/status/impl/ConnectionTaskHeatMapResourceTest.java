@@ -7,15 +7,15 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.dashboard.ComPortPoolHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.impl.ComSessionSuccessIndicatorOverviewImpl;
 import com.energyict.mdc.dashboard.impl.ConnectionTaskHeatMapRowImpl;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.config.ComPortPool;
 
 import com.jayway.jsonpath.JsonModel;
 

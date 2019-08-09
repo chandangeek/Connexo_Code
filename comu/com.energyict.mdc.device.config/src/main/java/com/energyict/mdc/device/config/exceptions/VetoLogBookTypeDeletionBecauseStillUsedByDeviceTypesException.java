@@ -7,8 +7,8 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.masterdata.LogBookType;
 
 import java.util.List;
 import java.util.stream.Collectors;

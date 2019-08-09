@@ -5,8 +5,8 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.tasks.LogBooksTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
@@ -18,7 +18,7 @@ import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.LOG_BOOKS_FLAG;
 import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
- * Implementation for a {@link com.energyict.mdc.tasks.LogBooksTask}
+ * Implementation for a {@link LogBooksTask}
  *
  * @author gna
  * @since 2/05/12 - 11:11

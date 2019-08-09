@@ -4,9 +4,9 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.util.EnumMap;

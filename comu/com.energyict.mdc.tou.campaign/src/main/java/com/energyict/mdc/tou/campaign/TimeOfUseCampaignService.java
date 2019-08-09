@@ -7,11 +7,10 @@ package com.energyict.mdc.tou.campaign;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import aQute.bnd.annotation.ProviderType;
 

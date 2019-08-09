@@ -6,14 +6,14 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveCalendar;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.PassiveCalendar;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import com.google.common.collect.Range;
 

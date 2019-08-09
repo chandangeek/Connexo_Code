@@ -10,8 +10,8 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.constraints.Size;
 

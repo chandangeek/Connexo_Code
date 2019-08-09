@@ -6,16 +6,20 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
@@ -30,11 +34,8 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
@@ -419,6 +420,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         }
 
         @Override
+        public boolean isHighPriorityJob() {
+            return false;
+        }
+
+        @Override
         public void execute() {
             // No actual execution in mock mode
         }
@@ -426,6 +432,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         @Override
         public void rescheduleToNextComWindow() {
 
+        }
+
+        @Override
+        public boolean isConnectedTo(OutboundConnectionTask connectionTask) {
+            return false;
         }
     }
 }

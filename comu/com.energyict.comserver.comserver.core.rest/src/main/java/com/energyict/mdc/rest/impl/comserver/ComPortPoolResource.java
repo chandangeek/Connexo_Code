@@ -7,21 +7,21 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.annotation.security.RolesAllowed;
@@ -36,6 +36,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -190,6 +191,24 @@ public class ComPortPoolResource {
     @Path("/{comPortPoolId}/comports")
     public ComPortPoolComPortResource getComPortResource() {
         return comPortPoolComPortResourceProvider.get();
+    }
+
+    @GET @Transactional
+    @Path("/{id}/maxPriorityConnections")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    public long getMaxPriorityConnections(@PathParam("id") long id, @QueryParam("pctHighPrioTasks") long pctHighPrioTasks) {
+        Optional<? extends ComPortPool> comPortPool =  engineConfigurationService.findComPortPool(id);
+
+        if(comPortPool.isPresent()) {
+            Optional<ComPortPoolInfo> comPortPoolInfo = comPortPool.map(o -> comPortPoolInfoFactory.asInfo(o, engineConfigurationService, mdcPropertyUtils));
+            if(comPortPoolInfo.isPresent()) {
+                return ((OutboundComPortPoolInfo) comPortPoolInfo.get()).calculateMaxPriorityConnections(comPortPool.get(), engineConfigurationService, pctHighPrioTasks);
+            }
+        }
+
+        return 0;
     }
 
     private boolean getBoolean(UriInfo uriInfo, String key) {

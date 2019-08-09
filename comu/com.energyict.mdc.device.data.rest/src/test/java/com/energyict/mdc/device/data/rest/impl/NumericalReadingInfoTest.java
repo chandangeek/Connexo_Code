@@ -2,8 +2,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.rest.IntervalInfo;
-import com.energyict.mdc.device.data.Register;
 
 import com.google.common.collect.Range;
 

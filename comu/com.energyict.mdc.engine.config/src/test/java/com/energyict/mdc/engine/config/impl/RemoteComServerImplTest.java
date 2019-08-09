@@ -8,10 +8,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.config.PersistenceTest;
-import com.energyict.mdc.engine.config.RemoteComServer;
 
 import com.google.inject.Provider;
 

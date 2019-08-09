@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.protocol.api.messaging;
 
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;

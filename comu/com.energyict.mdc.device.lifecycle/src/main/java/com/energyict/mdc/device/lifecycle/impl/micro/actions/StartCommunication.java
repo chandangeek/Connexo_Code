@@ -5,12 +5,12 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * that will start the  communication with the device
  * by activating all connection schedule all communication tasks
  * to execute now.
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#START_COMMUNICATION}
+ * @see {@link MicroAction#START_COMMUNICATION}
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-13 (14:32)

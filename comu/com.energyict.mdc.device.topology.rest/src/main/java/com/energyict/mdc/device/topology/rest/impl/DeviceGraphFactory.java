@@ -4,7 +4,7 @@ import com.elster.jupiter.util.geo.Elevation;
 import com.elster.jupiter.util.geo.Latitude;
 import com.elster.jupiter.util.geo.Longitude;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.GraphFactory;

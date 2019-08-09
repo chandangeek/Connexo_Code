@@ -6,8 +6,8 @@ package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.pluggable.Pluggable;
-import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.common.pluggable.Pluggable;
+import com.energyict.mdc.common.pluggable.PluggableClassType;
 
 /**
  * Models the exceptional situation that occurs when a pluggable

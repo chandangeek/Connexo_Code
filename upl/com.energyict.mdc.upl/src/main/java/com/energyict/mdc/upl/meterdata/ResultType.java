@@ -41,6 +41,12 @@ public enum ResultType {
     InCompatible(CompletionCode.ProtocolError),
 
     /**
+     * Identifies that the object is supported by the device, but the requested information could not be fully fetched
+     * because the process was interrupted (either by a more prioritary task, or by a user)
+     */
+    Rescheduled(CompletionCode.Rescheduled),
+
+    /**
      * Should only be used if none of the other <code>ResultTypes</code> are valid.
      * The <code>Issue Object</code> should contain detailed information so it is perfectly understandable what and why this object is returned.
      */

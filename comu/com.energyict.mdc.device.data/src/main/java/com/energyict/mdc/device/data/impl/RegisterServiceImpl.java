@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;

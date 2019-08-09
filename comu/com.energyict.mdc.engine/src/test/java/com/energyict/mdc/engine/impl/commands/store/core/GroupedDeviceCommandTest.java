@@ -5,9 +5,18 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
@@ -35,22 +44,13 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 
 import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.CommunicationInterruptedException;
 import com.energyict.protocol.exceptions.DataParseException;
 
 import java.io.IOException;
@@ -316,7 +316,7 @@ public class GroupedDeviceCommandTest extends CommonCommandImplTests {
 
     private ComCommand mockConnectionErrorFailureComCommand(GroupedDeviceCommand groupedDeviceCommand) {
         AddPropertiesCommand addPropertiesCommand = spy(new AddPropertiesCommand(groupedDeviceCommand, TypedProperties.empty(), TypedProperties.empty(), null));
-        doThrow(new ConnectionCommunicationException(com.energyict.mdc.engine.impl.commands.MessageSeeds.UNEXPECTED_IO_EXCEPTION, new IOException("For testing purposes only")))
+        doThrow(new CommunicationInterruptedException(com.energyict.mdc.engine.impl.commands.MessageSeeds.UNEXPECTED_IO_EXCEPTION, new IOException("For testing purposes only")))
                 .when(addPropertiesCommand)
                 .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         return addPropertiesCommand;

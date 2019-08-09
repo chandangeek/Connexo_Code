@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -33,7 +33,7 @@ public class DeviceMessageFileFinderImplTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
-    private com.energyict.mdc.device.config.DeviceMessageFile messageFile;
+    private com.energyict.mdc.common.device.config.DeviceMessageFile messageFile;
 
     @After
     public void clearServices() {

@@ -157,7 +157,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     private void executeWebServiceCall(String id, String source, ActualState currentState, ActualState newState, Instant effectiveDate) {
-        if (source.equals("com.energyict.mdc.device.data.Device")) {
+        if (source.equals(CallWebServiceClient.DEVICE)) {
             finiteStateMachineService.getStateTransitionWebServiceClients().forEach(stateTransitionWebServiceClient -> {
                 String nameService = stateTransitionWebServiceClient.getWebServiceName();
 
@@ -189,7 +189,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     public abstract static class StartExternalProcesses {
-        private static final String DEVICE = "com.energyict.mdc.device.data.Device";
+        private static final String DEVICE = "com.energyict.mdc.common.device.data.Device";
         private static final String DEVICE_ASSOCIATION = "device";
         private static final String USAGEPOINT_ASSOCIATION = "usagepoint";
         public static final String USAGEPOINT = "com.elster.jupiter.metering.UsagePoint";
@@ -275,7 +275,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
     private abstract static class CallWebServiceClient {
 
-        private static final String DEVICE = "com.energyict.mdc.device.data.Device";
+        private static final String DEVICE = "com.energyict.mdc.common.device.data.Device";
         private final List<EndPointConfigurationReference> endPointConfigurationReferences;
         private final String sourceId;
         private final String sourceType;

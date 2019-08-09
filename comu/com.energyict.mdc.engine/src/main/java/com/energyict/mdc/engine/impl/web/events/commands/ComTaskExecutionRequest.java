@@ -5,7 +5,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 

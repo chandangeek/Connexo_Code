@@ -71,7 +71,7 @@ Ext.define('Mdc.usagepointmanagement.view.EditUsagePointForm', {
                 name: 'extendedLocation',
                 itemId: 'locationEdit',
                 width: 610,
-                findLocationsUrl: '/api/jsr/search/com.energyict.mdc.device.data.Device/locationsearchcriteria/location',
+                findLocationsUrl: '/api/jsr/search/com.energyict.mdc.common.device.data.Device/locationsearchcriteria/location',
                 locationDetailsUrl: '/api/ddr/devices/locations'
             },
             {

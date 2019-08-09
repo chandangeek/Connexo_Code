@@ -30,13 +30,13 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -244,12 +244,12 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Channel channel, Range<Instant> range) {
+    public Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Channel channel, Range<Instant> range) {
         return getLrn(channel.getDevice(), channel.getChannelSpec(), range);
     }
 
     @Override
-    public Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Register register, Range<Instant> range) {
+    public Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Register register, Range<Instant> range) {
         return getLrn(register.getDevice(), register.getRegisterSpec(), range);
     }
 
@@ -266,7 +266,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public void setLrn(com.energyict.mdc.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime) {
+    public void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime) {
         Range<Instant> range = getTimeInterval(startDateTime, endDateTime);
 
         setLrn(channel, lrn, range);
@@ -509,7 +509,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         addRegisterCustomPropertySetVersioned(register, registerInfo.getId(), DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
     }
 
-    private void setLrn(com.energyict.mdc.device.data.Channel channel, String lrn, Range<Instant> range) {
+    private void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Range<Instant> range) {
         lockLoadProfileTypeOrThrowException(channel);
         lockChannelSpecOrThrowException(channel);
 
@@ -580,7 +580,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     }
 
-    private void lockLoadProfileTypeOrThrowException(com.energyict.mdc.device.data.Channel channel) {
+    private void lockLoadProfileTypeOrThrowException(com.energyict.mdc.common.device.data.Channel channel) {
         masterDataService
                 .findAndLockLoadProfileTypeById(channel.getLoadProfile().getLoadProfileTypeId())
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_NOT_FOUND, channel.getObisCode()));
@@ -591,7 +591,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_NOT_FOUND, register.getObisCode()));
     }
 
-    private void lockChannelSpecOrThrowException(com.energyict.mdc.device.data.Channel channel) {
+    private void lockChannelSpecOrThrowException(com.energyict.mdc.common.device.data.Channel channel) {
         deviceConfigurationService.findAndLockChannelSpecById(channel.getChannelSpec().getId())
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_NOT_FOUND, channel.getObisCode()));
     }
@@ -623,7 +623,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         register.getRegisterSpec().save();
     }
 
-    private void addChannelCustomPropertySetVersioned(com.energyict.mdc.device.data.Channel channel, String cpsId, String property, String value, Range<Instant> range) {
+    private void addChannelCustomPropertySetVersioned(com.energyict.mdc.common.device.data.Channel channel, String cpsId, String property, String value, Range<Instant> range) {
         RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(channel, cpsId);
         if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId);
@@ -724,7 +724,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId));
     }
 
-    private RegisteredCustomPropertySet getRegisteredCustomPropertySet(com.energyict.mdc.device.data.Channel channel, String cpsId) {
+    private RegisteredCustomPropertySet getRegisteredCustomPropertySet(com.energyict.mdc.common.device.data.Channel channel, String cpsId) {
         return channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
                 .filter(f -> f.getCustomPropertySetId().equals(cpsId) && f.isViewableByCurrentUser())
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId));

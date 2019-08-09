@@ -10,23 +10,23 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
@@ -68,7 +68,10 @@ public class DeviceComTaskResource {
 
 
     @Inject
-    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory, TaskService taskService, CommunicationTaskService communicationTaskService, TopologyService topologyService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory) {
+    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory,
+                                 TaskService taskService, CommunicationTaskService communicationTaskService,
+                                 TopologyService topologyService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory,
+                                 ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceComTaskInfoFactory = deviceComTaskInfoFactory;
@@ -212,6 +215,32 @@ public class DeviceComTaskResource {
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if (!comTaskExecutions.isEmpty()) {
             comTaskExecutions.forEach(runComTaskFromExecutionNow());
+        } else {
+            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
+            comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
+        }
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{comTaskId}/runprio")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public Response runWithPriority(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
+        if (info==null || info.device==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
+        }
+        info.device.name = name;
+        checkForNoActionsAllowedOnSystemComTask(comTaskId);
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        if (!comTaskExecutions.isEmpty()) {
+            comTaskExecutions.forEach(cte -> {
+                resourceHelper.getLockedPriorityComTaskExecution(cte);
+                cte.runNow();
+            });
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
