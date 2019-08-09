@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.protocol.api.services;
 
-import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 import java.util.Collection;
 

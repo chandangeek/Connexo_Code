@@ -7,12 +7,13 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 
 /**
  * Models the exceptional situation that occurs when an attempt
  * is made to delete a {@link SecurityPropertySet}
- * that is still in use by {@link com.energyict.mdc.device.config.ComTaskEnablement}s
+ * that is still in use by {@link ComTaskEnablement}s
  * of the same configuration.
  *
  * @author Rudi Vankeirsbilck (rudi)

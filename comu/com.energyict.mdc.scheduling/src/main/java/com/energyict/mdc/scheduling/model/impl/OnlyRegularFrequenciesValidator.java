@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 
 import org.joda.time.DateTimeConstants;
 

@@ -2,10 +2,11 @@ package com.energyict.mdc.device.topology.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.info.NodeInfo;
@@ -17,7 +18,6 @@ import com.energyict.mdc.device.topology.rest.layer.DeviceTypeLayer;
 import com.energyict.mdc.device.topology.rest.layer.IssuesAndAlarmsLayer;
 import com.energyict.mdc.device.topology.rest.layer.LayerNames;
 import com.energyict.mdc.device.topology.rest.layer.LinkQualityLayer;
-import com.energyict.mdc.tasks.ComTask;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 
 import org.junit.Ignore;
 import org.junit.Test;

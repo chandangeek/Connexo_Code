@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.events.registration;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
 

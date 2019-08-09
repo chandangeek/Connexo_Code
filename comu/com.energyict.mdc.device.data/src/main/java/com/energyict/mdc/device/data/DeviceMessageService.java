@@ -5,10 +5,11 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import aQute.bnd.annotation.ProviderType;

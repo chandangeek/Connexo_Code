@@ -5,12 +5,14 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import java.util.List;
 import java.util.Map;
@@ -73,7 +75,7 @@ public interface CommunicationTaskReportService {
 
     /**
      * Counts all {@link ComTaskExecution}s,
-     * grouping them by the {@link com.energyict.mdc.device.config.DeviceType}
+     * grouping them by the {@link DeviceType}
      * of the related {@link Device}.
      *
      * @param taskStatuses The Set of TaskStatus

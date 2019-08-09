@@ -71,6 +71,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
             '#mdc-device-communication-planning-runDeviceComTaskNow': {
                 click: this.onRunNowSchedule
             },
+            '#mdc-device-communication-planning-runDeviceComTaskNowWithPriority': {
+                click: this.onRunWithPriority
+            },
             '#mdc-device-communication-planning-activate-task': {
                 click: this.activateComTask
             },
@@ -522,6 +525,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
     onRunNowSchedule: function () {
         this.applyActionOnComTask('runnow');
     },
+    onRunWithPriority: function () {
+        this.applyActionOnComTask('runprio');
+    },
 
     activateComTask: function () {
         this.applyActionOnComTask('activate');
@@ -542,6 +548,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 break;
             case 'runnow':
                 ackMessage = Uni.I18n.translate('deviceCommunicationPlanning.runNowSuccess', 'MDC', 'Run now succeeded.');
+                break;
+            case 'runprio':
+                ackMessage = Uni.I18n.translate('deviceCommunicationPlanning.runWithPrio', 'MDC', 'Run with priority succeeded.');
                 break;
             case 'activate':
                 ackMessage = Uni.I18n.translate('deviceCommunicationPlanning.activated', 'MDC', 'Communication task activated');

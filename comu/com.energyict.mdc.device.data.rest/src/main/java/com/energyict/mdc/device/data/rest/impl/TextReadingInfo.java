@@ -6,8 +6,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.rest.IntervalInfo;
-import com.energyict.mdc.device.data.Register;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

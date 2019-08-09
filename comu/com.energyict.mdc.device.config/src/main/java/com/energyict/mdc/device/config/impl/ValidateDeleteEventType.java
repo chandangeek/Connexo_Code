@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.common.device.config.EventType;
 
 /**
  * Subset of {@link EventType}s that relate to validation of deletion of persistent objects.

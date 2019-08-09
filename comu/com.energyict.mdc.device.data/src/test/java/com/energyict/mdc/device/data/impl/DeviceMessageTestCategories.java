@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 
 import java.util.Arrays;
 import java.util.List;

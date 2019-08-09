@@ -203,7 +203,7 @@ Ext.define('Mdc.zones.controller.Zones',{
         var domainsStore = service.getSearchDomainsStore();
         domainsStore.load(function () {
             service.applyState({
-                domain: 'com.energyict.mdc.device.data.Device',
+                domain: 'com.energyict.mdc.common.device.data.Device',
                 filters: filters
             }, function () {
                 service.setFilters(filters);

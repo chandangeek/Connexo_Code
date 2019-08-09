@@ -6,9 +6,9 @@ package com.energyict.mdc.device.config.impl.gogo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageFile;
 import com.energyict.mdc.device.config.impl.ServerDeviceConfigurationService;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
 
 import com.google.common.base.MoreObjects;
 import org.osgi.service.component.annotations.Component;

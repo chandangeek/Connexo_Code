@@ -7,7 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
 
 import com.jayway.jsonpath.JsonModel;
 

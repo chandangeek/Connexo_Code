@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

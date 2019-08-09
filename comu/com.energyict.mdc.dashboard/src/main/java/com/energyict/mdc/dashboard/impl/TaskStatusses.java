@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard.impl;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -22,7 +22,7 @@ enum TaskStatusses {
     SUCCESS {
         @Override
         EnumSet<TaskStatus> taskStatusses() {
-            return EnumSet.of(TaskStatus.Waiting);
+            return EnumSet.of(TaskStatus.Waiting, TaskStatus.WaitingWithPriority);
         }
     },
 
@@ -36,7 +36,7 @@ enum TaskStatusses {
     PENDING {
         @Override
         EnumSet<TaskStatus> taskStatusses() {
-            return EnumSet.of(TaskStatus.Pending, TaskStatus.Busy, TaskStatus.Retrying);
+            return EnumSet.of(TaskStatus.Pending, TaskStatus.PendingWithPriority, TaskStatus.Busy, TaskStatus.Retrying, TaskStatus.RetryingWithPriority);
         }
     };
 

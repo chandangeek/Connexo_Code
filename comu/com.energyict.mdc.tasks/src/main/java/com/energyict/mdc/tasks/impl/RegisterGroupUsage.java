@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.RegistersTask;
 
 public interface RegisterGroupUsage {
 

@@ -5,13 +5,13 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;

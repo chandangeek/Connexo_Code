@@ -8,8 +8,8 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceEstimationRuleSetActivation;
 
 import javax.inject.Inject;
 import java.time.Instant;

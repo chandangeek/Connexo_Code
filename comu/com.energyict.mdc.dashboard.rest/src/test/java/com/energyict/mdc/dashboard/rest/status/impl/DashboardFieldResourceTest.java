@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPool;
 
 import com.jayway.jsonpath.JsonModel;
 

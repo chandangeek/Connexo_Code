@@ -7,14 +7,15 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.report.AbstractTaskFilterSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.Set;
 
 /**
  * Provides code reuse opportunities to build SQL queries that will
- * match {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s against a {@link ComTaskExecutionFilterSpecification}.
+ * match {@link ComTaskExecution}s against a {@link ComTaskExecutionFilterSpecification}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (17:22)
@@ -75,6 +76,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.append(" join ");
         this.append(DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME);
         this.append(" kd on dev.meterid = kd.id ");
+        this.append(" left join DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id ");
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {

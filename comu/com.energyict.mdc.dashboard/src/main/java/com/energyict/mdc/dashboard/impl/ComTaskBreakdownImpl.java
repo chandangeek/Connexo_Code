@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
-import com.energyict.mdc.tasks.ComTask;
 
 /**
  * Provides an implementation for the {@link ComTaskBreakdown} interface.

@@ -7,13 +7,13 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.tasks.ComTask;
 
 /**
  * Models the exceptional situation that occurs when an attempt
- * is made to disable a {@link com.energyict.mdc.tasks.ComTask}
- * that was not enabled on the {@link com.energyict.mdc.device.config.DeviceConfiguration}
+ * is made to disable a {@link ComTask}
+ * that was not enabled on the {@link DeviceConfiguration}
  * in the first place.
  *
  * @author Rudi Vankeirsbilck (rudi)

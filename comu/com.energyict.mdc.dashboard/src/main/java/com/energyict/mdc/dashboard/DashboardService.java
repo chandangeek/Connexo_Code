@@ -5,13 +5,15 @@
 package com.energyict.mdc.dashboard;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import aQute.bnd.annotation.ProviderType;
 
 /**
  * Provides services to dashboard-like information of the
- * {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s
- * and/or {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s
+ * {@link ConnectionTask}s
+ * and/or {@link ComTaskExecution}s
  * that are configured and scheduled in the system.
  *
  * @author Rudi Vankeirsbilck (rudi)

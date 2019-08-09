@@ -6,8 +6,8 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ public class OutboundTCPComPortPoolBuilder extends NamedBuilder<OutboundComPortP
     @Override
     public OutboundComPortPool create() {
         Log.write(this);
-        OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(getName(), ComPortType.TCP, new TimeDuration(0, TimeDuration.TimeUnit.SECONDS));
+        OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(getName(), ComPortType.TCP, new TimeDuration(0, TimeDuration.TimeUnit.SECONDS), 0);
         outboundComPortPool.setActive(true);
         if (comPortNames != null) {
             engineConfigurationService.findAllOutboundComPorts().stream().filter(port -> comPortNames.contains(port.getName()))

@@ -3,13 +3,14 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.jayway.jsonpath.JsonModel;
@@ -61,7 +62,7 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
         Finder<DeviceMessage> finder = mockFinder(Collections.singletonList(deviceMessage));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceMessage.getId()).thenReturn(1L);
-        com.energyict.mdc.device.data.Device device = mock(com.energyict.mdc.device.data.Device.class);
+        Device device = mock(Device.class);
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
         when(configuration.getId()).thenReturn(100L);
         when(configuration.getName()).thenReturn("config");
@@ -100,7 +101,7 @@ public class DeviceMessageSearchResourceTest extends DeviceDataRestApplicationJe
     private DeviceMessage mockDeviceMessage(long id, long deviceConfigId, long deviceTypeId, DeviceMessageId deviceMessageId) {
         DeviceMessage deviceMessage1 = mock(DeviceMessage.class);
         when(deviceMessage1.getId()).thenReturn(id);
-        com.energyict.mdc.device.data.Device device = mock(com.energyict.mdc.device.data.Device.class);
+        Device device = mock(Device.class);
         DeviceConfiguration configuration = mock(DeviceConfiguration.class);
         when(configuration.getId()).thenReturn(deviceConfigId);
         when(configuration.getName()).thenReturn("config");

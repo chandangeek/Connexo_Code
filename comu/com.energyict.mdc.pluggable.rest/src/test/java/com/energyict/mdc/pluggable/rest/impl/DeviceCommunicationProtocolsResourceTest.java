@@ -14,14 +14,14 @@ import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.SocketService;
 
 import com.jayway.jsonpath.JsonModel;
@@ -190,7 +190,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         Response response = target("/devicecommunicationprotocols/1/connectiontypes").queryParam("filter", ExtjsFilter.filter().property("direction", "outbound").property("deviceConfigId", 12345L).create()).request().get();
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
 
-        assertThat(jsonModel.<String>get("[0].name")).startsWith("com.energyict.mdc.protocol.api.ConnectionType");
+        assertThat(jsonModel.<String>get("[0].name")).startsWith("com.energyict.mdc.common.protocol.ConnectionType");
         assertThat(jsonModel.<List>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues")).hasSize(3);
         assertThat(jsonModel.<Integer>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("[0].properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[0].name")).isEqualTo("key1");

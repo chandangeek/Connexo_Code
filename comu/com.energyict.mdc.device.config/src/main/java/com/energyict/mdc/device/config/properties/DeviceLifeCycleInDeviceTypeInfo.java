@@ -3,9 +3,10 @@ package com.energyict.mdc.device.config.properties;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 

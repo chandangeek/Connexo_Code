@@ -3,19 +3,6 @@
  */
 package com.elster.jupiter.cim.webservices.outbound.soap.usagepointconfig;
 
-import java.math.BigDecimal;
-import java.time.Clock;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.ws.Service;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedUsagePointOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -36,6 +23,17 @@ import ch.iec.tc57._2011.usagepointconfig.UsagePointConfig;
 import ch.iec.tc57._2011.usagepointconfigmessage.ObjectFactory;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigEventMessageType;
 import ch.iec.tc57._2011.usagepointconfigmessage.UsagePointConfigPayloadType;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import javax.xml.ws.Service;
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.util.List;
+import java.util.Map;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replyusagepointconfig.provider", service = {
         ReplyUsagePointConfigWebService.class, OutboundSoapEndPointProvider.class }, immediate = true, property = {
