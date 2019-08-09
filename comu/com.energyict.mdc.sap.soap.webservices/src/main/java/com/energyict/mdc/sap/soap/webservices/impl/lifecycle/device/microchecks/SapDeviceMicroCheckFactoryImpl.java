@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
