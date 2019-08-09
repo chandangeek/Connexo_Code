@@ -910,6 +910,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             if (syncReplyIssue.getExistedReadingTypes().stream()
                     .anyMatch(readingType -> !readingType.isRegular())) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
+                return false;
             }
         } else {
             Instant start = interval.getStart();
@@ -932,6 +933,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 if (syncReplyIssue.getExistedReadingTypes().stream()
                         .anyMatch(readingType -> !readingType.isRegular())) {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
+                    return false;
                 }
             }
             if (start == null && end != null) {
