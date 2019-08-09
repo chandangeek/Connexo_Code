@@ -21,7 +21,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         'Fwc.store.Firmwares',
         'Fwc.store.DeviceGroups',
         'Fwc.firmwarecampaigns.store.FirmwareVersionsList',
-        'Fwc.firmwarecampaigns.store.FirmvareVersionsOptions'
+        'Fwc.firmwarecampaigns.store.FirmvareVersionsOptions',
+        'Fwc.store.SupportedFirmwareTypes'
     ],
 
     refs: [
