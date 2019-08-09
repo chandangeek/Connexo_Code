@@ -27,6 +27,7 @@ import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
@@ -514,7 +515,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return true;
     }
 
-    private boolean checkConnectionMethodExistsOnDevice(Device device, String connectionMethod, SyncReplyIssue syncReplyIssue) throws FaultMessage {
+    private boolean checkConnectionMethodExistsOnDevice(Device device, String connectionMethod, SyncReplyIssue syncReplyIssue) {
         List<Map<Long, ComTaskExecution>> deviceComTaskExecutionMaps = new ArrayList<>();
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceRegularComTaskExecutionMap());
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceIrregularComTaskExecutionMap());
@@ -524,7 +525,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         for (Map<Long, ComTaskExecution> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda
             if (!deviceComTaskExecutionMap.isEmpty()) {
                 ComTaskExecution comTaskExecution = deviceComTaskExecutionMap.get(device.getId());
-                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod)) {
+                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod, syncReplyIssue)) {
                     isOk = true;
                 } else {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
@@ -536,14 +537,16 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return isOk;
     }
 
-    private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws
-            FaultMessage {
-        return comTaskExecution.getConnectionTask()
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_CONNECTION_TASK,
-                        comTaskExecution.getComTask().getName()))
-                .getPartialConnectionTask()
-                .getName()
-                .equalsIgnoreCase(connectionMethod);
+    private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod,
+                                                             SyncReplyIssue syncReplyIssue) {
+        Optional<ConnectionTask<?, ?>> connectionTaskOptional = comTaskExecution.getConnectionTask();
+        if (connectionTaskOptional.isPresent()) {
+            return connectionTaskOptional.get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod);
+        } else {
+            syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.NO_CONNECTION_TASK, null,
+                    comTaskExecution.getComTask().getName()));
+            return false;
+        }
     }
 
     private Set<LoadProfileType> getExistedLoadProfiles(Set<String> loadProfileNames, int index, SyncReplyIssue syncReplyIssue) {
