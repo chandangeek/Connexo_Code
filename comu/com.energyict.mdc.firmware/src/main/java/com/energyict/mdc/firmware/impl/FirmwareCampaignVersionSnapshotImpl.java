@@ -10,12 +10,14 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionStateShapshot;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
 
-public class FirmwareCampaignVersionStateImpl implements FirmwareCampaignVersionState {
+public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVersionStateShapshot {
 
     enum Fields {
         FWRCAMPAIGN("firmwareCampaign"),
@@ -42,26 +44,26 @@ public class FirmwareCampaignVersionStateImpl implements FirmwareCampaignVersion
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
     private String firmwareVersion;
-    private String firmwareType;
-    private String firmwareStatus;
+    private FirmwareType firmwareType;
+    private FirmwareStatus firmwareStatus;
     private String imageIdentifier;
-    private String rank;
+    private int rank;
     private String meterFirmwareDependency;
     private String communicationFirmwareDependency;
     private final DataModel dataModel;
 
     @Inject
-    public FirmwareCampaignVersionStateImpl(DataModel dataModel) {
+    public FirmwareCampaignVersionSnapshotImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    public FirmwareCampaignVersionStateImpl init(FirmwareCampaign firmwareCampaign,FirmwareVersion firmwareVersion) {
+    public FirmwareCampaignVersionSnapshotImpl init(FirmwareCampaign firmwareCampaign, FirmwareVersion firmwareVersion) {
         this.firmwareCampaign.set(firmwareCampaign);
         this.firmwareVersion = firmwareVersion.getFirmwareVersion();
-        this.firmwareType = firmwareVersion.getFirmwareType().getDescription();
-        this.firmwareStatus = firmwareVersion.getFirmwareStatus().getStatus().substring(0, 1).toUpperCase() + firmwareVersion.getFirmwareStatus().getStatus().substring(1);
+        this.firmwareType = firmwareVersion.getFirmwareType();
+        this.firmwareStatus = firmwareVersion.getFirmwareStatus();
         this.imageIdentifier = firmwareVersion.getImageIdentifier();
-        this.rank = String.valueOf(firmwareVersion.getRank());
+        this.rank = firmwareVersion.getRank();
         this.meterFirmwareDependency = firmwareVersion.getMeterFirmwareDependency().isPresent()?firmwareVersion.getMeterFirmwareDependency().get().getFirmwareVersion():null;//???
         this.communicationFirmwareDependency = firmwareVersion.getCommunicationFirmwareDependency().isPresent()?firmwareVersion.getCommunicationFirmwareDependency().get().getFirmwareVersion():null;//???
         return this;
@@ -101,63 +103,31 @@ public class FirmwareCampaignVersionStateImpl implements FirmwareCampaignVersion
         return id;
     }
 
-    public void setFirmwareCampaign(Reference<FirmwareCampaign> firmwareCampaign) {
-        this.firmwareCampaign = firmwareCampaign;
-    }
-
     public String getFirmwareVersion() {
         return firmwareVersion;
     }
 
-    public void setFirmwareVersion(String firmwareVersion) {
-        this.firmwareVersion = firmwareVersion;
-    }
-
-    public String getFirmwareType() {
+    public FirmwareType getFirmwareType() {
         return firmwareType;
     }
 
-    public void setFirmwareType(String firmwareType) {
-        this.firmwareType = firmwareType;
-    }
-
-    public String getFirmwareStatus() {
+    public FirmwareStatus getFirmwareStatus() {
         return firmwareStatus;
-    }
-
-    public void setFirmwareStatus(String firmwareStatus) {
-        this.firmwareStatus = firmwareStatus;
     }
 
     public String getImageIdentifier() {
         return imageIdentifier;
     }
 
-    public void setImageIdentifier(String imageIdentifier) {
-        this.imageIdentifier = imageIdentifier;
-    }
-
-    public String getRank() {
+    public int getRank() {
         return rank;
-    }
-
-    public void setRank(String rank) {
-        this.rank = rank;
     }
 
     public String getMeterFirmwareDependency() {
         return meterFirmwareDependency;
     }
 
-    public void setMeterFirmwareDependency(String meterFirmwareDependency) {
-        this.meterFirmwareDependency = meterFirmwareDependency;
-    }
-
     public String getCommunicationFirmwareDependency() {
         return communicationFirmwareDependency;
-    }
-
-    public void setCommunicationFirmwareDependency(String communicationFirmwareDependency) {
-        this.communicationFirmwareDependency = communicationFirmwareDependency;
     }
 }

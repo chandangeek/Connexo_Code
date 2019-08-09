@@ -23,10 +23,8 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
@@ -245,7 +243,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     .format(getDevice().getName()));
             failed = true;
         }
-        if (doesAnyFirmwareRankingCheckFail(getFirmwareCampaign(), getDevice(), getFirmwareCampaign().getFirmwareVersion())) {
+        if (doesAnyFirmwareRankingCheckFail(getFirmwareCampaign(), getDevice())) {
             failed = true;
         }
         return failed;
@@ -287,16 +285,15 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return helper.cancelPendingFirmwareUpdates(getFirmwareCampaign().getFirmwareType());
     }
 
-    private boolean doesAnyFirmwareRankingCheckFail(FirmwareCampaign campaign, Device device, FirmwareVersion firmwareVersion) {
-        if (firmwareVersion.getFirmwareType() == FirmwareType.CA_CONFIG_IMAGE) {
+    private boolean doesAnyFirmwareRankingCheckFail(FirmwareCampaign campaign, Device device) {
+        if (campaign.getFirmwareVersion().getFirmwareType() == FirmwareType.CA_CONFIG_IMAGE) {
             return false;
         }
-        FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        Optional<FirmwareCampaignManagementOptions> options = firmwareService.findFirmwareCampaignManagementOptions(campaign);
+
         return firmwareService.getFirmwareChecks()
                 .map(check -> {
                     try {
-                        check.execute(options, utils, firmwareVersion);
+                        check.execute(firmwareService.findFirmwareCampaignCheckManagementOptions(campaign).get(), firmwareService.getFirmwareManagementDeviceUtilsFor(device), campaign.getFirmwareVersion());
                         return false;
                     } catch (FirmwareCheck.FirmwareCheckException e) {
                         getServiceCall().log(LogLevel.WARNING, "Unable to upgrade firmware version on device " + device.getName() + " due to check fail: " + e.getLocalizedMessage());

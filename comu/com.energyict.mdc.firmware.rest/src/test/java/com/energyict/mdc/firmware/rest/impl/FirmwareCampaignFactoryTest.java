@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -16,10 +14,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
-import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.impl.FirmwareCampaignManagementOptionsImpl;
 import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfo;
 import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfoFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -122,7 +118,7 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
-        when(firmwareService.findFirmwareCampaignManagementOptions(firmwareCampaign)).thenReturn(Optional.of(firmwareCampaignMgtOptions));
+        when(firmwareService.findFirmwareCampaignCheckManagementOptions(firmwareCampaign)).thenReturn(Optional.of(firmwareCampaignMgtOptions));
         return firmwareCampaign;
     }
 }

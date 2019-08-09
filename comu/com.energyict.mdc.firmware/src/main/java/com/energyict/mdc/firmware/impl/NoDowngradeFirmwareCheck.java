@@ -10,12 +10,11 @@ import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
 public class NoDowngradeFirmwareCheck implements FirmwareCheck {
     private final FirmwareServiceImpl firmwareService;
@@ -33,11 +32,9 @@ public class NoDowngradeFirmwareCheck implements FirmwareCheck {
     }
 
     @Override
-    public void execute(Optional<FirmwareCampaignManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
+    public void execute(FirmwareCheckManagementOptions options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
-        if (options.isPresent()?
-                options.get().isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK):
-                firmwareService.isFirmwareCheckActivated(device.getDeviceType(), FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)) {
+        if (options.isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)){
             if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                 throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
             }

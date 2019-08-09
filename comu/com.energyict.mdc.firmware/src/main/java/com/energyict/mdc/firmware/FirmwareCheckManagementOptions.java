@@ -4,29 +4,26 @@
 
 package com.energyict.mdc.firmware;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.util.EnumSet;
 import java.util.Set;
 
-@ProviderType
-public interface FirmwareCampaignManagementOptions extends FirmwareCheckManagementOptions {
-
-    @Override
+public interface FirmwareCheckManagementOptions {
+    /**
+     * Activates firmware check option with a given set of {@link FirmwareStatus FirmwareStatuses}, where applicable.
+     * If statuses are applicable, empty set of statuses means deactivation of the check option.
+     *
+     * @param checkManagementOption The check option to activate.
+     * @param firmwareStatuses The set of {@link FirmwareStatus FirmwareStatuses} to activate the provided check option with.
+     */
     void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses);
 
-    @Override
     void deactivate(FirmwareCheckManagementOption checkManagementOption);
 
-    @Override
     void save();
 
-    @Override
     void delete();
 
-    @Override
     boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
 
-    @Override
     EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption);
 }

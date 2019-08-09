@@ -123,8 +123,8 @@ public interface FirmwareService {
     Optional<DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
                                                        FirmwareVersion firmwareVersion);
 
-    FirmwareCampaignManagementOptions newFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign);
-    Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign);
-    void newFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign,FirmwareVersion foundFirmware);
-    List<FirmwareCampaignVersionState> findFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign);
+    FirmwareCampaignManagementOptions newFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign);
+    Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign);
+    void createFirmwareCampaignVersionStateSnapshot(FirmwareCampaign firmwareCampaign, FirmwareVersion foundFirmware);
+    List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign);
 }

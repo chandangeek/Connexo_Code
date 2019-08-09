@@ -5,7 +5,7 @@
 package com.energyict.mdc.firmware;
 
 
-public interface FirmwareCampaignVersionState {
+public interface FirmwareCampaignVersionStateShapshot {
 
     void save();
 
@@ -14,10 +14,10 @@ public interface FirmwareCampaignVersionState {
     long getId();
 
     String getFirmwareVersion();
-    String getFirmwareType();
-    String getFirmwareStatus();
+    FirmwareType getFirmwareType();
+    FirmwareStatus getFirmwareStatus();
     String getImageIdentifier();
-    String getRank();
+    int getRank();
     String getMeterFirmwareDependency();
     String getCommunicationFirmwareDependency();
 

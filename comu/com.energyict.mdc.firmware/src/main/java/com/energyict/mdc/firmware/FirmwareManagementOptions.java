@@ -12,29 +12,28 @@ import java.util.EnumSet;
 import java.util.Set;
 
 @ProviderType
-public interface FirmwareManagementOptions extends FirmwareCampaignManagementOptions {
+public interface FirmwareManagementOptions extends FirmwareCheckManagementOptions {
     void setOptions(Set<ProtocolSupportedFirmwareOptions> allowedOptions);
 
-    /**
-     * Activates firmware check option with a given set of {@link FirmwareStatus FirmwareStatuses}, where applicable.
-     * If statuses are applicable, empty set of statuses means deactivation of the check option.
-     *
-     * @param checkManagementOption The check option to activate.
-     * @param firmwareStatuses The set of {@link FirmwareStatus FirmwareStatuses} to activate the provided check option with.
-     */
+    @Override
     void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses);
 
+    @Override
     void deactivate(FirmwareCheckManagementOption checkManagementOption);
 
     Set<ProtocolSupportedFirmwareOptions> getOptions();
 
+    @Override
     void save();
 
+    @Override
     void delete();
 
     long getVersion();
 
+    @Override
     boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
 
+    @Override
     EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption);
 }

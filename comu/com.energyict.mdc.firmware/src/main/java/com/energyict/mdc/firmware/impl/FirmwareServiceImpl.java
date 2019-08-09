@@ -52,7 +52,7 @@ import com.energyict.mdc.firmware.DeviceFirmwareHistory;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
-import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionStateShapshot;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
@@ -450,7 +450,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public FirmwareCampaignManagementOptions newFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign) {
+    public FirmwareCampaignManagementOptions newFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign) {
         return dataModel.getInstance(FirmwareCampaignManagementOptionsImpl.class).init(firmwareCampaign);
     }
 
@@ -514,18 +514,18 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignManagementOptions(FirmwareCampaign firmwareCampaign){
+    public Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign){
         return dataModel.mapper(FirmwareCampaignManagementOptions.class).getUnique(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName(), firmwareCampaign);
     }
 
     @Override
-    public void newFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign,FirmwareVersion foundFirmware){
-        dataModel.getInstance(FirmwareCampaignVersionStateImpl.class).init(firmwareCampaign, foundFirmware).save();
+    public void createFirmwareCampaignVersionStateSnapshot(FirmwareCampaign firmwareCampaign, FirmwareVersion foundFirmware){
+        dataModel.getInstance(FirmwareCampaignVersionSnapshotImpl.class).init(firmwareCampaign, foundFirmware).save();
     }
 
     @Override
-    public List<FirmwareCampaignVersionState> findFirmwareCampaignVersionState(FirmwareCampaign firmwareCampaign){
-        return dataModel.query(FirmwareCampaignVersionState.class).select(where("firmwareCampaign").isEqualTo(firmwareCampaign));
+    public List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign){
+        return dataModel.query(FirmwareCampaignVersionStateShapshot.class).select(where("firmwareCampaign").isEqualTo(firmwareCampaign));
     }
 
     @Override

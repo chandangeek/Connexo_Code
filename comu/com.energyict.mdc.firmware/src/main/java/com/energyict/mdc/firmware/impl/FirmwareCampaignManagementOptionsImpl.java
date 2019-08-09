@@ -149,21 +149,10 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
     @Override
     public void save() {
         if (dataModel.mapper(FirmwareCampaignManagementOptions.class).getUnique("firmwareCampaign", firmwareCampaign.get()).isPresent()) {
-            doUpdate();
+            Save.UPDATE.save(dataModel, this);
         } else {
-            doPersist();
+            Save.CREATE.save(dataModel, this);
         }
     }
 
-    private void doPersist() {
-        Save.CREATE.save(dataModel, this);
-    }
-
-    private void doUpdate() {
-        Save.UPDATE.save(dataModel, this);
-    }
-
-    FirmwareCampaign getFirmwareCampaign(){
-        return this.firmwareCampaign.get();
-    }
 }

@@ -11,7 +11,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;

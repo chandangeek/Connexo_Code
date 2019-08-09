@@ -8,12 +8,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
-import java.util.Optional;
 
 public class StatusOfTargetFirmwareCheck implements FirmwareCheck {
     private final Thesaurus thesaurus;
@@ -31,12 +30,10 @@ public class StatusOfTargetFirmwareCheck implements FirmwareCheck {
     }
 
     @Override
-    public void execute(Optional<FirmwareCampaignManagementOptions> options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
-        (options.isPresent()?options:firmwareService.findFirmwareManagementOptions(deviceUtils.getDevice().getDeviceType())).ifPresent(firmwareManagementOptions -> {
-            if (firmwareManagementOptions.isActivated(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK)
-                    && !firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK).contains(firmwareVersion.getFirmwareStatus())) {
-                throw new FirmwareCheckException(thesaurus, MessageSeeds.TARGET_FIRMWARE_STATUS_NOT_ACCEPTED);
-            }
-        });
+    public void execute(FirmwareCheckManagementOptions options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
+        if (options.isActivated(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK)
+                && !options.getStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK).contains(firmwareVersion.getFirmwareStatus())) {
+            throw new FirmwareCheckException(thesaurus, MessageSeeds.TARGET_FIRMWARE_STATUS_NOT_ACCEPTED);
+        }
     }
 }

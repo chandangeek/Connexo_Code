@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl.campaign;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -18,12 +19,11 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignBuilder;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
-import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionStateShapshot;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.rest.impl.CheckManagementOptionInfo;
-import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignVersionStateInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
 import com.energyict.mdc.firmware.rest.impl.FirmwareStatusInfo;
 import com.energyict.mdc.firmware.rest.impl.FirmwareTypeInfo;
@@ -109,7 +109,7 @@ public class FirmwareCampaignInfoFactory {
             info.firmwareVersion = campaign.getFirmwareVersion() != null ? firmwareVersionFactory.from(campaign.getFirmwareVersion()) : null;//may be todo else
             info.properties = firmwareMessageInfoFactory.getProperties(firmwareMessageSpec.get(), campaign.getDeviceType(), info.firmwareType.id.getType(), campaign.getProperties());
         }
-        Optional<FirmwareCampaignManagementOptions> firmwareCampaignMgtOptions = firmwareService.findFirmwareCampaignManagementOptions(campaign);
+        Optional<FirmwareCampaignManagementOptions> firmwareCampaignMgtOptions = firmwareService.findFirmwareCampaignCheckManagementOptions(campaign);
         info.checkOptions = new EnumMap<>(FirmwareCheckManagementOption.class);
         Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption ->
                 info.checkOptions.put(checkManagementOption,
@@ -140,7 +140,9 @@ public class FirmwareCampaignInfoFactory {
         return info;
     }
 
-    public FirmwareCampaign build(FirmwareCampaignInfo info, DeviceType deviceType, List<FirmwareVersion> foundFirmwares) {
+    public FirmwareCampaign build(FirmwareCampaignInfo info) {
+        DeviceType deviceType = deviceConfigurationService.findDeviceType(((Number) info.deviceType.id).longValue())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, info.deviceType.id));
         Range<Instant> timeFrame = retrieveRealUploadRange(info);
         ProtocolSupportedFirmwareOptions managementOptions = ProtocolSupportedFirmwareOptions.from(info.managementOption.id)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.PROTOCOL_WITH_ID_ISNT_FOUND, info.managementOption.id));
@@ -176,7 +178,7 @@ public class FirmwareCampaignInfoFactory {
         }
 
         FirmwareCampaign firmwareCampaign = firmwareCampaignBuilder.create();
-        FirmwareCampaignManagementOptions options = firmwareService.newFirmwareCampaignManagementOptions(firmwareCampaign);
+        FirmwareCampaignManagementOptions options = firmwareService.newFirmwareCampaignCheckManagementOptions(firmwareCampaign);
         Arrays.stream(FirmwareCheckManagementOption.values()).forEach(checkManagementOption -> {
             CheckManagementOptionInfo checkInfo = info.checkOptions.get(checkManagementOption);
             if (checkInfo == null || !checkInfo.isActivated()) {
@@ -187,7 +189,8 @@ public class FirmwareCampaignInfoFactory {
         });
         options.save();
 
-        foundFirmwares.forEach(ff->firmwareService.newFirmwareCampaignVersionState(firmwareCampaign,ff));
+        Finder<FirmwareVersion> firmwaresFinder = firmwareService.findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType));
+        firmwaresFinder.find().forEach(ff->firmwareService.createFirmwareCampaignVersionStateSnapshot(firmwareCampaign,ff));
 
         return firmwareCampaign;
     }
@@ -226,21 +229,21 @@ public class FirmwareCampaignInfoFactory {
         return days * 86400;
     }
 
-    public List<FirmwareCampaignVersionStateInfo> getFirmwareCampaignVersionStateInfos(List<FirmwareCampaignVersionState> firmwareCampaignVersionStates){
-        List<FirmwareCampaignVersionStateInfo> firmwareCampaignVersionStateInfos = new ArrayList<>();
-        firmwareCampaignVersionStates.forEach(fvs->firmwareCampaignVersionStateInfos.add(createFirmwareVersionInfo(fvs)));
+    public List<FirmwareVersionInfo> getFirmwareCampaignVersionStateInfos(List<FirmwareCampaignVersionStateShapshot> firmwareCampaignVersionStateShapshots){
+        List<FirmwareVersionInfo> firmwareCampaignVersionStateInfos = new ArrayList<>();
+        firmwareCampaignVersionStateShapshots.forEach(fvs->firmwareCampaignVersionStateInfos.add(createFirmwareVersionInfo(fvs)));
         return firmwareCampaignVersionStateInfos;
     }
 
-    private FirmwareCampaignVersionStateInfo createFirmwareVersionInfo(FirmwareCampaignVersionState firmwareCampaignVersionState){
-        FirmwareCampaignVersionStateInfo firmwareVersionInfo = new FirmwareCampaignVersionStateInfo();
-        firmwareVersionInfo.firmwareVersion = firmwareCampaignVersionState.getFirmwareVersion();
-        firmwareVersionInfo.firmwareType = firmwareCampaignVersionState.getFirmwareType();
-        firmwareVersionInfo.firmwareStatus = firmwareCampaignVersionState.getFirmwareStatus();
-        firmwareVersionInfo.imageIdentifier = firmwareCampaignVersionState.getImageIdentifier();
-        firmwareVersionInfo.rank = firmwareCampaignVersionState.getRank();
-        firmwareVersionInfo.meterFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionState.getMeterFirmwareDependency());
-        firmwareVersionInfo.communicationFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionState.getCommunicationFirmwareDependency());
+    private FirmwareVersionInfo createFirmwareVersionInfo(FirmwareCampaignVersionStateShapshot firmwareCampaignVersionStateShapshot){
+        FirmwareVersionInfo firmwareVersionInfo = new FirmwareVersionInfo();
+        firmwareVersionInfo.firmwareVersion = firmwareCampaignVersionStateShapshot.getFirmwareVersion();
+        firmwareVersionInfo.firmwareType = new FirmwareTypeInfo(firmwareCampaignVersionStateShapshot.getFirmwareType(),thesaurus);
+        firmwareVersionInfo.firmwareStatus = new FirmwareStatusInfo(firmwareCampaignVersionStateShapshot.getFirmwareStatus(),thesaurus);
+        firmwareVersionInfo.imageIdentifier = firmwareCampaignVersionStateShapshot.getImageIdentifier();
+        firmwareVersionInfo.rank = firmwareCampaignVersionStateShapshot.getRank();
+        firmwareVersionInfo.meterFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionStateShapshot.getMeterFirmwareDependency());
+        firmwareVersionInfo.communicationFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionStateShapshot.getCommunicationFirmwareDependency());
         return firmwareVersionInfo;
     }
 }

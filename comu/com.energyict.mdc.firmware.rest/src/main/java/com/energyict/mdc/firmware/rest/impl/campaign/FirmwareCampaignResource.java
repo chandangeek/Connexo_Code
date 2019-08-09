@@ -23,7 +23,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
-import com.energyict.mdc.firmware.FirmwareCampaignVersionState;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionStateShapshot;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
@@ -110,12 +110,8 @@ public class FirmwareCampaignResource {
     @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response addFirmwareCampaign(@BeanParam JsonQueryParameters queryParameters, FirmwareCampaignInfo info) {
-        DeviceType deviceType = deviceConfigurationService.findDeviceType(((Number) info.deviceType.id).longValue())
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICETYPE_WITH_ID_ISNT_FOUND, info.deviceType.id));
-        Finder<FirmwareVersion> firmwaresFinder = firmwareService.findAllFirmwareVersions(firmwareService.filterForFirmwareVersion(deviceType));
-        List<FirmwareVersion> foundFirmwares = firmwaresFinder.from(queryParameters).find();
-        FirmwareCampaign firmwareCampaign = campaignInfoFactory.build(info,deviceType,foundFirmwares);
+    public Response addFirmwareCampaign(FirmwareCampaignInfo info) {
+        FirmwareCampaign firmwareCampaign = campaignInfoFactory.build(info);
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
@@ -166,7 +162,7 @@ public class FirmwareCampaignResource {
         queryParameters.getStart().ifPresent(devices::skip);
         queryParameters.getLimit().ifPresent(limit -> devices.limit(limit + 1));
         List<DeviceInFirmwareCampaignInfo> deviceInCampaignInfo = devices.map(deviceInCampaignInfoFactory::createInfo).collect(Collectors.toList());
-        return Response.ok(PagedInfoList.fromPagedList("devicesInCampaign", deviceInCampaignInfo, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromCompleteList("devicesInCampaign", deviceInCampaignInfo, queryParameters)).build();
     }
 
     @GET
@@ -175,12 +171,8 @@ public class FirmwareCampaignResource {
     @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response getFirmwareVersionsForFirmwareCampaign(@PathParam("id") long firmwareCampaignId,@BeanParam JsonQueryParameters queryParameters) {
-        Optional<FirmwareCampaign> firmwareCampaign = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId);
-        List<FirmwareCampaignVersionState> firmwareCampaignVersionStates = new ArrayList<>();
-        if(firmwareCampaign.isPresent()) {
-            firmwareCampaignVersionStates = firmwareService.findFirmwareCampaignVersionState(firmwareCampaign.get());
-        }
-        return Response.ok(PagedInfoList.fromPagedList("firmwareCampaignVersionStateInfos",campaignInfoFactory.getFirmwareCampaignVersionStateInfos(firmwareCampaignVersionStates),queryParameters)).build();
+        FirmwareCampaign firmwareCampaign = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId).orElseThrow(() -> new IllegalStateException("Firmware campaign by id "+firmwareCampaignId+" not found"));
+        return Response.ok(PagedInfoList.fromPagedList("firmwareCampaignVersionStateInfos",campaignInfoFactory.getFirmwareCampaignVersionStateInfos(firmwareService.findFirmwareCampaignVersionStateSnapshots(firmwareCampaign)),queryParameters)).build();
     }
 
     public Long getCurrentCampaignVersion(long id) {
