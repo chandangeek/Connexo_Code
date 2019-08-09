@@ -30,6 +30,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * My responsibility is to fetch jobs from the BlockingQueue that the ScheduledComPort (producer) fills up
@@ -42,6 +43,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduledJobCallBack {
 
+    public static final Logger LOGGER = Logger.getLogger(MultiThreadedJobCreator.class.getName());
     private final BlockingQueue<ScheduledJobImpl> jobBlockingQueue;
     private final OutboundComPort comPort;
     private final int threadPoolSize;
@@ -139,15 +141,21 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
     public Map<Long, Integer> getHighPriorityLoadPerComPortPool() {
         synchronized (executors) {
             Map<Long, Integer> loadPerComPortPool = new HashMap<>(executors.size());
+            int i = 1;
             for (MultiThreadedScheduledJobExecutor executor : executors.keySet()) {
+                boolean executesHighPrio = false;
                 if (executor.isExecutingHighPriorityJob()) {
+                    executesHighPrio = true;
                     long comPortPoolId = executor.getConnectionTask().getComPortPool().getId();
                     if (loadPerComPortPool.containsKey(comPortPoolId)) {
                         loadPerComPortPool.put(comPortPoolId, loadPerComPortPool.get(comPortPoolId) + 1);
                     } else {
                         loadPerComPortPool.put(comPortPoolId, 1);
                     }
+                    LOGGER.info("[high-prio] load for pool " + comPortPoolId + ": " + loadPerComPortPool.get(comPortPoolId));
                 }
+                LOGGER.info("[high-prio] executor " + (i++) + " connected to device: " + executor.getConnectionTask().getDevice().getName()
+                + ", executes high-prio job: " + executesHighPrio);
             }
             return loadPerComPortPool;
         }
