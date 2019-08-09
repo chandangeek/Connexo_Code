@@ -57,7 +57,7 @@ Ext.define('Iws.view.DetailForm', {
 
                             if (value) {
                                 if (value && Wss.privileges.Webservices.canView()) {
-                                    url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: value.id});
+                                    url = me.router.getRoute('workspace/webserviceendpoints/view').buildUrl({endpointId: value.id});
                                     result = '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
                                 } else {
                                     result = value.name;

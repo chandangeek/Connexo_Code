@@ -15,7 +15,7 @@ Ext.define('Iws.model.Issue', {
             mapping: function (data) {
                 if (data.webServiceCallOccurrence) {
                     return {
-                        ednpointId: data.id,
+                        ednpointId: data.webServiceCallOccurrence.endpoint.id,
                         occurrenceId: data.webServiceCallOccurrence.id,
                         startTime: data.webServiceCallOccurrence.startTime
                     }

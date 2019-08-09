@@ -33,7 +33,7 @@ Ext.define('Iws.view.WebServiceDetails', {
 
                             if (value) {
                                 if (value && Wss.privileges.Webservices.canView()) {
-                                    url = me.router.getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: value.ednpointId, occurenceId: value.occurenceId});
+                                    url = me.router.getRoute('workspace/webserviceendpoints/view/history/occurrence').buildUrl({endpointId: value.ednpointId, occurenceId: value.occurrenceId});
                                     result = '<a href="' + url + '">' + Ext.String.htmlEncode(Uni.DateTime.formatDateTimeLong(new Date(value.startTime))) + '</a>';
                                 } else {
                                     result = Uni.DateTime.formatDateTimeLong(new Date(value.startTime));

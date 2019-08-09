@@ -117,6 +117,7 @@ Ext.define('Uni.property.view.property.webservices.WebServiceIssue', {
 
     showAddView: function () {
         var me = this,
+            addedWebServices = me.getValue() || [],
             selectionGrid,
             store;
 
@@ -145,6 +146,9 @@ Ext.define('Uni.property.view.property.webservices.WebServiceIssue', {
         me.currentPageView.hide();
         Ext.ComponentQuery.query('viewport > #contentPanel')[0].add(me.addWebServiceView);
         store.loadData(me.getProperty().getPossibleValues() || []);
+        store.filterBy(function (record, id) {
+            return !Ext.Array.contains(addedWebServices, id);
+        });
         me.setPseudoNavigation(true);
         Ext.resumeLayouts(true);
         store.fireEvent('load');
