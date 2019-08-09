@@ -5,10 +5,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceFunction;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;

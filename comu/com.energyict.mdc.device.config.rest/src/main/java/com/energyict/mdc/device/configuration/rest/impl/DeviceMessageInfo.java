@@ -5,8 +5,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;

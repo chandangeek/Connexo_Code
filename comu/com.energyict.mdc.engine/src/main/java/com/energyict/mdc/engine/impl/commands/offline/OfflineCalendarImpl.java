@@ -5,7 +5,7 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.upl.offline.OfflineCalendar;
 
 /**

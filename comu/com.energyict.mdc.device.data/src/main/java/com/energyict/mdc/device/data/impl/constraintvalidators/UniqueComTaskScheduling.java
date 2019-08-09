@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.Constraint;
@@ -15,10 +18,10 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Models the constraint that a {@link com.energyict.mdc.tasks.ComTask} cannot
- * be scheduled twice on the same {@link com.energyict.mdc.device.data.Device}.
+ * Models the constraint that a {@link ComTask} cannot
+ * be scheduled twice on the same {@link Device}.
  * It does not matter if the ComTask is manually scheduled or
- * scheduled via a {@link com.energyict.mdc.scheduling.model.ComSchedule}.
+ * scheduled via a {@link ComSchedule}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-05 (15:35)

@@ -34,14 +34,19 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.energyict.mdc.processes.keyrenewal.api.impl.Command;
-import com.energyict.mdc.processes.keyrenewal.api.impl.CompletionOptionsMessageHandlerFactory;
-import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceCommandInfo;
-import com.energyict.mdc.processes.keyrenewal.api.impl.HeadEndController;
+
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -53,12 +58,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.*;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HeadEndControllerTest {

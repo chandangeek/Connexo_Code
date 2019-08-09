@@ -58,6 +58,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             widget = Ext.widget('comPortPoolEdit'),
             model = Ext.create(Mdc.model.ComPortPool),
             protocolDetectionCombo = widget.down('combobox[name=discoveryProtocolPluggableClassId]'),
+            pctHighPrioTasks = widget.down('[name=pctHighPrioTasks]') ,
+            maxPriorityConnections =  widget.down('[name=maxPriorityConnections]'),
             isInbound = false,
             form,
             title;
@@ -82,6 +84,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             protocolDetectionCombo.show();
             protocolDetectionCombo.enable();
             protocolDetectionCombo.getStore().load();
+            pctHighPrioTasks.hide();
+            maxPriorityConnections.hide();
         } else {
             protocolDetectionCombo.hide();
             protocolDetectionCombo.disable();
@@ -114,6 +118,8 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
     showEditView: function (id) {
         var me = this,
             widget = Ext.widget('comPortPoolEdit'),
+            pctHighPrioTasks = widget.down('[name=pctHighPrioTasks]') ,
+            maxPriorityConnections =  widget.down('[name=maxPriorityConnections]'),
             model = me.getModel('Mdc.model.ComPortPool');
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -142,6 +148,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                         protocolDetectionCombo.show();
                         protocolDetectionCombo.enable();
                         protocolDetectionCombo.getStore().load();
+
+                        pctHighPrioTasks.hide();
+                        maxPriorityConnections.hide();
                     } else {
                         protocolDetectionCombo.hide();
                         protocolDetectionCombo.disable();

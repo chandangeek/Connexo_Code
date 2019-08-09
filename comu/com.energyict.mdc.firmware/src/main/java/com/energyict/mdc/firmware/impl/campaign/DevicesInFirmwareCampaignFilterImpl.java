@@ -9,12 +9,12 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.BadFilterException;
 import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.ArrayList;
 import java.util.HashSet;

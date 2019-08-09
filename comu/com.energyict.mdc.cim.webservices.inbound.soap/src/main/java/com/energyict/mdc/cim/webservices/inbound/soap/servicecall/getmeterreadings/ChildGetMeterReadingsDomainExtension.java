@@ -55,7 +55,6 @@ public class ChildGetMeterReadingsDomainExtension extends AbstractPersistentDoma
     private String communicationTask;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant triggerDate;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant actualStartDate;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant actualEndDate;

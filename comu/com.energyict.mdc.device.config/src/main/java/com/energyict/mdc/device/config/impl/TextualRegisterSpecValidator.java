@@ -5,8 +5,8 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.TextualRegisterSpec;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

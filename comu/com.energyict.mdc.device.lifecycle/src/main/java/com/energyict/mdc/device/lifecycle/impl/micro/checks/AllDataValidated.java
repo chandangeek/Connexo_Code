@@ -6,10 +6,10 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
-import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import javax.inject.Inject;
 import java.time.Instant;

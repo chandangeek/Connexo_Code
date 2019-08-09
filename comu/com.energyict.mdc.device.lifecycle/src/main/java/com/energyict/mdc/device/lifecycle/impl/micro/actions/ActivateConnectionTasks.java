@@ -6,11 +6,11 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
@@ -21,7 +21,7 @@ import java.util.List;
  * that will activate all connection tasks on the Device.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#ACTIVATE_CONNECTION_TASKS_IN_USE}
+ * @see {@link MicroAction#ACTIVATE_CONNECTION_TASKS_IN_USE}
  * @since 2015-05-05 (12:49)
  */
 public class ActivateConnectionTasks extends TranslatableServerMicroAction {

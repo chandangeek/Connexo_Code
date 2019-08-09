@@ -22,12 +22,12 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.ChannelValidationRuleOverriddenProperties;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.InvalidLastCheckedException;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.impl.properties.ChannelValidationRuleOverriddenPropertiesImpl;
 import com.energyict.mdc.device.data.impl.properties.ValidationEstimationRuleOverriddenPropertiesImpl;
 

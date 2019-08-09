@@ -5,14 +5,14 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
-import com.energyict.mdc.tasks.BasicCheckTask;
 
 import java.util.Optional;
 
 /**
- * The {@link ComCommand} which can perform the actions necessary for a {@link com.energyict.mdc.tasks.BasicCheckTask}
+ * The {@link ComCommand} which can perform the actions necessary for a {@link BasicCheckTask}
  *
  * @author gna
  * @since 31/05/12 - 13:12

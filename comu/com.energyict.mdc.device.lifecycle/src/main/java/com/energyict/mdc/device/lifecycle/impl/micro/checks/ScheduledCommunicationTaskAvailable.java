@@ -5,11 +5,11 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.streams.Predicates;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
-import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import java.time.Instant;
 import java.util.EnumSet;

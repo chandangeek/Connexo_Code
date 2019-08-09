@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.status;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;

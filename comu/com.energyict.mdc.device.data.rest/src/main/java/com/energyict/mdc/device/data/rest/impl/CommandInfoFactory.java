@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.device.command.rest.impl.CommandInfo;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 /**
  * Created by bvn on 6/27/17.

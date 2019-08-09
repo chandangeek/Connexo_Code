@@ -5,8 +5,9 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 
 import java.util.Optional;
 

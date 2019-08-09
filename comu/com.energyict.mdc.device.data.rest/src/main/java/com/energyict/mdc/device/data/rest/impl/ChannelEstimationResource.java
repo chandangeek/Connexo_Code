@@ -14,10 +14,10 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.ChannelEstimationRuleOverriddenProperties;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;

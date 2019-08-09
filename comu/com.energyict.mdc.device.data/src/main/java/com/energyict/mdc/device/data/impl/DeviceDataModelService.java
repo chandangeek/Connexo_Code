@@ -15,6 +15,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -22,7 +24,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -32,7 +34,7 @@ import java.time.Clock;
 import java.util.Map;
 
 /**
- * Provides the model for all data that relates to {@link com.energyict.mdc.device.data.Device}s.
+ * Provides the model for all data that relates to {@link Device}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:31)
@@ -64,6 +66,8 @@ public interface DeviceDataModelService {
     ConnectionTaskReportService connectionTaskReportService();
 
     ServerCommunicationTaskService communicationTaskService();
+
+    PriorityComTaskService priorityComTaskService();
 
     CommunicationTaskReportService communicationTaskReportService();
 

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import java.util.Comparator;
 import java.util.HashMap;

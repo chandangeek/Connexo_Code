@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.rest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.LabelCategory;
 

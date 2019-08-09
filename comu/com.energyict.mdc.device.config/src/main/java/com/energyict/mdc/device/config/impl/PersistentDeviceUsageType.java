@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceUsageType;
+import com.energyict.mdc.common.device.config.DeviceUsageType;
 
 /**
  * The persistent version of {@link DeviceUsageType}

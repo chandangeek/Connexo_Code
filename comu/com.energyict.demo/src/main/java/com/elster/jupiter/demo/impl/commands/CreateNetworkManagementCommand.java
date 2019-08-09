@@ -18,11 +18,11 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -37,6 +37,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.rest.demo.layer.GraphLayerBuilder;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.scheduling.SchedulingService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
 

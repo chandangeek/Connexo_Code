@@ -6,15 +6,15 @@ package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
 
 import java.sql.SQLException;
@@ -458,6 +458,11 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
+    public void saved(ComPort comPort) {
+
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -477,4 +482,8 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
         return (int) (id ^ (id >>> 32));
     }
 
+    @Override
+    public boolean supportsExecutionOfHighPriorityComTasks() {
+        return false;
+    }
 }

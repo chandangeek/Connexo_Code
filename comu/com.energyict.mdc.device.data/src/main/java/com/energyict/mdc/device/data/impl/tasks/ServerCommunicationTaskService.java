@@ -4,16 +4,17 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.Optional;
 
@@ -66,7 +67,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Disconnects all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration} from the
      * {@link ConnectionTask}
      * that relates to the {@link PartialConnectionTask}.
@@ -81,7 +82,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration} that were using
      * the default connection task to the specific
      * {@link ConnectionTask}
@@ -95,7 +96,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration} that were using
      * the default connection task to the specific
      * {@link ConnectionTask}
@@ -109,7 +110,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}
      * to use the default connection task from now on.
      *
@@ -120,7 +121,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}
      * to the specific {@link ConnectionTask}
      * that relates to the given {@link ConnectionFunction}.
@@ -133,7 +134,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}
      * to the specific {@link ConnectionTask}
      * that relates to the given {@link PartialConnectionTask}.
@@ -146,7 +147,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}
      * to stop using the default connection task from now on.
      * Note that they will continue to use the one that they are connected to,
@@ -159,7 +160,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}
      * to stop using the connection task that relates to the given {@link ConnectionFunction}.
      * Note that they will continue to use the one that they are connected to.
@@ -171,7 +172,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}, that were using
      * a specific {@link ConnectionTask}
      * that relates to the {@link PartialConnectionTask},
@@ -185,7 +186,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}, that were using
      * a specific {@link ConnectionTask}
      * that relates to the {@link PartialConnectionTask},
@@ -201,7 +202,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}, that were using
      * a {@link ConnectionTask} that relates to the given  {@link ConnectionFunction},
      * to use the default connection task from now on.
@@ -214,7 +215,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}, that were using
      * a {@link ConnectionTask} that relates to the given  {@link ConnectionFunction},
      * to use the {@link ConnectionTask} having the specified {@link PartialConnectionTask} from now on.
@@ -228,7 +229,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Switches all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}, that were using
      * a {@link ConnectionTask} that relates to the given old {@link ConnectionFunction},
      * to use the {@link ConnectionTask} that relates to the given new {@link ConnectionFunction} from now on.
@@ -243,7 +244,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
     /**
      * Updates the {@link ConnectionTask}
      * of all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration} that have not overruled
      * the previous preferred connection task.
      *
@@ -256,7 +257,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Updates the priority of all the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration} that have not overruled
      * the previous preferred priority.
      *
@@ -269,11 +270,11 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Suspends the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration}.
-     * Note that the {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s
+     * Note that the {@link ComTaskExecution}s
      * that will be suspended will not be marked as onHold
-     * (i.e. {@link com.energyict.mdc.device.data.tasks.ComTaskExecution#isOnHold()}
+     * (i.e. {@link ComTaskExecution#isOnHold()}
      * will not return <code>true</code>) because the planned next execution
      * timestamp is retained so the tasks can be resumed later.
      *
@@ -284,7 +285,7 @@ public interface ServerCommunicationTaskService extends CommunicationTaskService
 
     /**
      * Resumes the executions of the specified {@link ComTask}
-     * that are scheduled against {@link com.energyict.mdc.device.data.Device}s
+     * that are scheduled against {@link Device}s
      * of the specified {@link DeviceConfiguration} that were suspended before.
      * This restores the planned next execution timestamp.
      *

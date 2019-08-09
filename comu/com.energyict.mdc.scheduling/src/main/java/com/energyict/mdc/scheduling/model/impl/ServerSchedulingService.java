@@ -5,9 +5,9 @@
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 

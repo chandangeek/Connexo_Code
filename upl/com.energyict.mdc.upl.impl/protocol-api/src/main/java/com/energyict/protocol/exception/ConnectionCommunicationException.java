@@ -6,6 +6,8 @@ package com.energyict.protocol.exception;
 
 import com.energyict.mdc.upl.nls.MessageSeed;
 
+import com.energyict.protocol.exceptions.CommunicationInterruptedException;
+
 import java.io.IOException;
 
 import static com.energyict.protocol.exceptions.ConnectionCommunicationException.Type.CONNECTION_STILL_INTACT;
@@ -112,8 +114,8 @@ public class ConnectionCommunicationException extends com.energyict.protocol.exc
     /**
      * Indicates the communication was interrupted because e.g. the comserver is shutting down.
      */
-    public static ConnectionCommunicationException communicationInterruptedException() {
-        return new ConnectionCommunicationException(NON_RECOVERABLE, ProtocolExceptionMessageSeeds.COMMUNICATION_INTERRUPTED);
+    public static CommunicationInterruptedException communicationInterruptedException() {
+        return new CommunicationInterruptedException(ProtocolExceptionMessageSeeds.COMMUNICATION_INTERRUPTED);
     }
 
     /**
@@ -122,7 +124,7 @@ public class ConnectionCommunicationException extends com.energyict.protocol.exc
      *
      * @param cause the original InterruptedException
      */
-    public static ConnectionCommunicationException communicationInterruptedException(Exception cause) {
-        return new ConnectionCommunicationException(NON_RECOVERABLE, cause, ProtocolExceptionMessageSeeds.COMMUNICATION_INTERRUPTED, cause.getMessage());
+    public static CommunicationInterruptedException communicationInterruptedException(Exception cause) {
+        return new CommunicationInterruptedException(cause, ProtocolExceptionMessageSeeds.COMMUNICATION_INTERRUPTED, cause.getMessage());
     }
 }

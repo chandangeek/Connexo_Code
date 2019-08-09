@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.pluggable.impl;
 
-import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.common.pluggable.PluggableClassType;
 
 /**
  * The persistent version of {@link PluggableClassType}

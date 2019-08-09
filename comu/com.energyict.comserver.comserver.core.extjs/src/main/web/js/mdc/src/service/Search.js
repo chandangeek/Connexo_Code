@@ -8,7 +8,7 @@ Ext.define('Mdc.service.Search', {
     init: function () {
         var me = this;
         me.defaultColumns = {
-            'com.energyict.mdc.device.data.Device': ['id', 'name', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state', 'location'],
+            'com.energyict.mdc.common.device.data.Device': ['id', 'name', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state', 'location'],
             'com.elster.jupiter.metering.UsagePoint': ['name', 'displayServiceCategory', 'displayMetrologyConfiguration', 'location']
         };
         me.callParent(arguments);
@@ -19,7 +19,7 @@ Ext.define('Mdc.service.Search', {
             column = this.callParent(arguments);
 
         if (column && column.dataIndex === 'name') {
-            if (me.searchDomain.getId() === 'com.energyict.mdc.device.data.Device') {
+            if (me.searchDomain.getId() === 'com.energyict.mdc.common.device.data.Device') {
                 column.renderer = function (value, metaData, record) {
                     var url = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(value)});
                     metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';

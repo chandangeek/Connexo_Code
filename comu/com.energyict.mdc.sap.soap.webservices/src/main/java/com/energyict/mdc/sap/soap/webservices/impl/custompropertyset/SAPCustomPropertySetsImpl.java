@@ -22,10 +22,10 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
@@ -173,12 +173,12 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public Map<BigDecimal, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Channel channel, Range<Instant> range) {
+    public Map<BigDecimal, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Channel channel, Range<Instant> range) {
         return getLrn(channel.getDevice(), channel.getChannelSpec(), range);
     }
 
     @Override
-    public Map<BigDecimal, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Register register, Range<Instant> range) {
+    public Map<BigDecimal, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Register register, Range<Instant> range) {
         return getLrn(register.getDevice(), register.getRegisterSpec(), range);
     }
 

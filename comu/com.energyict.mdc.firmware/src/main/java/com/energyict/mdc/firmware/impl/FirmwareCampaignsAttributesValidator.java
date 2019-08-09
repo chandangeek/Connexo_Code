@@ -6,8 +6,8 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

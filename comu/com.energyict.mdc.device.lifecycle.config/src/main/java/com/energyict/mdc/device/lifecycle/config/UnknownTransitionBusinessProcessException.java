@@ -7,6 +7,7 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
 
 /**
  * Models the exceptional situation that occurs when an attempt

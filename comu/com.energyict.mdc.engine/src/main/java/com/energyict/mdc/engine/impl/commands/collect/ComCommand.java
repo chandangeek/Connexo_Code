@@ -4,11 +4,12 @@
 
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
@@ -117,7 +118,7 @@ public interface ComCommand {
     /**
      * Gets the minimum LogLevel that needs to be activated
      * before this ComCommand must be logged.
-     * As an example when LogLevel {@link com.energyict.mdc.engine.config.ComServer.LogLevel#INFO} is returned
+     * As an example when LogLevel {@link ComServer.LogLevel#INFO} is returned
      * then the ComServer's log level must be at least INFO or higher
      * before this ComCommand will actually be logged as a
      * ComCommandJournalEntryShadow.

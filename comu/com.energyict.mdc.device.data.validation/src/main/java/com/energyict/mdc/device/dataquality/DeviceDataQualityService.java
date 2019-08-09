@@ -7,7 +7,7 @@ package com.energyict.mdc.device.dataquality;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.validation.Validator;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;

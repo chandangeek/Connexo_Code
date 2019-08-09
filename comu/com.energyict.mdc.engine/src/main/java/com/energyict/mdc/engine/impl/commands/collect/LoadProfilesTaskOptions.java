@@ -6,8 +6,8 @@ package com.energyict.mdc.engine.impl.commands.collect;
 
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
 
 import java.util.List;
 import java.util.Optional;

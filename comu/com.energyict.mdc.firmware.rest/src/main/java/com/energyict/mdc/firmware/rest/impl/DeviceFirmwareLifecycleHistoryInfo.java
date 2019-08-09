@@ -7,10 +7,10 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import java.time.Instant;
 
