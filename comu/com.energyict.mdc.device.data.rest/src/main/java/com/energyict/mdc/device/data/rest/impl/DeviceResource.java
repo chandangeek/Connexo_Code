@@ -467,7 +467,9 @@ public class DeviceResource {
                     .forEach(dataLoggerSlaveDeviceInfo -> currentMultiElementSlaves.stream().filter(slave -> slave.getId() == dataLoggerSlaveDeviceInfo.id).findAny()
                             .ifPresent(slaveToRemove -> multiElementDeviceService.removeSlave(slaveToRemove, Instant.ofEpochMilli(dataLoggerSlaveDeviceInfo.unlinkingTimeStamp))));
 
-            info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
+            info.dataLoggerSlaveDevices.stream()
+                    .filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate())
+                    .forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
         }
     }
 
@@ -1020,12 +1022,21 @@ public class DeviceResource {
     public PagedInfoList getServiceCallHistoryFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-
+        Set<DefaultState> states = EnumSet.of(
+                DefaultState.CANCELLED,
+                DefaultState.FAILED,
+                DefaultState.REJECTED,
+                DefaultState.SUCCESSFUL,
+                DefaultState.PARTIAL_SUCCESS);
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter, appKey);
         filter.targetObject = device;
+        if (filter.states.isEmpty()) {
+            filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
+        }
         serviceCallService.getServiceCallFinder(filter)
                 .from(queryParameters)
                 .stream()
+                .filter(serviceCall -> !serviceCall.getState().isOpen())
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
@@ -1086,7 +1097,8 @@ public class DeviceResource {
 
     // Returns all data logger slaves and multi-element slaves for a device
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
-        return (device.getDeviceConfiguration().isDataloggerEnabled() || device.getDeviceConfiguration().isMultiElementEnabled() ? resourceHelper.getDataLoggerSlaves(device) : Collections.emptyList());
+        return (device.getDeviceConfiguration().isDataloggerEnabled() || device.getDeviceConfiguration()
+                .isMultiElementEnabled() ? resourceHelper.getDataLoggerSlaves(device) : Collections.emptyList());
     }
 
     @GET
@@ -1334,7 +1346,9 @@ public class DeviceResource {
             Optional<PropertySpec> activityCalendarNamePropertySpec = deviceMessageSpec
                     .getPropertySpecs()
                     .stream()
-                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() == null) || propertySpec.getPossibleValues().getAllValues().isEmpty())))
+                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() == null) || propertySpec.getPossibleValues()
+                            .getAllValues()
+                            .isEmpty())))
                     .findAny();
 
             activityCalendarNamePropertySpec.ifPresent(propertySpec -> messageBuilder.addProperty(propertySpec.getName(), calendar.getName()));
@@ -1363,7 +1377,9 @@ public class DeviceResource {
             Optional<PropertySpec> activityCalendarTypePropertySpec = deviceMessageSpec
                     .getPropertySpecs()
                     .stream()
-                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() != null) && !propertySpec.getPossibleValues().getAllValues().isEmpty())))
+                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() != null) && !propertySpec.getPossibleValues()
+                            .getAllValues()
+                            .isEmpty())))
                     .findAny();
 
             activityCalendarTypePropertySpec.ifPresent(propertySpec -> messageBuilder.addProperty(propertySpec.getName(), sendCalendarInfo.type));
