@@ -5,8 +5,9 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.events.TopicHandler;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -14,7 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * Listens for update events of {@link ComTaskExecution}s that are marked
  * to use the default {@link ConnectionTask} of the related
- * {@link com.energyict.mdc.device.data.Device}
+ * {@link Device}
  * but are not linked to that default yet.
  *
  * @author Rudi Vankeirsbilck (rudi)

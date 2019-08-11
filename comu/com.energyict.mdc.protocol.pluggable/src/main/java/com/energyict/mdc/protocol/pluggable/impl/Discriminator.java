@@ -5,11 +5,11 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.pluggable.Pluggable;
-import com.energyict.mdc.pluggable.PluggableClassType;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.common.pluggable.Pluggable;
+import com.energyict.mdc.common.pluggable.PluggableClassType;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.PluggableClassLacksRelatedInterfaceException;

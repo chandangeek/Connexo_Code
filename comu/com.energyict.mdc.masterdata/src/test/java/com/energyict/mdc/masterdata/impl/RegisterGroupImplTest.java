@@ -10,8 +10,8 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.pubsub.Publisher;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterType;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;

@@ -22,27 +22,45 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceEstimation;
+import com.energyict.mdc.common.device.data.DeviceEstimationRuleSetActivation;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.device.data.PassiveCalendar;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.PassiveCalendar;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
@@ -58,31 +76,16 @@ import com.energyict.mdc.device.data.impl.properties.ValidationEstimationRuleOve
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionTriggerImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.PriorityComTaskExecutionLinkImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionJournalEntryImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionJournalEntryImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskExecutionFields;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 
@@ -464,6 +467,33 @@ public enum TableSpecs {
                     .domainReferences("FK_DDC_COMTASKEXEC_DEVICE", "FK_DDC_DEVICE_ENDDEVICE")
                     .contextReferenceColumn("COMTASK")
                     .build();
+        }
+    },
+
+    DDC_HIPRIOCOMTASKEXEC {
+        @Override
+        public void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<PriorityComTaskExecutionLink> table = dataModel.addTable(name(), PriorityComTaskExecutionLink.class).since(version(10, 6, 1));
+            table.map(PriorityComTaskExecutionLinkImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column comTaskExecution = table.column(PriorityComTaskExecutionFields.COMTASKEXECUTION.fieldName()).number().notNull().add();
+            table.column(PriorityComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).number().conversion(NUMBER2INSTANT)
+                    .map(PriorityComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).add();
+            table.column(PriorityComTaskExecutionFields.PRIORITY.fieldName()).number().conversion(NUMBER2INT)
+                    .map(PriorityComTaskExecutionFields.PRIORITY.fieldName()).notNull().add();
+            Column comPort = table.column(PriorityComTaskExecutionFields.COMPORT.fieldName()).number().add();
+
+            table.primaryKey("PK_DDC_HIPRIOCOMTASKEXEC").on(id).add();
+            table.foreignKey("FK_DDC_HIPRIOCOMTASKEXEC_COMP") // FK in COMPORT, but sorry, constraint name max length is 30
+                    .on(comPort)
+                    .references(ComPort.class)
+                    .map(PriorityComTaskExecutionFields.COMPORT.fieldName())
+                    .add();
+            table.foreignKey("FK_DDC_HIPRIOCOMTASKEXEC_CTE")
+                    .on(comTaskExecution)
+                    .references(ComTaskExecution.class)
+                    .map(PriorityComTaskExecutionFields.COMTASKEXECUTION.fieldName())
+                    .add();
         }
     },
 

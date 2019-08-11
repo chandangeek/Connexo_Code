@@ -14,10 +14,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.upl.TypedProperties;
 
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;

@@ -5,8 +5,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.UPLConnectionFunction;
 
 import com.jayway.jsonpath.JsonModel;

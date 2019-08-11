@@ -4,16 +4,18 @@
 
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.LoadProfilesTask;
+
 import com.energyict.protocol.LoadProfileReader;
 
 import java.util.List;
 
 /**
- * The {@link ComCommand} which can perform the actions necessary for a {@link com.energyict.mdc.tasks.ClockTask}
+ * The {@link ComCommand} which can perform the actions necessary for a {@link ClockTask}
  *
  * @author gna
  * @since 9/05/12 - 15:56

@@ -7,18 +7,19 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 
 public class RegisterTypeIsNotConfiguredException extends LocalizedException {
 
     /**
      * Creates a new RegisterTypeIsNotConfiguredException that models the
      * exceptional situation that occurs when an attempt is made to add a
-     * {@link ChannelSpec} to a {@link com.energyict.mdc.device.config.DeviceConfiguration}
-     * which is linked to a {@link com.energyict.mdc.masterdata.MeasurementType} which is not configured in the
+     * {@link ChannelSpec} to a {@link DeviceConfiguration}
+     * which is linked to a {@link MeasurementType} which is not configured in the
      * linked {@link LoadProfileSpec}
      *
      * @param loadProfileSpec The LoadProfileSpec which is linked to the ChannelSpec
@@ -35,13 +36,13 @@ public class RegisterTypeIsNotConfiguredException extends LocalizedException {
     /**
      * Creates a new RegisterTypeIsNotConfiguredException that models the
      * exceptional situation that occurs when an attempt is made to add a
-     * {@link ChannelSpec} to a {@link com.energyict.mdc.device.config.DeviceConfiguration}
-     * which is linked to a {@link com.energyict.mdc.masterdata.MeasurementType} which is not configured in the
+     * {@link ChannelSpec} to a {@link DeviceConfiguration}
+     * which is linked to a {@link MeasurementType} which is not configured in the
      * linked {@link DeviceType}
      *
      * @param channelSpec     The ChannelSpec which will be added
      * @param measurementType The measurementType which is linked to the ChannelSpec but NOT to the LoadProfileSpec
-     * @param deviceType      The DeviceType which is owner of the {@link com.energyict.mdc.device.config.DeviceConfiguration} to which the ChannelSpec will be added
+     * @param deviceType      The DeviceType which is owner of the {@link DeviceConfiguration} to which the ChannelSpec will be added
      * @param thesaurus       The Thesaurus
      * @param messageSeed The MessageSeed
      * @return RegisterTypeIsNotConfiguredException

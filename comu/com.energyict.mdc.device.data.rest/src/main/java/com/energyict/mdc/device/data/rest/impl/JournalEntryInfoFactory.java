@@ -4,11 +4,11 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.data.tasks.history.ComCommandJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComCommandJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionMessageJournalEntry;
 
 /**
  * Created by bvn on 10/14/14.

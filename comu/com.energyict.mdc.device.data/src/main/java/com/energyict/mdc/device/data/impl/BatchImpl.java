@@ -8,8 +8,8 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.Device;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;

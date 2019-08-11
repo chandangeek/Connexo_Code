@@ -20,8 +20,8 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.CertificateAccessor;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;

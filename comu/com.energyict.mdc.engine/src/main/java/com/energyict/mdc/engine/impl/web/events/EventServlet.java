@@ -4,12 +4,10 @@
 
 package com.energyict.mdc.engine.impl.web.events;
 
-import org.eclipse.jetty.websocket.WebSocket;
-import org.eclipse.jetty.websocket.WebSocketServlet;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipse.jetty.websocket.servlet.WebSocketServlet;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
 
 /**
  * Provides a servlet implementation for the ComServer event mechanism.
@@ -21,26 +19,16 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-02 (16:30)
  */
-public class EventServlet extends WebSocketServlet implements WebSocketCloseEventListener {
+public class EventServlet extends WebSocketServlet {
+    private EventAPIStatistics statistics;
 
-    private final WebSocketEventPublisherFactory webSocketEventPublisherFactory;
-    private List<WebSocketEventPublisher> eventPublishers = new ArrayList<>();
-
-    public EventServlet(WebSocketEventPublisherFactory webSocketEventPublisherFactory) {
-        super();
-        this.webSocketEventPublisherFactory = webSocketEventPublisherFactory;
+    public EventServlet(EventAPIStatistics statistics) {
+        this.statistics = statistics;
     }
 
     @Override
-    public WebSocket doWebSocketConnect (HttpServletRequest request, String protocol) {
-        WebSocketEventPublisher newEventPublisher = this.webSocketEventPublisherFactory.newWebSocketEventPublisher(this);
-        this.eventPublishers.add(newEventPublisher);
-        return newEventPublisher;
-    }
-
-    @Override
-    public void closedFrom(WebSocketEventPublisher webSocketEventPublisher) {
-        this.eventPublishers.remove(webSocketEventPublisher);
+    public void configure(WebSocketServletFactory webSocketServletFactory) {
+        webSocketServletFactory.setCreator(new EventServletCreator(statistics));
     }
 
 }

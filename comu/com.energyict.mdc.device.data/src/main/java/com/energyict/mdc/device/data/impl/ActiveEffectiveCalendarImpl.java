@@ -9,8 +9,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.data.Device;
 
 import javax.inject.Inject;
 import java.time.Instant;

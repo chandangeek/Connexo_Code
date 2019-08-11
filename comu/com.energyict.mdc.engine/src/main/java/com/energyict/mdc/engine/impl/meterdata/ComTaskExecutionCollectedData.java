@@ -4,17 +4,13 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.ComTaskExecutionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
-import com.energyict.mdc.tasks.ComTask;
-
-import org.json.JSONException;
-import org.json.JSONWriter;
 
 import java.util.List;
 import java.util.stream.Collectors;

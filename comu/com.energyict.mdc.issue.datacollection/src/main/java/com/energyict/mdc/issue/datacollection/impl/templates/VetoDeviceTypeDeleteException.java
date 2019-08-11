@@ -6,7 +6,7 @@ package com.energyict.mdc.issue.datacollection.impl.templates;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 
 public class VetoDeviceTypeDeleteException extends LocalizedException {

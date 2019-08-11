@@ -63,13 +63,13 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "[MeterReadingDocumentId: {0}] Unsupported reason code or reason code does not support bulk request"),
 
     CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Channel for LRN ''{0}'' isn''t found."),
-    PROFILE_ID_IS_ALREADY_SET(7002, "ProfileIdIsAlreadySet", "Profile ID ''{0}'' is already set for channel ''{1}''."),
-    INVALID_TIME_PERIOD(7003, "InvalidTimePeriod", "MeasurementTaskAssignmentRole time period is invalid."),
-    TIME_PERIODS_ARE_INTERSECTED(7004, "TimePeriodsAreIntersected", "MeasurementTaskAssignmentRole time periods are intersected."),
-    LRN_IS_NOT_UNIQUE(7005, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [''{1}''..''{2}'']."),
-    PROPERTY_IS_NOT_SET(7006, "PropertyNotSet", "Property ''{0}'' isn''t set."),
-    LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7007, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile ID isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
-    EXCEPTION_GENERATED(7008, "ExceptionGenerated", "Exception generated: ''{0}''"),
+    PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile ID ''{0}'' is already set for channel ''{1}''."),
+    INVALID_TIME_PERIOD(7002, "InvalidTimePeriod", "MeasurementTaskAssignmentRole time period is invalid."),
+    TIME_PERIODS_ARE_INTERSECTED(7003, "TimePeriodsAreIntersected", "MeasurementTaskAssignmentRole time periods are intersected."),
+    LRN_IS_NOT_UNIQUE(7004, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [''{1}''..''{2}'']."),
+    PROPERTY_IS_NOT_SET(7005, "PropertyNotSet", "Property ''{0}'' isn''t set."),
+    LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7006, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile ID isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
+    EXCEPTION_GENERATED(7007, "ExceptionGenerated", "Exception generated: ''{0}''"),
 
     //Micro checks
     AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "At least one LRN was set on the device");

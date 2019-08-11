@@ -4,7 +4,10 @@
 
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import org.fest.assertions.core.Condition;
 

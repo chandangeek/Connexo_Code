@@ -10,8 +10,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -20,8 +19,6 @@ import com.energyict.mdc.issue.datacollection.event.UnregisteredFromGatewayDelay
 
 import com.google.inject.Injector;
 
-import javax.swing.text.html.Option;
-import javax.validation.MessageInterpolator;
 import java.util.Map;
 import java.util.Optional;
 

@@ -5,9 +5,9 @@
 package com.energyict.mdc.issue.datacollection.entity;
 
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
 
 import aQute.bnd.annotation.ProviderType;
 

@@ -12,7 +12,7 @@ import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonDeserializeException;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ZoneOnDeviceQueueMessage;
 import com.energyict.mdc.device.data.impl.MessageSeeds;

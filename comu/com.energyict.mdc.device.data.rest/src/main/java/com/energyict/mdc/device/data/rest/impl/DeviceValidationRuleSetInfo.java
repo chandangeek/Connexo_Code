@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 public class DeviceValidationRuleSetInfo extends ValidationRuleSetInfo {
     public Boolean isActive;

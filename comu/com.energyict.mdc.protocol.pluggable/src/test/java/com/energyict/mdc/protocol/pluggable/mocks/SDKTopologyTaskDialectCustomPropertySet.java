@@ -9,8 +9,8 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
 import java.util.EnumSet;
 import java.util.List;

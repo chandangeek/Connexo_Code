@@ -10,9 +10,9 @@ import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
 import com.google.common.collect.Range;

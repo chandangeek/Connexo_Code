@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
 
 public class DeviceMessageFileInfo {
     public String name;

@@ -5,13 +5,13 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.ReusableInputStream;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.Body;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.bindings.Shipment;
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.exception.ImportFailedException;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import org.w3._2000._09.xmldsig_.KeyValueType;
 import org.w3._2000._09.xmldsig_.RSAKeyValueType;

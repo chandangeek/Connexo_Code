@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.rest;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 

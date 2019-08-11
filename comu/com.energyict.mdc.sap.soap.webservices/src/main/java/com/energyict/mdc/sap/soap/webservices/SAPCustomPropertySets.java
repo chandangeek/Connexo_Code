@@ -6,8 +6,8 @@ package com.energyict.mdc.sap.soap.webservices;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -35,16 +35,16 @@ public interface SAPCustomPropertySets {
     /**
      * It's not guaranteed what happens if the range is not fully contained in the channel lifetime.
      */
-    Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Channel channel, Range<Instant> range);
+    Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Channel channel, Range<Instant> range);
 
     /**
      * It's not guaranteed what happens if the range is not fully contained in the channel lifetime.
      */
-    Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Register register, Range<Instant> range);
+    Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Register register, Range<Instant> range);
 
     void setLrn(Register register, String lrn, Instant startDateTime, Instant endDateTime);
 
-    void setLrn(com.energyict.mdc.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime);
+    void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime);
 
     boolean isAnyLrn(long deviceId);
 
@@ -56,7 +56,7 @@ public interface SAPCustomPropertySets {
 
     Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval);
 
-    boolean isProfileIdAlreadyExists(com.energyict.mdc.device.data.Channel channel, String profileId, Range<Instant> interval);
+    boolean isProfileIdAlreadyExists(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval);
 
     List<ReadingType> findReadingTypesForProfileId(String profileId);
 

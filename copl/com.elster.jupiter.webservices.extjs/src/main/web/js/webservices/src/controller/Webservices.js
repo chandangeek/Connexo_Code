@@ -123,14 +123,8 @@ Ext.define('Wss.controller.Webservices', {
             success: function (endpoint) {
                 me.getModel('Wss.model.endpoint.Occurrence').load(occurenceId, {
                     success: function (occurrence) {
-                        var showRetry = false;
-                        if (endpoint.data.direction.id === "OUTBOUND" && occurrence.data.status !== "Ongoing" && occurrence.data.payload !== "")
-                        {
-                            showRetry = true;
-                        }
                         var view = Ext.widget('webservice-history-occurence', {
                             router: me.getController('Uni.controller.history.Router'),
-                            adminView: showRetry,
                             endpoint: endpoint,
                             occurrence: occurrence
                         });

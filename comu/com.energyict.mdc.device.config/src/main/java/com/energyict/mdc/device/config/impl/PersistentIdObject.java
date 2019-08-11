@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.device.config.DeleteEventType;
 
 import java.util.Iterator;
 import java.util.List;

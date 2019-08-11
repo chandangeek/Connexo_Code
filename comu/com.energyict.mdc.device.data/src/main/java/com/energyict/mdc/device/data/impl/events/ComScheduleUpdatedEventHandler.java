@@ -6,17 +6,18 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.events.VetoComTaskAdditionException;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComTaskComScheduleLink;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * Responds to events that are produced when a {@link com.energyict.mdc.tasks.ComTask}
+ * Responds to events that are produced when a {@link ComTask}
  * is being added to a {@link ComSchedule} and will veto that when
  * there is at least one Device that is linked to the ComSchedule.
  *

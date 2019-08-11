@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.common.device.config.DeviceType;
+
 /**
  * Provides functionality to lock a specific Business object
  */

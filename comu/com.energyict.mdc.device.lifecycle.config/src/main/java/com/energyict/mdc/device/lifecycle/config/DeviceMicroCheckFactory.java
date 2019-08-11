@@ -3,6 +3,8 @@
  */
 package com.energyict.mdc.device.lifecycle.config;
 
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
+
 import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Optional;

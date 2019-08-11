@@ -15,7 +15,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 
 import com.google.inject.Module;
 

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 
 /**
  * Adds behavior to {@link ChannelSpec} that is reserved for server side component.

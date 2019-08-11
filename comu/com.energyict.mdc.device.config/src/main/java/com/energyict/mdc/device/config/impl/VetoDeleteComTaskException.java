@@ -6,7 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 
 public class VetoDeleteComTaskException extends LocalizedException {
 

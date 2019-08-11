@@ -5,7 +5,7 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
@@ -16,7 +16,7 @@ import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLA
 import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.TOU_CALENDAR_FLAG;
 
 /**
- * Implementation for a {@link com.energyict.mdc.tasks.StatusInformationTask}.
+ * Implementation for a {@link StatusInformationTask}.
  *
  * @author gna
  * @since 2/05/12 - 13:10

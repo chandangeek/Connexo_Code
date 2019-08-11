@@ -4,13 +4,13 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 /**
  * Models the data that is involved in event that are produced when
- * a {@link com.energyict.mdc.device.config.ComTaskEnablement} switches
- * between 2 {@link com.energyict.mdc.device.config.PartialConnectionTask}s.
+ * a {@link ComTaskEnablement} switches
+ * between 2 {@link PartialConnectionTask}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-18 (15:10)

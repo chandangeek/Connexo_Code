@@ -143,7 +143,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                         Version.version(10, 3), V10_3SimpleUpgrader.class,
                         Version.version(10, 4), V10_4SimpleUpgrader.class,
                         Version.version(10, 6), UpgraderV10_6.class,
-                        Version.version(10,7), UpgraderV10_7.class
+                        Version.version(10, 7), UpgraderV10_7.class
                 )
         );
     }
@@ -353,7 +353,6 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
         return destinationSpecs.stream()
                 .filter(DestinationSpec::isExtraQueueCreationEnabled)
                 .filter(destinationSpec -> destinationSpec.getQueueTypeName().equals(queueTypeName))
-                .filter(Predicates.not(destinationSpec -> destinationSpec.getName().equals(destination)))
                 .collect(Collectors.toList());
     }
 

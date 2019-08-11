@@ -10,9 +10,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigExtendedDataFactory;
@@ -20,7 +20,7 @@ import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
@@ -134,7 +134,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     @Override
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
-            MeterConfigEventMessageType message = createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED);
+            MeterConfigEventMessageType message = createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED, null);
             using("changedMeterConfig")
                     .toEndpoints(endPointConfiguration)
                     .send(message);
@@ -145,21 +145,21 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     @Override
     public void call(EndPointConfiguration endPointConfiguration, OperationEnum operation,
-                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls) {
+                     List<Device> successfulDevices, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, String correlationId) {
         String method;
         MeterConfigEventMessageType message;
         switch (operation) {
             case CREATE:
                 method = "createdMeterConfig";
-                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED);
+                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
                 break;
             case UPDATE:
                 method = "changedMeterConfig";
-                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED);
+                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
                 method = "replyMeterConfig";
-                message = createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY);
+                message = createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
                 break;
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
@@ -198,13 +198,15 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return meterConfigFactory.asGetMeterConfig(devices);
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb) {
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb, String correlationId) {
         MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setNoun(NOUN);
         header.setVerb(verb);
+        header.setCorrelationID(correlationId);
+
         meterConfigEventMessageType.setHeader(header);
 
         // set reply
@@ -221,8 +223,8 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb) {
-        MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb);
+    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
+        MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb, correlationId);
 
         // set reply
         ReplyType replyType = cimMessageObjectFactory.createReplyType();

@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 
@@ -30,7 +31,7 @@ import java.util.stream.Stream;
  * <ul>
  * <li>mdckpis:create ElsterAS3000 Y MIN "50" N:
  *     creates a new DataCollectionKpi that calculates the connection setup kpi every hour (hard coded)
- *     with a minimum target of 50 for the {@link com.energyict.mdc.device.data.Device}s
+ *     with a minimum target of 50 for the {@link Device}s
  *     in the {@link com.elster.jupiter.metering.groups.QueryEndDeviceGroup} with the id 3006</li>
  * </ul>.
  *

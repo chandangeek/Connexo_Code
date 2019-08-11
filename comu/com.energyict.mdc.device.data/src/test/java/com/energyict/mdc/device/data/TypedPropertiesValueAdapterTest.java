@@ -4,15 +4,17 @@
 
 package com.energyict.mdc.device.data;
 
-import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.util.Collections;
 import java.util.Optional;
 
-import com.energyict.mdc.upl.TypedProperties;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;

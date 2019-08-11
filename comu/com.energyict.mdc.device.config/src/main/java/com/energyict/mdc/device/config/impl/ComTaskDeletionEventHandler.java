@@ -7,7 +7,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -15,7 +16,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * Listens for delete events of {@link ComTask}s
  * and will veto the deletion if the ComTask
- * is still used by at least one {@link com.energyict.mdc.device.config.DeviceConfiguration}.
+ * is still used by at least one {@link DeviceConfiguration}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-01-21 (16:26)

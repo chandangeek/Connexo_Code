@@ -14,7 +14,7 @@ import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.Size;

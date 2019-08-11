@@ -9,19 +9,15 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.issue.devicelifecycle.FailedTransition;
 import com.energyict.mdc.issue.devicelifecycle.HistoricalIssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 import com.energyict.mdc.issue.devicelifecycle.OpenIssueDeviceLifecycle;
-
-import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.Valid;

@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;

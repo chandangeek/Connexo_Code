@@ -39,23 +39,21 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignBuilder;
@@ -64,10 +62,10 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignItem;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.tou.campaign.impl.Installer;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
-import com.energyict.mdc.tou.campaign.impl.UpgraderV10_7;
 import com.energyict.mdc.tou.campaign.impl.ServiceCallTypes;
 import com.energyict.mdc.tou.campaign.impl.TimeOfUseCampaignBuilderImpl;
 import com.energyict.mdc.tou.campaign.impl.TranslationKeys;
+import com.energyict.mdc.tou.campaign.impl.UpgraderV10_7;
 import com.energyict.mdc.tou.campaign.security.Privileges;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
@@ -230,7 +228,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Reference
-    public void setTaskService(TaskService taskService){
+    public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
     }
 
@@ -544,8 +542,10 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                     deviceMessage.setReleaseDate(timeOfUseCampaign.getUploadPeriodStart());
                     deviceMessage.save();
                     findCalendarsComTaskExecutions(timeOfUseItemDomainExtension.getDevice())
-                            .findAny().ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
-                            .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd()));
+                            .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == timeOfUseCampaign.getCalendarUploadComTaskId())
+                            .findAny()
+                            .ifPresent(comTaskExecution -> dataModel.getInstance(TimeOfUseSendHelper.class)
+                                    .scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd()));
                 }));
     }
 
@@ -572,20 +572,20 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                 .findAny().orElse(null);
     }
 
-    Optional<ComTaskEnablement> getActiveVerificationTask(Device device) {
+    boolean isActiveVerificationTask(Device device, long taskId) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == taskId)
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .anyMatch(task -> task instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
-                        .noneMatch(protocolTask -> protocolTask instanceof MessagesTask))
-                .filter(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
-                        || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
-                .findAny();
+                .anyMatch(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
+                        || (!findComTaskExecution(device, comTaskEnablement).isOnHold()));
     }
 
-    Optional<ComTaskEnablement> getActiveTaskForCalendars(Device device) {
+    Optional<ComTaskEnablement> getActiveTaskForCalendarsById(Device device, long taskId) {
         return device.getDeviceConfiguration().getComTaskEnablements().stream()
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == taskId)
+                .filter(comTaskEnablement -> comTaskEnablement.getComTask().isManualSystemTask())
                 .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
                         .filter(task -> task instanceof MessagesTask)
                         .map(task -> ((MessagesTask) task))
@@ -593,8 +593,6 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
                         .flatMap(List::stream)
                         .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 0))
                 .filter(comTaskEnablement -> !comTaskEnablement.isSuspended())
-                .filter(comTaskEnablement -> comTaskEnablement.getComTask().getProtocolTasks().stream()
-                        .noneMatch(protocolTask -> protocolTask instanceof StatusInformationTask))
                 .filter(comTaskEnablement -> (findComTaskExecution(device, comTaskEnablement) == null)
                         || (!findComTaskExecution(device, comTaskEnablement).isOnHold()))
                 .findAny();
@@ -606,7 +604,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
     }
 
     @Override
-    public ComTask getComTaskById(long id){
+    public ComTask getComTaskById(long id) {
         return taskService.findComTask(id).get();
     }
 }

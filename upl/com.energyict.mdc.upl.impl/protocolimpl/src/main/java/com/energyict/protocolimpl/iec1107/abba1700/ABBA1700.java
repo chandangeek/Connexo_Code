@@ -65,7 +65,6 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.BillingResetKey;
 import static com.energyict.protocolimpl.iec1107.abba1700.ABBA1700RegisterFactory.TimeDateKey;
@@ -103,7 +102,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     private String nodeId = null;
     private String strID = null;
     private String strPassword = null;
-    private String serialNumber = null;
     private TimeZone timeZone = null;
     private Logger logger = null;
     private FlagIEC1107Connection connection = null;
@@ -222,7 +220,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
                 this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
-                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
                 this.integerSpec("MeterType", PropertyTranslationKeys.IEC1107_METER_TYPE),
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCEDELAY),
                 this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
@@ -268,8 +265,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
         iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 0);
         extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
-        // 15122003 get the serialNumber
-        serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
 
         // 0 = 16 TOU registers type (most in the UK)
         // 1 = 32 TOU registers type (Portugal, etc...)
@@ -287,7 +282,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:25:14 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2019-07-15 15:30:00 +0300 (Mon, 15 Jul 2019)$";
     }
 
     @Override

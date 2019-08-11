@@ -77,20 +77,21 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
                 GetEndDeviceEvents getEndDeviceEvents = Optional.ofNullable(requestMessage.getRequest().getGetEndDeviceEvents())
                         .orElseThrow(messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, GET_END_DEVICE_EVENTS));
                 List<Meter> meters = getEndDeviceEvents.getMeter();
+                String correlationId = requestMessage.getHeader() == null ? null : requestMessage.getHeader().getCorrelationID();
                 if (meters.isEmpty()) {
                     throw messageFactory.createEndDeviceEventsFaultMessageSupplier(MessageSeeds.EMPTY_LIST, METERS_ITEM).get();
                 }
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(getReplyAddress(requestMessage));
-                    createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration);
-                    return createQuickResponseMessage();
+                    createServiceCallAndTransition(meters, endDeviceBuilder.getTimeIntervals(getEndDeviceEvents.getTimeSchedule()), outboundEndPointConfiguration, correlationId);
+                    return createQuickResponseMessage(correlationId);
                 } else if (meters.size() > 1) {
                     throw messageFactory.createEndDeviceEventsFaultMessage(MessageSeeds.SYNC_MODE_NOT_SUPPORTED);
                 } else {
                     // call synchronously
                     EndDeviceEvents endDeviceEvents = endDeviceBuilder.prepareGetFrom(meters, getEndDeviceEvents.getTimeSchedule()).build();
-                    return createResponseMessage(endDeviceEvents);
+                    return createResponseMessage(endDeviceEvents, correlationId);
                 }
             } catch (VerboseConstraintViolationException e) {
                 throw messageFactory.createEndDeviceEventsFaultMessage(e.getLocalizedMessage());
@@ -125,14 +126,14 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
         return endPointConfig;
     }
 
-    private ServiceCall createServiceCallAndTransition(List<Meter> meters, Range<Instant> interval, EndPointConfiguration endPointConfiguration) throws FaultMessage {
-        ServiceCall serviceCall = serviceCallCommands.createGetEndDeviceEventsMasterServiceCall(meters, interval, endPointConfiguration);
+    private ServiceCall createServiceCallAndTransition(List<Meter> meters, Range<Instant> interval, EndPointConfiguration endPointConfiguration, String correlationId) throws FaultMessage {
+        ServiceCall serviceCall = serviceCallCommands.createGetEndDeviceEventsMasterServiceCall(meters, interval, endPointConfiguration, correlationId);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
         return serviceCall;
     }
 
-    private EndDeviceEventsResponseMessageType createResponseMessage(EndDeviceEvents endDeviceEvents) {
-        EndDeviceEventsResponseMessageType responseMessage = createQuickResponseMessage();
+    private EndDeviceEventsResponseMessageType createResponseMessage(EndDeviceEvents endDeviceEvents, String correlationId) {
+        EndDeviceEventsResponseMessageType responseMessage = createQuickResponseMessage(correlationId);
 
         // set payload
         EndDeviceEventsPayloadType endDeviceEventsPayload = endDeviceEventsMessageObjectFactory.createEndDeviceEventsPayloadType();
@@ -142,13 +143,15 @@ public class GetEndDeviceEventsEndpoint extends AbstractInboundEndPoint implemen
         return responseMessage;
     }
 
-    private EndDeviceEventsResponseMessageType createQuickResponseMessage() {
+    private EndDeviceEventsResponseMessageType createQuickResponseMessage(String correlationId) {
         EndDeviceEventsResponseMessageType responseMessage = endDeviceEventsMessageObjectFactory.createEndDeviceEventsResponseMessageType();
 
         // set header
         HeaderType header = cimMessageObjectFactory.createHeaderType();
         header.setVerb(HeaderType.Verb.REPLY);
         header.setNoun(GET_END_DEVICE_EVENTS);
+        header.setCorrelationID(correlationId);
+
         responseMessage.setHeader(header);
 
         // set reply
