@@ -6,9 +6,18 @@ package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.TopologyTask;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.AlreadyExecutedComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
@@ -66,16 +75,7 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNu
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -131,10 +131,14 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
     }
 
     public void performAfterConnectionSetup(ExecutionContext executionContext) {
-        if (!commandRoot.hasConnectionErrorOccurred()) {
-            this.execute(executionContext);
+        if (commandRoot.hasConnectionErrorOccurred()) {
+            executeForConnectionError(executionContext);
         } else {
-            this.executeForConnectionError(executionContext);
+            if (commandRoot.hasConnectionBeenInterrupted()) {
+                executeForConnectionInterrupted(executionContext);
+            } else {
+                execute(executionContext);
+            }
         }
     }
 
@@ -149,6 +153,9 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
                 } else if (commandRoot.hasConnectionErrorOccurred()) {
                     Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_ERROR);
                     comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
+                }  else if (commandRoot.hasConnectionBeenInterrupted()) {
+                    Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED);
+                    comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
                 } else if (getCompletionCode().equals(CompletionCode.InitError)) {
                     Problem problem = getServiceProvider().issueService().newProblem(comTaskExecutionComCommand, MessageSeeds.NOT_EXECUTED_DUE_TO_INIT_ERROR);
                     comTaskExecutionComCommand.addIssue(problem, CompletionCode.NotExecuted);
@@ -159,7 +166,8 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
                 comTaskExecutionComCommand.execute(deviceProtocol, executionContext);
             } finally {
                 ComTaskExecutionSession.SuccessIndicator successIndicator;
-                if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
+                if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)
+                        || comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.Rescheduled)) {
                     comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
                     successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
                 } else if (!comTaskExecutionComCommand.getProblems().isEmpty()) {
@@ -196,6 +204,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
             case InitError:             // intentional fallthrough
             case UnexpectedError:       // intentional fallthrough
             case TimeoutError:          // intentional fallthrough
+            case Rescheduled:           // intentional fallthrough
             case ConnectionError:
                 return isItTerminateOrUpdateCache(comCommand);
             default:
@@ -251,6 +260,16 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
      */
     void executeForConnectionError(ExecutionContext executionContext) {
         executeWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_ERROR);
+    }
+
+    /**
+     * When there was a connection error during one of the ComTaskExecutions, all other ComTaskExecutions
+     * will not be executed anymore. They will be marked with a proper problem and get rescheduled.
+     *
+     * @param executionContext the context that is used for all these commands
+     */
+    void executeForConnectionInterrupted(ExecutionContext executionContext) {
+        executeWithAProblem(executionContext, MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED);
     }
 
     private void executeWithAProblem(ExecutionContext executionContext, MessageSeeds messageSeed) {
@@ -771,6 +790,10 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
 
     public void connectionErrorOccurred() {
         commandRoot.connectionErrorOccurred();
+    }
+
+    public void connectionInterrupted() {
+        commandRoot.connectionInterrupted();
     }
 
     public void updateComChannelForComCommands(ComPortRelatedComChannel comChannel) {

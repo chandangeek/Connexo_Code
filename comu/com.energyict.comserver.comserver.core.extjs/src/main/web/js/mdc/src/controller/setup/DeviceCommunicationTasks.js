@@ -58,6 +58,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 '#runDeviceComTaskNow[action=runDeviceComTaskNow]': {
                     click: this.runDeviceComTaskNow
                 },
+                '#runDeviceComTaskNowWithPriority[action=runDeviceComTaskNowWithPriority]': {
+                    click: this.runDeviceComTaskWithPriority
+                },
                 '#changeButton[action=changeUrgencyOfDeviceComTask]': {
                     click: this.changeUrgency
                 },
@@ -134,6 +137,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 menu.down('#runDeviceComTaskNow').hide();
             }
         }
+        if (menu.down('#runDeviceComTaskNowWithPriority')) {
+            if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) {
+                menu.down('#runDeviceComTaskNowWithPriority').show();
+            } else {
+                menu.down('#runDeviceComTaskNowWithPriority').hide();
+            }
+        }
         if (menu.down('#runDeviceComTask')) {
             if (connectionDefinedOnDevice && !isOnHold && isMinimizeConnections && !isSystemComtask) {
                 menu.down('#runDeviceComTask').show();
@@ -186,6 +196,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
         this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/runnow', Uni.I18n.translate('deviceCommunicationTask.runNow', 'MDC', 'Run now succeeded'));
+    },
+
+    runDeviceComTaskWithPriority: function () {
+        var request = {};
+        this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
+        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/runprio', Uni.I18n.translate('deviceCommunicationTask.runPrio', 'MDC', 'Run with priority succeeded'));
     },
 
     showChangePopUp: function (menuItem) {

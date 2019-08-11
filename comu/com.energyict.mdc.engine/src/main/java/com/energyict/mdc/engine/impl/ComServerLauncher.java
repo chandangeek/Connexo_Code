@@ -14,6 +14,11 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundCapable;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundCapable;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -22,15 +27,11 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
-import com.energyict.mdc.engine.config.InboundCapable;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundCapable;
-import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
@@ -59,8 +60,8 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Launches the {@link com.energyict.mdc.engine.config.OnlineComServer}
- * or {@link com.energyict.mdc.engine.config.RemoteComServer}
+ * Launches the {@link OnlineComServer}
+ * or {@link RemoteComServer}
  * that is configured to run on the machine where this class is executing.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -310,6 +311,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public CommunicationTaskService communicationTaskService() {
             return serviceProvider.communicationTaskService();
+        }
+
+        @Override
+        public PriorityComTaskService priorityComTaskService() {
+            return serviceProvider.priorityComTaskService();
         }
 
         @Override

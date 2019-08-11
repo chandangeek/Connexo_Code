@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.config.impl.constraints;
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationServiceImpl;

@@ -5,7 +5,7 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.pki.SecurityAccessor;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import aQute.bnd.annotation.ProviderType;
 

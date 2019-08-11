@@ -4,13 +4,13 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
 import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
 import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.util.ArrayList;
 import java.util.Collections;

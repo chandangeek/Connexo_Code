@@ -74,5 +74,7 @@ public interface DataMapper<T> extends Finder<T> {
 
 	SqlBuilder builder(String alias, String... hints);
 
+	SqlBuilder builderWithAdditionalColumns(String alias, String... columns);
+
     Set<String> getQueryFields();
 }

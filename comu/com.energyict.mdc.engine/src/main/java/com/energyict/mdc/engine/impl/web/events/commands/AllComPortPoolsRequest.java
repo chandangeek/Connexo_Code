@@ -4,11 +4,12 @@
 
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 /**
  * Models a request to widen the interest of
- * {@link com.energyict.mdc.engine.config.ComPortPool}
+ * {@link ComPortPool}
  * related events to all ComPortPools.
  *
  * @author Rudi Vankeirsbilck (rudi)

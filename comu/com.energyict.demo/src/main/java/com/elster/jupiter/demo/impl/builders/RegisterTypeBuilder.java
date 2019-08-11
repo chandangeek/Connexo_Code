@@ -7,11 +7,12 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import java.util.Optional;

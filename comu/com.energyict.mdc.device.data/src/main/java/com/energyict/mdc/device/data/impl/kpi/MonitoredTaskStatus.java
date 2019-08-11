@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import java.util.EnumSet;
 import java.util.Map;

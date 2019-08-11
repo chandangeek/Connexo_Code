@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
 import com.energyict.mdc.device.topology.G3CommunicationPathSegment;

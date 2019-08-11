@@ -121,6 +121,13 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
                                 },
                                 {
+                                    text: Uni.I18n.translate('deviceCommunicationPlanning.runComTaskNowWithPriority', 'MDC', 'Run with priority'),
+                                    privileges: Mdc.privileges.Device.operateDeviceCommunication,
+                                    itemId: 'mdc-device-communication-planning-runDeviceComTaskNowWithPriority',
+                                    action: 'runDeviceComTaskNowWithPriority',
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions
+                                },
+                                {
                                     text: Uni.I18n.translate('deviceCommunicationPlanning.activate', 'MDC', 'Activate'),
                                     privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                     itemId: 'mdc-device-communication-planning-activate-task',
@@ -158,6 +165,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                         deactivateMenuItem = me.down('#mdc-device-communication-planning-deactivate-task'),
                                         runMenuItem = me.down('#mdc-device-communication-planning-runDeviceComTask'),
                                         runNowMenuItem = me.down('#mdc-device-communication-planning-runDeviceComTaskNow'),
+                                        runNowWithPriorityMenuItem = me.down('#mdc-device-communication-planning-runDeviceComTaskNowWithPriority'),
                                         addScheduleMenuItem = me.down('#mdc-device-communication-planning-add-schedule'),
                                         changeScheduleMenuItem = me.down('#mdc-device-communication-planning-change-schedule'),
                                         removeScheduleMenuItem = me.down('#mdc-device-communication-planning-remove-schedule'),
@@ -183,8 +191,10 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationPlanni
                                     }
                                     if (runNowEnabled) {
                                         runNowMenuItem.show();
+                                        runNowWithPriorityMenuItem.show();
                                     } else {
                                         runNowMenuItem.hide();
+                                        runNowWithPriorityMenuItem.hide();
                                     }
                                     if (addScheduleEnabled) {
                                         addScheduleMenuItem.show();

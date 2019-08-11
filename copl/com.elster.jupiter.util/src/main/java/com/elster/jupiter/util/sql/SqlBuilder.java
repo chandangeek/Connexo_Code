@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.util.sql;
 
+import com.elster.jupiter.util.HasId;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -15,6 +17,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -79,6 +82,40 @@ public final class SqlBuilder implements SqlFragment {
     @Deprecated
     public void addDate(java.util.Date date) {
     	addDate(date == null ? null : date.toInstant());
+    }
+
+    public void addInClauseForIdList(List<? extends HasId> idsList) {
+        int MAX = 999;
+        if (idsList.size() < MAX) {
+            addInClauseForShortIdList(idsList);
+        } else {
+            int devicesProcessed = 0;
+            int total = idsList.size();
+            int from = 0;
+            int to = 0;
+            while (devicesProcessed < total) {
+                to = Math.min(from + MAX, total);
+                List<? extends HasId> part = idsList.subList(from, to);
+                addInClauseForShortIdList(part);
+                from += part.size();
+                devicesProcessed += part.size();
+                if (devicesProcessed < total) {
+                    builder.append(" OR ");
+                }
+            }
+        }
+    }
+
+    private void addInClauseForShortIdList(List<? extends HasId> idsList) {
+        append(" IN (");
+        for (Iterator<? extends HasId> it = idsList.iterator(); it.hasNext();) {
+            HasId value = it.next();
+            builder.append(value.getId());
+            if (it.hasNext()) {
+                builder.append(",");
+            }
+        }
+        append(")");
     }
 
     public StringBuilder getBuffer() {

@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

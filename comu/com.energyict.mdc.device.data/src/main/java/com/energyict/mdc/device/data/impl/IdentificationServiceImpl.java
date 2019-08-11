@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByDeviceName;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
@@ -21,8 +23,6 @@ import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.device.data.impl.identifiers.RegisterIdentifierByAlreadyKnownRegister;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.meterdata.LogBook;
@@ -99,7 +99,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(LoadProfile loadProfile, ObisCode obisCode) {
-        return new LoadProfileIdentifierForAlreadyKnownLoadProfile((com.energyict.mdc.device.data.LoadProfile) loadProfile, obisCode);  //Downcast to the Connexo LoadProfile
+        return new LoadProfileIdentifierForAlreadyKnownLoadProfile((com.energyict.mdc.common.device.data.LoadProfile) loadProfile, obisCode);  //Downcast to the Connexo LoadProfile
     }
 
     @Override
@@ -124,7 +124,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier) {
-        return new LogBookIdentifierForAlreadyKnowLogBook((com.energyict.mdc.device.data.LogBook) logBook, deviceIdentifier);     //Downcast to the Connexo LogBook
+        return new LogBookIdentifierForAlreadyKnowLogBook((com.energyict.mdc.common.device.data.LogBook) logBook, deviceIdentifier);     //Downcast to the Connexo LogBook
     }
 
     @Override

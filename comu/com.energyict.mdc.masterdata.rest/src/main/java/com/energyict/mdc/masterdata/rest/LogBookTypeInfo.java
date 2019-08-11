@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.masterdata.rest;
 
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.masterdata.LogBookType;
 
+import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;

@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import javax.inject.Inject;
 

@@ -1,22 +1,18 @@
 package com.energyict.mdc.device.data.importers.impl.loadprofilenextreading;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
-import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.data.security.Privileges;
+
 import com.energyict.obis.ObisCode;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 
 public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceDataFileImportProcessor<DeviceLoadProfileNextReadingRecord>{
@@ -56,7 +52,7 @@ public class DeviceLoadProfileNextReadingImportProcessor extends AbstractDeviceD
 //            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_IN_STOCK_DEVICE, data.getLineNumber(), device.getName());
 //        }
 //        if (device.getState().getName().equals(DefaultState.DECOMMISSIONED.getKey())
-//                && !((User) getContext().getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
+//                && !((User) getContext().getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.DeviceConfigConstants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
 //            throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE, data.getLineNumber(), device.getName());
 //        }
 //    }

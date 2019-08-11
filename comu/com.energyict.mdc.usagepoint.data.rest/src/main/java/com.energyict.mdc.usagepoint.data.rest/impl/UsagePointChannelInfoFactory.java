@@ -13,7 +13,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
@@ -81,7 +81,7 @@ public class UsagePointChannelInfoFactory extends AbstractUsagePointChannelInfoF
     @Override
     IdWithNameInfo createDeviceChannelInfo(Device device, Channel ch) {
         ReadingType mainReadingType = ch.getMainReadingType();
-        com.energyict.mdc.device.data.Channel channelOnDevice = device.getChannels()
+        com.energyict.mdc.common.device.data.Channel channelOnDevice = device.getChannels()
                 .stream()
                 .filter(deviceChannel -> ch.getReadingTypes()
                         .contains(deviceChannel.getReadingType()))

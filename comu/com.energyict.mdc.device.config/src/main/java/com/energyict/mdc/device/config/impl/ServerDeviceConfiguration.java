@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 
 /**
  * Add behavior to {@link ServerDeviceConfiguration} that is
@@ -20,7 +22,7 @@ interface ServerDeviceConfiguration extends DeviceConfiguration {
 
     /**
      * Notifies this DeviceConfiguration that it is about to be deleted
-     * as part of the delete of the {@link com.energyict.mdc.device.config.DeviceType}.
+     * as part of the delete of the {@link DeviceType}.
      */
     void notifyDelete();
 
@@ -60,7 +62,7 @@ interface ServerDeviceConfiguration extends DeviceConfiguration {
 
     /**
      * Notifies this DeviceConfiguration that file management has been disabled
-     * on the owning DeviceType and that all {@link com.energyict.mdc.device.config.DeviceMessageEnablement}s
+     * on the owning DeviceType and that all {@link DeviceMessageEnablement}s
      * that relate to file management should be cleaned up.
      */
     void fileManagementDisabled();

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard;
 
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
 

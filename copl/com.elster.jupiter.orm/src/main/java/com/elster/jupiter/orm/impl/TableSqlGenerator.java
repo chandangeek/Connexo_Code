@@ -27,7 +27,7 @@ public class TableSqlGenerator {
 		}
 	}
 
-	public void appendTable(StringBuilder sb, String separator , String alias) {
+	public void appendTable(StringBuilder sb, String separator, String alias) {
 		sb.append(separator);
 		sb.append(table.getQualifiedName());
 		if (alias != null ) {
@@ -47,6 +47,10 @@ public class TableSqlGenerator {
 
     String getSelectFromClause(String alias, String... hints) {
 		return getSelectFromClause(this.getRealColumns(), alias, hints);
+	}
+
+	String getSelectFromClauseWithAdditionalColumns(String alias, String... additionalColumns) {
+		return getSelectFromClauseWithAdditionalColumns(getRealColumns(), alias, additionalColumns);
 	}
 
 	private List<ColumnImpl> getRealColumns() {
@@ -69,7 +73,21 @@ public class TableSqlGenerator {
 		}
 		appendColumns(sb, " " , alias , columns);
 		sb.append(" from ");
-		appendTable(sb," ",alias);
+		appendTable(sb," ", alias);
+		return sb.toString();
+	}
+
+	private String getSelectFromClauseWithAdditionalColumns(List<? extends Column> columns, String alias, String... additionalColumns) {
+		StringBuilder sb = new StringBuilder("select");
+		appendColumns(sb, " " , alias , columns);
+		if (additionalColumns.length > 0) {
+			for (String column : additionalColumns) {
+				sb.append(", ");
+				sb.append(column);
+			}
+		}
+		sb.append(" from ");
+		appendTable(sb," ", alias);
 		return sb.toString();
 	}
 

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.logging;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 
 import java.util.logging.Level;
 

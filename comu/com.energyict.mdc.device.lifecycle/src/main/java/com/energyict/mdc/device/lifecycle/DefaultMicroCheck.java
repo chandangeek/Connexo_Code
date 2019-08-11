@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 
 /**
  * Models a number of tiny checks that will be executed

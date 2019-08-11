@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.command;
 
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 
 import java.util.Optional;
 

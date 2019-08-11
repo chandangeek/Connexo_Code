@@ -36,7 +36,7 @@ public class QueryApiServlet extends WebSocketServlet {
     private final TransactionService transactionService;
     private Map<String, WebSocketQueryApiService> queryApiServices = new HashMap<>();
 
-    public QueryApiServlet (RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService,  ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
+    public QueryApiServlet (RunningOnlineComServer comServer, ComServerDAO comServerDAO, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, TransactionService transactionService) {
         super();
         this.comServer = comServer;
         this.comServerDAO = comServerDAO;

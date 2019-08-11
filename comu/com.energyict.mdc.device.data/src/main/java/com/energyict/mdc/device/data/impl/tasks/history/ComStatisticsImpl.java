@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.tasks.history;
 
-import com.energyict.mdc.device.data.tasks.history.ComStatistics;
+import com.energyict.mdc.common.tasks.history.ComStatistics;
 
 /**
  * Provides an implementation for the {@link ComStatistics} interface.

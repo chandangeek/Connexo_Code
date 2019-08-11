@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

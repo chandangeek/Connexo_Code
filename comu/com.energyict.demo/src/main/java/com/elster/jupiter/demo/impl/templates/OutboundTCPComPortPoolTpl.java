@@ -5,7 +5,7 @@
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.OutboundTCPComPortPoolBuilder;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 
 import java.util.Arrays;
 import java.util.Collections;

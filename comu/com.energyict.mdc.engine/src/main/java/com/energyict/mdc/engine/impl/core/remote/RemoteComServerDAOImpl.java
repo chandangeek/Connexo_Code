@@ -11,20 +11,23 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
@@ -75,6 +78,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +93,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
  * that will post a JSon representation of the query
- * to a companion {@link com.energyict.mdc.engine.config.OnlineComServer}
+ * to a companion {@link OnlineComServer}
  * that has a servlet running that will listen for these queries.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -154,18 +158,38 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
-        return null;
+        //TODO port remote comserver from 9.1
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
+        //TODO port remote comserver from 9.1
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date) {
+        //TODO port remote comserver from 9.1
+        return Collections.emptyList();
     }
 
     @Override
     public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
-        return null;
+        //TODO port remote comserver from 9.1
+        return Collections.emptyList();
     }
 
     @Override
     public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
         // Todo: delegate to the other side
         return connectionTask.getProperties();
+    }
+
+    @Override
+    public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
+        //TODO port remote comserver from 9.1
+        return Collections.emptyList();
     }
 
     @Override
@@ -203,6 +227,15 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public boolean attemptLock(PriorityComTaskExecutionLink comTaskExecution, ComPort comPort) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.HIGH_PRIORITY_COMTASKEXECUTION, comTaskExecution.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
+        JSONObject response = this.post(QueryMethod.AttemptLock, queryParameters);
+        return this.toBoolean(response);
+    }
+
+    @Override
     public void unlock (ComTaskExecution comTaskExecution) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
@@ -231,6 +264,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
         this.post(QueryMethod.ExecutionFailed, queryParameters);
+        return connectionTask;
+    }
+
+    @Override
+    public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
+        post(QueryMethod.ExecutionRescheduled, queryParameters);
         return connectionTask;
     }
 
@@ -540,6 +581,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION_COLLECTION, comTaskExecutionIds);
         JSONObject response = this.post(QueryMethod.AreStillPending, queryParameters);
         return this.toBoolean(response);
+    }
+
+    @Override
+    public boolean areStillPendingWithHighPriority(Collection<Long> priorityComTaskExecutionIds) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.HIGH_PRIORITY_COMTASKEXECUTION_COLLECTION, priorityComTaskExecutionIds);
+        JSONObject response = post(QueryMethod.AreStillPending, queryParameters);
+        return toBoolean(response);
     }
 
     private ComServer toComServer (JSONObject response) {

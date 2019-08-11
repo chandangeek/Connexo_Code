@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
 
 /**
  * Represents the simple slave channel info.
