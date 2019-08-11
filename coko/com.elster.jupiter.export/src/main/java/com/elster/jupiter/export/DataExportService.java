@@ -30,7 +30,6 @@ public interface DataExportService {
     String DATA_TYPE_PROPERTY = "dataType";
 
     String STANDARD_READING_DATA_TYPE = "standardReadingDataType";
-    String CUSTOM_READING_DATA_TYPE = "customReadingDataType";
     String STANDARD_EVENT_DATA_TYPE = "standardEventDataType";
     String STANDARD_USAGE_POINT_DATA_TYPE = "standardUsagePointDataType";
 
@@ -81,8 +80,6 @@ public interface DataExportService {
     StructureMarker forRoot(String root);
 
     DataExportServiceCallType getDataExportServiceCallType();
-
-    Map<DataSelectorFactory, String> getDataSelectorFactories();
 
     void addSelector(DataSelectorFactory dataSelectorFactory, Map<String, ?> map);
 }

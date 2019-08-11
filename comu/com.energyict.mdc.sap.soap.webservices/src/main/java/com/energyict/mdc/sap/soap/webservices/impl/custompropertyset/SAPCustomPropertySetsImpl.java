@@ -286,13 +286,14 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public boolean isProfileIdAlreadyExists(String profileId, Range<Instant> interval) {
+    public boolean isProfileIdAlreadyExists(com.energyict.mdc.device.data.Channel channel, String profileId, Range<Instant> interval) {
         Condition whereOverlapped = getOverlappedCondition(interval);
         return (getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
-                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId))
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId)
+                        .and(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channel.getChannelSpec())))
                 .filter(whereOverlapped).count() > 0);
     }
 

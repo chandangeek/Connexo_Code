@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -21,20 +22,20 @@ import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-public class CustomMeterReadingSelector extends AbstractDataSelector {
+class MeterReadingSelector extends AbstractDataSelector {
 
     private MeterReadingSelectorConfig selectorConfig;
 
     @Inject
-    CustomMeterReadingSelector(DataModel dataModel, TransactionService transactionService, Thesaurus thesaurus) {
+    MeterReadingSelector(DataModel dataModel, TransactionService transactionService, Thesaurus thesaurus) {
         super(dataModel, transactionService, thesaurus);
     }
 
-    static CustomMeterReadingSelector from(DataModel dataModel, MeterReadingSelectorConfig selectorConfig, Logger logger) {
-        return dataModel.getInstance(CustomMeterReadingSelector.class).init(selectorConfig, logger);
+    static MeterReadingSelector from(DataModel dataModel, MeterReadingSelectorConfig selectorConfig, Logger logger) {
+        return dataModel.getInstance(MeterReadingSelector.class).init(selectorConfig, logger);
     }
 
-    CustomMeterReadingSelector init(MeterReadingSelectorConfig selectorConfig, Logger logger) {
+    MeterReadingSelector init(MeterReadingSelectorConfig selectorConfig, Logger logger) {
         super.init(logger);
         this.selectorConfig = selectorConfig;
         return this;
@@ -70,7 +71,7 @@ public class CustomMeterReadingSelector extends AbstractDataSelector {
 
     @Override
     AbstractItemDataSelector getItemDataSelector() {
-        return getDataModel().getInstance(CustomMeterReadingItemDataSelector.class).init(getLogger());
+        return getDataModel().getInstance(MeterReadingItemDataSelector.class).init(getLogger());
     }
 
     private EndDeviceGroup getEndDeviceGroup() {

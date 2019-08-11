@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;

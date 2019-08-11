@@ -172,10 +172,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>export.custom</artifactId>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

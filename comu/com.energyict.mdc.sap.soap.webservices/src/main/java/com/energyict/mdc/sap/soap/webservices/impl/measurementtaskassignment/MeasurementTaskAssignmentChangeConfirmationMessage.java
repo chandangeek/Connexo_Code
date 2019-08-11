@@ -8,7 +8,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchan
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.LogItem;
-import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.LogItemCategoryCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangeconfirmation.UtilsTmeSersERPMsmtTskAssgmtChgConfMsg;
 
@@ -80,12 +79,10 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
         }
 
         private Log createLog(String severityCode, String typeId, String errorMessage) {
-            LogItemCategoryCode logItemCategoryCode = OBJECT_FACTORY.createLogItemCategoryCode();
-            logItemCategoryCode.setValue(severityCode);
-
             LogItem logItem = OBJECT_FACTORY.createLogItem();
+
             logItem.setTypeID(typeId);
-            logItem.setCategoryCode(logItemCategoryCode);
+            logItem.setSeverityCode(severityCode);
             logItem.setNote(errorMessage);
 
             Log log = OBJECT_FACTORY.createLog();

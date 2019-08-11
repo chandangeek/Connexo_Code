@@ -77,6 +77,7 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static com.energyict.mdc.sap.soap.webservices.impl.InboundServices.SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST;
 import static com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys.EXPORTER;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component(name = MeasurementTaskAssignmentChangeFactory.NAME,
         service = MeasurementTaskAssignmentChangeFactory.class, immediate = true,
@@ -87,6 +88,11 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
     public static final String NAME = "MeasurementTaskAssignmentChangeFactory";
     public static final String VERSION = "v1.0";
     public static final String GROUP_MRID_PREFIX = "MDC:";
+
+    private static final String DEFAULT_TASK_NAME = "Device data exporter";
+    private static final String DEFAULT_GROUP_NAME = "Export device group";
+    private static final String DEFAULT_EXPORT_WINDOW = "Yesterday";
+    private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
 
     private volatile Clock clock;
     private volatile CustomPropertySetService customPropertySetService;
@@ -143,7 +149,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
             }
 
             // update/create end device group for export task
-            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(GROUP_MRID_PREFIX + WebServiceActivator.getExportTaskDeviceGroupName());
+            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(GROUP_MRID_PREFIX + WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
             List<Long> deviceIds = getDeviceIds(profileIntervals);
             if (endDeviceGroup.isPresent()) {
                 updateEnumeratedEndDeviceGroup((EnumeratedEndDeviceGroup) endDeviceGroup.get(), deviceIds);
@@ -153,7 +159,8 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
 
             if (endDeviceGroup.isPresent()) {
                 // update/create export task
-                Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName());
+                Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService
+                        .getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
                 List<ReadingType> readingTypes = getReadingTypes(profileIntervals);
                 if (exportTask.isPresent()) {
                     updateExportTask(exportTask.get(), readingTypes, true);
@@ -162,7 +169,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
                 }
             }
         } else {
-            Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName());
+            Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
             if (exportTask.isPresent()) {
                 List<ReadingType> readingTypes = sapCustomPropertySets.findReadingTypesForProfileId(profileId);
                 // remove reading types from the data export task
@@ -219,7 +226,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
                         .map(RegisteredCustomPropertySet::getCustomPropertySet)
                         .filter(cps -> cps.getId().equals(DeviceChannelSAPInfoCustomPropertySet.CPS_ID));
                 if (customPropertySet.isPresent()) {
-                    if (!sapCustomPropertySets.isProfileIdAlreadyExists(profileId, profileInterval)) {
+                    if (!sapCustomPropertySets.isProfileIdAlreadyExists(channel.get(), profileId, profileInterval)) {
                         CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
                                 channel.get().getChannelSpec(), profileInterval.upperEndpoint(), deviceId);
                         Range tailRange = Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint());
@@ -265,9 +272,9 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
     private EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(List<Long> deviceIds) {
         GroupBuilder.GroupCreator<? extends EnumeratedEndDeviceGroup> creator = meteringGroupsService
                 .createEnumeratedEndDeviceGroup(buildListOfEndDevices(deviceIds))
-                .setName(WebServiceActivator.getExportTaskDeviceGroupName())
+                .setName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME))
                 .setLabel("MDC")
-                .setMRID(GROUP_MRID_PREFIX + WebServiceActivator.getExportTaskDeviceGroupName());
+                .setMRID(GROUP_MRID_PREFIX + WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
         return creator.create();
     }
 
@@ -283,12 +290,16 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
     }
 
     private void createExportTask(EnumeratedEndDeviceGroup endDeviceGroup, List<ReadingType> readingTypes) {
-        RelativePeriod exportWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskExportWindow());
-        RelativePeriod updateWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskUpdateWindow());
-        LocalDateTime startOnDate = LocalDateTime.parse(WebServiceActivator.getExportTaskStartOnDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH));
-        Instant startOn = startOnDate.atZone(ZoneId.systemDefault()).toInstant();
+        RelativePeriod exportWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskExportWindow().orElse(DEFAULT_EXPORT_WINDOW));
+        RelativePeriod updateWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskUpdateWindow().orElse(DEFAULT_UPDATE_WINDOW));
+        Instant startOn = clock.instant().plus(1, DAYS);
+        if (WebServiceActivator.getExportTaskStartOnDate().isPresent()) {
+            LocalDateTime startOnDate = LocalDateTime.parse(WebServiceActivator.getExportTaskStartOnDate().get(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH));
+            startOn = startOnDate.atZone(ZoneId.systemDefault()).toInstant();
+        }
+
         DataExportTaskBuilder builder = dataExportService.newBuilder()
-                .setName(WebServiceActivator.getExportTaskName())
+                .setName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME))
                 .setLogLevel(Level.WARNING.intValue())
                 .setApplication(WebServiceActivator.APPLICATION_NAME)
                 .setDataFormatterFactoryName("No operation data formatter")

@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
@@ -20,14 +21,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-class CustomMeterReadingItemDataSelector extends AbstractItemDataSelector {
+class MeterReadingItemDataSelector extends AbstractItemDataSelector {
 
     @Inject
-    CustomMeterReadingItemDataSelector(Clock clock,
-                                       ValidationService validationService,
-                                       Thesaurus thesaurus,
-                                       TransactionService transactionService,
-                                       ThreadPrincipalService threadPrincipalService) {
+    MeterReadingItemDataSelector(Clock clock,
+                                 ValidationService validationService,
+                                 Thesaurus thesaurus,
+                                 TransactionService transactionService,
+                                 ThreadPrincipalService threadPrincipalService) {
         super(clock, validationService, thesaurus, transactionService, threadPrincipalService);
     }
 

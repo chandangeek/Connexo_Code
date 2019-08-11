@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ValidatedDataOption;

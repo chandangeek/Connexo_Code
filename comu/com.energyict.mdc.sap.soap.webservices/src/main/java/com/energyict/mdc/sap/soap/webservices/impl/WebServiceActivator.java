@@ -138,12 +138,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String EXPORT_TASK_EXPORT_WINDOW = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.export.window";
     public static final String EXPORT_TASK_UPDATE_WINDOW = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.update.window";
 
-    private static String exportTaskName;
-    private static String exportTaskDeviceGroupName;
+    private static Optional<String> exportTaskName;
+    private static Optional<String> exportTaskDeviceGroupName;
     private static List<String> listOfRoleCodes;
-    private static String exportTaskStartOnDate;
-    private static String exportTaskExportWindow;
-    private static String exportTaskUpdateWindow;
+    private static Optional<String> exportTaskStartOnDate;
+    private static Optional<String> exportTaskExportWindow;
+    private static Optional<String> exportTaskUpdateWindow;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -178,11 +178,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
-    public static String getExportTaskName() {
+    public static Optional<String> getExportTaskName() {
         return exportTaskName;
     }
 
-    public static String getExportTaskDeviceGroupName() {
+    public static Optional<String> getExportTaskDeviceGroupName() {
         return exportTaskDeviceGroupName;
     }
 
@@ -190,15 +190,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return listOfRoleCodes;
     }
 
-    public static String getExportTaskStartOnDate() {
+    public static Optional<String> getExportTaskStartOnDate() {
         return exportTaskStartOnDate;
     }
 
-    public static String getExportTaskExportWindow() {
+    public static Optional<String> getExportTaskExportWindow() {
         return exportTaskExportWindow;
     }
 
-    public static String getExportTaskUpdateWindow() {
+    public static Optional<String> getExportTaskUpdateWindow() {
         return exportTaskUpdateWindow;
     }
 
@@ -302,13 +302,13 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
         registerServices(bundleContext);
 
-        exportTaskName = getPropertyValue(bundleContext, EXPORT_TASK_NAME);
-        exportTaskDeviceGroupName = getPropertyValue(bundleContext, EXPORT_TASK_DEVICE_GROUP_NAME);
+        exportTaskName = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_NAME));
+        exportTaskDeviceGroupName = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_DEVICE_GROUP_NAME));
         listOfRoleCodes= new ArrayList<>();
         Optional.ofNullable(getPropertyValue(bundleContext, LIST_OF_ROLE_CODES)).ifPresent(r -> listOfRoleCodes = Arrays.asList((r.split(","))));
-        exportTaskStartOnDate = getPropertyValue(bundleContext, EXPORT_TASK_START_ON_DATE);
-        exportTaskExportWindow = getPropertyValue(bundleContext, EXPORT_TASK_EXPORT_WINDOW);
-        exportTaskUpdateWindow = getPropertyValue(bundleContext, EXPORT_TASK_UPDATE_WINDOW);
+        exportTaskStartOnDate = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_START_ON_DATE));
+        exportTaskExportWindow = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_EXPORT_WINDOW));
+        exportTaskUpdateWindow = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_UPDATE_WINDOW));
     }
 
     @Deactivate

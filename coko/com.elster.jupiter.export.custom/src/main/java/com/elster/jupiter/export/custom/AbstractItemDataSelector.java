@@ -11,19 +11,13 @@ import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
-import com.elster.jupiter.export.impl.DefaultStructureMarker;
-import com.elster.jupiter.export.impl.IDataExportOccurrence;
-import com.elster.jupiter.export.impl.IExportTask;
-import com.elster.jupiter.export.impl.IReadingTypeDataExportItem;
-import com.elster.jupiter.export.impl.IntervalReadingImpl;
-import com.elster.jupiter.export.impl.ItemDataSelector;
-import com.elster.jupiter.export.impl.MessageSeeds;
-import com.elster.jupiter.export.impl.ReadingImpl;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -37,6 +31,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Ranges;
@@ -73,6 +68,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.Ranges.copy;
 import static com.elster.jupiter.util.streams.ExtraCollectors.toImmutableRangeSet;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static org.joda.time.DateTimeConstants.MINUTES_PER_HOUR;
+import static org.joda.time.DateTimeConstants.SECONDS_PER_MINUTE;
 
 abstract class AbstractItemDataSelector implements ItemDataSelector {
 
@@ -129,7 +126,8 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
 
         handleValidatedDataOption(item, strategy, readings, exportInterval, itemDescription);
 
-        if (!readings.isEmpty()) {
+        if (!readings.isEmpty() && item.getReadingType().isRegular() &&
+                getIntervalInMinutes(item.getReadingType().getIntervalLength().get()) <= MINUTES_PER_HOUR) {
             readings = filterReadings(readings);
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, exportInterval);
@@ -145,11 +143,16 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return Optional.empty();
     }
 
+    int getIntervalInMinutes(TemporalAmount interval) {
+        return TimeDuration.minutes(Math.toIntExact(interval
+                .get(ChronoUnit.SECONDS)) / SECONDS_PER_MINUTE).getCount();
+    }
+
     List<? extends BaseReadingRecord> filterReadings(List<? extends BaseReadingRecord> readings) {
         Map<Instant, BaseReadingRecord> map = new HashMap<>();
         for (BaseReadingRecord reading : readings) {
             if (reading.getTimeStamp().equals(reading.getTimeStamp().truncatedTo(ChronoUnit.HOURS))) {
-                map.put(reading.getTimeStamp().truncatedTo(ChronoUnit.HOURS), reading);
+                map.put(reading.getTimeStamp(), reading);
             }
         }
         return map.values().stream().sorted(Comparator.comparing(BaseReadingRecord::getTimeStamp)).collect(Collectors.toList());
@@ -419,11 +422,12 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                     .collect(Collectors.toCollection(ArrayList::new));
         }
 
-        if (!readings.isEmpty()) {
+        if (!readings.isEmpty() && item.getReadingType().isRegular() &&
+                getIntervalInMinutes(item.getReadingType().getIntervalLength().get()) <= MINUTES_PER_HOUR) {
             readings = filterReadings(readings);
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval);
-            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate()));
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate(), true, updateInterval));
         }
         return Optional.empty();
     }
@@ -435,9 +439,9 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         Range<Instant> baseRange;
         TreeRangeSet<Instant> base = TreeRangeSet.create();
-        Optional<Instant> adhocTime = ((IDataExportOccurrence) occurrence).getTaskOccurrence().getAdhocTime();
-        if ((adhocTime.isPresent()) && ((IDataExportOccurrence) occurrence).getTask().getRunParameters(adhocTime.get()).isPresent()) {
-            DataExportRunParameters runParameters = ((IDataExportOccurrence) occurrence).getTask().getRunParameters(adhocTime.get()).get();
+        Optional<Instant> adhocTime = occurrence.getTaskOccurrence().getAdhocTime();
+        if ((adhocTime.isPresent()) && occurrence.getTask().getRunParameters(adhocTime.get()).isPresent()) {
+            DataExportRunParameters runParameters = (/*(IDataExportOccurrence)*/ occurrence).getTask().getRunParameters(adhocTime.get()).get();
             baseRange = Range.openClosed(runParameters.getUpdatePeriodStart(), runParameters.getUpdatePeriodEnd());
             base.add(baseRange);
             base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
@@ -463,8 +467,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     }
 
     private Optional<DataExportStrategy> getExportStrategy(DataExportOccurrence dataExportOccurrence) {
-        IExportTask exportTask = (IExportTask) dataExportOccurrence.getTask();
-        return exportTask.getReadingDataSelectorConfig().map(ReadingDataSelectorConfig::getStrategy);
+        return Optional.of(((MeterReadingSelectorConfig) dataExportOccurrence.getTask().getStandardDataSelectorConfig().get()).getStrategy());
     }
 
     abstract Set<QualityCodeSystem> getQualityCodeSystems();

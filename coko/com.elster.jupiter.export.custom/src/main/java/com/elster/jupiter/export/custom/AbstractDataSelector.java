@@ -7,13 +7,10 @@ package com.elster.jupiter.export.custom;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.impl.IDataExportOccurrence;
-import com.elster.jupiter.export.impl.IReadingTypeDataExportItem;
-import com.elster.jupiter.export.impl.MessageSeeds;
-import com.elster.jupiter.export.impl.ReadingDataSelectorConfigImpl;
-import com.elster.jupiter.export.impl.TranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -73,7 +70,7 @@ abstract class AbstractDataSelector implements DataSelector {
 
             long numberOfItemsSkipped = activeItems.size() - numberOfItemsExported;
 
-            ((IDataExportOccurrence) occurrence).summarize(
+            occurrence.summarize(
                     getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED).format(numberOfItemsExported) +
                             System.getProperty("line.separator") +
                             getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SKIPPED).format(numberOfItemsSkipped));
@@ -100,8 +97,8 @@ abstract class AbstractDataSelector implements DataSelector {
             activeItems = getSelectorConfig().getActiveItems(occurrence);
             getSelectorConfig().getExportItems().stream()
                     .filter(item -> !activeItems.contains(item))
-                    .peek(IReadingTypeDataExportItem::deactivate)
-                    .forEach(IReadingTypeDataExportItem::update);
+                    .peek(item -> ((IReadingTypeDataExportItem) item).deactivate())
+                    .forEach(item -> ((IReadingTypeDataExportItem) item).update());
             activeItems.forEach(IReadingTypeDataExportItem::activate);
             warnIfObjectsHaveNoneOfTheReadingTypes(occurrence);
             context.commit();
@@ -113,7 +110,7 @@ abstract class AbstractDataSelector implements DataSelector {
 
     abstract AbstractItemDataSelector getItemDataSelector();
 
-    abstract ReadingDataSelectorConfigImpl getSelectorConfig();
+    abstract MeterReadingSelectorConfig getSelectorConfig();
 
     DataModel getDataModel() {
         return dataModel;

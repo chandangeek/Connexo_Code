@@ -424,7 +424,6 @@
 				<module>com.elster.jupiter.estimation.rest</module>
 				<module>com.elster.jupiter.estimators</module>
 				<module>com.elster.jupiter.export</module>
-				<module>com.elster.jupiter.export.custom</module>
 				<module>com.elster.jupiter.export.extjs</module>
 				<module>com.elster.jupiter.export.processors</module>
 				<module>com.elster.jupiter.export.rest</module>
@@ -474,6 +473,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
+                <module>com.elster.jupiter.export.custom</module>
 				<module>com.elster.jupiter.gogo</module>
 				<module>com.elster.jupiter.metering.cps</module>
 				<module>com.elster.jupiter.metering.cps.doa</module>

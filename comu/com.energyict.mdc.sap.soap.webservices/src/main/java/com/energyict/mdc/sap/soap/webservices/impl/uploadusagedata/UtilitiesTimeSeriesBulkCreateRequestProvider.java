@@ -203,7 +203,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                     .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
                             .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                     .flatMap(Functions.asStream())
-                    .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter).entrySet().stream()).collect(Collectors.toList());
+                    .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter, readingType.getFullAliasName()).entrySet().stream()).collect(Collectors.toList());
 
             Map<String, List<RangeSet<Instant>>> profileRanges = new HashMap<>();
             for (Map.Entry<Pair<String, String>, RangeSet<Instant>> entry : lrnAndProfileRanges) {
@@ -223,7 +223,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                     .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
                             .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                     .flatMap(Functions.asStream())
-                    .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter).entrySet().stream())
+                    .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter, readingType.getFullAliasName()).entrySet().stream())
                     .map(lrnAndProfileIdAndRange -> createRequestItem(lrnAndProfileIdAndRange.getKey().getLast(), lrnAndProfileIdAndRange.getValue(),
                             meterReading, interval, unit, now))
                     .forEach(msg.getUtilitiesTimeSeriesERPItemCreateRequestMessage()::add);
@@ -320,11 +320,10 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         UtilsTmeSersERPItmCrteReqItm item = new UtilsTmeSersERPItmCrteReqItm();
         item.setUTCValidityStartDateTime(reading.getTimeStamp().minus(interval));
         item.setUTCValidityEndDateTime(reading.getTimeStamp());
+        item.setQuantity(createQuantity(reading.getValue(), unit));
         if (isCustomSelector) {
-            item.setQuantity(createQuantity(reading.getValue(), unit));
             item.getItemStatus().add(createStatus(ACTL_STATUS));
         } else {
-            item.setQuantity(createQuantity(reading.getValue(), unit));
             item.getItemStatus().add(createStatus("0"));
         }
         return item;

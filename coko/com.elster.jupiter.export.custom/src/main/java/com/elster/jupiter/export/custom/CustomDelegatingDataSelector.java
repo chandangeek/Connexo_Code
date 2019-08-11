@@ -8,7 +8,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.impl.MeterReadingSelectorConfigImpl;
+import com.elster.jupiter.export.MeterReadingSelectorConfig;
 
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -28,6 +28,6 @@ public class CustomDelegatingDataSelector implements DataSelector {
                 dataExportOccurrence.getTask().getStandardDataSelectorConfig(dataExportOccurrence.getRetryTime().get()) :
                 dataExportOccurrence.getTask().getStandardDataSelectorConfig();
 
-        return CustomMeterReadingSelector.from(standardDataSelectorConfig.get().getDataModel(), (MeterReadingSelectorConfigImpl) standardDataSelectorConfig.get(), logger).selectData(dataExportOccurrence);
+        return CustomMeterReadingSelector.from(standardDataSelectorConfig.get().getDataModel(), (MeterReadingSelectorConfig) standardDataSelectorConfig.get(), logger).selectData(dataExportOccurrence);
     }
 }

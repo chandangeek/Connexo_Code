@@ -56,7 +56,7 @@ public interface SAPCustomPropertySets {
 
     Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval);
 
-    boolean isProfileIdAlreadyExists(String profileId, Range<Instant> interval);
+    boolean isProfileIdAlreadyExists(com.energyict.mdc.device.data.Channel channel, String profileId, Range<Instant> interval);
 
     List<ReadingType> findReadingTypesForProfileId(String profileId);
 

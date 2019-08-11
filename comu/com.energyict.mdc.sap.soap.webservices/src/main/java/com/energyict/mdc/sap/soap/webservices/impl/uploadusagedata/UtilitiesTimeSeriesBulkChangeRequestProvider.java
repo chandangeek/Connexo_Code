@@ -194,7 +194,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                 .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
-                .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter).entrySet().stream())
+                .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter, readingType.getFullAliasName()).entrySet().stream())
                 .map(lrnAndProfileIdAndRange -> createRequestItem(lrnAndProfileIdAndRange.getKey().getLast(), lrnAndProfileIdAndRange.getValue(), meterReading, interval, unit, now, item.isCustomSelector()))
                 .forEach(msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage()::add);
     }
@@ -213,7 +213,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                 .map(IntervalBlock::getIntervals)
                 .flatMap(List::stream)
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
-                .map(reading -> createItem(reading, interval, unit))
+                .map(reading -> createItem(reading, interval, unit, isCustomSelector))
                 .forEach(timeSeries.getItem()::add);
         meterReading.getReadings().stream()
                 .filter(reading -> rangeSet.contains(reading.getTimeStamp()))
@@ -228,12 +228,16 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         return id;
     }
 
-    private static UtilsTmeSersERPItmChgReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit) {
+    private static UtilsTmeSersERPItmChgReqItm createItem(IntervalReading reading, TemporalAmount interval, String unit, boolean isCustomSelector) {
         UtilsTmeSersERPItmChgReqItm item = new UtilsTmeSersERPItmChgReqItm();
         item.setUTCValidityStartDateTime(reading.getTimeStamp().minus(interval));
         item.setUTCValidityEndDateTime(reading.getTimeStamp());
         item.setQuantity(createQuantity(reading.getValue(), unit));
-        item.getItemStatus().add(createStatus("0"));
+        if (isCustomSelector) {
+            item.getItemStatus().add(createStatus(ACTL_STATUS));
+        } else {
+            item.getItemStatus().add(createStatus("0"));
+        }
         return item;
     }
 
@@ -246,14 +250,6 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         } else {
             item.getItemStatus().add(createStatus("0"));
         }
-        return item;
-    }
-
-    private static UtilsTmeSersERPItmChgReqItm createItem(Reading reading, String unit) {
-        UtilsTmeSersERPItmChgReqItm item = new UtilsTmeSersERPItmChgReqItm();
-        item.setUTCValidityEndDateTime(reading.getTimeStamp());
-        item.setQuantity(createQuantity(reading.getValue(), unit));
-        item.getItemStatus().add(createStatus("0"));
         return item;
     }
 

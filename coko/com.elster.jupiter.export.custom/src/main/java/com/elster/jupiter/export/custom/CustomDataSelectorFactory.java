@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -19,13 +20,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
+@Component(name = "com.elster.jupiter.export.custom.CustomDataSelectorFactory",
+        property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE},
+        service = DataSelectorFactory.class,
+        immediate = true)
 public class CustomDataSelectorFactory implements DataSelectorFactory {
     static final String TRANSLATION_KEY = DataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR;
     public static final String DISPLAY_NAME = "Device readings data selector [CST]";
 
-    private final Thesaurus thesaurus;
+    private volatile Thesaurus thesaurus;
 
+    static final String NAME = DataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR;
+
+
+    public CustomDataSelectorFactory() {
+    }
+
+    @Inject
     public CustomDataSelectorFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
@@ -67,4 +83,10 @@ public class CustomDataSelectorFactory implements DataSelectorFactory {
     public List<String> targetApplications() {
         return Collections.singletonList("MDC");
     }
+
+    @Reference
+    public void setThesaurus(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(NAME, Layer.DOMAIN);
+    }
+
 }

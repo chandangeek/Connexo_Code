@@ -5,6 +5,7 @@
 package com.elster.jupiter.export;
 
 import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 
@@ -56,4 +57,8 @@ public interface DataExportOccurrence {
     int nthSince(Instant since);
 
     RecurrentTask getRecurrentTask();
+
+    void summarize(String summaryMessage);
+
+    TaskOccurrence getTaskOccurrence();
 }
