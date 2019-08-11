@@ -17,6 +17,7 @@ import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.ReadingDataFormatter;

@@ -18,6 +18,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
