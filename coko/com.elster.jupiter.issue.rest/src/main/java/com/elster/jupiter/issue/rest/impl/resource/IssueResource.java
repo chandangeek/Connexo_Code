@@ -75,6 +75,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -116,7 +117,7 @@ public class IssueResource extends BaseResource {
         validateMandatory(params, START, LIMIT);
         IssueFilter issueFilter = issueResourceHelper.buildFilterFromQueryParameters(filter);
         Finder<? extends Issue> finder = getIssueService().findIssues(issueFilter);
-        addSorting(finder, params);
+        //addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
@@ -141,7 +142,8 @@ public class IssueResource extends BaseResource {
                 });
             }
         }
-        return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
+        List<IssueInfo> issueInfosSorted = sortIssues(issueInfos, params);
+        return PagedInfoList.fromPagedList("data", issueInfosSorted, queryParams);
     }
 
     @GET @Transactional
@@ -571,6 +573,51 @@ public class IssueResource extends BaseResource {
         return finder;
     }
 
+    private List<IssueInfo> sortIssues(List<IssueInfo> listIssues, StandardParametersBean parameters) {
+        Order[] orders = parameters.getOrder("");
+        Comparator<IssueInfo> comparatorIssue = null;
+        for (Order order : orders) {
+           comparatorIssue = getComparatorIssueInfo(order, comparatorIssue);
+        }
+        if(comparatorIssue != null)
+            listIssues.sort(comparatorIssue);
+        return listIssues;
+    }
+
+    public Comparator<IssueInfo> getComparatorIssueInfo(Order order, Comparator<IssueInfo> comparatorIssue){
+        Comparator<IssueInfo> comparatorIssueTemp = null;
+        switch (order.getName()) {
+            case "device_name":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getDeviceName);
+                break;
+            case "usagePoint_name":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getUsageName);
+                break;
+            case "priorityTotal":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getPriorityTotal);
+                break;
+            case "dueDate":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getDueDate);
+                break;
+            case "id":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getId);
+                break;
+            case "createDateTime":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getCreatedDateTime);
+                break;
+        }
+
+
+        if(comparatorIssueTemp != null && !order.ascending())
+            comparatorIssueTemp = comparatorIssueTemp.reversed();
+
+        if (comparatorIssue == null)
+            comparatorIssue = comparatorIssueTemp;
+        else
+            comparatorIssue = comparatorIssue.thenComparing(comparatorIssueTemp);
+
+        return comparatorIssue;
+    }
     private ActionInfo doBulkSetPriority(SetPriorityIssueRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
         for (Issue issue : issueProvider.apply(response)) {
