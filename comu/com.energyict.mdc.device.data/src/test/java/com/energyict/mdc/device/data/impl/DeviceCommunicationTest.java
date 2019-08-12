@@ -14,42 +14,35 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.common.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.common.device.data.ConnectionInitiationTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.IpConnectionProperties;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+
 import com.google.common.base.Strings;
-import org.assertj.core.api.Condition;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
@@ -60,6 +53,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import org.assertj.core.api.Condition;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -112,11 +114,11 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
 
     @Before
     public void initBefore() {
-        outboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OutboundComPortPool", ComPortType.TCP, TimeDuration.minutes(15));
+        outboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OutboundComPortPool", ComPortType.TCP, TimeDuration.minutes(15), 0);
         outboundComPortPool.setActive(true);
         outboundComPortPool.update();
 
-        otherOutboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OtherPool", ComPortType.TCP, TimeDuration.minutes(30));
+        otherOutboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OtherPool", ComPortType.TCP, TimeDuration.minutes(30), 0);
         otherOutboundComPortPool.setActive(true);
         otherOutboundComPortPool.update();
 

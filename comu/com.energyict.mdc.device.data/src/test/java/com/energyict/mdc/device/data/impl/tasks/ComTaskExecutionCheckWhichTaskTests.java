@@ -4,18 +4,18 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TopologyTask;
 
 import java.util.Arrays;
 import java.util.List;

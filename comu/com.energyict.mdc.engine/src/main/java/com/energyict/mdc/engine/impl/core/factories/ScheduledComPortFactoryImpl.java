@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core.factories;
 
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.MultiThreadedScheduledComPort;

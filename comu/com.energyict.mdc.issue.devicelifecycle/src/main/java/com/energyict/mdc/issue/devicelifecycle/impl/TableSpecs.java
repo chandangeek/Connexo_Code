@@ -14,7 +14,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.issue.devicelifecycle.HistoricalIssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.HistoricalIssueFailedTransition;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycle;
@@ -29,7 +29,6 @@ import com.energyict.mdc.issue.devicelifecycle.impl.entity.OpenIssueFailedTransi
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
-import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 

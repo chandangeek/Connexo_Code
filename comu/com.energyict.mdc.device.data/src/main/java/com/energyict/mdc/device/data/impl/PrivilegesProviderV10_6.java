@@ -43,6 +43,6 @@ public class PrivilegesProviderV10_6 implements PrivilegesProvider {
                         Privileges.RESOURCE_AUDIT_LOG.getKey(),
                         Privileges.RESOURCE_AUDIT_LOG_DESCRIPTION.getKey(),
                         Arrays.asList(
-                                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_AUDIT_LOG))*/);
+                                com.elster.jupiter.metering.security.Privileges.DeviceConfigConstants.VIEW_AUDIT_LOG))*/);
     }
 }

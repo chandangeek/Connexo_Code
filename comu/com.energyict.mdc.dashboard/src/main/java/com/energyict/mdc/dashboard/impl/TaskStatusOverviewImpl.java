@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.util.Map;
 

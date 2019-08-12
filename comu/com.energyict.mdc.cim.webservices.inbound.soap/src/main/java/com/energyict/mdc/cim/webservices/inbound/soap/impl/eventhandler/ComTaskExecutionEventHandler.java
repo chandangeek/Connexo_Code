@@ -15,12 +15,12 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import org.apache.commons.lang.math.NumberUtils;
@@ -136,19 +136,31 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Unable to find device message for service call with id:" + serviceCall
                             .getId()));
-            ;
-            if (deviceMessage.getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
-                        deviceMessage.getSpecification()
-                                .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            } else {
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
-                        deviceMessage.getSpecification()
-                                .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
-                serviceCall.requestTransition(DefaultState.FAILED);
+            switch (deviceMessage.getStatus()) {
+                case CONFIRMED:
+                    if (serviceCall.getState().isOpen()) {
+                        serviceCall.requestTransition(DefaultState.ONGOING);
+                        serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
+                                deviceMessage.getSpecification()
+                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                    }
+                    break;
+                case CANCELED:
+                    if (serviceCall.getState().isOpen()) {
+                        serviceCall.requestTransition(DefaultState.ONGOING);
+                        serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is canceled",
+                                deviceMessage.getSpecification()
+                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                        serviceCall.requestTransition(DefaultState.CANCELLED);
+                    }
+                    break;
+                default:
+                    serviceCall.requestTransition(DefaultState.ONGOING);
+                    serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
+                            deviceMessage.getSpecification()
+                                    .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                    serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
     }

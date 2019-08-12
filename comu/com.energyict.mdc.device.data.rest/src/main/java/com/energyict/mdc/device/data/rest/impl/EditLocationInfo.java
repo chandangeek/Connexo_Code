@@ -13,7 +13,7 @@ import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.properties.rest.StringValidationRules;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import java.util.ArrayList;
 import java.util.Collection;

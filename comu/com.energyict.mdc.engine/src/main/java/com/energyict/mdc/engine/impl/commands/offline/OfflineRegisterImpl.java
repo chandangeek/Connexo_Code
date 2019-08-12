@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
@@ -19,7 +19,11 @@ import com.energyict.obis.ObisCode;
 import javax.xml.bind.annotation.XmlElement;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**

@@ -10,11 +10,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.obis.ObisCode;
-
 import com.energyict.mdc.common.ValidObisCode;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
+
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import java.time.Instant;

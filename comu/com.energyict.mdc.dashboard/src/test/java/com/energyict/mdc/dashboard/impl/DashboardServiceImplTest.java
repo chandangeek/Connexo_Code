@@ -6,6 +6,14 @@ package com.energyict.mdc.dashboard.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
@@ -17,21 +25,13 @@ import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import java.util.ArrayList;
@@ -75,6 +75,10 @@ public class DashboardServiceImplTest {
 
     private static final long EXPECTED_STATUS_COUNT_VALUE = 97L;
     private static final long DEVICE_TYPE_ID = 1001L;
+    private static final long NUMBER_OF_SUCCESS_STATUSES = TaskStatusses.SUCCESS.taskStatusses().size();
+    private static final long NUMBER_OF_FAILED_STATUSES = TaskStatusses.FAILED.taskStatusses().size();
+    private static final long NUMBER_OF_PENDING_STATUSES = TaskStatusses.PENDING.taskStatusses().size();
+    private static final long TOTAL_NUMBER_OF_STATUSES = NUMBER_OF_SUCCESS_STATUSES + NUMBER_OF_FAILED_STATUSES + NUMBER_OF_PENDING_STATUSES;
 
     @Mock
     private EngineConfigurationService engineConfigurationService;
@@ -140,7 +144,7 @@ public class DashboardServiceImplTest {
         for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : overview) {
             assertThat(successIndicatorCounter.getCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
         }
-        assertThat(overview.getTotalCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE * 3);
+        assertThat(overview.getTotalCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE * ComSession.SuccessIndicator.values().length);
         assertThat(overview.getAtLeastOneTaskFailedCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
     }
 
@@ -180,10 +184,10 @@ public class DashboardServiceImplTest {
         verify(this.connectionTaskReportService).getComPortPoolBreakdown(anySet());
         assertThat(actualBreakdown).isNotNull();
         assertThat(actualBreakdown.iterator().hasNext()).isTrue();
-        assertThat(actualBreakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(actualBreakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(actualBreakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(actualBreakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(actualBreakdown.getTotalCount()).isEqualTo(TOTAL_NUMBER_OF_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(actualBreakdown.getTotalSuccessCount()).isEqualTo(NUMBER_OF_SUCCESS_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(actualBreakdown.getTotalFailedCount()).isEqualTo(NUMBER_OF_FAILED_STATUSES * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(actualBreakdown.getTotalPendingCount()).isEqualTo(NUMBER_OF_PENDING_STATUSES * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test
@@ -223,10 +227,10 @@ public class DashboardServiceImplTest {
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
-        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalCount()).isEqualTo(9 * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Waiting + WaitingPrio
         assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(5 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + PendingPrio Busy + Retrying + RetryingPrio
     }
 
     @Test
@@ -268,10 +272,10 @@ public class DashboardServiceImplTest {
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
-        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(breakdown.getTotalCount()).isEqualTo(TOTAL_NUMBER_OF_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(NUMBER_OF_SUCCESS_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(NUMBER_OF_FAILED_STATUSES * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(NUMBER_OF_PENDING_STATUSES * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test
@@ -337,10 +341,10 @@ public class DashboardServiceImplTest {
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
-        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(breakdown.getTotalCount()).isEqualTo(TOTAL_NUMBER_OF_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(NUMBER_OF_SUCCESS_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(NUMBER_OF_FAILED_STATUSES * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(NUMBER_OF_PENDING_STATUSES * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test
@@ -394,10 +398,10 @@ public class DashboardServiceImplTest {
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
-        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(breakdown.getTotalCount()).isEqualTo(TOTAL_NUMBER_OF_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(NUMBER_OF_SUCCESS_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(NUMBER_OF_FAILED_STATUSES * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(NUMBER_OF_PENDING_STATUSES * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test
@@ -440,10 +444,10 @@ public class DashboardServiceImplTest {
         assertThat(breakdown).isNotNull();
         assertThat(breakdown.iterator().hasNext()).isTrue();
         assertThat(breakdown.iterator().next()).isNotNull();
-        assertThat(breakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(breakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(breakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(breakdown.getTotalCount()).isEqualTo(TOTAL_NUMBER_OF_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalSuccessCount()).isEqualTo(NUMBER_OF_SUCCESS_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(breakdown.getTotalFailedCount()).isEqualTo(NUMBER_OF_FAILED_STATUSES * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(breakdown.getTotalPendingCount()).isEqualTo(NUMBER_OF_PENDING_STATUSES * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test
@@ -560,10 +564,10 @@ public class DashboardServiceImplTest {
         assertThat(comScheduleBreakdown).isNotNull();
         assertThat(comScheduleBreakdown.iterator().hasNext()).isTrue();
         assertThat(comScheduleBreakdown.iterator().next()).isNotNull();
-        assertThat(comScheduleBreakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(comScheduleBreakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(comScheduleBreakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(comScheduleBreakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(comScheduleBreakdown.getTotalCount()).isEqualTo(TOTAL_NUMBER_OF_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(comScheduleBreakdown.getTotalSuccessCount()).isEqualTo(NUMBER_OF_SUCCESS_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(comScheduleBreakdown.getTotalFailedCount()).isEqualTo(NUMBER_OF_FAILED_STATUSES * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(comScheduleBreakdown.getTotalPendingCount()).isEqualTo(NUMBER_OF_PENDING_STATUSES * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     @Test
@@ -601,10 +605,10 @@ public class DashboardServiceImplTest {
         assertThat(comTaskBreakdown).isNotNull();
         assertThat(comTaskBreakdown.iterator().hasNext()).isTrue();
         assertThat(comTaskBreakdown.iterator().next()).isNotNull();
-        assertThat(comTaskBreakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(comTaskBreakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(comTaskBreakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(comTaskBreakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(comTaskBreakdown.getTotalCount()).isEqualTo(TOTAL_NUMBER_OF_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(comTaskBreakdown.getTotalSuccessCount()).isEqualTo(NUMBER_OF_SUCCESS_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(comTaskBreakdown.getTotalFailedCount()).isEqualTo(NUMBER_OF_FAILED_STATUSES * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(comTaskBreakdown.getTotalPendingCount()).isEqualTo(NUMBER_OF_PENDING_STATUSES * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     private Map<TaskStatus, Long> emptyStatusBreakdown() {
@@ -644,10 +648,10 @@ public class DashboardServiceImplTest {
         assertThat(deviceTypeBreakdown).isNotNull();
         assertThat(deviceTypeBreakdown.iterator().hasNext()).isTrue();
         assertThat(deviceTypeBreakdown.iterator().next()).isNotNull();
-        assertThat(deviceTypeBreakdown.getTotalCount()).isEqualTo(6 * EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(deviceTypeBreakdown.getTotalSuccessCount()).isEqualTo(EXPECTED_STATUS_COUNT_VALUE);
-        assertThat(deviceTypeBreakdown.getTotalFailedCount()).isEqualTo(2 * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
-        assertThat(deviceTypeBreakdown.getTotalPendingCount()).isEqualTo(3 * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
+        assertThat(deviceTypeBreakdown.getTotalCount()).isEqualTo(TOTAL_NUMBER_OF_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(deviceTypeBreakdown.getTotalSuccessCount()).isEqualTo(NUMBER_OF_SUCCESS_STATUSES * EXPECTED_STATUS_COUNT_VALUE);
+        assertThat(deviceTypeBreakdown.getTotalFailedCount()).isEqualTo(NUMBER_OF_FAILED_STATUSES * EXPECTED_STATUS_COUNT_VALUE); // Status Failed + Never Completed
+        assertThat(deviceTypeBreakdown.getTotalPendingCount()).isEqualTo(NUMBER_OF_PENDING_STATUSES * EXPECTED_STATUS_COUNT_VALUE);// Status Pending + Busy + Retrying
     }
 
     private <T> Finder<T> mockFinder(List<T> list) {

@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
 
 public class DeviceMessageUserActionAdapter extends MapBasedXmlAdapter<DeviceMessageUserAction> {
 

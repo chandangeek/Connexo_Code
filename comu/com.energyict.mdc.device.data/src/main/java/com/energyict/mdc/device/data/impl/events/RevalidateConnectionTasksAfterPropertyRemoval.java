@@ -6,8 +6,8 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import javax.inject.Inject;

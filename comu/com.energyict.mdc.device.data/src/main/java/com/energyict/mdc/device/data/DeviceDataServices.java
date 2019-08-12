@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.device.data.Device;
+
 /**
  * Contains constants that apply to all services that relate to
  * {@link Device}s and related data.

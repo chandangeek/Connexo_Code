@@ -5,11 +5,11 @@
 package com.energyict.mdc.engine.impl.status;
 
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundCapableComServer;
-import com.energyict.mdc.engine.config.OutboundCapableComServer;
 import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;

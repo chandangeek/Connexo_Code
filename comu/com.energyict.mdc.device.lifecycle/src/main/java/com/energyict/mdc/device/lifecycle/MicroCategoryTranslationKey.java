@@ -4,7 +4,7 @@
 package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.lifecycle.config.MicroCategory;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
 
 import java.util.Arrays;
 import java.util.Optional;

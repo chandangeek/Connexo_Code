@@ -6,7 +6,8 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 
 import java.util.Collections;
 import java.util.List;

@@ -2,14 +2,13 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComPortPoolProperty;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPoolProperty;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
 
 import com.google.inject.Inject;
 

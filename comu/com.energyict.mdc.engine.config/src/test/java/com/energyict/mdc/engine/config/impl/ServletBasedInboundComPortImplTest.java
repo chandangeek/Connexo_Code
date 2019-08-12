@@ -7,17 +7,18 @@ package com.energyict.mdc.engine.config.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.PersistenceTest;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.Collections;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;

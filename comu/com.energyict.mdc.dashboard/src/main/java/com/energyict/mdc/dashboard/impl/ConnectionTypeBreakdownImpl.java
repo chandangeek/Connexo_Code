@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.util.Map;
 

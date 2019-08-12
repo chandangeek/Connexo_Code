@@ -5,8 +5,8 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierByDeviceAndObisCode;

@@ -8,7 +8,8 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.EventType;
 import com.energyict.mdc.device.data.ItemizeComTaskEnablementQueueMessage;
 import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -23,7 +24,7 @@ import java.util.Map;
 @Component(name = "com.energyict.mdc.device.data.comtaskenablement.created.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComTaskEnablementCreatedEventHandler implements TopicHandler {
 
-    static final String TOPIC = com.energyict.mdc.device.config.events.EventType.COMTASKENABLEMENT_CREATED.topic();
+    static final String TOPIC = EventType.COMTASKENABLEMENT_CREATED.topic();
 
     private volatile DeviceDataModelService deviceDataModelService;
 

@@ -9,9 +9,9 @@ import com.energyict.mdc.channel.serial.BaudrateValue;
 import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
 
 import java.math.BigDecimal;

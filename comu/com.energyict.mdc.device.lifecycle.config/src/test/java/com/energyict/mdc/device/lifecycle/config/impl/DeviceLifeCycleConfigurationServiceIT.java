@@ -13,9 +13,9 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.Constants;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -158,7 +158,7 @@ public class DeviceLifeCycleConfigurationServiceIT {
     @Test
     public void findInitiateActionsPrivilege() {
         Stream
-            .of(Privileges.Constants.INITIATE_ACTION_1, Privileges.Constants.INITIATE_ACTION_2, Privileges.Constants.INITIATE_ACTION_3, Privileges.Constants.INITIATE_ACTION_4)
+            .of(Constants.INITIATE_ACTION_1, Constants.INITIATE_ACTION_2, Constants.INITIATE_ACTION_3, Constants.INITIATE_ACTION_4)
             .forEach(this::testFindInitiateActionPrivilege);
     }
 
@@ -166,7 +166,7 @@ public class DeviceLifeCycleConfigurationServiceIT {
     @Test
     public void findOtherPrivilege() {
         Stream
-            .of(Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE, Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE)
+            .of(Constants.CONFIGURE_DEVICE_LIFE_CYCLE, Constants.VIEW_DEVICE_LIFE_CYCLE)
             .forEach(this::testShouldNotFindInitiateActionPrivilege);
     }
 

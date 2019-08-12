@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.protocol.api.inbound;
 
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
+
 /**
  * Adds behavior to {@link com.energyict.mdc.upl.InboundDeviceProtocol}.
  * that is expected by the communication platform for binary inbound

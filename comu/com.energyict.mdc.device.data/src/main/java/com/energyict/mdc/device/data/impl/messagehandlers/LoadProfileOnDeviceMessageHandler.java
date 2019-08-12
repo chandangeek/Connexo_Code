@@ -5,7 +5,10 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonDeserializeException;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileOnDeviceQueueMessage;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import java.time.Instant;

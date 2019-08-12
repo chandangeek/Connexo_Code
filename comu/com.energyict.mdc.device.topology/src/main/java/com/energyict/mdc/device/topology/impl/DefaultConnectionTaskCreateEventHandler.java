@@ -6,8 +6,9 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
 
 /**
  * Listens for create events of {@link ConnectionTask}s against
- * master {@link com.energyict.mdc.device.data.Device}s; in case the {@link ConnectionTask}
+ * master {@link Device}s; in case the {@link ConnectionTask}
  * was marked as the default one, it will be set on all
  * {@link ComTaskExecution}s that relate to the master's slave Devices.
  *

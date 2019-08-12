@@ -12,8 +12,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.data.Device;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;

@@ -11,11 +11,11 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleUpdater;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.DefaultMicroCheck;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.sql.Connection;

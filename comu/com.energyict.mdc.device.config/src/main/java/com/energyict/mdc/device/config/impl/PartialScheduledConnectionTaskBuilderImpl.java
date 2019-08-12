@@ -7,16 +7,18 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.scheduling.SchedulingService;
 
-class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialScheduledConnectionTaskBuilder, PartialScheduledConnectionTaskImpl> implements PartialScheduledConnectionTaskBuilder {
+class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduledPartialConnectionTaskBuilder<PartialScheduledConnectionTaskBuilder, PartialScheduledConnectionTask> implements PartialScheduledConnectionTaskBuilder {
 
     private ComWindow comWindow;
     private ConnectionStrategy connectionStrategy;
     private int numberOfSimultaneousConnections = 1;
-    private PartialConnectionInitiationTaskImpl partialConnectionInitiationTask;
+    private PartialConnectionInitiationTask partialConnectionInitiationTask;
 
 
     PartialScheduledConnectionTaskBuilderImpl(DataModel dataModel, DeviceConfigurationImpl configuration, SchedulingService schedulingService, EventService eventService) {
@@ -42,7 +44,7 @@ class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduledPartial
     }
 
     @Override
-    public PartialScheduledConnectionTaskBuilder initiationTask(PartialConnectionInitiationTaskImpl connectionInitiationTask) {
+    public PartialScheduledConnectionTaskBuilder initiationTask(PartialConnectionInitiationTask connectionInitiationTask) {
         this.partialConnectionInitiationTask = connectionInitiationTask;
         return myself;
     }
@@ -59,7 +61,7 @@ class PartialScheduledConnectionTaskBuilderImpl extends AbstractScheduledPartial
     }
 
     @Override
-    void populate(PartialScheduledConnectionTaskImpl instance) {
+    void populate(PartialScheduledConnectionTask instance) {
         super.populate(instance);
         instance.setDefault(asDefault);
         if (comWindow != null) {

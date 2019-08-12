@@ -14,9 +14,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractCPSAuditDecoder;
 

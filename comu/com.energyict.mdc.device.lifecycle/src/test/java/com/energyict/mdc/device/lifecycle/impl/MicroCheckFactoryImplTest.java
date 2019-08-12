@@ -6,8 +6,8 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ActiveConnectionAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceMicroCheckFactoryImpl;
 

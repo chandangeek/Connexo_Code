@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.config.DeviceTypePurpose;
+import com.energyict.mdc.common.device.config.DeviceTypePurpose;
 
 public enum DeviceTypePurposeTranslationKeys implements TranslationKey {
 

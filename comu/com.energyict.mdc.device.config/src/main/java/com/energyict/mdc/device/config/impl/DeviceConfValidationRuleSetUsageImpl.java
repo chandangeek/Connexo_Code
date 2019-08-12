@@ -7,8 +7,8 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 
 import javax.inject.Inject;
 import java.time.Instant;

@@ -8,9 +8,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -51,7 +51,7 @@ public class FirmwareManagementOptionsResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareManagementOptionsInfo getFirmwareManagementOptions(@PathParam("deviceTypeId") long deviceTypeId) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
         return getFirmwareManagementOptions(deviceType);
@@ -84,7 +84,7 @@ public class FirmwareManagementOptionsResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareManagementOptionsInfo editFirmwareManagementOptions(@PathParam("deviceTypeId") long deviceTypeId, FirmwareManagementOptionsInfo info) {
         DeviceType deviceType = findDeviceTypeOrElseThrowException(deviceTypeId);
         Optional<FirmwareManagementOptions> firmwareManagementOptions = firmwareService.findAndLockFirmwareManagementOptionsByIdAndVersion(deviceType, info.version);

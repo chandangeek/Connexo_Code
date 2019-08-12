@@ -6,8 +6,8 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import java.util.List;
 import java.util.stream.Collectors;

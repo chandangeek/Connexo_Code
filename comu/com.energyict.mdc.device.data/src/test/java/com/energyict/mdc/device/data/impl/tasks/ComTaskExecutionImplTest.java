@@ -9,25 +9,26 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ServerComTaskExecution;
+import com.energyict.mdc.common.tasks.TaskPriorityConstants;
 import com.energyict.mdc.device.data.exceptions.CannotSetMultipleComSchedulesWithSameComTask;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 
 import java.time.Instant;
 import java.util.Calendar;
@@ -728,8 +729,11 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         device.save();
 
-        inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = 1 where id = " + comTaskExecution.getId());
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        long now = Instant.now().getEpochSecond();
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_SERVER.fieldName() + " = " + comServer.getId()
+                + ", " + ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName() + " = " + now + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName() + " = " + (now + 1)
+                + ", " + ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName() + " = " + (now - 1) + " where id = " + comTaskExecution.getId());
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
 
         // Business method
@@ -756,7 +760,10 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        long now = Instant.now().getEpochSecond();
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_SERVER.fieldName() + " = " + comServer.getId()
+                + ", lastcommunicationstart = " + now + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName() + " = " + (now + 1));
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
 
         // Business method
@@ -783,7 +790,10 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         // Note: for this test, ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP field should remain null
-        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + " where id = " + connectionTask.getId());
+        long now = Instant.now().getEpochSecond();
+        inMemoryPersistence.update("update " + TableSpecs.DDC_CONNECTIONTASK.name() + " set " + ConnectionTaskFields.COM_SERVER.fieldName() + " = " + comServer.getId()
+                + ", lastcommunicationstart = " + now + " where id = " + connectionTask.getId());
+        inMemoryPersistence.update("update " + TableSpecs.DDC_COMTASKEXEC.name() + " set " + ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName() + " = " + (now + 1));
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
 
         // Business method

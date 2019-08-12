@@ -21,17 +21,18 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.RegistersTask;
 
 import ch.iec.tc57._2011.getmeterreadings.DataSource;
 import ch.iec.tc57._2011.getmeterreadings.DateTimeInterval;
@@ -514,7 +515,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return true;
     }
 
-    private boolean checkConnectionMethodExistsOnDevice(Device device, String connectionMethod, SyncReplyIssue syncReplyIssue) throws FaultMessage {
+    private boolean checkConnectionMethodExistsOnDevice(Device device, String connectionMethod, SyncReplyIssue syncReplyIssue) {
         List<Map<Long, ComTaskExecution>> deviceComTaskExecutionMaps = new ArrayList<>();
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceRegularComTaskExecutionMap());
         deviceComTaskExecutionMaps.add(syncReplyIssue.getDeviceIrregularComTaskExecutionMap());
@@ -524,7 +525,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         for (Map<Long, ComTaskExecution> deviceComTaskExecutionMap : deviceComTaskExecutionMaps) { // foreach is used due to avoid exception handling inside lambda
             if (!deviceComTaskExecutionMap.isEmpty()) {
                 ComTaskExecution comTaskExecution = deviceComTaskExecutionMap.get(device.getId());
-                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod)) {
+                if (checkConnectionMethodForComTaskExecution(comTaskExecution, connectionMethod, syncReplyIssue)) {
                     isOk = true;
                 } else {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.CONNECTION_METHOD_NOT_FOUND_FOR_COM_TASK, null,
@@ -536,14 +537,16 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return isOk;
     }
 
-    private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod) throws
-            FaultMessage {
-        return comTaskExecution.getConnectionTask()
-                .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_CONNECTION_TASK,
-                        comTaskExecution.getComTask().getName()))
-                .getPartialConnectionTask()
-                .getName()
-                .equalsIgnoreCase(connectionMethod);
+    private boolean checkConnectionMethodForComTaskExecution(ComTaskExecution comTaskExecution, String connectionMethod,
+                                                             SyncReplyIssue syncReplyIssue) {
+        Optional<ConnectionTask<?, ?>> connectionTaskOptional = comTaskExecution.getConnectionTask();
+        if (connectionTaskOptional.isPresent()) {
+            return connectionTaskOptional.get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod);
+        } else {
+            syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.NO_CONNECTION_TASK, null,
+                    comTaskExecution.getComTask().getName()));
+            return false;
+        }
     }
 
     private Set<LoadProfileType> getExistedLoadProfiles(Set<String> loadProfileNames, int index, SyncReplyIssue syncReplyIssue) {
@@ -910,6 +913,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             if (syncReplyIssue.getExistedReadingTypes().stream()
                     .anyMatch(readingType -> !readingType.isRegular())) {
                 syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
+                return false;
             }
         } else {
             Instant start = interval.getStart();
@@ -932,6 +936,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 if (syncReplyIssue.getExistedReadingTypes().stream()
                         .anyMatch(readingType -> !readingType.isRegular())) {
                     syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.REGISTER_EMPTY_TIME_PERIOD, null, readingItem));
+                    return false;
                 }
             }
             if (start == null && end != null) {

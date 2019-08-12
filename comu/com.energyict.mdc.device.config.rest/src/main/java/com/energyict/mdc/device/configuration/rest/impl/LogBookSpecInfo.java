@@ -5,10 +5,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.device.config.LogBookSpec;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.device.config.LogBookSpec;
 
+import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;

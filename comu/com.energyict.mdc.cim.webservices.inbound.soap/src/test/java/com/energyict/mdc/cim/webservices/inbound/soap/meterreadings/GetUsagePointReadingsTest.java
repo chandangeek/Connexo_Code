@@ -46,12 +46,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.EndDeviceGroup;
@@ -119,7 +118,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class GetUsagePointReadingsTest extends AbstractMockActivator {

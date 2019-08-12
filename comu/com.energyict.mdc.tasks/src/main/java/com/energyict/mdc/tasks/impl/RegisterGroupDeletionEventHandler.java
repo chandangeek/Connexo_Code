@@ -7,8 +7,9 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * Responds to validate delete events sent by {@link RegisterGroup}s
  * and will veto the delete when at least one
- * {@link com.energyict.mdc.tasks.ComTask} is still using it.
+ * {@link ComTask} is still using it.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-07-13 (10:51)

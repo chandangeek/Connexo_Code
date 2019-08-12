@@ -7,10 +7,10 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceStage;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;

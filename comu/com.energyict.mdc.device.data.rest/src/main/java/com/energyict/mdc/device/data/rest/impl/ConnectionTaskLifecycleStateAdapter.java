@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 public class ConnectionTaskLifecycleStateAdapter extends MapBasedXmlAdapter<ConnectionTask.ConnectionTaskLifecycleStatus> {
 
