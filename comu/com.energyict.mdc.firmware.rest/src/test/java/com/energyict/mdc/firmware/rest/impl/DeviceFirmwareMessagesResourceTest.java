@@ -16,8 +16,10 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -53,6 +55,7 @@ import static org.mockito.Matchers.anyCollectionOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -88,6 +91,8 @@ public class DeviceFirmwareMessagesResourceTest extends BaseFirmwareTest {
     private Device.DeviceMessageBuilder deviceMessageBuilder;
     @Mock
     private DeviceMessage deviceMessage;
+    @Mock
+    private FirmwareManagementOptions firmwareManagementOptions;
 
     @Before
     public void setUpStubs() {
@@ -100,6 +105,7 @@ public class DeviceFirmwareMessagesResourceTest extends BaseFirmwareTest {
         when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
         when(device.getName()).thenReturn(DEVICE_NAME);
         when(device.getDeviceType()).thenReturn(deviceType);
+        when(firmwareService.findFirmwareManagementOptions(device.getDeviceType())).thenReturn(Optional.of(firmwareManagementOptions));
         when(firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType)).thenReturn(EnumSet.of(UPLOAD_OPTION));
         when(firmwareService.bestSuitableFirmwareUpgradeMessageId(deviceType, UPLOAD_OPTION, firmwareVersion)).thenReturn(Optional.of(UPLOAD_MESSAGE_ID));
         when(deviceMessageSpecificationService.findMessageSpecById(UPLOAD_MESSAGE_ID.dbValue())).thenReturn(Optional.of(uploadMessageSpec));
@@ -172,8 +178,8 @@ public class DeviceFirmwareMessagesResourceTest extends BaseFirmwareTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        verify(check1).execute(Optional.empty(),firmwareManagementDeviceUtils, firmwareVersion);
-        verify(check2).execute(Optional.empty(),firmwareManagementDeviceUtils, firmwareVersion);
+        verify(check1).execute(firmwareManagementOptions,firmwareManagementDeviceUtils, firmwareVersion);
+        verify(check2).execute(firmwareManagementOptions,firmwareManagementDeviceUtils, firmwareVersion);
 
         verify(device).newDeviceMessage(UPLOAD_MESSAGE_ID);
         verify(deviceMessageBuilder).setReleaseDate(NOW);
@@ -185,8 +191,8 @@ public class DeviceFirmwareMessagesResourceTest extends BaseFirmwareTest {
 
     @Test
     public void testBothFirmwareChecksFail() throws Exception {
-        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IS_DEPRECATED)).when(check1).execute(Optional.empty(),firmwareManagementDeviceUtils, firmwareVersion);
-        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IN_USE)).when(check2).execute(Optional.empty(),firmwareManagementDeviceUtils, firmwareVersion);
+        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IS_DEPRECATED)).when(check1).execute(firmwareManagementOptions,firmwareManagementDeviceUtils, firmwareVersion);
+        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IN_USE)).when(check2).execute(firmwareManagementOptions,firmwareManagementDeviceUtils, firmwareVersion);
         FirmwareMessageInfo uploadInfo = createUploadInfo(UPLOAD_OPTION, firmwareVersion, NOW, false);
 
         Response response = target("devices/" + DEVICE_NAME + "/firmwaremessages").request().post(Entity.json(uploadInfo));
@@ -207,8 +213,8 @@ public class DeviceFirmwareMessagesResourceTest extends BaseFirmwareTest {
 
     @Test
     public void testForceUpload() {
-        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IS_DEPRECATED)).when(check1).execute(Optional.empty(),firmwareManagementDeviceUtils, firmwareVersion);
-        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IN_USE)).when(check2).execute(Optional.empty(),firmwareManagementDeviceUtils, firmwareVersion);
+        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IS_DEPRECATED)).when(check1).execute(firmwareManagementOptions,firmwareManagementDeviceUtils, firmwareVersion);
+        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IN_USE)).when(check2).execute(firmwareManagementOptions,firmwareManagementDeviceUtils, firmwareVersion);
         FirmwareMessageInfo uploadInfo = createUploadInfo(UPLOAD_OPTION, firmwareVersion, NOW, false);
 
         Response response = target("devices/" + DEVICE_NAME + "/firmwaremessages").queryParam("force", true).request().post(Entity.json(uploadInfo));
@@ -227,8 +233,8 @@ public class DeviceFirmwareMessagesResourceTest extends BaseFirmwareTest {
 
     @Test
     public void testNoChecksDuringUploadOfCaConfig() {
-        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IS_DEPRECATED)).when(check1).execute(Optional.empty(),firmwareManagementDeviceUtils, firmwareVersion);
-        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IN_USE)).when(check2).execute(Optional.empty(),firmwareManagementDeviceUtils, firmwareVersion);
+        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IS_DEPRECATED)).when(check1).execute(firmwareManagementOptions,firmwareManagementDeviceUtils, firmwareVersion);
+        doThrow(new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.VERSION_IN_USE)).when(check2).execute(firmwareManagementOptions,firmwareManagementDeviceUtils, firmwareVersion);
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.CA_CONFIG_IMAGE);
         FirmwareMessageInfo uploadInfo = createUploadInfo(UPLOAD_OPTION, firmwareVersion, NOW, false);
 

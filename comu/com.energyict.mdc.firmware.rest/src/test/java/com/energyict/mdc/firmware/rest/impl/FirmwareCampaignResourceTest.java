@@ -130,21 +130,20 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         List<FirmwareCampaignVersionStateShapshot> firmwareCampaignVersionStateShapshots = new ArrayList<>();
         FirmwareCampaignVersionStateShapshot fcvs = mock(FirmwareCampaignVersionStateShapshot.class);
         when(fcvs.getFirmwareVersion()).thenReturn("fvVersion");
-        when(fcvs.getFirmwareType()).thenReturn("fvType");
-        when(fcvs.getFirmwareStatus()).thenReturn("fvStatus");
+        when(fcvs.getFirmwareType()).thenReturn(FirmwareType.METER);
+        when(fcvs.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
         when(fcvs.getImageIdentifier()).thenReturn("fvImg");
-        when(fcvs.getRank()).thenReturn("fvRank");
+        when(fcvs.getRank()).thenReturn(1);
         when(fcvs.getMeterFirmwareDependency()).thenReturn("fvMDep");
         when(fcvs.getCommunicationFirmwareDependency()).thenReturn("fvCdep");
         firmwareCampaignVersionStateShapshots.add(fcvs);
         when(firmwareCampaignService.getFirmwareCampaignById(anyLong())).thenReturn(Optional.ofNullable(firmwareCampaign));
         when(firmwareService.findFirmwareCampaignVersionStateSnapshots(firmwareCampaign)).thenReturn(firmwareCampaignVersionStateShapshots);
 
-        String json = target("campaigns/3/firmwareversions").request().get(String.class);
+        String json = target("campaigns/"+firmwareCampaign.getId()+"/firmwareversions").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<DeviceInFirmwareCampaignInfo>>get("$.firmwareCampaignVersionStateInfos").size() == 1);
         assertThat(jsonModel.<String>get("$.firmwareCampaignVersionStateInfos[0].firmwareVersion")).isEqualTo("fvVersion");
-        assertThat(jsonModel.<String>get("$.firmwareCampaignVersionStateInfos[0].firmwareStatus")).isEqualTo("fvStatus");
     }
 
     @Test
