@@ -12,13 +12,13 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>copa</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>1.0.1-Heracles-SNAPSHOT</version>
     </parent>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <yellowfin.version>7.4</yellowfin.version>
+        <yellowfin.version>8.0</yellowfin.version>
         <axis.version>1.4</axis.version>
     </properties>
 
@@ -26,12 +26,12 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>8.5.24</version>
+            <version>9.0.21</version>
         </dependency>
         <dependency>
             <groupId>com.elster.partners</groupId>

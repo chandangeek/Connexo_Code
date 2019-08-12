@@ -9,14 +9,14 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.rest.Categories;
 import com.energyict.mdc.tasks.rest.impl.util.ResourceHelper;
@@ -88,6 +88,8 @@ public class ComTaskResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response addComTask(ComTaskInfo comTaskInfo) {
         ComTask newComTask = taskService.newComTask(comTaskInfo.name);
+        newComTask.setManualSystemTask(comTaskInfo.systemTask);
+
         for (ProtocolTaskInfo protocolTaskInfo : comTaskInfo.commands) {
             Categories category = Categories.valueOf(protocolTaskInfo.categoryId.toUpperCase());
             category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
@@ -120,6 +122,7 @@ public class ComTaskResource {
 
         ComTask comTask = resourceHelper.lockComTaskOrThrowException(comTaskInfo);
         comTask.setName(comTaskInfo.name);
+        comTask.setManualSystemTask(comTaskInfo.systemTask);
         comTask.setMaxNrOfTries(comTaskInfo.maxNrOfTries);
         List<ProtocolTask> currentProtocolTasks = new ArrayList<>(comTask.getProtocolTasks());
 

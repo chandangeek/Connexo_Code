@@ -1,10 +1,11 @@
 package com.energyict.mdc.engine.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
+
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -95,9 +96,9 @@ public class LoadProfileExtractorImpl implements LoadProfileExtractor {
 
     private static class ExtractedRegister implements Register {
         private final Device device;
-        private final com.energyict.mdc.device.data.Channel channel;
+        private final com.energyict.mdc.common.device.data.Channel channel;
 
-        private ExtractedRegister(Device device, com.energyict.mdc.device.data.Channel channel) {
+        private ExtractedRegister(Device device, com.energyict.mdc.common.device.data.Channel channel) {
             this.device = device;
             this.channel = channel;
         }
@@ -123,9 +124,9 @@ public class LoadProfileExtractorImpl implements LoadProfileExtractor {
 
     private class ExtractedChannel implements Channel {
         private final Device device;
-        private final com.energyict.mdc.device.data.Channel channel;
+        private final com.energyict.mdc.common.device.data.Channel channel;
 
-        private ExtractedChannel(Device device, com.energyict.mdc.device.data.Channel channel) {
+        private ExtractedChannel(Device device, com.energyict.mdc.common.device.data.Channel channel) {
             this.device = device;
             this.channel = channel;
         }

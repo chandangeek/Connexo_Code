@@ -6,12 +6,12 @@ package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.common.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;

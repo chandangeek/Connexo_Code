@@ -7,7 +7,7 @@ package com.energyict.mdc.device.topology.kpi;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;

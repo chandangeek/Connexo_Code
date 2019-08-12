@@ -6,7 +6,8 @@ Ext.define('Uni.view.search.field.Simple', {
     extend: 'Uni.view.search.field.internal.Criteria',
     xtype: 'uni-search-criteria-simple',
     requires: [
-        'Uni.view.search.field.internal.CriteriaLine'
+        'Uni.view.search.field.internal.CriteriaLine',
+        'Uni.view.search.field.internal.Textarea'
     ],
 
     //reset: function() {
@@ -27,6 +28,15 @@ Ext.define('Uni.view.search.field.Simple', {
 
     init: function () {
         var me = this;
+        var operators = me.property.get('availableOperators');
+        var operatorMap = {
+            '==': 'uni-search-internal-input',
+            '!=': 'uni-search-internal-input',
+        }
+
+        if (Ext.Array.contains(operators, 'IN')) {
+            operatorMap['IN'] = 'uni-search-internal-textarea'
+        }
 
         me.items = {
             xtype: 'uni-search-internal-criterialine',
@@ -47,6 +57,13 @@ Ext.define('Uni.view.search.field.Simple', {
                     scope: me
                 }
             }
+            operatorMap: operatorMap,
+            listeners: {
+                change: {
+                    fn: me.onValueChange,
+                    scope: me
+                }
+            },
         };
     }
 });

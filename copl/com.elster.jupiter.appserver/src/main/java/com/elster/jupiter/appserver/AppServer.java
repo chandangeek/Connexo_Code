@@ -86,6 +86,10 @@ public interface AppServer {
      */
     List<EndPointConfiguration> supportedEndPoints();
 
+    /**
+    @return List of inbound supported end points*/
+    List<EndPointConfiguration> supportedInboundEndPoints();
+
     interface BatchUpdate extends AutoCloseable {
 
         SubscriberExecutionSpec createActiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);

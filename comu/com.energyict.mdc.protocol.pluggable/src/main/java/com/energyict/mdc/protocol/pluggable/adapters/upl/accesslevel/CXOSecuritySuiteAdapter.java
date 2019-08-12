@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public class CXOSecuritySuiteAdapter extends CXODeviceAccessLevelAdapter implements SecuritySuite {
 
-    public static SecuritySuite adaptTo(com.energyict.mdc.protocol.api.security.SecuritySuite connexoSecuritySuite) {
+    public static SecuritySuite adaptTo(com.energyict.mdc.common.protocol.security.SecuritySuite connexoSecuritySuite) {
         if (connexoSecuritySuite instanceof UPLSecuritySuiteLevelAdapter) {
             return (SecuritySuite) ((UPLSecuritySuiteLevelAdapter) connexoSecuritySuite).getUplDeviceAccessLevel();
         } else {
@@ -27,13 +27,13 @@ public class CXOSecuritySuiteAdapter extends CXODeviceAccessLevelAdapter impleme
         }
     }
 
-    private CXOSecuritySuiteAdapter(com.energyict.mdc.protocol.api.security.SecuritySuite connexoSecuritySuite) {
+    private CXOSecuritySuiteAdapter(com.energyict.mdc.common.protocol.security.SecuritySuite connexoSecuritySuite) {
         super(connexoSecuritySuite);
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return ((com.energyict.mdc.protocol.api.security.SecuritySuite) this.cxoDeviceAccessLevel)
+        return ((com.energyict.mdc.common.protocol.security.SecuritySuite) this.cxoDeviceAccessLevel)
                 .getEncryptionAccessLevels()
                 .stream()
                 .map(CXOEncryptionLevelAdapter::adaptTo)
@@ -42,7 +42,7 @@ public class CXOSecuritySuiteAdapter extends CXODeviceAccessLevelAdapter impleme
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return ((com.energyict.mdc.protocol.api.security.SecuritySuite) this.cxoDeviceAccessLevel)
+        return ((com.energyict.mdc.common.protocol.security.SecuritySuite) this.cxoDeviceAccessLevel)
                 .getAuthenticationAccessLevels()
                 .stream()
                 .map(CXOAuthenticationLevelAdapter::adaptTo)
@@ -51,7 +51,7 @@ public class CXOSecuritySuiteAdapter extends CXODeviceAccessLevelAdapter impleme
 
     @Override
     public List<RequestSecurityLevel> getRequestSecurityLevels() {
-        return ((com.energyict.mdc.protocol.api.security.SecuritySuite) this.cxoDeviceAccessLevel)
+        return ((com.energyict.mdc.common.protocol.security.SecuritySuite) this.cxoDeviceAccessLevel)
                 .getRequestSecurityLevels()
                 .stream()
                 .map(CXORequestSecurityLevelAdapter::adaptTo)
@@ -60,7 +60,7 @@ public class CXOSecuritySuiteAdapter extends CXODeviceAccessLevelAdapter impleme
 
     @Override
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
-        return ((com.energyict.mdc.protocol.api.security.SecuritySuite) this.cxoDeviceAccessLevel)
+        return ((com.energyict.mdc.common.protocol.security.SecuritySuite) this.cxoDeviceAccessLevel)
                 .getResponseSecurityLevels()
                 .stream()
                 .map(CXOResponseSecurityLevelAdapter::adaptTo)

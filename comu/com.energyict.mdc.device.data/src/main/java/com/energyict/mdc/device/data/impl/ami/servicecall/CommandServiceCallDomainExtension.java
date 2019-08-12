@@ -12,8 +12,8 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import javax.validation.constraints.Size;
 import java.time.Instant;

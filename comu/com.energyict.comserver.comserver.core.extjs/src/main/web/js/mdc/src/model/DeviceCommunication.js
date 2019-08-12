@@ -31,6 +31,16 @@ Ext.define('Mdc.model.DeviceCommunication', {
         });
     },
 
+    runNowWithPriority: function(callback, body) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            isNotEdit: true,
+            jsonData: body,
+            url: this.buildUrl(body.device.name) + '/runprio',
+            callback: callback
+        });
+    },
+
     activate: function(callback, body) {
         Ext.Ajax.request({
             method: 'PUT',

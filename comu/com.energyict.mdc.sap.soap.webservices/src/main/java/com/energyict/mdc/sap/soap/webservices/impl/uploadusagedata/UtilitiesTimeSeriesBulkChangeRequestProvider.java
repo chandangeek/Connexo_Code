@@ -20,7 +20,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -56,40 +56,31 @@ import java.time.temporal.TemporalAmount;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @Component(name = UtilitiesTimeSeriesBulkChangeRequestProvider.NAME,
         service = {DataExportWebService.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkChangeRequestProvider.NAME})
-public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilsTmeSersERPItmBulkChgReqMsg> {
+public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilitiesTimeSeriesBulkRequestProvider<UtilitiesTimeSeriesERPItemBulkChangeRequestEOut, UtilsTmeSersERPItmBulkChgReqMsg> implements ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeRequest_C_Out";
     private static final QName QNAME = new QName("urn:webservices.wsdl.soap.sap.mdc.energyict.com:utilitiestimeseriesbulkchangerequest",
             "UtilitiesTimeSeriesERPItemBulkChangeRequest_E_OutService");
-
-    private Map<String, UtilitiesTimeSeriesERPItemBulkChangeRequestEOut> changeRequestPorts = new ConcurrentHashMap<>();
 
     public UtilitiesTimeSeriesBulkChangeRequestProvider() {
         // for OSGi purposes
     }
 
     @Inject
-    public UtilitiesTimeSeriesBulkChangeRequestProvider(WebServicesService webServicesService, PropertySpecService propertySpecService,
+    public UtilitiesTimeSeriesBulkChangeRequestProvider(PropertySpecService propertySpecService,
                                                         DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                         SAPCustomPropertySets sapCustomPropertySets) {
-        super(webServicesService, propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets);
+        super(propertySpecService, dataExportServiceCallType, thesaurus, clock, sapCustomPropertySets);
     }
 
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService) {
-        super.setWebServicesService(webServicesService);
-    }
-
+    @Override
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
@@ -105,11 +96,13 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         super.setThesaurus(translationsProvider.getThesaurus());
     }
 
+    @Override
     @Reference
     public void setClock(Clock clock) {
         super.setClock(clock);
     }
 
+    @Override
     @Reference
     public void setSapCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         super.setSapCustomPropertySets(sapCustomPropertySets);
@@ -121,18 +114,22 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addChangeRequestPort(UtilitiesTimeSeriesERPItemBulkChangeRequestEOut changeRequestPort, Map<String, Object> properties) {
-        changeRequestPorts.put(getUrl(properties), changeRequestPort);
+    public void addChangeRequestEndpoint(UtilitiesTimeSeriesERPItemBulkChangeRequestEOut changeRequestPort, Map<String, Object> properties) {
+        super.doAddEndpoint(changeRequestPort, properties);
     }
 
-    public void removeChangeRequestPort(UtilitiesTimeSeriesERPItemBulkChangeRequestEOut changeRequestPort) {
-        changeRequestPorts.values().removeIf(port -> changeRequestPort == port);
+    public void removeChangeRequestEndpoint(UtilitiesTimeSeriesERPItemBulkChangeRequestEOut changeRequestPort) {
+        super.doRemoveEndpoint(changeRequestPort);
+    }
+
+    @Reference
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 
     @Override
-    Optional<Consumer<UtilsTmeSersERPItmBulkChgReqMsg>> getPort(EndPointConfiguration endPointConfiguration) {
-        return Optional.ofNullable(changeRequestPorts.get(endPointConfiguration.getUrl()))
-                .map(port -> (Consumer<UtilsTmeSersERPItmBulkChgReqMsg>) port::utilitiesTimeSeriesERPItemBulkChangeRequestEOut);
+    String getMessageSenderMethod() {
+        return UtilitiesTimeSeriesERPItemBulkChangeRequestEOut.class.getMethods()[0].getName();
     }
 
     @Override
@@ -142,7 +139,7 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
     }
 
     @Override
-    public Class getService() {
+    public Class<UtilitiesTimeSeriesERPItemBulkChangeRequestEOut> getService() {
         return UtilitiesTimeSeriesERPItemBulkChangeRequestEOut.class;
     }
 
@@ -267,5 +264,10 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
         typeCode.setValue(code);
         status.setUtilitiesTimeSeriesItemTypeCode(typeCode);
         return status;
+    }
+
+    @Override
+    public String getApplication(){
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

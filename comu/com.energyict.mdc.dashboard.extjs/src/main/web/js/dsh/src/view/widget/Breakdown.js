@@ -16,7 +16,7 @@ Ext.define('Dsh.view.widget.Breakdown', {
         'Ext.view.View',
         'Dsh.view.widget.common.StackedBar',
         'Ext.button.Button',
-        'Dsh.view.widget.HeatMap'
+        // 'Dsh.view.widget.HeatMap'
     ],
     mixins: {
         bindable: 'Ext.util.Bindable'

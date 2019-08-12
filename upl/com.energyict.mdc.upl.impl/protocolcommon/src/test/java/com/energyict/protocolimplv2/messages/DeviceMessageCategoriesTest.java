@@ -8,6 +8,8 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.propertyspec.MockPropertySpecService;
+import com.energyict.protocolimplv2.messages.enums.DaysOfMonth;
+import com.energyict.protocolimplv2.messages.enums.DaysOfWeek;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +49,28 @@ public class DeviceMessageCategoriesTest extends TestCase {
         });
 
         when(nlsService.getThesaurus(anyString())).thenReturn(thesaurus);
+    }
+
+    @Test
+    public void testDateTimeEnums(){
+        String[] daysOfMonth = DaysOfMonth.getDaysOfMonthValues();
+        String[] daysOfWeek = DaysOfWeek.getDaysOfWeek();
+
+        assertEquals(1,DaysOfMonth.getDlmsEncoding("01"));
+        assertEquals(15,DaysOfMonth.getDlmsEncoding("15"));
+        assertEquals(31,DaysOfMonth.getDlmsEncoding("31"));
+        assertEquals(0xFD,DaysOfMonth.getDlmsEncoding(DaysOfMonth.DLMSEncodings.SECOND_LAST_DAY_OF_THE_MONTH.getDescription()));
+        assertEquals(0xFE,DaysOfMonth.getDlmsEncoding(DaysOfMonth.DLMSEncodings.LAST_DAY_OF_THE_MONTH.getDescription()));
+        assertEquals(0xFF,DaysOfMonth.getDlmsEncoding(DaysOfMonth.DLMSEncodings.ALL_DAYS.getDescription()));
+        assertEquals(DaysOfMonth.DLMS_NOT_SPECIFIED,DaysOfMonth.getDlmsEncoding("0"));
+        assertEquals(DaysOfMonth.DLMS_NOT_SPECIFIED,DaysOfMonth.getDlmsEncoding("ddd"));
+
+        assertEquals(1, DaysOfWeek.getDlmsEncoding("Monday"));
+        assertEquals(2, DaysOfWeek.getDlmsEncoding("Tuesday"));
+        assertEquals(6, DaysOfWeek.getDlmsEncoding("Saturday"));
+        assertEquals(7, DaysOfWeek.getDlmsEncoding("Sunday"));
+        assertEquals(DaysOfWeek.DLMS_NOT_SPECIFIED, DaysOfWeek.getDlmsEncoding(DaysOfWeek.ALL_DAYS));
+        assertEquals(DaysOfWeek.DLMS_NOT_SPECIFIED, DaysOfWeek.getDlmsEncoding("random string"));
     }
 
     @Test

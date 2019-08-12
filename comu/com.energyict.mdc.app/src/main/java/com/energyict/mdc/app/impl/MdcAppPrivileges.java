@@ -35,6 +35,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.CREATE_ISSUE,
 
                 //issue configuration
                 com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE,
@@ -69,6 +70,7 @@ class MdcAppPrivileges {
                 //mdc.device.data - Device communication
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION,
                 com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
+                com.energyict.mdc.device.data.security.Privileges.Constants.RUN_WITH_PRIO,
 
                 // mdc.device.data - Device data
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE,
@@ -98,10 +100,10 @@ class MdcAppPrivileges {
                 com.energyict.mdc.device.command.security.Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE,
 
                 //mdc.device.config
-                com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
-                com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
-                com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
-                com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4,
+                com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1,
+                com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
+                com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
+                com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4,
 
                 //pki - attributes of security accessors
                 com.elster.jupiter.pki.security.Privileges.Constants.EDIT_SECURITY_PROPERTIES_1,
@@ -115,12 +117,12 @@ class MdcAppPrivileges {
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_PROPERTIES_4,
 
                 //mdc.device.config - Device type
-                com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
-                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
+                com.energyict.mdc.common.device.config.DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE,
+                com.energyict.mdc.common.device.config.DeviceConfigConstants.VIEW_DEVICE_TYPE,
 
                 //mdc.device.config - Master data
-                com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_MASTER_DATA,
-                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_MASTER_DATA,
+                com.energyict.mdc.common.device.config.DeviceConfigConstants.ADMINISTRATE_MASTER_DATA,
+                com.energyict.mdc.common.device.config.DeviceConfigConstants.VIEW_MASTER_DATA,
 
                 //estimation
                 com.elster.jupiter.estimation.security.Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
@@ -144,13 +146,13 @@ class MdcAppPrivileges {
                 com.energyict.mdc.firmware.security.Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN,
 
                 //mdc.device.lifecycle
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_1,
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_2,
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_3,
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_4,
+                com.energyict.mdc.common.device.lifecycle.config.Constants.INITIATE_ACTION_1,
+                com.energyict.mdc.common.device.lifecycle.config.Constants.INITIATE_ACTION_2,
+                com.energyict.mdc.common.device.lifecycle.config.Constants.INITIATE_ACTION_3,
+                com.energyict.mdc.common.device.lifecycle.config.Constants.INITIATE_ACTION_4,
 
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE,
-                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE,
+                com.energyict.mdc.common.device.lifecycle.config.Constants.CONFIGURE_DEVICE_LIFE_CYCLE,
+                com.energyict.mdc.common.device.lifecycle.config.Constants.VIEW_DEVICE_LIFE_CYCLE,
 
                 //REGISTERED DEVICES KPI
                 com.energyict.mdc.device.topology.kpi.Privileges.Constants.ADMINISTRATE,
@@ -218,6 +220,7 @@ class MdcAppPrivileges {
 
                 //tasks
                 com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
+                com.elster.jupiter.tasks.security.Privileges.Constants.SUSPEND_TASK_OVERVIEW,
 
                 // security accessors management
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_SECURITY_ACCESSORS,
@@ -231,7 +234,12 @@ class MdcAppPrivileges {
 
                 // time of use campaigns management
                 com.energyict.mdc.tou.campaign.security.Privileges.Constants.ADMINISTER_TOU_CAMPAIGNS,
-                com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS
+                com.energyict.mdc.tou.campaign.security.Privileges.Constants.VIEW_TOU_CAMPAIGNS,
+
+                //web services
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES
         );
     }
 }

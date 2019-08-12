@@ -118,13 +118,24 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
             form = itemPanel.down('form'),
             model = this.getModel('Mdc.model.ComPortPool'),
             id = record.getId(),
+            pctHighPrioTasks = form.down('[name=pctHighPrioTasks]'),
+            maxPriorityConnections =  form.down('[name=maxPriorityConnections]'),
             deviceDiscoveryProtocolsStore = this.getStore('Mdc.store.DeviceDiscoveryProtocols');
         itemPanel.setLoading(this.getModel('Mdc.model.ComPortPool'));
         model.load(id, {
             success: function (record) {
                 if (!form.isDestroyed) {
-                    record.get('direction').toLowerCase() == 'outbound' ? form.down('#discoveryProtocolPluggableClassId').hide() :
-                        form.down('#discoveryProtocolPluggableClassId').show() ;
+                    if(record.get('direction').toLowerCase() == 'outbound') {
+                        form.down('#discoveryProtocolPluggableClassId').hide();
+
+                        pctHighPrioTasks.show();
+                        maxPriorityConnections.show();
+                    }
+                    else {
+                        form.down('#discoveryProtocolPluggableClassId').show();
+                        pctHighPrioTasks.hide();
+                        maxPriorityConnections.hide();
+                    }
                     form.loadRecord(record);
 
                     if (!deviceDiscoveryProtocolsStore.getCount()){

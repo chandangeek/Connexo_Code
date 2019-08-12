@@ -37,17 +37,18 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.Constants;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
 import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
 
@@ -420,13 +421,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     List<ResourceDefinition> getModuleResources() {
         return Arrays.asList(
                 this.userService.createModuleResourceWithPrivileges(DeviceLifeCycleConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_LIFECYCLE.getKey(), Privileges.RESOURCE_DEVICE_LIFECYCLE_DESCRIPTION.getKey(),
-                        Arrays.asList(Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE, Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE)),
+                        Arrays.asList(Constants.VIEW_DEVICE_LIFE_CYCLE, Constants.CONFIGURE_DEVICE_LIFE_CYCLE)),
                 this.userService.createModuleResourceWithPrivileges(DeviceLifeCycleConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_LIFECYCLE_LEVELS.getKey(), Privileges.RESOURCE_DEVICE_LIFECYCLE_LEVELS_DESCRIPTION.getKey(),
                         Arrays.asList(
-                                Privileges.Constants.INITIATE_ACTION_1,
-                                Privileges.Constants.INITIATE_ACTION_2,
-                                Privileges.Constants.INITIATE_ACTION_3,
-                                Privileges.Constants.INITIATE_ACTION_4))
+                                Constants.INITIATE_ACTION_1,
+                                Constants.INITIATE_ACTION_2,
+                                Constants.INITIATE_ACTION_3,
+                                Constants.INITIATE_ACTION_4))
         );
     }
 

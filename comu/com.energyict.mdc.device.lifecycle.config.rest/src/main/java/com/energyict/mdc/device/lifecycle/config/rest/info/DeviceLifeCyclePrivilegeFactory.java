@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 
 import javax.inject.Inject;
 import java.util.Objects;

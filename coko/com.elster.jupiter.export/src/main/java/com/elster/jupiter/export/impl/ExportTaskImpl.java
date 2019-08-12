@@ -633,4 +633,9 @@ final class ExportTaskImpl implements IExportTask {
     public Optional<DataExportRunParameters> getRunParameters(Instant at) {
         return runParameters.stream().filter(rp -> rp.getCreateDateTime().compareTo(at) == 0).findFirst();
     }
+
+    @Override
+    public Instant getSuspendUntil(){
+        return  recurrentTask.get().getSuspendUntil();
+    }
 }

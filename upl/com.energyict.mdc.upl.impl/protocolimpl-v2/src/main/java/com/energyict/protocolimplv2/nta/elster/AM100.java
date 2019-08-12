@@ -40,12 +40,12 @@ public class AM100 extends WebRTUKP {
         boolean readCache = getDlmsSessionProperties().isReadCache();
 
         if (getDlmsCache() == null || getDlmsCache().getObjectList() == null || readCache) {
-            getLogger().log(Level.INFO, readCache ? "ReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
+            journal( readCache ? "ReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
             setDlmsCache(new DLMSCache());
             readObjectList();
             getDlmsCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         } else {
-            getLogger().log(Level.INFO, "Cache exist, will not be read!");
+            journal( "Cache exist, will not be read!");
             getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDlmsCache().getObjectList());
 
         }

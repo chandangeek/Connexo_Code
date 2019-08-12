@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel;
 
-import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 
 /**

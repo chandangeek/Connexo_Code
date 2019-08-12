@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Isu.controller.IssuesOverview', {
@@ -18,6 +18,8 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.model.Device',
         'Isu.model.IssueUsagePoints',
         'Uni.component.sort.model.Sort'
+        'Isu.model.Location',
+        'Isu.model.DeviceGroup'
     ],
 
     stores: [
@@ -29,9 +31,11 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.store.IssueReasons',
         'Isu.store.IssueUsagePoints',
         'Isu.store.Devices',
+        'Isu.store.Locations',
         'Isu.store.IssueGrouping',
         'Isu.store.Groups',
-        'Isu.store.Clipboard'
+        'Isu.store.Clipboard',
+        'Isu.store.DeviceGroups'
     ],
 
     views: [
@@ -73,8 +77,15 @@ Ext.define('Isu.controller.IssuesOverview', {
         }
     ],
 
+    extendedBy: null,
+
     init: function () {
         var me = this;
+
+        if (typeof extendedBy == 'undefined') {
+            me.getIsuStoreIssueGroupingStore().add({id: 'location', value: Uni.I18n.translate('general.location', 'ISU', 'Location')});
+        }
+
         this.control({
             '#issues-overview #issues-overview-action-menu': {
                 click: this.chooseAction

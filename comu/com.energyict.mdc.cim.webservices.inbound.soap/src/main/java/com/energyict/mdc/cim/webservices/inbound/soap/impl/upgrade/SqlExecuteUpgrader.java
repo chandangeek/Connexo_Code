@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 
 import java.sql.Statement;
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.List;
  *
  */
 abstract class SqlExecuteUpgrader implements Upgrader {
-
     private final OrmService ormService;
 
     SqlExecuteUpgrader(OrmService ormService) {

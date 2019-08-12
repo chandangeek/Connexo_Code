@@ -33,8 +33,18 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                dataIndex: 'queueType',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
                 dataIndex: 'queue',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.priority', 'APR', 'Priority'),
+                dataIndex: 'priority',
                 flex: 1
             },
             {
@@ -43,10 +53,18 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.suspendedTask', 'APR', 'Suspended'),
+                dataIndex: 'suspendUntilTime',
+                flex: 1,
+                renderer: function(value) {
+                    return value ? Uni.I18n.translate('general.suspended.yes', 'APR', 'Yes') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    return !Usr.privileges.Users.canAdministrate() || !(record.get('isExtraQueueCreationEnabled'));
+                    return !Usr.privileges.Users.canAdministrate() || (!(record.get('extraQueueCreationEnabled')) && !(record.get('queuePrioritized')));
                 },
                 menu: {
                     xtype: 'task-overview-action-menu',

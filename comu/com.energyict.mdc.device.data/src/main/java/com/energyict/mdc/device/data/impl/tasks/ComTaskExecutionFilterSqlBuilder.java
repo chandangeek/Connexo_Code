@@ -9,15 +9,15 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.time.Clock;
 import java.util.EnumSet;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Builds the SQL query that finds all {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s
+ * Builds the SQL query that finds all {@link ComTaskExecution}s
  * that match a {@link ComTaskExecutionFilterSpecification}.
  *
  * @author Rudi Vankeirsbilck (rudi)

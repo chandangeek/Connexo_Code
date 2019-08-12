@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionType;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

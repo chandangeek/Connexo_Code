@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.rest.resource;
@@ -32,4 +32,6 @@ public class IssueRestModuleConst {
     //extra filter fields
     public static final String OPERATOR = "operator";
     public static final String CRITERIA = "criteria";
+    public static final String LOCATION = "location";
+    public static final String USAGEPOINT_GROUPS = "usagePointGroup";
 }

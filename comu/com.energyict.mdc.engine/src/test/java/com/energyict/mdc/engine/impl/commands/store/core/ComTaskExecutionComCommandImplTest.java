@@ -5,14 +5,16 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -20,11 +22,15 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,10 +38,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -113,19 +115,20 @@ public class ComTaskExecutionComCommandImplTest {
         List<CollectedData> collectedDataList = command.getCollectedData();
 
         // Asserts
-        assertThat(collectedDataList).hasSize(1);
-        CollectedData collectedData = collectedDataList.get(0);
-        assertThat(collectedData).isInstanceOf(ComTaskExecutionCollectedData.class);
+        assertThat(collectedDataList).hasSize(0);
     }
 
     @Test
-    public void testGetCollectedDataIsCalled() {
+    public void testNoCollectedDataWhenCommandsHaveNoCollectedData() {
         ComCommand comCommand1 = mock(ComCommand.class);
         when(comCommand1.getCommandType()).thenReturn(ComCommandTypes.BASIC_CHECK_COMMAND);
+        when(comCommand1.getCollectedData()).thenReturn(Collections.emptyList());
         ComCommand comCommand2 = mock(ComCommand.class);
         when(comCommand2.getCommandType()).thenReturn(ComCommandTypes.CLOCK_COMMAND);
+        when(comCommand2.getCollectedData()).thenReturn(Collections.emptyList());
         ComCommand comCommand3 = mock(ComCommand.class);
         when(comCommand3.getCommandType()).thenReturn(ComCommandTypes.READ_LOGBOOKS_COMMAND);
+        when(comCommand3.getCollectedData()).thenReturn(Collections.emptyList());
         ComTaskExecutionComCommandImpl command = new ComTaskExecutionComCommandImpl(groupedDeviceCommand, this.comTaskExecution);
         command.addCommand(comCommand1, this.comTaskExecution);
         command.addCommand(comCommand2, this.comTaskExecution);
@@ -135,16 +138,14 @@ public class ComTaskExecutionComCommandImplTest {
         List<CollectedData> collectedDataList = command.getCollectedData();
 
         // Asserts
-        assertThat(collectedDataList).hasSize(1);
-        CollectedData collectedData = collectedDataList.get(0);
-        assertThat(collectedData).isInstanceOf(ComTaskExecutionCollectedData.class);
+        assertThat(collectedDataList).hasSize(0);
         verify(comCommand1).getCollectedData();
         verify(comCommand2).getCollectedData();
         verify(comCommand3).getCollectedData();
     }
 
     @Test
-    public void testGetCollectedData() {
+    public void testCollectedDataWhenCommandsHaveCollectedData() {
         ComCommand comCommand1 = mock(ComCommand.class);
         when(comCommand1.getCommandType()).thenReturn(ComCommandTypes.BASIC_CHECK_COMMAND);
         ServerCollectedData collectedData1 = mock(ServerCollectedData.class);

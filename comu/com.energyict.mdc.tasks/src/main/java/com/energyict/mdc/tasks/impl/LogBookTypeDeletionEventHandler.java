@@ -7,8 +7,8 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.tasks.LogBooksTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Listens for delete events that relate to {@link LogBookType}s
  * and will veto the deletion of the LogBookType is still in use
- * by at least one {@link com.energyict.mdc.tasks.LogBooksTask}.
+ * by at least one {@link LogBooksTask}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-21 (10:23)

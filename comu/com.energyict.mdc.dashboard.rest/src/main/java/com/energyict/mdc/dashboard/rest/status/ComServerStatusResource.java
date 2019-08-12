@@ -5,6 +5,7 @@
 package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
@@ -20,7 +21,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 /**
- * Models the REST resource that gets the status of the {@link com.energyict.mdc.engine.config.ComServer}
+ * Models the REST resource that gets the status of the {@link ComServer}
  * that is configured to run in this instance of the MDC application.
  *
  * @author Rudi Vankeirsbilck (rudi)

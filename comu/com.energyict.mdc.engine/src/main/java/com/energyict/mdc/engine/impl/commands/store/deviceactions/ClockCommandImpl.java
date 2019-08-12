@@ -6,8 +6,11 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
@@ -21,15 +24,12 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
 
 import java.util.Optional;
 
 /**
  * Implementation of a {@link ClockCommand}.<br>
- * Depending on the {@link com.energyict.mdc.tasks.ClockTaskType} a:
+ * Depending on the {@link ClockTaskType} a:
  * <ul>
  * <li>{@link SetClockCommandImpl}</li>
  * <li>{@link ForceClockCommandImpl}</li>
@@ -119,7 +119,7 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
 
     /**
      * Initialize this {@link ComCommand}. The decorator pattern is used to make a distinction between which actions must be
-     * performed for each {@link com.energyict.mdc.tasks.ClockTaskType}
+     * performed for each {@link ClockTaskType}
      */
     private void updateCommand() {
         switch (clockTaskOptions.getClockTaskType()) {

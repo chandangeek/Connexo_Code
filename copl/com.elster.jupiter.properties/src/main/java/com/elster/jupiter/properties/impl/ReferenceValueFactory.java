@@ -79,6 +79,12 @@ public class ReferenceValueFactory<T> implements ValueFactory<T> {
     }
 
     @Override
+    public T fromStringValue(Class<T> domainClass ,String stringValue){
+        this.domainClass = domainClass;
+        return fromStringValue(stringValue);
+    }
+
+    @Override
     public String toStringValue(T object) {
         this.ensureMappingInitializedOrThrowException();
         return this.mapping.toStringValue(object);
@@ -205,7 +211,7 @@ public class ReferenceValueFactory<T> implements ValueFactory<T> {
                 throw new IllegalArgumentException(ReferenceValueFactory.class.getSimpleName() + " does not support persistent entities with multi valued primary keys");
             }
             this.primaryKeyColumn = primaryKeyColumns.get(0);
-            this.primaryKeyType = this.getPropertyType(domainClass, this.primaryKeyColumn);
+            this.primaryKeyType = this.getPropertyType(table.getApi(), this.primaryKeyColumn);
             this.initConverterAndPrimaryKeyCheckerIfSupported();
             return true;
         }

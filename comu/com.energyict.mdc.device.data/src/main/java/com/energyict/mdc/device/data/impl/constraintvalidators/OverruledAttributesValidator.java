@@ -4,12 +4,13 @@
 
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+
+import com.energyict.obis.ObisCode;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

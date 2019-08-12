@@ -13,15 +13,15 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.google.common.collect.ImmutableMap;
@@ -97,10 +97,10 @@ public class AuditTrailDeviceComTasksDecoder extends AbstractDeviceAuditDecoder 
 
         ComTaskExecution from = allEntries.get(0);
         ComTaskExecution to = allEntries.get(allEntries.size() - 1);
-            auditStatus(from, to).ifPresent(auditLogChanges::add);
-            auditUrgency(from, to).ifPresent(auditLogChanges::add);
-            auditConnectionMethod(from, to).ifPresent(auditLogChanges::add);
-            auditUseDefaultConnectionMethod(from, to).ifPresent(auditLogChanges::add);
+        auditStatus(from, to).ifPresent(auditLogChanges::add);
+        auditUrgency(from, to).ifPresent(auditLogChanges::add);
+        auditConnectionMethod(from, to).ifPresent(auditLogChanges::add);
+        auditUseDefaultConnectionMethod(from, to).ifPresent(auditLogChanges::add);
 
         return auditLogChanges;
     }

@@ -34,9 +34,8 @@ public class FirmwareVersionInfoFactory {
         info.firmwareStatus = new FirmwareStatusInfo(firmwareVersion.getFirmwareStatus(), thesaurus);
         info.firmwareType = new FirmwareTypeInfo(firmwareVersion.getFirmwareType(), thesaurus);
         info.version = firmwareVersion.getVersion();
-        if (firmwareService.imageIdentifierExpectedAtFirmwareUpload(firmwareVersion.getDeviceType())) {
-            info.imageIdentifier = firmwareVersion.getImageIdentifier();
-        }
+        info.imageIdentifier = firmwareVersion.getImageIdentifier();
+
         info.rank = firmwareVersion.getRank();
         firmwareVersion.getMeterFirmwareDependency().ifPresent(fw -> info.meterFirmwareDependency = new IdWithNameInfo(fw.getId(), fw.getFirmwareVersion()));
         firmwareVersion.getCommunicationFirmwareDependency().ifPresent(fw -> info.communicationFirmwareDependency = new IdWithNameInfo(fw.getId(), fw.getFirmwareVersion()));

@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>1.0.1-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -92,6 +92,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -201,24 +205,86 @@
                 <artifactId>jaxws-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>g1</id>
                         <goals>
                             <goal>wsimport</goal>
                         </goals>
+                        <configuration>
+                            <wsdlDirectory>src/main/resources</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>wsdl/enddeviceevents/SendEndDeviceEvents.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                            <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+                            <keep>true</keep>
+                            <wsdlLocation>wsdl/enddeviceevents/SendEndDeviceEvents.wsdl</wsdlLocation>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>g2</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlDirectory>src/main/resources</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>wsdl/enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                            <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+                            <keep>true</keep>
+                            <wsdlLocation>wsdl/enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlLocation>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>g3</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlDirectory>src/main/resources</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>wsdl/getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                            <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+                            <keep>true</keep>
+                            <wsdlLocation>wsdl/getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlLocation>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>g4</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlDirectory>src/main/resources</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>wsdl/meterconfig/ExecuteMeterConfig.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                            <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+                            <keep>true</keep>
+                            <wsdlLocation>wsdl/meterconfig/ExecuteMeterConfig.wsdl</wsdlLocation>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>g5</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlDirectory>src/main/resources</wsdlDirectory>
+                            <wsdlFiles>
+                                <wsdlFile>wsdl/meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                            <bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+                            <keep>true</keep>
+                            <wsdlLocation>wsdl/meterconfig/ReplyMeterConfig.wsdl</wsdlLocation>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <wsdlDirectory>src/main/resources</wsdlDirectory>
-                    <wsdlFiles>
-                        <wsdlFile>enddeviceevents/SendEndDeviceEvents.wsdl</wsdlFile>
-                        <wsdlFile>meterconfig/ReplyMeterConfig.wsdl</wsdlFile>
-                        <wsdlFile>meterconfig/ExecuteMeterConfig.wsdl</wsdlFile>
-                        <wsdlFile>getenddeviceevents/GetEndDeviceEvents.wsdl</wsdlFile>
-                        <wsdlFile>enddeviceevents/ReceiveEndDeviceEvents.wsdl</wsdlFile>
-                    </wsdlFiles>
-                    <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-                    <bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>
-                    <keep>true</keep>
-                </configuration>
             </plugin>
         </plugins>
     </build>

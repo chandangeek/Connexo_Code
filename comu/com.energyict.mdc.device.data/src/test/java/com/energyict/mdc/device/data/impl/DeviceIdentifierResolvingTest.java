@@ -8,7 +8,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByDeviceName;
@@ -121,7 +121,7 @@ public class DeviceIdentifierResolvingTest extends PersistenceIntegrationTest {
     public void testDeviceDataDeviceIdentifierForAlreadyKnownDevice() throws Exception {
         Device myDevice = mock(Device.class);
         DeviceService spiedService = spy(deviceService);
-        List<com.energyict.mdc.device.data.Device> devices = spiedService.findAllDevicesByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(myDevice));
+        List<Device> devices = spiedService.findAllDevicesByIdentifier(new DeviceIdentifierForAlreadyKnownDevice(myDevice));
         assertThat(devices).containsOnly(myDevice);
     }
 

@@ -11,14 +11,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.core.mocks.MockComServerDAO;
@@ -141,7 +141,7 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(any(RunningComServer.class), any(OutboundComPort.class))).thenReturn(scheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -168,7 +168,7 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(any(RunningComServer.class), any(OutboundComPort.class))).thenReturn(null);  // The ScheduledComPortFactory returns null when a ComPort should be ignored
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -202,7 +202,7 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(any(RunningComServer.class), eq(secondComPort))).thenReturn(secondScheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -240,7 +240,7 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(any(RunningComServer.class), eq(secondComPort))).thenReturn(secondScheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -281,7 +281,7 @@ public class RunningComServerChangesTest {
         when(scheduledComPortFactory.newFor(any(RunningComServer.class), eq(secondComPort))).thenReturn(secondScheduledComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -315,7 +315,7 @@ public class RunningComServerChangesTest {
         when(comPortListener.getStatus()).thenReturn(ServerProcessStatus.STARTED);
         when(comPortListenerFactory.newFor(any(RunningComServer.class), any(InboundComPort.class))).thenReturn(comPortListener);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -342,7 +342,7 @@ public class RunningComServerChangesTest {
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         when(comPortListenerFactory.newFor(any(RunningComServer.class), any(InboundComPort.class))).thenReturn(null);    // The ComPortListenerFactory returns null when the ComPort should be ignored
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -376,7 +376,7 @@ public class RunningComServerChangesTest {
         when(comPortListenerFactory.newFor(any(RunningComServer.class), eq(firstComPort))).thenReturn(firstComPortListener);
         when(comPortListenerFactory.newFor(any(RunningComServer.class), eq(secondComPort))).thenReturn(secondComPortListener);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -414,7 +414,7 @@ public class RunningComServerChangesTest {
         when(comPortListenerFactory.newFor(any(RunningComServer.class), eq(firstComPort))).thenReturn(firstComPortListener);
         when(comPortListenerFactory.newFor(any(RunningComServer.class), eq(secondComPort))).thenReturn(secondComPortListener);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -455,7 +455,7 @@ public class RunningComServerChangesTest {
         when(comPortListenerFactory.newFor(any(RunningComServer.class), eq(firstComPort))).thenReturn(firstComPortListener);
         when(comPortListenerFactory.newFor(any(RunningComServer.class), eq(secondComPort))).thenReturn(secondComPortListener);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         this.initializeEventPublisher(runningComServer);
@@ -497,7 +497,7 @@ public class RunningComServerChangesTest {
         when(firstScheduledComPortAfterChanges.getComPort()).thenReturn(firstComPort);
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
-        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
+        when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics)).thenReturn(eventWebServer);
 
         NotifyingRunningComServerImpl runningComServer = new NotifyingRunningComServerImpl(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, serviceProvider);
         when(scheduledComPortFactory.newFor(runningComServer, firstComPort)).thenReturn(firstScheduledComPort);

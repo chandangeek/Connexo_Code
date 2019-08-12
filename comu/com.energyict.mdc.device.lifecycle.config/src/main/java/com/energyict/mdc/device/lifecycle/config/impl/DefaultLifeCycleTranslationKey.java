@@ -5,13 +5,13 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 /**
  * Represents the translation keys for the elements of the default life cycle.
  * Note that the information about the {@link com.elster.jupiter.fsm.State}s
- * has been extracted into {@link com.energyict.mdc.device.lifecycle.config.DefaultState}.
+ * has been extracted into {@link DefaultState}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (11:42)

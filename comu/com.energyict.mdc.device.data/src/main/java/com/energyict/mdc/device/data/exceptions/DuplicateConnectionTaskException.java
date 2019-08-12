@@ -7,14 +7,14 @@ package com.energyict.mdc.device.data.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 /**
  * Models the exceptional situation that occurs when
- * an attempt is made to create a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
- * against a Device for a {@link com.energyict.mdc.device.config.PartialConnectionTask}
+ * an attempt is made to create a {@link ConnectionTask}
+ * against a Device for a {@link PartialConnectionTask}
  * for which another ConnectionTask already exists on the same Device.
  *
  * @author Rudi Vankeirsbilck (rudi)

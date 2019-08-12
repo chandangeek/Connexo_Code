@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -290,6 +291,7 @@ public class InMemoryPersistence {
             bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
             bind(DataModel.class).toInstance(dataModel);
             bind(DeviceService.class).toInstance(deviceService);
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 }

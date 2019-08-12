@@ -423,4 +423,15 @@ public class DlmsProperties implements DlmsSessionProperties {
     public boolean isIgnoreDstStatusCode() {
         return this.properties.getTypedProperty(DlmsProtocolProperties.PROPERTY_IGNORE_DST_STATUS_CODE, false);
     }
+
+    @Override
+    public long getFrameCounterLimit() {
+        try {
+            return this.properties.getTypedProperty(FRAME_COUNTER_LIMIT, 0);
+        } catch (Exception ex){
+            // catch any obsolete value (i.e. string)
+            return 0;
+        }
+    }
+
 }

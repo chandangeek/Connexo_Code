@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.associations.Reference;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
 
 import javax.validation.constraints.NotNull;
 

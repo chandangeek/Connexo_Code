@@ -7,9 +7,10 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Ranges;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.device.data.LogBook;
+
+import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;

@@ -4,15 +4,14 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
@@ -37,6 +36,7 @@ public class CommandRootImpl implements CommandRoot {
     private final ServiceProvider serviceProvider;
     private boolean connectionEstablished = true;
     private boolean connectionErrorOccurred;
+    private boolean connectionInterrupted;
     private ExecutionContext executionContext;
     private Set<GroupedDeviceCommand> groupedDeviceCommands = new LinkedHashSet<>();
     private Throwable generalSetupError;
@@ -158,6 +158,16 @@ public class CommandRootImpl implements CommandRoot {
     @Override
     public boolean hasGeneralSetupErrorOccurred() {
         return generalSetupError != null;
+    }
+
+    @Override
+    public void connectionInterrupted() {
+        connectionInterrupted = true;
+    }
+
+    @Override
+    public boolean hasConnectionBeenInterrupted() {
+        return connectionInterrupted;
     }
 
     private void executeUnpreparedComTaskExecutions() {

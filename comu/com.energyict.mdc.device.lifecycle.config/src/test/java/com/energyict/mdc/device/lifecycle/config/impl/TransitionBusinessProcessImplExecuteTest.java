@@ -7,7 +7,7 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
 
 import org.junit.Before;

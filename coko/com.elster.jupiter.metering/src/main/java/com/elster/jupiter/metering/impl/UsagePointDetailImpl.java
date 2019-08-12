@@ -111,6 +111,11 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         return collar;
     }
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
     public void setCollar(YesNoAnswer collar) {
         this.collar = collar;
     }

@@ -18,7 +18,7 @@ public enum TranslationKeys implements TranslationKey {
     PARAMETER_DO_NOTHING("WhenRecurringDoNothing", "Do nothing"),
     PARAMETER_INCREASE_URGENCY("WhenRecurringIncreaseUrgency", "Increase urgency (+1)"),
     ISSUE_TYPE_TASK("IssueTypeTask", "Task"),
-    ISSUE_REASON_TASKFAILED("TaskFailed", "Task Failed"),
+    ISSUE_REASON_TASKFAILED("TaskFailed", "Task failed"),
     ISSUE_REASON_DESCRIPTION_TASKFAILED("IssueReasonTaskFailedDescription", "Task {0} failed"),
     CLOSE_ACTION_PROPERTY_CLOSE_STATUS(CloseIssueAction.CLOSE_STATUS, "Close status"),
     CLOSE_ACTION_PROPERTY_COMMENT(CloseIssueAction.COMMENT, "Comment"),

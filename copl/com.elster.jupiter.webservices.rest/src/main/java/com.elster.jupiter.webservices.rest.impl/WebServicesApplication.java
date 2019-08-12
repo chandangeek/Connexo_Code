@@ -10,11 +10,15 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -46,12 +50,16 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     private volatile TransactionService transactionService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile OrmService ormService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 RestValidationExceptionMapper.class,
                 EndPointConfigurationResource.class,
+                WebServiceCallOccurrenceResource.class,
                 WebServicesResource.class,
                 WebServicesFieldResource.class
         );
@@ -73,7 +81,8 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     @Reference
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN)
+                .join(nlsService.getThesaurus(WebServicesService.COMPONENT_NAME, Layer.DOMAIN)));
     }
 
     @Reference
@@ -87,6 +96,11 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     }
 
     @Reference
+    public void setWebServiceCallOccurrenceService(WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
+    }
+
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -94,6 +108,14 @@ public class WebServicesApplication extends Application implements MessageSeedPr
     @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService){this.ormService = ormService;}
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Override
@@ -124,13 +146,17 @@ public class WebServicesApplication extends Application implements MessageSeedPr
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(EndPointConfigurationInfoFactory.class).to(EndPointConfigurationInfoFactory.class);
             bind(WebServicesInfoFactory.class).to(WebServicesInfoFactory.class);
-            bind(EndpointConfigurationLogInfoFactory.class).to(EndpointConfigurationLogInfoFactory.class);
+            bind(EndPointLogInfoFactory.class).to(EndPointLogInfoFactory.class);
+            bind(WebServiceCallOccurrenceInfoFactory.class).to(WebServiceCallOccurrenceInfoFactory.class);
+            bind(ormService).to(OrmService.class);
             bind(webServicesService).to(WebServicesService.class);
             bind(transactionService).to(TransactionService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(endPointConfigurationService).to(EndPointConfigurationService.class);
             bind(userService).to(UserService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
+            bind(webServiceCallOccurrenceService).to(WebServiceCallOccurrenceService.class);
         }
     }
 }

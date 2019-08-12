@@ -132,7 +132,15 @@ class MdmAppPrivileges {
                 //issue configuration
                 com.elster.jupiter.issue.security.Privileges.Constants.ADMINISTRATE_CREATION_RULE,
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ASSIGNMENT_RULE,
-                com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE
+                com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE,
+
+                // audit
+                com.elster.jupiter.audit.security.Privileges.Constants.VIEW_AUDIT_LOG,
+
+                //web services
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES
         );
     }
 }

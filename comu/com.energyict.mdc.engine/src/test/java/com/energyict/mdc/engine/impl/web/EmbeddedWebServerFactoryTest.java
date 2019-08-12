@@ -6,21 +6,25 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.RemoteComServer;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OfflineComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
 
 import com.google.inject.Provider;
 
@@ -65,6 +69,14 @@ public class EmbeddedWebServerFactoryTest {
     Thesaurus thesaurus;
     @Mock
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
+    @Mock
+    private EventAPIStatistics eventAPIStatistics;
+    @Mock
+    private QueryAPIStatistics queryAPIStatistics;
+    @Mock
+    private ComServerDAO comServerDAO;
+    @Mock
+    private RunningComServerImpl.ServiceProvider serviceProvider;
 
     private EmbeddedWebServerFactory factory;
     private EmbeddedWebServer embeddedWebServer;
@@ -89,7 +101,7 @@ public class EmbeddedWebServerFactoryTest {
         OfflineComServer comServer = createOfflineComServer();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -116,7 +128,7 @@ public class EmbeddedWebServerFactoryTest {
         OnlineComServer comServer = createOnlineComServer();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -139,7 +151,7 @@ public class EmbeddedWebServerFactoryTest {
         RemoteComServer comServer = createRemoteComServerWithRegistrationPort();
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer, eventAPIStatistics);
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -152,7 +164,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();
@@ -167,7 +179,7 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
 
         // Asserts
         assertThat(embeddedWebServer).isNotNull();

@@ -10,12 +10,16 @@ Ext.define('Apr.controller.TaskManagement', {
         'Apr.view.taskmanagement.TaskGrid',
         'Apr.view.taskmanagement.TaskPreview',
         'Apr.view.taskmanagement.TaskFilter',
-        'Apr.view.taskmanagement.Add'
+        'Apr.view.taskmanagement.Add',
+        'Apr.view.taskmanagement.QueueAndPriorityWindow'
     ],
     stores: [
         'Apr.store.Tasks',
         'Apr.store.QueuesByApplication',
-        'Apr.store.CustomTaskTypes'
+        'Apr.store.TasksQueueTypes',
+        'Apr.store.CustomTaskTypes',
+        'Apr.store.TasksType',
+        'Apr.store.Queues'
     ],
     models: [
         'Apr.model.Task',
@@ -44,6 +48,10 @@ Ext.define('Apr.controller.TaskManagement', {
         {
             ref: 'taskManagementGrid',
             selector: 'task-management-grid'
+        },
+        {
+            ref: 'queuePriorityWindow',
+            selector: 'queue-priority-window-management'
         }
     ],
 
@@ -61,6 +69,9 @@ Ext.define('Apr.controller.TaskManagement', {
             'task-management-action-menu': {
                 click: this.chooseMenuAction,
                 show: this.onMenuShow
+            },
+            'queue-priority-window-management #save-queue-priority-button': {
+                click: this.saveQueuePriority
             }
         });
     },
@@ -68,12 +79,15 @@ Ext.define('Apr.controller.TaskManagement', {
     showTaskManagement: function () {
         var me = this,
             queuesStore = me.getStore('Apr.store.QueuesByApplication'), widget;
+            queueTypesStore = me.getStore('Apr.store.TasksQueueTypes'), widget;
 
         queuesStore.getProxy().extraParams = {application: this.applicationKey};
+        queueTypesStore.getProxy().extraParams = {application: this.applicationKey};
         widget = Ext.widget('task-management-setup', {
             applicationKey: me.applicationKey,
             addTaskRoute: me.addTaskRoute,
             queuesStore: queuesStore,
+            queueTypesStore: queueTypesStore,
             router: me.getController('Uni.controller.history.Router')
         });
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -159,18 +173,24 @@ Ext.define('Apr.controller.TaskManagement', {
             case 'setTriggers':
                 me.showSetTriggers(record);
                 break;
+            case 'suspendTask':
+                me.suspendTaskManagement(record, me.suspendOperationStart, me.suspendOperationCompleted, this);
+                break;
+            case 'setQueueAndPriority':
+                me.setQueueAndPriority(record);
+                break;
         }
     },
 
     onMenuShow: function (menu) {
         var taskType = menu.record.get('queue'),
             taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
-
         Ext.suspendLayouts();
         menu.down('#run-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRun());
         menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
         menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
         menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
+        menu.down('#set-queue-priority').setVisible((menu.record.get('extraQueueCreationEnabled') || menu.record.get('queuePrioritized')));
         menu.reorderItems();
         Ext.resumeLayouts(true);
     },
@@ -283,6 +303,159 @@ Ext.define('Apr.controller.TaskManagement', {
         var me = this;
         me.getController('Uni.controller.history.Router').getRoute(me.rootRoute).forward(null, me.rootRouteArguments);
     },
+
+    /* suspend task section */
+    suspendTaskManagement: function (record, operationStartFunc, operationCompletedFunc, controller)  {
+        var me = this,
+            suspendedDataTime;
+
+        if (record.get('suspended') == 'suspended') {
+            suspendedDataTime = new Date(record.get('suspendedDataTime'));
+        }
+        else {
+            if (record.get('nextRunTimeStamp') == 0){
+                var tomorrowMidnight = new Date();
+                tomorrowMidnight.setHours(24, 0, 0, 1);
+                suspendedDataTime = tomorrowMidnight;
+            }
+            else {
+                suspendedDataTime = new Date(record.get('nextRunTimeStamp'));
+            }
+        }
+
+        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+            itemId: 'snooze-snoozeConfirmationWindow',
+            confirmText: Uni.I18n.translate('general.suspend', 'APR', 'Suspend'),
+            closeAction: 'destroy',
+            green: true,
+            confirmation: function () {
+                me.suspendTask(record, operationStartFunc, operationCompletedFunc, controller, this);
+            }
+        })
+        ;
+
+        confirmationWindow.insert(1, {
+            xtype: 'snooze-date',
+            itemId: 'issue-sel-snooze-run',
+            defaultDate: suspendedDataTime,
+            padding: '-10 0 0 45'
+        });
+        confirmationWindow.insert(2, {
+            xtype: 'label',
+            margin: '0 0 10 50',  // add "It willl be suspended" in suspended dialog
+            text: Uni.I18n.translate('general.suspend.text', 'APR', 'The next run will start after suspended period'),
+        });
+        confirmationWindow.insert(3, {
+            itemId: 'snooze-now-window-errors',
+            xtype: 'label',
+            margin: '0 0 10 50',
+            hidden: true
+        });
+        confirmationWindow.show({
+            title: Uni.I18n.translate('general.suspendNow', 'APR', "Suspend '{0}'?",
+                record.getData().name, false)
+        });
+    },
+
+    suspendTask : function(recordTask, operationStartSuspend, operationCompletedSuspend, controller, confWindow){
+        var me = this;
+        operationStartSuspend.call(controller);
+
+        var suspendTime = confWindow.down('#issue-snooze-until-date').getValue().getTime();
+
+        Ext.Ajax.request({
+            url: '/api/tsk/task/tasks/' + recordTask.get('id') + '/suspend/' + suspendTime,
+            method: 'POST',
+
+            success: function (operation) {
+                console.log('success');
+                var response = Ext.JSON.decode(operation.responseText);
+                recordTask.set('lastRunDate',response.lastRunDate);
+                recordTask.set('suspendUntilTime', response.suspendUntilTime);
+                recordTask.set('queueStatusDate', response.queueStatusDate);
+                recordTask.set('queueStatus', response.queueStatus);
+                recordTask.set('nextRun',response.nextRun);
+                recordTask.set('nextRunTimeStamp',response.nextRun);
+                recordTask.set('queueStatusString', '');
+                recordTask.commit();
+                operationCompletedSuspend.call(controller, true);
+
+                confWindow.destroy();
+            },
+
+            failure: function (response) {
+                operationCompletedSuspend.call(controller, false);
+                if (response.status === 400) {
+                    var res = Ext.JSON.decode(response.responseText);
+                    confWindow.update(res.errors[0].msg);
+                    confWindow.setVisible(true);
+                }
+                else {
+                    confWindow.destroy();
+                }
+            }
+        });
+    },
+    suspendOperationStart:function() {
+        var me = this;
+        me.getPage() && me.getPage().setLoading(true);
+    },
+
+    suspendOperationCompleted:function(succeeded) {
+        var me = this;
+        me.getPage() && me.getPage().setLoading(false);
+        var grid = me.getTaskManagementGrid();
+        if(grid){
+            var selection = grid.getSelectionModel().getSelection(); // get current item selected
+            grid.getSelectionModel().deselectAll();  // deselect all items
+            grid.getSelectionModel().select(selection); // select current item selected, again.
+            // This will force refresh of details, needed for "Suspended" detail
+        }
+    },
+
+   setQueueAndPriority: function (record) {
+            var me = this,
+            storeTaskType = Ext.getStore('Apr.store.TasksType');
+            storeTaskType.getProxy().setUrl(record.getId());
+        storeTaskType.load(function(records, operation, success) {
+            if (success) {
+                var window = Ext.widget('queue-priority-window-management', {
+                    record: record,
+                    storeTaskType: storeTaskType
+                });
+                window.show();
+            };
+        });
+    },
+   saveQueuePriority: function() {
+        var me = this,
+            window = me.getQueuePriorityWindow(),
+            record = window.record,
+            taskId = record.getId(),
+            priority = window.down('#priority-field').getValue(),
+            queue = window.down('#queue-field').getValue(),
+            updatedData;
+
+        updatedData = {
+            id: taskId,
+            queue: queue,
+            priority: priority
+        };
+
+        Ext.Ajax.request({
+            url: '/api/tsk/task',
+            method: 'PUT',
+            jsonData: Ext.encode(updatedData),
+            success: function (response) {
+            record.set({
+                'queue': queue,
+                'priority': priority
+            });
+                window.close();
+                me.getApplication().fireEvent('acknowledge', 'Task queue and priority changed.');
+            },
+        });
+   },
 
     /* common section */
     saveOperationComplete: function () {

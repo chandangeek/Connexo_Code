@@ -8,8 +8,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInfo;
 import com.energyict.mdc.firmware.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -65,8 +65,7 @@ public class DeviceFirmwareVersionResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response cancelDeviceInFirmwareCampaign(@PathParam("name") String name, @PathParam("campaign") long campaignId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        FirmwareCampaign campaign = resourceHelper.findFirmwareCampaignOrThrowException(campaignId);
-        Optional<DeviceInFirmwareCampaignInfo> deviceInFirmwareCampaignInfo = resourceHelper.cancelDeviceInFirmwareCampaign(campaign, device);
+        Optional<DeviceInFirmwareCampaignInfo> deviceInFirmwareCampaignInfo = resourceHelper.cancelDeviceInFirmwareCampaign(device, campaignId);
         return Response.ok(deviceInFirmwareCampaignInfo.isPresent() ? deviceInFirmwareCampaignInfo.get() : "").build();
     }
 
@@ -77,8 +76,7 @@ public class DeviceFirmwareVersionResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response retryDeviceInFirmwareCampaign(@PathParam("name") String name, @PathParam("campaign") long campaignId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        FirmwareCampaign campaign = resourceHelper.findFirmwareCampaignOrThrowException(campaignId);
-        Optional<DeviceInFirmwareCampaignInfo> deviceInFirmwareCampaignInfo = resourceHelper.retryDeviceInFirmwareCampaign(campaign, device);
+        Optional<DeviceInFirmwareCampaignInfo> deviceInFirmwareCampaignInfo = resourceHelper.retryDeviceInFirmwareCampaign(device, campaignId);
         return Response.ok(deviceInFirmwareCampaignInfo.isPresent() ? deviceInFirmwareCampaignInfo.get() : "").build();
     }
 

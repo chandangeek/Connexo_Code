@@ -4,11 +4,11 @@
 
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
@@ -24,8 +24,8 @@ public interface ComPortDiscoveryLogger {
      * which {@link com.energyict.mdc.upl.meterdata.Device device}
      * has started the communication session.
      *
-     * @param discoveryProtocolClassName The class name of the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol}
-     * @param comPort The {@link com.energyict.mdc.engine.config.InboundComPort} on which the communication was started
+     * @param discoveryProtocolClassName The class name of the {@link InboundDeviceProtocol}
+     * @param comPort The {@link InboundComPort} on which the communication was started
      */
     @Configuration(format = "Device identification discovery started by class ''{0}'' ...", logLevel = LogLevel.INFO)
     void discoveryStarted(String discoveryProtocolClassName, InboundComPort comPort);
@@ -35,7 +35,7 @@ public interface ComPortDiscoveryLogger {
      * which {@link com.energyict.mdc.upl.meterdata.Device device}
      * has started the communication session.
      *
-     * @param discoveryProtocolClassName The class name of the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol}
+     * @param discoveryProtocolClassName The class name of the {@link InboundDeviceProtocol}
      * @param comPort The InboundComPort on which the communication was started
      */
     @Configuration(format = "Device identification discovery by class ''{0}'' failed", logLevel = LogLevel.ERROR)
@@ -46,7 +46,7 @@ public interface ComPortDiscoveryLogger {
      * discovered only a {@link DeviceIdentifier}.
      *
      * @param deviceIdentifier The DeviceIdentifier discovered by the InboundDeviceProtocol
-     * @param comPort The {@link com.energyict.mdc.engine.config.InboundComPort} on which the communication was started
+     * @param comPort The {@link InboundComPort} on which the communication was started
      */
     @Configuration(format = "Device identification discovered on port ''{1}'' : ''{0}''", logLevel = LogLevel.INFO)
     void discoveryFoundIdentifierOnly(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
@@ -56,7 +56,7 @@ public interface ComPortDiscoveryLogger {
      * discovered both a {@link DeviceIdentifier} and measurement data.
      *
      * @param deviceIdentifier The DeviceIdentifier discovered by the InboundDeviceProtocol
-     * @param comPort The {@link com.energyict.mdc.engine.config.InboundComPort} on which the communication was started
+     * @param comPort The {@link InboundComPort} on which the communication was started
      */
     @Configuration(format = "Device identification and data discovered on port ''{1}'' : ''{0}''", logLevel = LogLevel.INFO)
     void discoveryFoundIdentifierAndData(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
@@ -103,7 +103,7 @@ public interface ComPortDiscoveryLogger {
      * {@link InboundDeviceProtocol}.
      *
      * @param deviceIdentifier The DeviceIdentifier discovered by the InboundDeviceProtocol
-     * @param comPort The {@link com.energyict.mdc.engine.config.InboundComPort} on which the communication was started
+     * @param comPort The {@link InboundComPort} on which the communication was started
      */
     @Configuration(format = "Server is temporarily too busy to handle communication started by Device (id {0}) on port ''{1}''", logLevel = LogLevel.INFO)
     void serverTooBusy(DeviceIdentifier deviceIdentifier, InboundComPort comPort);

@@ -4,31 +4,29 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import javax.inject.Inject;
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -64,7 +62,7 @@ public class DeviceBuilder {
     }
 
     public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
-        DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(), 
+        DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(),
 	meter.getDeviceType());
         return () -> {
             if (!getExistingDevices(meter.getDeviceName(), meter.getSerialNumber()).isEmpty()) {
@@ -137,34 +135,16 @@ public class DeviceBuilder {
 
             if(configurationEventReason.isPresent() ){
                 EventReason.forReason(configurationEventReason.get())
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), 
-			MessageSeeds.NOT_VALID_CONFIGURATION_REASON, configurationEventReason.get()));
-            }
-
-            if (configurationEventReason.flatMap(EventReason::forReason).filter(EventReason.CHANGE_STATUS::equals)
-	    .isPresent()) {
-                String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(
-		meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_STATUS_ITEM));
-                Instant effectiveDate = statusEffectiveDate.orElse(clock.instant());
-                ExecutableAction executableAction = deviceLifeCycleService.getExecutableActions(changedDevice)
-                        .stream()
-                        .filter(action -> action.getAction() instanceof AuthorizedTransitionAction)
-                        .filter(action -> isActionForState((AuthorizedTransitionAction) action.getAction(), state))
-                        .findFirst()
-                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(), 
-			MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue.orElse("")));
-                executableAction.execute(effectiveDate, Collections.emptyList());
-                changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
-                updateDevice(changedDevice);
-                changedDevice = findDeviceByMRID(meter, changedDevice.getmRID());
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
+			    MessageSeeds.NOT_VALID_CONFIGURATION_REASON, configurationEventReason.get()));
             }
 
             if (configurationEventReason.flatMap(EventReason::forReason).filter(EventReason.CHANGE_MULTIPLIER::equals)
-	    .isPresent()){
-                changedDevice.setMultiplier(
-		multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(
-		meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_MULTIPLIER_ITEM)),
-                        multiplierEffectiveDate.orElse(clock.instant()));
+                .isPresent()){
+                    changedDevice.setMultiplier(
+                    multiplier.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(
+                    meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_MULTIPLIER_ITEM)),
+                                    multiplierEffectiveDate.orElse(clock.instant()));
             }
 
 			if (mrid.isPresent() && meter.getDeviceName() != null) {
@@ -179,12 +159,33 @@ public class DeviceBuilder {
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
             changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));
             changedDevice.setManufacturer(manufacturer.orElse(currentManufacturer));
+            updateDevice(changedDevice);
 
             Multimap<String, String> mapZones = ArrayListMultimap.create();
             changedDevice.removeZonesOnDevice();
             meter.getZones().stream().forEach(zone->mapZones.put(zone.getZoneName(), zone.getZoneType()));
             for (Map.Entry<String, String> zone : mapZones.entries()) { changedDevice.addZone(zone.getKey(), zone.getValue());}
-            return updateDevice(changedDevice);
+
+            if (configurationEventReason.flatMap(EventReason::forReason).filter(EventReason.CHANGE_STATUS::equals)
+                    .isPresent()) {
+                String state = statusValue.orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(
+                        meter.getDeviceName(), MessageSeeds.MISSING_ELEMENT, METER_CONFIG_STATUS_ITEM));
+                Instant effectiveDate = statusEffectiveDate.orElse(clock.instant());
+                ExecutableAction executableAction = deviceLifeCycleService.getExecutableActions(changedDevice)
+                        .stream()
+                        .filter(action -> action.getAction() instanceof AuthorizedTransitionAction)
+                        .filter(action -> isActionForState((AuthorizedTransitionAction) action.getAction(), state))
+                        .findFirst()
+                        .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
+                                MessageSeeds.UNABLE_TO_CHANGE_DEVICE_STATE, statusValue.orElse("")));
+                executableAction.execute(effectiveDate, Collections.emptyList());
+                //in case the device is removed, this will not be found anymore when searching for mRID
+                if(!deviceService.findDeviceByMrid(changedDevice.getmRID()).isPresent())
+                    return null;
+                changedDevice = deviceService.findDeviceByMrid(changedDevice.getmRID()).get();
+            }
+
+            return changedDevice;
         };
     }
 

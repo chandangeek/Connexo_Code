@@ -122,4 +122,15 @@ public final class AXDRDate {
 			return new Date(dataType.longValue() * MILLIS_IN_ONE_SECOND);
 		}
 	}
+
+    public static OctetString encode(int dlmsYear, int dlmsMonth, int dlmsDayOfMonth, int dlmsDayOfWeek) {
+        byte[] result = new byte[5];
+        result[0] = (byte) ((byte) (dlmsYear) >> 8);
+        result[1] = (byte) ((byte) (dlmsYear) & 0xFF);
+        result[2] = (byte) (dlmsMonth);
+        result[3] = (byte) dlmsDayOfMonth;
+        result[4] = (byte) dlmsDayOfWeek;
+
+        return OctetString.fromByteArray(result, result.length);
+    }
 }

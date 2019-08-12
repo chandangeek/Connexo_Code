@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 /**
  * Created by bvn on 10/6/15.

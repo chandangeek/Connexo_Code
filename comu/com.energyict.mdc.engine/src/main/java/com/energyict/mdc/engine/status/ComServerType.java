@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.engine.status;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 
 /**
- * Models the different types of {@link com.energyict.mdc.engine.config.ComServer}s.
+ * Models the different types of {@link ComServer}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (11:05)

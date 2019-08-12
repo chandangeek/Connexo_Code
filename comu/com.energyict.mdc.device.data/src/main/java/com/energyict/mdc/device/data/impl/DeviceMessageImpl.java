@@ -12,7 +12,12 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.TrackingCategory;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.device.data.exceptions.CannotRevokeDeviceMessageException;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.exceptions.IllegalDeviceMessageIdException;
@@ -21,13 +26,8 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMes
 import com.energyict.mdc.device.data.impl.constraintvalidators.UserHasTheMessagePrivilege;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidReleaseDateUpdate;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidTrackingInformation;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;

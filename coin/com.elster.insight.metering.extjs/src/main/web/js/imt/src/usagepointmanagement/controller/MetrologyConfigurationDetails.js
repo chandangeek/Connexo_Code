@@ -21,13 +21,18 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
     ],
 
     views: [
-        'Imt.usagepointmanagement.view.metrologyconfiguration.Details'
+        'Imt.usagepointmanagement.view.metrologyconfiguration.Details',
+        'Imt.usagepointmanagement.view.metrologyconfiguration.UnlinkMeter'
     ],
 
     refs: [
         {
             ref: 'page',
             selector: 'usage-point-metrology-configuration-details'
+        },
+        {
+            ref: 'unlinkMeterForm',
+            selector: '#unlinkMeter'
         }
     ],
     usagePoint: null,
@@ -42,6 +47,9 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             },
             'usage-point-metrology-configuration-details #unlink-metrology-configuration-button': {
                 click: this.unlinkMetrologyConfiguration
+            },
+            '#unlinkMeter #unlink-meter-button': {
+                click: this.unlinkSaveButton   
             }
         });
     },
@@ -118,6 +126,67 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             },
             callback: function () {
                 mainView.setLoading(false);
+            }
+        });
+    },
+
+    unlinkMeter: function (usagePointname, meterName) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
+
+        usagePointsController.loadUsagePoint(usagePointname, {
+            success: function (types, usagePoint) {
+                me.usagePoint = usagePoint;
+                me.getApplication().fireEvent('changecontentevent', Ext.widget('unlink-meter', {
+                    router: router,
+                    usagePoint: usagePoint,
+                    meterName: meterName,
+                }));
+                me.getApplication().fireEvent('unlinkMeterPageLoaded', meterName)
+            },
+            failure: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    unlinkSaveButton: function(btn) {
+        var me = this,
+            unlinkTime = me.getUnlinkMeterForm().down('#unlink-meter-date').down('#unlink-date-on').getValue().getTime(),
+            meterRoleId = _.find(btn.meterRoles, function(meterRole) {
+                return meterRole.meter === btn.meterName;
+            });
+
+        Ext.Ajax.request({
+            url: '/api/udr/usagepoints/'+ btn.usagePointName +'/meterroles/'+ meterRoleId.id +'/unlink/' + unlinkTime,
+            method: 'PUT',
+            success: function() {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.unlinkMeter.success.message', 'IMT', 'Meter {0} will be unlinked on {1}.', [btn.meterName, Uni.DateTime.formatDateTimeShort(unlinkTime)], false));
+                me.getController('Uni.controller.history.Router').getRoute('usagepoints/view/metrologyconfiguration').forward();
+            },
+            failure: function(response) {
+                var code = response.status;
+
+                if (response.status === 400) {
+                    var decodedResponse = Ext.decode(response.responseText, true);
+
+                    if (Ext.isDefined(decodedResponse.errors) && Ext.isArray(decodedResponse.errors) && !Ext.isEmpty(decodedResponse.errors)) {
+                       var title = Uni.I18n.translate('general.error.requestFailedConnexoKnownError', 'IMT', 'Couldn\'t perform your action'),
+                           msg = decodedResponse.errors[0].msg ?
+                            decodedResponse.errors[0].msg
+                            : 
+                            Uni.I18n.translate(
+                                'general.error.unknownErrorOccurred',
+                                'IMT',
+                                'An unknown error occurred'
+                            );
+
+                        me.getApplication().getController('Uni.controller.Error').showError(title, msg, code, null, null, 'unlink-meter-error');
+                        Ext.tip.QuickTipManager.disable();
+                    }
+                }
             }
         });
     }

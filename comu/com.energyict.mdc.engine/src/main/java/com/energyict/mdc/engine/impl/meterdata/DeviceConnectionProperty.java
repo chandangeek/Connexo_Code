@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceConnectionProperty;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceConnectionPropertyForAllOutboundConnections;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
