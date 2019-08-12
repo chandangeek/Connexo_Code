@@ -44,7 +44,7 @@ public class StartProcessWebServiceIssueAction extends AbstractIssueAction {
 
     private final BpmService bpmService;
 
-    private String reasonName;
+    private String reasonKey;
 
     @Inject
     public StartProcessWebServiceIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, BpmService bpmService) {
@@ -108,8 +108,8 @@ public class StartProcessWebServiceIssueAction extends AbstractIssueAction {
     }
 
     @Override
-    public IssueAction setReasonName(String reasonName) {
-        this.reasonName = reasonName;
+    public IssueAction setReasonKey(String reasonKey) {
+        this.reasonKey = reasonKey;
         return this;
     }
 
@@ -143,14 +143,14 @@ public class StartProcessWebServiceIssueAction extends AbstractIssueAction {
         Stream<BpmProcessDefinition> applicableProcesses = bpmService.getActiveBpmProcessDefinitions()
                 .stream()
                 .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(WebServiceIssueProcessAssociationProvider.ASSOCIATION_TYPE));
-        if (reasonName != null) {
+        if (reasonKey != null) {
             applicableProcesses = applicableProcesses.filter(bpmProcessDefinition -> {
                 Object reasons = bpmProcessDefinition.getProperties().get(WebServiceIssueProcessAssociationProvider.PROPERTY_REASONS);
                 return reasons instanceof List && ((List<?>) reasons)
                         .stream()
                         .filter(HasIdAndName.class::isInstance)
                         .map(HasIdAndName.class::cast)
-                        .anyMatch(reason -> reason.getId().toString().equals(reasonName));
+                        .anyMatch(reason -> reasonKey.equals(reason.getId()));
             });
         }
         return applicableProcesses.map(Process::new)

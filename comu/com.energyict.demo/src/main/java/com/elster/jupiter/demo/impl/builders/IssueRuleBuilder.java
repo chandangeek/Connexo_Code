@@ -33,7 +33,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
@@ -163,7 +162,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 actionBuilder.setActionType(issueActionType);
                 Optional<IssueAction> issueAction = issueActionType.createIssueAction();
                 if (issueAction.isPresent()) {
-                    issueAction.get().setReasonName(issueType.getName());
+                    issueAction.get().setReasonKey(reason);
                     for (PropertySpec propertySpec : issueAction.get().getPropertySpecs()) {
                         actionBuilder.addProperty(propertySpec.getName(), propertySpec
                                 .getValueFactory()
