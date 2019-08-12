@@ -98,7 +98,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 hidden: false,
                                 disabled: true,
                                 handler: function(){
-                                     me.down('#targetFirmwareCheckFinal').reset();
+                                     me.down('#targetFirmwareCheckTest').reset();
                                      this.disable();
                                 }
                             }
@@ -266,7 +266,16 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                                 handler: function(){
                                      me.down('#masterFirmwareCheckTest').reset();
                                      this.disable();
-                                     if (!me.down('#masterFirmwareCheckFinal').getValue() && !me.down('#masterFirmwareCheckTest').getValue()) me.down('#masterFirmwareMainOption').setValue(false);
+                                     if (!me.down('#masterFirmwareCheckTest').getValue()){
+                                         if (!me.down('#masterFirmwareCheckFinal').getValue()){
+                                            me.down('#masterFirmwareMainOption').setValue(false);
+                                         }
+                                     }
+                                     else{
+                                         var masterFirmwareCheckFinal = me.down('#masterFirmwareCheckFinal').getValue();
+                                         me.down('#masterFirmwareCheck').setValue(true);
+                                         me.down('#masterFirmwareCheckFinal').setValue(masterFirmwareCheckFinal);
+                                     }
                                 }
                             }
                         ]
