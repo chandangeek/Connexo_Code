@@ -581,6 +581,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 title: Uni.I18n.translate('general.removeX', 'MDC', "Remove '{0}'?", Ext.htmlEncode(record.get('name')), false),
                 fn: function (state) {
                     if (state === 'confirm') {
+                        Ext.Ajax.suspendEvent('requestexception');
                         Ext.Ajax.request({
                             url: Ext.String.format('/api/dtc/devicetypes/{0}/securityaccessors/{1}', me.deviceTypeId, record.get('id')),
                             method: 'DELETE',
@@ -597,6 +598,17 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                                         me.getSecurityAccessorsGrid().setLoading(false);
                                     }
                                 });
+                            },
+                            failure: function (response) {
+                                var message = response.responseText || response.statusText,
+                                    decoded = Ext.decode(message, true);
+                                if (decoded && decoded.message){
+                                    var title = Uni.I18n.translate('securityaccessors.removeSecurityAccessorFailure', 'MDC', 'Couldn\'t delete security accessor');
+                                    me.getApplication().getController('Uni.controller.Error').showError(title, decoded.message, decoded.errorCode);
+                                }
+                            },
+                            callback: function () {
+                                Ext.Ajax.resumeEvent('requestexception');
                             }
                         });
                     }
