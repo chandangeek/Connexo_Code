@@ -33,15 +33,12 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.ami.CompletionOptions;
-import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
@@ -50,7 +47,13 @@ import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
 
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.EndDeviceGroup;
@@ -95,7 +98,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -112,12 +114,9 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GetUsagePointReadingsTest extends AbstractMockActivator {
@@ -209,6 +208,19 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private MessageContext messageContext;
     @Mock
     private WebServiceCallOccurrence webServiceCallOccurrence;
+    @Mock
+    private ComTaskExecution devMesComTaskExecution, regComTaskExecution, irregComTaskExecution;
+    @Mock
+    private ComTaskEnablement devMessageTaskEnablement, regCimTaskEnablement, irregComTaskEnablement;
+    @Mock
+    DeviceConfiguration devMesDeviceConfiguration, regDeviceConfiguration, irregMesDeviceConfiguration;
+    @Mock
+    ComTask devMesComTask, regComTask, irregComTask;
+    @Mock
+    MessagesTask messagesTask;
+    @Mock
+    DeviceMessageCategory deviceMessageCategory;
+
 
     private ExecuteMeterReadingsEndpoint executeMeterReadingsEndpoint;
 
@@ -582,6 +594,35 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
 
     private void mockDevice(Device mock, long amrid) {
         when(deviceService.findDeviceById(amrid)).thenReturn(Optional.of(mock));
+
+        when(mock.getComTaskExecutions()).thenReturn(Arrays.asList(devMesComTaskExecution));
+        when(mock.getDeviceConfiguration()).thenReturn(devMesDeviceConfiguration);
+        mockDeviceConfiguration(devMesDeviceConfiguration, devMessageTaskEnablement, devMesComTask);
+        mockComTaskExecution(devMesComTaskExecution, devMesComTask);
+        mockComTaskExecution(regComTaskExecution, regComTask);
+        mockComTaskExecution(irregComTaskExecution, irregComTask);
+    }
+
+    private void mockDeviceConfiguration(DeviceConfiguration mock, ComTaskEnablement comTaskEnablement, ComTask comTask) {
+        when(mock.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        mockComTaskEnablement(comTaskEnablement, comTask);
+    }
+
+    private void mockComTaskExecution(ComTaskExecution mock, ComTask comTask) {
+        when(mock.getComTask()).thenReturn(comTask);
+        mockComTask(comTask);
+        when(mock.getProtocolTasks()).thenReturn(Arrays.asList(messagesTask));
+        when(messagesTask.getDeviceMessageCategories()).thenReturn(Arrays.asList(deviceMessageCategory));
+        when(deviceMessageCategory.getId()).thenReturn(16);
+    }
+
+    private void mockComTaskEnablement(ComTaskEnablement mock, ComTask comTask) {
+        when(mock.getComTask()).thenReturn(comTask);
+    }
+
+    private void mockComTask(ComTask mock){
+        when(mock.getId()).thenReturn(1L);
+        when(mock.isManualSystemTask()).thenReturn(true);
     }
 
     private void mockReadingTypesOnDevices() {
@@ -901,7 +942,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 "No devices have been found.");
     }
 
-    @Ignore
     @Test
     public void testSomeDevicesWithMridNotFound() throws Exception {
         // Prepare request
@@ -929,12 +969,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7004")));
+                .anyMatch(error -> error.getCode().equals("SIM6004")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("Couldn't find device(s) with MRID(s) 'a74e77e1-c397-41c8-8c3c-6ddab969047c'.")));
     }
 
-    @Ignore
     @Test
     public void testSomeDevicesWithNameNotFound() throws Exception {
         // Prepare request
@@ -962,12 +1001,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7005")));
+                .anyMatch(error -> error.getCode().equals("SIM6005")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("Couldn't find device(s) with name(s) 'SPE01000002'.")));
     }
 
-    @Ignore
     @Test
     public void testSomeDevicesWithMridAndNameNotFound() throws Exception {
         // Prepare request
@@ -996,12 +1034,11 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7006")));
+                .anyMatch(error -> error.getCode().equals("SIM6006")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("Couldn't find device(s) with MRID(s) 'a74e77e1-c397-41c8-8c3c-6ddab969047c' and name(s) 'SPE01000002'.")));
     }
 
-    @Ignore
     @Test
     public void testNoReadingTypesFound() throws Exception {
         // Prepare request
@@ -1012,7 +1049,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
                 .get();
         HeaderType headerType = new HeaderType();
-        headerType.setAsyncReplyFlag(true);
+        headerType.setAsyncReplyFlag(false);
         headerType.setReplyAddress(REPLY_ADDRESS);
         getMeterReadingsRequestMessage.setHeader(headerType);
         getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
@@ -1025,7 +1062,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 "No reading types have been found.");
     }
 
-    @Ignore
     @Test
     public void testSomeReadingTypesWithMridNotFoundInSystemAndOnDevice() throws Exception {
         // Prepare request
@@ -1053,16 +1089,15 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7009")));
+                .anyMatch(error -> error.getCode().equals("SIM6009")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("Reading type(s) with MRID(s) '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0' is(are) not found in the system.")));
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7012")));
+                .anyMatch(error -> error.getCode().equals("SIM6012")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails().equals("Reading type(s) is(are) not found on device 'SPE01000001': '11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0'.")));
     }
 
-    @Ignore
     @Test
     public void testSomeReadingTypesWithMridAndNamesNotFoundInSystem() throws Exception {
         // Prepare request
@@ -1091,13 +1126,12 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7011")));
+                .anyMatch(error -> error.getCode().equals("SIM6011")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails()
                         .equals("Reading type(s) with MRID(s) '0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0' and name(s) '[Monthly] Secondary Delta A+ (kWh)' is(are) not found in the system.")));
     }
 
-    @Ignore
     @Test
     public void testSomeReadingTypesWithNamesNotFoundInSystem() throws Exception {
         // Prepare request
@@ -1125,7 +1159,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
         assertTrue(response.getReply().getError().stream()
-                .anyMatch(error -> error.getCode().equals("SIM7010")));
+                .anyMatch(error -> error.getCode().equals("SIM6010")));
         assertTrue(response.getReply().getError().stream()
                 .anyMatch(error -> error.getDetails()
                         .equals("Reading type(s) with name(s) '[15-minute] Secondary Delta A+ (kWh)' is(are) not found in the system.")));
@@ -1241,7 +1275,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 "Either element 'mRID' or 'Names' is required under 'GetMeterReadings.EndDevice[0]' for identification purpose");
     }
 
-    @Ignore
     @Test
     public void testSuccessCaseSyncModeEndDevice() throws Exception {
         // Prepare request
@@ -1252,6 +1285,9 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
                 .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
                 .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(false);
+        getMeterReadingsRequestMessage.setHeader(headerType);
         getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
         mockFindReadingTypes(dailyReadingType, min15ReadingType);
         mockFindEndDevices(meter1);
@@ -1303,7 +1339,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(reading.getMeter().getNames().get(0).equals(meter1.getName()));
     }
 
-    @Ignore
     @Test
     public void testSuccessCaseSyncModeTimeNotMatchingWithContainer() throws Exception {
         // Prepare request
@@ -1314,6 +1349,9 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
                 .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
                 .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(false);
+        getMeterReadingsRequestMessage.setHeader(headerType);
         getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
         mockFindReadingTypes(dailyReadingType, min15ReadingType);
         mockFindEndDevices(meter1);
@@ -1333,7 +1371,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(meterReadings.getMeterReading()).isEmpty();
     }
 
-    @Ignore
     @Test
     public void testSuccessCaseAsyncModeEndDevice() throws Exception {
         // Prepare request
@@ -1356,11 +1393,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         mockFindEndPointConfigurations();
         mockWebServices(true);
 
-        HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
-        CompletionOptions completionOptions = mock(CompletionOptions.class);
-        when(meter1.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
-        when(headEndInterface.readMeter(eq(meter1), any(),  any(ServiceCall.class))).thenReturn(completionOptions);
-
         MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
 
         // Assert response
@@ -1372,7 +1404,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertThat(meterReadings).isNull();
     }
 
-    @Ignore
     @Test
     public void testSuccessCaseAsyncModeEndDeviceMeterSource() throws Exception {
         // Prepare request
@@ -1395,11 +1426,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         mockFindEndPointConfigurations();
         mockWebServices(true);
 
-        HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
-        CompletionOptions completionOptions = mock(CompletionOptions.class);
-        when(meter1.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
-        when(headEndInterface.readMeter(eq(meter1), any(),  any(ServiceCall.class))).thenReturn(completionOptions);
-
         MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
 
         // Assert response
@@ -1409,11 +1435,8 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         MeterReadings meterReadings = response.getPayload().getMeterReadings();
         // sync reply of async mode doesn't contain any readings
         assertThat(meterReadings).isNull();
-
-        verify(headEndInterface).readMeter(eq(meter1), any(),  any(ServiceCall.class));
     }
 
-    @Ignore
     @Test
     public void testSuccessCaseAsyncModeEndDeviceHybridSourceReadingNotRequired() throws Exception {
         // Prepare request
@@ -1436,11 +1459,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         mockFindEndPointConfigurations();
         mockWebServices(true);
 
-        HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
-        CompletionOptions completionOptions = mock(CompletionOptions.class);
-        when(meter1.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
-        when(headEndInterface.readMeter(eq(meter1), any(),  any(ServiceCall.class))).thenReturn(completionOptions);
-
         MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
 
         // Assert response
@@ -1450,11 +1468,8 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         MeterReadings meterReadings = response.getPayload().getMeterReadings();
         // sync reply of async mode doesn't contain any readings
         assertThat(meterReadings).isNull();
-
-        verify(headEndInterface, never()).readMeter(eq(meter1), any(), any(ServiceCall.class));
     }
 
-    @Ignore
     @Test
     public void testSuccessCaseAsyncModeEndDeviceHybridSourceReadingRequired() throws Exception {
         // Prepare request
@@ -1479,11 +1494,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         mockFindEndPointConfigurations();
         mockWebServices(true);
 
-        HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
-        CompletionOptions completionOptions = mock(CompletionOptions.class);
-        when(meter1.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
-        when(headEndInterface.readMeter(eq(meter1), any(),  any(ServiceCall.class))).thenReturn(completionOptions);
-
         MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
 
         // Assert response
@@ -1493,8 +1503,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         MeterReadings meterReadings = response.getPayload().getMeterReadings();
         // sync reply of async mode doesn't contain any readings
         assertThat(meterReadings).isNull();
-
-        verify(headEndInterface).readMeter(eq(meter1), any(), any(ServiceCall.class));
     }
 
     @Test
@@ -1726,7 +1734,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 "The list of 'GetMeterReadings.Reading' cannot be empty");
     }
 
-    @Ignore
     @Test
     public void testNoTimePeriodInReading() throws Exception {
         // Prepare request
@@ -1747,7 +1754,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 "Element 'GetMeterReadings.Reading[0].timePeriod' is required");
     }
 
-    @Ignore
     @Test
     public void testNoTimePeriodStartInReading() throws Exception {
         // Prepare request
@@ -1803,7 +1809,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 "Element 'GetMeterReadings.Reading[1].source' contains unsupported value 'Meter'. Must be one of: System");
     }
 
-    @Ignore
     @Test
     public void testInvalidTimePeriod() throws Exception {
         // Prepare request
@@ -1824,7 +1829,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 "Can't construct a valid time period: provided start '2017-07-01T00:00:00+12:00' is after or coincides with the end '2017-06-01T00:00:00+12:00'.");
     }
 
-    @Ignore
     @Test
     public void testInvalidEmptyTimePeriod() throws Exception {
         // Prepare request

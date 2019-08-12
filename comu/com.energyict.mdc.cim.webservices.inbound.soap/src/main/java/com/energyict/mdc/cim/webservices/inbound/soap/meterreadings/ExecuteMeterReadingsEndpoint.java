@@ -903,7 +903,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         DateTimeInterval interval = reading.getTimePeriod();
         if (interval == null) {
             if (!asyncFlag) {
-                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD, null, null)
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MISSING_ELEMENT, readingItem + ".timePeriod")
                         .get();
             }
             if (reading.getSource().equals(ReadingSourceEnum.SYSTEM.getSource())) {
@@ -945,9 +945,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 return false;
             }
             if (start != null && end != null && !end.isAfter(start)) {
-                syncReplyIssue.addErrorType(replyTypeFactory.errorType(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD, null,
-                        XsdDateTimeConverter.marshalDateTime(start), XsdDateTimeConverter.marshalDateTime(end)));
-                return false;
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.INVALID_OR_EMPTY_TIME_PERIOD,
+                        XsdDateTimeConverter.marshalDateTime(start), XsdDateTimeConverter.marshalDateTime(end))
+                        .get();
             }
         }
         return true;
