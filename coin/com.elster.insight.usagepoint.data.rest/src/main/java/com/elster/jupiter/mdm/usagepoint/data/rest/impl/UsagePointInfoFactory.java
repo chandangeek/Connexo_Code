@@ -500,7 +500,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         }
         return usagePoint.getMeterActivations()
                 .stream()
-                .filter(meterActivation -> meterActivation.getInterval().toClosedRange().hasUpperBound() == false || meterActivation.getInterval()
+                .filter(meterActivation -> !meterActivation.getInterval().toClosedRange().hasUpperBound() || meterActivation.getInterval()
                         .toClosedRange()
                         .upperEndpoint()
                         .toEpochMilli() >= clock.instant().toEpochMilli())

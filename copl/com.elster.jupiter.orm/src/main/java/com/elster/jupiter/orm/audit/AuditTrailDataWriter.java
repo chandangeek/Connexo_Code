@@ -104,7 +104,7 @@ public class AuditTrailDataWriter<T> {
     private void getAuditDomain(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation) throws SQLException {
 
         try (Connection connection = getConnection(true)) {
-            TableAudit tableAudit = getTable().getTableAudit();
+            TableAudit tableAudit = getTable().getTableAudit(object);
             List<Object> pkDomainColumns = tableAudit.getDomainPkValues(object);
             List<Object> pkContextColumns = tableAudit.getContextPkValues(object);
             List<DomainContextIdentifier> contextAuditIdentifiers = getContextAuditIdentifiers();
@@ -115,8 +115,18 @@ public class AuditTrailDataWriter<T> {
 
             contextAuditIdentifiers.stream()
                     .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext().equals(tableAudit.getDomainContext())) &&
-                            (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
-                            (contextIdentifierEntry.getPkContextColumn1() == getPkColumnByIndex(pkContextColumns, 0)))
+                            (
+                                    (
+                                        getPkColumnByIndex(pkDomainColumns, 0) != 0 &&
+                                        (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
+                                        (contextIdentifierEntry.getPkContextColumn1() == getPkColumnByIndex(pkContextColumns, 0))
+                                    ) ||
+                                    (
+                                        getPkColumnByIndex(pkDomainColumns, 0) == 0 &&
+                                        (contextIdentifierEntry.getPkContextColumn1() == getPkColumnByIndex(pkContextColumns, 0))
+                                    )
+                            )
+                    )
                     .findFirst()
                     .map(domainContextIdentifier -> {
                         try {
@@ -159,7 +169,7 @@ public class AuditTrailDataWriter<T> {
 
     private long getPkColumnBy(DomainContextIdentifier domainContextIdentifier) {
         if (domainContextIdentifier.getPkDomainColumn() == 0) {
-            domainContextIdentifier.setPkDomainColumn(getPkColumnByIndex(getTable().getTableAudit().getDomainPkValues(object), 0));
+            domainContextIdentifier.setPkDomainColumn(getPkColumnByIndex(getTable().getTableAudit(object).getDomainPkValues(object), 0));
         }
         return domainContextIdentifier.getPkDomainColumn();
     }
@@ -167,7 +177,7 @@ public class AuditTrailDataWriter<T> {
     private void persistAuditDomain(Object object, Instant now, UnexpectedNumberOfUpdatesException.Operation operation, Long nextVal,
                                     List<Object> pkDomainColumns, List<Object> pkContextColumns) throws SQLException {
 
-        TableAudit tableAudit = getTable().getTableAudit();
+        TableAudit tableAudit = getTable().getTableAudit(object);
         String auditLog = getSqlGenerator().auditTrailSql();
         try (Connection connection = getConnection(true)) {
             try (PreparedStatement statement = connection.prepareStatement(auditLog)) {
@@ -236,7 +246,7 @@ public class AuditTrailDataWriter<T> {
         contextAuditIdentifiers.stream()
                 .filter(contextIdentifierEntry -> contextIdentifierEntry.getPkDomainColumn() == 0)
                 .forEach(contextIdentifierEntry -> {
-                    TableAudit tableAudit = getTable().getTableAudit();
+                    TableAudit tableAudit = getTable().getTableAudit(object);
                     if (contextIdentifierEntry.getTableAudit().getTouchTable().getName().compareToIgnoreCase(getTable().getName()) == 0) {
                         contextIdentifierEntry.getTableAudit().getReverseReferenceMap(object).ifPresent(reverseReference -> {
                             if (reverseReference.longValue() == contextIdentifierEntry.getReverseReferenceMapValue().longValue()) {

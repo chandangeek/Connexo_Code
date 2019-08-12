@@ -735,23 +735,38 @@ public class UsagePointResource {
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
         Instant unlinkDate = Instant.ofEpochMilli(timeStamp);
+        List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
 
-        for(MeterActivation meterActivation: usagePoint.getMeterActivations()){
-            if(meterActivation.getMeterRole().get().getKey().equals(key) & meterActivation.getInterval().getEnd()==null ){//if the device is unlinked - it disappears from meterActivations
-                if(meterActivation.getInterval().getStart().isBefore(unlinkDate) ) {
-                    UsagePointMeterActivator linker = usagePoint.linkMeters();
-                    linker.clear(unlinkDate, resourceHelper.findMeterRoleOrThrowException(key));
-                    linker.complete();
-                }else{
-                    throw exceptionFactory.newException(MessageSeeds.CANNOT_UNLINK_BEFORE_LINK_DATE);
-                }
+        Optional<MeterActivation> noEndMeterActivation = meterActivations
+                .stream()
+                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().getKey().equals(key) && ma.getInterval().getEnd() == null)
+                .findAny();
+
+        if (noEndMeterActivation.isPresent()){
+            if(noEndMeterActivation.get().getInterval().getStart().isBefore(unlinkDate) ) {
+                UsagePointMeterActivator linker = usagePoint.linkMeters();
+                linker.clear(unlinkDate, resourceHelper.findMeterRoleOrThrowException(key));
+                linker.complete();
             }else{
-                throw exceptionFactory.newException(
-                        MessageSeeds.METER_CANNOT_BE_UNLINKED,
-                        meterActivation.getMeter().get().getName(),
-                        usagePoint.getName(), resourceHelper.formatDate(unlinkDate)
-                );
+                throw exceptionFactory.newException(MessageSeeds.CANNOT_UNLINK_BEFORE_LINK_DATE);
             }
+        }
+        else {
+            meterActivations.stream()
+                    .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().getKey().equals(key)).findAny()
+                    .map(ma -> {
+                        throw exceptionFactory.newException(
+                                MessageSeeds.METER_CANNOT_BE_UNLINKED,
+                                ma.getMeter().get().getName(),
+                                usagePoint.getName(), resourceHelper.formatDate(unlinkDate)
+                        );
+                    })
+                    .orElseThrow(() -> {
+                        return exceptionFactory.newException(
+                                MessageSeeds.NO_SUCH_METER_ROLE,
+                                key
+                        );
+                    });
         }
         return Response.ok().build();
     }

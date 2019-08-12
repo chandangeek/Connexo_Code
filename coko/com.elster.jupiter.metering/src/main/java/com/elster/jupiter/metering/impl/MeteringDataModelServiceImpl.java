@@ -42,6 +42,7 @@ import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
 import com.elster.jupiter.metering.impl.aggregation.InstantTruncaterFactory;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.aggregation.SourceChannelSetFactory;
+import com.elster.jupiter.metering.impl.audit.AuditTranslationKeys;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
@@ -418,6 +419,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
         Arrays.stream(GasDayOptions.RelativePeriodTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(YesNoAnswer.values()).map(YesNoAnswerTranslationKey::new).forEach(translationKeys::add);
+        Arrays.stream(AuditTranslationKeys.values()).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));

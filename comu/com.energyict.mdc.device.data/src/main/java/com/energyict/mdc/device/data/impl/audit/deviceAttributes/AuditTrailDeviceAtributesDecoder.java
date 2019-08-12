@@ -15,21 +15,29 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
+import com.energyict.mdc.device.data.impl.audit.AuditTranslationKeys;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -38,8 +46,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter.MULTIPLIER_ONE;
+import static java.util.Comparator.comparingLong;
 
 public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder {
 
@@ -142,10 +152,14 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                                             .getInstalledDate(), PropertyTranslationKeys.TRANSITION_INSTALLATION, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForLocation(from, to).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForCoordinates(from, to).ifPresent(auditLogChanges::add);
-                                    getAuditLogChangeForMultiplier(from, to).ifPresent(auditLogChanges::add);
                                     getAuditLogChangeForState().ifPresent(auditLogChanges::add);
                                 });
                     });
+            endDevice.ifPresent(ed ->
+            {
+                getAuditLogChangeForMultiplier(ed).ifPresent(auditLogChanges::add);
+                auditLogChanges.addAll(getAuditLogChangeForMeterActivation(ed));
+            });
             return auditLogChanges;
 
         } catch (Exception e) {
@@ -242,7 +256,7 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
         return Optional.empty();
     }
 
-    private Optional<AuditLogChange> getAuditLogChangeForMultiplier(EndDevice from, EndDevice to) {
+    private Optional<AuditLogChange> getAuditLogChangeForMultiplier(EndDevice from) {
         try {
             if (Meter.class.isInstance(from)) {
                 Map<Instant, BigDecimal> timeSlices = new HashMap<>();
@@ -251,8 +265,10 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                 MultiplierType multiplierType = serverDeviceService.findDefaultMultiplierType();
                 List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
 
+
                 meterActivations
                         .forEach(meterActivation -> {
+                            List<MeterActivation> xxx = getMeterActivationObjects(ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(MeterActivation.class), meterActivation.getId());
                             Map<Instant, BigDecimal> toJournalMultipliers = meterActivation.getJournalMultipliers();
                             if (timeSlices.size() == 0) {
                                 timeSlices.put(meterActivation.getModificationDate(), MULTIPLIER_ONE);
@@ -290,6 +306,71 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
         } catch (Exception e) {
         }
         return Optional.empty();
+    }
+
+    private List<AuditLogChange> getAuditLogChangeForMeterActivation(EndDevice ed) {
+        List<AuditLogChange> auditLogChanges = new ArrayList<>();
+
+        try {
+            DataMapper<MeterActivation> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(MeterActivation.class);
+            List<MeterActivation> allEntries = getMeterActivationObjects(dataMapper, ed.getId());
+
+            Map<Long, Optional<MeterActivation>> minGroupById = allEntries.stream()
+                    .collect(Collectors.groupingBy(MeterActivation::getId, Collectors.minBy(comparingLong(MeterActivation::getVersion))));
+
+            Map<Long, Optional<MeterActivation>> maxGroupById = allEntries.stream()
+                    .collect(Collectors.groupingBy(MeterActivation::getId, Collectors.maxBy(comparingLong(MeterActivation::getVersion))));
+
+            Map<Long, Optional<MeterActivation>> groupById = allEntries.stream()
+                    .collect(Collectors.groupingBy(MeterActivation::getId, Collectors.maxBy(comparingLong(MeterActivation::getVersion))));
+
+            for (Map.Entry<Long, Optional<MeterActivation>> ma : groupById.entrySet()) {
+                if (!ma.getValue().isPresent()) {
+                    continue;
+                }
+
+                MeterActivation from = minGroupById.get(ma.getKey()).get();
+                MeterActivation to = maxGroupById.get(ma.getKey()).get();
+                String changesFrom = formatRoleAndLinkMeter(from);
+                if (from.getVersion() == to.getVersion()){
+                    getAuditLogChangeForOptional(Optional.of(changesFrom), getMeterActivationTransalationKey(from), SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                }
+                else {
+                    String changesTo = formatRoleAndLinkMeter(to);
+                    getAuditLogChangeForOptional(Optional.of(changesFrom), Optional.of(changesTo), getMeterActivationTransalationKey(to), SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                }
+            }
+        } catch (Exception e) {
+        }
+        return auditLogChanges;
+    }
+
+    private String formatRoleAndLinkMeter(MeterActivation meterActivation)
+    {
+        String formatRoleAndLinkMeter = "";
+        if ((meterActivation.getEnd() == null) && meterActivation.getMeterRole().isPresent() && meterActivation.getUsagePoint().isPresent()) {
+            formatRoleAndLinkMeter =
+                    getThesaurus().getFormat(AuditTranslationKeys.USAGEPINT_WITH_METER_PROPERTY_FROM).format(
+                            meterActivation.getMeter().get().getName(),
+                            meterActivation.getUsagePoint().get().getName(),
+                            meterActivation.getMeterRole().get().getDisplayName(),
+                            meterActivation.getStart().toString());
+        }
+        else if (!meterActivation.getMeterRole().isPresent() && !meterActivation.getUsagePoint().isPresent() && meterActivation.getMeter().isPresent()) {
+            formatRoleAndLinkMeter =
+                    getThesaurus().getFormat(AuditTranslationKeys.METROLOGY_FROM).format(
+                            meterActivation.getStart().toString());
+        }
+        return formatRoleAndLinkMeter;
+    }
+
+    private TranslationKey getMeterActivationTransalationKey(MeterActivation meterActivation)
+    {
+        String formatRoleAndLinkMeter = "";
+        if ((meterActivation.getEnd() == null) && meterActivation.getMeterRole().isPresent() && meterActivation.getUsagePoint().isPresent()) {
+            return AuditTranslationKeys.LINK_UNLINK_METER_PROPERTY_NAME;
+        }
+        return AuditTranslationKeys.METROLOGY;
     }
 
     private Optional<AuditLogChange> getAuditLogChangeForBatch(Device to) {
@@ -336,5 +417,26 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
 
     public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService(){
         return deviceLifeCycleConfigurationService;
+    }
+
+    private <T> List<T> getMeterActivationObjects(DataMapper dataMapper, long id)
+    {
+        Map<String, Object> actualClause = ImmutableMap.of("METERID", id);
+
+        ImmutableSetMultimap<Operator, Pair<String, Object>> modTimeClauses = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("METERID", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
+                Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
+
+        ImmutableSetMultimap<Operator, Pair<String, Object>> historyByJournalClauses = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("METERID", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
+                Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
+
+        List<T> actualEntries = getActualEntries(dataMapper, actualClause);
+        List<T> historyByModTimeEntries = getHistoryEntries(dataMapper, modTimeClauses);
+        List<T> historyByJournalTimeEntries = getHistoryEntries(dataMapper, historyByJournalClauses);
+
+        return Stream.of(actualEntries, historyByModTimeEntries, historyByJournalTimeEntries)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 }
