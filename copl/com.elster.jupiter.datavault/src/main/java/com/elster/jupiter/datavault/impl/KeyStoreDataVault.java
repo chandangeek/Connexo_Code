@@ -7,6 +7,7 @@ package com.elster.jupiter.datavault.impl;
 import com.elster.jupiter.datavault.DataVault;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.KeyStoreWrapper;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -49,7 +50,7 @@ class KeyStoreDataVault implements DataVault {
     private static final String AES_CBC_PKCS5_PADDING = "AES/CBC/PKCS5Padding";
     private static final String KEYSTORE_TYPE = "JCEKS"; // JCEKS allows storing AES symmetric keys
 
-    private KeyStore keyStore;
+    private KeyStoreWrapper keyStoreWrapper;
     private final Random random;
     private final ExceptionFactory exceptionFactory;
 
@@ -63,8 +64,8 @@ class KeyStoreDataVault implements DataVault {
 
     void readKeyStore(InputStream keyStoreBytes) {
         try {
-            this.keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
-            keyStore.load(keyStoreBytes, getPassword());
+            this.keyStoreWrapper = new KeyStoreWrapper(KeyStore.getInstance(KEYSTORE_TYPE));
+            keyStoreWrapper.load(keyStoreBytes, getPassword());
         } catch (Exception e) {
             throw exceptionFactory.newException(MessageSeeds.KEYSTORE_LOAD_FILE);
         }
@@ -72,14 +73,14 @@ class KeyStoreDataVault implements DataVault {
 
     @Override
     public String encrypt(byte[] plainText) {
-        if (this.keyStore == null) {
+        if (this.keyStoreWrapper == null) {
             throw exceptionFactory.newException(MessageSeeds.NO_KEYSTORE);
         }
         if (plainText == null) {
             return "";
         }
         try {
-            int encryptionKeyId = random.nextInt(this.keyStore.size()) + 1;
+            int encryptionKeyId = random.nextInt(this.keyStoreWrapper.getKeyStore().size()) + 1;
             Cipher cipher = getEncryptionCipherForKey(getKeyAlias(encryptionKeyId));
             byte[] cipherText = cipher.doFinal(plainText);
             byte[] iv = cipher.getIV();
@@ -101,7 +102,7 @@ class KeyStoreDataVault implements DataVault {
 
     @Override
     public byte[] decrypt(String encrypted) {
-        if (this.keyStore == null) {
+        if (this.keyStoreWrapper == null) {
             throw exceptionFactory.newException(MessageSeeds.NO_KEYSTORE);
         }
         if (Checks.is(encrypted).emptyOrOnlyWhiteSpace()) {
@@ -164,7 +165,7 @@ class KeyStoreDataVault implements DataVault {
     }
 
     private SecretKeySpec createKeySpecForKey(String keyAlias) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
-        final Key key = this.keyStore.getKey(keyAlias, getPassword());
+        final Key key = this.keyStoreWrapper.getKey(keyAlias, getPassword());
         if (key == null) {
             throw exceptionFactory.newException(MessageSeeds.DECRYPTION_FAILED); // Not giving details about key for security reasons
         }
