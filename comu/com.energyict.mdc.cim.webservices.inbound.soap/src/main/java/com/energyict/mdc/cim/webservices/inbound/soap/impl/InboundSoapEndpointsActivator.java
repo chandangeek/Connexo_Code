@@ -262,7 +262,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, InstallerImpl.class,
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
                                 version(10, 7), UpgraderV10_7.class));
         createOrUpdateFutureComTasksExecutionTask();
