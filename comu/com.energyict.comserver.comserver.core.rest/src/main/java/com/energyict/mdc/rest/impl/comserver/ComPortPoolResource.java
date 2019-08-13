@@ -208,10 +208,7 @@ public class ComPortPoolResource {
         Optional<? extends ComPortPool> comPortPool = engineConfigurationService.findComPortPool(id);
 
         if (comPortPool.isPresent()) {
-            Optional<ComPortPoolInfo> comPortPoolInfo = comPortPool.map(o -> comPortPoolInfoFactory.asInfo(o, engineConfigurationService, mdcPropertyUtils));
-            if (comPortPoolInfo.isPresent()) {
-                return ((OutboundComPortPoolInfo) comPortPoolInfo.get()).calculateMaxPriorityConnections(comPortPool.get(), engineConfigurationService, pctHighPrioTasks);
-            }
+            return engineConfigurationService.calculateMaxPriorityConnections(comPortPool.get(), pctHighPrioTasks);
         }
 
         return 0;

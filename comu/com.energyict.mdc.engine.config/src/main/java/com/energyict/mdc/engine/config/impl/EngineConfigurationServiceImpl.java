@@ -517,6 +517,27 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public long calculateMaxPriorityConnections(ComPortPool comPortPool, long pctHighPrioTasks) {
+        float tempMaxPriorityConnections = 0;
+
+        for (ComPort comPort : comPortPool.getComPorts()) {
+            long numberOfPortPoolsUsedByThePort = getNumberOfPortPoolsUsedByThePort(comPort);
+            if(numberOfPortPoolsUsedByThePort != 0)
+                tempMaxPriorityConnections += (float)comPort.getNumberOfSimultaneousConnections()/numberOfPortPoolsUsedByThePort;
+        }
+        return (long)Math.ceil(tempMaxPriorityConnections * ((float)pctHighPrioTasks/100));
+    }
+
+    private long getNumberOfPortPoolsUsedByThePort(ComPort comPort) {
+        long comPortInUseByPortPools = 0;
+        for (ComPortPool comPortPool : findAllComPortPools()) {
+            comPortInUseByPortPools += comPortPool.getComPorts().stream().filter(temp -> temp.getId() == comPort.getId()).count();
+        }
+
+        return comPortInUseByPortPools;
+    }
+
+    @Override
     public List<InboundComPort> findInboundInPool(InboundComPortPool comPortPool) {
         return this.dataModel
                 .mapper(ComPort.class)
