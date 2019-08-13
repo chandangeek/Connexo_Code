@@ -256,12 +256,12 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.javaName())
                     .notNull()
                     .add();
-            table.column("deviceId")
+            /*table.column("deviceId")
                     .number()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
                     .upTo(Version.version(10, 7))
-                    .add();
+                    .add();*/
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .varChar(80)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DEVICE_ID.javaName())
@@ -282,12 +282,12 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.PROCESSING_DATE.javaName())
                     .add();
-            table.column("lrn")
+            /*table.column("lrn")
                     .number()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.LRN.javaName())
                     .notNull()
                     .upTo(Version.version(10, 7))
-                    .add();
+                    .add();*/
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.LRN.databaseName())
                     .varChar(80)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.LRN.javaName())

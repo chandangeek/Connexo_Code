@@ -152,11 +152,11 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column("DEVICE_IDENTIFIER")
+            /*table.column("DEVICE_IDENTIFIER")
                     .number()
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName())
                     .upTo(Version.version(10, 7))
-                    .add();
+                    .add();*/
             Column deviceIdColumnString = table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName())
