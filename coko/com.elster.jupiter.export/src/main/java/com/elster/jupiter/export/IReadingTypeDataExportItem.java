@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.export;
 
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.util.HasId;
 
 import java.time.Instant;

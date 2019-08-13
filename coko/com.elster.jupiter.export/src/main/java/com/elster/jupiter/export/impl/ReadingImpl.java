@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-public class ReadingImpl implements Reading {
+class ReadingImpl implements Reading {
 
     private final ReadingRecord decorated;
     private final ReadingType readingType;

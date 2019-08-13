@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-public class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl implements MeterReadingSelectorConfig {
+class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl implements MeterReadingSelectorConfig {
 
     static final String IMPLEMENTOR_NAME = "MeterReadingSelectorConfig";
 

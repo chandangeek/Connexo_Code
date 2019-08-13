@@ -7,7 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
 
-public interface IDataExportOccurrence extends DataExportOccurrence {
+interface IDataExportOccurrence extends DataExportOccurrence {
 
     void persist();
 
