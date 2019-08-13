@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.firmware;
 
+import aQute.bnd.annotation.ProviderType;
 
+@ProviderType
 public interface FirmwareCampaignVersionStateShapshot {
 
     void save();
 
     void delete();
-
-    long getId();
 
     String getFirmwareVersion();
     FirmwareType getFirmwareType();

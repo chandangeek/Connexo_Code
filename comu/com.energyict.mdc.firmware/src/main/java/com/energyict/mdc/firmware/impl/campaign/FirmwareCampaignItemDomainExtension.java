@@ -23,8 +23,12 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
@@ -289,11 +293,15 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         if (campaign.getFirmwareVersion().getFirmwareType() == FirmwareType.CA_CONFIG_IMAGE) {
             return false;
         }
+        FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+        FirmwareCampaignManagementOptions options = firmwareService.findFirmwareCampaignCheckManagementOptions(campaign)
+                .orElseGet(() -> (FirmwareCampaignManagementOptions)firmwareService.findFirmwareManagementOptions(device.getDeviceType())
+                        .orElse(FirmwareManagementOptions.EMPTY));
 
         return firmwareService.getFirmwareChecks()
                 .map(check -> {
                     try {
-                        check.execute(firmwareService.findFirmwareCampaignCheckManagementOptions(campaign).get(), firmwareService.getFirmwareManagementDeviceUtilsFor(device), campaign.getFirmwareVersion());
+                        check.execute(options, utils, campaign.getFirmwareVersion());
                         return false;
                     } catch (FirmwareCheck.FirmwareCheckException e) {
                         getServiceCall().log(LogLevel.WARNING, "Unable to upgrade firmware version on device " + device.getName() + " due to check fail: " + e.getLocalizedMessage());

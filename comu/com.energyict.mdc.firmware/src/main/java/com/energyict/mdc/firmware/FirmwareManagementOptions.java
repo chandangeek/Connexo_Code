@@ -8,32 +8,65 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
 @ProviderType
 public interface FirmwareManagementOptions extends FirmwareCheckManagementOptions {
+
     void setOptions(Set<ProtocolSupportedFirmwareOptions> allowedOptions);
-
-    @Override
-    void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses);
-
-    @Override
-    void deactivate(FirmwareCheckManagementOption checkManagementOption);
 
     Set<ProtocolSupportedFirmwareOptions> getOptions();
 
-    @Override
-    void save();
-
-    @Override
-    void delete();
-
     long getVersion();
 
-    @Override
-    boolean isActivated(FirmwareCheckManagementOption checkManagementOption);
+    FirmwareManagementOptions EMPTY  = new FirmwareManagementOptions() {
 
-    @Override
-    EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption);
+        @Override
+        public void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void deactivate(FirmwareCheckManagementOption checkManagementOption) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void save() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void delete() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isActivated(FirmwareCheckManagementOption checkManagementOption) {
+            return false;
+        }
+
+        @Override
+        public EnumSet<FirmwareStatus> getStatuses(FirmwareCheckManagementOption checkManagementOption) {
+            return EnumSet.noneOf(FirmwareStatus.class);
+        }
+
+        @Override
+        public void setOptions(Set<ProtocolSupportedFirmwareOptions> allowedOptions) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Set<ProtocolSupportedFirmwareOptions> getOptions() {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public long getVersion() {
+            return 0;
+        }
+    };
 }

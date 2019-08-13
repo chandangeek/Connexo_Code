@@ -10,12 +10,14 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignVersionStateShapshot;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
+import java.util.Objects;
 
 public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVersionStateShapshot {
 
@@ -40,7 +42,6 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
         }
     }
 
-    private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
     private String firmwareVersion;
@@ -64,8 +65,8 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
         this.firmwareStatus = firmwareVersion.getFirmwareStatus();
         this.imageIdentifier = firmwareVersion.getImageIdentifier();
         this.rank = firmwareVersion.getRank();
-        this.meterFirmwareDependency = firmwareVersion.getMeterFirmwareDependency().isPresent()?firmwareVersion.getMeterFirmwareDependency().get().getFirmwareVersion():null;//???
-        this.communicationFirmwareDependency = firmwareVersion.getCommunicationFirmwareDependency().isPresent()?firmwareVersion.getCommunicationFirmwareDependency().get().getFirmwareVersion():null;//???
+        this.meterFirmwareDependency = Objects.requireNonNull(firmwareVersion.getMeterFirmwareDependency().orElse(null)).getFirmwareVersion();
+        this.communicationFirmwareDependency = Objects.requireNonNull(firmwareVersion.getCommunicationFirmwareDependency().orElse(null)).getFirmwareVersion();
         return this;
     }
 
@@ -75,19 +76,11 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
 
     @Override
     public void save() {
-        if (getId() == 0) {
-            doPersist();
-            return;
+        if (dataModel.mapper(FirmwareCampaignVersionStateShapshot.class).getUnique("firmwareCampaign", firmwareCampaign.get()).isPresent()) {
+            Save.UPDATE.save(dataModel, this);
+        } else {
+            Save.CREATE.save(dataModel, this);
         }
-        doUpdate();
-    }
-
-    private void doPersist() {
-        Save.CREATE.save(dataModel, this);
-    }
-
-    private void doUpdate() {
-        Save.UPDATE.save(dataModel, this);
     }
 
     FirmwareCampaign getFirmwareCampaign(){
@@ -96,11 +89,6 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
 
     protected DataModel getDataModel() {
         return dataModel;
-    }
-
-    @Override
-    public long getId() {
-        return id;
     }
 
     public String getFirmwareVersion() {
