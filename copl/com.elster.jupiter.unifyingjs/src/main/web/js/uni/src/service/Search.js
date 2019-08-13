@@ -381,10 +381,20 @@ Ext.define('Uni.service.Search', {
 
     clearFilters: function () {
         var me = this;
-
+        var visibility =false;
+        var domainsStore = me.getSearchResultsStore();
+        var domainsListeners = domainsStore.on({
+            load: function () {
+                visibility = domainsStore.count() === 1;
+            },
+            scope: me,
+            destroyable: true
+        });
         me.getSearchResultsStore().removeAll();
         me.setDomain(me.searchDomain, function () {
             me.applyFilters();
+            Ext.getCmp('loadDropDown').clearValue();
+            Ext.getCmp('saveSearchButton').disable();
         })
     },
 
@@ -711,5 +721,83 @@ Ext.define('Uni.service.Search', {
         if (!Ext.isEmpty(me.previouslyAppliedState)) {
             this.applyState(me.previouslyAppliedState, callback);
         }
+    },
+
+    openSaveSearch: function () {
+        var me = this;
+        Ext.create('Uni.view.search.SearchSaveWindow').show();
+    },
+
+    loadSearch: function (combo, value) {
+        var me = this,
+            filters = me.getFilters();
+        me.criteriaName =value[0].getData().name;
+        if (filters && filters.length) {
+            me.getSearchResultsStore().removeAll();
+            me.setDomain(me.searchDomain, function () {
+                me.applyFilters();
+                var criteria = JSON.parse(value[0].data.criteria);
+                me.setFilters(criteria);
+            })
+        }
+        else {
+            var criteria = JSON.parse(value[0].data.criteria);
+            me.setFilters(criteria);
+        }
+    },
+
+    saveSearchCriteria: function (cont) {
+        var me = this;
+        var flag= false;
+        var router = this.router;
+            var name = Ext.getCmp('saveEntered').getValue();
+        if (router && router.currentRoute == 'search') {
+            Uni.util.History.setParsePath(false);
+            router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
+        }
+            if(name !== null &&  typeof (name !==  'undefined')) {
+                Ext.Ajax.request({
+                    type: 'rest',
+                    url: "../../api/jsr/search/saveCriteria/" + name,
+                    method: "POST",
+                    async : false,
+                    params: {
+                        filter: JSON.stringify(me.getFilters()),
+                        domain: JSON.stringify(me.getDomain().id)
+                    },
+                    success: function (response) {
+                        flag=true;
+                        Ext.getCmp('loadDropDown').getStore().load();
+                        cont.up('window').destroy();
+                    },
+                    failure: function (response) {
+                        alert("fail");
+                    }
+                });
+            }
+        return flag;
+    },
+
+    removeSearchCriteria: function (btn) {
+        var me = this,
+            criteriaName =  me.criteriaName,
+        flag= false;
+        Ext.Ajax.request({
+            type: 'rest',
+            url: "../../api/jsr/search/searchCriteria/" + criteriaName,
+            method: "DELETE",
+            async : false,
+            success: function (response) {
+                flag=true;
+                me.clearFilters();
+                Ext.getCmp('loadDropDown').clearValue();
+                Ext.getCmp('loadDropDown').getStore().load();
+                btn.up('window').destroy();
+            },
+            failure: function (response) {
+                alert("fail");
+            }
+        });
+        return flag;
     }
 });

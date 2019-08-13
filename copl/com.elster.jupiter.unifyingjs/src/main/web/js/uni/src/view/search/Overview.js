@@ -17,6 +17,7 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.search.Results',
         'Uni.store.search.Domains',
+        'Uni.store.search.SaveLoad',
         'Uni.store.search.Removables',
         'Uni.view.search.field.internal.CriteriaPanel',
         'Uni.view.search.field.Boolean',
@@ -47,7 +48,6 @@ Ext.define('Uni.view.search.Overview', {
         var me = this,
             domainsStore = this.getService().getSearchDomainsStore(),
             store = Ext.getStore('Uni.store.search.Properties');
-
         me.items = [
             {
                 xtype: 'panel',
@@ -65,7 +65,7 @@ Ext.define('Uni.view.search.Overview', {
                         ui: 'filter',
                         layout: {
                             type: 'vbox',
-                            align : 'stretch'
+                            align: 'stretch'
                         },
                         defaults: {
                             xtype: 'panel',
@@ -103,7 +103,7 @@ Ext.define('Uni.view.search.Overview', {
                             {
                                 // Sticky criteria.
                                 xtype: 'uni-search-internal-criteriapanel',
-                                itemId: 'search-criteria-sticky',
+                                itemId: 'search-criteriasearch-criteria-selector-sticky',
                                 layout: 'column',
                                 lbar: {
                                     xtype: 'label',
@@ -137,6 +137,52 @@ Ext.define('Uni.view.search.Overview', {
                                     pack: 'end'
                                 },
                                 items: [
+                                    {
+                                        xtype: 'combobox',
+                                        itemId: 'load-button',
+                                        id:'loadDropDown',
+                                        emptyText:  Uni.I18n.translate('general.load', 'UNI', 'Load'),
+                                        queryMode: 'local',
+                                        style: "margin-right :3px",
+                                        width: 140,
+                                        store: Ext.create('Uni.store.search.SaveLoad'),
+                                        displayField: 'name',
+                                        displayValue: 'criteria',
+                                        action: 'loadSearch',
+                                        listConfig : {
+                                            minWidth:200,
+                                            maxHeight:250,
+                                            style: "border-radius : 4px",
+                                            shadow : true,
+                                            bodyPadding: 10,
+                                            margin :0,
+                                            getInnerTpl : function (displayField) {
+                                                return '<a class="icon-cancel-circle2" style="float:right;cursor:default; display:inline-block; font-size:16px; margin-top:2px"></a>{' + displayField + '}';
+                                            },
+                                            listeners: {
+                                                el: {
+                                                    delegate: '.icon-cancel-circle2',
+                                                    click: function(list, record, item, index, e) {
+                                                        Ext.create('Uni.view.search.RemoveSaveWindow').show();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        xtype: 'tbspacer',
+                                        width: 5
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        itemId: 'save-button',
+                                        id:'saveSearchButton',
+                                        text:  Uni.I18n.translate('general.save', 'UNI', 'Save'),
+                                        action: 'saveSearchWindow',
+                                        disabled: true
+
+                                    },
+
                                     {
                                         xtype: 'button',
                                         itemId: 'search-button',
@@ -183,10 +229,10 @@ Ext.define('Uni.view.search.Overview', {
 
         var panel = me.down('#search-main-container');
         var listeners = store.on({
-            beforeload:  function() {
+            beforeload: function () {
                 panel.setLoading(true);
             },
-            load: function() {
+            load: function () {
                 panel.setLoading(false);
             },
             scope: me,
@@ -194,15 +240,17 @@ Ext.define('Uni.view.search.Overview', {
         });
 
         var domainsListeners = domainsStore.on({
-            load: function() {
-                var visible = domainsStore.count() > 1;
+            load: function () {
+                var visible = domainsStore.count() === 2 ;
+                var visibility = domainsStore.count() === 1;
                 me.down('#search-domain').setVisible(visible);
                 me.down('#search-domain-separator').setVisible(visible);
+                me.down('#load-button').setVisible(visibility);
+                me.down('#save-button').setVisible(visibility);
             },
             scope: me,
             destroyable: true
         });
-
         var resultsListeners = me.service.getSearchResultsStore().on({
             load: me.setGridMaxHeight,
             scope: me,
