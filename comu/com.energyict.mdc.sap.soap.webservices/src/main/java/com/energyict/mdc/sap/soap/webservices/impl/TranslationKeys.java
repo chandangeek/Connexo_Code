@@ -11,7 +11,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
@@ -82,8 +81,6 @@ public enum TranslationKeys implements TranslationKey {
             UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName()),
     UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.utilities.device.register.create.request",
             UtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
-    MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CPS("servicecall.cps.measurement.task.assignment.change",
-            MeasurementTaskAssignmentChangeCustomPropertySet.class.getSimpleName()),
 
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
