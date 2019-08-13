@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store.common;
 
-import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -12,8 +12,8 @@ import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTes
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import org.junit.Test;

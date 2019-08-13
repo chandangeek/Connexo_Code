@@ -2,8 +2,8 @@ package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;

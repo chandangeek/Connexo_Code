@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.config.impl;
 
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.IPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.IPBasedInboundComPort;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

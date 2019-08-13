@@ -14,6 +14,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -49,6 +50,8 @@ public abstract class IssueDataValidationApplicationJerseyTest extends FelixRest
     MeteringService meteringService;
     @Mock
     DeviceService deviceService;
+    @Mock
+    private volatile LocationService locationService;
 
     @Override
     protected Application getApplication() {
@@ -61,6 +64,7 @@ public abstract class IssueDataValidationApplicationJerseyTest extends FelixRest
         application.setTransactionService(transactionService);
         application.setDeviceService(deviceService);
         application.setNlsService(nlsService);
+        application.setLocationService(locationService);
         return application;
     }
 

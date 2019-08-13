@@ -12,9 +12,9 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-import com.energyict.mdc.tasks.ComTask;
 
 import com.google.common.base.Strings;
 

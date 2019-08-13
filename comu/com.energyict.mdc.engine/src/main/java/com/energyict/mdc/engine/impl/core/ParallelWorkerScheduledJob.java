@@ -6,29 +6,32 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
-public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup implements Runnable {
+public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup implements MultiThreadedScheduledJobExecutor {
 
     private final ParallelRootScheduledJob parallelRootScheduledJob;
     private final CountDownLatch start;
     private final ThreadPrincipalService threadPrincipalService;
     private final User comServerUser;
+    private final MultiThreadedScheduledJobCallBack jobCallBack;
     private Optional<Long> threadId = Optional.empty();
 
     private Boolean connectionEstablished = null;
 
-    public ParallelWorkerScheduledJob(ParallelRootScheduledJob parallelRootScheduledJob, CountDownLatch start, ThreadPrincipalService threadPrincipalService, User comServerUser) {
+    public ParallelWorkerScheduledJob(ParallelRootScheduledJob parallelRootScheduledJob, CountDownLatch start, ThreadPrincipalService threadPrincipalService, User comServerUser, MultiThreadedScheduledJobCallBack jobCallBack) {
         super(((OutboundComPort) parallelRootScheduledJob.getComPort()), parallelRootScheduledJob.getComServerDAO(), parallelRootScheduledJob.getDeviceCommandExecutor(), parallelRootScheduledJob.getConnectionTask(), parallelRootScheduledJob.getServiceProvider());
         this.threadPrincipalService = threadPrincipalService;
         this.comServerUser = comServerUser;
         this.parallelRootScheduledJob = parallelRootScheduledJob;
+        this.jobCallBack = jobCallBack;
         this.start = start;
     }
 
@@ -80,6 +83,7 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
                 this.closeConnection();
                 parallelRootScheduledJob.complete(this);
             }
+            jobCallBack.notifyJobExecutorFinished(this);
         }
     }
 
@@ -93,5 +97,25 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
 
     private void setThreadPrinciple() {
         threadPrincipalService.set(comServerUser, "MultiThreadedComPort", "Executing", comServerUser.getLocale().orElse(Locale.ENGLISH));
+    }
+
+    @Override
+    public boolean isExecutingHighPriorityJob() {
+        return false;
+    }
+
+    @Override
+    public boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
+        return parallelRootScheduledJob.containsOneOf(comTaskExecutions);
+    }
+
+    @Override
+    public int getNumberOfTasks() {
+        return parallelRootScheduledJob.getComTaskExecutions().size();
+    }
+
+    @Override
+    public boolean isExecutingParallelRootScheduledJob() {
+        return false;
     }
 }

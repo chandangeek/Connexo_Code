@@ -4,12 +4,14 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 /**
  * Subset of {@link EventType}s that relate to
- * {@link com.energyict.mdc.device.config.ComTaskEnablement}
- * and the way they use {@link com.energyict.mdc.device.config.PartialConnectionTask}
+ * {@link ComTaskEnablement}
+ * and the way they use {@link PartialConnectionTask}
  * or the default connection task.
  *
  * @author Rudi Vankeirsbilck (rudi)

@@ -23,14 +23,15 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallStateChangeTopicHandler;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
@@ -199,6 +200,10 @@ public class ToUCampaignServiceIT {
                 .withUpdateType(updateType)
                 .withValidationTimeout(timeValidation)
                 .withUniqueCalendarName(false)
+                .withCalendarUploadComTaskId(1L)
+                .withValidationComTaskId(1L)
+                .withCalendarUploadConnectionStrategy("As soon as possible")
+                .withValidationConnectionStrategy("Minimize connections")
                 .create();
         assertThat(timeOfUseCampaign1.getName()).isEqualTo(name);
         assertThat(timeOfUseCampaign1.getDeviceGroup()).isEqualTo(deviceGroup);
@@ -209,6 +214,10 @@ public class ToUCampaignServiceIT {
         assertThat(timeOfUseCampaign1.getActivationOption()).isEqualTo(activationOption);
         assertThat(timeOfUseCampaign1.getUpdateType()).isEqualTo(updateType);
         assertThat(timeOfUseCampaign1.getValidationTimeout()).isEqualTo(timeValidation);
+        assertThat(timeOfUseCampaign1.getCalendarUploadComTaskId()).isEqualTo(1L);
+        assertThat(timeOfUseCampaign1.getValidationComTaskId()).isEqualTo(1L);
+        assertThat(timeOfUseCampaign1.getCalendarUploadConnectionStrategy().get()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        assertThat(timeOfUseCampaign1.getValidationConnectionStrategy().get()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
     }
 
     @Test

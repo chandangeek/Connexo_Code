@@ -7,9 +7,9 @@ package com.energyict.mdc.device.data.impl.events;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import com.google.inject.AbstractModule;

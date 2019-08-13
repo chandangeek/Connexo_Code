@@ -6,7 +6,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSession;
 
 import java.util.stream.Stream;
 

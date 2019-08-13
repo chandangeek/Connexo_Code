@@ -7,9 +7,9 @@ package com.energyict.mdc.rest.impl.comserver;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import javax.inject.Inject;

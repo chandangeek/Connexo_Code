@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.UserInfoFactory;
 
@@ -47,7 +48,13 @@ public class PartiesApplicationJerseyTest extends FelixRestApplicationJerseyTest
     @Override
     public void setupMocks() {
         super.setupMocks();
-        when(transactionService.execute(Matchers.any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
+        when(transactionService.execute(Matchers.any())).thenAnswer(invocation -> {
+            if (invocation.getArguments()[0] instanceof VoidTransaction) {
+               return ((VoidTransaction) invocation.getArguments()[0]).get();
+            } else {
+                return ((Transaction<?>) invocation.getArguments()[0]).perform();
+            }
+        });
     }
 
 }

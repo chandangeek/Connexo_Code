@@ -9,10 +9,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComPortPoolMember;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPoolMember;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
+
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.engine.config.OutboundComPortPool} interface.
+ * Provides an implementation for the {@link OutboundComPortPool} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (10:21)
@@ -44,10 +45,11 @@ public final class OutboundComPortPoolImpl extends ComPortPoolImpl implements Ou
         this.comPortPoolMemberProvider = comPortPoolMemberProvider;
     }
 
-    OutboundComPortPoolImpl initialize(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout) {
+    OutboundComPortPoolImpl initialize(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout, long pctHighPrioTasks) {
         this.setName(name);
         this.setComPortType(comPortType);
         this.setTaskExecutionTimeout(taskExecutionTimeout);
+        this.setPctHighPrioTasks(pctHighPrioTasks);
         return this;
     }
 

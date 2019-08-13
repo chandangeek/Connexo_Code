@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**

@@ -5,9 +5,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.inject.Inject;

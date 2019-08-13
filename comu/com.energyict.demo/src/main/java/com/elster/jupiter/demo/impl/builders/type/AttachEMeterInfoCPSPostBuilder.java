@@ -5,7 +5,7 @@
 package com.elster.jupiter.demo.impl.builders.type;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import javax.inject.Inject;
 import java.util.function.Consumer;

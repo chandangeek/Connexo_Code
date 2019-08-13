@@ -6,9 +6,9 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.engine.config.ComPortPoolMember;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPoolMember;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 
 import java.time.Instant;
 import java.util.Objects;

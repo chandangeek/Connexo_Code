@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.protocol.api.services;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.meterdata.LogBook;

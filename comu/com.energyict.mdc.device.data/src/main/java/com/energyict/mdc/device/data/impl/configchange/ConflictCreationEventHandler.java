@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.impl.configchange;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 

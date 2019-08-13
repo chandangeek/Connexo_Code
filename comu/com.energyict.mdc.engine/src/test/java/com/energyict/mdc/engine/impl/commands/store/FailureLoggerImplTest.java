@@ -4,15 +4,15 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Clock;
 import java.time.Instant;

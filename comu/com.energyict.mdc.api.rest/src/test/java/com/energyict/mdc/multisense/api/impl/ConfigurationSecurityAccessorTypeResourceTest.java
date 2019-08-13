@@ -5,14 +5,14 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.RequestSecurityLevel;
+import com.energyict.mdc.common.protocol.security.ResponseSecurityLevel;
+import com.energyict.mdc.common.protocol.security.SecuritySuite;
 
 import com.jayway.jsonpath.JsonModel;
 

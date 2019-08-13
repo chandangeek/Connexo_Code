@@ -5,8 +5,10 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -15,9 +17,7 @@ import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -67,7 +67,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     @Mock
     DeviceMessageCategory uplDeviceMessageCategory;
     @Mock
-    com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory deviceMessageCategory;
+    com.energyict.mdc.common.protocol.DeviceMessageCategory deviceMessageCategory;
     @Mock
     Device device;
     @Mock
@@ -279,7 +279,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     private MessagesTask createMockedMessagesTaskWithCategories() {
         MessagesTask messagesTask = mock(MessagesTask.class);
         when(messagesTask.getDeviceMessageCategories()).thenReturn(
-                Arrays.<com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory>asList(
+                Arrays.<com.energyict.mdc.common.protocol.DeviceMessageCategory>asList(
                         DeviceMessageTestCategories.FIRST_TEST_CATEGORY,
                         DeviceMessageTestCategories.THIRD_TEST_CATEGORY));
         return messagesTask;
@@ -288,7 +288,7 @@ public class MessagesCommandImplTest extends AbstractComCommandExecuteTest {
     private MessagesTask createMockedMessagesTaskWithOtherCategories() {
         MessagesTask messagesTask = mock(MessagesTask.class);
         when(messagesTask.getDeviceMessageCategories()).thenReturn(
-                Arrays.<com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory>asList(
+                Arrays.<com.energyict.mdc.common.protocol.DeviceMessageCategory>asList(
                         DeviceMessageTestCategories.FIRST_TEST_CATEGORY,
                         DeviceMessageTestCategories.SECOND_TEST_CATEGORY));
         return messagesTask;

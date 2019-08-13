@@ -188,10 +188,12 @@ public class TrustStoreImpl2IT {
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey()).withValue(trustStore2)
                 .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.seconds(30))
                 .addProperty(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(securityAccessor)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES.getPropertyKey()).withValue(false)
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey()).withValue(false)
                 .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
                 .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
                 .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER.getPropertyKey()).withValue(false)
+                .addProperty(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()).withValue("{}")
                 .create();
 
         expectedRule.expect(VetoDeleteTrustStoreException.class);

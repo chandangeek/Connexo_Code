@@ -5,7 +5,7 @@
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.SecurityPropertySetBuilder;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 
 import java.math.BigDecimal;
 import java.util.Arrays;

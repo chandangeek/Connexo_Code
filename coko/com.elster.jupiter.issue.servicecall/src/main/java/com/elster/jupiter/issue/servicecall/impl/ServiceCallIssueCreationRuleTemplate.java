@@ -94,17 +94,18 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
                 "\tevent : ServiceCallStateChangedEvent(stateId in (@{" + TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey() + "}), " +
                 " serviceCallTypeId in (@{" + TranslationKeys.SERVICE_CALL_TYPE.getKey() + "}))\n" +
                 "then\n" +
-                "\tLOGGER.info(\"Trying to create issue by servicecall rule [id = @{ruleId}]\");\n" +
+                "\tLOGGER.info(\"Trying to create/update issue by servicecall rule [id = @{ruleId}]\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueCreationEvent(@{ruleId}, event);\n" +
                 "end\n" +
                 "rule \"Auto-resolution section @{ruleId}\"\n" +
                 "when\n" +
-                "\tevent : ServiceCallStateChangedEvent(stateId == " + DefaultState.SUCCESSFUL.ordinal() + ", " +
-                " serviceCallTypeId in (@{" + TranslationKeys.SERVICE_CALL_TYPE.getKey() + "})," +
+                "\tevent : ServiceCallStateChangedEvent(stateId not in (@{" + TranslationKeys.SERVICE_CALL_TYPE_STATE.getKey() + "}), " +
                 "@{" + AUTORESOLUTION + "} == 1" +
                 ")\n" +
                 "then\n" +
                 "\tLOGGER.info(\"Trying to resolve service call issue rule=@{ruleId}\");\n" +
+                "\tevent.setCreationRule(@{ruleId});\n" +
                 "\tissueCreationService.processIssueResolutionEvent(@{ruleId}, event);\n" +
                 "end\n";
     }
@@ -185,6 +186,15 @@ public class ServiceCallIssueCreationRuleTemplate implements CreationRuleTemplat
     @Override
     public OpenServiceCallIssue createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
         return issueServiceCallService.createIssue(baseIssue, issueEvent);
+    }
+
+    @Override
+    public void updateIssue(OpenIssue openIssue, IssueEvent event) {
+        if (IssueStatus.IN_PROGRESS.equals(openIssue.getStatus().getKey())) {
+            openIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElseThrow(() ->
+                    new IllegalArgumentException("Couldn't find " + IssueStatus.class.getSimpleName() + " '" + IssueStatus.OPEN + "' in database.")));
+            openIssue.update();
+        }
     }
 
     @Override

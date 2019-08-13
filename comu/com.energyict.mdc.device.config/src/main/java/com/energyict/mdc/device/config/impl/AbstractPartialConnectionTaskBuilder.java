@@ -6,16 +6,17 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.PartialConnectionTaskBuilder;
+import com.energyict.mdc.common.device.config.ServerPartialConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 
 import java.util.HashMap;
 import java.util.Map;
 
-abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTaskImpl> implements PartialConnectionTaskBuilder<S, T, U> {
+abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U extends ServerPartialConnectionTask> implements PartialConnectionTaskBuilder<S, T, U> {
 
     final S myself;
     final DataModel dataModel;
@@ -84,8 +85,8 @@ abstract class AbstractPartialConnectionTaskBuilder<S, T extends ComPortPool, U 
         }
         populate(instance);
         configuration.addPartialConnectionTask(instance);
-        if (configuration.getId() > 0) {
-            eventService.postEvent(instance.createEventType().topic(), instance);
+        if (configuration.getId() > 0 && instance instanceof PartialConnectionTaskImpl) {
+            eventService.postEvent(((PartialConnectionTaskImpl)instance).createEventType().topic(), instance);
         }
         return instance;
     }

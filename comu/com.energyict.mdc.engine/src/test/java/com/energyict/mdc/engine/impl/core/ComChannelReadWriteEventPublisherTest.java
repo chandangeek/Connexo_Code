@@ -4,23 +4,24 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.protocol.api.services.HexService;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.Clock;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.time.Clock;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;

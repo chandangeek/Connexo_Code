@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.protocol.api;
 
+import com.energyict.mdc.common.protocol.DeviceMessageFile;
+
 import java.util.Optional;
 
 /**

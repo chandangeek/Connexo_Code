@@ -6,8 +6,8 @@ package com.energyict.mdc.device.alarms.impl.event;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
-import com.energyict.mdc.device.config.DeviceType;
 
 public class VetoDeviceTypeDeleteException extends LocalizedException {
     public VetoDeviceTypeDeleteException(Thesaurus thesaurus, DeviceType deviceType) {

@@ -5,9 +5,10 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.RegisterType;
 
 import java.util.Optional;
 

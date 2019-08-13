@@ -5,7 +5,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
+import com.elster.jupiter.metering.MeteringTranslationService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -15,22 +19,38 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.LoadProfileJournalReading;
+import com.energyict.mdc.common.device.data.LoadProfileReading;
+import com.energyict.mdc.common.device.data.Reading;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.FlagsRegister;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.NumericalRegister;
+import com.energyict.mdc.device.data.TextReading;
+import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**

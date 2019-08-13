@@ -12,21 +12,23 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     IMPORT_SECURITY_ACCESSOR("importSecurityAccessor", "Import security accessor"),
     IMPORT_SECURITY_ACCESSOR_DESCRIPTION("importSecurityAccessor.description", "Security accessor used to verify the signature of imported zip. " +
             "Must contain certificate of type RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH + '.'),
-    EXPORT_CERTIFICATES("exportCertificates", "Export certificates"),
-    EXPORT_CERTIFICATES_DESCRIPTION("exportCertificates.description", "Whether to export result certificates or not"),
-    EXPORT_SECURITY_ACCESSOR("exportSecurityAccessor", "Export security accessor"),
+    EXPORT_CERTIFICATES_FOLDER("exportCertificatesFolder", "Export certificates on folder"),
+    EXPORT_CERTIFICATES_FOLDER_DESCRIPTION("exportCertificatesFolder.description", "Export result certificates on folder"),
+    EXPORT_CERTIFICATES_SFTP("exportCertificates", "Export certificates on SFTP"),
+    EXPORT_CERTIFICATES_SFTP_DESCRIPTION("exportCertificates.description", "Export result certificates on SFTP"),
+    EXPORT_SECURITY_ACCESSOR("exportSecurityAccessor", "Signing security accessor"),
     EXPORT_SECURITY_ACCESSOR_DESCRIPTION("exportSecurityAccessor.description", "Security accessor used to sign the exported zip. " +
             "Must contain client certificate with private key of type RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH + '.'),
     EXPORT_TRUST_STORE("exportTrustStore", "Trust store"),
     EXPORT_TRUST_STORE_DESCRIPTION("exportTrustStore.description", "All certificates from this trust store are added to the exported zip file"),
-    EXPORT_HOSTNAME("exportHostname", "Hostname"),
-    EXPORT_HOSTNAME_DESCRIPTION("exportHostname.description", "Destination hostname"),
-    EXPORT_PORT("exportPort", "Port"),
-    EXPORT_PORT_DESCRIPTION("exportPort.description", "Destination port"),
-    EXPORT_USER("exportUser", "User"),
-    EXPORT_USER_DESCRIPTION("exportUser.description", "User of destination ftp resource"),
-    EXPORT_PASSWORD("exportPassword", "Password"),
-    EXPORT_PASSWORD_DESCRIPTION("exportPassword.description", "Password for destination ftp resource"),
+    EXPORT_SFTP_HOSTNAME("exportHostname", "SFTP Hostname"),
+    EXPORT_SFTP_HOSTNAME_DESCRIPTION("exportHostname.description", "Destination hostname"),
+    EXPORT_SFTP_PORT("exportPort", "SFTP Port"),
+    EXPORT_SFTP_PORT_DESCRIPTION("exportPort.description", "Destination port"),
+    EXPORT_SFTP_USER("exportUser", "SFTP User"),
+    EXPORT_SFTP_USER_DESCRIPTION("exportUser.description", "User of destination ftp resource"),
+    EXPORT_SFTP_PASSWORD("exportPassword", "SFTP Password"),
+    EXPORT_SFTP_PASSWORD_DESCRIPTION("exportPassword.description", "Password for destination ftp resource"),
     EXPORT_FILE_NAME("exportFileName", "File name"),
     EXPORT_FILE_NAME_DESCRIPTION("exportFileName.description", "Supported tags standing for the date/time of execution or their parts: " +
             "&lt;date&gt;," +
@@ -49,12 +51,18 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
             "&lt;datemonth&gt;," +
             "&lt;dateday&gt;. " +
             "&lt;dateformat:X&gt; stands for custom date format (eg. X = yyyyMMddHHmmss)."),
+    EXPORT_FLAT_DIR("exportFlatDirectory", "Export flat directory"),
+    EXPORT_FLAT_DIR_DESCRIPTION("exportFlatDirectory.description", "Export certificate as flat directory"),
     CA_NAME("certificate.name", "Certificate name"),
-    CA_NAME_DESCRIPTION("certificate.name.description", "Certificate name"),
-    CA_END_ENTITY_NAME("certificate.end.entity.name", "Certificate end entity name"),
+    CA_NAME_DESCRIPTION("certificate.name.description", "Certificate Authority name"),
+    CA_END_ENTITY_NAME("certificate.end.entity.name", "Certificate End-Entity name"),
     CA_END_ENTITY_NAME_DESCRIPTION("certificate.end.entity.name.description", "Certificate end entity name"),
     CA_PROFILE_NAME("certificate.profile.name", "Certificate profile name"),
-    CA_PROFILE_NAME_DESCRIPTION("certificate.profile.name.description", "Certificate profile description");
+    CA_PROFILE_NAME_DESCRIPTION("certificate.profile.name.description", "Certificate profile description"),
+    CSR_MAPPING("csr.filename.mapping", "Mapping JSON"),
+    CSR_MAPPING_DESCRIPTION("csr.filename.mapping.description", "JSON string containing the mapping between the CSR filename prefixes and PKI settings."),
+    CHECK_FILE_SIGNATURE("csr.import.check.signature", "Check input file signature"),
+    CHECK_FILE_SIGNATURE_DESCRIPTION("csr.import.check.signature.description", "If checked, the signature trust will be checked agains the trusted certificates");
 
     private final String key;
     private final String defaultFormat;

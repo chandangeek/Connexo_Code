@@ -6,6 +6,8 @@ package com.energyict.mdc.pluggable;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClassType;
 
 import aQute.bnd.annotation.ProviderType;
 

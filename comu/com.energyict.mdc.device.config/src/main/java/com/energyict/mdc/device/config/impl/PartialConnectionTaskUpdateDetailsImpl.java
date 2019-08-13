@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import com.google.common.collect.ImmutableList;
 

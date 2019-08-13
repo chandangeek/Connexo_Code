@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.scheduling.ComSchedule;
+
 /**
 * Models a range of ids of ComTaskExecutionss
-* that are all using the same {@link com.energyict.mdc.scheduling.model.ComSchedule}.
+* that are all using the same {@link ComSchedule}.
 *
 * @author Rudi Vankeirsbilck (rudi)
 * @since 2014-07-08 (17:28)

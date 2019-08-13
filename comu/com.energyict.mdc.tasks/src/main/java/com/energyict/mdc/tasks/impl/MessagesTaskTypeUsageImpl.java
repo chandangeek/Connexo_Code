@@ -6,9 +6,9 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.ProtocolTask;
 
 import javax.inject.Inject;
 import java.time.Instant;

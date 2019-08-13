@@ -9,8 +9,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 
 import javax.inject.Inject;
 import java.time.Instant;

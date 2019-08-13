@@ -6,7 +6,8 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.EventType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -18,7 +19,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 
 /**
- * Responds to deletion events of {@link com.energyict.mdc.device.config.DeviceType}s
+ * Responds to deletion events of {@link DeviceType}s
  * to make sure that dependent objects that are journalled are deleted
  * instead of being deleted with "cascade delete" option of the foreigh key constraint.
  *
@@ -51,7 +52,7 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
 
     @Override
     public String getTopicMatcher() {
-        return com.energyict.mdc.device.config.events.EventType.DEVICETYPE_VALIDATE_DELETE.topic();
+        return EventType.DEVICETYPE_VALIDATE_DELETE.topic();
     }
 
     @Override

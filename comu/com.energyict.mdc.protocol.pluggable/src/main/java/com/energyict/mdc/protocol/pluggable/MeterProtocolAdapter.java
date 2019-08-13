@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable;
 
-import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;

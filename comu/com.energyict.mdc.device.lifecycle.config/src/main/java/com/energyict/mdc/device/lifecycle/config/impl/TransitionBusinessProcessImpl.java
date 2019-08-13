@@ -8,7 +8,7 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;

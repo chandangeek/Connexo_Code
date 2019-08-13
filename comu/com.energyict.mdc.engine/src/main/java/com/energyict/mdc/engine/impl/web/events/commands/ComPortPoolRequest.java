@@ -5,7 +5,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 

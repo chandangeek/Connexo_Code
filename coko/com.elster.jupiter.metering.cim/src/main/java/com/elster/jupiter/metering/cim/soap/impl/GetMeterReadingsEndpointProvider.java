@@ -51,4 +51,5 @@ public class GetMeterReadingsEndpointProvider implements InboundSoapEndPointProv
     public void setClock(Clock clock) {
         this.clock = clock;
     }
+
 }

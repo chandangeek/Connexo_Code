@@ -5,7 +5,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.upl.meterdata.Device;
 
 public enum TranslationKeys implements TranslationKey {

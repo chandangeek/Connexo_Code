@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.search.SearchableProperty;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 
 import org.junit.Before;
 

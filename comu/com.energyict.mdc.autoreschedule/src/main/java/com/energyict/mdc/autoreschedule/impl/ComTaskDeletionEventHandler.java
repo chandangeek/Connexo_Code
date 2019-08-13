@@ -10,7 +10,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

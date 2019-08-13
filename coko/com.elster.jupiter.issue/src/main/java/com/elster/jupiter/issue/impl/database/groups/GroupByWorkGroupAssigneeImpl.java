@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.issue.impl.database.groups;
 
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
@@ -32,6 +36,7 @@ public class GroupByWorkGroupAssigneeImpl extends IssuesGroupOperation {
         builder.append(getWorkGroupCondition());
         builder.append(getDueDateCondition());
         builder.append(getIdCondition());
+        builder.append(getMetersCondition());
         if (getFilter().getGroupKey() != null) {
             builder.append(" AND reason.\"KEY\" = '" + getFilter().getGroupKey() + "'");
         }

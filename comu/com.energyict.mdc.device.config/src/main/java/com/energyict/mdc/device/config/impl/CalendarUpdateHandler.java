@@ -8,7 +8,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.EventType;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 import org.osgi.service.component.annotations.Component;

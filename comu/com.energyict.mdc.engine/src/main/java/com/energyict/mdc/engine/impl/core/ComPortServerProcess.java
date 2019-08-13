@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
 
 import java.time.Instant;
 

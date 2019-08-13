@@ -8,11 +8,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.common.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -43,7 +43,7 @@ public class DeviceConfigConflictMappingResource {
 
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceConfigConflictMappingsForDeviceType(@PathParam("deviceTypeId") long id, @QueryParam("all") boolean hasAll, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfigConflictMappingInfo> deviceConfigConflictMappingInfos = DeviceConfigConflictMappingInfo.from(deviceType.getDeviceConfigConflictMappings(), thesaurus);
@@ -55,7 +55,7 @@ public class DeviceConfigConflictMappingResource {
     @GET @Transactional
     @Path("/{conflictId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public DeviceConfigSolutionMappingInfo getDeviceConfigConflictById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("conflictId") long conflictId) {
         return new DeviceConfigSolutionMappingInfo(resourceHelper.findDeviceConfigConflictMappingById(conflictId));
     }
@@ -64,7 +64,7 @@ public class DeviceConfigConflictMappingResource {
     @Path("/{conflictId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response editConflictForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("conflictId") long conflictId,

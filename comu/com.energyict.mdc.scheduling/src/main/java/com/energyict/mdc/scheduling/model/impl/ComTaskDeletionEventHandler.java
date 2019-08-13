@@ -7,8 +7,8 @@ package com.energyict.mdc.scheduling.model.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.config.events;
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import aQute.bnd.annotation.ProviderType;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.issue.datacollection.rest;
@@ -12,6 +12,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -62,6 +63,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile IssueActionService issueActionService;
     private volatile MeteringService meteringService;
+    private volatile LocationService locationService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile DeviceService deviceService;
@@ -123,6 +125,11 @@ public class IssueDataCollectionApplication extends Application implements Messa
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
     }
 
     @Reference
@@ -217,6 +224,7 @@ public class IssueDataCollectionApplication extends Application implements Messa
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(locationService).to(LocationService.class);
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(thesaurus).to(Thesaurus.class);

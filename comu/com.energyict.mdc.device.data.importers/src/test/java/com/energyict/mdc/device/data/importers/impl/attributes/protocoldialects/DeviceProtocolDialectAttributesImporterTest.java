@@ -13,14 +13,14 @@ import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;

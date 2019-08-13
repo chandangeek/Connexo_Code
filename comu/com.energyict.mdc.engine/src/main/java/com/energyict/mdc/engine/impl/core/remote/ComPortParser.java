@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
 
 import org.json.JSONException;
 import org.json.JSONObject;

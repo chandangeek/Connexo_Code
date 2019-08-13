@@ -21,6 +21,7 @@ public interface ReplyGetEndDeviceEventsWebService {
      *
      * @param endPointConfiguration - the outbound end point
      * @param endDeviceEvents - end device events in the system
+     * @param correlationId - correlationId received in inbound request
      */
-    void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents);
+    void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents, String correlationId);
 }
