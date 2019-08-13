@@ -110,8 +110,8 @@ class ConnectionTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
         sqlBuilder.append("              WHEN currentretrycount > 0");
         sqlBuilder.append("               AND nextexecutiontimestamp >");
         sqlBuilder.addLong(now.getEpochSecond());
-        sqlBuilder.append("              THEN '");
         sqlBuilder.append("                        AND isapriotask = 1");
+        sqlBuilder.append("              THEN '");
         sqlBuilder.append(ServerComTaskStatus.RetryingWithPriority.name());
 
 
