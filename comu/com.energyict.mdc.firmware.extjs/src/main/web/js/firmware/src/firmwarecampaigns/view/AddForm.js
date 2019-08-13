@@ -191,6 +191,30 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 width: 1000
             },
             {
+                xtype: 'combobox',
+                itemId: 'fwc-campaign-allowed-comtask',
+                name: 'calendarUploadComTask',
+                store: 'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
+                fieldLabel: Uni.I18n.translate(
+                    'general.calendarUploadComTask',
+                    'FWC',
+                    'Firmware upload communication task'
+                ),
+                required: true,
+                allowBlank: false,
+                forceSelection: true,
+                emptyText: Uni.I18n.translate(
+                    'general.calendarUploadComTask.empty',
+                    'FWC',
+                    'Select communication task ...'
+                ),
+                queryMode: 'local',
+                displayField: 'name',
+                valueField: 'id',
+                margin: '30 0 10 0',
+                hidden: true,
+            },
+            {
                 xtype: 'fieldcontainer',
                 layout: 'hbox',
                 itemId: 'fwc-campaign-send-connection-strategy-container',
@@ -510,6 +534,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
                     periodNumber.setValue(validationTimeout.count);
                 }
+                var calendarUploadComTask = campaignRecord.get('calendarUploadComTask');
+                var validationComTask = campaignRecord.get('validationComTask');
+                var calendarUploadConnectionStrategy = campaignRecord.get('calendarUploadConnectionStrategy');
+                var validationConnectionStrategy = campaignRecord.get('validationConnectionStrategy');
 
                 me.getForm().setValues({
                     calendarUploadComTask: calendarUploadComTask && calendarUploadComTask.id,
