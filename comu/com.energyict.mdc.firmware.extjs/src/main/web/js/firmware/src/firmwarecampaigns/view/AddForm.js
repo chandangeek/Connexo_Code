@@ -13,7 +13,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
         'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
-        'Fwc.firmwarecampaigns.view.FirmvareVersionsOptions'
+        'Fwc.firmwarecampaigns.view.FirmvareVersionsOptions',
         'Fwc.firmwarecampaigns.store.ComTasksForValidate',
         'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
     ],
