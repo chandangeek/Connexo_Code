@@ -151,9 +151,12 @@ public class DeviceFirmwareMessagesResource {
         ConfirmationInfo confirmationInfo = new ConfirmationInfo();
         if (firmwareVersion.getFirmwareType() != FirmwareType.CA_CONFIG_IMAGE) {
             FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+            FirmwareCheckManagementOptions checkOptions = firmwareService.findFirmwareManagementOptions(device.getDeviceType())
+                    .map(FirmwareCheckManagementOptions.class::cast)
+                    .orElse(FirmwareCheckManagementOptions.EMPTY);
             firmwareService.getFirmwareChecks().forEach(check -> {
                 try {
-                    check.execute(firmwareService.findFirmwareManagementOptions(device.getDeviceType()).orElse(FirmwareManagementOptions.EMPTY), utils, firmwareVersion);
+                    check.execute(checkOptions, utils, firmwareVersion);
                 } catch (FirmwareCheck.FirmwareCheckException e) {
                     confirmationInfo.errors.add(new ErrorInfo(check.getKey(), check.getTitle(thesaurus), e.getLocalizedMessage()));
                 }

@@ -6,10 +6,7 @@ package com.energyict.mdc.firmware;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 @ProviderType
 public interface FirmwareCampaignManagementOptions extends FirmwareCheckManagementOptions {
-
+    // just a persistent object api
 }
