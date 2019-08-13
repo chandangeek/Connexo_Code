@@ -9,9 +9,9 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStageSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

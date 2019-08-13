@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 
 import org.junit.Test;

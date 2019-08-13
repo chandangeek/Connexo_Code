@@ -4,10 +4,13 @@
 
 package com.energyict.mdc.masterdata;
 
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+
 import aQute.bnd.annotation.ProviderType;
 
 /**
- * Models the fact that a {@link LoadProfileType} uses a {@link com.energyict.mdc.masterdata.ChannelType}.
+ * Models the fact that a {@link LoadProfileType} uses a {@link ChannelType}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-15 (17:55)

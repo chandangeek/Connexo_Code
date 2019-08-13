@@ -6,11 +6,11 @@ package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.PreparedStatementProvider;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,6 +45,9 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         this.taskStatusses = EnumSet.copyOf(taskStatusses);
         this.includeBusyTasks = taskStatusses.contains(ServerConnectionTaskStatus.Busy);
         this.taskStatusses.remove(ServerConnectionTaskStatus.Busy);
+        this.taskStatusses.remove(ServerConnectionTaskStatus.PendingWithPriority);
+        this.taskStatusses.remove(ServerConnectionTaskStatus.RetryingWithPriority);
+        this.taskStatusses.remove(ServerConnectionTaskStatus.WaitingWithPriority);
         this.deviceGroup = deviceGroup;
         this.connectionTaskService = connectionTaskService;
     }

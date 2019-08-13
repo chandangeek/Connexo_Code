@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
 
 /**
  * Created with IntelliJ IDEA.

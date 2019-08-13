@@ -4,7 +4,9 @@
 
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import aQute.bnd.annotation.ProviderType;
 

@@ -73,7 +73,6 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
@@ -162,7 +161,6 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
      */
     private String pAddress = null;
     private String pNodeId = PD_NODE_ID;
-    private String pSerialNumber = null;
     private String pPassword = null;
     /* Protocol timeout fail in msec */
     private int pTimeout = PD_TIMEOUT;
@@ -218,7 +216,6 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
-                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
                 this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC1107_TIMEOUT),
                 this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC1107_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
@@ -253,10 +250,6 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
         if (p.getTypedProperty(NODEID.getName()) != null) {
             pNodeId = p.getTypedProperty(NODEID.getName());
-        }
-
-        if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
-            pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
         }
 
         if (p.getTypedProperty(PASSWORD.getName()) != null) {
@@ -329,7 +322,6 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
                     "A1140 protocol init \n"
                             + " Address = " + pAddress + ","
                             + " Node Id = " + pNodeId + ","
-                            + " SerialNr = " + pSerialNumber + ","
                             + " Psswd = " + pPassword + ","
                             + " Timeout = " + pTimeout + ","
                             + " Retries = " + pRetries + ","
@@ -449,7 +441,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2016-05-18 13:34:03 +0200 (Wed, 18 May 2016)$";
+        return "$Date: 2019-07-15 15:30:00 +0300 (Mon, 15 Jul 2019)$";
     }
 
     @Override

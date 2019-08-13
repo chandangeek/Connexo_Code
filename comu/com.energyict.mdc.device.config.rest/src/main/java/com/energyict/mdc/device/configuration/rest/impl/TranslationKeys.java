@@ -6,7 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionType;
 
 /**
  * Insert your comments here.

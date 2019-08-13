@@ -6,7 +6,7 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
 import javax.validation.ConstraintValidator;

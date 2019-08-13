@@ -8,10 +8,10 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmUtil;
 import com.energyict.mdc.device.alarms.impl.event.VetoDeviceTypeDeleteException;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate.DeviceLifeCycleInDeviceTypeInfo;
 
 import org.osgi.service.component.annotations.Component;

@@ -9,15 +9,17 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -199,6 +201,18 @@ public interface CommunicationTaskService {
      * @return The number of communication errors
      */
     int countNumberOfDevicesWithCommunicationErrorsInGatewayTopology(List<Device> devices, Range<Instant> interval, Condition successIndicatorCondition);
+
+    /**
+     * Test if this ComTaskExecution will be executed with regular or high priority</br>
+     * If true, then this ComTaskExecution will not be picked up by the regular scheduling of the ComServer, but
+     * will be picked up by high priority scheduling mechanism of the ComServer (which could potentially interrupt
+     * other ComTaskExecutions which are running with regular priority)
+     *
+     * @param comTaskExecution
+     *
+     * @return A flag that indicates if this ComTaskExecution will be executed with regular or high priority
+     */
+    boolean shouldExecuteWithPriority(ComTaskExecution comTaskExecution);
 
     void executionCompletedFor(ComTaskExecution comTaskExecution);
 

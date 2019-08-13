@@ -6,7 +6,7 @@ package com.energyict.mdc.protocol.api.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
-import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
+import com.energyict.mdc.common.protocol.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 
 public final class DeviceProtocolAdapterCodingExceptions extends ComServerRuntimeException {

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSession;
 
 /**
  * Add-on for ConnectionTask, extending its behavior that is reserved

@@ -138,7 +138,6 @@ public class ChildGetMeterReadingsCustomPropertySet implements CustomPropertySet
                         .specForValuesOf(new InstantFactory())
                         .named(ChildGetMeterReadingsDomainExtension.FieldNames.ACTUAL_START_DATE.javaName(), TranslationKeys.ACTUAL_START_DATE)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())

@@ -5,7 +5,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 /**
  * Created by bvn on 10/6/15.
@@ -17,8 +17,11 @@ public class TaskStatusAdapter extends MapBasedXmlAdapter<TaskStatus> {
         register("NeverCompleted", TaskStatus.NeverCompleted);
         register("OnHold", TaskStatus.OnHold);
         register("Pending", TaskStatus.Pending);
+        register("PendingWithPriority", TaskStatus.PendingWithPriority);
         register("Retrying", TaskStatus.Retrying);
+        register("RetryingWithPriority", TaskStatus.RetryingWithPriority);
         register("Waiting", TaskStatus.Waiting);
+        register("WaitingWithPriority", TaskStatus.WaitingWithPriority);
         register("ProcessingError", TaskStatus.ProcessingError);
     }
 }

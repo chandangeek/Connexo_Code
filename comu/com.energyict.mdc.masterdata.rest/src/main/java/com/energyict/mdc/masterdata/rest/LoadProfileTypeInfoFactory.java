@@ -5,8 +5,8 @@
 package com.energyict.mdc.masterdata.rest;
 
 import com.energyict.mdc.common.interval.Temporals;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

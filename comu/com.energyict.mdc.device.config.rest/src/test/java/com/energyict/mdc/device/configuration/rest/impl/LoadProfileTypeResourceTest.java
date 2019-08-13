@@ -7,8 +7,8 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 

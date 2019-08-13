@@ -22,8 +22,10 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
@@ -31,6 +33,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -44,8 +47,6 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
@@ -121,6 +122,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile IssueService issueService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile PriorityComTaskService priorityComTaskService;
     private volatile LogBookService logBookService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceService deviceService;
@@ -155,7 +157,9 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService, RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, PriorityComTaskService priorityComTaskService,
+            LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
+            RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
@@ -180,6 +184,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setLoadProfileService(loadProfileService);
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
+        setPriorityComTaskService(priorityComTaskService);
         setLogBookService(logBookService);
         setDeviceMessageService(deviceMessageService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
@@ -203,7 +208,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     }
 
     @Override
-    public Optional<DeviceCache> findDeviceCacheByDevice(com.energyict.mdc.device.data.Device device) {
+    public Optional<DeviceCache> findDeviceCacheByDevice(Device device) {
         return dataModel.mapper(DeviceCache.class).getUnique("device", device);
     }
 
@@ -245,6 +250,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        this.priorityComTaskService = priorityComTaskService;
     }
 
     @Reference
@@ -467,6 +477,30 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
     }
 
+
+    /*@Activate
+    public void activate(BundleContext bundleContext) {
+        try{
+            dataModel.register(this.getModule());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+
+            setEngineProperty(SERVER_NAME_PROPERTY_NAME, bundleContext.getProperty(SERVER_NAME_PROPERTY_NAME));
+            setEngineProperty(PORT_PROPERTY_NUMBER, Optional.ofNullable(bundleContext.getProperty(PORT_PROPERTY_NUMBER)).orElse("80"));
+
+            this.tryStartComServer();
+
+        } catch(Exception e) {
+            // Not so a good idea to disable: can't be restarted by using the command lcs ...
+            // componentContext.disableComponent(componentContext.getBundleContext().getProperty(DeviceConfigConstants.SERVICE_PID));
+            if (launcher != null){
+                if (launcher.isStarted()){
+                    launcher.stopComServer();
+                }
+                this.launcher = null;
+            }
+        }
+    }*/
+
     private void setEngineProperty(String key, String value){
         if (value != null) {
             this.engineProperties.setProperty(key, value);
@@ -586,6 +620,21 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             this.launcher = null;
         }
     }
+
+//    @Override
+//    public OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder() {
+//        return dataModel.getInstance(OnlineComServerImpl.OnlineComServerBuilderImpl.class);
+//    }
+//
+//    @Override
+//    public ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder() {
+//        return dataModel.getInstance(OfflineComServerImpl.OfflineComServerBuilderImpl.class);
+//    }
+//
+//    @Override
+//    public RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder() {
+//        return dataModel.getInstance(RemoteComServerImpl.RemoteComServerBuilderImpl.class);
+//    }
 
     private static class OptionalIdentificationService implements IdentificationService {
         private AtomicReference<Optional<IdentificationService>> identificationService = new AtomicReference<>(Optional.empty());
@@ -826,6 +875,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public CommunicationTaskService communicationTaskService() {
             return communicationTaskService;
+        }
+
+        @Override
+        public PriorityComTaskService priorityComTaskService() {
+            return priorityComTaskService;
         }
 
         @Override

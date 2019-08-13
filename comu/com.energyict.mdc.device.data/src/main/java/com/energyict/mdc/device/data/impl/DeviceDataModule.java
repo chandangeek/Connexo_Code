@@ -34,11 +34,13 @@ import com.energyict.mdc.device.data.impl.pki.tasks.crlrequest.CrlRequestHandler
 import com.energyict.mdc.device.data.impl.pki.tasks.keyrenewal.KeyRenewalHandlerFactory;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.PriorityComTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.report.CommunicationTaskReportServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -73,6 +75,7 @@ public class DeviceDataModule extends AbstractModule {
         bind(DeviceService.class).to(DeviceServiceImpl.class).in(Scopes.SINGLETON);
         bind(RegisterService.class).to(RegisterServiceImpl.class).in(Scopes.SINGLETON);
         bind(ConnectionTaskService.class).to(ConnectionTaskServiceImpl.class).in(Scopes.SINGLETON);
+        bind(PriorityComTaskService.class).to(PriorityComTaskServiceImpl.class).in(Scopes.SINGLETON);
         bind(CommunicationTaskService.class).to(CommunicationTaskServiceImpl.class).in(Scopes.SINGLETON);
         bind(CommunicationTaskReportService.class).to(CommunicationTaskReportServiceImpl.class).in(Scopes.SINGLETON);
         bind(LoadProfileService.class).to(LoadProfileServiceImpl.class).in(Scopes.SINGLETON);

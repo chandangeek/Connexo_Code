@@ -14,8 +14,8 @@ import com.elster.jupiter.demo.impl.builders.type.AttachEMeterInfoCPSPostBuilder
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;

@@ -11,8 +11,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.ChannelValidationRuleOverriddenProperties;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.inject.Inject;

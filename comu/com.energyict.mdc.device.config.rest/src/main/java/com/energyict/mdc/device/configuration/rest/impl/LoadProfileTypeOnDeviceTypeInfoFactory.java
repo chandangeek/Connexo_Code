@@ -6,10 +6,10 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.interval.Temporals;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 
 import javax.inject.Inject;

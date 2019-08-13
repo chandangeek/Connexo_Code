@@ -51,6 +51,8 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
             "&lt;datemonth&gt;," +
             "&lt;dateday&gt;. " +
             "&lt;dateformat:X&gt; stands for custom date format (eg. X = yyyyMMddHHmmss)."),
+    EXPORT_FLAT_DIR("exportFlatDirectory", "Export flat directory"),
+    EXPORT_FLAT_DIR_DESCRIPTION("exportFlatDirectory.description", "Export certificate as flat directory"),
     CA_NAME("certificate.name", "Certificate name"),
     CA_NAME_DESCRIPTION("certificate.name.description", "Certificate Authority name"),
     CA_END_ENTITY_NAME("certificate.end.entity.name", "Certificate End-Entity name"),

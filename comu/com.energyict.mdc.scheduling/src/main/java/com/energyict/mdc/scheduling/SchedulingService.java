@@ -6,7 +6,8 @@ package com.energyict.mdc.scheduling;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.time.TemporalExpression;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 
 import aQute.bnd.annotation.ProviderType;

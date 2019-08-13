@@ -4,12 +4,14 @@
 
 package com.energyict.mdc.engine.events;
 
+import com.energyict.mdc.common.tasks.ComTask;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 
 /**
- * Models an event that relates to the execution of a {@link com.energyict.mdc.tasks.ComTask},
+ * Models an event that relates to the execution of a {@link ComTask},
  * aka a ComTaskExecution.
  *
  * @author Rudi Vankeirsbilck (rudi)

@@ -8,14 +8,14 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -83,6 +83,10 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
     void generalSetupErrorOccurred(Throwable e, List<? extends ComTaskExecution> comTaskExecutions);
 
     boolean hasGeneralSetupErrorOccurred();
+
+    void connectionInterrupted();
+
+    boolean hasConnectionBeenInterrupted();
 
     List<? extends ComTaskExecution> getScheduledButNotPreparedComTaskExecutions();
 

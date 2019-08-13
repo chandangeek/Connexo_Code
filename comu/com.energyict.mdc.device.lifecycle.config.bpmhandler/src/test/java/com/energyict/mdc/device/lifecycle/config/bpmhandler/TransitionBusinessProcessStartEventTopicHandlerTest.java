@@ -7,7 +7,7 @@ package com.energyict.mdc.device.lifecycle.config.bpmhandler;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.State;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
 
 import java.util.Map;

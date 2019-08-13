@@ -3,8 +3,8 @@
  */
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.DeviceMicroCheckFactory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.util.Collections;
 import java.util.Objects;
