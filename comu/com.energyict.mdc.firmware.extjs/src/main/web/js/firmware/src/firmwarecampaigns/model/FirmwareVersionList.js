@@ -15,7 +15,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareVersionList', {
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.firmwareType ? data.firmwareType : '';
+                return data.firmwareType ? data.firmwareType.localizedValue : '';
             }
         },
         {
@@ -23,7 +23,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareVersionList', {
             type: 'string',
             persist: false,
             mapping: function (data) {
-                return data.firmwareStatus ? data.firmwareStatus : '';
+                return data.firmwareStatus ? data.firmwareStatus.localizedValue : '';
             }
         },
         {
