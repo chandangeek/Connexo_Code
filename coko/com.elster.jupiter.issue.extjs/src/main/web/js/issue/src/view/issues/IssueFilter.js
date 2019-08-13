@@ -18,13 +18,13 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.IssueReasons',
         'Isu.store.IssueUsagePoints',
         'Isu.store.DeviceGroups',
+        'Isu.store.IssueReasons',
         'Isu.store.Locations'
     ],
 
     initComponent: function () {
         var me = this;
-        // var usagePointsStore = Ext.getStore('Isu.issue.store.IssueUsagePoints') || Ext.create('Isu.issue.store.IssueUsagePoints');
-        // usagePointsStore.getProxy().setExtraParam('nameOnly', true);
+
         me.filters = [
             {
                 type: 'text',
@@ -143,6 +143,16 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 }
             },
             {
+                type: 'combobox',
+                itemId: 'issue-deviceGroup-filter',
+                dataIndex: 'deviceGroup',
+                emptyText: Uni.I18n.translate('general.deviceGroup', 'ISU', 'Device group'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Isu.store.DeviceGroups',
+                multiSelect: true,
+            },
+            {
                 emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
                 type: 'combobox',
                 itemId: 'issue-usagePoints-filter',
@@ -182,16 +192,6 @@ Ext.define('Isu.view.issues.IssueFilter', {
             },
             {
                 type: 'combobox',
-                itemId: 'issue-deviceGroup-filter',
-                dataIndex: 'deviceGroup',
-                emptyText: Uni.I18n.translate('general.deviceGroup', 'ISU', 'Device group'),
-                displayField: 'name',
-                valueField: 'id',
-                store: 'Isu.store.DeviceGroups',
-                multiSelect: true,
-            },
-            {
-                type: 'combobox',
                 itemId: 'issue-location-filter',
                 dataIndex: 'location',
                 emptyText: Uni.I18n.translate('general.location', 'ISU', 'Location'),
@@ -213,7 +213,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                         fn: me.locationBeforeQuery
                     }
                 }
-            }
+            },
         ];
 
         me.callParent(arguments);

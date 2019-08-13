@@ -119,6 +119,7 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         validateMandatory(params, START, LIMIT);
+        IssueFilter issueFilter = issueResourceHelper.buildFilterFromQueryParameters(filter);
         Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class);
         //addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
@@ -606,7 +607,7 @@ public class IssueResource extends BaseResource {
         for (Order order : orders) {
             finder.sorted(order.getName(), order.ascending());
         }
-//        finder.sorted("id", false);
+        finder.sorted("id", false);
         return finder;
     }
 
