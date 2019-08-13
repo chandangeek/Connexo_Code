@@ -73,7 +73,6 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
                 .add();
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
                 .varChar()
-                .map(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.javaName())
                 .notNull()
                 .upTo(Version.version(10, 7))
                 .add();

@@ -21,7 +21,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
 
     public enum FieldNames {
         DOMAIN("device", "DEVICE"),
-        DEVICE_IDENTIFIER("deviceIdentifier", "DEVICE_IDENTIFIER"),
+        DEVICE_IDENTIFIER("deviceIdentifier", "DEVICE_ID"),
         DEVICE_LOCATION("deviceLocation", "DEVICE_LOCATION"),
         POINT_OF_DELIVERY("pointOfDelivery", "POINT_OF_DELIVERY");
 

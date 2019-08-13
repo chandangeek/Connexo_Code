@@ -71,6 +71,6 @@ public class LRNWasSet implements ExecutableMicroCheck {
     }
 
     private boolean anyLRN(Device device) {
-            return sapCustomPropertySets.isAnyLrn(device.getId());
+            return sapCustomPropertySets.isAnyLrnPresent(device.getId());
     }
 }

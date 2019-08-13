@@ -24,7 +24,7 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
         REQUEST_UUID("requestUUID", "request_uuid"),
         REFERENCE_ID("referenceID", "reference_id"),
         CONFIRMATION_TIME("confirmationTime", "confirmation_time"),
-        RESULT_URL("resultURL", "result_url"),
+        RESULT_URL("resultURL", "result_url"), // up to 10.7
         BULK("bulk", "bulk");
 
         FieldNames(String javaName, String databaseName) {
@@ -86,14 +86,6 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
         this.confirmationTime = confirmationTime;
     }
 
-    public String getResultURL() {
-        return resultURL;
-    }
-
-    public void setResultURL(String resultURL) {
-        this.resultURL = resultURL;
-    }
-
     public Boolean isBulk() {
         return bulk;
     }
@@ -108,7 +100,6 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
         this.setRequestUUID((String) propertyValues.getProperty(FieldNames.REQUEST_UUID.javaName()));
         this.setReferenceID((String) propertyValues.getProperty(FieldNames.REFERENCE_ID.javaName()));
         this.setConfirmationTime((Instant) propertyValues.getProperty(FieldNames.CONFIRMATION_TIME.javaName()));
-        this.setResultURL((String) propertyValues.getProperty(FieldNames.RESULT_URL.javaName()));
         this.setBulk((Boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
     }
 
@@ -117,7 +108,6 @@ public class MasterMeterReadingDocumentCreateResultDomainExtension extends Abstr
         propertySetValues.setProperty(FieldNames.REQUEST_UUID.javaName(), this.getRequestUUID());
         propertySetValues.setProperty(FieldNames.REFERENCE_ID.javaName(), this.getReferenceID());
         propertySetValues.setProperty(FieldNames.CONFIRMATION_TIME.javaName(), this.getConfirmationTime());
-        propertySetValues.setProperty(FieldNames.RESULT_URL.javaName(), this.getResultURL());
         propertySetValues.setProperty(FieldNames.BULK.javaName(), this.isBulk());
     }
 

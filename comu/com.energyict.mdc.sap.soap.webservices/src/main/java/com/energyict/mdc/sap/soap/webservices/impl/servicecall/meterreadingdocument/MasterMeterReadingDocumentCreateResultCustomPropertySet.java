@@ -208,7 +208,6 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                     .add();
             table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.RESULT_URL.databaseName())
                     .varChar()
-                    .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.RESULT_URL.javaName())
                     .notNull()
                     .upTo(version(10,7))
                     .add();

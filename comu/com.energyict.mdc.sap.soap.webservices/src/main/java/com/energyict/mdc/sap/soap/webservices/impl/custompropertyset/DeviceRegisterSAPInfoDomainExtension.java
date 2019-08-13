@@ -25,7 +25,7 @@ public class DeviceRegisterSAPInfoDomainExtension extends AbstractVersionedPersi
     public enum FieldNames {
         DOMAIN("registerSpec", "REGISTERSPEC"),
         DEVICE_ID("device", "DEVICE"),
-        LOGICAL_REGISTER_NUMBER("logicalRegisterNumber", "LOGICAL_REGISTER_NUMBER");
+        LOGICAL_REGISTER_NUMBER("logicalRegisterNumber", "LRN");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;

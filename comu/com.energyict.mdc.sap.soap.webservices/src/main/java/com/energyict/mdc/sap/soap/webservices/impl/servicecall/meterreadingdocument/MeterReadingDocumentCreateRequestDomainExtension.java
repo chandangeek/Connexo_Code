@@ -27,8 +27,8 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
 
         // provided
         METER_READING_DOCUMENT_ID("meterReadingDocumentId", "meterReadingDocumentId"),
-        DEVICE_ID("deviceId", "deviceId"),
-        LRN("lrn", "lrn"),
+        DEVICE_ID("deviceId", "deviceIdentifier"),
+        LRN("lrn", "lrnId"),
         READING_REASON_CODE("readingReasonCode", "readingReasonCode"),
         SCHEDULED_READING_DATE("scheduledReadingDate", "scheduledReadingDate"),
 

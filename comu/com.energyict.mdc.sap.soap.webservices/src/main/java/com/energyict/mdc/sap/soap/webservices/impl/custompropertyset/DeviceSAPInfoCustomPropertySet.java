@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device, DeviceSAPInfoDomainExtension> {
@@ -151,25 +152,26 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            Column deviceIdColumn = table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.databaseName())
+            table.column("DEVICE_IDENTIFIER")
                     .number()
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName())
                     .upTo(Version.version(10, 7))
                     .add();
             Column deviceIdColumnString = table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.databaseName())
-                    .varChar(80)
+                    .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName())
                     .since(Version.version(10, 7))
-                    .previously(deviceIdColumn)
                     .add();
             table.index(IDX).on(deviceIdColumnString).add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.databaseName())
-                    .varChar(80)
+                    .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName())
+                    .since(Version.version(10, 7))
                     .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.databaseName())
-                    .varChar(80)
+                    .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName())
+                    .since(Version.version(10, 7))
                     .add();
         }
 

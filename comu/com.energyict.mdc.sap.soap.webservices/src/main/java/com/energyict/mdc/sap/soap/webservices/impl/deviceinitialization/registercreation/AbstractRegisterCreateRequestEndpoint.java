@@ -20,7 +20,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.Objects;
 import java.util.Optional;
@@ -106,7 +105,6 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.SUB_MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST);
 
         SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension childDomainExtension = new SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension();
-        childDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
         childDomainExtension.setDeviceId(message.getDeviceId());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)

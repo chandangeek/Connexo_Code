@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<ChannelSpec, DeviceChannelSAPInfoDomainExtension> {
@@ -152,19 +153,18 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            Column lrnColumn = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
+            table.column("LOGICAL_REGISTER_NUMBER")
                     .number()
                     .map(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
                     .upTo(Version.version(10,7))
                     .add();
             Column lrnColumnString = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
-                    .varChar(80)
+                    .varChar(NAME_LENGTH)
                     .map(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
                     .since(Version.version(10, 7))
-                    .previously(lrnColumn)
                     .add();
             Column profileColumn = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.databaseName())
-                    .varChar(80)
+                    .varChar(NAME_LENGTH)
                     .map(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName())
                     .add();
             table.index(IDX).on(lrnColumnString).add();

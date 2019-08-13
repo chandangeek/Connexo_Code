@@ -195,13 +195,11 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
                     .varChar()
-                    .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.javaName())
                     .notNull()
                     .upTo(version(10,7))
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.databaseName())
                     .varChar()
-                    .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.javaName())
                     .notNull()
                     .upTo(version(10,7))
                     .add();

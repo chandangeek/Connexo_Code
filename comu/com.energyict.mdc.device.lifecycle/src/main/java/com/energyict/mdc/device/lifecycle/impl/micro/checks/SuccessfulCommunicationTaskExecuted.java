@@ -28,7 +28,7 @@ public class SuccessfulCommunicationTaskExecuted extends TranslatableServerMicro
     @Override
     public Optional<ExecutableMicroCheckViolation> execute(Device device, Instant effectiveTimestamp, State toState) {
         return !anyExecutedComTask(device).isPresent() ?
-                fail(MicroCheckTranslations.Message.AT_LEAST_ONE_SUCCESSFUL_COMMUNICATION_TASK_EXECUTED) :
+                fail(MicroCheckTranslations.Message.AT_LEAST_ONE_COMMUNICATION_TASK_EXECUTED_SUCCESSFULLY) :
                 Optional.empty();
     }
 

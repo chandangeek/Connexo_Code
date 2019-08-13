@@ -122,7 +122,7 @@ public enum DefaultMicroCheck {
     AT_LEAST_ONE_ZONE_LINKED,
 
     /**
-     * Check if at least one successful communication task has been executed on the device.
+     * Check if at least one communication task has been executed successfully on the device.
      */
-    AT_LEAST_ONE_SUCCESSFUL_COMMUNICATION_TASK_EXECUTED,
+    AT_LEAST_ONE_COMMUNICATION_TASK_EXECUTED_SUCCESSFULLY,
 }
