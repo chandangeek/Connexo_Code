@@ -6,7 +6,10 @@ package com.energyict.mdc.processes.keyrenewal.api.impl;
 
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -20,14 +23,16 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.processes.keyrenewal.api.impl.Command;
-import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceCommandInfo;
-import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceResource;
-import com.energyict.mdc.processes.keyrenewal.api.impl.HeadEndController;
-import com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.Optional;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -37,15 +42,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.Optional;
-
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceResourceTest {

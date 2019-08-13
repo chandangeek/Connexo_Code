@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 
 import java.util.Optional;
 

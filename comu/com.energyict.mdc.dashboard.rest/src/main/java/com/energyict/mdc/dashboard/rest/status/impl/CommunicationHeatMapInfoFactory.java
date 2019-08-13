@@ -5,11 +5,11 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

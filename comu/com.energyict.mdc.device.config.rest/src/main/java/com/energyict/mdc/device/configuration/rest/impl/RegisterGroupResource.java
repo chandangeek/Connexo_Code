@@ -7,10 +7,10 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -50,7 +50,7 @@ public class RegisterGroupResource {
     @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public PagedInfoList getRegisterGroups(@BeanParam JsonQueryParameters queryParameters) {
         List<RegisterGroup> allRegisterGroups = this.masterDataService.findAllRegisterGroups().from(queryParameters).find();
         List<RegisterGroupInfo> registerGroupInfos =
@@ -64,7 +64,7 @@ public class RegisterGroupResource {
     @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public RegisterGroupInfo getRegisterGroup(@PathParam("id") long id) {
         return registerGroupInfoFactory.asInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
     }
@@ -72,7 +72,7 @@ public class RegisterGroupResource {
     @GET @Transactional
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public Response getRegisterTypesOfRegisterGroup(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         RegisterGroupInfo registerGroupInfo = registerGroupInfoFactory.asInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
         return Response.ok(PagedInfoList.fromCompleteList("registerTypes", registerGroupInfo.registerTypes, queryParameters)).build();
@@ -80,7 +80,7 @@ public class RegisterGroupResource {
 
     @DELETE @Transactional
     @Path("/{id}")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response deleteRegisterGroup(@PathParam("id") long id, RegisterGroupInfo info) {
         info.id = id;
@@ -92,7 +92,7 @@ public class RegisterGroupResource {
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public RegisterGroupInfo createRegisterGroup(RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
         RegisterGroup newGroup = this.masterDataService.newRegisterGroup(registerGroupInfo.name);
 
@@ -104,7 +104,7 @@ public class RegisterGroupResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo info, @Context UriInfo uriInfo) {
         info.id = id;
         RegisterGroup group = resourceHelper.lockRegisterGroupOrThrowException(info);

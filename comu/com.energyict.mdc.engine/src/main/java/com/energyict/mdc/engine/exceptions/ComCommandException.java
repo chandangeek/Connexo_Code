@@ -6,8 +6,8 @@ package com.energyict.mdc.engine.exceptions;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 /**
  * Models the exceptions related to {@link ComCommand}s.

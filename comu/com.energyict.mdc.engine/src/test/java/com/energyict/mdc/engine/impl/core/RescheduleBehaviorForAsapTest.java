@@ -4,22 +4,19 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
+
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -27,6 +24,12 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyString;
@@ -211,5 +214,46 @@ public class RescheduleBehaviorForAsapTest extends AbstractRescheduleBehaviorTes
         verify(comServerDAO).executionRescheduled(comTaskExecution4, clockPlus5Min.instant()); // we want the comTask to be rescheduled in ASAP
         verify(comServerDAO).executionRescheduled(comTaskExecution5, clockPlus5Min.instant()); // we want the comTask to be rescheduled in ASAP
         verify(comServerDAO).executionFailed(connectionTask);
+    }
+
+    @Test
+    public void rescheduleDueToConnectionInterruptedDuringExecutionTest() {
+        SimpleComCommand notExecutedComCommand = mockNotExecutedComCommand();
+        SimpleComCommand successfulComCommand1 = mockSuccessfulComCommand();
+        SimpleComCommand successfulComCommand2 = mockSuccessfulComCommand();
+        SimpleComCommand successfulComCommand3 = mockSuccessfulComCommand();
+        ComTaskExecution comTaskExecution1 = mockNewComTaskExecution();
+        ComTaskExecution comTaskExecution2 = mockNewComTaskExecution();
+        ComTaskExecution comTaskExecution3 = mockNewComTaskExecution();
+        ComTaskExecution comTaskExecution4 = mockNewComTaskExecution();
+        ComTaskExecution comTaskExecution5 = mockNewComTaskExecution();
+
+        CommandRootImpl mockedCommandRoot = createMockedCommandRootWithPairs(
+                Pair.of(successfulComCommand1, comTaskExecution1),
+                Pair.of(successfulComCommand2, comTaskExecution2),
+                Pair.of(successfulComCommand3, comTaskExecution3));
+
+        GroupedDeviceCommand groupedDeviceCommand = mockedCommandRoot.getOrCreateGroupedDeviceCommand(offlineDevice, deviceProtocol, deviceProtocolSecurityPropertySet);
+        mockConnectionInterruptedFailureComCommand(groupedDeviceCommand, comTaskExecution4);
+        groupedDeviceCommand.addCommand(notExecutedComCommand, comTaskExecution5);
+
+        mockedCommandRoot.execute(true);
+
+        Clock clock = Clock.fixed(LocalDateTime.of(2016, 4, 5, 10, 0, 0, 0).atZone(ZoneOffset.systemDefault()).toInstant(), ZoneId.systemDefault());
+        Clock clockPlus5Min = Clock.fixed(LocalDateTime.of(2016, 4, 5, 10, 5, 0, 0).atZone(ZoneOffset.systemDefault()).toInstant(), ZoneId.systemDefault());
+        RescheduleBehaviorForAsap rescheduleBehavior = new RescheduleBehaviorForAsap(comServerDAO, connectionTask, clock);
+
+        when(connectionTask.getNextExecutionTimestamp()).thenReturn(clock.instant());
+        when((connectionTask).getCurrentRetryCount()).thenReturn(1);
+        when((connectionTask).getRescheduleDelay()).thenReturn(TimeDuration.minutes(5));
+        rescheduleBehavior.reschedule(mockedCommandRoot);
+
+        // asserts
+        verify(comServerDAO, times(1)).executionCompleted(comTaskExecution1);
+        verify(comServerDAO, times(1)).executionCompleted(comTaskExecution2);
+        verify(comServerDAO, times(1)).executionCompleted(comTaskExecution3);
+        verify(comServerDAO, times(1)).executionRescheduled(comTaskExecution4, clockPlus5Min.instant()); // we want the comTask to be rescheduled in ASAP
+        verify(comServerDAO, times(1)).executionRescheduled(comTaskExecution5, clockPlus5Min.instant()); // we want the comTask to be rescheduled in ASAP
+        verify(comServerDAO, times(1)).executionRescheduled(connectionTask);
     }
 }

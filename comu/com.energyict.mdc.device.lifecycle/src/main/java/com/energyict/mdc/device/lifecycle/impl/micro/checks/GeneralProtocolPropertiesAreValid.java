@@ -6,15 +6,13 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
-import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -9,9 +9,9 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.pluggable.PluggableClass;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import java.io.IOException;
 import java.io.InputStream;

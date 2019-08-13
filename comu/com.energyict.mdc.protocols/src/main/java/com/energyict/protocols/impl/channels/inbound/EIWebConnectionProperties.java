@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
 
 import javax.validation.constraints.Size;
 

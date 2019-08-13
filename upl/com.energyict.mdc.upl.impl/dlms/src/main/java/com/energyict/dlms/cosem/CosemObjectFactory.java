@@ -319,6 +319,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new PrivacyEnhancingDataAggregation(protocolLink, getObjectReference(obisCode));
     }
 
+    public CommunicationPortProtection getCommunicationPortProtection(ObisCode obisCode) throws NotInObjectListException {
+        return new CommunicationPortProtection(protocolLink, getObjectReference(obisCode));
+    }
+
     public Data getData(int baseObject) throws NotInObjectListException {
         return new Data(protocolLink, new ObjectReference(baseObject));
     }

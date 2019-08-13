@@ -12,7 +12,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.ReadingTypeInformation;
@@ -28,8 +28,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,7 +55,7 @@ public class ReadingTypeResource {
     @Transactional
     @Path("/unusedreadingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getUnusedReadingTypes(@BeanParam JsonQueryParameters queryParameters,
                                                   @QueryParam("obisCode") String obisCodeString,
                                                   @QueryParam("mRID") String mRID) {
@@ -91,7 +89,7 @@ public class ReadingTypeResource {
     @Transactional
     @Path("/mappedReadingType/{obis}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public StringResponse getMappedReadingType(@PathParam("obis") String obisCode) {
         String response = this.getObisCode(obisCode)
                 .map(mdcReadingTypeUtilService::getReadingTypeFilterFrom)
@@ -104,7 +102,7 @@ public class ReadingTypeResource {
     @Transactional
     @Path("/mappedObisCode/{mRID}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public StringResponse getMappedObisCode(@PathParam("mRID") String mRID) {
         String obisCode = mdcReadingTypeUtilService.getReadingTypeInformationFrom(mRID)
                 .map(ReadingTypeInformation::getObisCode)
@@ -117,7 +115,7 @@ public class ReadingTypeResource {
     @Transactional
     @Path("/readingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public ReadingTypeInfos getReadingTypes(@BeanParam JsonQueryParameters queryParameters) {
         String searchText = queryParameters.getLike();
         if (searchText != null && !searchText.isEmpty()){

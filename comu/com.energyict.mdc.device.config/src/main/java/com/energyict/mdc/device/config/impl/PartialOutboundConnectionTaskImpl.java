@@ -12,19 +12,19 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.common.rest.MinTimeDuration;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 /**
- *  Provides an implementation for an {@link com.energyict.mdc.device.config.PartialOutboundConnectionTask}
+ *  Provides an implementation for an {@link PartialOutboundConnectionTask}
  *
  * @author sva
  * @since 22/01/13 - 11:52

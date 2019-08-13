@@ -41,6 +41,12 @@ public class FirmwareCampaignInfo {
     public TimeDurationInfo validationTimeout;
     public IdWithNameInfo serviceCall;
 
+    public IdWithNameInfo calendarUploadComTask;
+    public IdWithNameInfo calendarUploadConnectionStrategy;
+
+    public IdWithNameInfo validationComTask;
+    public IdWithNameInfo validationConnectionStrategy;
+
     public EnumMap<FirmwareCheckManagementOption, CheckManagementOptionInfo> checkOptions;
 
     public Optional<PropertyInfo> getPropertyInfo(String key) {

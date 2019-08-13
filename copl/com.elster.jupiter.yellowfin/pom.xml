@@ -87,7 +87,7 @@
         <dependency>
             <groupId>com.yellowfin</groupId>
             <artifactId>yellowfin-ws</artifactId>
-            <version>7.4</version>
+            <version>8.0</version>
         </dependency>
 
         <dependency>

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 
 import java.util.Comparator;
 

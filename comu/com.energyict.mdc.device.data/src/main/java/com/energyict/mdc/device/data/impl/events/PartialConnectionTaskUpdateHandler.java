@@ -8,9 +8,9 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

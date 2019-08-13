@@ -4,17 +4,17 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LogBook;
 
 import java.util.List;
 
 /**
- * Adds behavior to {@link com.energyict.mdc.device.data.Device} that is specific
+ * Adds behavior to {@link Device} that is specific
  * to server side components.
  */
 public interface ServerDeviceForConfigChange extends Device {

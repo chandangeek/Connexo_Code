@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 
 /**
  * Models the behavior of a component that is capable of building

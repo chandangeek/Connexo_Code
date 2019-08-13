@@ -9,8 +9,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.Range;

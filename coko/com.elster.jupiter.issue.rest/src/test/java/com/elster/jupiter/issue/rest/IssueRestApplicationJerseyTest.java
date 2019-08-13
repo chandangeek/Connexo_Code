@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -50,6 +51,7 @@ import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -115,6 +117,11 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     IssueInfoFactoryService issueInfoFactoryService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    LocationService locationService;
+    @Mock
+    SearchLocationService searchLocationService;
+
 
     @Provider
     @javax.annotation.Priority(Priorities.AUTHORIZATION)
@@ -143,6 +150,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(nlsService.getThesaurus("ISR", Layer.REST)).thenReturn(thesaurus);
         when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.REST)).thenReturn(thesaurus);
         when(nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN)).thenReturn(thesaurus);
+        application.setLocationService(locationService);
+        application.setSearchLocationService(searchLocationService);
         application.setIssueService(issueService);
         application.setMeteringService(meteringService);
         application.setMeteringGroupsService(meteringGroupsService);
@@ -387,6 +396,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         IssueAction action = mockIssueAction(name);
         when(type.getId()).thenReturn(id);
         when(type.createIssueAction()).thenReturn(Optional.of(action));
+        when(action.setReasonName(anyString())).thenReturn(action);
         when(type.getIssueType()).thenReturn(issueType);
         return type;
     }

@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;

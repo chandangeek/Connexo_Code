@@ -12,7 +12,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;

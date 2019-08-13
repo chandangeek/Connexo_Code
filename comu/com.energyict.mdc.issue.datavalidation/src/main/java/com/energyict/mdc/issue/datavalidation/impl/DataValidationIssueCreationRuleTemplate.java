@@ -20,7 +20,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceConfigurationPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;

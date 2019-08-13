@@ -7,12 +7,16 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+
+import java.sql.SQLException;
+import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,9 +25,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-
-import java.sql.SQLException;
-import java.util.Arrays;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doCallRealMethod;

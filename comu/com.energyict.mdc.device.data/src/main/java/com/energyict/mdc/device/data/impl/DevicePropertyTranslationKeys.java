@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum DevicePropertyTranslationKeys implements TranslationKey {
 
-    DEVICE_DOMAIN_NAME("com.energyict.mdc.device.data.Device", "Device"),
+    DEVICE_DOMAIN_NAME("com.energyict.mdc.common.device.data.Device", "Device"),
     ;
 
     private String key;

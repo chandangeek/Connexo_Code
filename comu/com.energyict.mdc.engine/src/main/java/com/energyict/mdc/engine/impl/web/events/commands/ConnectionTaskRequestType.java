@@ -4,13 +4,14 @@
 
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import java.util.Set;
 
 /**
  * Provides an implementation for the {@link RequestType} interface
- * for {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s.
+ * for {@link ConnectionTask}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:59)

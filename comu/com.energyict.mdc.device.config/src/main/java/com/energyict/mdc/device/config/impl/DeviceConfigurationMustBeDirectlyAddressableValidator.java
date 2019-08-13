@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialOutboundConnectionTask;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

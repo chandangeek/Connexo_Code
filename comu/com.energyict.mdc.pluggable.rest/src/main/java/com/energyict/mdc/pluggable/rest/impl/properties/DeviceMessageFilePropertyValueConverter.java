@@ -6,8 +6,8 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.energyict.mdc.common.protocol.DeviceMessageFile;
 import com.energyict.mdc.pluggable.rest.impl.DeviceMessageFileReferenceInfo;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
 
 /**
  * Created by mbarinov on 31.08.2016.

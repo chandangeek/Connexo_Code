@@ -6,8 +6,8 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

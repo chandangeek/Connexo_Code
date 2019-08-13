@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.tasks.ConnectionTask;
+
 /**
  * Models the different reasons for the execution of a {@link ScheduledJob}.
  *
@@ -13,7 +15,7 @@ package com.energyict.mdc.engine.impl.core;
 public enum ExecutionFailureReason {
 
     /**
-     * Setting up the {@link com.energyict.mdc.device.data.tasks.ConnectionTask connection} failed.
+     * Setting up the {@link ConnectionTask connection} failed.
      */
     CONNECTION_SETUP {
         @Override
@@ -23,7 +25,7 @@ public enum ExecutionFailureReason {
     },
 
     /**
-     * The {@link com.energyict.mdc.device.data.tasks.ConnectionTask connection}
+     * The {@link ConnectionTask connection}
      * was setup correctly but then broke off due to some technical error or failure.
      */
     CONNECTION_BROKEN {
@@ -36,7 +38,7 @@ public enum ExecutionFailureReason {
     /**
      * Setting up the connection was not allowed to be setup because the
      * time of execution was outside the {@link com.energyict.mdc.common.ComWindow}
-     * of the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
+     * of the {@link ConnectionTask}.
      */
     OUTSIDE_COM_WINDOW {
         @Override

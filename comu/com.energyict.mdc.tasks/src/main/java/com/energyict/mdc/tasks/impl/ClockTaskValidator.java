@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -33,28 +34,28 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
             case SETCLOCK:
                 // both should be filled in
                 if (!value.getMinimumClockDifference().isPresent()) {
-                    fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                    fail(context, TaskServiceKeys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
                     valid=false;
                 }
                 if (!value.getMaximumClockDifference().isPresent()) {
-                    fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                    fail(context, TaskServiceKeys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                     valid=false;
                 } else {
                     if (value.getMaximumClockDifference().get().getCount()<=0) {
-                        fail(context, MessageSeeds.Keys.TIMEDURATION_MUST_BE_POSITIVE, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                        fail(context, TaskServiceKeys.TIMEDURATION_MUST_BE_POSITIVE, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                         valid=false;
                     }
                 }
                 if (value.getMinimumClockDifference().isPresent() && value.getMaximumClockDifference().isPresent()) {
                     switch (value.getMinimumClockDifference().get().compareTo(value.getMaximumClockDifference().get())) {
                         case 0:   // both can not be the same
-                            fail(context, MessageSeeds.Keys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
-                            fail(context, MessageSeeds.Keys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, TaskServiceKeys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, TaskServiceKeys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                             valid=false;
                             break;
                         case 1:   // max. should be greater then min.
-                            fail(context, MessageSeeds.Keys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
-                            fail(context, MessageSeeds.Keys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, TaskServiceKeys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, TaskServiceKeys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                             valid=false;
                             break;
                     }
@@ -63,30 +64,30 @@ public class ClockTaskValidator implements ConstraintValidator<ValidClockTask, C
             case SYNCHRONIZECLOCK:
                 // max. clock shift should be filled in
                 if (!value.getMaximumClockShift().isPresent()) {
-                    fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
+                    fail(context, TaskServiceKeys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
                     valid=false;
                 } else {
                      // max. clock shift should be greater then zero
                     if (value.getMaximumClockShift().get().getCount()<=0) {
-                        fail(context, MessageSeeds.Keys.TIMEDURATION_MUST_BE_POSITIVE, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
+                        fail(context, TaskServiceKeys.TIMEDURATION_MUST_BE_POSITIVE, ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT.fieldName());
                         valid=false;
                     }
                 }
                 // there should be a minimum defined before synchronizing the clock (this may be zero)
                 if (!value.getMinimumClockDifference().isPresent()) {
-                    fail(context, MessageSeeds.Keys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                    fail(context, TaskServiceKeys.CAN_NOT_BE_EMPTY, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
                     valid=false;
                 }
                 if (value.getMinimumClockDifference().isPresent() && value.getMaximumClockDifference().isPresent()) {
                     switch (value.getMinimumClockDifference().get().compareTo(value.getMaximumClockDifference().get())) {
                         case 0:   // both can not be the same
-                            fail(context, MessageSeeds.Keys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
-                            fail(context, MessageSeeds.Keys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, TaskServiceKeys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, TaskServiceKeys.MIN_EQUALS_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                             valid=false;
                             break;
                         case 1:   // max. should be greater then min.
-                            fail(context, MessageSeeds.Keys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
-                            fail(context, MessageSeeds.Keys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, TaskServiceKeys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF.fieldName());
+                            fail(context, TaskServiceKeys.MIN_MUST_BE_BELOW_MAX, ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF.fieldName());
                             valid=false;
                             break;
                     }

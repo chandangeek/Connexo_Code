@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 

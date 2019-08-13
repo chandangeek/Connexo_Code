@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.engine.impl.events.comtask;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -16,7 +16,7 @@ import java.io.StringWriter;
 
 /**
  * Represents a {@link com.energyict.mdc.engine.events.ComTaskExecutionEvent}
- * that indicates that a ComTaskExecution failed on a {@link com.energyict.mdc.engine.config.ComPort}.
+ * that indicates that a ComTaskExecution failed on a {@link ComPort}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-06 (16:45)

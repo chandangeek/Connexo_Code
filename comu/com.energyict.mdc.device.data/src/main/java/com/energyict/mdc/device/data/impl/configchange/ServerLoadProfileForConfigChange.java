@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.data.LoadProfile;
 
 /**
  * Provides functionality to manipulate the LoadProfile in order to perform a valid DeviceConfigChange

@@ -10,11 +10,11 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 
@@ -61,7 +61,7 @@ public class RegisterTypeResource {
     @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public PagedInfoList getRegisterTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Stream<RegisterType> registerTypeStream = null;
         if (filter.hasProperty("ids")) {
@@ -83,7 +83,7 @@ public class RegisterTypeResource {
     @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public RegisterTypeInfo getRegisterType(@PathParam("id") long id) {
         RegisterType registerType = resourceHelper.findRegisterTypeOrThrowException(id);
         return registerTypeInfoFactory.asInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
@@ -91,7 +91,7 @@ public class RegisterTypeResource {
 
     @DELETE @Transactional
     @Path("/{id}")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response deleteRegisterType(@PathParam("id") long id, RegisterTypeInfo info) {
         MeasurementType measurementType = resourceHelper.lockRegisterTypeOrThrowException(info);
@@ -102,7 +102,7 @@ public class RegisterTypeResource {
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
         ReadingType readingType = findReadingType(registerTypeInfo);
         MeasurementType measurementType = this.masterDataService.newRegisterType(readingType, registerTypeInfo.obisCode);
@@ -115,7 +115,7 @@ public class RegisterTypeResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo updateRegisterType(@PathParam("id") long id, RegisterTypeInfo registerTypeInfo) {
         RegisterType registerType = resourceHelper.lockRegisterTypeOrThrowException(registerTypeInfo);
         registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo));

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.GatewayType;
 
 import java.util.Optional;
 

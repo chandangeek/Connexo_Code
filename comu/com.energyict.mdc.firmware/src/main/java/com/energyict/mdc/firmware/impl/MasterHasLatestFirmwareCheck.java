@@ -5,8 +5,8 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;

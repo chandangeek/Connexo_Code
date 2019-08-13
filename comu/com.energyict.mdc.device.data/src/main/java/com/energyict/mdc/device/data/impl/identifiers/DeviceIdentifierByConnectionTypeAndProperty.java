@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 

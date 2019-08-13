@@ -5,14 +5,14 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;

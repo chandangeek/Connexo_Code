@@ -7,8 +7,8 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -31,7 +31,7 @@ public class DeviceLifeCycleChangeEventImpl implements DeviceLifeCycleChangeEven
         return new DeviceLifeCycleChangeEventImpl(stateTimeSlice);
     }
 
-    static DeviceLifeCycleChangeEventImpl from (com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent) {
+    static DeviceLifeCycleChangeEventImpl from (com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent) {
         return new DeviceLifeCycleChangeEventImpl(deviceLifeCycleChangeEvent);
     }
 
@@ -43,7 +43,7 @@ public class DeviceLifeCycleChangeEventImpl implements DeviceLifeCycleChangeEven
         this.user = stateTimeSlice.getUser();
     }
 
-    private DeviceLifeCycleChangeEventImpl(com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent) {
+    private DeviceLifeCycleChangeEventImpl(com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent) {
         this.type = Type.LIFE_CYCLE;
         this.timestamp = deviceLifeCycleChangeEvent.getTimestamp();
         this.state = Optional.empty();

@@ -6,9 +6,9 @@ package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceConfigurationBuilder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import com.google.common.collect.ImmutableMap;
 

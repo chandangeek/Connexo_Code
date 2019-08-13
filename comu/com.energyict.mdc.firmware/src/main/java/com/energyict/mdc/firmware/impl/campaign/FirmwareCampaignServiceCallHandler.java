@@ -6,12 +6,14 @@ package com.energyict.mdc.firmware.impl.campaign;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.firmware.impl.EventType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 
 import javax.inject.Inject;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +21,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
 
     public static final String NAME = "FirmwareCampaignServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
 
@@ -42,7 +45,9 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
             case FAILED:
                 break;
             case ONGOING:
-                firmwareCampaignService.createItemsOnCampaign(serviceCall);
+                if (oldState.isOpen()) {
+                    firmwareCampaignService.createItemsOnCampaign(serviceCall);
+                }
                 break;
             case CANCELLED:
                 firmwareCampaignService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED, serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get());

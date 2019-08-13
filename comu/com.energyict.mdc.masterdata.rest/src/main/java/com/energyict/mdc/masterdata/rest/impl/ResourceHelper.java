@@ -5,10 +5,10 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;

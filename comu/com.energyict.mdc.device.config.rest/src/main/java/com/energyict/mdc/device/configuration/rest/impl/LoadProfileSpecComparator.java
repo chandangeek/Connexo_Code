@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
 
 import java.util.Comparator;
 

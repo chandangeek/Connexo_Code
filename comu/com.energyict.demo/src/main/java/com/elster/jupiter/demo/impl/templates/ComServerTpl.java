@@ -5,7 +5,7 @@
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.ComServerBuilder;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 
 public enum ComServerTpl implements Template<ComServer, ComServerBuilder> {
     USER_COMSERVER(null, true),

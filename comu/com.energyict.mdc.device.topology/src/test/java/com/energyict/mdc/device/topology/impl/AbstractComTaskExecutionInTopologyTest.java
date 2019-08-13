@@ -12,24 +12,24 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import java.util.List;
@@ -154,7 +154,7 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
     }
 
     protected OutboundComPortPool createOutboundIpComPortPool(String name) {
-        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES), 0);
         ipComPortPool.setActive(true);
         ipComPortPool.update();
         return ipComPortPool;

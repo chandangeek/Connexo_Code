@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 
 /**
  * Models an attribute of a {@link DeviceMessage}.

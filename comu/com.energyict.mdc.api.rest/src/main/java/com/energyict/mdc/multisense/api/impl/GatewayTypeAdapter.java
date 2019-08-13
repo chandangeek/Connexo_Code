@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
+import com.energyict.mdc.common.device.config.GatewayType;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.device.config.GatewayType;
 
 public class GatewayTypeAdapter extends MapBasedXmlAdapter<GatewayType> {
 

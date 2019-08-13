@@ -6,11 +6,11 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;

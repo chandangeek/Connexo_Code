@@ -4,19 +4,19 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
@@ -64,7 +64,7 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
             this.createExecutionContext();
             commandRoot = prepareAll(getComTaskExecutions());
 
-            if (!commandRoot.hasGeneralSetupErrorOccurred()) {
+            if (!commandRoot.hasGeneralSetupErrorOccurred() && !commandRoot.getCommands().isEmpty()) {
                 connectionEstablished = this.establishConnectionFor(this.getComPort());
                 if (connectionEstablished) {
 
@@ -274,6 +274,16 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
         @Override
         public boolean hasGeneralSetupErrorOccurred() {
             return generalSetupError != null;
+        }
+
+        @Override
+        public void connectionInterrupted() {
+            parallelCommandRoots.values().stream().forEach(CommandRoot::connectionInterrupted);
+        }
+
+        @Override
+        public boolean hasConnectionBeenInterrupted() {
+            return parallelCommandRoots.values().stream().filter(CommandRoot::hasConnectionBeenInterrupted).findFirst().isPresent();
         }
 
         @Override

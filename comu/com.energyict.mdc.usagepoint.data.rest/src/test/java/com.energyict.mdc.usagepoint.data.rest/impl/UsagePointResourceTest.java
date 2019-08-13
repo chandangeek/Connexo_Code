@@ -30,9 +30,9 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -247,7 +247,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         Formula formula = mock(Formula.class);
         ExpressionNode expressionNode = mock(ExpressionNode.class);
         TemporalAmount intervalLength = mock(TemporalAmount.class);
-        com.energyict.mdc.device.data.Channel deviceChannel = mock(com.energyict.mdc.device.data.Channel.class);
+        com.energyict.mdc.common.device.data.Channel deviceChannel = mock(com.energyict.mdc.common.device.data.Channel.class);
 
         Meter oldMeter = mock(Meter.class);
         when(oldMeter.getAmrId()).thenReturn("311");

@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.time.Instant;

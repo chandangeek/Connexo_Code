@@ -5,13 +5,13 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskBreakdowns;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;

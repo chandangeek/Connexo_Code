@@ -7,8 +7,8 @@ package com.energyict.mdc.device.config.impl.deviceconfigchange;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 
 import org.osgi.service.component.annotations.Component;

@@ -7,11 +7,11 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.util.streams.DecoratedStream;
-import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

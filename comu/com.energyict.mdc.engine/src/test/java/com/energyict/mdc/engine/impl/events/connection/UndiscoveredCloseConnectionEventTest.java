@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 

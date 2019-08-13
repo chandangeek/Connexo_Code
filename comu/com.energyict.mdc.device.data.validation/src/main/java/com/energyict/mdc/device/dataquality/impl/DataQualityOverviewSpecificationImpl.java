@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.dataquality.impl;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import com.google.common.collect.Range;
 
