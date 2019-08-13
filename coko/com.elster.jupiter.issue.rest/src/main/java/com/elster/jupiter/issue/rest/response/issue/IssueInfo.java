@@ -75,8 +75,10 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
         return this.device.getName();
     }
 
-    public String getUsageName(){
-        return this.usagePointInfo.getInfo();
+    public String getUsageName() {
+        if(this.usagePointInfo != null)
+            return this.usagePointInfo.getInfo();
+        return "";
     }
     public int getPriorityTotal(){
         return this.priority.urgency + this.priority.impact;
