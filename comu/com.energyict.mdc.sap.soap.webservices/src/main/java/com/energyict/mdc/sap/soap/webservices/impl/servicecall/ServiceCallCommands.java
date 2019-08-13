@@ -22,9 +22,9 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.CategoryCode;
-import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateMessage;
@@ -40,8 +40,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMe
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
@@ -75,7 +77,7 @@ public class ServiceCallCommands {
             } else {
                 sendProcessError(MessageSeeds.MESSAGE_ALREADY_EXISTS, message);
             }
-        } else if (message.getConfirmationEndpointURL() != null) {
+        } else {
             sendProcessError(MessageSeeds.INVALID_MESSAGE_FORMAT, message);
         }
     }
@@ -89,7 +91,7 @@ public class ServiceCallCommands {
                     sendMessage(createServiceCall(serviceCallType, message), message.isBulk());
                 });
             }
-        } else if (message.getConfirmationURL() != null) {
+        } else {
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
     }
@@ -147,7 +149,7 @@ public class ServiceCallCommands {
 
     private void sendCommand(ServiceCall serviceCall, String deviceId, StatusChangeRequestCreateMessage message) {
         serviceCall.log(LogLevel.INFO, "Handling breaker operations for device with SAP id " + deviceId);
-        Optional<Device> device = sapCustomPropertySets.getDevice(new BigDecimal(deviceId));
+        Optional<Device> device = sapCustomPropertySets.getDevice(deviceId);
         Optional<EndDevice> endDevice = device.isPresent()
                 ? meteringService.findEndDeviceByMRID(device.get().getmRID())
                 : Optional.empty();
@@ -183,14 +185,14 @@ public class ServiceCallCommands {
         MeterReadingDocumentCreateRequestDomainExtension childDomainExtension = new MeterReadingDocumentCreateRequestDomainExtension();
         childDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
         childDomainExtension.setMeterReadingDocumentId(message.getId());
-        childDomainExtension.setDeviceId(new BigDecimal(message.getDeviceId()));
-        childDomainExtension.setLrn(new BigDecimal(message.getLrn()));
+        childDomainExtension.setDeviceId(message.getDeviceId());
+        childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
         childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
-        sapCustomPropertySets.getDevice(new BigDecimal(message.getDeviceId())).ifPresent(serviceCallBuilder::targetObject);
+        sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
         serviceCallBuilder.create();
     }
 
@@ -199,7 +201,6 @@ public class ServiceCallCommands {
                 new ConnectionStatusChangeDomainExtension();
         connectionStatusChangeDomainExtension.setId(message.getId());
         connectionStatusChangeDomainExtension.setCategoryCode(message.getCategoryCode());
-        connectionStatusChangeDomainExtension.setConfirmationURL(message.getConfirmationEndpointURL());
         connectionStatusChangeDomainExtension.setReasonCode(message.getUtilitiesServiceDisconnectionReasonCode());
         connectionStatusChangeDomainExtension.setProcessDate(message.getPlannedProcessingDateTime());
 
@@ -214,15 +215,27 @@ public class ServiceCallCommands {
         message.getDeviceConnectionStatus()
                 .forEach((key, value) -> sendCommand(serviceCall, key, message));
 
-        serviceCall.requestTransition(DefaultState.WAITING);
+        List<ServiceCall> children = findChildren(serviceCall);
+
+        if (children.size() > 0 && !hasAllChildState(children, DefaultState.FAILED)) {
+            serviceCall.requestTransition(DefaultState.WAITING);
+        } else {
+            serviceCall.requestTransition(DefaultState.FAILED);
+        }
+    }
+
+    private List<ServiceCall> findChildren(ServiceCall serviceCall) {
+        return serviceCall.findChildren().stream().collect(Collectors.toList());
+    }
+
+    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
     private MeterReadingDocumentRequestConfirmationMessage createServiceCall(ServiceCallType serviceCallType, MeterReadingDocumentCreateRequestMessage requestMessage) {
         MasterMeterReadingDocumentCreateRequestDomainExtension meterReadingDocumentDomainExtension =
                 new MasterMeterReadingDocumentCreateRequestDomainExtension();
         meterReadingDocumentDomainExtension.setRequestID(requestMessage.getId());
-        meterReadingDocumentDomainExtension.setConfirmationURL(requestMessage.getConfirmationURL());
-        meterReadingDocumentDomainExtension.setResultURL(requestMessage.getResultURL());
         meterReadingDocumentDomainExtension.setBulk(requestMessage.isBulk());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
@@ -245,15 +258,15 @@ public class ServiceCallCommands {
 
         return MeterReadingDocumentRequestConfirmationMessage
                 .builder()
-                .from(requestMessage)
+                .from(requestMessage, clock.instant())
                 .build();
     }
 
-    private Optional<ServiceCallType> getServiceCallType(ServiceCallTypes serviceCallType) {
+    public Optional<ServiceCallType> getServiceCallType(ServiceCallTypes serviceCallType) {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion());
     }
 
-    private Finder<ServiceCall> findAvailableServiceCalls(ServiceCallTypes serviceCallType) {
+    public Finder<ServiceCall> findAvailableServiceCalls(ServiceCallTypes serviceCallType) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.types.add(serviceCallType.getTypeName());
         return serviceCallService.getServiceCallFinder(filter);
@@ -295,7 +308,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MessageSeeds messageSeed, StatusChangeRequestCreateMessage message) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus))
+                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus), clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -303,7 +316,7 @@ public class ServiceCallCommands {
     private void sendProcessError(MeterReadingDocumentCreateRequestMessage message, MessageSeeds messageSeed) {
         MeterReadingDocumentRequestConfirmationMessage confirmationMessage =
                 MeterReadingDocumentRequestConfirmationMessage.builder()
-                        .from(message, messageSeed)
+                        .from(message, messageSeed, clock.instant())
                         .build();
         sendMessage(confirmationMessage, message.isBulk());
     }
@@ -311,7 +324,7 @@ public class ServiceCallCommands {
     private void sendProcessError(String exceptionCode, String exceptionInfo, StatusChangeRequestCreateMessage message) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, exceptionCode, exceptionInfo)
+                        .from(message, exceptionCode, exceptionInfo, clock.instant())
                         .build();
         sendMessage(confirmationMessage);
     }
@@ -320,7 +333,7 @@ public class ServiceCallCommands {
                                             String deviceId) {
         StatusChangeRequestCreateConfirmationMessage confirmationMessage =
                 StatusChangeRequestCreateConfirmationMessage.builder()
-                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId))
+                        .from(message, messageSeed.code(), messageSeed.translate(thesaurus, deviceId), clock.instant())
                         .withStatus(deviceId, ProcessingResultCode.FAILED, clock.instant())
                         .build();
         sendMessage(confirmationMessage);

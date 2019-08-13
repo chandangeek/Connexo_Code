@@ -11,6 +11,7 @@ import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.MissingDataOption;
@@ -391,7 +392,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                 .map(channelsContainer -> channelsContainer.getChannel(item.getReadingType()))
                 .flatMap(Functions.asStream())
                 .flatMap(channel -> {
-                    Range<Instant> intervalOfInterest =  Ranges.copy(channel.getChannelsContainer().getRange().intersection(exportInterval)).asOpenClosed();
+                    Range<Instant> intervalOfInterest = Ranges.copy(channel.getChannelsContainer().getRange().intersection(exportInterval)).asOpenClosed();
                     List<BaseReadingRecord> readingsOfInterest = readings.stream()
                             .filter(reading -> intervalOfInterest.contains(reading.getTimeStamp()))
                             .collect(Collectors.toList());

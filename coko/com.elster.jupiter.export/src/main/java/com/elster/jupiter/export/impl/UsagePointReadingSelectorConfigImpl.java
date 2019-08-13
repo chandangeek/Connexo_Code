@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -87,7 +88,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
     }
 
     @Override
-    Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+    public Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
         Range<Instant> exportInterval = occurrence.getDefaultSelectorOccurrence()
                 .map(DefaultSelectorOccurrence::getExportedDataInterval)
                 .orElse(Range.all());

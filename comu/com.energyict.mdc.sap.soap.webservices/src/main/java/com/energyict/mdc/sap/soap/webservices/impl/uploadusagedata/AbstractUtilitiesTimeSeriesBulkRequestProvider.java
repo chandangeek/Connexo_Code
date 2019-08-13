@@ -33,9 +33,9 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +45,9 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> extends AbstractOutboundEndPointProvider<EP> implements DataExportWebService, OutboundSoapEndPointProvider {
+    public static final String ACTL_STATUS = "ACTL";
+    public static final String INVL_STATUS = "INVL";
+
     private volatile PropertySpecService propertySpecService;
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
@@ -55,7 +58,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         // for OSGi
     }
 
-    @Inject // for tests
+    @Inject
+        // for tests
     AbstractUtilitiesTimeSeriesBulkRequestProvider(PropertySpecService propertySpecService,
                                                    DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
                                                    SAPCustomPropertySets sapCustomPropertySets) {
@@ -174,13 +178,23 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         return a.isAfter(b) ? a : b;
     }
 
-    Map<BigDecimal, RangeSet<Instant>> getTimeSlicedLRN(Channel channel, Range<Instant> range, IdentifiedObject meter) {
-        Map<BigDecimal, RangeSet<Instant>> lrn = sapCustomPropertySets.getLrn(channel, range);
+    Map<String, RangeSet<Instant>> getTimeSlicedLRN(Channel channel, Range<Instant> range, IdentifiedObject meter) {
+        Map<String, RangeSet<Instant>> lrn = sapCustomPropertySets.getLrn(channel, range);
         if (!lrn.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_NOT_FOUND_FOR_CHANNEL,
                     channel.getMainReadingType().getFullAliasName(),
                     meter.getName());
         }
         return lrn;
+    }
+
+    Map<Pair<String, String>, RangeSet<Instant>> getTimeSlicedLrnAndProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter, String readingTypeName) {
+        Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileId = sapCustomPropertySets.getLrnAndProfileId(channel, range);
+        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL,
+                    readingTypeName,
+                    meter.getName());
+        }
+        return lrnAndProfileId;
     }
 }

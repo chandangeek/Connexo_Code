@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingDataFormatter;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;

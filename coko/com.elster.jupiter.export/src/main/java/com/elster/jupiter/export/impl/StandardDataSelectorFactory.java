@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 public class StandardDataSelectorFactory implements DataSelectorFactory {
     static final String TRANSLATION_KEY = DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
-    static final String DISPLAY_NAME = "Device readings data selector [STD]";
+    public static final String DISPLAY_NAME = "Device readings data selector [STD]";
 
     private final Thesaurus thesaurus;
 

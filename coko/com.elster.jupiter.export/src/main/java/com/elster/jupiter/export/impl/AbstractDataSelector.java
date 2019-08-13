@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.nls.Thesaurus;

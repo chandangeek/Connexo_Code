@@ -15,6 +15,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcre
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPCrteConfMtrRdngDoc;
 
+import java.time.Instant;
 import java.util.List;
 
 public class CreateBulkMessageFactory {
@@ -24,29 +25,30 @@ public class CreateBulkMessageFactory {
     public CreateBulkMessageFactory() {
     }
 
-    public SmrtMtrMtrRdngDocERPBulkCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage) {
+    public SmrtMtrMtrRdngDocERPBulkCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
         SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPBulkCrteConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage));
+        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage, now));
         bulkConfirmationMessage.setLog(OBJECT_FACTORY.createLog());
         createAndValidateBody(bulkConfirmationMessage, requestMessage.getMeterReadingDocumentCreateMessages());
         return bulkConfirmationMessage;
     }
 
     public SmrtMtrMtrRdngDocERPBulkCrteConfMsg createMessage(MeterReadingDocumentCreateRequestMessage requestMessage,
-                                                             MessageSeeds messageSeeds) {
+                                                             MessageSeeds messageSeeds, Instant now) {
         SmrtMtrMtrRdngDocERPBulkCrteConfMsg bulkConfirmationMessage = OBJECT_FACTORY.createSmrtMtrMtrRdngDocERPBulkCrteConfMsg();
-        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage));
+        bulkConfirmationMessage.setMessageHeader(createHeader(requestMessage, now));
         bulkConfirmationMessage.setLog(OBJECT_FACTORY.createLog());
         bulkConfirmationMessage.getLog().getItem().add(createLogItem(messageSeeds));
         return bulkConfirmationMessage;
     }
 
-    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage) {
+    private BusinessDocumentMessageHeader createHeader(MeterReadingDocumentCreateRequestMessage requestMessage, Instant now) {
         BusinessDocumentMessageID id = OBJECT_FACTORY.createBusinessDocumentMessageID();
         id.setValue(requestMessage.getId());
 
         BusinessDocumentMessageHeader messageHeader = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
         messageHeader.setReferenceID(id);
+        messageHeader.setCreationDateTime(now);
 
         return messageHeader;
     }
