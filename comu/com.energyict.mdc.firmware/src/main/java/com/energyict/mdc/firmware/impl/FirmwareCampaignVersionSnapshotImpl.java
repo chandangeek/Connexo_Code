@@ -9,15 +9,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignVersionStateShapshot;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 
 import javax.inject.Inject;
-import java.util.Objects;
 
 public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVersionStateShapshot {
 
@@ -65,8 +64,8 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
         this.firmwareStatus = firmwareVersion.getFirmwareStatus();
         this.imageIdentifier = firmwareVersion.getImageIdentifier();
         this.rank = firmwareVersion.getRank();
-        this.meterFirmwareDependency = Objects.requireNonNull(firmwareVersion.getMeterFirmwareDependency().orElse(null)).getFirmwareVersion();
-        this.communicationFirmwareDependency = Objects.requireNonNull(firmwareVersion.getCommunicationFirmwareDependency().orElse(null)).getFirmwareVersion();
+        this.meterFirmwareDependency = firmwareVersion.getMeterFirmwareDependency().map(FirmwareVersion::getFirmwareVersion).orElse(null);
+        this.communicationFirmwareDependency = firmwareVersion.getCommunicationFirmwareDependency().map(FirmwareVersion::getFirmwareVersion).orElse(null);
         return this;
     }
 
@@ -76,7 +75,10 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
 
     @Override
     public void save() {
-        if (dataModel.mapper(FirmwareCampaignVersionStateShapshot.class).getUnique("firmwareCampaign", firmwareCampaign.get()).isPresent()) {
+        if (dataModel.stream(FirmwareCampaignVersionStateShapshot.class)
+                .filter(Where.where(Fields.FWRCAMPAIGN.fieldName()).isEqualTo(firmwareCampaign.get()))
+                .filter(Where.where(Fields.FIRMWARETYPE.fieldName()).isEqualTo(firmwareType))
+                .anyMatch(Where.where(Fields.FIRMWAREVERSION.fieldName()).isEqualTo(firmwareVersion))) {
             Save.UPDATE.save(dataModel, this);
         } else {
             Save.CREATE.save(dataModel, this);

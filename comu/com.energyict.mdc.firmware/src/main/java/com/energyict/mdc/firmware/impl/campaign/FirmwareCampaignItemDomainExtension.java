@@ -27,9 +27,7 @@ import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
-import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
@@ -297,9 +295,11 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             return false;
         }
         FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        FirmwareCampaignManagementOptions options = firmwareService.findFirmwareCampaignCheckManagementOptions(campaign)
-                .orElseGet(() -> (FirmwareCampaignManagementOptions)firmwareService.findFirmwareManagementOptions(device.getDeviceType())
-                        .orElse(FirmwareManagementOptions.EMPTY));
+        FirmwareCheckManagementOptions options = firmwareService.findFirmwareCampaignCheckManagementOptions(campaign)
+                .map(FirmwareCheckManagementOptions.class::cast)
+                .orElseGet(() -> firmwareService.findFirmwareManagementOptions(device.getDeviceType())
+                        .map(FirmwareCheckManagementOptions.class::cast)
+                        .orElse(FirmwareCheckManagementOptions.EMPTY));
 
         return firmwareService.getFirmwareChecks()
                 .map(check -> {
