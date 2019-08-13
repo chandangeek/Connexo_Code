@@ -95,8 +95,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     }
 
     @Override
-    public List<String> getSupportedDataType() {
-        return Arrays.asList(DataExportService.STANDARD_READING_DATA_TYPE, "customReadingDataType");
+    public String getSupportedDataType() {
+        return DataExportService.STANDARD_READING_DATA_TYPE;
     }
 
     @Override

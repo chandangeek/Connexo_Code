@@ -228,7 +228,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
                 if (customPropertySet.isPresent()) {
                     if (!sapCustomPropertySets.isProfileIdAlreadyExists(channel.get(), profileId, profileInterval)) {
                         CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
-                                channel.get().getChannelSpec(), profileInterval.upperEndpoint(), deviceId);
+                                channel.get().getChannelSpec(), lrnInterval.lowerEndpoint(), deviceId);
                         Range tailRange = Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint());
                         if (tailRange != null && !tailRange.isEmpty()) {
                             customPropertySetService.setValuesVersionFor(customPropertySet.get(),

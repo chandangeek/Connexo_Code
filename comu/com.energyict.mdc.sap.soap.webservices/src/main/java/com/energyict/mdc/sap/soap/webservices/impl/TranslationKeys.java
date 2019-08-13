@@ -62,9 +62,6 @@ public enum TranslationKeys implements TranslationKey {
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
     PROFILE_ID("profileID", "Profile ID"),
-    ROLES("roles", "Roles"),
-    LEVEL_NAME("levelName", "Level name"),
-    TYPE_ID("typeId", "Type ID"),
     EXPORTER("exporter", "Use custom exporter"),
 
     // Tasks

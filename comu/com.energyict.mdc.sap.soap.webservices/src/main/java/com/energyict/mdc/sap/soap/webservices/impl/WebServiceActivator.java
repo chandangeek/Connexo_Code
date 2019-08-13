@@ -43,6 +43,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.database.UpgraderV10_7;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryBulkAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
@@ -69,8 +70,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeCustomPropertySet;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.measurementtaskassignment.MeasurementTaskAssignmentChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultCustomPropertySet;
@@ -79,7 +78,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocum
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
-import com.energyict.mdc.sap.soap.webservices.impl.database.UpgraderV10_7;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -99,6 +97,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -140,12 +139,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final List<UtilitiesDeviceRegisteredNotification> UTILITIES_DEVICE_REGISTERED_NOTIFICATION = new CopyOnWriteArrayList<>();
     public static final List<UtilitiesDeviceRegisteredBulkNotification> UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION = new CopyOnWriteArrayList<>();
     public static final List<MeasurementTaskAssignmentChangeConfirmation> MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
-    public static final String EXPORT_TASK_NAME = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.export.task";
-    public static final String EXPORT_TASK_DEVICE_GROUP_NAME = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.device.group";
-    public static final String LIST_OF_ROLE_CODES = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.role.codes";
-    public static final String EXPORT_TASK_START_ON_DATE = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.start.on";
-    public static final String EXPORT_TASK_EXPORT_WINDOW = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.export.window";
-    public static final String EXPORT_TASK_UPDATE_WINDOW = "com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.update.window";
+    public static final String EXPORT_TASK_NAME = "sap.soap.measurementtaskassignment.export.task";
+    public static final String EXPORT_TASK_DEVICE_GROUP_NAME = "sap.soap.measurementtaskassignment.device.group";
+    public static final String LIST_OF_ROLE_CODES = "sap.soap.measurementtaskassignment.role.codes";
+    public static final String EXPORT_TASK_START_ON_DATE = "sap.soap.measurementtaskassignment.start.on";
+    public static final String EXPORT_TASK_EXPORT_WINDOW = "sap.soap.measurementtaskassignment.export.window";
+    public static final String EXPORT_TASK_UPDATE_WINDOW = "sap.soap.measurementtaskassignment.update.window";
 
     private static Optional<String> exportTaskName;
     private static Optional<String> exportTaskDeviceGroupName;
@@ -313,7 +312,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
         exportTaskName = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_NAME));
         exportTaskDeviceGroupName = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_DEVICE_GROUP_NAME));
-        listOfRoleCodes= new ArrayList<>();
+        listOfRoleCodes = Collections.emptyList();
         Optional.ofNullable(getPropertyValue(bundleContext, LIST_OF_ROLE_CODES)).ifPresent(r -> listOfRoleCodes = Arrays.asList((r.split(","))));
         exportTaskStartOnDate = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_START_ON_DATE));
         exportTaskExportWindow = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_EXPORT_WINDOW));
@@ -345,9 +344,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MeterReadingDocumentCreateRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MeterReadingDocumentCreateResultDomainExtension.class.getName(),
                 new MeterReadingDocumentCreateResultCustomPropertySet(thesaurus, propertySpecService));
-        customPropertySetsMap.put(MeasurementTaskAssignmentChangeDomainExtension.class.getName(),
-                new MeasurementTaskAssignmentChangeCustomPropertySet(thesaurus, propertySpecService));
-        customPropertySetsMap.put(MasterUtilitiesDeviceCreateRequestDomainExtension.class.getName(),
+         customPropertySetsMap.put(MasterUtilitiesDeviceCreateRequestDomainExtension.class.getName(),
                 new MasterUtilitiesDeviceCreateRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class.getName(),
                 new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet(thesaurus, propertySpecService));

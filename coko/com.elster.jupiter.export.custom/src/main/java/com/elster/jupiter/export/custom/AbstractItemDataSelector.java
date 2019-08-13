@@ -441,7 +441,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         TreeRangeSet<Instant> base = TreeRangeSet.create();
         Optional<Instant> adhocTime = occurrence.getTaskOccurrence().getAdhocTime();
         if ((adhocTime.isPresent()) && occurrence.getTask().getRunParameters(adhocTime.get()).isPresent()) {
-            DataExportRunParameters runParameters = (/*(IDataExportOccurrence)*/ occurrence).getTask().getRunParameters(adhocTime.get()).get();
+            DataExportRunParameters runParameters = (occurrence).getTask().getRunParameters(adhocTime.get()).get();
             baseRange = Range.openClosed(runParameters.getUpdatePeriodStart(), runParameters.getUpdatePeriodEnd());
             base.add(baseRange);
             base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());

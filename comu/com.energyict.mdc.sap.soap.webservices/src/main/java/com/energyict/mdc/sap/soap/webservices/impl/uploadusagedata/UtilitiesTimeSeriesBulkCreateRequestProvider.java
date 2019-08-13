@@ -246,7 +246,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
         List<Instant> instants = new ArrayList<>();
         Instant instant = truncateToDays(range.lowerEndpoint()).plus(1, ChronoUnit.HOURS);
 
-        while (instant.isBefore(range.upperEndpoint()) || instant.equals(range.upperEndpoint())) {
+        while (!instant.isAfter(range.upperEndpoint())) {
             instants.add(instant);
             instant = instant.plus(1, ChronoUnit.HOURS);
         }

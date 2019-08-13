@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class DefaultStructureMarker implements StructureMarker {
+final class DefaultStructureMarker implements StructureMarker {
 
     private final DefaultStructureMarker parent;
     private final String structure;

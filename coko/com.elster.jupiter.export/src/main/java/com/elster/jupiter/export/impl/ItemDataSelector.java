@@ -11,7 +11,7 @@ import com.elster.jupiter.export.MeterReadingData;
 import java.time.Instant;
 import java.util.Optional;
 
-public interface ItemDataSelector {
+interface ItemDataSelector {
 
     Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, IReadingTypeDataExportItem item);
 
