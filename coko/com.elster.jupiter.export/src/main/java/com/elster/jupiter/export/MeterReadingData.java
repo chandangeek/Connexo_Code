@@ -14,22 +14,18 @@ public class MeterReadingData extends AbstractExportData<MeterReading> {
     private final ReadingTypeDataExportItem item;
     private final MeterReadingValidationData validationData;
 
-    private final boolean customSelector;
-    private final Range<Instant> exportInterval;
+    private boolean customSelector;
+    private Range<Instant> exportInterval;
 
     public MeterReadingData(ReadingTypeDataExportItem item, MeterReading data, MeterReadingValidationData validationData, StructureMarker structureMarker) {
         super(data, structureMarker);
         this.item = item;
         this.validationData = validationData;
-        this.customSelector = false;
-        this.exportInterval = null;
     }
 
     public MeterReadingData(ReadingTypeDataExportItem item, MeterReading data, MeterReadingValidationData validationData,
                             StructureMarker structureMarker, boolean customSelector, Range<Instant> exportInterval) {
-        super(data, structureMarker);
-        this.item = item;
-        this.validationData = validationData;
+        this(item, data, validationData, structureMarker);
         this.customSelector = customSelector;
         this.exportInterval = exportInterval;
     }

@@ -77,7 +77,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
         if (sapCustomPropertySets.isRangesIntersected(message.getRoles().stream()
                 .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
-            sendProcessError(message, MessageSeeds.TIME_PERIODS_ARE_INTERSECTED);
+            sendProcessError(message, MessageSeeds.TIME_PERIODS_INTERSECT);
             return;
         }
 

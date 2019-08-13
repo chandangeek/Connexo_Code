@@ -606,7 +606,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     public List<DataExportWebService> getExportWebServicesMatching(DataSelectorFactory selectorFactory) {
         String dataType = dataSelectorFactories.get(selectorFactory);
         return exportWebServices.values().stream()
-                .filter(service -> service.getSupportedDataType().contains(dataType))
+                .filter(service -> dataType.equals(service.getSupportedDataType()))
                 .collect(Collectors.toList());
     }
 

@@ -98,7 +98,7 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
         properties.add(this.propertySpecService
                 .stringSpec()
                 .named(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), TranslationKeys.CPS_PROFILE_ID)
-                .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_IDENTIFIER_DESCRIPTION)
+                .describedAs(TranslationKeys.CPS_DEVICE_CHANNEL_PROFILE_IDENTIFIER_DESCRIPTION)
                 .fromThesaurus(thesaurus)
                 .finish());
         return properties;

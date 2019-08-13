@@ -129,12 +129,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
-				<artifactId>export.custom</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.elster.jupiter</groupId>
 				<artifactId>ids</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>

@@ -62,13 +62,13 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid meter reading document"),
     UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "[MeterReadingDocumentId: {0}] Unsupported reason code or reason code does not support bulk request"),
 
-    CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Channel for LRN ''{0}'' isn''t found."),
-    PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile ID ''{0}'' is already set for channel ''{1}''."),
-    INVALID_TIME_PERIOD(7002, "InvalidTimePeriod", "MeasurementTaskAssignmentRole time period is invalid."),
-    TIME_PERIODS_ARE_INTERSECTED(7003, "TimePeriodsAreIntersected", "MeasurementTaskAssignmentRole time periods are intersected."),
-    LRN_IS_NOT_UNIQUE(7004, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [''{1}''..''{2}'']."),
+    CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Couldn''t find channel with LRN ''{0}''."),
+    PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile Id ''{0}'' is already set for channel ''{1}''."),
+    INVALID_TIME_PERIOD(7002, "InvalidTimePeriod", "Measurement task assignment role time period is invalid."),
+    TIME_PERIODS_INTERSECT(7003, "TimePeriodsIntersect", "Measurement task sssignment role time periods intersect."),
+    LRN_IS_NOT_UNIQUE(7004, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [{1},{2})."),
     PROPERTY_IS_NOT_SET(7005, "PropertyNotSet", "Property ''{0}'' isn''t set."),
-    LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7006, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile ID isn''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
+    LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7006, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile Id aren''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
     EXCEPTION_GENERATED(7007, "ExceptionGenerated", "Exception generated: ''{0}''"),
 
     //Micro checks
