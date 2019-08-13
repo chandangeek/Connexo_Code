@@ -344,7 +344,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MeterReadingDocumentCreateRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MeterReadingDocumentCreateResultDomainExtension.class.getName(),
                 new MeterReadingDocumentCreateResultCustomPropertySet(thesaurus, propertySpecService));
-         customPropertySetsMap.put(MasterUtilitiesDeviceCreateRequestDomainExtension.class.getName(),
+        customPropertySetsMap.put(MasterUtilitiesDeviceCreateRequestDomainExtension.class.getName(),
                 new MasterUtilitiesDeviceCreateRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class.getName(),
                 new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet(thesaurus, propertySpecService));
