@@ -98,7 +98,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             type: 'auto',
             useNull: true,
             defaultValue: undefined
-        }
+        },
         {name : 'checkOptions', type: 'auto'}
     ],
     associations: [
