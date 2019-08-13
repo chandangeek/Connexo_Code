@@ -282,6 +282,16 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 ]
             },
             {
+                xtype: 'firmware-version-options',
+                itemId: 'firmware-version-options',
+                hidden: true,
+                isDisabled: me.campaignRecordBeingEdited,
+                defaults: {
+                    width: 1000,
+                    labelWidth: 260
+                },
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
@@ -510,6 +520,12 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.down('#fwc-campaign-allowed-comtask').setDisabled(true);
                 me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
 
+                var firmvareVersionsView = me.down('#firmware-version-options');
+                var firmvareVersionsStore = firmvareVersionsView.store;
+                firmvareVersionsStore.loadRawData([campaignRecord.data.checkOptions]);
+                firmvareVersionsView.fillChecksAccordingStore();
+                firmvareVersionsView.show();
+                firmvareVersionsView.disable();
             },
             setProperties = function() {
                 me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());
