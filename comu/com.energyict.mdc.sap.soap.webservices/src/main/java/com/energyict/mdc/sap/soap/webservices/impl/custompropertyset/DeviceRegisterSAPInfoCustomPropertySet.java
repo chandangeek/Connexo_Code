@@ -145,11 +145,11 @@ public class DeviceRegisterSAPInfoCustomPropertySet implements CustomPropertySet
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column("LOGICAL_REGISTER_NUMBER")
+            /*table.column("LOGICAL_REGISTER_NUMBER")
                     .number()
                     .map(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
                     .upTo(Version.version(10,7))
-                    .add();
+                    .add();*/
             Column lrnColumnString = table.column(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
