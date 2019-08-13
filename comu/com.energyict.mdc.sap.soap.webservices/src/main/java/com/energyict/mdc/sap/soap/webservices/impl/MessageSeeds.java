@@ -64,8 +64,8 @@ public enum MessageSeeds implements MessageSeed {
 
     CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Couldn''t find channel with LRN ''{0}''."),
     PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile Id ''{0}'' is already set for channel ''{1}''."),
-    INVALID_TIME_PERIOD(7002, "InvalidTimePeriod", "Measurement task assignment role time period is invalid."),
-    TIME_PERIODS_INTERSECT(7003, "TimePeriodsIntersect", "Measurement task sssignment role time periods intersect."),
+    INVALID_TIME_PERIOD(7002, "InvalidTimePeriod", "Measurement task assignment time period is invalid."),
+    TIME_PERIODS_INTERSECT(7003, "TimePeriodsIntersect", "Measurement task assignment time periods intersect."),
     LRN_IS_NOT_UNIQUE(7004, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [{1},{2})."),
     PROPERTY_IS_NOT_SET(7005, "PropertyNotSet", "Property ''{0}'' isn''t set."),
     LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7006, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile Id aren''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
