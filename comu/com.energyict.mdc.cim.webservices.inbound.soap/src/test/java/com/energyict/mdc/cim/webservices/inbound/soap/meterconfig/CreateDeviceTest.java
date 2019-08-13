@@ -594,7 +594,6 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore
     @Test
     public void testNoReplyAddress() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
@@ -605,8 +604,8 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         try {
             // Business method
             executeMeterConfigEndpoint.createMeterConfig(meterConfigRequest);
-            fail("A NPE must be thrown");
-        } catch (NullPointerException e) {
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
         }
     }
 

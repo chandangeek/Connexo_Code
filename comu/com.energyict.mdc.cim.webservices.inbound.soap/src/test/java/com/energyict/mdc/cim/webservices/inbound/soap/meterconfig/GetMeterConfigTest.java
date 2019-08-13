@@ -183,7 +183,6 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         assertThat(responseMeter.getMeterCustomAttributeSet().get(2).getId()).isEqualTo(VERSIONED_CPS_ID);
     }
 
-    @Ignore
     @Test
     public void testNoReplyAddress() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
@@ -194,8 +193,8 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         try {
             // Business method
             executeMeterConfigEndpoint.createMeterConfig(meterConfigRequest);
-            fail("A NPE must be thrown");
-        } catch (NullPointerException e) {
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
         }
     }
 

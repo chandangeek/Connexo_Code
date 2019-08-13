@@ -200,10 +200,14 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
     }
 
     private MaximumNumberOfTaskForComPortPool constructMaximumNumberOfTaskForComPortPoolFrom(ResultSet resultSet, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) throws SQLException {
-        int comPortPoolId = resultSet.getInt(1);
+        long comPortPoolId = resultSet.getLong(1);
         int numberOfTasks = resultSet.getInt(2);
         if (currentHighPriorityLoadPerComPortPool.containsKey(comPortPoolId)) {
+            LOGGER.info("[high-prio] pool " + comPortPoolId + " max nb of high-prio tasks: "
+                    + numberOfTasks + ", current load: " + currentHighPriorityLoadPerComPortPool.get(comPortPoolId));
             numberOfTasks = Math.max(0, numberOfTasks - currentHighPriorityLoadPerComPortPool.get(comPortPoolId)); // Subtract the current high priority load from the maximum number
+        } else {
+            LOGGER.info("[high-prio] no load info about pool " + comPortPoolId + "!");
         }
         return new MaximumNumberOfTaskForComPortPool(comPortPoolId, numberOfTasks);
     }
@@ -303,7 +307,7 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
     private class GroupingComJobService implements ComJobService {
 
         private final String comServer;
-        private final Map<Integer, Integer> remainingNumberOfTasksPerPool;
+        private final Map<Long, Integer> remainingNumberOfTasksPerPool;
         private List<HighPriorityComJob> jobs = new ArrayList<>();
         private final Map<Integer, ScheduledConnectionTask> connectionTaskCache = new HashMap<>();
         private Map<OutboundConnectionTask, HighPriorityComTaskExecutionGroup> groups = new HashMap<>();
@@ -381,41 +385,13 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
         }
 
         private void add(ResultSet resultSet) throws SQLException {
-            int comPortPoolId = resultSet.getInt(CONNECTION_TASK_COMPORT_POOL_RESULT_SET_INDEX);
+            long comPortPoolId = resultSet.getLong(CONNECTION_TASK_COMPORT_POOL_RESULT_SET_INDEX);
             LOGGER.info("[high-prio] comPortPoolId from DB=" + comPortPoolId);
             ScheduledConnectionTask connectionTask = findConnectionTask(resultSet.getInt(CONNECTION_TASK_ID_RESULT_SET_INDEX));
             addToGroup((ServerPriorityComTaskExecutionLink) construct(resultSet, connectionTask), connectionTask, comPortPoolId);
         }
 
-        private boolean needMoreJobsForPool(int comPortPoolId) {
-            Integer remainingNumberOfTaskForPool = remainingNumberOfTasksPerPool.get(comPortPoolId);
-            LOGGER.info("[high-prio] remaining tasks for pool " + comPortPoolId + ": " + remainingNumberOfTaskForPool);
-            return remainingNumberOfTaskForPool != null && remainingNumberOfTaskForPool > 0;
-        }
-
-        private void logIgnoringTask(long taskId, int comPortPoolId) {
-            LOGGER.info(
-                    MessageFormat.format(
-                            "Ignoring HighPriorityComTaskExecution (id={0}) for com server ''{1}'' because we already have enough tasks for comport pool {2}",
-                            taskId, comServer, comPortPoolId));
-        }
-
-        private ScheduledConnectionTask findConnectionTask(int id) {
-            ScheduledConnectionTask connectionTask = connectionTaskCache.get(id);
-            if (connectionTask == null) {
-                connectionTask = connectionTaskService.findScheduledConnectionTask(id).get();
-                connectionTaskCache.put(id, connectionTask);
-            }
-            return connectionTask;
-        }
-
-        private void addHighPriorityComJob(HighPriorityComJob job, Integer comPortPoolId) {
-            jobs.add(job);
-            Integer numberOfTasks = remainingNumberOfTasksPerPool.get(comPortPoolId);
-            remainingNumberOfTasksPerPool.put(comPortPoolId, numberOfTasks - 1);
-        }
-
-        protected void addToGroup(ServerPriorityComTaskExecutionLink highPriorityComTaskExecution, ScheduledConnectionTask connectionTask, Integer comPortPoolId) {
+        protected void addToGroup(ServerPriorityComTaskExecutionLink highPriorityComTaskExecution, ScheduledConnectionTask connectionTask, Long comPortPoolId) {
             LOGGER.info("[high-prio] high prio id=" + highPriorityComTaskExecution.getId() + " connectionTask=" + connectionTask);
             HighPriorityComTaskExecutionGroup group = groups.get(connectionTask);
             if (group == null) {
@@ -432,20 +408,48 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
             }
             group.add(highPriorityComTaskExecution);
         }
+
+        private boolean needMoreJobsForPool(long comPortPoolId) {
+            Integer remainingNumberOfTaskForPool = remainingNumberOfTasksPerPool.get(comPortPoolId);
+            LOGGER.info("[high-prio] remaining tasks for pool " + comPortPoolId + ": " + remainingNumberOfTaskForPool);
+            return remainingNumberOfTaskForPool != null && remainingNumberOfTaskForPool > 0;
+        }
+
+        private void addHighPriorityComJob(HighPriorityComJob job, Long comPortPoolId) {
+            jobs.add(job);
+            Integer numberOfTasks = remainingNumberOfTasksPerPool.get(comPortPoolId);
+            remainingNumberOfTasksPerPool.put(comPortPoolId, numberOfTasks - 1);
+        }
+
+        private void logIgnoringTask(long taskId, long comPortPoolId) {
+            LOGGER.info(
+                    MessageFormat.format(
+                            "Ignoring HighPriorityComTaskExecution (id={0}) for com server ''{1}'' because we already have enough tasks for comport pool {2}",
+                            taskId, comServer, comPortPoolId));
+        }
+
+        private ScheduledConnectionTask findConnectionTask(int id) {
+            ScheduledConnectionTask connectionTask = connectionTaskCache.get(id);
+            if (connectionTask == null) {
+                connectionTask = connectionTaskService.findScheduledConnectionTask(id).get();
+                connectionTaskCache.put(id, connectionTask);
+            }
+            return connectionTask;
+        }
     }
 
     private class MaximumNumberOfTaskForComPortPool implements HasId {
 
-        private final int comPortPoolId;
+        private final long comPortPoolId;
         private final int numberOfTasks;
 
-        private MaximumNumberOfTaskForComPortPool(int comPortPoolId, int numberOfTasks) {
+        private MaximumNumberOfTaskForComPortPool(long comPortPoolId, int numberOfTasks) {
             super();
             this.comPortPoolId = comPortPoolId;
             this.numberOfTasks = numberOfTasks;
         }
 
-        private int getComPortPoolId() {
+        private long getComPortPoolId() {
             return comPortPoolId;
         }
 
