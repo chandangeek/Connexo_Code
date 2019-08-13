@@ -22,7 +22,7 @@ public class StatusOfTargetFirmwareCheckTest extends AbstractFirmwareCheckTest {
 
     @Test
     public void testUnexpectedStatus() {
-        when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.FINAL));
+        when(firmwareCampaignManagementOptions.getStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.FINAL));
         when(uploadedFirmware.getFirmwareStatus()).thenReturn(FirmwareStatus.TEST);
 
         expectError("Target firmware isn't in the allowed status.");
@@ -38,18 +38,11 @@ public class StatusOfTargetFirmwareCheckTest extends AbstractFirmwareCheckTest {
     @Test
     public void testCheckNotActivated() {
         when(uploadedFirmware.getFirmwareStatus()).thenReturn(FirmwareStatus.DEPRECATED);
-        when(firmwareManagementOptions.isActivated(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK)).thenReturn(false);
+        when(firmwareCampaignManagementOptions.isActivated(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK)).thenReturn(false);
 
         expectSuccess();
     }
 
-    @Test
-    public void testFirmwareManagementNotActivated() {
-        when(uploadedFirmware.getFirmwareStatus()).thenReturn(FirmwareStatus.DEPRECATED);
-        when(firmwareService.findFirmwareManagementOptions(deviceType)).thenReturn(Optional.empty());
-
-        expectSuccess();
-    }
 
     @Test
     public void testAcceptableStatus1() {

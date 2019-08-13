@@ -141,12 +141,14 @@ public enum TableSpecs {
                     .notNull()
                     .add();
 
-            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWAREVERSION.name())
+            Column version = table.column(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWAREVERSION.name())
                     .varChar(NAME_LENGTH)
+                    .notNull()
                     .map(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWAREVERSION.fieldName())
                     .add();
-            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWARETYPE.name())
+            Column type = table.column(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWARETYPE.name())
                     .varChar(NAME_LENGTH)
+                    .notNull()
                     .conversion(CHAR2ENUM)
                     .map(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWARETYPE.fieldName())
                     .add();
@@ -161,6 +163,7 @@ public enum TableSpecs {
                     .add();
             table.column(FirmwareCampaignVersionSnapshotImpl.Fields.RANK.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
                     .map(FirmwareCampaignVersionSnapshotImpl.Fields.RANK.fieldName())
                     .add();
             table.column(FirmwareCampaignVersionSnapshotImpl.Fields.METER_FW_DEP.name())
@@ -172,7 +175,7 @@ public enum TableSpecs {
                     .map(FirmwareCampaignVersionSnapshotImpl.Fields.COM_FW_DEP.fieldName())
                     .add();
 
-            table.primaryKey("FWC_PK_VERSION_SNAPSHOT").on(firmwareCampaignColumn, cps).add();
+            table.primaryKey("FWC_PK_VERSION_SNAPSHOT").on(firmwareCampaignColumn, cps,version,type).add();
             table.foreignKey("FK_FWC_VRST_TO_CAMPAIGN")
                     .on(firmwareCampaignColumn, cps)
                     .references(FirmwareCampaignDomainExtension.class)

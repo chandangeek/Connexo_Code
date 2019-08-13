@@ -11,7 +11,10 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
@@ -62,7 +65,6 @@ public class FirmwareManagementOptionsResource {
         Set<ProtocolSupportedFirmwareOptions> supportedFirmwareMgtOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
         Optional<FirmwareManagementOptions> firmwareMgtOptions = firmwareService.findFirmwareManagementOptions(deviceType);
         Set<ProtocolSupportedFirmwareOptions> allowedMgtOptions = firmwareMgtOptions.map(FirmwareManagementOptions::getOptions).orElse(Collections.emptySet());
-
         supportedFirmwareMgtOptions
                 .forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
         allowedMgtOptions
