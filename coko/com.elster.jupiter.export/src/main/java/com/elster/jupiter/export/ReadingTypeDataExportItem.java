@@ -9,13 +9,14 @@ import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasId;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Optional;
 
 @ProviderType
-public interface ReadingTypeDataExportItem {
+public interface ReadingTypeDataExportItem extends HasId {
 
     ReadingDataSelectorConfig getSelector();
 
@@ -36,5 +37,17 @@ public interface ReadingTypeDataExportItem {
     String getDescription();
 
     IdentifiedObject getDomainObject();
+
+    void setLastRun(Instant lastRun);
+
+    void setLastExportedDate(Instant lastExportedDate);
+
+    void update();
+
+    void activate();
+
+    void deactivate();
+
+    void clearCachedReadingContainer();
 }
 
