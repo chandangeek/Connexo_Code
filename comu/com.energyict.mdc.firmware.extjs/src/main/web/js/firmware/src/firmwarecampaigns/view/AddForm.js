@@ -213,6 +213,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 valueField: 'id',
                 margin: '30 0 10 0',
                 hidden: true,
+                width: 650,
             },
             {
                 xtype: 'fieldcontainer',
@@ -269,7 +270,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 ),
                 queryMode: 'local',
                 displayField: 'name',
-                valueField: 'id'
+                valueField: 'id',
+                width: 650,
             },
             {
                 xtype: 'fieldcontainer',
