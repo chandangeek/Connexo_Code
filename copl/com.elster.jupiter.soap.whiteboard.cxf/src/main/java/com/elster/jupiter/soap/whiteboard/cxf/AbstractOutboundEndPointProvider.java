@@ -25,13 +25,11 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.ConnectException;
@@ -40,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -121,6 +120,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     private static Long getEndpointConfigurationId(Map<String, Object> properties) {
         return properties == null ? null : (Long) properties.get(ENDPOINT_CONFIGURATION_ID_PROPERTY);
+    }
+
+    protected List<EndPointConfiguration> getEndPointConfigurationsForWebService(){
+        return endPointConfigurationService.getEndPointConfigurationsForWebService(getName());
     }
 
     private final class RequestSenderImpl implements RequestSender {

@@ -260,6 +260,8 @@ public interface EngineConfigurationService {
 
     List<ComPort> findAllComPortsIncludingObsolete();
 
+    long calculateMaxPriorityConnections(ComPortPool comPortPool, long pctHighPrioTasks);
+
     /**
      * Locks the given ComServer. This is a blocking call until a proper lock is provided
      *

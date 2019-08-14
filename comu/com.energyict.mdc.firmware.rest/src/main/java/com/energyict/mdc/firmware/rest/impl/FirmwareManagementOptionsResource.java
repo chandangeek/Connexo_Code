@@ -62,7 +62,6 @@ public class FirmwareManagementOptionsResource {
         Set<ProtocolSupportedFirmwareOptions> supportedFirmwareMgtOptions = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
         Optional<FirmwareManagementOptions> firmwareMgtOptions = firmwareService.findFirmwareManagementOptions(deviceType);
         Set<ProtocolSupportedFirmwareOptions> allowedMgtOptions = firmwareMgtOptions.map(FirmwareManagementOptions::getOptions).orElse(Collections.emptySet());
-
         supportedFirmwareMgtOptions
                 .forEach(op -> firmwareManagementOptionsInfo.supportedOptions.add(new ManagementOptionInfo(op.getId(), thesaurus.getString(op.getId(), op.getId()))));
         allowedMgtOptions

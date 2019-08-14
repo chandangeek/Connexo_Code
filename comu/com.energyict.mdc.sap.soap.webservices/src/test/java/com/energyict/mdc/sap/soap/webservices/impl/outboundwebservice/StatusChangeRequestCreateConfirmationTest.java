@@ -9,8 +9,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationProvider;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundWebserviceTest {
 
     @Mock
-    private SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut port;
+    private SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port;
     @Mock
     private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg confirmationMessage;
     @Mock
@@ -50,7 +50,6 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
         inject(AbstractOutboundEndPointProvider.class, provider, "thesaurus", getThesaurus());
         inject(AbstractOutboundEndPointProvider.class, provider, "webServicesService", webServicesService);
         when(requestSender.toEndpoints(any(EndPointConfiguration.class))).thenReturn(requestSender);
-        when(outboundMessage.getUrl()).thenReturn(getURL());
         when(outboundMessage.getConfirmationMessage()).thenReturn(confirmationMessage);
         when(webServiceActivator.getThesaurus()).thenReturn(getThesaurus());
     }
@@ -65,7 +64,7 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
         provider.addSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(port, properties);
         provider.call(outboundMessage);
 
-        verify(provider).using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut");
+        verify(provider).using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut");
         verify(requestSender).send(confirmationMessage);
     }
 
@@ -81,11 +80,11 @@ public class StatusChangeRequestCreateConfirmationTest extends AbstractOutboundW
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut.class);
+        Assert.assertEquals(provider.getService(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService.class);
+        Assert.assertEquals(provider.get().getClass(), SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService.class);
     }
 }
