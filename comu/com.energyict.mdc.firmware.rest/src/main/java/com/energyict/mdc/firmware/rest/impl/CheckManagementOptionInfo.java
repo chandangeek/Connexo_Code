@@ -4,8 +4,9 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareStatus;
 
 import java.util.EnumSet;
@@ -23,7 +24,7 @@ public class CheckManagementOptionInfo {
         this.statuses = statuses;
     }
 
-    public CheckManagementOptionInfo(FirmwareManagementOptions config, FirmwareCheckManagementOption check) {
+    public CheckManagementOptionInfo(FirmwareCheckManagementOptions config, FirmwareCheckManagementOption check) {
         this(config.isActivated(check), config.getStatuses(check));
     }
 

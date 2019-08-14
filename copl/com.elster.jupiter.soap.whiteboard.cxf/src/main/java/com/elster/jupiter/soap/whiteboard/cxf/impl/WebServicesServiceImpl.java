@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
@@ -123,6 +124,9 @@ public class WebServicesServiceImpl implements WebServicesService {
             logger.info(msg);
             endPointConfiguration.log(LogLevel.FINE, msg);
             stopEndpoint(managedEndpoint);
+            msg = "Endpoint was stopped";
+            logger.info(msg);
+            endPointConfiguration.log(LogLevel.FINE, msg);
         });
         endpoints.clear();
     }
@@ -182,8 +186,15 @@ public class WebServicesServiceImpl implements WebServicesService {
                 ManagedEndpoint managedEndpoint = endPointFactory.createEndpoint(endPointConfiguration);
                 managedEndpoint.publish();
                 endpoints.put(endPointConfiguration, managedEndpoint);
+                if(managedEndpoint.isPublished()) {
+                    String msg = "Endpoint was published";
+                    logger.info(msg);
+                    endPointConfiguration.log(LogLevel.FINE, msg);
+                }
             } catch (Exception e) {
-                endPointConfiguration.log("Failed to publish endpoint " + endPointConfiguration.getName(), e);
+                String msg = "Failed to publish endpoint " + endPointConfiguration.getName();
+                logger.log(Level.SEVERE ,msg, e);
+                endPointConfiguration.log(msg, e);
             }
         } else {
             logger.warning("Could not publish " + endPointConfiguration.getName() + ": the required web service '" + endPointConfiguration
@@ -196,6 +207,9 @@ public class WebServicesServiceImpl implements WebServicesService {
         ManagedEndpoint endpoint = endpoints.remove(endPointConfiguration);
         if (endpoint != null) {
             endpoint.stop();
+            String msg = "Endpoint was stopped";
+            logger.info(msg);
+            endPointConfiguration.log(LogLevel.FINE, msg);
         }
     }
 

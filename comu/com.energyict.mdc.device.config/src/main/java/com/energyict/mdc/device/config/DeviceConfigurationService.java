@@ -216,6 +216,8 @@ public interface DeviceConfigurationService {
 
     Optional<ChannelSpec> findAndLockChannelSpecByIdAndVersion(long id, long version);
 
+    Optional<ChannelSpec> findAndLockChannelSpecById(long id);
+
     /**
      * Finds a {@link RegisterSpec} which is uniquely identified by the given ID.
      *
@@ -223,6 +225,8 @@ public interface DeviceConfigurationService {
      * @return the RegisterSpec or <code>null</code> if there is no such RegisterSpec
      */
     Optional<RegisterSpec> findRegisterSpec(long id);
+
+    Optional<RegisterSpec> findAndLockRegisterSpecById(long id);
 
     Optional<RegisterSpec> findAndLockRegisterSpecByIdAndVersion(long id, long version);
 

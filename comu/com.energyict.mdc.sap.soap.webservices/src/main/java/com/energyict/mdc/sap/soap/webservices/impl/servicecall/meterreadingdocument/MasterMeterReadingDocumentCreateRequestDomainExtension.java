@@ -25,8 +25,8 @@ public class MasterMeterReadingDocumentCreateRequestDomainExtension extends Abst
         DOMAIN("serviceCall", "serviceCall"),
         REQUEST_ID("requestID", "request_id"),
         ATTEMPT_NUMBER("attemptNumber", "attempt_number"),
-        CONFIRMATION_URL("confirmationURL", "confirmation_url"),
-        RESULT_URL("resultURL", "result_url"),
+        CONFIRMATION_URL("confirmationURL", "confirmation_url"), //up to 10.7
+        RESULT_URL("resultURL", "result_url"), //up to 10.7
         BULK("bulk", "bulk");
 
         FieldNames(String javaName, String databaseName) {
@@ -54,12 +54,6 @@ public class MasterMeterReadingDocumentCreateRequestDomainExtension extends Abst
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private BigDecimal attemptNumber;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String confirmationURL;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String resultURL;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Boolean bulk;
 
     public MasterMeterReadingDocumentCreateRequestDomainExtension() {
@@ -82,22 +76,6 @@ public class MasterMeterReadingDocumentCreateRequestDomainExtension extends Abst
         this.attemptNumber = attemptNumber;
     }
 
-    public String getConfirmationURL() {
-        return confirmationURL;
-    }
-
-    public void setConfirmationURL(String confirmationURL) {
-        this.confirmationURL = confirmationURL;
-    }
-
-    public String getResultURL() {
-        return resultURL;
-    }
-
-    public void setResultURL(String resultURL) {
-        this.resultURL = resultURL;
-    }
-
     public boolean isBulk() {
         return bulk;
     }
@@ -112,8 +90,6 @@ public class MasterMeterReadingDocumentCreateRequestDomainExtension extends Abst
         this.setRequestID((String) propertyValues.getProperty(FieldNames.REQUEST_ID.javaName()));
         this.setAttemptNumber(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.ATTEMPT_NUMBER.javaName()))
                 .orElse(BigDecimal.ZERO).toString()));
-        this.setConfirmationURL((String) propertyValues.getProperty(FieldNames.CONFIRMATION_URL.javaName()));
-        this.setResultURL((String) propertyValues.getProperty(FieldNames.RESULT_URL.javaName()));
         this.setBulk((Boolean) propertyValues.getProperty(FieldNames.BULK.javaName()));
     }
 
@@ -121,8 +97,6 @@ public class MasterMeterReadingDocumentCreateRequestDomainExtension extends Abst
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.REQUEST_ID.javaName(), this.getRequestID());
         propertySetValues.setProperty(FieldNames.ATTEMPT_NUMBER.javaName(), this.getAttemptNumber());
-        propertySetValues.setProperty(FieldNames.CONFIRMATION_URL.javaName(), this.getConfirmationURL());
-        propertySetValues.setProperty(FieldNames.RESULT_URL.javaName(), this.getResultURL());
         propertySetValues.setProperty(FieldNames.BULK.javaName(), this.isBulk());
     }
 

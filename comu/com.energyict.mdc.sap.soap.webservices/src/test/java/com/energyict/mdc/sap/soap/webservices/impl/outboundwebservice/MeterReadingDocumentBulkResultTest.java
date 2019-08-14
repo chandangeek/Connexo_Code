@@ -9,8 +9,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentBulkResultCreateRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateResultMessage;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MeterReadingDocumentERPResultBulkCreateRequestCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltBulkCrteReqMsg;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class MeterReadingDocumentBulkResultTest extends AbstractOutboundWebserviceTest {
 
     @Mock
-    private MeterReadingDocumentERPResultBulkCreateRequestEOut port;
+    private MeterReadingDocumentERPResultBulkCreateRequestCOut port;
     @Mock
     private MtrRdngDocERPRsltBulkCrteReqMsg resultMessage;
     @Mock
@@ -62,7 +62,7 @@ public class MeterReadingDocumentBulkResultTest extends AbstractOutboundWebservi
         provider.addBulkResultsPort(port, properties);
         provider.call(outboundMessage);
 
-        verify(provider).using("meterReadingDocumentERPResultBulkCreateRequestEOut");
+        verify(provider).using("meterReadingDocumentERPResultBulkCreateRequestCOut");
         verify(requestSender).send(resultMessage);
     }
 
@@ -78,11 +78,11 @@ public class MeterReadingDocumentBulkResultTest extends AbstractOutboundWebservi
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), MeterReadingDocumentERPResultBulkCreateRequestEOut.class);
+        Assert.assertEquals(provider.getService(), MeterReadingDocumentERPResultBulkCreateRequestCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), MeterReadingDocumentERPResultBulkCreateRequestEOutService.class);
+        Assert.assertEquals(provider.get().getClass(), MeterReadingDocumentERPResultBulkCreateRequestCOutService.class);
     }
 }

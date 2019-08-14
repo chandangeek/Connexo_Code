@@ -138,6 +138,13 @@ Ext.define('Fwc.controller.History', {
                                     action: 'showDevices',
                                     privileges: Fwc.privileges.FirmwareCampaign.view
                                 },
+                                configuration: {
+                                    title: Uni.I18n.translate('firmware.campaigns.configuration', 'FWC', 'Campaign configuration'),
+                                    route: 'configuration',
+                                    controller: 'Fwc.firmwarecampaigns.controller.ConfigurationOptions',
+                                    action: 'showConfigurationOptions',
+                                    privileges: Fwc.privileges.FirmwareCampaign.view
+                                },
                                 edit: {
                                     title: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
                                     route: 'edit',

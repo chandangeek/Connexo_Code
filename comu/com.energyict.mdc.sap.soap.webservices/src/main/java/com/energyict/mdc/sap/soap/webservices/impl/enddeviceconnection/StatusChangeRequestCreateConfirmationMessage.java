@@ -7,6 +7,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.Log;
@@ -31,7 +32,6 @@ public class StatusChangeRequestCreateConfirmationMessage {
     private final Optional<SAPCustomPropertySets> sapCustomPropertySets;
 
     private SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg confirmationMessage;
-    private String url;
 
     private StatusChangeRequestCreateConfirmationMessage() {
         this.sapCustomPropertySets = Optional.empty();
@@ -43,10 +43,6 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
     public SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg getConfirmationMessage() {
         return confirmationMessage;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public static Builder builder() {
@@ -61,15 +57,16 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
         private Builder() {
             confirmationMessage = OBJECT_FACTORY.createSmrtMtrUtilsConncnStsChgReqERPCrteConfMsg();
-            confirmationMessage.setMessageHeader(createHeader());
         }
 
-        public Builder from(ServiceCall parent, List<ServiceCall> childs) {
+        public Builder from(ServiceCall parent, List<ServiceCall> childs, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(parent, childs));
             return this;
         }
 
-        public Builder from(StatusChangeRequestCreateMessage message, String exceptionID, String exceptionMessage) {
+        public Builder from(StatusChangeRequestCreateMessage message, String exceptionID, String exceptionMessage, Instant now) {
+            confirmationMessage.setMessageHeader(createHeader(now));
             confirmationMessage.setUtilitiesConnectionStatusChangeRequest(createBody(message));
             confirmationMessage.setLog(createLog(exceptionID, "PRE", exceptionMessage));
             return this;
@@ -96,8 +93,11 @@ public class StatusChangeRequestCreateConfirmationMessage {
             return this;
         }
 
-        private BusinessDocumentMessageHeader createHeader() {
-            return OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+        private BusinessDocumentMessageHeader createHeader(Instant now) {
+            BusinessDocumentMessageHeader header = OBJECT_FACTORY.createBusinessDocumentMessageHeader();
+            header.setCreationDateTime(now);
+
+            return header;
         }
 
         private SmrtMtrUtilsConncnStsChgReqERPCrteConfUtilsConncnStsChgReq createBaseBody() {
@@ -121,7 +121,6 @@ public class StatusChangeRequestCreateConfirmationMessage {
             parent.getExtension(ConnectionStatusChangeDomainExtension.class).ifPresent(domainExtension -> {
                 messageBody.getID().setValue(domainExtension.getId());
                 messageBody.getCategoryCode().setValue(domainExtension.getCategoryCode());
-                StatusChangeRequestCreateConfirmationMessage.this.url = domainExtension.getConfirmationURL();
             });
 
             childs.forEach(serviceCall -> messageBody.getDeviceConnectionStatus()
@@ -135,7 +134,6 @@ public class StatusChangeRequestCreateConfirmationMessage {
 
             messageBody.getID().setValue(message.getId());
             messageBody.getCategoryCode().setValue(message.getCategoryCode());
-            StatusChangeRequestCreateConfirmationMessage.this.url = message.getConfirmationEndpointURL();
 
             return messageBody;
         }
@@ -149,7 +147,7 @@ public class StatusChangeRequestCreateConfirmationMessage {
             serviceCall.getTargetObject().ifPresent(id -> {
                 if (id instanceof Device) {
                     sapCustomPropertySets.ifPresent(cps -> cps.getSapDeviceId(((Device) id).getName())
-                            .ifPresent(sapId -> deviceID.setValue(sapId.toPlainString())));
+                            .ifPresent(sapId -> deviceID.setValue(sapId)));
                     deviceConnectionStatus.setUtilitiesDeviceID(deviceID);
                 }
             });

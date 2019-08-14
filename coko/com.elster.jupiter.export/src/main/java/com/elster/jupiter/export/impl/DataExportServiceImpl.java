@@ -143,6 +143,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private volatile ThreadPrincipalService threadPrincipalService;
 
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
+
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private Map<String, DataExportWebService> exportWebServices = new ConcurrentHashMap<>();

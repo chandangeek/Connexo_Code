@@ -28,8 +28,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -148,9 +151,12 @@ public class DeviceFirmwareMessagesResource {
         ConfirmationInfo confirmationInfo = new ConfirmationInfo();
         if (firmwareVersion.getFirmwareType() != FirmwareType.CA_CONFIG_IMAGE) {
             FirmwareManagementDeviceUtils utils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
+            FirmwareCheckManagementOptions checkOptions = firmwareService.findFirmwareManagementOptions(device.getDeviceType())
+                    .map(FirmwareCheckManagementOptions.class::cast)
+                    .orElse(FirmwareCheckManagementOptions.EMPTY);
             firmwareService.getFirmwareChecks().forEach(check -> {
                 try {
-                    check.execute(utils, firmwareVersion);
+                    check.execute(checkOptions, utils, firmwareVersion);
                 } catch (FirmwareCheck.FirmwareCheckException e) {
                     confirmationInfo.errors.add(new ErrorInfo(check.getKey(), check.getTitle(thesaurus), e.getLocalizedMessage()));
                 }
