@@ -22,8 +22,7 @@ public class WebServiceCallOccurrenceInfoFactory {
 
         info.id = endPointOccurrence.getId();
         info.startTime = endPointOccurrence.getStartTime();
-        info.status = new IdWithNameInfo(endPointOccurrence.getStatus().getKey(),
-                thesaurus.getString(endPointOccurrence.getStatus().getKey(), endPointOccurrence.getStatus().getName()));
+        info.status = new IdWithNameInfo(endPointOccurrence.getStatus().getKey(), endPointOccurrence.getStatus().translate(thesaurus));
         endPointOccurrence.getEndTime().ifPresent(endTime -> info.endTime = endTime);
         endPointOccurrence.getRequest().ifPresent(request -> info.request = request);
         endPointOccurrence.getApplicationName().ifPresent(applicationName -> info.applicationName = applicationName);
