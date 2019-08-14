@@ -71,12 +71,11 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName())
                 .notNull()
                 .add();
-        table.column(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
+        /*table.column(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
                 .varChar()
-                .map(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.javaName())
                 .notNull()
                 .upTo(Version.version(10, 7))
-                .add();
+                .add();*/
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.databaseName())
                 .varChar()
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName())

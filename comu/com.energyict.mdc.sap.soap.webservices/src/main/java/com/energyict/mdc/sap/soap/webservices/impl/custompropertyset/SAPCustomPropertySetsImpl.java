@@ -65,7 +65,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -254,7 +253,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public boolean isAnyLrn(long deviceId){
+    public boolean isAnyLrnPresent(long deviceId){
         return isAnyRegisterLrn(deviceId) || isAnyChannelLrn(deviceId);
     }
 
@@ -617,7 +616,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
         if(!setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
                 register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)){
-            throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_HAS_LRN_YET,
+            throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_ALREADY_HAS_LRN,
                     register.getObisCode(), range.toString());
         }
 
@@ -632,7 +631,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
         if(!setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
                 channel.getChannelSpec(),channel.getDevice().getId(), channel.getObisCode(), property, value, range)){
-            throw new SAPWebServiceException(thesaurus,MessageSeeds.CHANNEL_HAS_LRN_YET,
+            throw new SAPWebServiceException(thesaurus,MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
                     channel.getObisCode(), range.toString());
         }
 
@@ -691,7 +690,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                     {
                         startTime = conflict.getConflictingRange().upperEndpoint();
                     }else{
-                        //throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_HAS_LRN_YET,
+                        //throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_ALREADY_HAS_LRN,
                         //        register.getObisCode(), range.toString());
                         continue;
                     }

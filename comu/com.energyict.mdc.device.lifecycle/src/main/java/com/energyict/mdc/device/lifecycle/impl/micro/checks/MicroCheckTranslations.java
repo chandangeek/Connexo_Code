@@ -31,7 +31,7 @@ public class MicroCheckTranslations {
         AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE(SharedScheduledCommunicationTaskAvailable.class, "At least one shared communication schedule"),
         SLAVE_DEVICE_HAS_GATEWAY(SlaveDeviceHasGateway.class, "Check for master device"),
         AT_LEAST_ONE_ZONE_LINKED(ZonesLinkedToDevice.class, "Device is linked to a zone"),
-        AT_LEAST_ONE_SUCCESSFUL_COMMUNICATION_TASK_EXECUTED(SuccessfulCommunicationTaskExecuted.class, "At least one executed successful communication task");
+        AT_LEAST_ONE_COMMUNICATION_TASK_EXECUTED_SUCCESSFULLY(SuccessfulCommunicationTaskExecuted.class, "At least one communication task executed successfully");
 
         private final String key;
         private final String defaultFormat;
@@ -75,7 +75,7 @@ public class MicroCheckTranslations {
         AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE(10016, SharedScheduledCommunicationTaskAvailable.class, "At least one shared communication schedule should be available on the device"),
         SLAVE_DEVICE_HAS_GATEWAY(10017, SlaveDeviceHasGateway.class, "A slave device must have a gateway device"),
         AT_LEAST_ONE_ZONE_LINKED(10018, ZonesLinkedToDevice.class, "Device {0} has no zone linked."),
-        AT_LEAST_ONE_SUCCESSFUL_COMMUNICATION_TASK_EXECUTED(10019, SuccessfulCommunicationTaskExecuted.class, "At least one successful communication task has been executed");
+        AT_LEAST_ONE_COMMUNICATION_TASK_EXECUTED_SUCCESSFULLY(10019, SuccessfulCommunicationTaskExecuted.class, "No successful execution of any communication task");
 
         private final int number;
         private final String key;
@@ -133,7 +133,7 @@ public class MicroCheckTranslations {
         AT_LEAST_ONE_SHARED_COMMUNICATION_SCHEDULE_AVAILABLE(SharedScheduledCommunicationTaskAvailable.class, "Check if at least one shared communication schedule has been added to the device"),
         SLAVE_DEVICE_HAS_GATEWAY(SlaveDeviceHasGateway.class, "If this device is a slave, check if the device has been linked to a master device."),
         AT_LEAST_ONE_ZONE_LINKED(ZonesLinkedToDevice.class, "Check if the device has at least one zone linked"),
-        AT_LEAST_ONE_SUCCESSFUL_COMMUNICATION_TASK_AVAILABLE(SuccessfulCommunicationTaskExecuted.class, "Check if at least one successful communication task has been executed");
+        AT_LEAST_ONE_COMMUNICATION_TASK_EXECUTED_SUCCESSFULLY(SuccessfulCommunicationTaskExecuted.class, "Check if at least one communication task has been executed successfully");
 
         private final String key;
         private final String defaultFormat;

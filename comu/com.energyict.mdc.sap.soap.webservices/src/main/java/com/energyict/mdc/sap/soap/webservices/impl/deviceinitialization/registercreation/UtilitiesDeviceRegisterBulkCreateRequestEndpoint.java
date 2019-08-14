@@ -31,12 +31,12 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
     public void utilitiesDeviceERPSmartMeterRegisterBulkCreateRequestCIn(UtilsDvceERPSmrtMtrRegBulkCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);
             }
 
             if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredBulkNotification.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceRegisteredBulkNotification.NAME);
             }
 

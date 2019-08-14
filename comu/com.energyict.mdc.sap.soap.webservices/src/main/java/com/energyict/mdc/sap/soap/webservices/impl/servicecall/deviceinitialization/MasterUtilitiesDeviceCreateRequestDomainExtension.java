@@ -18,10 +18,10 @@ import javax.validation.constraints.Size;
 public class MasterUtilitiesDeviceCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         // general
-        DOMAIN("serviceCall", "serviceCall"),
+        DOMAIN("serviceCall", "SERVICE_CALL"),
 
         // provided
-        REQUEST_ID("requestID", "requestID"),
+        REQUEST_ID("requestID", "REQUEST_ID"),
         ;
 
         FieldNames(String javaName, String databaseName) {

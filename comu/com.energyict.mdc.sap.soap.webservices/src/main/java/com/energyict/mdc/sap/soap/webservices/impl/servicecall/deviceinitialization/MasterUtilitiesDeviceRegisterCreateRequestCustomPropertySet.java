@@ -4,26 +4,19 @@
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
 import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
-import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -34,12 +27,7 @@ import java.util.Set;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
-@Component(name = MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
-        service = CustomPropertySet.class,
-        property = "name=" + MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
-        immediate = true)
 public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> {
-    public static final String CUSTOM_PROPERTY_SET_NAME = "MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -53,33 +41,9 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
         this.propertySpecService = propertySpecService;
     }
 
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setServiceCallService(ServiceCallService serviceCallService) {
-        // PATCH; required for proper startup; do not delete
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        customPropertySetService.addCustomPropertySet(this);
-    }
-
-    @Reference
-    @SuppressWarnings("unused") // For OSGi framework
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
-    }
-
     @Override
     public String getName() {
-        return MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName();
+        return thesaurus.getFormat(TranslationKeys.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS).format();
     }
 
     @Override
@@ -124,21 +88,21 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet impleme
                 this.propertySpecService
                         .stringSpec()
                         .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName(), TranslationKeys.REQUEST_UUID)
-                        .describedAs(TranslationKeys.REQUEST_UUID)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()
                         .named(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
-                        .describedAs(TranslationKeys.BULK)
                         .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
 
         );
     }
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MasterUtilitiesDeviceRegisterCreateRequestDomainExtension> {
-        private final String TABLE_NAME = "SAP_CPS_UD3";
-        private final String FK = "FK_SAP_CPS_UD3";
+        private final String TABLE_NAME = "SAP_UD3_MASTER_RCR_SC_CPS";
+        private final String FK = "FK_SAP_UD3_MASTER_RCR_SC_CPS";
 
         @Override
         public String componentName() {

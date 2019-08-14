@@ -136,19 +136,31 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                     .findFirst()
                     .orElseThrow(() -> new IllegalStateException("Unable to find device message for service call with id:" + serviceCall
                             .getId()));
-            ;
-            if (deviceMessage.getStatus().equals(DeviceMessageStatus.CONFIRMED)) {
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
-                        deviceMessage.getSpecification()
-                                .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            } else {
-                serviceCall.requestTransition(DefaultState.ONGOING);
-                serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
-                        deviceMessage.getSpecification()
-                                .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
-                serviceCall.requestTransition(DefaultState.FAILED);
+            switch (deviceMessage.getStatus()) {
+                case CONFIRMED:
+                    if (serviceCall.getState().isOpen()) {
+                        serviceCall.requestTransition(DefaultState.ONGOING);
+                        serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
+                                deviceMessage.getSpecification()
+                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                    }
+                    break;
+                case CANCELED:
+                    if (serviceCall.getState().isOpen()) {
+                        serviceCall.requestTransition(DefaultState.ONGOING);
+                        serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is canceled",
+                                deviceMessage.getSpecification()
+                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                        serviceCall.requestTransition(DefaultState.CANCELLED);
+                    }
+                    break;
+                default:
+                    serviceCall.requestTransition(DefaultState.ONGOING);
+                    serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
+                            deviceMessage.getSpecification()
+                                    .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                    serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
     }

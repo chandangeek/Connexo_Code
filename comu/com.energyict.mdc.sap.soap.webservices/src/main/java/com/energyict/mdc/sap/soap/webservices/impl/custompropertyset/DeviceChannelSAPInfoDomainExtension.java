@@ -25,7 +25,7 @@ public class DeviceChannelSAPInfoDomainExtension extends AbstractVersionedPersis
     public enum FieldNames {
         DOMAIN("channelSpec", "CHANNELSPEC"),
         DEVICE_ID("device", "DEVICE"),
-        LOGICAL_REGISTER_NUMBER("logicalRegisterNumber", "LOGICAL_REGISTER_NUMBER"),
+        LOGICAL_REGISTER_NUMBER("logicalRegisterNumber", "LRN"),
         PROFILE_ID("profileId", "PROFILE_ID");
 
         FieldNames(String javaName, String databaseName) {

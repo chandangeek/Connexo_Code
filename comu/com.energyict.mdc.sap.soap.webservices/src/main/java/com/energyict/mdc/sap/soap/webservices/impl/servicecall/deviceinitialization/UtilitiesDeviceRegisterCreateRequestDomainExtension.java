@@ -19,19 +19,19 @@ import java.time.Instant;
 public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         // general
-        DOMAIN("serviceCall", "serviceCall"),
+        DOMAIN("serviceCall", "SERVICE_CALL"),
 
         // provided
-        DEVICE_ID("deviceId", "deviceId"),
-        OBIS("obis", "obis"),
-        INTERVAL("interval", "interval"),
-        LRN("lrn", "lrn"),
-        START_DATE("startDate", "startDate"),
-        END_DATE("endDate", "endDate"),
+        DEVICE_ID("deviceId", "DEVICE_ID"),
+        OBIS("obis", "OBIS"),
+        INTERVAL("interval", "INTERVAL"),
+        LRN("lrn", "LRN"),
+        START_DATE("startDate", "START_DATE"),
+        END_DATE("endDate", "END_DATE"),
 
         //returned
-        ERROR_CODE("errorCode", "errorCode"),
-        ERROR_MESSAGE("errorMessage", "errorMessage"),
+        ERROR_CODE("errorCode", "ERROR_CODE"),
+        ERROR_MESSAGE("errorMessage", "ERROR_MESSAGE"),
         ;
 
         FieldNames(String javaName, String databaseName) {

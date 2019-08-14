@@ -60,7 +60,7 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
     public void utilitiesDeviceERPSmartMeterBulkCreateRequestCIn(UtilsDvceERPSmrtMtrBlkCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             if (!isAnyActiveEndpoint(UtilitiesDeviceBulkCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceBulkCreateConfirmation.NAME);
             }
 
@@ -138,7 +138,6 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_CREATE_REQUEST);
 
         UtilitiesDeviceCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceCreateRequestDomainExtension();
-        childDomainExtension.setParentServiceCallId(BigDecimal.valueOf(parent.getId()));
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
 

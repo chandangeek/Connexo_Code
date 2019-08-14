@@ -246,7 +246,6 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
         public void executeWithHighPriority(HighPriorityComJob job) {
             multiThreadedJobCreator.executeWithHighPriority(newComTaskGroup(job));
-            giveTheConsumersSomeSpace();
         }
     }
 }

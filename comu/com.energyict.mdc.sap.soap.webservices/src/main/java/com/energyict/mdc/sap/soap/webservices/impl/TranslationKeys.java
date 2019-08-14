@@ -5,6 +5,11 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
@@ -66,6 +71,16 @@ public enum TranslationKeys implements TranslationKey {
     // CPS
     CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.connection.status.change",
             ConnectionStatusChangeCustomPropertySet.class.getSimpleName()),
+    MASTER_UTILITIES_DEVICE_CREATE_REQUEST_CPS("servicecall.cps.master.utilities.device.create.request",
+            MasterUtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName()),
+    MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.master.utilities.device.register.create.request",
+            MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
+    SUB_MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.sub.master.utilities.device.register.create.request",
+            SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
+    UTILITIES_DEVICE_CREATE_REQUEST_CPS("servicecall.cps.utilities.device.create.request",
+            UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName()),
+    UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.utilities.device.register.create.request",
+            UtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
 
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),

@@ -30,12 +30,12 @@ public class UtilitiesDeviceRegisterCreateRequestEndpoint extends AbstractRegist
     public void utilitiesDeviceERPSmartMeterRegisterCreateRequestCIn(UtilsDvceERPSmrtMtrRegCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceRegisterCreateConfirmation.NAME);
             }
 
             if (!isAnyActiveEndpoint(UtilitiesDeviceRegisteredNotification.NAME)) {
-                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceRegisteredNotification.NAME);
             }
 

@@ -243,12 +243,12 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.javaName())
                     .notNull()
                     .add();
-            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
+            /*table.column("deviceId")
                     .number()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
                     .notNull()
                     .upTo(Version.version(10, 7))
-                    .add();
+                    .add();*/
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.databaseName())
                     .varChar(80)
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName())
@@ -270,12 +270,12 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.PROCESSING_DATE.javaName())
                     .add();
-            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.databaseName())
+            /*table.column("lrn")
                     .number()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.javaName())
                     .notNull()
                     .upTo(Version.version(10, 7))
-                    .add();
+                    .add();*/
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.databaseName())
                     .varChar(80)
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.LRN.javaName())

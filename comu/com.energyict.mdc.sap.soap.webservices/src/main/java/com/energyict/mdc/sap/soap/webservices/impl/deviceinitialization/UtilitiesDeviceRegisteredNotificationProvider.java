@@ -150,7 +150,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
                     device -> {
                         if (device.getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
                             sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
-                                if (sapCustomPropertySets.isAnyLrn(device.getId())) {
+                                if (sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
                                     call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
                                 }else{
                                     throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_ANY_LRN_ON_DEVICE, sapDeviceId);

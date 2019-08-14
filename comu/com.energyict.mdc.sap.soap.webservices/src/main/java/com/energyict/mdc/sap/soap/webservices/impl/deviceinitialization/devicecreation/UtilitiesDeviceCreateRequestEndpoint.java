@@ -61,7 +61,7 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
     public void utilitiesDeviceERPSmartMeterCreateRequestCIn(UtilsDvceERPSmrtMtrCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             if (!isAnyActiveEndpoint(UtilitiesDeviceCreateConfirmation.NAME)) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_NECESSARY_OUTBOUND_END_POINT,
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceCreateConfirmation.NAME);
             }
 

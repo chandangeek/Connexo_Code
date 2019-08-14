@@ -20,11 +20,10 @@ import java.util.Optional;
 public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         // general
-        DOMAIN("serviceCall", "serviceCall"),
-        PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
+        DOMAIN("serviceCall", "SERVICE_CALL"),
 
         // provided
-        DEVICE_ID("deviceId", "deviceId"),
+        DEVICE_ID("deviceId", "DEVICE_ID"),
         ;
 
         FieldNames(String javaName, String databaseName) {
@@ -47,22 +46,8 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extend
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal parentServiceCallId;
-
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceId;
-
-    private long returnCode;
-
-
-    public BigDecimal getParentServiceCallId() {
-        return parentServiceCallId;
-    }
-
-    public void setParentServiceCallId(BigDecimal parentServiceCallId) {
-        this.parentServiceCallId = parentServiceCallId;
-    }
 
     public String getDeviceId() {
         return deviceId;
@@ -75,14 +60,11 @@ public class SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extend
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setParentServiceCallId(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
-                .orElse(BigDecimal.ZERO).toString()));
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
     }
 

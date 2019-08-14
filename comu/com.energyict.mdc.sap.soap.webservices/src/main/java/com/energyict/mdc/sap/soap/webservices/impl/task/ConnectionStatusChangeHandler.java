@@ -95,7 +95,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
             }
 
             ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
-            parent.log(LogLevel.INFO, "Sending confirmation for Disconnection Order number: " + extension.getId());
+            parent.log(LogLevel.INFO, "Sending confirmation for disconnection order number: " + extension.getId());
 
             StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
                     .builder(sapCustomPropertySets)

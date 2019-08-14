@@ -113,7 +113,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_COM_TASK_EXECUTION(6025, "NoComTaskExecution", "The required communication task execution of type {0} wasn't found on the device {1}.", Level.WARNING),
     REGISTER_GROUP_WRONG_TIME_PERIOD(6026, "RegisterGroupWrongTimePeriod", "Wrong time period for register group data source is provided under element ''{0}'': start ''{1}'', end ''{2}''.", Level.WARNING),
     REGISTER_GROUP_EMPTY_TIME_PERIOD(6027, "RegisterGroupEmptyTimePeriod", "Empty time period for register group data source is provided under element ''{0}''.", Level.WARNING),
-    REGISTER_EMPTY_TIME_PERIOD(6028, "RegisterEmptyTimePeriod", "Empty time period for register is provided under element ''{0}''.", Level.WARNING),
+    REGISTER_EMPTY_TIME_PERIOD(6028, "RegisterEmptyTimePeriod", "Empty time period for register is provided under element ''{0}''."),
     SYSTEM_SOURCE_EMPTY_TIME_PERIOD(6029, "SystemSourceEmptyTimePeriod", "Empty time period for ''System'' source is provided.", Level.WARNING),
     SYSTEM_SOURCE_DOESNT_SUPPORT_LOAD_PROFILES(6030, "SystemSourceDoesntSupportLoadProfiles", "''System'' source doesn''t support ''Load profile'' data source. Element ''{0}''.", Level.WARNING),
     NO_COM_TASK_EXECUTION_FOR_READING_TYPES(6031, "NoComTaskExecutionForReadingTypes", "No communication task execution has been found on device ''{0}'' for readingTypes ''{1}''.", Level.WARNING),
