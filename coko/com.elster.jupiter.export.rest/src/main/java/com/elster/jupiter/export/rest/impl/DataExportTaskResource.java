@@ -349,7 +349,7 @@ public class DataExportTaskResource {
                     if (info.standardDataSelector.validatedDataOption.equals(ValidatedDataOption.EXCLUDE_OBJECT)) {
                         throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
                     }
-                    DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings()
+                    DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings(info.dataSelector.name)
                             .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                             .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
                             .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))

@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
  */
 public class CXODeviceAccessLevelAdapter implements DeviceAccessLevel {
 
-    protected final com.energyict.mdc.protocol.api.security.DeviceAccessLevel cxoDeviceAccessLevel;
+    protected final com.energyict.mdc.common.protocol.security.DeviceAccessLevel cxoDeviceAccessLevel;
 
-    public CXODeviceAccessLevelAdapter(com.energyict.mdc.protocol.api.security.DeviceAccessLevel cxoDeviceAccessLevel) {
+    public CXODeviceAccessLevelAdapter(com.energyict.mdc.common.protocol.security.DeviceAccessLevel cxoDeviceAccessLevel) {
         this.cxoDeviceAccessLevel = cxoDeviceAccessLevel;
     }
 
-    public com.energyict.mdc.protocol.api.security.DeviceAccessLevel getConnexoDeviceAccessLevel() {
+    public com.energyict.mdc.common.protocol.security.DeviceAccessLevel getConnexoDeviceAccessLevel() {
         return cxoDeviceAccessLevel;
     }
 

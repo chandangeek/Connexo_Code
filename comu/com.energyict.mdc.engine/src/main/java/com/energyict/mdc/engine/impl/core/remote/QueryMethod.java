@@ -7,13 +7,13 @@ package com.energyict.mdc.engine.impl.core.remote;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
@@ -156,6 +156,12 @@ public enum QueryMethod {
                     if(comTaskExecution.isPresent()){
                         this.executionRescheduled(serviceProvider, comTaskExecution.get(), rescheduleDate.toInstant());
                     }
+                }
+            } else if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK)) {
+                Integer connectionTaskId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK);
+                Optional<ConnectionTask> connectionTask = serviceProvider.connectionTaskService().findConnectionTask(connectionTaskId);
+                if (connectionTask.isPresent()) {
+                    executionRescheduled(serviceProvider, connectionTask.get());
                 }
             }
             return null;
@@ -305,6 +311,15 @@ public enum QueryMethod {
             @Override
             public void doPerform() {
                 serviceProvider.comServerDAO().executionFailed(connectionTask);
+            }
+        });
+    }
+
+    protected void executionRescheduled(ServiceProvider serviceProvider, ConnectionTask connectionTask) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().executionRescheduled(connectionTask);
             }
         });
     }

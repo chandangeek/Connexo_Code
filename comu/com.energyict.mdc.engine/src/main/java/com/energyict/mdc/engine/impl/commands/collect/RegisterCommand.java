@@ -4,13 +4,13 @@
 
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.RegistersTask;
 
 /**
- * Command to collect the Registers defined on the {@link com.energyict.mdc.tasks.RegistersTask}.
+ * Command to collect the Registers defined on the {@link RegistersTask}.
  *
  * @author gna
  * @since 12/06/12 - 10:57

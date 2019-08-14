@@ -4,6 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
@@ -12,9 +16,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Models the constraint that all {@link com.energyict.mdc.device.data.tasks.ConnectionTaskProperty ConnectionTaskProperties}
- * that are defined against a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
- * are valid with the property specifications of the {@link com.energyict.mdc.protocol.api.ConnectionType}.
+ * Models the constraint that all {@link ConnectionTaskProperty ConnectionTaskProperties}
+ * that are defined against a {@link ConnectionTask}
+ * are valid with the property specifications of the {@link ConnectionType}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-12 (17:30)

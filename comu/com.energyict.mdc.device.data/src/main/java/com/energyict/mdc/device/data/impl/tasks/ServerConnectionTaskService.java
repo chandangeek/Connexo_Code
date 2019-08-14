@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public interface ServerConnectionTaskService extends ConnectionTaskService {
 
     /**
      * Tests if the specified {@link PartialConnectionTask} is used
-     * by at least one {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
+     * by at least one {@link ConnectionTask}.
      *
      * @param partialConnectionTask The PartialConnectionTask
      * @return A flag that indicates if the PartialConnectionTask is used or not

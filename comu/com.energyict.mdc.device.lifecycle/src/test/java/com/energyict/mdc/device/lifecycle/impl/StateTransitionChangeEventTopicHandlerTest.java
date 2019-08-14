@@ -13,8 +13,8 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 
 import java.time.Clock;
 import java.time.Instant;

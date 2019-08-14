@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import java.util.Iterator;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 public interface ComJobFactory {
 
     /**
-     * Consumes the {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s from the ResultSet
+     * Consumes the {@link ComTaskExecution}s from the ResultSet
      * and wraps them in the appropriate {@link com.energyict.mdc.engine.impl.core.ComJob}s.
      *
      *

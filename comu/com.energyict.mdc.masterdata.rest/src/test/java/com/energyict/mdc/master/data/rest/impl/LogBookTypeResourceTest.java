@@ -5,9 +5,10 @@
 package com.energyict.mdc.master.data.rest.impl;
 
 
-import com.energyict.obis.ObisCode;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
+
+import com.energyict.obis.ObisCode;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;

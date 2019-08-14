@@ -15,12 +15,12 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

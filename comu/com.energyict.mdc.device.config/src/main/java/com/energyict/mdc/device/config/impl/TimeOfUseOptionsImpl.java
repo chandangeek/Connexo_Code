@@ -9,9 +9,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
+
 import com.google.inject.Inject;
 
 import java.time.Instant;

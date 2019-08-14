@@ -10,7 +10,9 @@ import com.energyict.obis.ObisCode;
 public enum RemoteShellAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
-    ENABLED_INTERFACES(2, 0x08);
+    ENABLED_INTERFACES(2, 0x08),
+    MAX_LOGIN_ATTEMPTS(3, 0x03),
+    LOCKOUT_DURATION(4, 0x04);
 
     private int attributeNumber;
     private int shortName;

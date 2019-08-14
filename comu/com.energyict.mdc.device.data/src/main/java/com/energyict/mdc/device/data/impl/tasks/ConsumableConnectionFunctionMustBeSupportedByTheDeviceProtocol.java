@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
 
 import javax.validation.Constraint;

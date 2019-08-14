@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
-import com.energyict.mdc.device.config.DeviceType;
 
 import java.util.ArrayList;
 import java.util.Arrays;

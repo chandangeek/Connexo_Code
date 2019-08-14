@@ -7,13 +7,13 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.dashboard.impl.ComCommandCompletionCodeOverviewImpl;
 import com.energyict.mdc.dashboard.impl.CommunicationTaskHeatMapRowImpl;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import com.jayway.jsonpath.JsonModel;
 

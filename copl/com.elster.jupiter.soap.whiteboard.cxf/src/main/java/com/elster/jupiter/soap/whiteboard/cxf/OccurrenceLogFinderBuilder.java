@@ -11,7 +11,7 @@ public interface OccurrenceLogFinderBuilder {
 
     OccurrenceLogFinderBuilder withNoOccurrence();
 
-    OccurrenceLogFinderBuilder withOccurrenceId(WebServiceCallOccurrence epoc);
+    OccurrenceLogFinderBuilder withOccurrence(WebServiceCallOccurrence epoc);
 
     Finder<EndPointLog> build();
 

@@ -42,6 +42,7 @@ import static org.mockito.Mockito.when;
 public class TaskOccurrenceImplTest {
 
     private static final String NAME = "sfsdqfsqdfqsdfsdqf";
+    private static final int DEFAULT_PRIORITY = 0;
     @Mock
     private DataModel dataModel;
     private RecurrentTask recurrentTask;
@@ -72,7 +73,7 @@ public class TaskOccurrenceImplTest {
         when(validator.validate(anyObject())).thenReturn(new HashSet<>());
 
         when(clock.instant()).thenReturn(now, instant2);
-        recurrentTask = RecurrentTaskImpl.from(dataModel, "Pulse", NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload", Level.INFO.intValue());
+        recurrentTask = RecurrentTaskImpl.from(dataModel, "Pulse", NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload", Level.INFO.intValue(), DEFAULT_PRIORITY);
         when(mapper.lock(any())).thenReturn(recurrentTask);
     }
 

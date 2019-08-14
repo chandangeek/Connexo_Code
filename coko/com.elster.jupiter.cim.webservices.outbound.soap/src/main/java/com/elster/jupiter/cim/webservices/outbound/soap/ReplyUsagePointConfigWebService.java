@@ -29,7 +29,9 @@ public interface ReplyUsagePointConfigWebService {
      *            - the list of failed usagePoint creation or update attempts with error message code and description
      * @param expectedNumberOfCalls
      *            - the expected number of child calls
+     * @param correlationId
+     *            - correlationId received in inbound request
      */
     void call(EndPointConfiguration endPointConfiguration, String operation, List<UsagePoint> successList,
-            List<FailedUsagePointOperation> failureList, BigDecimal expectedNumberOfCalls);
+            List<FailedUsagePointOperation> failureList, BigDecimal expectedNumberOfCalls, String correlationId);
 }

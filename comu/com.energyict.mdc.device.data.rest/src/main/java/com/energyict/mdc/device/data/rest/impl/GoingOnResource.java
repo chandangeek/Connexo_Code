@@ -24,10 +24,10 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;

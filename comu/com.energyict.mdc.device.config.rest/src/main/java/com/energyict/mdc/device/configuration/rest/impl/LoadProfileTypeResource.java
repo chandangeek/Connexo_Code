@@ -9,11 +9,11 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 
 import javax.annotation.security.RolesAllowed;
@@ -52,7 +52,7 @@ public class LoadProfileTypeResource {
 
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response getLoadProfilesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @QueryParam("available") String available) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
@@ -70,7 +70,7 @@ public class LoadProfileTypeResource {
     @GET @Transactional
     @Path("/{loadProfileTypeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public LoadProfileTypeOnDeviceTypeInfo getLoadProfileForDeviceType(@PathParam("id") long deviceTypeId,
                                                                        @PathParam("loadProfileTypeId") long loadProfileTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
@@ -82,7 +82,7 @@ public class LoadProfileTypeResource {
     @Path("/{loadProfileTypeId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response changeLoadProfileTypeOnDeviceTypeCustomPropertySet(@PathParam("id") long deviceTypeId,
                                                                        @PathParam("loadProfileTypeId") long loadProfileTypeId,
                                                                        LoadProfileTypeOnDeviceTypeInfo loadProfileTypeOnDeviceTypeInfo) {
@@ -96,7 +96,7 @@ public class LoadProfileTypeResource {
     @GET @Transactional
     @Path("/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response getLoadProfileCustomPropertySets() {
         return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findAllCustomPropertySetsByDomain(ChannelSpec.class))).build();
     }
@@ -114,7 +114,7 @@ public class LoadProfileTypeResource {
 
     @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response addLoadProfileTypesForDeviceType(@PathParam("id") long id, List<Long> ids, @QueryParam("all") boolean all) {
         if (!all && ids.isEmpty()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_ID_FOR_ADDING);
@@ -140,7 +140,7 @@ public class LoadProfileTypeResource {
     @DELETE @Transactional
     @Path("/{loadProfileTypeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteLoadProfileTypeFromDeviceType(
             @PathParam("id") long id,
             @PathParam("loadProfileTypeId") long loadProfileTypeId,

@@ -5,7 +5,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import javax.inject.Inject;
 import java.util.EnumSet;

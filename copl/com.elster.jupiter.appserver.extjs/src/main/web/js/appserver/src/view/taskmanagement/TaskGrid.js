@@ -39,6 +39,12 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.priority', 'APR', 'Priority'),
+                dataIndex: 'priority',
+                flex: 1
+            },
+
+            {
                 header: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
                 dataIndex: 'queueStatusString',
                 flex: 1
@@ -57,14 +63,13 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     var taskType = record.get('queue'),
                         taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
-
                    // return taskManagement == undefined || !taskManagement.controller.canAdministrate();
                     return !((taskManagement != undefined && taskManagement.controller.canAdministrate())
                         || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview'));
                 },
                 menu: {
                     xtype: 'task-management-action-menu',
-                    itemId: 'task-management-action-menu'
+                    itemId: 'task-management-action-menu',
                 }
             }
 

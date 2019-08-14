@@ -59,6 +59,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.common</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -168,11 +172,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.common</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

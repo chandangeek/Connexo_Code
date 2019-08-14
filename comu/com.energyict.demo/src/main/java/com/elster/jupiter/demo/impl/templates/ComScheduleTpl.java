@@ -7,7 +7,7 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.ComScheduleBuilder;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 
 import java.util.Arrays;
 import java.util.List;

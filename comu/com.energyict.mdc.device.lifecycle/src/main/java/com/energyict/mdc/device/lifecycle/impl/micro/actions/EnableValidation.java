@@ -7,9 +7,9 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
@@ -22,7 +22,7 @@ import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySup
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will enable validation on the Device.
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#ENABLE_VALIDATION}
+ * @see {@link MicroAction#ENABLE_VALIDATION}
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-20 (09:29)

@@ -15,7 +15,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.Privilege;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.impl.audit.deviceAttributes.AuditTrailDeviceAttributesHandle;
 

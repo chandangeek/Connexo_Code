@@ -6,8 +6,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 
 /**

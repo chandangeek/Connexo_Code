@@ -4,16 +4,14 @@
 
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.InboundCommunicationException;
-import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.io.SocketService;
 

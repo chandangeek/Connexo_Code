@@ -7,11 +7,10 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;

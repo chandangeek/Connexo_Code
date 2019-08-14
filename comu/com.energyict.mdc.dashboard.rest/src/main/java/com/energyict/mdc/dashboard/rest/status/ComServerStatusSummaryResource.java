@@ -5,10 +5,10 @@
 package com.energyict.mdc.dashboard.rest.status;
 
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.engine.status.ComServerType;
 
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 
 /**
  * Models the REST resource that gets the summary of all the statuses
- * of the {@link com.energyict.mdc.engine.config.ComServer}s
+ * of the {@link ComServer}s
  * that are configured in the system by invoking the
  * {@link ComServerStatusResource} for each such ComServer.
  *

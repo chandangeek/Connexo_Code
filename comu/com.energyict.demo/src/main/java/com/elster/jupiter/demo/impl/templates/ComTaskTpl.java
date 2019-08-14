@@ -7,10 +7,10 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.ComTaskBuilder;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.util.Arrays;

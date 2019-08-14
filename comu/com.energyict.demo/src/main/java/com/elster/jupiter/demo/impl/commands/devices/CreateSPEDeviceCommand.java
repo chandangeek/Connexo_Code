@@ -16,8 +16,8 @@ import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateUsagePointsForDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;

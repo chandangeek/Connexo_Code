@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelectorConfig;
+import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -105,7 +106,7 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
         return exportOnlyIfComplete;
     }
 
-    abstract Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
+    public abstract Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
 
     @Override
     public void delete() {

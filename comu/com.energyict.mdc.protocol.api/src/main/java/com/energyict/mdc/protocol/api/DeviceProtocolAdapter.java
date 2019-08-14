@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.protocol.api;
 
+import com.energyict.mdc.common.protocol.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.tasks.support.UsesLegacyMessageConverter;
 import com.energyict.mdc.upl.DeviceCachingSupport;
 import com.energyict.mdc.upl.TypedProperties;

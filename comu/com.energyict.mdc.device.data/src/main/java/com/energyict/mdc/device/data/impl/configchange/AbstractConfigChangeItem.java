@@ -5,12 +5,12 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.ConflictingSolution;
+import com.energyict.mdc.common.device.config.ConflictingSolution;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigChangeAction;
 import com.energyict.mdc.device.config.DeviceConfigChangeActionType;
 import com.energyict.mdc.device.config.DeviceConfigChangeItem;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 
 import java.util.List;
 import java.util.Optional;

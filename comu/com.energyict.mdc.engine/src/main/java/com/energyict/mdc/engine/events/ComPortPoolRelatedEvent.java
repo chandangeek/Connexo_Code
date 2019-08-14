@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.events;
 
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPool;
 
 import aQute.bnd.annotation.ProviderType;
 

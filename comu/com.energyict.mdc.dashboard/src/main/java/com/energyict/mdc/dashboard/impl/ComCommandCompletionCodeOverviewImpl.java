@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 /**
  * Provides an implementation for the {@link ComCommandCompletionCodeOverview} interface.

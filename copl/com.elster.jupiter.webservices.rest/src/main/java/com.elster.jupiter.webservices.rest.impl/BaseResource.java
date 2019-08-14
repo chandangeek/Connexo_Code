@@ -96,7 +96,7 @@ public abstract class BaseResource {
     protected List<EndPointLog> getLogForOccurrence(WebServiceCallOccurrence epOcc, JsonQueryParameters queryParameters) {
         OccurrenceLogFinderBuilder finderBuilder = webServiceCallOccurrenceService.getOccurrenceLogFinderBuilder();
 
-        finderBuilder.withOccurrenceId(epOcc);
+        finderBuilder.withOccurrence(epOcc);
 
         return finderBuilder.build().from(queryParameters).find();
     }

@@ -5,9 +5,9 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.time.Instant;
 import java.util.Collection;

@@ -9,7 +9,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.impl.ChannelUpdaterImpl;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.RegisterUpdaterImpl;
@@ -133,7 +133,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
                 .startingConfigurationOn(getStart());
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder);
         getDevice().getDeviceConfiguration().getRegisterSpecs().stream()
-                .filter(registerSpec -> registerSpec.getReadingType() != this.readingType)
+                .filter(registerSpec -> registerSpec.getReadingType() != this.readingType && registerSpec instanceof NumericalRegisterSpec)
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
                 .forEach(registerSpec ->
                         configureReadingType(

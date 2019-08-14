@@ -20,13 +20,14 @@ public enum G3NetworkManagementAttributes implements DLMSClassAttributes {
     SNR_INTERVAL(7, 48),
     SNR_QUIET_TIME(8, 56),
     SNR_PAYLOAD(9, 64),
-    KEEP_ALIVE_ENABLED(10, 72),
-    KEEP_ALIVE_SCHEDULE_INTERVAL(11, 80),
-    KEEP_ALIVE_BUCKET_SIZE(12, 88),
-    KEEP_ALIVE_MIN_INACTIVE_METER_TIME(13, 96),
-    KEEP_ALIVE_MAX_INACTIVE_METER_TIME(14, 104),
-    KEEP_ALIVE_RETRIES(15, 112),
-    KEEP_ALIVE_TIMEOUT(16, 120),
+    KEEP_ALIVE_ENABLED(10, 72),                 // Indicates if the background G3-PLC keepalive service is enabled.
+    KEEP_ALIVE_SCHEDULE_INTERVAL(11, 80),       // Keep-alive service scan interval (in seconds).
+    @Deprecated
+    KEEP_ALIVE_BUCKET_SIZE(12, 88),             // TODO check with Beacon-FW what is this, is not in documentation anymore
+    KEEP_ALIVE_MIN_INACTIVE_METER_TIME(13, 96), // Minimum time of no communication before a meter becomes eligible for the keepalive task (in seconds).
+    KEEP_ALIVE_MAX_INACTIVE_METER_TIME(14, 104),// Maximum time of no communication before no longer trying to contact the meter (in seconds).
+    KEEP_ALIVE_FAIL_COUNT(15, 112),             // Maximum amount of failed communication attempts before a meter is considered vanished.
+    KEEP_ALIVE_DELAY_BETWEEN_PINGS(16, 120),    // Minimum delay between two meter communication attempts.
     IS_G3_INTERFACE_ENABLED(17, 128),
     JOINING_NODES(18, 136),
     BLACKLISTED_NODES(19, 144),

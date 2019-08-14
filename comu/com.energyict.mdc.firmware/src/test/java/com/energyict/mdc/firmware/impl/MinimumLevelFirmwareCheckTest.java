@@ -92,7 +92,7 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
         when(firmwareManagementDeviceUtils.isReadOutAfterLastFirmwareUpgrade()).thenReturn(false);
         when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.of(meterFWDependency));
         when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
-        when(firmwareService.isFirmwareCheckActivated(deviceType, FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)).thenReturn(false);
+        when(firmwareCampaignManagementOptions.isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)).thenReturn(false);
 
         expectSuccess();
     }

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.status;
 
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
@@ -15,7 +16,7 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * Models status information of a {@link com.energyict.mdc.engine.config.ComServer}
+ * Models status information of a {@link ComServer}
  * that is configured to run in this instance of the MDC application.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -25,7 +26,7 @@ import java.util.List;
 public interface ComServerStatus {
 
     /**
-     * The name of the {@link com.energyict.mdc.engine.config.ComServer}
+     * The name of the {@link ComServer}
      * for which status information is provided.
      *
      * @return The name of the ComServer for which status information is provided
@@ -35,27 +36,27 @@ public interface ComServerStatus {
      ComServerType getComServerType ();
 
     /**
-     * Tests if the {@link com.energyict.mdc.engine.config.ComServer} is actually running.
+     * Tests if the {@link ComServer} is actually running.
      *
      * @return A flag that indicates if the ComServer is actually running
      */
      boolean isRunning ();
 
     /**
-     * Tests if the {@link com.energyict.mdc.engine.config.ComServer} is blocked.
+     * Tests if the {@link ComServer} is blocked.
      * A ComServer is considered to be blocked if it has not checked for
      * pending tasks or modifications within the expected timeframe.
      * The timeframe to check for pending tasks is defined by
-     * {@link com.energyict.mdc.engine.config.ComServer#getSchedulingInterPollDelay()}.
+     * {@link ComServer#getSchedulingInterPollDelay()}.
      * The timeframe to check for modifications tasks is defined by
-     * {@link com.energyict.mdc.engine.config.ComServer#getChangesInterPollDelay()}.
+     * {@link ComServer#getChangesInterPollDelay()}.
      *
      * @return A flag that indicates if the ComServer is blocked
      */
      boolean isBlocked ();
 
     /**
-     * Returns the time that the {@link com.energyict.mdc.engine.config.ComServer} is already blocked.
+     * Returns the time that the {@link ComServer} is already blocked.
      * Note that this will return null if the ComServer is not blocked,
      * i.e. the method {@link #isBlocked()} returned false.
      *
@@ -65,7 +66,7 @@ public interface ComServerStatus {
      Duration getBlockTime ();
 
     /**
-     * Returns the time that the {@link com.energyict.mdc.engine.config.ComServer} is already blocked.
+     * Returns the time that the {@link ComServer} is already blocked.
      * Note that this will return null if the ComServer is not blocked,
      * i.e. the method {@link #isBlocked()} returned false.
      *
@@ -81,7 +82,7 @@ public interface ComServerStatus {
      long getComServerId();
 
     /**
-     * Returns the {@link ComServerMonitor} about the {@link com.energyict.mdc.engine.config.ComServer}.
+     * Returns the {@link ComServerMonitor} about the {@link ComServer}.
      * Note that this will return null if the ComServer is not running,
      * i.e. the method {@link #isRunning()} returned false.
      *

@@ -9,16 +9,17 @@ import com.energyict.mdc.channel.serial.FlowControl;
 import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.Parities;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
 import com.energyict.mdc.rest.impl.comserver.FlowControlAdapter;
 import com.energyict.mdc.rest.impl.comserver.LogLevelAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfDataBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.NrOfStopBitsAdapter;
 import com.energyict.mdc.rest.impl.comserver.ParitiesAdapter;
-import org.junit.Test;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

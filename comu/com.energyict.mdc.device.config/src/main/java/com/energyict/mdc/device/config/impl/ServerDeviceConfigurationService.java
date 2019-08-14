@@ -7,17 +7,17 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.protocol.DeviceMessageFile;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LockService;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +45,7 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are linked to the given {@link ChannelSpec} and
      * has the given {@link ChannelSpecLinkType}.
      *
-     * @param channelSpec the {@link com.energyict.mdc.device.config.ChannelSpec}
+     * @param channelSpec the {@link ChannelSpec}
      * @param linkType    the {@link com.energyict.mdc.device.config.ChannelSpecLinkType}
      * @return the list of RegisterSpecs
      */

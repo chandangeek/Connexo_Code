@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceDialectProperty;
@@ -11,7 +12,7 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 /**
  * Provides an implementation for the {@link CollectedDeviceInfo} interface
- * made specific for a dialect protocol property of a {@link com.energyict.mdc.device.data.Device}.
+ * made specific for a dialect protocol property of a {@link Device}.
  *
  * @author khe
  * @since 2017-01-23 (09:27)

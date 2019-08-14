@@ -7,7 +7,7 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 import org.osgi.service.component.annotations.Component;

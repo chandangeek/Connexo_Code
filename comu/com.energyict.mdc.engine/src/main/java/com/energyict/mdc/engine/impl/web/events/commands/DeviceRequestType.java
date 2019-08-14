@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -13,7 +14,7 @@ import java.util.StringTokenizer;
 
 /**
  * Provides an implementation for the {@link RequestType} interface
- * for {@link com.energyict.mdc.device.data.Device}s.
+ * for {@link Device}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (17:00)

@@ -327,12 +327,12 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
                         .stream()
                         .filter(epc -> epc.getName().equals(name)).findFirst();
                 if (endPointConfiguration.isPresent()) {
-                    webServicesService.removeEndPoint(endPointConfiguration.get());
                     String msg = "Stopping WebService " + endPointConfiguration.get()
                             .getWebServiceName() + " with config " + endPointConfiguration.get()
                             .getName() + " on application server " + appServer.get().getName();
                     LOGGER.info(msg);
                     endPointConfiguration.get().log(LogLevel.FINE, msg);
+                    webServicesService.removeEndPoint(endPointConfiguration.get());
                 }
             }
         }
