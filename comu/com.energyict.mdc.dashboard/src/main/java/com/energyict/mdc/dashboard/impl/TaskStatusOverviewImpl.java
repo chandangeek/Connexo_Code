@@ -29,6 +29,14 @@ class TaskStatusOverviewImpl extends DashboardCountersImpl<TaskStatus> implement
         return overview;
     }
 
+    public static TaskStatusOverviewImpl withoutPrio(Map<TaskStatus, Long> statusCounters) {
+        TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
+        for (TaskStatus taskStatus : TaskStatus.withoutPrio()) {
+                overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
+        }
+        return overview;
+    }
+
     private TaskStatusOverviewImpl() {
         super();
     }

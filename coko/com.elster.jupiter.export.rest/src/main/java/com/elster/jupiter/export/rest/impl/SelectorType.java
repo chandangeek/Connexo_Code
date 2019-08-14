@@ -11,6 +11,8 @@ public enum SelectorType {
 
     public static SelectorType forSelector(String selector) {
         switch (selector) {
+            case DataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR:
+                return DEFAULT_READINGS;
             case DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR:
                 return DEFAULT_READINGS;
             case DataExportService.STANDARD_EVENT_DATA_SELECTOR:

@@ -8,8 +8,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.RelativePeriod;
 
-import java.util.Optional;
-
 public interface MeterReadingSelectorConfig extends ReadingDataSelectorConfig {
 
     EndDeviceGroup getEndDeviceGroup();

@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.assertj.core.data.MapEntry;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -340,6 +341,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
     }
 
     @Test
+    @Ignore
     public void testCalculateMaxPriorityConnections() throws Exception {
         long comPortPool_id = 16;
         long comPort1_id = 166;

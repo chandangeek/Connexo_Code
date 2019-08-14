@@ -25,7 +25,6 @@ public class StatusChangeRequestCreateMessage {
     private Map<String, String> deviceConnectionStatus;
     private String id;
     private String categoryCode;
-    private String confirmationEndpointURL;
     private String utilitiesServiceDisconnectionReasonCode;
 
     private StatusChangeRequestCreateMessage() {
@@ -37,10 +36,6 @@ public class StatusChangeRequestCreateMessage {
 
     public String getCategoryCode() {
         return categoryCode;
-    }
-
-    public String getConfirmationEndpointURL() {
-        return confirmationEndpointURL;
     }
 
     public Map<String, String> getDeviceConnectionStatus() {
@@ -57,7 +52,7 @@ public class StatusChangeRequestCreateMessage {
 
     public boolean isValid() {
         return id != null && categoryCode != null && plannedProcessingDateTime != null &&
-                confirmationEndpointURL != null && !deviceConnectionStatus.isEmpty();
+               !deviceConnectionStatus.isEmpty();
     }
 
     public static Builder builder() {
@@ -74,7 +69,6 @@ public class StatusChangeRequestCreateMessage {
                     .ifPresent(statusChangeRequest -> {
                         setId(getId(statusChangeRequest));
                         setCategoryCode(getCategoryCode(statusChangeRequest));
-                        setConfirmationEndpointURL(getConfirmationEndpointURL(statusChangeRequest));
                         setUtilitiesServiceDisconnectionReasonCode(getUtilitiesServiceDisconnectionReasonCode(statusChangeRequest));
                         setPlannedProcessingDateTime(statusChangeRequest.getPlannedProcessingDateTime());
                         setDeviceConnectionStatus(getDeviceConnectionStatus(statusChangeRequest));
@@ -89,11 +83,6 @@ public class StatusChangeRequestCreateMessage {
 
         public Builder setCategoryCode(String categoryCode) {
             StatusChangeRequestCreateMessage.this.categoryCode = categoryCode;
-            return this;
-        }
-
-        public Builder setConfirmationEndpointURL(String confirmationEndpointURL) {
-            StatusChangeRequestCreateMessage.this.confirmationEndpointURL = confirmationEndpointURL;
             return this;
         }
 
@@ -127,12 +116,6 @@ public class StatusChangeRequestCreateMessage {
             return Optional.ofNullable(changeRequest.getCategoryCode())
                     .map(UtilitiesConnectionStatusChangeRequestCategoryCode::getValue)
                     .filter(categoryCode -> !Checks.is(categoryCode).emptyOrOnlyWhiteSpace())
-                    .orElse(null);
-        }
-
-        private String getConfirmationEndpointURL(SmrtMtrUtilsConncnStsChgReqERPCrteReqUtilsConncnStsChgReq changeRequest) {
-            return Optional.ofNullable(changeRequest.getConfirmationEndpointURL())
-                    .filter(url -> !Checks.is(url).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 

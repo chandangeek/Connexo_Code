@@ -122,6 +122,10 @@ Ext.define('Isu.controller.CreationRuleEdit', {
 
         basicForm.clearInvalid();
         formErrorsPanel.hide();
+        if (!form.validateIssueReason()){
+            formErrorsPanel.show();
+            return;
+        }
         page.setLoading();
         form.updateRecord();
         form.getRecord().save({

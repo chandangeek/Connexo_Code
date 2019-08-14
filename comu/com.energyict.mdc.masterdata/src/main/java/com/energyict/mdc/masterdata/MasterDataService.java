@@ -97,6 +97,8 @@ public interface MasterDataService {
 
     Optional<RegisterType> findAndLockRegisterTypeByIdAndVersion(long id, long version);
 
+    Optional<RegisterType> findAndLockRegisterTypeById(long id);
+
     public Optional<ChannelType> findChannelTypeById(long id);
 
 
@@ -154,6 +156,8 @@ public interface MasterDataService {
     public Optional<LoadProfileType> findLoadProfileType(long loadProfileTypeId);
 
     public Optional<LoadProfileType> findAndLockLoadProfileTypeByIdAndVersion(long id, long version);
+
+    public Optional<LoadProfileType> findAndLockLoadProfileTypeById(long id);
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 

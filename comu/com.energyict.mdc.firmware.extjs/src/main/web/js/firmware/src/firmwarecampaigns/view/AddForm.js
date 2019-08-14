@@ -13,9 +13,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
         'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
+        'Fwc.firmwarecampaigns.view.FirmvareVersionsOptions',
         'Fwc.firmwarecampaigns.store.ComTasksForValidate',
         'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
-
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -25,7 +25,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     defaults: {
         labelWidth: 260,
-        width: 600,
+        width: 800,
         msgTarget: 'under'
     },
     initComponent: function () {
@@ -45,7 +45,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 name: 'name',
                 fieldLabel: Uni.I18n.translate('general.name', 'FWC', 'Name'),
                 required: true,
-                allowBlank: false
+                allowBlank: false,
+                width: 600
             },
             {
                 xtype: 'combobox',
@@ -59,6 +60,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 queryMode: 'local',
                 displayField: 'localizedValue',
                 valueField: 'id',
+                width: 600,
                 listeners: {
                     change: {
                         fn: Ext.bind(me.onDeviceTypeChange, me)
@@ -131,7 +133,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         fn: Ext.bind(me.onManagementOptionChange, me)
                     }
                 },
-                width: 1000
+                width: 800
             },
             {
                 xtype: 'dynamic-radiogroup',
@@ -211,6 +213,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 valueField: 'id',
                 margin: '30 0 10 0',
                 hidden: true,
+                width: 650,
             },
             {
                 xtype: 'fieldcontainer',
@@ -267,7 +270,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 ),
                 queryMode: 'local',
                 displayField: 'name',
-                valueField: 'id'
+                valueField: 'id',
+                width: 650,
             },
             {
                 xtype: 'fieldcontainer',
@@ -302,6 +306,16 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         hidden: false
                     }
                 ]
+            },
+            {
+                xtype: 'firmware-version-options',
+                itemId: 'firmware-version-options',
+                hidden: true,
+                isDisabled: me.campaignRecordBeingEdited,
+                defaults: {
+                    width: 1000,
+                    labelWidth: 260
+                },
             },
             {
                 xtype: 'fieldcontainer',
@@ -352,6 +366,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.setLoading();
             }
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
+            var firmvareVersionsView = me.down('#firmware-version-options');
+            var firmvareVersionsStore = firmvareVersionsView.store;
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
             me.updateComTasksComponents(newValue);
@@ -396,6 +412,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         firmwareManagementOptions.getProxy().extraParams = {};
         firmwareManagementOptions.load(1, {
             success: function (record) {
+                var firmvareVersionsView = me.down('#firmware-version-options');
+                var firmvareVersionsStore = firmvareVersionsView.store;
+                firmvareVersionsStore.loadRawData([record.data.checkOptions]);
+                firmvareVersionsView.fillChecksAccordingStore();
+                firmvareVersionsView.show();
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
                     showDescription: true,
                     showOnlyLabelForSingleItem: true,
@@ -468,7 +489,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     updateRecord: function () {
         var me = this,
-            propertyForm = me.down('property-form');
+            propertyForm = me.down('property-form'),
+            firmwareVersionsOptions = me.down('#firmware-version-options');
 
         me.callParent(arguments);
 
@@ -528,6 +550,12 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.down('#fwc-campaign-allowed-comtask').setDisabled(true);
                 me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
 
+                var firmvareVersionsView = me.down('#firmware-version-options');
+                var firmvareVersionsStore = firmvareVersionsView.store;
+                firmvareVersionsStore.loadRawData([campaignRecord.data.checkOptions]);
+                firmvareVersionsView.fillChecksAccordingStore();
+                firmvareVersionsView.show();
+                firmvareVersionsView.disable();
             },
             setProperties = function() {
                 me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());
