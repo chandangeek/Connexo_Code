@@ -925,10 +925,6 @@ public enum TableSpecs {
                     .references(MultiplierType.class)
                     .map("type")
                     .add();
-            /*table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
-                    .domainReferences("FK_MTR_MULTIPLIERVALUE_MA", "FK_MTR_METERACTMETER")
-                    .build();*/
         }
     },
     MTR_METER_CONFIG {

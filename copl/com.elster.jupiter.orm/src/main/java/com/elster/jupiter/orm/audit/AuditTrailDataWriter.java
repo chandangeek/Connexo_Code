@@ -115,18 +115,8 @@ public class AuditTrailDataWriter<T> {
 
             contextAuditIdentifiers.stream()
                     .filter(contextIdentifierEntry -> (contextIdentifierEntry.getDomainContext().equals(tableAudit.getDomainContext())) &&
-                            (
-                                    (
-                                        getPkColumnByIndex(pkDomainColumns, 0) != 0 &&
-                                        (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
-                                        (contextIdentifierEntry.getPkContextColumn1() == getPkColumnByIndex(pkContextColumns, 0))
-                                    ) ||
-                                    (
-                                        getPkColumnByIndex(pkDomainColumns, 0) == 0 &&
-                                        (contextIdentifierEntry.getPkContextColumn1() == getPkColumnByIndex(pkContextColumns, 0))
-                                    )
-                            )
-                    )
+                            (contextIdentifierEntry.getPkDomainColumn() == getPkColumnByIndex(pkDomainColumns, 0)) &&
+                            (contextIdentifierEntry.getPkContextColumn1() == getPkColumnByIndex(pkContextColumns, 0)))
                     .findFirst()
                     .map(domainContextIdentifier -> {
                         try {

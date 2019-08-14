@@ -228,12 +228,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                     }
 
                 }
-                /*this.metrologyConfigurationService.getDataModel()
+                this.metrologyConfigurationService.getDataModel()
                         .mapper(MeterActivationImpl.class)
                         .find("usagePoint", activation.getUsagePoint()).stream()
                         .filter(ma -> !ma.getInterval().toOpenClosedRange().hasUpperBound())
                         .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().equals(activation.getMeterRole()))
-                        .forEach(MeterActivationImpl::detachUsagePoint);*/
+                        .forEach(MeterActivationImpl::detachUsagePoint);
                 /* Post event after unlink actually performed */
                 if (eventSource.isPresent()){
                     eventService.postEvent(EventType.METER_UNLINKED.topic(), eventSource.get());

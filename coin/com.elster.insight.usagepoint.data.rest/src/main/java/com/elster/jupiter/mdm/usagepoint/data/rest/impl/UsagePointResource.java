@@ -1520,10 +1520,10 @@ public class UsagePointResource {
         if (filter.hasProperty("users")) {
             auditFilter.setChangedBy(filter.getStringList("users"));
         }
-        auditFilter.setCategories(filter.getStringList(AuditDomainType.DEVICE.name()));
+        auditFilter.setCategories(filter.getStringList(AuditDomainType.USAGEPOINT.name()));
         auditFilter.setDomainContexts(
                 Arrays.stream(AuditDomainContextType.values())
-                        .filter(auditDomainContextType -> auditDomainContextType.domainType() == AuditDomainType.DEVICE)
+                        .filter(auditDomainContextType -> auditDomainContextType.domainType() == AuditDomainType.USAGEPOINT)
                         .collect(Collectors.toList())
         );
         auditFilter.setDomain(resourceHelper.findUsagePointByNameOrThrowException(name).getId());

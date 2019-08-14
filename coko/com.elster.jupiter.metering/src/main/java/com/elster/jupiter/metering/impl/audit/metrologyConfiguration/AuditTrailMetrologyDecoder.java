@@ -80,16 +80,25 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
 
         metrologyConfiguration.ifPresent(
                 mc -> {
-                    getAuditLogChange(Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+
                     Optional.ofNullable(mc.getEnd())
-                            .ifPresent(date ->
-                                    getAuditLogChangeForOptional(Optional.empty(), Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_END_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add)
+                            .ifPresent(date -> {
+                                        getAuditLogChangeForOptional(Optional.empty(), Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_END_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
+                                        getAuditLogChange(Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                                    }
                             );
                     if (mc.getEnd() == null){
                         Optional.ofNullable(mc.getStart())
-                                .ifPresent(date ->
-                                        getAuditLogChange(Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add)
-                                );
+                                .ifPresent(date -> {
+                                    if (getAuditTrailReference().getOperation().equals(UnexpectedNumberOfUpdatesException.Operation.INSERT)){
+                                        getAuditLogChange(Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
+                                        getAuditLogChange(Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                                    }
+                                    else {
+                                        getAuditLogChangeForOptional(Optional.empty(), Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
+                                        getAuditLogChangeForOptional(Optional.empty(), Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                                    }
+                                });
                     }
                 }
         );
@@ -183,12 +192,6 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
                             meterActivation.getMeterRole().get().getDisplayName(),
                             meterActivation.getStart().toString(),
                             meterActivation.getEnd().toString());
-        }
-        else if (meterActivation.getMeter().isPresent() && !meterActivation.getMeterRole().isPresent() && !meterActivation.getUsagePoint().isPresent()) {
-            formatRoleAndLinkMeter =
-                    getThesaurus().getFormat(AuditTranslationKeys.UNLINK_METER_PROPERTY_FROM).format(
-                            meterActivation.getMeter().get().getName(),
-                            meterActivation.getStart().toString());
         }
         return formatRoleAndLinkMeter;
     }

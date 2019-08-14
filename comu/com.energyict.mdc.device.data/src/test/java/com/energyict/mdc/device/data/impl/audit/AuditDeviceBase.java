@@ -60,20 +60,12 @@ public class AuditDeviceBase extends PersistenceIntegrationTest {
     @BeforeClass
     public static void setup() {
         try (TransactionContext context = getTransactionService().getContext()) {
-           // deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
-          //  deviceProtocolPluggableClass.save();
-
             AuditService auditService = inMemoryPersistence.getAuditService();
             ((AuditServiceImpl) auditService).addAuditTrailDecoderHandle(getAuditTrailDecoderHandle());
             context.commit();
         }
     }
 
-  /*  @Before
-    public void setUp() throws Exception {
-       // createSimpleDeviceWithName(DEVICE_NAME);
-    }
-*/
     protected void createDeviceWithName(String name) {
         try (TransactionContext context = getTransactionService().getContext()) {
             Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, inMemoryPersistence.getClock().instant());

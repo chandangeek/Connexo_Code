@@ -12,6 +12,7 @@ import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
@@ -24,6 +25,8 @@ import java.util.List;
 public class UsagePointInfo {
 
     public Long id;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public String serviceCategory;
     public Long serviceLocationId;
     public String location;
