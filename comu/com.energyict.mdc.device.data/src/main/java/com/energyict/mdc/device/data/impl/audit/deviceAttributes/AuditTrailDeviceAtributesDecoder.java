@@ -265,10 +265,8 @@ public class AuditTrailDeviceAtributesDecoder extends AbstractDeviceAuditDecoder
                 MultiplierType multiplierType = serverDeviceService.findDefaultMultiplierType();
                 List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
 
-
                 meterActivations
                         .forEach(meterActivation -> {
-                            List<MeterActivation> xxx = getMeterActivationObjects(ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(MeterActivation.class), meterActivation.getId());
                             Map<Instant, BigDecimal> toJournalMultipliers = meterActivation.getJournalMultipliers();
                             if (timeSlices.size() == 0) {
                                 timeSlices.put(meterActivation.getModificationDate(), MULTIPLIER_ONE);
