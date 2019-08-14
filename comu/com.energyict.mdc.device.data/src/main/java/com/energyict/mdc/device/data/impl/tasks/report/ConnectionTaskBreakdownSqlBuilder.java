@@ -45,9 +45,6 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         this.taskStatusses = EnumSet.copyOf(taskStatusses);
         this.includeBusyTasks = taskStatusses.contains(ServerConnectionTaskStatus.Busy);
         this.taskStatusses.remove(ServerConnectionTaskStatus.Busy);
-        this.taskStatusses.remove(ServerConnectionTaskStatus.PendingWithPriority);
-        this.taskStatusses.remove(ServerConnectionTaskStatus.RetryingWithPriority);
-        this.taskStatusses.remove(ServerConnectionTaskStatus.WaitingWithPriority);
         this.deviceGroup = deviceGroup;
         this.connectionTaskService = connectionTaskService;
     }
