@@ -8,10 +8,11 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComPortPoolMember;
-import com.energyict.mdc.engine.config.ComServer;
+import com.elster.jupiter.orm.Version;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPoolMember;
+import com.energyict.mdc.common.comserver.ComServer;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Version.version;
@@ -34,6 +35,7 @@ public enum TableSpecs {
             table.column("TASKEXECUTIONTIMEOUTVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".count").add();
             table.column("TASKEXECUTIONTIMEOUTUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(OutboundComPortPoolImpl.FIELD_TASKEXECUTIONTOMEOUT + ".timeUnitCode").add();
             table.column("DISCOVERYPROTOCOL").number().conversion(ColumnConversion.NUMBER2INT).map(InboundComPortPoolImpl.FIELD_DISCOVEYPROTOCOL).add();
+            table.column("PCTHIGHPRIOTASKS").number().conversion(ColumnConversion.NUMBER2INT).map(ComPortPoolImpl.Fields.PCTHIGHPRIOTASKS.fieldName()).since(Version.version(10, 6,1)).add();
             table.primaryKey("PK_MDC_COMPORTPOOL").on(idColumn).add();
             table.unique("MDC_UQ_COMPOOL_NAME").on(nameColumn, obsoleteColumn).add();
         }

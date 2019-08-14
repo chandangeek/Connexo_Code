@@ -4,12 +4,13 @@
 
 package com.energyict.mdc.dashboard;
 
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import aQute.bnd.annotation.ProviderType;
 
 /**
- * Models the overview of the execution of {@link com.energyict.mdc.tasks.ComTask}s
+ * Models the overview of the execution of {@link ComTask}s
  * in terms of the {@link CompletionCode}.
  *
  * @author Rudi Vankeirsbilck (rudi)

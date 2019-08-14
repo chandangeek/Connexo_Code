@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.web.events.commands;
 
 import com.energyict.mdc.common.NotFoundException;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 
 import java.util.Set;
@@ -12,7 +13,7 @@ import java.util.StringTokenizer;
 
 /**
  * Provides an implementation for the {@link RequestType} interface
- * for {@link com.energyict.mdc.engine.config.ComPort}s.
+ * for {@link ComPort}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:55)

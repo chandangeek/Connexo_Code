@@ -6,10 +6,10 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 
 import org.joda.time.DateTimeConstants;
 

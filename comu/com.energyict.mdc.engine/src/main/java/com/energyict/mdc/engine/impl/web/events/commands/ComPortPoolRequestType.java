@@ -4,13 +4,14 @@
 
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import java.util.Set;
 
 /**
  * Provides an implementation for the {@link RequestType} interface
- * for {@link com.energyict.mdc.engine.config.ComPortPool}s.
+ * for {@link ComPortPool}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-15 (16:55)

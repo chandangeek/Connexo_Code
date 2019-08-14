@@ -5,8 +5,8 @@
 package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 
 import aQute.bnd.annotation.ProviderType;
 

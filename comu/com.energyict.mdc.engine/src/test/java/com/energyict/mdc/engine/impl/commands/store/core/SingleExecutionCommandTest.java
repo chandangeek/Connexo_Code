@@ -4,11 +4,11 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.TimeDifferenceCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 import org.joda.time.DateTime;

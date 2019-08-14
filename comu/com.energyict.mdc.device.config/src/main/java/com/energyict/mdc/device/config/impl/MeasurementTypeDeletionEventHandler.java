@@ -9,12 +9,13 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.masterdata.MeasurementType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -22,13 +23,13 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.List;
 
 /**
- * Handles delete events that are being sent when a {@link com.energyict.mdc.masterdata.MeasurementType}
+ * Handles delete events that are being sent when a {@link MeasurementType}
  * is about to be deleted and will veto the delete when the MeasurementType is still used by:
  * <ul>
- * <li>a {@link com.energyict.mdc.device.config.DeviceType}
- * <li>a {@link com.energyict.mdc.device.config.RegisterSpec}
- * <li>a {@link com.energyict.mdc.device.config.ChannelSpec}
- * <li>a {@link com.energyict.mdc.device.config.LoadProfileSpec}
+ * <li>a {@link DeviceType}
+ * <li>a {@link RegisterSpec}
+ * <li>a {@link ChannelSpec}
+ * <li>a {@link LoadProfileSpec}
  * </ul>
  *
  * @author Rudi Vankeirsbilck (rudi)

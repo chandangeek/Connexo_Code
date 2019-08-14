@@ -87,6 +87,7 @@ public class ReadingTypeUnitAdapter extends MapBasedXmlAdapter<ReadingTypeUnit> 
         register("boolean array (statuses)",ReadingTypeUnit.BOOLEANARRAY);
         register("count (Count)",ReadingTypeUnit.COUNT);
         register("bel milliwatt (Bm)",ReadingTypeUnit.BELMILLIWATT);
+        register("bel microvolt (BmV)",ReadingTypeUnit.BELMICROVOLT);
         register("encoded value (Code)",ReadingTypeUnit.ENCODEDVALUE);
         register("watt hours per rotation (Wh/rev)",ReadingTypeUnit.WATTHOURPERROTATION);
         register("volt ampere reactive hours per rotation (VArh/rev)",ReadingTypeUnit.VOLTAMPEREREACTIVEHOURPERROTATION);

@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -61,7 +62,7 @@ public class DefaultFileHandlerTest {
         when(destination.message(SERIALIZED)).thenReturn(messageBuilder);
 
         when(transactionService.execute(any())).thenAnswer(invocationOnMock ->
-                ((Transaction<?>) invocationOnMock.getArguments()[0]).perform());
+                ((VoidTransaction) invocationOnMock.getArguments()[0]).get());
 
         fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService, clock);
     }

@@ -125,7 +125,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     if (widget.rendered) {
                         me.isDynamic = isDynamic = record.get('dynamic');
                         me.state = {
-                            domain: 'com.energyict.mdc.device.data.Device',
+                            domain: 'com.energyict.mdc.common.device.data.Device',
                             filters: isDynamic
                                 ? Ext.decode(record.get('filter'), true)
                                 : [{
@@ -167,7 +167,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         } else {
             widget.down('adddevicegroup-wizard').loadRecord(Ext.create(deviceGroupModelName));
             me.state = {
-                domain: 'com.energyict.mdc.device.data.Device',
+                domain: 'com.energyict.mdc.common.device.data.Device',
                 filters: []
             }
         }

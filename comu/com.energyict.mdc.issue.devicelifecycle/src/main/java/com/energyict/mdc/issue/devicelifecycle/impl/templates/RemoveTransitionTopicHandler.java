@@ -9,7 +9,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.issue.devicelifecycle.IssueDeviceLifecycleService;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueUtil;

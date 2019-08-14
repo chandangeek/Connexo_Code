@@ -5,14 +5,18 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -55,7 +59,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
             super.setComPort(comPort);
             this.jobQueue = new ArrayBlockingQueue<>(threadPoolSize = comPort.getNumberOfSimultaneousConnections());
             if (this.jobScheduler != null) {
-                this.jobScheduler = new MultiThreadedJobScheduler(threadPoolSize, this.getThreadFactory());
+                createJobScheduler();
             }
         }
     }
@@ -80,6 +84,34 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     @Override
+    public void updateLogLevel(OutboundComPort comPort) {
+        setComPort(comPort);
+    }
+
+    @Override
+    public boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
+        return jobScheduler.isExecutingOneOf(comTaskExecutions);
+    }
+
+    @Override
+    public boolean isConnectedTo(OutboundConnectionTask connectionTask) {
+        return jobScheduler.isConnectedTo(connectionTask);
+    }
+
+    @Override
+    public Map<Long, Integer> getHighPriorityLoadPerComPortPool() {
+        if (getStatus() == ServerProcessStatus.STARTED) {
+            return jobScheduler.getHighPriorityLoadPerComPortPool();
+        }
+        return new HashMap<>(0);
+    }
+
+    @Override
+    public void executeWithHighPriority(HighPriorityComJob job) {
+        jobScheduler.executeWithHighPriority(job);
+    }
+
+    @Override
     protected void doStart() {
         this.createJobScheduler();
         super.doStart();
@@ -99,6 +131,12 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     public void shutdownImmediate() {
         this.shutdownJobScheduler();
         super.shutdownImmediate();
+    }
+
+    @Override
+    protected void doRun() {
+        goSleepIfWokeUpTooEarly();
+        executeTasks();
     }
 
     private void shutdownJobScheduler() {
@@ -124,13 +162,15 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     private final class MultiThreadedJobScheduler implements JobScheduler {
         // the ExecutorService that deals with the ConsumerJobProducer
         private ExecutorService executorService;
+        private MultiThreadedJobCreator multiThreadedJobCreator;
 
         //TODO what is the purpose of this object?
         private List<Future<?>> jobCompletions = new ArrayList<>();
 
         private MultiThreadedJobScheduler(int threadPoolSize, ThreadFactory threadFactory) {
             this.executorService = Executors.newFixedThreadPool(1);
-            executorService.submit(new MultiThreadedJobCreator(jobQueue, MultiThreadedScheduledComPort.this.getComPort(), getDeviceCommandExecutor(), threadPoolSize, threadFactory, getServiceProvider(), getComServerDAO().getComServerUser()));
+            multiThreadedJobCreator = new MultiThreadedJobCreator(jobQueue, MultiThreadedScheduledComPort.this.getComPort(), getDeviceCommandExecutor(), threadPoolSize, threadFactory, getServiceProvider(), getComServerDAO().getComServerUser());
+            executorService.submit(multiThreadedJobCreator);
         }
 
         @Override
@@ -145,13 +185,10 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         }
 
         public int getActiveJobCount() {
-            int active = jobCompletions.size();
-            for (Future<?> jobCompletion : jobCompletions) {
-                if (jobCompletion.isCancelled() || jobCompletion.isDone()) {
-                    active -= 1;
-                }
+            if (multiThreadedJobCreator == null) {
+                return 0;
             }
-            return active;
+            return multiThreadedJobCreator.getActiveJobCount();
         }
 
         private void shutdown() {
@@ -195,5 +232,20 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
             }
         }
 
+        public boolean isExecutingOneOf(List<ComTaskExecution> comTaskExecutions) {
+            return multiThreadedJobCreator.isExecutingOneOf(comTaskExecutions);
+        }
+
+        public boolean isConnectedTo(OutboundConnectionTask connectionTask) {
+            return multiThreadedJobCreator.isConnectedTo(connectionTask);
+        }
+
+        public Map<Long, Integer> getHighPriorityLoadPerComPortPool() {
+            return multiThreadedJobCreator.getHighPriorityLoadPerComPortPool();
+        }
+
+        public void executeWithHighPriority(HighPriorityComJob job) {
+            multiThreadedJobCreator.executeWithHighPriority(newComTaskGroup(job));
+        }
     }
 }

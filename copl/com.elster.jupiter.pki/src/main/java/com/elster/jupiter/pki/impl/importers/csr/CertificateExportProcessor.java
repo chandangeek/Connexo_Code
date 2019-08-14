@@ -71,6 +71,10 @@ public class CertificateExportProcessor {
     private void storeDlmsKeyStoreCertificate(ZipOutputStream zipOutputStream, X509Certificate x509Certificate, String dirName, String alias)
             throws CertificateEncodingException, IOException {
         String fileName = dirName + '/' + alias + ".pem";
+        if ((Boolean)properties.get(CSRImporterTranslatedProperty.EXPORT_FLAT_DIR.getPropertyKey())){
+            // meter have single certificates and are stored in flat directory
+            fileName = alias + ".pem";
+        }
         try {
             zipOutputStream.putNextEntry(new ZipEntry(fileName));
             zipOutputStream.write(pemEncode(x509Certificate).getBytes());
@@ -103,6 +107,10 @@ public class CertificateExportProcessor {
 
     private byte[] getSignature(byte[] bytes) {
         SecurityAccessor<CertificateWrapper> securityAccessor = (SecurityAccessor<CertificateWrapper>) properties.get(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey());
+        if (securityAccessor==null){
+            // no signature available
+            return "".getBytes();
+        }
         CertificateWrapper certificateWrapper = securityAccessor.getActualValue()
                 .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));
         return getSignature(certificateWrapper, bytes, logger.getThesaurus());

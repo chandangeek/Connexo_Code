@@ -4,8 +4,9 @@
 
 package com.energyict.mdc.engine.events;
 
+import com.energyict.mdc.common.device.data.Device;
+
 import aQute.bnd.annotation.ProviderType;
-import com.energyict.mdc.device.data.Device;
 
 /**
  * Marks a {@link ComServerEvent} as relating to a {@link com.energyict.mdc.upl.meterdata.Device device}.

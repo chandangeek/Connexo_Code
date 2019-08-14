@@ -80,6 +80,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             'deviceSetup device-communications-list uni-actioncolumn': {
                 run: this.communicationRun,
                 runNow: this.communicationRunNow,
+                runNowWithPriority: this.communicationRunPrio,
                 toggleActivation: this.communicationToggle
             },
             'deviceSetup #device-communications-panel #activate-all': {
@@ -233,6 +234,23 @@ Ext.define('Mdc.controller.setup.Devices', {
         record.runNow(function () {
             me.getApplication().fireEvent('acknowledge',
                 Uni.I18n.translate('device.communication.run.now', 'MDC', 'Run now succeeded')
+            );
+            record.set('plannedDate', new Date());
+            me.updateDevice(me.doRefresh);
+            widget.setLoading(false);
+        }, {
+            device: _.pick(me.getDevice().getRecordData(), 'name', 'version', 'parent')
+        });
+    },
+
+    communicationRunPrio: function (record) {
+        var me = this,
+            widget = this.getDeviceCommunicationsList();
+
+        widget.setLoading(true);
+        record.runNowWithPriority(function () {
+            me.getApplication().fireEvent('acknowledge',
+                Uni.I18n.translate('device.communication.run.prio', 'MDC', 'Run with priority succeeded')
             );
             record.set('plannedDate', new Date());
             me.updateDevice(me.doRefresh);

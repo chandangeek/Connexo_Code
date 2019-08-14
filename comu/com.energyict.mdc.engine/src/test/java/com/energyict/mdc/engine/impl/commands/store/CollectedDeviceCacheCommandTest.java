@@ -6,12 +6,12 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.EventPublisher;

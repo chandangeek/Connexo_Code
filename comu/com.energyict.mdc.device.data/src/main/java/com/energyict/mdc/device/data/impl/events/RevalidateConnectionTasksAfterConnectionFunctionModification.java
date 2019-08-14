@@ -6,11 +6,11 @@ package com.energyict.mdc.device.data.impl.events;
 
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

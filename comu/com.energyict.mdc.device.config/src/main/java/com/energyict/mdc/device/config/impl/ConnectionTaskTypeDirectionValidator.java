@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

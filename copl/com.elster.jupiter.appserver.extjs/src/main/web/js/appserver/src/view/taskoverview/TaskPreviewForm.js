@@ -64,6 +64,10 @@ Ext.define('Apr.view.taskoverview.TaskPreviewForm', {
                                         {
                                             fieldLabel: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
                                             name: 'queue'
+                                        },
+                                        {
+                                            fieldLabel: Uni.I18n.translate('general.priority', 'APR', 'Priority'),
+                                            name: 'priority'
                                         }
                                     ]
                                 },

@@ -7,11 +7,11 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
 
 public class CannotDeleteFromActiveDeviceConfigurationException extends LocalizedException {
 
@@ -76,8 +76,8 @@ public class CannotDeleteFromActiveDeviceConfigurationException extends Localize
     /**
      * Creates a new CannotDeleteFromActiveDeviceConfigurationException that models the
      * exceptional situation that occurs when an attempt is made
-     * to delete a {@link com.energyict.mdc.device.config.RegisterSpec} from an
-     * <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     * to delete a {@link RegisterSpec} from an
+     * <i>active</i> {@link DeviceConfiguration}
      *
      * @param thesaurus The Thesaurus
      * @param deviceConfiguration The DeviceConfiguration

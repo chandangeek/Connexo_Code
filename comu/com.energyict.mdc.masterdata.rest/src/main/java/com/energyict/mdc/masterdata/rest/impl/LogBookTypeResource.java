@@ -7,10 +7,10 @@ package com.energyict.mdc.masterdata.rest.impl;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
 
@@ -49,7 +49,7 @@ public class LogBookTypeResource {
 
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public PagedInfoList getLogbookTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<LogBookTypeInfo> logbookTypeInfos = new ArrayList<>();
         // TODO it will be better to change the result type of masterDataService.findAllLogBookTypes() to Finder, as for masterDataService.findAllMeasurementTypes
@@ -66,7 +66,7 @@ public class LogBookTypeResource {
     @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public PagedInfoList getLogbookType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
         if (!logBookRef.isPresent()) {
@@ -80,7 +80,7 @@ public class LogBookTypeResource {
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public Response addLogBookType(LogBookTypeInfo logbook) {
         LogBookType newLogbook = masterDataService.newLogBookType(logbook.name, logbook.obisCode);
         newLogbook.save();
@@ -91,7 +91,7 @@ public class LogBookTypeResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public Response updateLogBookType(@PathParam("id") long id, LogBookTypeInfo logbook) {
         LogBookType logBookRef = resourceHelper.lockLogBookTypeOrThrowException(logbook);
         logBookRef.setName(logbook.name);
@@ -103,7 +103,7 @@ public class LogBookTypeResource {
     @DELETE @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public Response deleteLogBookType(@PathParam("id") long id, LogBookTypeInfo logbook) {
         logbook.id = id;
         resourceHelper.lockLogBookTypeOrThrowException(logbook).delete();

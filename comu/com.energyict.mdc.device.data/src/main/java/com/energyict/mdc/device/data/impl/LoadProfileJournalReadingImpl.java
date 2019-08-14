@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.LoadProfileJournalReading;
+import com.energyict.mdc.common.device.data.LoadProfileJournalReading;
 
 import java.time.Instant;
 

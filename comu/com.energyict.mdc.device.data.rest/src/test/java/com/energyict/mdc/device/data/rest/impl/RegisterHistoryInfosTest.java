@@ -6,8 +6,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.DataLoggerReference;
 

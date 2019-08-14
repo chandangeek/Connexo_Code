@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -61,6 +62,8 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     CommunicationTaskService communicationTaskService;
     @Mock
     CommunicationTaskReportService communicationTaskReportService;
+    @Mock
+    PriorityComTaskService priorityComTaskService;
     @Mock
     DeviceService deviceService;
     @Mock
@@ -105,6 +108,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setDeviceConfigurationService(deviceConfigurationService);
         dashboardApplication.setConnectionTaskService(connectionTaskService);
         dashboardApplication.setCommunicationTaskService(communicationTaskService);
+        dashboardApplication.setPriorityComTaskService(priorityComTaskService);
         dashboardApplication.setCommunicationTaskReportService(communicationTaskReportService);
         dashboardApplication.setDeviceService(deviceService);
         dashboardApplication.setEngineConfigurationService(engineConfigurationService);

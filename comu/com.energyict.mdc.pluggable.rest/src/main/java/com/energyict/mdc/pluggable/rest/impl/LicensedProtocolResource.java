@@ -5,10 +5,10 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 import com.energyict.mdc.protocol.LicensedProtocol;
-import com.energyict.mdc.upl.DeviceDescriptionSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.DeviceDescriptionSupport;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -29,11 +29,11 @@ public class LicensedProtocolResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA,
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA,
             com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
             com.energyict.mdc.engine.config.security.Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,
-            com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
-            com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+            DeviceConfigConstants.VIEW_DEVICE_TYPE,
+            DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public LicensedProtocolsInfo getLicensedProtocolInfos() {
         LicensedProtocolsInfo licensedProtocolsInfo = new LicensedProtocolsInfo();
         for (LicensedProtocol licensedProtocol : this.protocolPluggableService.getAllLicensedProtocols()) {

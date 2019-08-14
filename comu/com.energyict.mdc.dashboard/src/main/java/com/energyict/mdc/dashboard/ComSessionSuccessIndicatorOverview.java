@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard;
 
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComSession;
 
 import aQute.bnd.annotation.ProviderType;
 

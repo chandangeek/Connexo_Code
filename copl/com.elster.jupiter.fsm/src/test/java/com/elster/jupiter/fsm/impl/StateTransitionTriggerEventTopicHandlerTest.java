@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 public class StateTransitionTriggerEventTopicHandlerTest {
 
     public static final String SOURCE_ID = "TestDevice";
-    public static final String DEVICE = "com.energyict.mdc.device.data.Device";
+    public static final String DEVICE = "com.energyict.mdc.common.device.data.Device";
     @Mock
     private EventService eventService;
     @Mock

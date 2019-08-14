@@ -26,7 +26,7 @@ public class CryptoDSMR23ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     protected PropertySpec cryptoServerUsageProperty(){
-        return UPLPropertySpecFactory.specBuilder(CryptoDSMR23SecurityProvider.CRYPTOSERVER_USAGE, false, PropertyTranslationKeys.V2_NTA_CRYPTO_SERVER_USAGE, getPropertySpecService()::stringSpec).finish();
+        return UPLPropertySpecFactory.specBuilder(CryptoDSMR23SecurityProvider.CRYPTOSERVER_USAGE, false, PropertyTranslationKeys.V2_NTA_CRYPTO_SERVER_USAGE, getPropertySpecService()::booleanSpec).finish();
     }
 
     protected PropertySpec cryptoServerHLSSecretProperty(){

@@ -8,10 +8,10 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -39,12 +39,17 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -67,12 +72,7 @@ import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemCustomProper
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceImpl;
 import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -128,7 +128,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile QueryService queryService;
-    private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
     private volatile EventService eventService;
     private volatile TaskService taskService;
@@ -145,6 +144,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile CustomPropertySetService customPropertySetService;
     private volatile TransactionService transactionService;
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
+    private volatile DeviceConfigurationService deviceConfigurationService;
 
     private List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
@@ -159,7 +159,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public FirmwareServiceImpl(OrmService ormService,
                                NlsService nlsService,
                                QueryService queryService,
-                               DeviceConfigurationService deviceConfigurationService,
                                DeviceMessageSpecificationService deviceMessageSpecificationService,
                                DeviceMessageService deviceMessageService,
                                DeviceService deviceService,
@@ -175,13 +174,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                CustomPropertySetService customPropertySetService,
                                BundleContext bundleContext,
                                TransactionService transactionService,
-                               MeteringGroupsService meteringGroupsService) {
+                               MeteringGroupsService meteringGroupsService,
+                               DeviceConfigurationService deviceConfigurationService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setQueryService(queryService);
         setDeviceServices(deviceService);
-        setDeviceConfigurationService(deviceConfigurationService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setDeviceMessageService(deviceMessageService);
         setEventService(eventService);
@@ -196,7 +195,13 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setCustomPropertySetService(customPropertySetService);
         setTransactionService(transactionService);
         setMeteringGroupsService(meteringGroupsService);
+        setDeviceConfigurationService(deviceConfigurationService);
         activate(bundleContext);
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
@@ -316,7 +321,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> defaultFirmwareVersionSpec() {
+    public Optional<com.energyict.mdc.common.protocol.DeviceMessageSpec> defaultFirmwareVersionSpec() {
         return deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue());
     }
 
@@ -653,7 +658,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(QueryService.class).toInstance(queryService);
-                    bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                     bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                     bind(DeviceMessageService.class).toInstance(deviceMessageService);
                     bind(DeviceService.class).toInstance(deviceService);
@@ -668,6 +672,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                     bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                     bind(TransactionService.class).toInstance(transactionService);
+                    bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
                     bind(FirmwareCampaignService.class).to(FirmwareCampaignServiceImpl.class).in(Scopes.SINGLETON);
 
                 }
@@ -703,11 +708,6 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         customPropertySets.clear();
         firmwareChecks.clear();
         firmwareCampaignService.deactivate();
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Reference
@@ -856,7 +856,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public Optional<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
+    public Optional<com.energyict.mdc.common.protocol.DeviceMessageSpec> getFirmwareMessageSpec(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOptions,
                                                                                                              FirmwareVersion firmwareVersion) {
         Optional<DeviceMessageId> firmwareMessageId = getFirmwareMessageId(deviceType, firmwareManagementOptions, firmwareVersion);
         if (firmwareMessageId.isPresent()) {

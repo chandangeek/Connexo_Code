@@ -7,8 +7,8 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.common.device.data.Reading;
+import com.energyict.mdc.common.device.data.Register;
 
 import java.math.BigDecimal;
 import java.time.Instant;

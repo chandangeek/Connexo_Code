@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.device.data.Device;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -19,7 +20,7 @@ import java.util.Optional;
 /**
  * Provides services to define and calculate key performance
  * indicators of the data collection engine.
- * Such KPIs are defined against a group of {@link com.energyict.mdc.device.data.Device}s.
+ * Such KPIs are defined against a group of {@link Device}s.
  * The contents of the group, i.e. the Devices that are contained in the group
  * are in fact a set of conditions against Device attributes
  * and are provided by an {@link com.elster.jupiter.metering.groups.EndDeviceGroup}.

@@ -14,46 +14,44 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingEngine;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTask;
 
 import com.energyict.obis.ObisCode;
 
@@ -73,7 +71,6 @@ import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -215,7 +212,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     private OutboundComPortPool createOutboundIpComPortPool(String name) {
-        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES), 0);
         ipComPortPool.setActive(true);
         ipComPortPool.update();
         return ipComPortPool;
@@ -641,10 +638,10 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
             final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+            final PartialScheduledConnectionTask myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
             firstDeviceConfiguration.activate();
             secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
-            final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+            final PartialScheduledConnectionTask mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
             secondDeviceConfiguration.activate();
 
             updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
@@ -664,14 +661,14 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     @Test
     public void changeConfigWithNoConflictConnectionMethodsTest() {
         final String connectionTaskName = "MyDefaultConnectionTaskName";
-        final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
+        final PartialScheduledConnectionTask mySecondConnectionTask;
         Device device;
         final DeviceConfiguration secondDeviceConfiguration;
 
         try (TransactionContext context = getTransactionService().getContext()) {
             final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
             final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, connectionTaskName, outboundIpPool);
+            final PartialScheduledConnectionTask myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, connectionTaskName, outboundIpPool);
             firstDeviceConfiguration.activate();
             secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
             mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, connectionTaskName, outboundIpPool);
@@ -699,15 +696,15 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     public void changeConfigWithNoConflictsRemoveAndMapConnectionMethodsTest() {
         final String firstConnectionTaskName = "myFirstConnectionTaskName";
         final String secondConnectionTaskName = "mySecondConnectionTaskName";
-        final PartialScheduledConnectionTaskImpl otherSecondConnectionTask;
+        final PartialScheduledConnectionTask otherSecondConnectionTask;
         Device device;
         final DeviceConfiguration secondDeviceConfiguration;
 
         try (TransactionContext context = getTransactionService().getContext()) {
             final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
             final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, firstConnectionTaskName, outboundIpPool);
-            final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, secondConnectionTaskName, outboundIpPool);
+            final PartialScheduledConnectionTask myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, firstConnectionTaskName, outboundIpPool);
+            final PartialScheduledConnectionTask mySecondConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, secondConnectionTaskName, outboundIpPool);
             firstDeviceConfiguration.activate();
             secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
             otherSecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, firstConnectionTaskName, outboundIpPool);
@@ -738,10 +735,10 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
             final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+            final PartialScheduledConnectionTask myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
             firstDeviceConfiguration.activate();
             secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
-            final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+            final PartialScheduledConnectionTask mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
             secondDeviceConfiguration.activate();
 
             updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
@@ -764,12 +761,12 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     @Test
     public void changeConfigWithConflictAndResolvedMapActionTest() {
         Device device;
-        final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
+        final PartialScheduledConnectionTask mySecondConnectionTask;
         final DeviceConfiguration secondDeviceConfiguration;
         try (TransactionContext context = getTransactionService().getContext()) {
             final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
             final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+            final PartialScheduledConnectionTask myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
 
             firstDeviceConfiguration.activate();
             secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
@@ -797,7 +794,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     @Test
     public void changeConfigWithConflictAndResolvedMapWithPropertiesTest() {
         Device device;
-        final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
+        final PartialScheduledConnectionTask mySecondConnectionTask;
         final DeviceConfiguration secondDeviceConfiguration;
         final String ipAddressValue = "10.0.66.99";
         final BigDecimal portNumberValue = new BigDecimal(1235L);
@@ -807,7 +804,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
             final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+            final PartialScheduledConnectionTask myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
             firstDeviceConfiguration.activate();
             secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
             mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
@@ -1138,7 +1135,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
                 .getId() == secondDeviceConfiguration.getId();
     }
 
-    private PartialScheduledConnectionTaskImpl createPartialConnectionTask(DeviceConfiguration deviceConfiguration, String connectionTaskName, OutboundComPortPool comPortPool) {
+    private PartialScheduledConnectionTask createPartialConnectionTask(DeviceConfiguration deviceConfiguration, String connectionTaskName, OutboundComPortPool comPortPool) {
         final PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = deviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName, outboundIpConnectionTypePluggableClass, scheduledConnectionTaskInterval, ConnectionStrategy.AS_SOON_AS_POSSIBLE, deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0));
         partialScheduledConnectionTaskBuilder.comPortPool(comPortPool);
        // partialScheduledConnectionTaskBuilder.addProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), "127.0.0.1:80");
