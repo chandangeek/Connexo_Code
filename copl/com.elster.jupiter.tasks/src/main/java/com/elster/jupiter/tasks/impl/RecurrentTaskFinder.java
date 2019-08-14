@@ -214,8 +214,8 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         // add sorting conditions
-        if (!filter.sortingColumns.isEmpty()) {
             builder.append("order by ");
+        if (!filter.sortingColumns.isEmpty()) {
             Order[] order = filter.sortingColumns.toArray(new Order[filter.sortingColumns.size()]);
             for (int i = 0; i < order.length; i++) {
                 switch (order[i].getName()) {
