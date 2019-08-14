@@ -264,21 +264,22 @@ public class EmbeddedJettyServerTest {
         try {
             this.jettyServer = new Server(PORT_NUMBER);
             this.jettyServer.start();
+
+            OnlineComServer comServer = mock(OnlineComServer.class);
+            RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
+            when(runningOnlineComServer.getComServer()).thenReturn(comServer);
+            this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
+
+            // Business method
+            this.embeddedJettyServer.start();
+
+            // Asserts
+            assertThat(this.embeddedJettyServer.getStatus()).isNotEqualTo(ServerProcessStatus.STARTED);
         }
         catch (Exception e) {
             e.printStackTrace(System.err);
             fail("Failed to start server on port " + PORT_NUMBER + " so testing that starting a second because the port is already in use does not make sense.");
         }
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
-        when(runningOnlineComServer.getComServer()).thenReturn(comServer);
-        this.embeddedJettyServer = EmbeddedJettyServer.newForQueryApi(new URI("http://localhost:" + PORT_NUMBER + "/remote/queries"), runningOnlineComServer, comServerDAO, serviceProvider.engineConfigurationService(), serviceProvider.connectionTaskService(), serviceProvider.communicationTaskService(), serviceProvider.transactionService());
-
-        // Business method
-        this.embeddedJettyServer.start();
-
-        // Asserts
-        assertThat(this.embeddedJettyServer.getStatus()).isNotEqualTo(ServerProcessStatus.STARTED);
     }
 
     @Test
