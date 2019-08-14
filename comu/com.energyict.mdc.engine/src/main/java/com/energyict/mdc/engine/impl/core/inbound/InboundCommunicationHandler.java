@@ -166,7 +166,7 @@ public class InboundCommunicationHandler {
     private void findDeviceAndHandleCollectedData(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context, InboundDeviceProtocol.DiscoverResultType discoverResultType) {
         Optional<OfflineDevice> device;
         device = this.comServerDAO.findOfflineDevice(inboundDeviceProtocol.getDeviceIdentifier());
-        if (device.isPresent()) {
+        if (device != null && device.isPresent()) {
             this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
             this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device.get());
         } else {
