@@ -108,8 +108,12 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected static TypedProperties getProtocolDialectTypedProperties(Device device, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
+        TypedProperties result = TypedProperties.empty();
+        if (protocolDialectConfigurationProperties == null) {
+            return result;
+        }
+
         Optional<ProtocolDialectProperties> protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
-        TypedProperties result;
         if (protocolDialectPropertiesWithName.isPresent()) {
             result = protocolDialectPropertiesWithName.get().getTypedProperties();
         } else {

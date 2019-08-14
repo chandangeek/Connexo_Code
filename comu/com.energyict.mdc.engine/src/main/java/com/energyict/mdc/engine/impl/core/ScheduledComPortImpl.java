@@ -254,7 +254,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     protected void reschedule() {
         try {
-            Thread.sleep(getSleepDurationInMs());
+            Thread.sleep(Math.abs(getSleepDurationInMs()));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
