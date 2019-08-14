@@ -87,7 +87,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     private Map<TaskStatus, Long> doGetConnectionTaskStatusCount(EndDeviceGroup deviceGroup) {
         ConnectionTaskStatusCountSqlBuilder sqlBuilder =
                 new ConnectionTaskStatusCountSqlBuilder(
-                        this.taskStatusesForCounting(EnumSet.allOf(TaskStatus.class)),
+                        this.taskStatusesForCounting(TaskStatus.withoutPrio()),
                         deviceGroup,
                         this);
         return this.addMissingTaskStatusCounters(this.deviceDataModelService.fetchTaskStatusCounters(sqlBuilder));

@@ -11,7 +11,8 @@ Ext.define('Dsh.view.CommunicationOverview', {
         'Dsh.view.widget.QuickLinks',
         'Dsh.view.widget.ReadOutsOverTime',
         'Dsh.view.widget.Overview',
-        'Dsh.view.widget.Breakdown'
+        'Dsh.view.widget.Breakdown',
+        'Dsh.view.widget.HeatMap'
     ],
     alias: 'widget.communication-overview',
     itemId: 'communication-overview',

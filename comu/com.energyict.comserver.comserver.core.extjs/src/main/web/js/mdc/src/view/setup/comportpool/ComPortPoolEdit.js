@@ -86,6 +86,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     maxValue: 100,
                     minValue: 0,
                     required: true,
+                    allowBlank: false,
                     listeners: {
                         change: function () {
                             me.changeMaxPriorityConnections();
@@ -189,8 +190,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
         }
     },
 
-    changeMaxPriorityConnections: function()
-    {
+    changeMaxPriorityConnections: function() {
         var me =this,
             pctHighPrioTasks = me.down('#percentageOfPriorityTasks').getValue() ;
         if(this.edit && pctHighPrioTasks >= 0 && pctHighPrioTasks <= 100) {

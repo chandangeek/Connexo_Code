@@ -174,11 +174,11 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.METER)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.of(activeMeterFirmware));
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.COMMUNICATION)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.of(activeCommunicationFirmware));
 
-        when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.FINAL));
+        when(firmwareCampaignManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.FINAL));
         expectSuccess();
         verify(firmwareService, times(2)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.FINAL)));
 
-        when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.TEST));
+        when(firmwareCampaignManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.TEST));
         expectError("Firmware types on the master don't have the highest level (among firmware types with the acceptable status).");
     }
 
@@ -189,11 +189,11 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.METER)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.empty());
         when(firmwareService.getMaximumFirmware(eq(masterDeviceType), eq(EnumSet.of(FirmwareType.COMMUNICATION)), eq(EnumSet.of(FirmwareStatus.FINAL)))).thenReturn(Optional.empty());
 
-        when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.TEST));
+        when(firmwareCampaignManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.TEST));
         expectSuccess();
         verify(firmwareService, times(2)).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), eq(EnumSet.of(FirmwareStatus.TEST)));
 
-        when(firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.FINAL));
+        when(firmwareCampaignManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(EnumSet.of(FirmwareStatus.FINAL));
         expectError("Firmware types on the master don't have the highest level (among firmware types with the acceptable status).");
     }
 
@@ -225,7 +225,7 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
     @Test
     public void testCheckNotActivated() {
         when(firmwareService.getActiveFirmwareVersion(eq(master), any(FirmwareType.class))).thenReturn(Optional.empty());
-        when(firmwareManagementOptions.isActivated(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(false);
+        when(firmwareCampaignManagementOptions.isActivated(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(false);
         FirmwareManagementOptions masterFirmwareManagementOptions = mock(FirmwareManagementOptions.class);
         when(firmwareService.findFirmwareManagementOptions(masterDeviceType)).thenReturn(Optional.of(masterFirmwareManagementOptions));
         when(masterFirmwareManagementOptions.isActivated(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(true);
@@ -233,14 +233,4 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
         expectSuccess();
     }
 
-    @Test
-    public void testFirmwareManagementNotActivated() {
-        when(firmwareService.getActiveFirmwareVersion(eq(master), any(FirmwareType.class))).thenReturn(Optional.empty());
-        when(firmwareService.findFirmwareManagementOptions(deviceType)).thenReturn(Optional.empty());
-        FirmwareManagementOptions masterFirmwareManagementOptions = mock(FirmwareManagementOptions.class);
-        when(firmwareService.findFirmwareManagementOptions(masterDeviceType)).thenReturn(Optional.of(masterFirmwareManagementOptions));
-        when(masterFirmwareManagementOptions.isActivated(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)).thenReturn(true);
-
-        expectSuccess();
-    }
 }

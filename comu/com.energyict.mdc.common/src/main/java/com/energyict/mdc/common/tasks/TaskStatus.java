@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.common.tasks;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * Models the status of meter data collection tasks.
  * This <a href="TaskStatus.png">diagram</a> depicts
@@ -104,6 +107,12 @@ public enum TaskStatus {
 
     public static TaskStatus initial () {
         return TaskStatus.NeverCompleted;
+    }
+
+    //for connections we don't need the states with priority so return a list without those
+    public static Set<TaskStatus> withoutPrio() {
+        EnumSet withoutPrioValues = EnumSet.of(PendingWithPriority, WaitingWithPriority, RetryingWithPriority);
+        return EnumSet.complementOf(withoutPrioValues);
     }
 
 }
