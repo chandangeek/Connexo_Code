@@ -110,7 +110,7 @@ Ext.define('Bpm.controller.Task', {
                         }
                         if (deviceVariable) {
                             variable = deviceVariable;
-                            urlString = '/api/jsr/search/com.energyict.mdc.device.data.Device';
+                            urlString = '/api/jsr/search/com.energyict.mdc.common.device.data.Device';
                         }
                         if (variable) {
                             Ext.Ajax.request({
@@ -329,7 +329,7 @@ Ext.define('Bpm.controller.Task', {
                 }
                 if (deviceVariable) {
                     variable = deviceVariable;
-                    urlString = '/api/jsr/search/com.energyict.mdc.device.data.Device';
+                    urlString = '/api/jsr/search/com.energyict.mdc.common.device.data.Device';
                 }
                 if (variable) {
                     Ext.Ajax.request({

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.0.0-Nessus-SNAPSHOT</version>
+        <version>1.0.1-Heracles-SNAPSHOT</version>
 
     </parent>
     <artifactId>metering.cim</artifactId>
@@ -34,15 +34,13 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <wsdlDirectory>${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl/</wsdlDirectory>
                     <wsdlFiles>
-                        <wsdlFile>
-                            ${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl/GetMeterReadings.wsdl
-                        </wsdlFile>
-                        <wsdlFile>
-                            ${basedir}/src/main/resources/com/elster/jupiter/metering/cim/wsdl/SendMeterReadings.wsdl
-                        </wsdlFile>
+                        <wsdlFile>GetMeterReadings.wsdl</wsdlFile>
+                        <wsdlFile>SendMeterReadings.wsdl</wsdlFile>
                     </wsdlFiles>
                     <sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+                    <wsdlLocation>*</wsdlLocation>
                     <keep>true</keep>
                 </configuration>
             </plugin>

@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
@@ -12,9 +15,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Models the constraints that a {@link com.energyict.mdc.device.config.ComTaskEnablement}
+ * Models the constraints that a {@link ComTaskEnablement}
  * cannot specify to use the default connection task and specify a
- * {@link com.energyict.mdc.device.config.PartialConnectionTask} at the same time.
+ * {@link PartialConnectionTask} at the same time.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-18 (09:49)

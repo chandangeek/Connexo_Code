@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.scheduling.rest.impl;
 
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 

@@ -21,6 +21,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory;
@@ -62,12 +63,13 @@ public class Installer implements FullInstaller {
     private final PrivilegesProviderV10_3 privilegesProviderV10_3;
     private final PrivilegesProviderV10_4_1 privilegesProviderV10_4_1;
     private final PrivilegesProviderV10_6 privilegesProviderV10_6;
+    private final PrivilegesProviderV10_6_1 privilegesProviderV10_6_1;
     private final TaskService taskService;
 
     @Inject
     public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService, TaskService taskService,
                      InstallerV10_2Impl installerV10_2, PrivilegesProviderV10_3 privilegesProviderV10_3, PrivilegesProviderV10_4_1 privilegesProviderV10_4_1,
-                     PrivilegesProviderV10_6 privilegesProviderV10_6) {
+                     PrivilegesProviderV10_6 privilegesProviderV10_6, PrivilegesProviderV10_6_1 privilegesProviderV10_6_1) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
@@ -78,6 +80,7 @@ public class Installer implements FullInstaller {
         this.privilegesProviderV10_3 = privilegesProviderV10_3;
         this.privilegesProviderV10_4_1 = privilegesProviderV10_4_1;
         this.privilegesProviderV10_6 = privilegesProviderV10_6;
+        this.privilegesProviderV10_6_1 = privilegesProviderV10_6_1;
     }
 
     @Override
@@ -124,6 +127,7 @@ public class Installer implements FullInstaller {
         userService.addModulePrivileges(privilegesProviderV10_3);
         userService.addModulePrivileges(privilegesProviderV10_4_1);
         userService.addModulePrivileges(privilegesProviderV10_6);
+        userService.addModulePrivileges(privilegesProviderV10_6_1);
     }
 
     private void addJupiterEventSubscribers() {
@@ -158,7 +162,6 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DESTINATION, SubscriberTranslationKeys.CONNECTION_PROPERTY_UPDATER);
         this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, SubscriberTranslationKeys.COMMUNICATION_FILTER_ITEMIZER);
         this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION, SubscriberTranslationKeys.COMMUNICATION_RESCHEDULER);
-        this.createMessageHandler(defaultQueueTableSpec, DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION, SubscriberTranslationKeys.DATA_COLLECTION_KPI_CALCULATOR);
         this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_DESTINATION, SubscriberTranslationKeys.CONNECTION_TASK_VALIDATOR_AFTER_PROPERTY_REMOVAL);
         this.createMessageHandler(defaultQueueTableSpec, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION, SubscriberTranslationKeys.COMSCHEDULE_FILTER_ITEMIZER);
         this.createMessageHandler(defaultQueueTableSpec, SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SubscriberTranslationKeys.COMSCHEDULE);
@@ -169,18 +172,29 @@ public class Installer implements FullInstaller {
         this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskValidatorAfterConnectionFunctionModificationMessageHandlerFactory.TASK_DESTINATION, SubscriberTranslationKeys.CONNECTION_TASK_VALIDATOR_AFTER_CONNECTION_FUNCTION_MODIFICATION);
         this.createMessageHandler(defaultQueueTableSpec, CertificateRenewalHandlerFactory.CERTIFICATE_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CERTIFICATE_RENEWAL_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, KeyRenewalHandlerFactory.KEY_RENEWAL_TASK_DESTINATION_NAME, SubscriberTranslationKeys.KEY_RENEWAL_TASK_SUBSCRIBER);
-        this.createMessageHandler(defaultQueueTableSpec, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CRL_REQUEST_TASK_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, MeteringZoneService.BULK_ZONE_QUEUE_DESTINATION, SubscriberTranslationKeys.ZONE_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, LoadProfileService.BULK_LOADPROFILE_QUEUE_DESTINATION, SubscriberTranslationKeys.LOADPROFILE_SUBSCRIBER);
+        createPrioritizedMessageHandlers();
+    }
+
+    void createPrioritizedMessageHandlers() {
+        QueueTableSpec prioritizedDefaultQueueTableSpec = messageService.getQueueTableSpec(MessageService.PRIORITIZED_RAW_QUEUE_TABLE).get();
+        this.createMessageHandler(prioritizedDefaultQueueTableSpec, CrlRequestHandlerFactory.CRL_REQUEST_TASK_DESTINATION_NAME, SubscriberTranslationKeys.CRL_REQUEST_TASK_SUBSCRIBER, true);
+        this.createMessageHandler(prioritizedDefaultQueueTableSpec, DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION, SubscriberTranslationKeys.DATA_COLLECTION_KPI_CALCULATOR, true);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, TranslationKey nameKey) {
         createMessageHandler(defaultQueueTableSpec, nameKey.getKey(), nameKey);
     }
 
-    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberKey) {
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey nameKey) {
+        createMessageHandler(defaultQueueTableSpec, destinationName, nameKey, false);
+    }
+
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberKey, boolean isPrioritized) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
         if (!destinationSpecOptional.isPresent()) {
-            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, false, isPrioritized);
             queue.activate();
             queue.subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
         } else {

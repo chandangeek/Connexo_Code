@@ -46,24 +46,48 @@ public class MbusLog extends AbstractEvent {
     }
 
     protected int mBusChannel;
+
+    protected int ignoredEvents;
+
     public MbusLog(DataContainer dc, int mBusChannel) {
         super(dc);
         this.mBusChannel = mBusChannel;
+        this.ignoredEvents = 0;
+    }
+
+    /**
+     *  Select only event ids that correspond to MBus channel, as requested by ENEXIS:
+     *	    Event 255 will always be of interest for the slave device, so independent of the channel
+     *	    Events 100 t/m 109 will only be of interest for the slave device if it is installed on channel 1
+     *	    Events 110 t/m 119 will only be of interest for the slave device if it is installed on channel 2
+     *	    Events 120 t/m 129 will only be of interest for the slave device if it is installed on channel 3
+     *	    Events 130 t/m 139 will only be of interest for the slave device if it is installed on channel 4
+     *	    All other events will be ignored.
+     *
+     * @param eventId
+     * @return
+     */
+    private boolean checkEventInChannelRange(int eventId) {
+        if (eventId == 255){
+            // always include event code 255
+            return true;
+        }
+
+        final int lowerLimit = 90 + mBusChannel * 10;   // 100, 110, 120, 130
+        final int upperLimit = lowerLimit + 9;          // 109, 119, 129, 139
+
+        return (lowerLimit <= eventId) && (eventId <= upperLimit);
     }
 
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
-        //select only event ids that correspond to mbus channel
-        //channel 1: 100 .. 109
-        //channel 2: 110 .. 119
-        //channel 3: 120 .. 129
-        //channel 4: 130 .. 139
-        int clonedEventId = eventId;
-        //if outside range, consider it an unknown event
-        if (eventId != 255 && eventId < (90 + mBusChannel * 10) && eventId > (99 + mBusChannel * 10)) {
-            clonedEventId = 0;
+        if (!checkEventInChannelRange(eventId)){
+            //if outside range ignore it
+            ignoredEvents++;
+            return;
         }
+
         if (!ExtraEvents.extraEvents.containsKey(new Integer(eventId))) {
-            switch (clonedEventId) {
+            switch (eventId) {
                 case EVENT_EVENT_LOG_CLEARED: {
                     meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.EVENT_LOG_CLEARED, eventId, "Mbus event log profile cleared"));
                 }
@@ -187,5 +211,9 @@ public class MbusLog extends AbstractEvent {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         buildMeterEvent(meterEvents, eventTimeStamp, eventId);
         return meterEvents.get(0);
+    }
+
+    public int getIgnoredEvents() {
+        return ignoredEvents;
     }
 }

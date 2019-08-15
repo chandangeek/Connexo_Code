@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.topology.rest.info;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;

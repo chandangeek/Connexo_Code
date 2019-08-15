@@ -9,18 +9,18 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
@@ -132,7 +132,19 @@ public class ConnectionMethodResource {
         if(isOutboundTLS(task) && !getConnnectionTaskProperty(props, "ServerTLSCertificate").isPresent()) {
             return false;
         }
-        return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+
+        // TCP/IP
+        if(isOutBoundTcpIp(task)){
+            return (Objects.nonNull(task.getComPortPool()) && getConnnectionTaskProperty(props, "host").isPresent() && getConnnectionTaskProperty(props, "portNumber").isPresent());
+        }
+
+        //Serial Optical
+        return (Objects.nonNull(task.getComPortPool()));
+    }
+
+    private boolean isOutBoundTcpIp(ConnectionTask<?,?> task) {
+        //todo: use com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnectionTypePluggableClassTranslationKeys.OutboundTcpIpConnectionType
+        return task.getPluggableClass().getName().equals("Outbound TCP/IP");
     }
 
     private boolean isOutboundTLS(ConnectionTask<?,?> task) {

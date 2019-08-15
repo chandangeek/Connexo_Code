@@ -1,6 +1,7 @@
 package com.energyict.mdc.upl;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.api.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.security.DeviceSecuritySupport;
@@ -13,6 +14,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceProtocolConnectionFunctionSuppo
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceStatusInformationSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
+
 
 import java.util.List;
 
@@ -33,6 +35,7 @@ public interface DeviceProtocol
         DeviceBasicSupport, DeviceAccessSupport, DeviceClockSupport,
         DeviceLoadProfileSupport, DeviceRegisterSupport, DeviceLogBookSupport,
         DeviceStatusInformationSupport, DeviceMessageSupport, DeviceSecuritySupport,
+        ProtocolLoggingSupport,
         DeviceProtocolConnectionFunctionSupport, DeviceTopologySupport, DeviceCachingSupport, DeviceDescriptionSupport, ConnectionTypeSupport, FirmwareSignatureCheckSupport {
 
     /**

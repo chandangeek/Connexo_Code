@@ -5,12 +5,12 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.EventType;
 
 /**
  * Models the data that is involved in events that relate to
- * changes of {@link com.energyict.mdc.device.config.ComTaskEnablement}'s priority.
+ * changes of {@link ComTaskEnablement}'s priority.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-18 (15:21)

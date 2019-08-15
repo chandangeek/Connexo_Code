@@ -11,7 +11,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 
 import java.util.List;
 

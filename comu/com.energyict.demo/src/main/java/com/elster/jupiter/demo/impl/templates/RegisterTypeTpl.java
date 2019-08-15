@@ -9,7 +9,7 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.ReadingTypeBuilder;
 import com.elster.jupiter.demo.impl.builders.RegisterTypeBuilder;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 
 import java.util.Arrays;
 import java.util.EnumSet;

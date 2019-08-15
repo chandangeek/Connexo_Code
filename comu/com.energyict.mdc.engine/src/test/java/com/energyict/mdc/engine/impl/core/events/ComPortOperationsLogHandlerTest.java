@@ -6,14 +6,14 @@ package com.energyict.mdc.engine.impl.core.events;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
@@ -23,6 +23,7 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
@@ -72,6 +73,8 @@ public class ComPortOperationsLogHandlerTest {
     private NlsService nlsService;
     @Mock
     private EventService eventService;
+    @Mock
+    private EventAPIStatistics eventApiStatistics;
 
     private ComPortOperationsLogger comPortOperationsLogger;
     private static final String eventRegistrationURL = "ws://localhost:8282/events/registration";
@@ -95,7 +98,7 @@ public class ComPortOperationsLogHandlerTest {
                         this.identificationService,
                         serviceProvider.eventPublisher());
         EmbeddedWebServerFactory embeddedWebServerFactory = new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory);
-        embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+        embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventApiStatistics);
     }
 
     @Test

@@ -7,9 +7,9 @@ package com.energyict.mdc.device.data.impl.events;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.EventType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 
 import org.osgi.service.event.EventConstants;

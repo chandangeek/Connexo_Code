@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.streams.ExceptionThrowingRunnable;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 
 /**
  * Provides an implementation for the {@link TransactionService}
@@ -28,8 +30,18 @@ public class FakeTransactionService implements TransactionService {
     }
 
     @Override
-    public <T> T execute(Transaction<T> transaction) {
-        return transaction.perform();
+    public <T, E extends Throwable> T execute(ExceptionThrowingSupplier<T, E> transaction) throws E {
+        return transaction.get();
+    }
+
+    @Override
+    public <R, E extends Throwable> R executeInIndependentTransaction(ExceptionThrowingSupplier<R, E> transaction) throws E {
+        return execute(transaction);
+    }
+
+    @Override
+    public <E extends Throwable> TransactionEvent runInIndependentTransaction(ExceptionThrowingRunnable<E> transaction) throws E {
+        return run(transaction);
     }
 
     @Override

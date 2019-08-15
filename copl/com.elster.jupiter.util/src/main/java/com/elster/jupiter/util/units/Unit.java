@@ -154,7 +154,13 @@ public enum Unit {
     CHARACTERS("characters", "char", DIMENSIONLESS),
     CHARACTERS_PER_SECOND("characters per second", "char/s", FREQUENCY),
     GRAM_METER_SQUARED("gram meter squared", "gm\u00b2", "gm2", TURBINE_INERTIA,-3),
-    BEL("bel", "B", DIMENSIONLESS),
+    BEL("bel", "B", POWER, ONE, ZERO){
+        // set siDivisor to ZERO to indicate si conversion overrule
+        @Override
+        Quantity siValue(BigDecimal value) {
+            return Unit.VOLT.amount(BigDecimal.valueOf(Math.pow(10.0,value.doubleValue()-3.0)));
+        }
+    },
     MONEY("money", "\u00A4", "money", CURRENCY),
     WATT_PER_SECOND("watt per second","W/s",POWER_RAMP),
     LITRE_PER_SECOND("littre per second","L/s", VOLUME_FLOW, -3),
@@ -170,6 +176,13 @@ public enum Unit {
     BOOLEAN("boolean", "status", DIMENSIONLESS),
     BOOLEAN_ARRAY("boolean array", "statuses", DIMENSIONLESS),
     COUNT("count", "Count", DIMENSIONLESS),
+    BEL_MICROVOLT("bel microvolt", "BmV", POWER,ONE,ZERO) {
+        // set siDivisor to ZERO to indicate si conversion overrule
+        @Override
+        Quantity siValue(BigDecimal value) {
+            return Unit.VOLT.amount(BigDecimal.valueOf(Math.pow(10.0,value.doubleValue()-3.0)));
+        }
+    },
     BEL_MILLIWATT("bel milliwatt", "Bm", POWER,ONE,ZERO) {
     	// set siDivisor to ZERO to indicate si conversion overrule
     	@Override

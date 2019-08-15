@@ -13,13 +13,13 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.search.SearchDomains;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import org.osgi.service.component.annotations.Component;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link SearchDomain} interface
- * that supports {@link com.energyict.mdc.device.data.Device}s.
+ * that supports {@link Device}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-26 (15:32)

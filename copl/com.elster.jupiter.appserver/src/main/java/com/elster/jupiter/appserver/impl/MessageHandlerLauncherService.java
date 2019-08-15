@@ -231,12 +231,17 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     private void stopServing(SubscriberKey key) {
         MessageHandlerLauncherPojo handlerPojo = executors.get(key);
-        CancellableTaskExecutorService executorService = handlerPojo.getCancellableTaskExecutorService();
-        if (executorService != null) {
-            shutDownServiceWithCancelling(handlerPojo);
-            futures.remove(executorService);
+        if (handlerPojo != null) {
+            LOGGER.info("HandlerPojo found " + "   Subscriber: " + key.getSubscriber() + "Destination:   " + key.getDestination());
+            CancellableTaskExecutorService executorService = handlerPojo.getCancellableTaskExecutorService();
+            if (executorService != null) {
+                shutDownServiceWithCancelling(handlerPojo);
+                futures.remove(executorService);
+            }
+            executors.remove(key);
+        } else{
+            LOGGER.info("Avoid null pointer exception " + "   Subscriber: " + key.getSubscriber() + "Destination:   " + key.getDestination());
         }
-        executors.remove(key);
     }
 
     Map<SubscriberKey, Integer> futureReport() {

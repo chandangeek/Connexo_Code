@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
@@ -57,6 +58,8 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
     public static final ObisCode MBUS_LP3_OBISCODE_SAME_AS_EMETER_LP3 = ObisCode.fromString("0.x.98.1.0.255");
 
     private final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
+
+    private final long UNSIGNED32_MAX = 0xFFFFFFFFL; // 4294967295;
 
     private static final ObisCode FRAME_COUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
 
@@ -87,50 +90,85 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "Enexis first protocol integration version 10.12.2018";
+        return "ESMR 5.0 - 2019-07-01";
+    }
+
+    @Override
+    public void journal(String message) {
+        super.journal("[ESMR50] " + message);
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        getLogger().info("Sagemcom T210 protocol init V2");
+        journal("Sagemcom T210 protocol init");
         this.offlineDevice = offlineDevice;
-        getDlmsSessionProperties().setSerialNumber(getDlmsSessionProperties().getDeviceId());
-        getLogger().info("Initialize communication with device identified by device ID: " + getDlmsSessionProperties().getDeviceId());
-        if(!testCachedFrameCounter(comChannel)){
+        String serialNumber = getDlmsSessionProperties().getSerialNumber();
+        getDlmsSessionProperties().setSerialNumber(serialNumber);
+        journal("Initialize communication with device identified by serial number: " + serialNumber);
+        if(!testCachedFrameCounterAndEstablishAssociation(comChannel)){
             readFrameCounter(comChannel);
-            DlmsSession dlmsSession = newDlmsSession(comChannel);
-            dlmsSession.getAso().getSecurityContext().setFrameCounter(getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter());
-            setDlmsSession(dlmsSession);
+            reEstablishAssociation(comChannel);
         } else {
             //Framecounter was validated and DLMSSession set so go on
+            journal("Secure association established");
         }
-        getLogger().info("Initialization phase has ended.");
+        journal("Initialization phase has ended.");
+    }
 
+    private void reEstablishAssociation(ComChannel comChannel) {
+        DlmsSession dlmsSession = newDlmsSession(comChannel);
+        long initialFrameCounter = getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter();
+        journal("Re-establishing secure association with frame counter "+initialFrameCounter);
+        dlmsSession.getAso().getSecurityContext().setFrameCounter(initialFrameCounter);
+        setDlmsSession(dlmsSession);
+        if (dlmsSession.getAso().getAssociationStatus() != ApplicationServiceObject.ASSOCIATION_CONNECTED){
+            try {
+                dlmsSession.getDlmsV2Connection().connectMAC();
+                dlmsSession.createAssociation();
+                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
+                    journal("Reconnection successful");
+                }
+            } catch (CommunicationException ex) {
+                journal("Association using the new frame counter has failed ("+ex.getLocalizedMessage()+")");
+            } catch (Exception ex){
+                journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
+                throw ex;
+            }
+        } else {
+            journal("Secure connection already established");
+        }
     }
 
     protected DlmsSession newDlmsSession(ComChannel comChannel) {
         return new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger()); }
 
-    protected boolean testCachedFrameCounter(ComChannel comChannel){
+    protected boolean testCachedFrameCounterAndEstablishAssociation(ComChannel comChannel){
         boolean validCachedFrameCounter = false;
         DlmsSession dlmsSession = newDlmsSession(comChannel);
         long cachedFramecounter = getDeviceCache().getFrameCounter();
-        getLogger().info("Testing cached frame counter: " + cachedFramecounter );
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);
-        dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFramecounter);
-        try {
-            dlmsSession.getDlmsV2Connection().connectMAC();
-            dlmsSession.createAssociation();
-            if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
-//                dlmsSession.disconnect();
-                long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
-                getLogger().info("This FrameCounter was validated: " + frameCounter);
-                getDeviceCache().setFrameCounter(frameCounter);
-                validCachedFrameCounter = true;
-                setDlmsSession(dlmsSession);
+        if (checkFrameCounterLimits(cachedFramecounter)){
+            journal("Testing cached frame counter: " + cachedFramecounter);
+            getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(cachedFramecounter);
+            dlmsSession.getAso().getSecurityContext().setFrameCounter(cachedFramecounter);
+            try {
+                dlmsSession.getDlmsV2Connection().connectMAC();
+                dlmsSession.createAssociation();
+                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
+                    long frameCounter = dlmsSession.getAso().getSecurityContext().getFrameCounter();
+                    journal("This FrameCounter was validated: " + frameCounter);
+                    getDeviceCache().setFrameCounter(frameCounter);
+                    validCachedFrameCounter = true;
+                    setDlmsSession(dlmsSession);
+                }
+            } catch (CommunicationException ex) {
+                journal("Association using cached frame counter has failed.");
+            } catch (Exception ex) {
+                journal(Level.SEVERE, ex.getLocalizedMessage() + " caused by " + ex.getCause().getLocalizedMessage());
+                throw ex;
             }
-        } catch (CommunicationException ex) {
-            getLogger().info("Association using cached frame counter has failed.");
+        } else {
+            validCachedFrameCounter = false; // outside limits, force re-read
+            journal("Cached frame counter ("+cachedFramecounter+") is outside acceptable limits, will force reading it again.");
         }
         return validCachedFrameCounter;
     }
@@ -141,7 +179,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
             return;
         }
 
-        getLogger().info("Starting public DLMS session to read the frame counter.");
+        journal("Starting public DLMS session to read the frame counter.");
 
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT_MAC_ADDRESS));
@@ -149,27 +187,42 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(PUBLIC_CLIENT_MAC_ADDRESS), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
-        long frameCounter;
+        long frameCounter = 0;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
-        getLogger().info("Connecting to public client: " + PUBLIC_CLIENT_MAC_ADDRESS);
+        journal("Connecting to public client: " + PUBLIC_CLIENT_MAC_ADDRESS);
         connectWithRetries(publicDlmsSession);
         try {
             ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
-            getLogger().info("Public client connected, reading framecounter " + frameCounterObisCode.toString() + ", corresponding to client "+getDlmsSessionProperties().getClientMacAddress());
+            journal("Public client connected, reading frame counter " + frameCounterObisCode.toString() + ", corresponding to client "+getDlmsSessionProperties().getClientMacAddress());
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
-            getLogger().info("Frame counter received: " + frameCounter);
+            journal("Frame counter received: " + frameCounter);
+            checkFrameCounterLimits(frameCounter);
         } catch (DataAccessResultException | ProtocolException e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
-        getLogger().info("Disconnecting public client");
+        journal("Disconnecting public client");
         publicDlmsSession.disconnect();
         long incrementedFramecounter = frameCounter + 1;
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(incrementedFramecounter);
-//        getDlmsSession().getAso().getSecurityContext().setFrameCounter(incrementedFramecounter);
-//        getDeviceCache().setFrameCounter(incrementedFramecounter);
+    }
+
+    private boolean checkFrameCounterLimits(long frameCounter) {
+        boolean isValid = true;
+        long frameCounterLimit = getDlmsSessionProperties().getFrameCounterLimit();
+
+        if (frameCounterLimit>0 && frameCounter>frameCounterLimit) {
+            journal(Level.WARNING, "Frame-counter "+frameCounter+" is above the threshold (" + frameCounterLimit + "), consider key-roll to reset it!");
+            isValid = false;
+        }
+
+        if (frameCounter<=0 || frameCounter >= UNSIGNED32_MAX){
+            journal(Level.SEVERE, "Frame counter "+frameCounter+" is not within Unsigned32 acceptable limits, consider key-roll to reset it");
+            isValid = false;
+        }
+        return isValid;
     }
 
     private ObisCode getFrameCounterForClient(int clientMacAddress) {
@@ -198,12 +251,12 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         }
         DLMSCache dlmsCache = getDeviceCache();
         if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().isReadCache()) {
-            getLogger().info("Cache is empty or Read Cache property is set. Reading device object list.");
+            journal("Cache is empty or Read Cache property is set. Reading device object list.");
             readObjectList();
             dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
         } else {
             getDlmsSession().getMeterConfig().setInstantiatedObjectList(dlmsCache.getObjectList());
-            getLogger().info("Cache exist, will not be read.");
+            journal("Cache exist, will not be read.");
         }
     }
 
@@ -212,7 +265,7 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         if(getDlmsSession() != null && getDlmsSession().getAso().getSecurityContext() != null){
             long frameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter();
             getDeviceCache().setFrameCounter(frameCounter);
-            getLogger().info("Caching frameCounter=" + frameCounter);
+            journal("Caching frameCounter=" + frameCounter);
 
         }
     }
@@ -347,6 +400,11 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         return Optional.empty();
     }
 
+    @Override
+    public ObisCode getFirmwareVersionCommsModuleObisCode(){
+        return ESMR50RegisterFactory.ACTIVE_MODEM_FIRMWARE_VERSION_OBISCODE;
+    }
+
    //TODO This method must be overriden in all nta protocols. It had a different implementation in 8.11 AbstractSmartDlmsProtocol than in AbstractDlmsProtcol from connexo
     /**
      * E-meter has address 0. Subclasses can override to add MBus address functionality.
@@ -364,10 +422,6 @@ public abstract class ESMR50Protocol extends AbstractSmartNtaProtocol {
         ((ESMR50Cache)getDeviceCache()).setFrameCounter(newFrameCounter);
     }
 
-    @Override
-    public boolean supportsCommunicationFirmwareVersion() {
-        return true;
-    }
 }
 
 

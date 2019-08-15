@@ -28,4 +28,13 @@ public class ESMR50SecurityProvider extends Dsmr40SecurityProvider {
         setRespondingFrameCounterHandling(new ESMR50RespondingFrameCounterHandler());
     }
 
+    /**
+     * ESMR meters are sensitive to frame counters, always start with 1, then cached, then read
+     */
+    @Override
+    public long initializeFrameCounter() {
+        return 0;
+    }
+
+
 }

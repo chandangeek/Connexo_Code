@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -200,6 +201,7 @@ public class DataCollectionKpiImplTest {
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(MeteringZoneService.class).toInstance(mock(MeteringZoneService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 

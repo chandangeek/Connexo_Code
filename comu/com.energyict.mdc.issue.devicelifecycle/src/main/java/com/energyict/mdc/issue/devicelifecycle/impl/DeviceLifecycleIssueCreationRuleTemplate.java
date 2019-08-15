@@ -26,10 +26,10 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFactory;
 import com.elster.jupiter.properties.rest.RecurrenceSelectionPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.devicelifecycle.DeviceLifecycleIssueFilter;
@@ -205,13 +205,18 @@ public class DeviceLifecycleIssueCreationRuleTemplate implements CreationRuleTem
                     new IllegalArgumentException(TranslationKeys.UNABLE_TO_UPDATE_TRANSITION_STATUS.getDefaultFormat()) {
                     }));
         }
-        Optional<RecurrenceSelectionInfo> newEventProps = openIssue.getRule()
-                .getProperties()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
-                .findFirst()
-                .map(found -> (RecurrenceSelectionInfo) found.getValue());
+        Optional<RecurrenceSelectionInfo> newEventProps;
+        if (openIssue.getRule().isPresent()) {
+            newEventProps = openIssue.getRule().get()
+                    .getProperties()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey().equals(LOG_ON_SAME_ISSUE))
+                    .findFirst()
+                    .map(found -> (RecurrenceSelectionInfo) found.getValue());
+        } else {
+            newEventProps = Optional.empty();
+        }
         if (newEventProps.isPresent() &&
                 newEventProps.get().hasIncreaseUrgency()) {
             openIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()

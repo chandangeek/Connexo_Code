@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
@@ -27,6 +28,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.LegacyConstraintViolationException;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
@@ -49,6 +51,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,13 +86,16 @@ public class CreationRuleResource extends BaseResource {
 
         if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
             issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
-                    .select(where(ISSUE_TYPE).isEqualTo(getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).get())));
+                    .select(where(ISSUE_TYPE).in(new ArrayList<IssueType>() {{
+                        add(getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).get());
+                    }})));
         } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
             issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
                     .select(where(ISSUE_TYPE).in(new ArrayList<IssueType>() {{
                         add(getIssueService().findIssueType(IssueTypes.DATA_COLLECTION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.TASK.getName()).get());
                     }})));
         }
@@ -239,8 +245,15 @@ public class CreationRuleResource extends BaseResource {
         if (rule.issueType != null) {
             getIssueService().findIssueType(rule.issueType.uid).ifPresent(builder::setIssueType);
             if (rule.reason != null) {
-                builder.setReason(getIssueService().findOrCreateReason(rule.reason.id.equals("12222e48-9afb-4c76-a41e-d3c40f16ac76") ? rule.reason.name : rule.reason.id, getIssueService().findIssueType(rule.issueType.uid)
-                        .get()));
+                try {
+                    builder.setReason(getIssueService().findOrCreateReason(rule.reason.id.equals("12222e48-9afb-4c76-a41e-d3c40f16ac76") ? rule.reason.name : rule.reason.id, getIssueService()
+                            .findIssueType(rule.issueType.uid)
+                            .get()));
+                } catch (VerboseConstraintViolationException ex) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("key", "reason");
+                    throw new LegacyConstraintViolationException(ex, map);
+                }
             }
         }
     }
@@ -264,7 +277,7 @@ public class CreationRuleResource extends BaseResource {
     }
 
     private void setActions(CreationRuleInfo rule, CreationRuleBuilder builder) {
-        rule.actions.stream().forEach((info) -> setAction(info, builder.newCreationRuleAction(), null));
+        rule.actions.forEach((info) -> setAction(info, builder.newCreationRuleAction(), null));
     }
 
     private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder, String reasonName) {

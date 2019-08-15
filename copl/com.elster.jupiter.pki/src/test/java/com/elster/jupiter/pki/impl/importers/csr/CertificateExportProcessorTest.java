@@ -86,6 +86,7 @@ public class CertificateExportProcessorTest {
         dcerts.put("100001", certs);
         Map<String, Object> props = new HashMap<>();
         props.put(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey(), securityAccessor);
+        props.put(CSRImporterTranslatedProperty.EXPORT_FLAT_DIR.getPropertyKey(), false);
         CertificateExportProcessor certificateExportProcessor = new CertificateExportProcessor(props, certificateExportDestination, csrLogger);
 
         // business method

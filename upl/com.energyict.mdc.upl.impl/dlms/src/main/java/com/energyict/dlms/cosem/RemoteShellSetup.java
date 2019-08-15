@@ -2,6 +2,8 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributes.RemoteShellAttributes;
 import com.energyict.obis.ObisCode;
 
@@ -35,5 +37,13 @@ public class RemoteShellSetup extends AbstractCosemObject {
 
     public void enableInterfaces(Array interfacesArray) throws IOException {
         write(RemoteShellAttributes.ENABLED_INTERFACES, interfacesArray.getBEREncodedByteArray());
+    }
+
+    public void setMaxLoginAttempts(Unsigned16 value) throws IOException {
+        write(RemoteShellAttributes.MAX_LOGIN_ATTEMPTS, value);
+    }
+
+    public void setLockoutDuration(Unsigned32 value) throws IOException {
+        write(RemoteShellAttributes.LOCKOUT_DURATION, value);
     }
 }

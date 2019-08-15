@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
@@ -162,9 +163,9 @@ public class ServiceCallTransitionIT {
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-//            bind(ServiceCallTypeOneCustomPropertySet.class).to(ServiceCallTypeOneCustomPropertySet.class);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 
@@ -243,6 +244,7 @@ public class ServiceCallTransitionIT {
                 EventServiceImpl eventService = (EventServiceImpl) this.eventService;
                 eventService.addTopicHandler(serviceCallStateChangeTopicHandler);
                 StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler();
+                stateTransitionTriggerEventTopicHandler.setFiniteStateMachineService(injector.getInstance(FiniteStateMachineService.class));
                 stateTransitionTriggerEventTopicHandler.setEventService(eventService);
                 eventService.addTopicHandler(stateTransitionTriggerEventTopicHandler);
 

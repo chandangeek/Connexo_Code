@@ -12,9 +12,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
 
 import com.google.inject.Module;
 
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class DeviceRegisterSAPInfoCustomPropertySet implements CustomPropertySet<RegisterSpec, DeviceRegisterSAPInfoDomainExtension> {
@@ -88,7 +90,7 @@ public class DeviceRegisterSAPInfoCustomPropertySet implements CustomPropertySet
     public List<PropertySpec> getPropertySpecs() {
         return Collections.singletonList(
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .stringSpec()
                         .named(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), TranslationKeys.CPS_LOGICAL_REGISTER_NUMBER)
                         .describedAs(TranslationKeys.CPS_DEVICE_REGISTER_IDENTIFIER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
@@ -143,11 +145,17 @@ public class DeviceRegisterSAPInfoCustomPropertySet implements CustomPropertySet
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            Column lrnColumn = table.column(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
+            /*table.column("LOGICAL_REGISTER_NUMBER")
                     .number()
                     .map(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
+                    .upTo(Version.version(10,7))
+                    .add();*/
+            Column lrnColumnString = table.column(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName())
+                    .since(Version.version(10, 7))
                     .add();
-            table.index(IDX).on(lrnColumn).add();
+            table.index(IDX).on(lrnColumnString).add();
         }
 
         @Override

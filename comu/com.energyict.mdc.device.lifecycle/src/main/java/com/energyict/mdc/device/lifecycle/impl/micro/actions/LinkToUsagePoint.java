@@ -11,10 +11,10 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
@@ -26,7 +26,7 @@ import java.util.Optional;
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will link the Device to the Usage Point.
  *
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#LINK_TO_USAGE_POINT}
+ * @see {@link MicroAction#LINK_TO_USAGE_POINT}
  */
 public class LinkToUsagePoint extends TranslatableServerMicroAction {
 

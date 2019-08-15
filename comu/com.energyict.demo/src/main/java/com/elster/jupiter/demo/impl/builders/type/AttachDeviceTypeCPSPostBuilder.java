@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.demo.impl.builders.type;
 
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

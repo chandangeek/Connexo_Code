@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,11 +22,11 @@ public class BulkRequestInfo {
     public long zoneId;
     public long zoneTypeId;
     public String strategy;
-
+    public String loadProfileName;
+    public long loadProfileLastReading;
     public String name;
     public String processId;
     public String version;
     public String deploymentId;
     public List<PropertyInfo> properties = new ArrayList<>();
-
 }

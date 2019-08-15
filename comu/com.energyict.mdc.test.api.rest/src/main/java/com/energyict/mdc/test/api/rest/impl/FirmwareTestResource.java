@@ -35,7 +35,7 @@ public class FirmwareTestResource {
     @Path("/campaigns/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteFirmwareCampaign(@PathParam("id") long firmwareCampaignId) {
-        firmwareService.getFirmwareCampaignById(firmwareCampaignId).ifPresent(FirmwareCampaign::delete);
+        firmwareService.getFirmwareCampaignService().getFirmwareCampaignById(firmwareCampaignId).ifPresent(FirmwareCampaign::delete);
         return Response.noContent().build();
     }
 

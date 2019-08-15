@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.device.lifecycle;
 
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+
 /**
  * Models the exceptional situation that occurs when
- * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}
+ * an {@link AuthorizedTransitionAction}
  * is executed by the user but failed due to some business constraint violations.
  *
  * @author Rudi Vankeirsbilck (rudi)

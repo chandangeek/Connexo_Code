@@ -17,10 +17,13 @@ import com.energyict.dlms.axrdencoding.UTF8String;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.util.AXDRDate;
+import com.energyict.dlms.axrdencoding.util.AXDRTime;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.Beacon3100PushSetup;
 import com.energyict.dlms.cosem.BorderRouterIC;
 import com.energyict.dlms.cosem.CRLManagementIC;
+import com.energyict.dlms.cosem.CommunicationPortProtection;
 import com.energyict.dlms.cosem.ConcentratorSetup;
 import com.energyict.dlms.cosem.DLMSGatewaySetup;
 import com.energyict.dlms.cosem.Data;
@@ -48,6 +51,7 @@ import com.energyict.dlms.cosem.WebPortalSetupV1;
 import com.energyict.dlms.cosem.WebPortalSetupV1.Role;
 import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanism;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.dlms.cosem.attributes.CommunicationPortProtectionAttributes;
 import com.energyict.dlms.cosem.attributes.FirmwareConfigurationAttributes;
 import com.energyict.dlms.cosem.attributes.NTPSetupAttributes;
 import com.energyict.dlms.cosem.attributes.RenewGMKSingleActionScheduleAttributes;
@@ -137,10 +141,7 @@ import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
-import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
-import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
-import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.*;
 import com.energyict.protocolimplv2.messages.validators.BeaconMessageValidator;
 import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
@@ -179,6 +180,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.energyict.dlms.DLMSUtils.getBytesFromHexString;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
@@ -221,6 +223,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode MULTI_APN_COFIG_OLD_OBISCODE = ObisCode.fromString("0.128.25.3.0.255");
     private static final ObisCode MULTI_APN_COFIG_NEW_OBISCODE = ObisCode.fromString("0.162.96.160.0.255");
     private static final ObisCode LIFE_CYCLEMANAGEMENT_NEW_OBISCODE = ObisCode.fromString("0.128.96.160.0.255");
+    private static final ObisCode RESET_MODEM_SINGLE_ACTION_SCHEDULE = ObisCode.fromString("0.162.15.128.0.255");
+
     /**
      * Old (pre-1.9) OBIS of the web portal setup IC.
      */
@@ -233,11 +237,15 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private static final String CHARSET = "UTF-8";
 
+    private static final ObisCode DLMS_LAN_COM_PORT_PROTECTION_OBISCODE = ObisCode.fromString("0.0.44.2.0.255");
+    private static final ObisCode DLMS_WAN_COM_PORT_PROTECTION_OBISCODE = ObisCode.fromString("0.1.44.2.0.255");
+
     /**
      * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
      */
     private static final Lock FIRMWARE_FILE_LOCK = new ReentrantLock();
     private static final int ROUTING_ENTRY_ID = 1;
+
     private final ObjectMapperService objectMapperService;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
@@ -268,7 +276,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         List<DeviceMessageSpec> standardMessages = new ArrayList<>(Arrays.asList(
-                NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
 
                 DeviceActionMessage.SyncMasterdataForDC.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.SyncDeviceDataForDC.get(this.propertySpecService, this.nlsService, this.converter),
@@ -280,6 +287,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 DeviceActionMessage.ResetLogicalDevice.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.FETCH_LOGGING.get(this.propertySpecService, this.nlsService, this.converter),
                 DeviceActionMessage.SET_REMOTE_SYSLOG_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
+                DeviceActionMessage.SetModemResetSchedule.get(this.propertySpecService, this.nlsService, this.converter),
 
                 // FirmwareDeviceMessage.BroadcastFirmwareUpgrade.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter),
@@ -322,11 +330,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 UplinkConfigurationDeviceMessage.WRITE_MAX_INACTIVE_UPLINK.get(this.propertySpecService, this.nlsService, this.converter),
                 // PPPConfigurationDeviceMessage.SetPPPIdleTime.get(this.propertySpecService, this.nlsService, this.converter),
                 // NetworkConnectivityMessage.PreferGPRSUpstreamCommunication.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.EnableModemWatchdog.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetModemWatchdogParameters2.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetPrimaryDNSAddress.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetSecondaryDNSAddress.get(this.propertySpecService, this.nlsService, this.converter),
-                NetworkConnectivityMessage.EnableNetworkInterfaces.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.EnableNetworkInterfacesForSetupObject.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpPort.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SetHttpsPort.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.ADD_ROUTING_ENTRY.get(this.propertySpecService, this.nlsService, this.converter),
@@ -345,6 +354,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 NetworkConnectivityMessage.SET_VPN_VIRTUAL_IP_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED.get(this.propertySpecService, this.nlsService, this.converter),
                 NetworkConnectivityMessage.REFRESH_VPN_CONFIG.get(this.propertySpecService, this.nlsService, this.converter),
+                NetworkConnectivityMessage.CONFIGURE_INTERFACE_LOCKOUT_PARAMETERS.get(this.propertySpecService, this.nlsService, this.converter),
 
                 // SNMP
                 NetworkConnectivityMessage.CHANGE_SNMP_AGENT_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
@@ -405,13 +415,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 PLCConfigurationDeviceMessage.SetMinBe.get(this.propertySpecService, this.nlsService, this.converter),
 
                 PLCConfigurationDeviceMessage.SetAutomaticRouteManagement.get(this.propertySpecService, this.nlsService, this.converter),
-                // PLCConfigurationDeviceMessage.EnableKeepAlive.get(this.propertySpecService, this.nlsService, this.converter),
-                // PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.EnableKeepAlive.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval.get(this.propertySpecService, this.nlsService, this.converter),
+                // SetKeepAliveBucketSize not used in Beacon (read-write-denied), only RTU+Server2
                 // PLCConfigurationDeviceMessage.SetKeepAliveBucketSize.get(this.propertySpecService, this.nlsService, this.converter),
-                // PLCConfigurationDeviceMessage.SetMinInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
-                // PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
-                // PLCConfigurationDeviceMessage.SetKeepAliveRetries.get(this.propertySpecService, this.nlsService, this.converter),
-                // PLCConfigurationDeviceMessage.SetKeepAliveTimeout.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMinInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetKeepAliveRetries.get(this.propertySpecService, this.nlsService, this.converter),
+                PLCConfigurationDeviceMessage.SetKeepAliveTimeout.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.EnableG3PLCInterface.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.KickMeter.get(this.propertySpecService, this.nlsService, this.converter),
                 PLCConfigurationDeviceMessage.AddMetersToBlackList.get(this.propertySpecService, this.nlsService, this.converter),
@@ -501,6 +512,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName:
             case DeviceMessageConstants.timeout:
             case DeviceMessageConstants.SET_LOCKOUT_DURATION:
+            case remoteShellLockoutDuration:
+            case webPortalLockoutDuration:
+            case snmpLockoutDuration:
                 return String.valueOf(((Duration) messageAttribute).toMillis()); //Return value in ms
             case DeviceMessageConstants.modemWatchdogInterval:
             case DeviceMessageConstants.modemWatchdogInitialDelay:
@@ -508,8 +522,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.modemResetThreshold:
             case DeviceMessageConstants.pathDiscoveryTime:
             case DeviceMessageConstants.systemRebootThreshold:
-                return String.valueOf(((Duration) messageAttribute).getSeconds());
             case DeviceMessageConstants.uplinkMaxInactiveInterval:
+            case dlmsLanInitialLockoutTime:
+            case dlmsWanInitialLockoutTime:
                 return String.valueOf(((Duration) messageAttribute).getSeconds());
             case DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName:
                 return String.valueOf(((Duration) messageAttribute).toMinutes());
@@ -611,7 +626,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         MasterDataSerializer masterDataSerializer = new MasterDataSerializer(this.objectMapperService, this.propertySpecService, this.deviceMasterDataExtractor, getBeacon3100Properties(), nlsService);
         MulticastSerializer multicastSerializer = masterDataSerializer.multicastSerializer();
 
-
         try {
             if (deviceMessage.getMessageId() == DeviceActionMessage.SyncMasterdataForDC.id()) {
                 return Optional.of(masterDataSerializer.serializeMasterData(device, readOldObisCodes()));
@@ -679,6 +693,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         removeLogicalDevice(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ResetLogicalDevice)) {
                         resetLogicalDevice(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SetModemResetSchedule)) {
+                        setModemResetSchedule(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS)) {
                         changeGPRSParameters(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PingMeter)) {
@@ -953,6 +969,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         this.setVPNVirtualIPState(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED)) {
                         this.setVpnIPCompressionEnabledState(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CONFIGURE_INTERFACE_LOCKOUT_PARAMETERS)) {
+                        configureInterfaceLockoutParameters(pendingMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -975,6 +993,65 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
 
         return result;
+    }
+
+    /**
+     * Set modem reset schedule for Beacon.
+     *
+     * Note:    Makes sense to reset the schedule somewhere between daily and once per month,
+     *          so the year and month are set as wildcards.
+     *          Also we don't need granularity of minutes, seconds, etc.
+     *
+     * @param pendingMessage
+     */
+    private void setModemResetSchedule(OfflineDeviceMessage pendingMessage) throws IOException {
+        String selectedDayOfMonth = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.daysOfMonthSchedule).getValue();
+        String selectedDayOfWeek = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.daysOfWeekSchedule).getValue();
+        String selectedHour = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.hour).getValue();
+        Boolean enableSchedule = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableModemResetSchedule).getValue());
+
+        OctetString dateOctetString = OctetString.fromByteArray(getBytesFromHexString("$ff$ff$ff$ff$ff")); // disabled state
+        OctetString timeOctetString = OctetString.fromByteArray(getBytesFromHexString("$ff$ff$ff$ff")); // disabled state
+        if (enableSchedule) {
+            int dlmsYear = 0xffff;  // default to every year
+            int dlmsMonth = 0xff;   // default to every month
+            int dlmsDayOfMonth = DaysOfMonth.getDlmsEncoding(selectedDayOfMonth);
+            int dlmsDayOfWeek = DaysOfWeek.getDlmsEncoding(selectedDayOfWeek);
+            int dlmsHour = 00;      // default reset time at midnight
+
+            if (selectedHour.matches("\\d+")) { // check if's numbers-only
+                int hour = Integer.parseInt(selectedHour);
+                if (hour >= 00 && hour <= 23) { //extra-check, just in case
+                    dlmsHour = hour;
+                }
+            }
+            dateOctetString = AXDRDate.encode(dlmsYear, dlmsMonth, dlmsDayOfMonth, dlmsDayOfWeek);
+
+            AXDRTime time = new AXDRTime();
+            time.setHour(dlmsHour);
+            time.setMinutes(0);
+            time.setSeconds(0);
+            time.setMilliSeconds(0);
+
+            timeOctetString = time.getOctetString();
+        }
+
+        Structure executionTimeDate = new Structure();
+        executionTimeDate.addDataType(timeOctetString);
+        executionTimeDate.addDataType(dateOctetString);
+
+
+        Array arrayOfExecutionTimes = new Array();
+        arrayOfExecutionTimes.addDataType(executionTimeDate);
+
+        try {
+            getCosemObjectFactory().getSingleActionSchedule(RESET_MODEM_SINGLE_ACTION_SCHEDULE).writeExecutionTime(arrayOfExecutionTimes);
+        } catch (NotInObjectListException e){
+            throw new ProtocolException("Reset modem single action schedule IC "+RESET_MODEM_SINGLE_ACTION_SCHEDULE+" not supported");
+        } catch (IOException e) {
+            throw new ProtocolException(e.getLocalizedMessage());
+        }
+
     }
 
     private void removeLogicalDevice(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
@@ -2112,14 +2189,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         switch (beaconSetupObject) {
             case Web_Portal_Config_New_ObisCode: {
-                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
+                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE);
                 webportalSetup.setEnabledInterfaces(enabledInterfaces);
 
                 break;
             }
 
             case Web_Portal_Config_Old_ObisCode: {
-                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE);
+                final WebPortalSetupV1 webportalSetup = this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
                 webportalSetup.setEnabledInterfaces(enabledInterfaces);
 
                 break;
@@ -3176,6 +3253,41 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return getCosemObjectFactory().getVPNSetupIC(VPNSetupIC.getDefaultObisCode());
         } catch (NotInObjectListException e) {
             this.setNotInObjectListMessage(collectedMessage, VPNSetupIC.getDefaultObisCode().toString(), pendingMessage, e);
+            throw e;
+        }
+    }
+
+    private void configureInterfaceLockoutParameters(OfflineDeviceMessage pendingMessage) throws IOException {
+        try {
+            final int sshMaxLoginAttempts = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, remoteShellMaxLoginAttempts).getValue());
+            final int sshLockoutDuration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, remoteShellLockoutDuration).getValue());
+            final int httpMaxLoginAttempts = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, webPortalMaxLoginAttempts).getValue());
+            final long httpLockoutDuration = Long.parseLong(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, webPortalLockoutDuration).getValue());
+            final int snmpMaxLoginAttempts = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpMaxLoginAttempts).getValue());
+            final int snmpLockoutDuration = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.snmpLockoutDuration).getValue());
+            final int dlmsLanAllowedFailedAttempts = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dlmsLanAllowedFailedAttempts).getValue());
+            final int dlmsLanInitialLockoutTime = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dlmsLanInitialLockoutTime).getValue());
+            final int dlmsWanAllowedFailedAttempts = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dlmsWanAllowedFailedAttempts).getValue());
+            final int dlmsWanInitialLockoutTime = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dlmsWanInitialLockoutTime).getValue());
+
+            getCosemObjectFactory().getRemoteShellSetup(REMOTE_SHELL_SETUP_NEW_OBISCODE).setMaxLoginAttempts(new Unsigned16(sshMaxLoginAttempts));
+            getCosemObjectFactory().getRemoteShellSetup(REMOTE_SHELL_SETUP_NEW_OBISCODE).setLockoutDuration(new Unsigned32(sshLockoutDuration));
+            getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE).setMaxLoginAttempts(httpMaxLoginAttempts);
+            getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_CONFIG_NEW_OBISCODE).setLockoutDuration(httpLockoutDuration);
+
+            final SNMPSetup snmpSetup = getCosemObjectFactory().getSNMPSetup(SNMPSetup.OBIS_CODE);
+            snmpSetup.writeAttribute(SNMPAttributes.MAX_LOGIN_ATTEMPTS, new Unsigned16(snmpMaxLoginAttempts));
+            snmpSetup.writeAttribute(SNMPAttributes.LOCKOUT_DURATION, new Unsigned32(snmpLockoutDuration));
+
+            final CommunicationPortProtection cppDlmsLan = getCosemObjectFactory().getCommunicationPortProtection(DLMS_LAN_COM_PORT_PROTECTION_OBISCODE);
+            cppDlmsLan.writeAttribute(CommunicationPortProtectionAttributes.ALLOWED_FAILED_ATTEMPTS, new Unsigned16(dlmsLanAllowedFailedAttempts));
+            cppDlmsLan.writeAttribute(CommunicationPortProtectionAttributes.INITIAL_LOCKOUT_TIME, new Unsigned32(dlmsLanInitialLockoutTime));
+
+            final CommunicationPortProtection cppDlmsWan = getCosemObjectFactory().getCommunicationPortProtection(DLMS_WAN_COM_PORT_PROTECTION_OBISCODE);
+            cppDlmsWan.writeAttribute(CommunicationPortProtectionAttributes.ALLOWED_FAILED_ATTEMPTS, new Unsigned16(dlmsWanAllowedFailedAttempts));
+            cppDlmsWan.writeAttribute(CommunicationPortProtectionAttributes.INITIAL_LOCKOUT_TIME, new Unsigned32(dlmsWanInitialLockoutTime));
+        } catch (IOException e) {
+            this.getLogger().log(Level.WARNING, "Failed to set interface lockout parameters : [" + e.getMessage() + "]", e);
             throw e;
         }
     }

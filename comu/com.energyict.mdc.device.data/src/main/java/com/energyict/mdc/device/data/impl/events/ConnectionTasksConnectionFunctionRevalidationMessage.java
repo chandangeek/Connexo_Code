@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.impl.events;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
 
 import com.google.inject.Injector;
 

@@ -6,7 +6,8 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.LocalEvent;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.EventType;
 import com.energyict.mdc.device.config.impl.ServerDeviceType;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.data.impl.configchange.ConflictCreationEventHandler;
@@ -38,7 +39,7 @@ public class DeviceConfigCRUDLockingTest extends PersistenceIntegrationTest {
         final DeviceConfiguration myConfig = deviceType.newConfiguration("MyConfig").add();
         myConfig.save();
         final DeviceConfigConflictMappingImpl deviceConfigConflictMapping = ((ServerDeviceType) deviceType).newConflictMappingFor(myConfig, myConfig);
-        final LocalEvent localEvent = mockLocalEvent(com.energyict.mdc.device.config.events.EventType.DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE.topic(), deviceConfigConflictMapping);
+        final LocalEvent localEvent = mockLocalEvent(EventType.DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE.topic(), deviceConfigConflictMapping);
 
         final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = inMemoryPersistence.getDeviceDataModelService().dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(myConfig);
         deviceConfigChangeRequest.save();

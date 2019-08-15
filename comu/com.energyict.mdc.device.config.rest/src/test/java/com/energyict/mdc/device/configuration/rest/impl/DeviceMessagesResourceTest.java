@@ -6,19 +6,19 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyVararg;
@@ -137,11 +139,11 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].name")).isEqualTo("Clock set time");
         assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageEnablements[1].active")).isTrue();
         assertThat(jsonModel.<List<Object>>get("$.categories[0].deviceMessageEnablements[1].privileges")).hasSize(3);
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[0].privilege")).isEqualTo(Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1);
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[0].privilege")).isEqualTo(DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1);
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[0].name")).isEqualTo("Level 1");
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[1].privilege")).isEqualTo(Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2);
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[1].privilege")).isEqualTo(DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2);
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[1].name")).isEqualTo("Level 2");
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[2].privilege")).isEqualTo(Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3);
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[2].privilege")).isEqualTo(DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3);
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[2].name")).isEqualTo("Level 3");
 
         assertThat(jsonModel.<String>get("$.categories[1].name")).isEqualTo("Display");

@@ -9,17 +9,18 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.ItemizeComTaskEnablementQueueMessage;
 import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -35,7 +36,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Component(name = "com.energyict.mdc.device.data.comtaskenablement.eventhandler", service = TopicHandler.class, immediate = true)
 public class ComTaskEnablementChangeEventHandler implements TopicHandler {
 
-    static final String TOPIC = com.energyict.mdc.device.config.events.EventType.COMTASKENABLEMENT_UPDATED.topic();
+    static final String TOPIC = EventType.COMTASKENABLEMENT_UPDATED.topic();
 
     private volatile DeviceDataModelService deviceDataModelService;
     private volatile SchedulingService schedulingService;

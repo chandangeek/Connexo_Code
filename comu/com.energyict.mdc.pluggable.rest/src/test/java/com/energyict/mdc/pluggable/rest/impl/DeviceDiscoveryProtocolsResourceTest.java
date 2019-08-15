@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;

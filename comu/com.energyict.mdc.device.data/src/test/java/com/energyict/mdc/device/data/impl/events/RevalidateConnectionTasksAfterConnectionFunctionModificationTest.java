@@ -7,13 +7,13 @@ package com.energyict.mdc.device.data.impl.events;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.Arrays;
 import java.util.List;

@@ -4,8 +4,11 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.DaisyChainedLogOnCommand;
@@ -23,13 +26,11 @@ import com.energyict.mdc.engine.impl.commands.store.core.LegacySmartMeterProtoco
 import com.energyict.mdc.engine.impl.commands.store.legacy.HandHeldUnitEnablerCommand;
 import com.energyict.mdc.engine.impl.commands.store.legacy.InitializeLoggerCommand;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
-import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public final class CommandFactory {
 
     /**
      * Create commands based on the {@link ProtocolTask}s
-     * in the {@link com.energyict.mdc.tasks.ComTask}.
+     * in the {@link ComTask}.
      *
      * @param groupedDeviceCommand the root to add the created commands to
      * @param protocolTasks        the used ProtocolTasks for modeling the commands
@@ -59,7 +60,7 @@ public final class CommandFactory {
 
     /**
      * Create commands - specif for usage with legacy protocols ({@link MeterProtocol}) - based on the {@link ProtocolTask ProtoclTasks}
-     * in the {@link com.energyict.mdc.tasks.ComTask}.
+     * in the {@link ComTask}.
      *
      * @param groupedDeviceCommand the root to add the created commands to
      * @param protocolTasks        the used ProtocolTasks for modeling the commands

@@ -4,8 +4,9 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.DeleteEventType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 
 /**
  * Provides server side functionality regarding a SecurityPropertySet.

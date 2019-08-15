@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -37,7 +38,7 @@ public class EstimationUIInstaller implements TranslationKeyProvider {
     @Activate
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
-        // HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\Development\\Jupiter\\Connexo\\coko\\com.elster.jupiter.estimation.extjs\\src\\main\\web\\js\\est", new FileResolver());
+        //HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "C:\\git10.6\\connexo\\coko\\com.elster.jupiter.estimation.extjs\\src\\main\\web\\js\\est", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

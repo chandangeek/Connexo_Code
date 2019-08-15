@@ -27,6 +27,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
 
     public static final String NAME = "MasterMeterReadingDocumentCreateResultServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile Clock clock;
 
@@ -84,7 +85,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
     private void sendResultMessage(ServiceCall serviceCall) {
         MeterReadingDocumentCreateResultMessage resultMessage = MeterReadingDocumentCreateResultMessage
                 .builder()
-                .from(serviceCall, findChildren(serviceCall))
+                .from(serviceCall, findChildren(serviceCall), clock.instant())
                 .build();
         if (resultMessage.isBulk()) {
             WebServiceActivator.METER_READING_DOCUMENT_BULK_RESULTS.forEach(sender -> sender.call(resultMessage));

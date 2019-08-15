@@ -6,12 +6,12 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -44,7 +44,7 @@ public class ProtocolPropertiesResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response getDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         DeviceProtocolConfigurationProperties deviceProperties = deviceConfiguration.getDeviceProtocolProperties();
@@ -65,7 +65,7 @@ public class ProtocolPropertiesResource {
     @Transactional
     @Path("/{protocolId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response getDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("protocolId") Long protocolId) {
         return this.getDeviceProperties(deviceConfigurationId);
     }
@@ -74,7 +74,7 @@ public class ProtocolPropertiesResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response updateDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId, ProtocolInfo protocolInfo) {
         DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(protocolInfo.deviceConfiguration);
         List<PropertySpec> propertySpecs = deviceConfiguration.getDeviceType()
@@ -99,7 +99,7 @@ public class ProtocolPropertiesResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{protocolId}")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response updateDevicePropertiesForProtocol(@PathParam("deviceConfigurationId") long deviceConfigurationId, ProtocolInfo protocolInfo) {
         return this.updateDeviceProperties(deviceConfigurationId, protocolInfo);
     }

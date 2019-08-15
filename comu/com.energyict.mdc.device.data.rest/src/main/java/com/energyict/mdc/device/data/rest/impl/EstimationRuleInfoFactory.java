@@ -13,8 +13,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.ChannelEstimationRuleOverriddenProperties;
+import com.energyict.mdc.common.device.data.Device;
 
 import javax.inject.Inject;
 import java.util.Collection;

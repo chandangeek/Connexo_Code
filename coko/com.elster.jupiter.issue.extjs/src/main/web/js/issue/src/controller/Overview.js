@@ -13,7 +13,8 @@ Ext.define('Isu.controller.Overview', {
         'Isu.store.Clipboard',
         'Isu.store.IssueStatuses',
         'Isu.store.IssueReasons',
-        'Isu.store.DueDate'
+        'Isu.store.DueDate',
+        'Isu.store.ManuallyRuleItems'
     ],
 
     views: [

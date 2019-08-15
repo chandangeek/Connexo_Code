@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.CommandCreator;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;

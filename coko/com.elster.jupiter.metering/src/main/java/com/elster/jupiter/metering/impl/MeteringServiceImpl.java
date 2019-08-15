@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.metering.impl;
@@ -499,6 +499,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
                             .and(where("interval").isEffective()), dataModel, State.class).asSubQuery("enddevice"), "id"));
         }
         return DefaultFinder.of(Meter.class, where("obsoleteTime").isNull().and(condition), dataModel).defaultSortColumn("name");
+    }
+
+    @Override
+    public List<Meter> findMetersByLocation(Location location) {
+        return dataModel.mapper(Meter.class).select(Where.where("location").isEqualTo(location));
     }
 
     @Override

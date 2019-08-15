@@ -4,10 +4,14 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.data.importers.impl.*;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.FileImportZipEntry;
+import com.energyict.mdc.device.data.importers.impl.FileImportZipLogger;
+import com.energyict.mdc.device.data.importers.impl.FileImportZipProcessor;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.certificatesimport.exceptions.ZipProcessorException;
 
 import java.io.IOException;

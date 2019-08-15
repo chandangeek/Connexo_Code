@@ -5,11 +5,13 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 /**
  * Models the data that is involved in events that relate to
- * {@link com.energyict.mdc.device.config.ComTaskEnablement}s
- * and the way they use {@link com.energyict.mdc.device.config.PartialConnectionTask}
+ * {@link ComTaskEnablement}s
+ * and the way they use {@link PartialConnectionTask}
  * or the default connection task.
  *
  * @author Rudi Vankeirsbilck (rudi)

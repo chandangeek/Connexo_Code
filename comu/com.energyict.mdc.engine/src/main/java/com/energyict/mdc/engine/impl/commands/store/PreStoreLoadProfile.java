@@ -12,7 +12,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.masterdata.LoadProfileIntervals;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -169,13 +169,16 @@ public class PreStoreLoadProfile {
         }
 
         private IntervalBlock processBlock(IntervalBlock intervalBlock, String readingTypeMRID, Unit unit, BigDecimal multiplier, Range<Instant> rangeToProcess, ZoneId zone) {
+            /*
             Optional<IntervalReading> invalidInterval = findInValidInterval(intervalBlock, readingTypeMRID, zone);
 
+
             if (invalidInterval.isPresent()) {
-                IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
-                setPreStoreResult(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH);
-                return processingBlock;
+                //IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
+                //setPreStoreResult(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH);
+                //return processingBlock;
             }
+            */
 
             Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(readingTypeMRID);
             int scaler = getScaler(unit, configuredUnit);
@@ -195,21 +198,7 @@ public class PreStoreLoadProfile {
                     .findAny()
                     .isPresent();
 
-            return intervalBlock.getIntervals().stream().filter(not(intervalReading1 -> {
-                if (!validInterval) {
-                    return false;
-                }
-                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(intervalReading1.getTimeStamp(), zone);
-                TimeDuration interval = timeDuration.get();
-                if (interval.getTemporalUnit().equals(ChronoUnit.SECONDS) && interval.getCount() <= 3600) {
-                    return zonedDateTime.getMinute() % getMinuteIntervalLength(interval.getTemporalUnit(), interval) == 0
-                            && zonedDateTime.getSecond() == 0 && zonedDateTime.getNano() == 0;
-                }
-                if (!validTimeOfDay(zonedDateTime)) {
-                    return false;
-                }
-                return !interval.getTemporalUnit().equals(ChronoUnit.MONTHS) || zonedDateTime.getDayOfMonth() == 1;
-            })).findAny();
+            return intervalBlock.getIntervals().stream().filter(not(streamedIntervalReading -> validInterval)).findAny();
         }
 
         private boolean validTimeOfDay(ZonedDateTime dateTime) {

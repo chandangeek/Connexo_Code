@@ -3,12 +3,17 @@
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
+
+import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import static com.elster.jupiter.orm.Version.version;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -27,21 +32,36 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_6;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getenddeviceevents.GetEndDeviceEventsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -50,6 +70,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -69,10 +91,11 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 
 @Singleton
@@ -88,6 +111,13 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private static final String CIM_METER_CONFIG = "CIM MeterConfig";
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
+    private static final String CIM_METER_READINGS = "CIM MeterReadings";
+
+    private static final Logger LOGGER = Logger.getLogger(InboundSoapEndpointsActivator.class.getName());
+    public static final String RECURRENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurrenttaskfrequency";
+    public static final String RECURRENT_TASK_NAME = "Future com tasks execution task";
+    public static final int RECURRENT_TASK_DEFAULT_FREQUENCY = 5;
+    public static final int RECURRENT_TASK_RETRY_DELAY = 60;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -96,6 +126,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
@@ -115,12 +146,17 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile HsmEnergyService hsmEnergyService;
     private volatile SecurityManagementService securityManagementService;
 	private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-    private volatile MeterConfigFactory meterConfigFactory;
+    private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
+    private volatile MessageService messageService;
     private volatile OrmService ormService;
+    private volatile MeterConfigFactory meterConfigFactory;
+    private volatile TaskService taskService;
+    private volatile BundleContext bundleContext;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile MasterDataService masterDataService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private List<PropertyValueConverter> converters = new ArrayList<>();
-
 
     public InboundSoapEndpointsActivator() {
         // for OSGI purposes
@@ -138,7 +174,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          WebServicesService webServicesService, InboundCIMWebServiceExtension webServiceExtensionFactory,
                                          HsmEnergyService hsmEnergyService, SecurityManagementService securityManagementService,
                                          DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
-                                         OrmService ormService) {
+                                         MetrologyConfigurationService metrologyConfigurationService,
+                                         SendMeterReadingsProvider sendMeterReadingsProvider, MessageService messageService,
+                                         OrmService ormService, TaskService taskService,
+                                         DeviceMessageSpecificationService deviceMessageSpecificationService,
+                                         MasterDataService masterDataService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -160,11 +200,17 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setCustomPropertySetService(customPropertySetService);
         setWebServicesService(webServicesService);
         setWebServiceExtensionFactory(webServiceExtensionFactory);
+        setMetrologyConfigurationService(metrologyConfigurationService);
+        setSendMeterReadingsProvider(sendMeterReadingsProvider);
+        setMessageService(messageService);
         activate(bundleContext);
         setHsmEnergyService(hsmEnergyService);
         setSecurityManagementService(securityManagementService);
 		setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
 		setOrmService(ormService);
+        setTaskService(taskService);
+        setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        setMasterDataService(masterDataService);
     }
 
     private Module getModule() {
@@ -197,20 +243,31 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(HsmEnergyService.class).toInstance(hsmEnergyService);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
 				bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(SendMeterReadingsProvider.class).toInstance(sendMeterReadingsProvider);
+                bind(MessageService.class).toInstance(messageService);
 				bind(MeterConfigFactory.class).toInstance(meterConfigFactory);
 				bind(OrmService.class).toInstance(ormService);
+                bind(TaskService.class).toInstance(taskService);
+                bind(BundleContext.class).toInstance(bundleContext);
+                bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
+                bind(MasterDataService.class).toInstance(masterDataService);
             }
         };
     }
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        dataModel = upgradeService.newNonOrmDataModel();
+        this.bundleContext = bundleContext;
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(version(10, 6), UpgraderV10_6.class));
-        
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
+                ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
+                                version(10, 7), UpgraderV10_7.class));
+        createOrUpdateFutureComTasksExecutionTask();
         addConverter(new ObisCodePropertyValueConverter());
+        registerHandlers();
         registerServices(bundleContext);
     }
 
@@ -218,6 +275,61 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     public void stop() {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
         converters.forEach(propertyValueInfoService::removePropertyValueInfoConverter);
+    }
+
+    public void createOrUpdateFutureComTasksExecutionTask() {
+        threadPrincipalService.set(() -> "Activator");
+        try (TransactionContext context = transactionService.getContext()) {
+            String property = bundleContext.getProperty(RECURRENT_TASK_FREQUENCY);
+            int frequency = RECURRENT_TASK_DEFAULT_FREQUENCY;
+            if (property != null) {
+                frequency = Integer.parseInt(property);
+            }
+
+            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(RECURRENT_TASK_NAME);
+            if (taskOptional.isPresent()) {
+                RecurrentTask task = taskOptional.get();
+                task.setScheduleExpression(PeriodicalScheduleExpression.every(frequency).minutes().at(0).build());
+                task.save();
+            } else {
+                createActionTask(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION,
+                        RECURRENT_TASK_RETRY_DELAY,
+                        TranslationKeys.FUTURE_COM_TASK_EXECUTION_NAME,
+                        RECURRENT_TASK_NAME,
+                        "0 0/" + frequency + " * 1/1 * ? *");
+            }
+            context.commit();
+        } catch (Exception e) {
+            LOGGER.severe(e.getMessage());
+        }
+    }
+
+    private void createActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName, String taskName, String taskSchedule) {
+        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
+                .get()
+                .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
+        destination.activate();
+        destination.subscribe(subscriberSpecName, InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.DOMAIN);
+
+        taskService.newBuilder()
+                .setApplication("MultiSense")
+                .setName(taskName)
+                .setScheduleExpressionString(taskSchedule)
+                .setDestination(destination)
+                .setPayLoad("payload")
+                .scheduleImmediately(true)
+                .build();
+    }
+
+    private void registerHandlers() {
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(ParentGetMeterReadingsServiceCallHandler.class),
+                ImmutableMap.of("name", ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(SubParentGetMeterReadingsServiceCallHandler.class),
+                ImmutableMap.of("name", SubParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(ComTaskExecutionServiceCallHandler.class),
+                ImmutableMap.of("name", ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
+        serviceCallService.addServiceCallHandler(dataModel.getInstance(DeviceMessageServiceCallHandler.class),
+                ImmutableMap.of("name", DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME));
     }
 
     private void addConverter(PropertyValueConverter converter) {
@@ -229,6 +341,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterConfigEndpoint.class), CIM_METER_CONFIG);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(GetEndDeviceEventsEndpoint.class), CIM_GET_END_DEVICE_EVENTS);
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteEndDeviceEventsEndpoint.class), CIM_END_DEVICE_EVENTS);
+        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class), CIM_METER_READINGS);
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -237,11 +350,6 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         serviceRegistrations.add(bundleContext.registerService(InboundSoapEndPointProvider.class, provider, properties));
     }
 
-    @Reference
-   	public void setOrmService(OrmService ormService) {
-   		this.ormService=ormService;
-   	}
-    
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -373,6 +481,21 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         // PATCH; required for proper startup; do not delete
     }
 
+    @Reference(target = "(name=" + ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setParentGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + SubParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setSubParentGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + ChildGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setChildGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
     @Reference
     public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
         this.hsmEnergyService = hsmEnergyService;
@@ -392,6 +515,41 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setMeterConfigFactory(MeterConfigFactory meterConfigFactory) {
         this.meterConfigFactory = meterConfigFactory;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setSendMeterReadingsProvider(SendMeterReadingsProvider sendMeterReadingsProvider) {
+        this.sendMeterReadingsProvider = sendMeterReadingsProvider;
+    }
+
+    @Reference
+    public final void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
+    }
+
+    @Reference
+    public void setMasterDataService(MasterDataService masterDataService) {
+        this.masterDataService = masterDataService;
     }
 
     @Override
@@ -420,5 +578,4 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     DataModel getDataModel() {
         return dataModel;
     }
-
 }

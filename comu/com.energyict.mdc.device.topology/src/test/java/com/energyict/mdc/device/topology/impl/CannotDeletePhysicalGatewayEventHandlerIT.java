@@ -9,7 +9,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pubsub.Subscriber;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.topology.StillGatewayException;
 import com.energyict.mdc.device.topology.TopologyService;

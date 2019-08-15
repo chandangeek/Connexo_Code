@@ -19,12 +19,12 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.math.BigDecimal;

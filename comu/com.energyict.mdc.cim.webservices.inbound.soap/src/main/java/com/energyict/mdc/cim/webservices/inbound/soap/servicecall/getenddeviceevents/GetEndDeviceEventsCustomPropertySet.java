@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -151,7 +152,14 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
                         .named(GetEndDeviceEventsDomainExtension.FieldNames.CALLBACK_URL.javaName(), TranslationKeys.CALL_BACK_URL)
                         .describedAs(TranslationKeys.CALL_BACK_URL)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(GetEndDeviceEventsDomainExtension.FieldNames.CORRELATION_ID.javaName(), TranslationKeys.CORRELATION_ID)
+                        .describedAs(TranslationKeys.CORRELATION_ID)
+                        .fromThesaurus(thesaurus)
                         .finish()
+
         );
     }
 
@@ -219,6 +227,12 @@ public class GetEndDeviceEventsCustomPropertySet implements CustomPropertySet<Se
                     .varChar()
                     .map(GetEndDeviceEventsDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .notNull()
+                    .add();
+            table.column(GetEndDeviceEventsDomainExtension.FieldNames.CORRELATION_ID.databaseName())
+                    .varChar()
+                    .map(GetEndDeviceEventsDomainExtension.FieldNames.CORRELATION_ID.javaName())
+                    .notNull(false)
+                    .since(Version.version(10,7))
                     .add();
         }
 

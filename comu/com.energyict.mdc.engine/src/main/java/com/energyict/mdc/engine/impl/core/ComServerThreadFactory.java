@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 
 import java.util.concurrent.ThreadFactory;
 

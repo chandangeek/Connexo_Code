@@ -8,7 +8,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * Listens to 'validate_delete' events of {@link com.elster.jupiter.pki.SecurityAccessorType}
- * and will veto the deletion if it is still referenced by a {@link com.energyict.mdc.device.config.DeviceType}
+ * and will veto the deletion if it is still referenced by a {@link DeviceType}
  */
 @Component(name="com.energyict.mdc.device.config.impl.SecurityAccessorTypeDeletionEventHandler", service = TopicHandler.class, immediate = true)
 public class SecurityAccessorTypeDeletionEventHandler implements TopicHandler {

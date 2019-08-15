@@ -6,8 +6,10 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.EventType;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 
@@ -17,18 +19,19 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 
 /**
- * Responds to deletion events of {@link com.energyict.mdc.device.config.DeviceType}s
+ * Responds to deletion events of {@link DeviceType}s
  * to make sure that dependent objects that are journalled are deleted
  * instead of being deleted with "cascade delete" option of the foreigh key constraint.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-07-14 (14:44)
  */
-@Component(name="com.energyict.mdc.firmware.delete.devicetype", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.firmware.delete.devicetype", service = TopicHandler.class, immediate = true)
 @SuppressWarnings("unused")
 public class DeviceTypeDeletionEventHandler implements TopicHandler {
 
     private volatile FirmwareService firmwareService;
+    private volatile FirmwareCampaignService firmwareCampaignService;
 
     // For OSGi purpose
     public DeviceTypeDeletionEventHandler() {
@@ -36,7 +39,7 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
     }
 
     @Inject
-    public DeviceTypeDeletionEventHandler(FirmwareService firmwareService) {
+    public DeviceTypeDeletionEventHandler(FirmwareService firmwareService, FirmwareCampaignService firmwareCampaignService) {
         this();
         this.setFirmwareService(firmwareService);
     }
@@ -44,11 +47,12 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
     }
 
     @Override
     public String getTopicMatcher() {
-        return com.energyict.mdc.device.config.events.EventType.DEVICETYPE_VALIDATE_DELETE.topic();
+        return EventType.DEVICETYPE_VALIDATE_DELETE.topic();
     }
 
     @Override
@@ -66,7 +70,7 @@ public class DeviceTypeDeletionEventHandler implements TopicHandler {
     }
 
     private void deleteFirmwareCampaigns(DeviceType deviceType) {
-        this.firmwareService.findFirmwareCampaigns(deviceType).forEach(FirmwareCampaign::delete);
+        this.firmwareCampaignService.findFirmwareCampaigns(deviceType).forEach(FirmwareCampaign::delete);
     }
 
 }

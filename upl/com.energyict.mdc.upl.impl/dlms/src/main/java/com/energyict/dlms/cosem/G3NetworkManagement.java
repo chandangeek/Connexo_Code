@@ -163,6 +163,7 @@ public class G3NetworkManagement extends AbstractCosemObject {
      * @return The keep alive service bucket size
      * @throws java.io.IOException If there occurred an error while reading the value
      */
+    @Deprecated
     public final int readKeepAliveServiceBucketSize() throws IOException {
         return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_BUCKET_SIZE, Unsigned16.class).getValue();
     }
@@ -183,16 +184,16 @@ public class G3NetworkManagement extends AbstractCosemObject {
      * @return The keep alive service retries
      * @throws java.io.IOException If there occurred an error while reading the value
      */
-    public final int readKeepAliveServiceRetries() throws IOException {
-        return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_RETRIES, Unsigned8.class).getValue();
+    public final int readKeepAliveFailCount() throws IOException {
+        return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_FAIL_COUNT, Unsigned8.class).getValue();
     }
 
     /**
      * @return The keep alive service timeout in seconds
      * @throws java.io.IOException If there occurred an error while reading the value
      */
-    public final int readKeepAliveServiceTimeout() throws IOException {
-        return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT, Unsigned16.class).getValue();
+    public final int readKeepAliveDelayBetweenPings() throws IOException {
+        return readDataType(G3NetworkManagementAttributes.KEEP_ALIVE_DELAY_BETWEEN_PINGS, Unsigned16.class).getValue();
     }
 
     public final boolean isG3InterfaceEnabled() throws IOException {
@@ -267,6 +268,7 @@ public class G3NetworkManagement extends AbstractCosemObject {
         write(G3NetworkManagementAttributes.KEEP_ALIVE_SCHEDULE_INTERVAL, new Unsigned32(value));
     }
 
+    @Deprecated
     public final void setKeepAliveBucketSize(int value) throws IOException {
         write(G3NetworkManagementAttributes.KEEP_ALIVE_BUCKET_SIZE, new Unsigned16(value));
     }
@@ -279,12 +281,12 @@ public class G3NetworkManagement extends AbstractCosemObject {
         write(G3NetworkManagementAttributes.KEEP_ALIVE_MAX_INACTIVE_METER_TIME, new Unsigned32(value));
     }
 
-    public final void setKeepAliveRetries(int value) throws IOException {
-        write(G3NetworkManagementAttributes.KEEP_ALIVE_RETRIES, new Unsigned8(value));
+    public final void setKeepAliveFailCount(int value) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_FAIL_COUNT, new Unsigned8(value));
     }
 
-    public final void setKeepAliveTimeout(int value) throws IOException {
-        write(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT, new Unsigned16(value));
+    public final void setKeepAliveDelayBetweenPings(int value) throws IOException {
+        write(G3NetworkManagementAttributes.KEEP_ALIVE_DELAY_BETWEEN_PINGS, new Unsigned32(value));
     }
 
     public final void renewGMK() throws IOException {

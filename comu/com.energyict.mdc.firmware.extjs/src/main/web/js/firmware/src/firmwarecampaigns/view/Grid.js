@@ -56,12 +56,12 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 dataIndex: 'status',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? value.localizedValue : '';
+                    return value ? value.name : '';
                 }
             },
             {
                 header: Uni.I18n.translate('general.devices', 'FWC', 'Devices'),
-                dataIndex: 'devicesStatus',
+                dataIndex: 'devices',
                 flex: 2,
                 renderer: function (value, metaData) {
                     var result = '';
@@ -73,29 +73,28 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                     metaData.tdCls = 'firmware-campaign-status';
                     Ext.Array.each(value, function (devicesStatus) {
                         var iconCls = '';
-
                         switch (devicesStatus.status.id) {
-                            case 'failed':
+                            case 'FAILED':
                                 iconCls = 'icon-cancel-circle';
                                 break;
-                            case 'success':
+                            case 'SUCCESSFUL':
                                 iconCls = 'icon-checkmark-circle';
                                 break;
-                            case 'ongoing':
+                            case 'ONGOING':
                                 iconCls = 'icon-spinner3';
                                 break;
-                            case 'pending':
+                            case 'PENDING':
                                 iconCls = 'icon-forward2';
                                 break;
-                            case 'configurationError':
+                            case 'REJECTED':
                                 iconCls = 'icon-notification';
                                 break;
-                            case 'cancelled':
+                            case 'CANCELLED':
                                 iconCls = 'icon-blocked';
                                 break;
                         }
 
-                        result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status.localizedValue + '"></span><span style="margin-right: 10px">' + devicesStatus.amount + '</span>';
+                        result += '<span class="' + iconCls + '" data-qtip="' + devicesStatus.status.name + '"></span><span style="margin-right: 10px">' + devicesStatus.quantity + '</span>';
                     });
                     return result;
                 }

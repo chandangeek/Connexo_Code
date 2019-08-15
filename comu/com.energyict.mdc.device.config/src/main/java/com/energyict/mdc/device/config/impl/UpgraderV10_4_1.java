@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.common.device.config.EventType;
 
 import javax.inject.Inject;
 import java.util.EnumSet;

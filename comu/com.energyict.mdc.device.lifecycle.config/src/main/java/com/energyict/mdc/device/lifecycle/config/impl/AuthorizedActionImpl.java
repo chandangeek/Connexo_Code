@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 
 import com.google.common.collect.ImmutableMap;
 

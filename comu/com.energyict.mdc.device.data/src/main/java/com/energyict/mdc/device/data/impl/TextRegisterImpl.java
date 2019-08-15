@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.common.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 

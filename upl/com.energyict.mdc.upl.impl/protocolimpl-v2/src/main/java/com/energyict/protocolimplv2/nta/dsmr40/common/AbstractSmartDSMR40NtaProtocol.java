@@ -21,6 +21,11 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
     }
 
 
+    @Override
+    public void journal(String message) {
+        super.journal("[DSMR40] " + message);
+    }
+
     /**
      * Getter for the {@link com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties}
      *

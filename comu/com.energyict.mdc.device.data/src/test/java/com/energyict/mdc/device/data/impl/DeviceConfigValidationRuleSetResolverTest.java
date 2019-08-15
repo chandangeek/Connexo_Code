@@ -11,8 +11,8 @@ import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.RangeSet;
@@ -46,7 +46,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
     @Mock
     private AmrSystem amrSystem;
     @Mock
-    private com.energyict.mdc.device.data.Device device;
+    private Device device;
     @Mock
     private DeviceConfiguration deviceConfiguration;
     @Mock

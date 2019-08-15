@@ -4,13 +4,12 @@
 
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
-import com.google.common.collect.Range;
-
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.units.Quantity;
+import com.energyict.mdc.common.device.data.Reading;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;

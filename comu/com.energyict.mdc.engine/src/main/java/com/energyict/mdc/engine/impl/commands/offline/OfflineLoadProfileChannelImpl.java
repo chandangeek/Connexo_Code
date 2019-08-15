@@ -4,9 +4,10 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.cbo.Unit;
-import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;

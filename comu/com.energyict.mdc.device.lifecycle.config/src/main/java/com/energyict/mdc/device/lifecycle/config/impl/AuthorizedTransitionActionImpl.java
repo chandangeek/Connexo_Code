@@ -12,10 +12,10 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.streams.DecoratedStream;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

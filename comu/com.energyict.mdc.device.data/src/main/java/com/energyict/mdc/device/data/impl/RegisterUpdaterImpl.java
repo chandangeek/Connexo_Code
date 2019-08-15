@@ -6,12 +6,13 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.obis.ObisCode;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.sync.KoreMeterConfigurationUpdater;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.time.Clock;

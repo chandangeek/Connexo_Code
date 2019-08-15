@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.ArrayList;

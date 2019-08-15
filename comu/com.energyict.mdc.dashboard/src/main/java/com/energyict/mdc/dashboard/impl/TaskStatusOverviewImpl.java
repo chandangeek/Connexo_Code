@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.util.Map;
 
@@ -25,6 +25,14 @@ class TaskStatusOverviewImpl extends DashboardCountersImpl<TaskStatus> implement
         TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
         for (TaskStatus taskStatus : TaskStatus.values()) {
             overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
+        }
+        return overview;
+    }
+
+    public static TaskStatusOverviewImpl withoutPrio(Map<TaskStatus, Long> statusCounters) {
+        TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
+        for (TaskStatus taskStatus : TaskStatus.withoutPrio()) {
+                overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
         }
         return overview;
     }

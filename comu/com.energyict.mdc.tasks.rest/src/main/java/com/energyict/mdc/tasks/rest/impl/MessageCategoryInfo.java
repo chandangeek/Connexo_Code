@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.tasks.rest.impl;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 
 import java.util.List;
 import java.util.stream.Collectors;

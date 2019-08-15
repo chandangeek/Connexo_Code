@@ -30,7 +30,6 @@ Ext.define('Sct.view.Setup', {
                         itemId: 'no-service-calls',
                         title: Uni.I18n.translate('serviceCallTypes.empty.title', 'SCT', 'No service call types found'),
                         reasons: [
-
                             Uni.I18n.translate('serviceCallTypes.empty.list.item1', 'SCT', 'No service call types have been defined yet.'),
                             Uni.I18n.translate('serviceCallTypes.empty.list.item2', 'SCT', "Service call types exist, but you don't have permission to view them.")
                         ]

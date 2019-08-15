@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import java.util.stream.Stream;
 
@@ -21,6 +21,7 @@ public enum CompletionCodeTranslationKeys implements TranslationKey {
     OK(CompletionCode.Ok, "Successful"),
     CONFIGURATION_WARNING(CompletionCode.ConfigurationWarning, "Configuration warning"),
     NOT_EXECUTED(CompletionCode.NotExecuted, "Not executed"),
+    RESCHEDULED(CompletionCode.Rescheduled, "Interrupted"),
     PROTOCOL_ERROR(CompletionCode.ProtocolError, "Protocol error"),
     CONFIGURATION_ERROR(CompletionCode.ConfigurationError, "Configuration error"),
     IO_ERROR(CompletionCode.IOError, "I/O error"),

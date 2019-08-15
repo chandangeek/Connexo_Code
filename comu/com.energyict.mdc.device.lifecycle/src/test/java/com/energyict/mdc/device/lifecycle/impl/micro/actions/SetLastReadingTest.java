@@ -8,9 +8,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LogBook;
 
 import java.time.Instant;
 import java.util.Arrays;

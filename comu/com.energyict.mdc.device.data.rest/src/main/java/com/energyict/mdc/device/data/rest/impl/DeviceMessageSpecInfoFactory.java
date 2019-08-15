@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import java.util.Collection;

@@ -84,7 +84,10 @@ public enum DlmsUnit {
 
     /* DLMS Bluebook v10 does not specify units for 66, 67, 68 and 69 */
 
-    DECIBELLMETER(70, BaseUnit.DECIBELPOWERRATIO),
+    DECIBELLMETER(70, BaseUnit.DECIBELMILLIWAT),
+
+    DECIBELMICROVOLT(71, BaseUnit.DECIBELMILLIWAT),
+    DECIBEL(71, BaseUnit.DECIBELMILLIWAT),
 
     /* DLMS Bluebook v10 does not specify units for 71-253. They are marked as RESERVED */
 

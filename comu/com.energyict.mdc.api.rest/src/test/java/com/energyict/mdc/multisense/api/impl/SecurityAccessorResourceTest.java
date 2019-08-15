@@ -8,18 +8,18 @@ import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
-
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.RequestSecurityLevel;
+import com.energyict.mdc.common.protocol.security.ResponseSecurityLevel;
+import com.energyict.mdc.common.protocol.security.SecuritySuite;
 import com.energyict.mdc.upl.TypedProperties;
+
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
