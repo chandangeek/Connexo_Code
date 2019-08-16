@@ -58,7 +58,7 @@ public class AuditTrailDataWriter<T> {
         return columns.stream()
                 .filter(ColumnImpl::alwaysJournal)
                 .filter(column -> {
-                    if (column.isMAC()) {
+                    if (column.isMAC() || column.isDiscriminator()) {
                         return false;
                     }
                     Object newValue = column.domainValue(object);

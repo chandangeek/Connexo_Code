@@ -114,7 +114,7 @@ public class AuditTechInfoForElectricityIT extends AuditAttributeBase {
         return ImmutableMap.of("name", "Technical information");
     }
 
-    protected ServiceKind getServiceCategory(){
+    protected ServiceKind getServiceKind(){
         return SERVICE_KIND;
     }
 

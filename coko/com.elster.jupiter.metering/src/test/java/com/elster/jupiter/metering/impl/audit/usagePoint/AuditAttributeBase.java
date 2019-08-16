@@ -9,7 +9,6 @@ import com.elster.jupiter.audit.AuditLogChange;
 import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrail;
-import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.impl.audit.usagePoint.attributes.GeneralInfoAttribute;
 
@@ -44,7 +43,7 @@ public class AuditAttributeBase extends AuditUsagePointBase {
     }
 
     public UsagePoint createUsagePoint(String name){
-        createUsagePoint(name, getServiceCategory());
+        createUsagePoint(name, getServiceKind());
         UsagePoint usagePoint = findUsagePointByName(name).get();
         return usagePoint;
     }
@@ -98,9 +97,5 @@ public class AuditAttributeBase extends AuditUsagePointBase {
 
     protected ImmutableMap getContextReference(){
         return ImmutableMap.of();
-    }
-
-    protected ServiceKind getServiceCategory(){
-        return ServiceKind.OTHER;
     }
 }

@@ -70,7 +70,7 @@ public class AuditGenInfoForElectricityIT extends AuditAttributeBase {
         return ImmutableMap.of("name", "General information");
     }
 
-    protected ServiceKind getServiceCategory(){
+    protected ServiceKind getServiceKind(){
         return SERVICE_KIND;
     }
 
