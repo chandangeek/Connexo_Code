@@ -36,7 +36,7 @@ public class IsWrapperUpdater {
                 for (SecurityAccessorTypeOnDeviceType sat: dt.getSecurityAccessors()) {
                     Optional<SecurityAccessorType> wrappingSecurityAccessor = sat.getDeviceSecurityAccessorType().getWrappingSecurityAccessor();
                     if (wrappingSecurityAccessor.isPresent() && wrappingSecurityAccessor.get().getId() == securityAccessorTypeInfo.id) {
-                        throw exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.SECACC_WRAPPER_IN_USE, sat.getSecurityAccessorType().getName()).get();
+                        throw exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.SECACC_WRAPPER_IN_USE_BY_DEV, sat.getSecurityAccessorType().getName(), dt.getName()).get();
                     }
                 }
             }
