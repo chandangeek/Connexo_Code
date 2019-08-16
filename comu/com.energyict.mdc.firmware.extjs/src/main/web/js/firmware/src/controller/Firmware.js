@@ -301,8 +301,14 @@ Ext.define('Fwc.controller.Firmware', {
                                     me.getContainer().down('firmware-edit #firmware-min-meter-version-common').hide();
                                }
                                if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
-                                   if(me.getContainer().down('firmware-edit #firmware-min-communication-version-common'))
+                                   if(me.getContainer().down('firmware-edit #firmware-min-communication-version-common')){
                                        me.getContainer().down('firmware-edit #firmware-min-communication-version-common').hide();
+                                   }
+                               }
+                               if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "auxiliary"}).length){
+                                   if(me.getContainer().down('firmware-edit #firmware-min-auxiliary-version-common')){
+                                       me.getContainer().down('firmware-edit #firmware-min-auxiliary-version-common').hide();
+                                   }
                                }
                           }
                     });
