@@ -219,7 +219,7 @@ public class TaskResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TASK_OVERVIEW})
     public Response modifyTask(TaskMinInfo info) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         if (!Checks.is(info.queue).empty()) {
