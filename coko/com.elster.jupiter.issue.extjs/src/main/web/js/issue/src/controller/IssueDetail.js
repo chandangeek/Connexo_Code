@@ -82,8 +82,7 @@ Ext.define('Isu.controller.IssueDetail', {
             widgetXtype = 'webservice-issue-detail';
             issueModel = 'Iws.model.Issue';
             me.webServiceLogStore = 'Iws.store.Logs'
-        }
-          else {
+        } else {
             widgetXtype = me.widgetXtype;
             issueModel = me.issueModel;
         }
@@ -606,7 +605,7 @@ Ext.define('Isu.controller.IssueDetail', {
             var panel = widget.down('#servicecall-issue-detail-log'),
                 detailsForm = widget.down('#servicecall-details-form');
 
-            if (rec.raw.serviceCallInfo.logs && panel) {
+            if (rec.raw.serviceCallInfo && rec.raw.serviceCallInfo.logs && panel) {
                 var data = [],
                     store;
 
@@ -644,7 +643,7 @@ Ext.define('Isu.controller.IssueDetail', {
             var panel = widget.down('#webservice-issue-detail-log'),
                 detailsForm = widget.down('#webservice-details-form');
 
-            if (rec.raw.webServiceCallOccurrence.logs && panel) {
+            if (rec.raw.webServiceCallOccurrence && rec.raw.webServiceCallOccurrence.logs && panel) {
                 var data = [],
                     store;
 

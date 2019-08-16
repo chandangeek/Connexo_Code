@@ -66,22 +66,8 @@ Ext.define('Uni.property.view.property.webservices.AddWebServiceView', {
                 }
             ]
         };
-        me.callParent(arguments);
 
-        // console.log(webServices.count())
-        // Ext.getStore(me.store).load({
-        //     scope: this,
-        //     callback: function(records, operation, success) {
-        //         debugger;
-        //         if (success) {
-        //             me.down('#web-service-button-add').setVisible(webServices.count() !== 0); 
-        //             me.down('#web-service-button-cancel').setVisible(webServices.count() !== 0);
-        //         }  else {
-        //             me.down('#web-service-button-add').setVisible(false); 
-        //     me.down('#web-service-button-cancel').setVisible(false);
-        //         }
-        //     }
-        // })
+        me.callParent(arguments);
     },
 
     getAddButton: function() {

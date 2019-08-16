@@ -93,7 +93,7 @@ Ext.define('Isu.model.Issue', {
             name: 'serviceCall',
             persist: false,
             mapping: function (data) {
-                if (data.serviceCallInfo) {
+                if (data && data.serviceCallInfo && data.serviceCallInfo.id && data.serviceCallInfo.name) {
                     return {
                         id: data.serviceCallInfo.id,
                         name: data.serviceCallInfo.name
@@ -106,7 +106,11 @@ Ext.define('Isu.model.Issue', {
             name: 'webServiceEndpoint',
             persist: false,
             mapping: function (data) {
-                if (data.webServiceCallOccurrence) {
+                if (data &&
+                    data.webServiceCallOccurrence &&
+                    data.webServiceCallOccurrence.endpoint &&
+                    data.webServiceCallOccurrence.endpoint.id &&
+                    data.webServiceCallOccurrence.endpoint.name) {
                     return {
                         id: data.webServiceCallOccurrence.endpoint.id,
                         name: data.webServiceCallOccurrence.endpoint.name

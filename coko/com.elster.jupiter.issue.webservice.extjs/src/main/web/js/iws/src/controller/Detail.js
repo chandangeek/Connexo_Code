@@ -110,7 +110,7 @@ Ext.define('Iws.controller.Detail', {
             route;
         router.arguments.taskId = task;
         route = 'workspace/tasks/task/performTask';
-        route && (route = router.getRoute(route));
+        route && (route = router.getRoute(route)); 
         route && route.forward(router.arguments);
     }
 });

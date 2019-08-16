@@ -131,8 +131,13 @@ Ext.define('Isu.view.issues.Preview', {
                         name: 'usage_point',
                         renderer: function (value) {
                             if (me.getRecord()) {
-                                me.down('#issue-preview-usage-point').setVisible(me.getRecord().get('issueType').uid !== 'servicecall');
-                                me.down('#issue-preview-usage-point').setVisible(me.getRecord().get('issueType').uid !== 'webservice');
+                                if (me.getRecord().get('issueType').uid === 'webservice') {
+                                    me.down('#issue-preview-usage-point').setVisible(false);
+                                } else if (me.getRecord().get('issueType').uid === 'servicecall') {
+                                    me.down('#issue-preview-usage-point').setVisible(false);
+                                } else {
+                                    me.down('#issue-preview-usage-point').setVisible(true);
+                                }
                             }
                             return value;
                         }
@@ -146,10 +151,15 @@ Ext.define('Isu.view.issues.Preview', {
                             var url = '',
                                 result = '-';
 
-                            if (me.getRecord()) {
-                                me.down('#issue-preview-device').setVisible(me.getRecord().get('issueType').uid !== 'servicecall');
-                                me.down('#issue-preview-device').setVisible(me.getRecord().get('issueType').uid !== 'webservice');
-                            }
+                                if (me.getRecord()) {
+                                    if (me.getRecord().get('issueType').uid === 'webservice') {
+                                        me.down('#issue-preview-device').setVisible(false);
+                                    } else if (me.getRecord().get('issueType').uid === 'servicecall') {
+                                        me.down('#issue-preview-device').setVisible(false);
+                                    } else {
+                                        me.down('#issue-preview-device').setVisible(true);
+                                    }
+                                }
 
                             if (value) {
                                 if (value.name && Isu.privileges.Device.canViewDeviceCommunication()) {

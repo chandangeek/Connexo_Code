@@ -6,7 +6,6 @@ package com.elster.jupiter.issue.webservice.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
@@ -33,7 +32,6 @@ public class IwsUiInstaller implements TranslationKeyProvider {
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/iws";
     private static final Logger LOGGER = Logger.getLogger(IwsUiInstaller.class.getName());
     private volatile ServiceRegistration<HttpResource> registration;
-    private volatile License license;
 
     public IwsUiInstaller() {
 

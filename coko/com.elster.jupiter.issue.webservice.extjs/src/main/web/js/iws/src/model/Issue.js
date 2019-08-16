@@ -12,15 +12,18 @@ Ext.define('Iws.model.Issue', {
         {
             name: 'occurrenceLink',
             persist: false,
-            mapping: function (data) {
-                if (data.webServiceCallOccurrence) {
+            mapping: function(data) {
+                if (data &&
+                    data.webServiceCallOccurrence.endpoint &&
+                    data.webServiceCallOccurrence.endpoint.id &&
+                    data.webServiceCallOccurrence.id &&
+                    data.webServiceCallOccurrence.startTime) {
                     return {
                         ednpointId: data.webServiceCallOccurrence.endpoint.id,
                         occurrenceId: data.webServiceCallOccurrence.id,
                         startTime: data.webServiceCallOccurrence.startTime
                     }
                 }
-                return null;
             }
         },
     ],
