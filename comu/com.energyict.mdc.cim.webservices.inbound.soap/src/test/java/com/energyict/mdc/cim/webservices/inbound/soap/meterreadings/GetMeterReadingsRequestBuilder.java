@@ -50,6 +50,11 @@ public class GetMeterReadingsRequestBuilder {
         return this;
     }
 
+    GetMeterReadingsRequestBuilder withReading(Reading reading) {
+        getMeterReadings.getReading().add(reading);
+        return this;
+    }
+
     GetMeterReadingsRequestBuilder withReadingTypeMRIDs(String... mRIDs) {
         Arrays.stream(mRIDs)
                 .forEach(mRID -> withReadingType(mRID, null));
