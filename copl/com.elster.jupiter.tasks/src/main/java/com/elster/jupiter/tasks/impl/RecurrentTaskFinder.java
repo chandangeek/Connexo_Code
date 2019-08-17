@@ -19,7 +19,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @LiteralSql
 public class RecurrentTaskFinder implements TaskFinder {
@@ -199,10 +198,9 @@ public class RecurrentTaskFinder implements TaskFinder {
             List<String> suspended = new ArrayList();
             suspended.addAll(filter.suspended);
             for (int i = 0; i < suspended.size(); i++) {
-                if("y".equalsIgnoreCase(suspended.get(i))){
+                if ("y".equalsIgnoreCase(suspended.get(i))) {
                     builder.append("(SUSPENDUNTIL IS NOT NULL)");
-                }
-                else if("n".equalsIgnoreCase(suspended.get(i))){
+                } else if ("n".equalsIgnoreCase(suspended.get(i))) {
                     builder.append("(SUSPENDUNTIL IS NULL)");
                 }
 
@@ -214,7 +212,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         // add sorting conditions
-            builder.append("order by ");
+        builder.append("order by ");
         if (!filter.sortingColumns.isEmpty()) {
             Order[] order = filter.sortingColumns.toArray(new Order[filter.sortingColumns.size()]);
             for (int i = 0; i < order.length; i++) {
