@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.topology;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;

@@ -39,11 +39,11 @@ import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionTy
 import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -52,15 +52,10 @@ import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocols.mdc.services.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -70,8 +65,17 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

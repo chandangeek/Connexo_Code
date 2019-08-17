@@ -34,6 +34,8 @@ public interface DataExportTaskBuilder {
 
     MeterReadingSelectorBuilder selectingMeterReadings();
 
+    MeterReadingSelectorBuilder selectingMeterReadings(String selector);
+
     UsagePointReadingSelectorBuilder selectingUsagePointReadings();
 
     EventSelectorBuilder selectingEventTypes();

@@ -11,15 +11,15 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionFilter;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.tasks.impl.ServerTaskService;
 
 import com.google.common.collect.Range;
@@ -65,7 +65,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Transactional
     @Path("/firmwareStatuses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Object getFirmwareStatuses() {
         return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", firmwareStatusesClientSideValues());
     }
@@ -81,7 +81,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Transactional
     @Path("/firmwareTypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Object getFirmwareTypes(@QueryParam("deviceType") Long deviceTypeId) {
         List<String> firmwareTypes = new FirmwareTypeFieldAdapter().getClientSideValues();
         if (deviceTypeId != null) {
@@ -97,7 +97,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Transactional
     @Path("/devicetypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response getDeviceTypesWhichSupportFirmwareUpgrade() {
         List<IdWithLocalizedValue> deviceTypes = firmwareService.getDeviceTypesWhichSupportFirmwareManagement()
                 .stream()
@@ -110,7 +110,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Transactional
     @Path("/devicetypes/{deviceTypeId}/{firmwareOption}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public Response getUploadOptionSpecForDeviceType(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("firmwareOption") String firmwareOption, @QueryParam("firmwareType") String firmwareType) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(deviceType, firmwareOption);
@@ -121,7 +121,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Transactional
     @Path("/devicetypes/{deviceTypeId}/firmwares")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public PagedInfoList getFilteredFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
         FirmwareVersionFilter fwFilter = resourceHelper.getFirmwareFilter(filter, deviceType);
@@ -137,7 +137,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Transactional
     @Path("/firmwares/{id}/previous")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public PagedInfoList getFilteredPreviousFirmwareVersions(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
         FirmwareVersionFilter fwFilter = resourceHelper.getFirmwareFilter(filter, firmwareVersion.getDeviceType());
@@ -149,13 +149,13 @@ public class FirmwareFieldResource extends FieldResource {
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("firmwares", foundFirmwares, queryParameters);
     }
-    
+
 
     @GET
     @Transactional
     @Path("/comtasks")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response getComTasks(@QueryParam("type") long deviceTypeId) {
 
         Set<IdWithNameInfo> comTasks = new TreeSet<>(Comparator.comparing(IdWithNameInfo::getName));
@@ -174,7 +174,7 @@ public class FirmwareFieldResource extends FieldResource {
     @Transactional
     @Path("/firmwareuploadcomtasks")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response getCalendarUploadComTasks(@QueryParam("type") long deviceTypeId) {
 
         Set<IdWithNameInfo> comTasks = new TreeSet<>(Comparator.comparing(IdWithNameInfo::getName));

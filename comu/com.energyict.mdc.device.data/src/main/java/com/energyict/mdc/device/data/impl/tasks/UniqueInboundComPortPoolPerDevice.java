@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.Constraint;
@@ -15,7 +16,7 @@ import java.lang.annotation.Target;
 
 /**
  * Models the contraint that there can be only 1
- * {@link com.energyict.mdc.engine.config.InboundComPortPool}
+ * {@link InboundComPortPool}
  * assigned to a Device at a time.
  *
  * @author Rudi Vankeirsbilck (rudi)

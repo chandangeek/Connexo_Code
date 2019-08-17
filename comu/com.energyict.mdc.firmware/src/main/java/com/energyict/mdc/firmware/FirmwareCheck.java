@@ -27,7 +27,7 @@ public interface FirmwareCheck {
 
     String getName();
 
-    void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException;
+    void execute(FirmwareCheckManagementOptions options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException;
 
     @ProviderType
     class FirmwareCheckException extends LocalizedException {

@@ -17,7 +17,7 @@ import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.channels.ip.socket.TcpIpPostDialConnectionType;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Size;

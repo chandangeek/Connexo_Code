@@ -7,11 +7,12 @@ package com.energyict.mdc.pluggable.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClassType;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
- * to create a {@link com.energyict.mdc.pluggable.PluggableClass}
+ * to create a {@link PluggableClass}
  * but another one of the same type and name already exists.
  *
  * @author Rudi Vankeirsbilck (rudi)

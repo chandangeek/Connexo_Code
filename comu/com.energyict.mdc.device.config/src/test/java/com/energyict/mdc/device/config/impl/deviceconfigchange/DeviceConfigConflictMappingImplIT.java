@@ -6,12 +6,12 @@ package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.impl.MessageSeeds;
-import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.config.impl.ServerDeviceType;
 
 import org.junit.Test;
@@ -64,8 +64,8 @@ public class DeviceConfigConflictMappingImplIT extends AbstractConflictIT {
         deviceConfigConflictMapping.recalculateSolvedState(solution);
     }
 
-    private PartialScheduledConnectionTaskImpl createOutboundConnectionTask(DeviceConfiguration sourceConfig, String name) {
-        PartialScheduledConnectionTaskImpl build = sourceConfig.newPartialScheduledConnectionTask(name, connectionTypePluggableClass, FIFTEEN_MINUTES, ConnectionStrategy.AS_SOON_AS_POSSIBLE, sourceConfig.getProtocolDialectConfigurationPropertiesList().get(0)).build();
+    private PartialScheduledConnectionTask createOutboundConnectionTask(DeviceConfiguration sourceConfig, String name) {
+        PartialScheduledConnectionTask build = sourceConfig.newPartialScheduledConnectionTask(name, connectionTypePluggableClass, FIFTEEN_MINUTES, ConnectionStrategy.AS_SOON_AS_POSSIBLE, sourceConfig.getProtocolDialectConfigurationPropertiesList().get(0)).build();
         build.save();
         return build;
     }

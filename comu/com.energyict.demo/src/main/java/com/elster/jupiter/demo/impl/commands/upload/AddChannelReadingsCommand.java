@@ -11,9 +11,9 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
 
 import java.math.BigDecimal;
 import java.time.Instant;

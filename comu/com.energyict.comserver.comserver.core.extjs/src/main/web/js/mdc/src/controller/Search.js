@@ -196,7 +196,7 @@ Ext.define('Mdc.controller.Search', {
 
         var storeListeners = searchResults.on('load', function (store, items) {
             var btn = grid.down('#search-bulk-actions-button');
-            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
+            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.common.device.data.Device" && items && items.length));
         }, this, {destroyable: true});
 
         widget.on('destroy', function () {

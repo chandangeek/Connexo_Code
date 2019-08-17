@@ -1,9 +1,27 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -22,28 +40,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceBuilderTest {

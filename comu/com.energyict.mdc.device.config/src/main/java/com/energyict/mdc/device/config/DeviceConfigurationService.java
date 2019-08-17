@@ -11,18 +11,32 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import aQute.bnd.annotation.ProviderType;
@@ -40,7 +54,7 @@ import java.util.Set;
 @ProviderType
 public interface DeviceConfigurationService {
 
-    String COMPONENTNAME = "DTC";
+    String COMPONENTNAME = DeviceConfigConstants.COMPONENTNAME;
     int MAX_DEVICE_MESSAGE_FILE_SIZE_MB = 2;
     int MAX_DEVICE_MESSAGE_FILE_SIZE_BYTES = MAX_DEVICE_MESSAGE_FILE_SIZE_MB * 1024 * 1024;    // 2MB
     int MAX_DEVICE_ICON_SIZE_KB = 500;
@@ -81,7 +95,7 @@ public interface DeviceConfigurationService {
     DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
 
     /**
-     * Creates a new {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name
+     * Creates a new {@link DeviceType.DeviceTypeBuilder} with the specified name
      * that uses the specified {@link DeviceProtocolPluggableClass device protocol}
      * to communicate with the actual device.
      * The {@link com.elster.jupiter.fsm.State} of the devices
@@ -96,7 +110,7 @@ public interface DeviceConfigurationService {
     DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
 
     /**
-     * Creates a new datalogger slave {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name.
+     * Creates a new datalogger slave {@link DeviceType.DeviceTypeBuilder} with the specified name.
      * The {@link com.elster.jupiter.fsm.State} of the devices
      * of this type are managed by the provided {@link DeviceLifeCycle}.
      * Devices of this deviceType will not be able to define communication related items.
@@ -108,7 +122,7 @@ public interface DeviceConfigurationService {
     DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
 
     /**
-     * Creates a new multi-element submeter {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name.
+     * Creates a new multi-element submeter {@link DeviceType.DeviceTypeBuilder} with the specified name.
      * The {@link com.elster.jupiter.fsm.State} of the devices
      * of this type are managed by the provided {@link DeviceLifeCycle}.
      * Devices of this deviceType will not be able to define communication related items, and make part of a Multi-Element enabled meter/device type.
@@ -202,6 +216,8 @@ public interface DeviceConfigurationService {
 
     Optional<ChannelSpec> findAndLockChannelSpecByIdAndVersion(long id, long version);
 
+    Optional<ChannelSpec> findAndLockChannelSpecById(long id);
+
     /**
      * Finds a {@link RegisterSpec} which is uniquely identified by the given ID.
      *
@@ -209,6 +225,8 @@ public interface DeviceConfigurationService {
      * @return the RegisterSpec or <code>null</code> if there is no such RegisterSpec
      */
     Optional<RegisterSpec> findRegisterSpec(long id);
+
+    Optional<RegisterSpec> findAndLockRegisterSpecById(long id);
 
     Optional<RegisterSpec> findAndLockRegisterSpecByIdAndVersion(long id, long version);
 

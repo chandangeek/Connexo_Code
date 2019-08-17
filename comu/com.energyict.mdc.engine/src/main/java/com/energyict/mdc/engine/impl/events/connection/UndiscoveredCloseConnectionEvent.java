@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
 
 import org.json.JSONException;
 import org.json.JSONWriter;

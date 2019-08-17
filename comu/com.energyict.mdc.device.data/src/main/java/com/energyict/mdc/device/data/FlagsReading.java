@@ -4,6 +4,10 @@
 
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Reading;
+import com.energyict.mdc.common.device.data.Register;
+
 import aQute.bnd.annotation.ProviderType;
 
 /**

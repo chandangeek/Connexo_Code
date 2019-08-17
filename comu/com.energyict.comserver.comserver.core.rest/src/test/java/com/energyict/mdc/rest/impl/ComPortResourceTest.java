@@ -12,18 +12,19 @@ import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TranslationKeys;
 import com.energyict.mdc.rest.impl.comserver.UdpInboundComPortInfo;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -31,8 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import org.assertj.core.data.MapEntry;
-import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -42,6 +41,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.anyLong;

@@ -47,17 +47,17 @@ abstract class AbstractDataSelector implements DataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        Set<IReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
-        Map<Long, Optional<Instant>> lastRuns = activeItems.stream().collect(Collectors.toMap(IReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastRun));
+        Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
+        Map<Long, Optional<Instant>> lastRuns = activeItems.stream().collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastRun));
         AbstractItemDataSelector itemDataSelector = getItemDataSelector();
 
         try {
             Map<Long, Optional<MeterReadingData>> selectedData = new LinkedHashMap<>();
             Map<Long, Optional<MeterReadingData>> updateData = new HashMap<>();
-            for (IReadingTypeDataExportItem activeItem : activeItems) {
-                selectedData.put(activeItem.getId(), itemDataSelector.selectData(occurrence, activeItem));
+            for (ReadingTypeDataExportItem activeItem : activeItems) {
+                selectedData.put(activeItem.getId(), itemDataSelector.selectData(occurrence, (IReadingTypeDataExportItem)activeItem));
                 if (lastRuns.containsKey(activeItem.getId()) && lastRuns.get(activeItem.getId()).isPresent()) {
-                    updateData.put(activeItem.getId(), itemDataSelector.selectDataForUpdate(occurrence, activeItem, lastRuns.get(activeItem.getId()).get()));
+                    updateData.put(activeItem.getId(), itemDataSelector.selectDataForUpdate(occurrence, (IReadingTypeDataExportItem)activeItem, lastRuns.get(activeItem.getId()).get()));
                 } else {
                     updateData.put(activeItem.getId(), Optional.empty());
                 }
@@ -89,15 +89,15 @@ abstract class AbstractDataSelector implements DataSelector {
         }
     }
 
-    private Set<IReadingTypeDataExportItem> manageActiveItems(DataExportOccurrence occurrence) {
-        Set<IReadingTypeDataExportItem> activeItems;
+    private Set<ReadingTypeDataExportItem> manageActiveItems(DataExportOccurrence occurrence) {
+        Set<ReadingTypeDataExportItem> activeItems;
         try (TransactionContext context = getTransactionService().getContext()) {
             activeItems = getSelectorConfig().getActiveItems(occurrence);
             getSelectorConfig().getExportItems().stream()
                     .filter(item -> !activeItems.contains(item))
                     .peek(IReadingTypeDataExportItem::deactivate)
                     .forEach(IReadingTypeDataExportItem::update);
-            activeItems.forEach(IReadingTypeDataExportItem::activate);
+            activeItems.forEach(ReadingTypeDataExportItem::activate);
             warnIfObjectsHaveNoneOfTheReadingTypes(occurrence);
             context.commit();
         }

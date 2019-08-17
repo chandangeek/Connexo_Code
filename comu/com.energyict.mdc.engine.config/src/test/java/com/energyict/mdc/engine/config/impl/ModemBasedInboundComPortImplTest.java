@@ -15,15 +15,13 @@ import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.ports.ComPortType;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -31,6 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.TestCase.assertFalse;

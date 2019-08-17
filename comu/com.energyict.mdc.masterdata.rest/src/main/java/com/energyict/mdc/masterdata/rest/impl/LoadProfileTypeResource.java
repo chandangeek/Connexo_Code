@@ -12,12 +12,12 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfoFactory;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
@@ -75,7 +75,7 @@ public class LoadProfileTypeResource {
     @Transactional
     @Path("/intervals")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public Response getIntervals(@BeanParam JsonQueryParameters queryParameters) {
         return Response.ok(LocalizedTimeDuration.getAllInfos(thesaurus)).build();
     }
@@ -83,7 +83,7 @@ public class LoadProfileTypeResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public Response getAllProfileTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
 
@@ -95,7 +95,7 @@ public class LoadProfileTypeResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeOrThrowException(loadProfileId);
         return Response.ok(loadProfileTypeInfoFactory.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
@@ -105,7 +105,7 @@ public class LoadProfileTypeResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public Response addNewLoadProfileType(LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         boolean all = getBoolean(uriInfo, "all");
         List<RegisterType> registerTypes = Collections.emptyList();
@@ -133,7 +133,7 @@ public class LoadProfileTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         LoadProfileType loadProfileType = resourceHelper.lockLoadProfileTypeOrThrowException(request);
         loadProfileType.setName(request.name);
@@ -157,7 +157,7 @@ public class LoadProfileTypeResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public Response deleteProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request) {
         resourceHelper.lockLoadProfileTypeOrThrowException(request).delete();
         return Response.ok().build();
@@ -167,12 +167,12 @@ public class LoadProfileTypeResource {
     @Transactional
     @Path("/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         List<Long> excludedRegisterTypeIds = filter.getLongList("ids");
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
-                .filter(readingTypesWithInterval())
-                .filter(filterOnCommodity())
+         //       .filter(readingTypesWithInterval())
+         //       .filter(filterOnCommodity())
                 .filter(registerType -> !excludedRegisterTypeIds.contains(registerType.getId()))
                 .skip(queryParameters.getStart().get())
                 .limit(queryParameters.getLimit().get() + 1);
@@ -187,7 +187,7 @@ public class LoadProfileTypeResource {
     @Transactional
     @Path("{id}/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA)
     public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters, @PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeOrThrowException(loadProfileId);
         List<Long> excludedRegisterTypeIds = filter.getLongList("ids");

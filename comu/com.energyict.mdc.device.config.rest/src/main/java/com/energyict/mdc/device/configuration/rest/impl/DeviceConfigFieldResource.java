@@ -6,8 +6,8 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 import com.energyict.mdc.common.rest.FieldResource;
-import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -40,7 +40,7 @@ public class DeviceConfigFieldResource extends FieldResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/timeOfUse")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE,
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE,
             com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
             com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
             com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
@@ -60,7 +60,7 @@ public class DeviceConfigFieldResource extends FieldResource {
     @GET
     @Transactional
     @Path("/connectionStrategy")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Map<String, Object> getConnectionStrategies() {
         return asJsonArrayObjectWithTranslation("connectionStrategies", "connectionStrategy", this.clientSideConnectionStrategyValues());
@@ -76,7 +76,7 @@ public class DeviceConfigFieldResource extends FieldResource {
     @GET
     @Transactional
     @Path("/deviceTypePurpose")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Map<String, Object> getDeviceTypePurpose() {
         return asJsonArrayObjectWithTranslation("deviceTypePurpose", "deviceTypePurpose", this.clientSideDeviceTypePurposeValues());

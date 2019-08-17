@@ -94,7 +94,6 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
  * @author fbo
@@ -174,7 +173,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
      */
     private String pAddress = null;
     private String pNodeId = PD_NODE_ID;
-    private String pSerialNumber = null;
     private String pPassword = null;
     /* Protocol timeout fail in msec */
     private int pTimeout = PD_TIMEOUT;
@@ -230,7 +228,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         return Arrays.asList(
                 UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, PropertyTranslationKeys.IEC1107_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, PropertyTranslationKeys.IEC1107_NODEID, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.IEC1107_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, PropertyTranslationKeys.IEC1107_TIMEOUT, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, PropertyTranslationKeys.IEC1107_RETRIES, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION, this.propertySpecService::integerSpec).finish(),
@@ -257,10 +254,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
         if (p.getTypedProperty(NODEID.getName()) != null) {
             this.pNodeId = p.getTypedProperty(NODEID.getName());
-        }
-
-        if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
-            this.pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
         }
 
         if (p.getTypedProperty(PASSWORD.getName()) != null) {
@@ -333,7 +326,6 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                     "A230 protocol init \n"
                             + " Address = " + this.pAddress + ","
                             + " Node Id = " + this.pNodeId + ","
-                            + " SerialNr = " + this.pSerialNumber + ","
                             + " Psswd = " + this.pPassword + ",\n"
                             + " Timeout = " + this.pTimeout + ","
                             + " Retries = " + this.pRetries + ","
@@ -470,7 +462,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:23:41 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2019-07-15 15:30:00 +0300 (Mon, 15 Jul 2019)$";
     }
 
     @Override

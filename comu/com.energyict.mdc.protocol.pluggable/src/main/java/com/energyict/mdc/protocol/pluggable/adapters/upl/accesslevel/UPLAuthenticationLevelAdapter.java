@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 
 /**

@@ -20,7 +20,7 @@ import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.modemproperties.AbstractModemProperties;
 import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
 
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;

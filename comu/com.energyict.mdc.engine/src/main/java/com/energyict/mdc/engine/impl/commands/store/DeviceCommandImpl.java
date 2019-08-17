@@ -5,14 +5,14 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;

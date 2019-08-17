@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

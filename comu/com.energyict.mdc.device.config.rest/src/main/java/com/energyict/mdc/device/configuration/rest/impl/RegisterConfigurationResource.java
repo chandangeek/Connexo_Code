@@ -9,16 +9,16 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.TextualRegisterSpec;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
-import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigInfo;
 import com.energyict.mdc.device.configuration.rest.RegisterConfigurationComparator;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -52,7 +52,7 @@ public class RegisterConfigurationResource {
 
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getRegisterConfigs(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<RegisterSpec> pagedRegisterSpecs = ListPager.of(deviceConfiguration.getRegisterSpecs(), new RegisterConfigurationComparator()).from(queryParameters).find();
@@ -66,7 +66,7 @@ public class RegisterConfigurationResource {
     @GET @Transactional
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public RegisterConfigInfo getRegisterConfigs(@PathParam("registerId") long registerId) {
         RegisterSpec registerSpec = resourceHelper.findRegisterSpecByIdOrThrowException(registerId);
         return registerConfigInfoFactory.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()));
@@ -78,7 +78,7 @@ public class RegisterConfigurationResource {
 
     @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response createRegisterConfig(@PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null: findRegisterTypeOrThrowException(registerConfigInfo.registerType);
@@ -112,7 +112,7 @@ public class RegisterConfigurationResource {
     @PUT @Transactional
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public RegisterConfigInfo updateRegisterConfig(@PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo info) {
         info.id = registerConfigId;
         RegisterSpec registerSpec = resourceHelper.lockRegisterSpecOrThrowException(info);
@@ -150,7 +150,7 @@ public class RegisterConfigurationResource {
     @DELETE @Transactional
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteRegisterConfig(@PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo info) {
         info.id = registerConfigId;
         RegisterSpec registerSpec = resourceHelper.lockRegisterSpecOrThrowException(info);

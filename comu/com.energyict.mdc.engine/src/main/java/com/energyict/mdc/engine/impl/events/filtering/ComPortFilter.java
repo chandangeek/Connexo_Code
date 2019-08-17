@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.events.filtering;
 
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.engine.events.ComPortRelatedEvent;
 import com.energyict.mdc.engine.events.ComServerEvent;
 

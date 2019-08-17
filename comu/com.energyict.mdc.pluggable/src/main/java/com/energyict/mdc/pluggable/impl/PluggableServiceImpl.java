@@ -18,8 +18,8 @@ import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
 
 import com.google.inject.AbstractModule;

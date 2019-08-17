@@ -4,17 +4,26 @@
 
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.data.ConnectionInitiationTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -231,9 +240,9 @@ public interface ConnectionTaskService {
 
     /**
      * Cleans up any marker flags on {@link ConnectionTask}s that are running
-     * on {@link com.energyict.mdc.engine.config.OutboundComPort}s of the {@link ComServer}
+     * on {@link OutboundComPort}s of the {@link ComServer}
      * for a period of time that is longer than the task execution timeout specified
-     * on the {@link com.energyict.mdc.engine.config.OutboundComPortPool} they are contained in.
+     * on the {@link OutboundComPortPool} they are contained in.
      *
      * @param outboundCapableComServer The ComServer
      */

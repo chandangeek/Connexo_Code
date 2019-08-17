@@ -4,13 +4,14 @@
 
 package com.energyict.protocols.mdc.services.impl;
 
-import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLInboundDeviceProtocolAdapter;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;

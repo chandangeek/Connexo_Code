@@ -8,9 +8,9 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLogBookTypeIsInUseException;
-import com.energyict.mdc.masterdata.LogBookType;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -21,7 +21,7 @@ import java.util.List;
  * Monitors update events of {@link LogBookType} and will:
  * <ul>
  * <li>veto the update of the obis code when the LogBookType is used by at least one LogBookSpec</li>
- * <li>forward the update to all {@link com.energyict.mdc.device.config.DeviceConfiguration}s</li>
+ * <li>forward the update to all {@link DeviceConfiguration}s</li>
  * </ul>
  *
  * @author Rudi Vankeirsbilck (rudi)

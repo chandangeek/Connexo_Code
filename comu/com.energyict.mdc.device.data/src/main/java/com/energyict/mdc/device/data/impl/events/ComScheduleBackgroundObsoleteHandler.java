@@ -8,6 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -19,7 +20,7 @@ import java.util.Optional;
 
 /**
  * Handles the background process that completes the obsoletion of
- * {@link com.energyict.mdc.scheduling.model.ComSchedule}s
+ * {@link ComSchedule}s
  * that are still in use by at least one Device.
  *
  * @author Rudi Vankeirsbilck (rudi)

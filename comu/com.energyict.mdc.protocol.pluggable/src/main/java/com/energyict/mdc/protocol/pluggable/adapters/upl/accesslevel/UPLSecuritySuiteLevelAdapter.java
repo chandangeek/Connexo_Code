@@ -1,11 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
+import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.RequestSecurityLevel;
+import com.energyict.mdc.common.protocol.security.ResponseSecurityLevel;
+import com.energyict.mdc.common.protocol.security.SecuritySuite;
 
 import java.util.List;
 import java.util.stream.Collectors;

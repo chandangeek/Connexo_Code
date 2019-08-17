@@ -6,11 +6,11 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.energyict.mdc.common.protocol.ConnectionProperty;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertyValidationException;

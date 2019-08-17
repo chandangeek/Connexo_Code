@@ -5,8 +5,10 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.logging.ComServerLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -17,9 +19,9 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Monitors the exeuction of {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}
+ * Monitors the exeuction of {@link ComTaskExecution}
  * and will abort executions that run longer than the task execution timeout
- * that is specified on the {@link com.energyict.mdc.engine.config.OutboundComPortPool}
+ * that is specified on the {@link OutboundComPortPool}
  * of the OutboundComPort it is running on.
  *
  * @author Rudi Vankeirsbilck (rudi)

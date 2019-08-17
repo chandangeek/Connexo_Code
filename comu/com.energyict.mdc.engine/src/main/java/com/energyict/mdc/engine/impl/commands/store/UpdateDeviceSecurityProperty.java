@@ -1,15 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceSecurityProperty;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
- * that will update a security property of a {@link com.energyict.mdc.device.data.Device}
+ * that will update a security property of a {@link Device}
  * from information that was collected during the device communication session.
  * <p/>
  * This is for example the case when a message was sent to agree a new encryption key with a meter.

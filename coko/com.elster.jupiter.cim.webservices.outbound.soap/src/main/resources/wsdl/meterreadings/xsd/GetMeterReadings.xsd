@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?> <!--
-  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  ~ Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
   -->
 
 <xs:schema xmlns="http://langdale.com.au/2005/Message#" xmlns:m="http://iec.ch/TC57/2011/GetMeterReadings#" xmlns:sawsdl="http://www.w3.org/ns/sawsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -93,6 +93,9 @@
     <xs:complexType name="Reading" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Reading">
         <xs:sequence>
             <xs:element name="reason" type="m:ReadingReasonKind" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Reading.reason"/>
+            <xs:element name="scheduleStrategy" type="xs:string" minOccurs="0" sawsdl:modelReference=""/>
+            <xs:element name="connectionMethod" type="xs:string" minOccurs="0" sawsdl:modelReference=""/>
+            <xs:element name="dataSource" type="m:DataSource" minOccurs="0" maxOccurs="unbounded" sawsdl:modelReference=""/>
             <xs:element name="source" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#BaseReading.source"/>
             <xs:element name="timePeriod" type="m:DateTimeInterval" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#BaseReading.timePeriod"/>
         </xs:sequence>
@@ -125,6 +128,12 @@
             <xs:enumeration value="serviceDisconnect"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:complexType name="DataSource" sawsdl:modelReference="">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name.name"/>
+            <xs:element name="NameType" type="m:NameType" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#Name.NameType"/>
+        </xs:sequence>
+    </xs:complexType>
     <xs:complexType name="ReadingType" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#ReadingType">
         <xs:sequence>
             <xs:element name="mRID" type="xs:string" minOccurs="0" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.mRID"/>

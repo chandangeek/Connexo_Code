@@ -8,9 +8,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.device.data.impl.ScheduledComTaskExecutionIdRange;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import org.osgi.service.event.EventConstants;
 

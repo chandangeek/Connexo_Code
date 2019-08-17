@@ -6,8 +6,8 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycleUpdater;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycleUpdater} interface.

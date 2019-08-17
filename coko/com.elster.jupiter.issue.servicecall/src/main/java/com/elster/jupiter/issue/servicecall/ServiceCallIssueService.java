@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.servicecall;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 
@@ -29,4 +30,5 @@ public interface ServiceCallIssueService {
 
     Optional<HistoricalServiceCallIssue> findHistoricalIssue(long id);
 
+    Finder<? extends ServiceCallIssue> findIssues(ServiceCallIssueFilter filter);
 }

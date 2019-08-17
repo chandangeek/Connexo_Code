@@ -7,7 +7,7 @@ package com.energyict.mdc.masterdata.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made

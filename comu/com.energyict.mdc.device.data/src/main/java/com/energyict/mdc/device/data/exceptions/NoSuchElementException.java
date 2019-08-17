@@ -43,4 +43,8 @@ public class NoSuchElementException extends LocalizedException implements Suppli
     public static NoSuchElementException deviceMessageSpecWithIdNotFound(Thesaurus thesaurus, long deviceMessageId) {
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, deviceMessageId);
     }
+
+    public static NoSuchElementException comTaskCouldNotBeLocated(Thesaurus thesaurus) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.NO_COMTASK_FOR_COMMAND);
+    }
 }

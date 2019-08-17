@@ -5,11 +5,13 @@
 package com.energyict.mdc.device.data.tasks;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
 
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,7 @@ public interface ConnectionTaskReportService {
 
     /**
      * Counts all {@link ConnectionTask}s that relate to
-     * {@link com.energyict.mdc.device.data.Device}s
+     * {@link Device}s
      * that are part of the specified {@link EndDeviceGroup},
      * grouping them by their respective {@link TaskStatus}.
      *
@@ -44,7 +46,7 @@ public interface ConnectionTaskReportService {
     /**
      * Counts all {@link ConnectionTask}s whose current status is
      * in the Set of {@link TaskStatus} grouping them by
-     * {@link com.energyict.mdc.engine.config.ComPortPool}.
+     * {@link ComPortPool}.
      *
      * @param taskStatuses The Set of TaskStatus
      * @return The numbers, broken down by ComPortPool and TaskStatus
@@ -53,7 +55,7 @@ public interface ConnectionTaskReportService {
 
     /**
      * Counts all {@link ConnectionTask}s that relate to
-     * {@link com.energyict.mdc.device.data.Device}s
+     * {@link Device}s
      * that are part of the specified {@link EndDeviceGroup}
      * and whose current status is in the Set of {@link TaskStatus}
      * grouping them by {@link ComPortPool}.
@@ -66,7 +68,7 @@ public interface ConnectionTaskReportService {
     /**
      * Counts all {@link ConnectionTask}s whose current status is
      * in the Set of {@link TaskStatus} grouping them by
-     * {@link com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass}.
+     * {@link ConnectionTypePluggableClass}.
      *
      * @param taskStatuses The Set of TaskStatus
      * @return The numbers, broken down by DeviceType and TaskStatus
@@ -75,10 +77,10 @@ public interface ConnectionTaskReportService {
 
     /**
      * Counts all {@link ConnectionTask}s that relate to
-     * {@link com.energyict.mdc.device.data.Device}s
+     * {@link Device}s
      * that are part of the specified {@link EndDeviceGroup}
      * and whose current status is in the Set of {@link TaskStatus}
-     * grouping them by {@link com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass}.
+     * grouping them by {@link ConnectionTypePluggableClass}.
      *
      * @param taskStatuses The Set of TaskStatus
      * @return The numbers, broken down by DeviceType and TaskStatus
@@ -97,7 +99,7 @@ public interface ConnectionTaskReportService {
 
     /**
      * Counts all {@link ConnectionTask}s that relate to
-     * {@link com.energyict.mdc.device.data.Device}s
+     * {@link Device}s
      * that are part of the specified {@link EndDeviceGroup}
      * and whose current status is in the Set of {@link TaskStatus}
      * grouping them by {@link DeviceType}.

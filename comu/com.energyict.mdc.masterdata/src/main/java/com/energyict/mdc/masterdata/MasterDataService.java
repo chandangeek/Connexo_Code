@@ -7,9 +7,15 @@ package com.energyict.mdc.masterdata;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterType;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 
 import java.util.Collection;
 import java.util.List;
@@ -91,6 +97,8 @@ public interface MasterDataService {
 
     Optional<RegisterType> findAndLockRegisterTypeByIdAndVersion(long id, long version);
 
+    Optional<RegisterType> findAndLockRegisterTypeById(long id);
+
     public Optional<ChannelType> findChannelTypeById(long id);
 
 
@@ -148,6 +156,8 @@ public interface MasterDataService {
     public Optional<LoadProfileType> findLoadProfileType(long loadProfileTypeId);
 
     public Optional<LoadProfileType> findAndLockLoadProfileTypeByIdAndVersion(long id, long version);
+
+    public Optional<LoadProfileType> findAndLockLoadProfileTypeById(long id);
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 

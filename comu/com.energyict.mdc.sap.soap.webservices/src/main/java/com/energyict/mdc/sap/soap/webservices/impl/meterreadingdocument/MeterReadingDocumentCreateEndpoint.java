@@ -6,13 +6,13 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmartMeterMeterReadingDocumentERPCreateRequestEIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmartMeterMeterReadingDocumentERPCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMsg;
 
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint implements SmartMeterMeterReadingDocumentERPCreateRequestEIn, ApplicationSpecific {
+public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint implements SmartMeterMeterReadingDocumentERPCreateRequestCIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -22,7 +22,7 @@ public class MeterReadingDocumentCreateEndpoint extends AbstractInboundEndPoint 
     }
 
     @Override
-    public void smartMeterMeterReadingDocumentERPCreateRequestEIn(SmrtMtrMtrRdngDocERPCrteReqMsg request) {
+    public void smartMeterMeterReadingDocumentERPCreateRequestCIn(SmrtMtrMtrRdngDocERPCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request).ifPresent(requestMessage ->
                     serviceCallCommands.createServiceCallAndTransition(MeterReadingDocumentCreateRequestMessage.builder()

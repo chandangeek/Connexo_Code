@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
-import com.energyict.mdc.device.config.ConflictingSolution;
+import com.energyict.mdc.common.device.config.ConflictingSolution;
 import com.energyict.mdc.device.config.impl.MessageSeeds;
 
 import javax.validation.ConstraintValidator;

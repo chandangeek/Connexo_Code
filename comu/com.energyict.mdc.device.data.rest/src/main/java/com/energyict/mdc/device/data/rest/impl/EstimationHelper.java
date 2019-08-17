@@ -19,12 +19,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.Ranges;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 
 import com.google.common.collect.Range;

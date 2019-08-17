@@ -9,14 +9,21 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -25,20 +32,37 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -226,8 +250,18 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public List<ComJob> findExecutableOutboundComTasks(com.energyict.mdc.engine.config.OutboundComPort comPort) {
+    public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool) {
+        return null;
+    }
+
+    @Override
+    public List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date) {
+        return null;
     }
 
     @Override
@@ -309,6 +343,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public boolean attemptLock(PriorityComTaskExecutionLink priorityComTaskExecutionLink, ComPort comPort) {
+        return attemptLock(priorityComTaskExecutionLink.getComTaskExecution(), comPort);
+    }
+
+    @Override
     public void unlock(ComTaskExecution comTaskExecution) {
         this.comTaskExecutionLocking.remove(comTaskExecution);
     }
@@ -321,6 +360,12 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
+        this.connectionTaskLocking.remove(connectionTask);
+        return connectionTask;
+    }
+
+    @Override
+    public ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
         return connectionTask;
     }
@@ -482,6 +527,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public boolean areStillPendingWithHighPriority(Collection<Long> priorityComTaskExecutionLinkIds) {
+        return false;
+    }
+
+    @Override
     public <T> T executeTransaction(Transaction<T> transaction) {
         return null;
     }
@@ -620,5 +670,10 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public User getComServerUser() {
         return null;
+    }
+
+    @Override
+    public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
+        return Collections.emptyList();
     }
 }

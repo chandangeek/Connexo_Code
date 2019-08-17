@@ -7,7 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 
 import javax.inject.Inject;
 import java.util.Collections;

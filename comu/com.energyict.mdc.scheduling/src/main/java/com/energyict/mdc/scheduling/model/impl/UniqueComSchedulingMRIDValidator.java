@@ -5,8 +5,8 @@
 package com.energyict.mdc.scheduling.model.impl;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

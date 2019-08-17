@@ -5,10 +5,10 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfo;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryInfo;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.ComServerType;
 

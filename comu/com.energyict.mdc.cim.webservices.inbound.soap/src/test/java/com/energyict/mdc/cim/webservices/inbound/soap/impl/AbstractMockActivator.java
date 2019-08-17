@@ -4,26 +4,36 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -32,6 +42,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 
+import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -40,6 +51,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import org.osgi.framework.BundleContext;
 
@@ -58,6 +71,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -121,9 +136,29 @@ public abstract class AbstractMockActivator {
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
+    protected MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    protected MessageService messageService;
+    @Mock
+    protected SendMeterReadingsProvider sendMeterReadingsProvider;
+    @Mock
+    private QueueTableSpec queueTableSpec;
+    @Mock
+    protected DestinationSpec destinationSpec;
+    @Mock
+    protected ServiceCall serviceCall;
+    @Mock
+    OrmService ormService;
+    @Mock
+    DataModel dataModel;
+    @Mock
     protected MeterConfigFactory meterConfigFactory;
     @Mock
-    protected OrmService ormService;
+    protected TaskService taskService;
+    @Mock
+    protected DeviceMessageSpecificationService deviceMessageSpecificationService;
+    @Mock
+    protected MasterDataService masterDataService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -138,7 +173,23 @@ public abstract class AbstractMockActivator {
         when(transactionService.getContext()).thenReturn(transactionContext);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
-        when(webServicesService.isPublished(anyObject())).thenReturn(true);
+        mockWebServices(true);
+
+        ServiceCallBuilder builder = mock(ServiceCallBuilder.class);
+        when(builder.origin(anyString())).thenReturn(builder);
+        when(builder.extendedWith(any())).thenReturn(builder);
+        when(builder.targetObject(any())).thenReturn(builder);
+        when(builder.create()).thenReturn(serviceCall);
+
+        when(serviceCallType.newServiceCall()).thenReturn(builder);
+        when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
+        when(messageService.getDestinationSpec(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION)).thenReturn(Optional.of(destinationSpec));
+        when(messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")).thenReturn(Optional.of(queueTableSpec));
+        when(queueTableSpec.createDestinationSpec(anyString(), anyInt())).thenReturn(destinationSpec);
+        when(ormService.newDataModel(InboundSoapEndpointsActivator.COMPONENT_NAME, "Multisense SOAP webservices")).thenReturn(upgradeService.newNonOrmDataModel());
+
+        RecurrentTaskBuilder recurrentTaskBuilder = mock(RecurrentTaskBuilder.class, RETURNS_DEEP_STUBS);
+        when(this.taskService.newBuilder()).thenReturn(recurrentTaskBuilder);
     }
 
     private void initActivator() {
@@ -167,8 +218,18 @@ public abstract class AbstractMockActivator {
         activator.setServiceCallService(serviceCallService);
         activator.setWebServicesService(webServicesService);
         activator.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        activator.setMeterConfigFactory(meterConfigFactory);
+        activator.setMetrologyConfigurationService(metrologyConfigurationService);
+        activator.setEndPointConfigurationService(endPointConfigurationService);
+        activator.setWebServicesService(webServicesService);
+        activator.setServiceCallService(serviceCallService);
+        activator.setMessageService(messageService);
+        activator.setJsonService(jsonService);
+        activator.setSendMeterReadingsProvider(sendMeterReadingsProvider);
         activator.setOrmService(ormService);
+        activator.setMeterConfigFactory(meterConfigFactory);
+        activator.setTaskService(taskService);
+        activator.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
+        activator.setMasterDataService(masterDataService);
         activator.activate(mock(BundleContext.class));
     }
 
@@ -203,5 +264,9 @@ public abstract class AbstractMockActivator {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected void mockWebServices(boolean isPublished) {
+        when(webServicesService.isPublished(anyObject())).thenReturn(isPublished);
     }
 }

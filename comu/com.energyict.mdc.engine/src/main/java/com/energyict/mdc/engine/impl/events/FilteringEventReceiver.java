@@ -4,11 +4,12 @@
 
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 
@@ -88,7 +89,7 @@ public interface FilteringEventReceiver extends EventReceiver {
 
     /**
      * Removes the filter for {@link com.energyict.mdc.engine.events.ComServerEvent}s
-     * that relate to any specific {@link com.energyict.mdc.tasks.ComTask}.
+     * that relate to any specific {@link ComTask}.
      */
     void widenToAllComTasks();
 

@@ -4,15 +4,17 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionMessageJournalEntry;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import java.time.Instant;
 
 /**
  * Defines the behavior of a component that will create
- * {@link com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry ComSessionJournalEntries}
- * or {@link com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry ComTaskExecutionMessageJournalEntries}
+ * {@link ComSessionJournalEntry ComSessionJournalEntries}
+ * or {@link ComTaskExecutionMessageJournalEntry ComTaskExecutionMessageJournalEntries}
  * for logging purposes.
  *
  * @author Rudi Vankeirsbilck (rudi)

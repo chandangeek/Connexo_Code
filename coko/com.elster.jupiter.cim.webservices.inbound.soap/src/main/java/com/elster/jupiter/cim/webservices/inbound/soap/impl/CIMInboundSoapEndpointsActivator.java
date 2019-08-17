@@ -5,9 +5,6 @@
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.cim.webservices.inbound.soap.masterdatalinkageconfig.ExecuteMasterDataLinkageConfigEndpoint;
-import com.elster.jupiter.cim.webservices.inbound.soap.meterreadings.ExecuteMeterReadingsEndpoint;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsCustomPropertySet;
-import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.getmeterreadings.ParentGetMeterReadingsServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigServiceCallHandler;
 import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterServiceCallHandler;
@@ -15,8 +12,6 @@ import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointcon
 import com.elster.jupiter.cim.webservices.inbound.soap.usagepointconfig.ExecuteUsagePointConfigEndpoint;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
-import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -89,7 +84,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     private volatile ServiceCallService serviceCallService;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
-    private volatile SendMeterReadingsProvider sendMeterReadingsProvider;
     private final ObjectHolder<ReplyMasterDataLinkageConfigWebService> replyMasterDataLinkageConfigWebServiceHolder = new ObjectHolder<>();
     private final ObjectHolder<ReplyUsagePointConfigWebService> replyUsagePointConfigWebServiceHolder = new ObjectHolder<>();
 
@@ -107,7 +101,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
             UsagePointLifeCycleService usagePointLifeCycleService, CustomPropertySetService customPropertySetService,
             EndPointConfigurationService endPointConfigurationService, WebServicesService webServicesService,
             ServiceCallService serviceCallService, MessageService messageService, JsonService jsonService,
-            SendMeterReadingsProvider sendMeterReadingsProvider,
             ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService,
             ReplyUsagePointConfigWebService replyUsagePointConfigWebService) {
         this();
@@ -126,7 +119,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         setServiceCallService(serviceCallService);
         setMessageService(messageService);
         setJsonService(jsonService);
-        setSendMeterReadingsProvider(sendMeterReadingsProvider);
         addReplyMasterDataLinkageConfigWebServiceClient(replyMasterDataLinkageConfigWebService);
         addReplyUsagePointConfigWebServiceClient(replyUsagePointConfigWebService);
         activate(bundleContext);
@@ -151,7 +143,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
                 bind(WebServicesService.class).toInstance(webServicesService);
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(MessageService.class).toInstance(messageService);
-                bind(SendMeterReadingsProvider.class).toInstance(sendMeterReadingsProvider);
                 bind(JsonService.class).toInstance(jsonService);
                 TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>> replyMasterDataLinkageHolder = new TypeLiteral<ObjectHolder<ReplyMasterDataLinkageConfigWebService>>() {
                 };
@@ -182,8 +173,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     }
 
     private void registerHandlers(BundleContext bundleContext) {
-        registerServiceCallHandler(bundleContext, dataModel.getInstance(ParentGetMeterReadingsServiceCallHandler.class),
-                ParentGetMeterReadingsServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         registerServiceCallHandler(bundleContext,
                 dataModel.getInstance(MasterDataLinkageConfigServiceCallHandler.class),
                 MasterDataLinkageConfigServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
@@ -201,8 +190,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(ExecuteMasterDataLinkageConfigEndpoint.class),
                 "CIM MasterDataLinkageConfig");
-        registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteMeterReadingsEndpoint.class),
-                "CIM MeterReadings");
         registerInboundSoapEndpoint(bundleContext, () -> dataModel.getInstance(ExecuteUsagePointConfigEndpoint.class),
                 "CIM UsagePointConfig");
     }
@@ -285,11 +272,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
         this.serviceCallService = serviceCallService;
     }
 
-    @Reference(target = "(name=" + ParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
-    public void setParentGetMeterReadingsCustomPropertySet(CustomPropertySet customPropertySet) {
-        // PATCH; required for proper startup; do not delete
-    }
-
     @Reference
     public final void setMessageService(MessageService messageService) {
         this.messageService = messageService;
@@ -298,11 +280,6 @@ public class CIMInboundSoapEndpointsActivator implements MessageSeedProvider {
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
-    }
-
-    @Reference
-    public void setSendMeterReadingsProvider(SendMeterReadingsProvider sendMeterReadingsProvider) {
-        this.sendMeterReadingsProvider = sendMeterReadingsProvider;
     }
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)

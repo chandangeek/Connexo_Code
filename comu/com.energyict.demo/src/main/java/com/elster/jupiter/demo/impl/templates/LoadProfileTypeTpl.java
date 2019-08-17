@@ -7,8 +7,8 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.LoadProfileTypeBuilder;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -24,7 +24,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.util.units.Quantity;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.AbstractModule;

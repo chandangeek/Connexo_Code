@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.mockito.Mock;
@@ -192,8 +193,8 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         try {
             // Business method
             executeMeterConfigEndpoint.createMeterConfig(meterConfigRequest);
-            fail("A NPE must be thrown");
-        } catch (NullPointerException e) {
+            fail("FaultMessage must be thrown");
+        } catch (FaultMessage faultMessage) {
         }
     }
 
