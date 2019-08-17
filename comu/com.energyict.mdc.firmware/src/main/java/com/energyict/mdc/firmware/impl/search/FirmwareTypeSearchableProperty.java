@@ -110,15 +110,19 @@ public class FirmwareTypeSearchableProperty implements SearchableProperty {
                     if (constriction.getConstrainingValues()
                             .stream()
                             .map(DeviceType.class::cast)
-                            .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol() != null
-                                    && deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion()
-                                    && deviceProtocolPluggableClass.getDeviceProtocol().supportsAuxiliaryFirmwareVersion()).orElse(false))) {
+                            .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
+                                                              .map(deviceProtocolPluggableClass -> (deviceProtocolPluggableClass.getDeviceProtocol() != null)
+                                                                   && deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion()
+                                                                   && deviceProtocolPluggableClass.getDeviceProtocol().supportsAuxiliaryFirmwareVersion())
+                                                              .orElse(false))) {
                         this.firmwareTypes = new FirmwareType[]{FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.AUXILIARY, FirmwareType.CA_CONFIG_IMAGE};
                     } else if (constriction.getConstrainingValues()
                                 .stream()
                                 .map(DeviceType.class::cast)
-                                .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol() != null
-                                        && deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion()).orElse(false))) {
+                                .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
+                                                                  .map(deviceProtocolPluggableClass -> (deviceProtocolPluggableClass.getDeviceProtocol() != null)
+                                                                       && deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion())
+                                                                  .orElse(false))) {
                         this.firmwareTypes = new FirmwareType[]{FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.CA_CONFIG_IMAGE};
                     } else {
                         this.firmwareTypes = new FirmwareType[]{FirmwareType.METER};
