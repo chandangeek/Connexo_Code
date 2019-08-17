@@ -9,8 +9,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentBulkRequestConfirmationProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentRequestConfirmationMessage;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOutService;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreateconfirmation.SmrtMtrMtrRdngDocERPBulkCrteConfMsg;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class MeterReadingDocumentBulkRequestConfirmationTest extends AbstractOutboundWebserviceTest {
 
     @Mock
-    private SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut port;
+    private SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut port;
     @Mock
     private SmrtMtrMtrRdngDocERPBulkCrteConfMsg confirmationMessage;
     @Mock
@@ -63,7 +63,7 @@ public class MeterReadingDocumentBulkRequestConfirmationTest extends AbstractOut
         provider.addConfirmationPort(port, properties);
         provider.call(outboundMessage);
 
-        verify(provider).using("smartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut");
+        verify(provider).using("smartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut");
         verify(requestSender).send(confirmationMessage);
     }
 
@@ -79,11 +79,11 @@ public class MeterReadingDocumentBulkRequestConfirmationTest extends AbstractOut
 
     @Test
     public void testGetService() {
-        Assert.assertEquals(provider.getService(), SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOut.class);
+        Assert.assertEquals(provider.getService(), SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOut.class);
     }
 
     @Test
     public void testGet() {
-        Assert.assertEquals(provider.get().getClass(), SmartMeterMeterReadingDocumentERPBulkCreateConfirmationEOutService.class);
+        Assert.assertEquals(provider.get().getClass(), SmartMeterMeterReadingDocumentERPBulkCreateConfirmationCOutService.class);
     }
 }

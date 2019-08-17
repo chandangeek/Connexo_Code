@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.device.data.Device;
+
 import com.google.common.collect.Multimap;
+
 import java.math.BigDecimal;
 
 public interface DeviceBuilder{

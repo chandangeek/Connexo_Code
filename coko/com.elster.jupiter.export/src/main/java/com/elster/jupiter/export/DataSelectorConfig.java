@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.time.RelativePeriod;
@@ -25,6 +26,8 @@ public interface DataSelectorConfig extends HasAuditInfo {
     void apply(DataSelectorConfigVisitor visitor);
 
     History<DataSelectorConfig> getHistory();
+
+    DataModel getDataModel();
 
     interface Updater {
 

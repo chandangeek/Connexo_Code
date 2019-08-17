@@ -25,6 +25,14 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
                 section: this.SECTION_ACTION
             },
             {
+                text: Uni.I18n.translate('deviceCommunicationTask.runComTaskNowWithPriority', 'MDC', 'Run with priority'),
+                privileges: Mdc.privileges.Device.runWithPriority,
+                itemId: 'runDeviceComTaskNowWithPriority',
+                action: 'runDeviceComTaskNowWithPriority',
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions,
+                section: this.SECTION_ACTION
+            },
+            {
                 text: Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethod', 'MDC', 'Change connection method'),
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                 itemId: 'changeConnectionMethodOfDeviceComTask',

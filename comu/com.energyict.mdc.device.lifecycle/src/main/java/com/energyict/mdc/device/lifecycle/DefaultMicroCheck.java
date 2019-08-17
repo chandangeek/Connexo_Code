@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.lifecycle;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 
 /**
  * Models a number of tiny checks that will be executed
@@ -119,5 +119,10 @@ public enum DefaultMicroCheck {
     /**
      * Checks that there is at least one zone linked to this device.
      */
-    AT_LEAST_ONE_ZONE_LINKED
+    AT_LEAST_ONE_ZONE_LINKED,
+
+    /**
+     * Check if at least one communication task has been executed successfully on the device.
+     */
+    AT_LEAST_ONE_COMMUNICATION_TASK_EXECUTED_SUCCESSFULLY,
 }

@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -17,15 +15,16 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ValidObisCode;
 import com.energyict.mdc.common.interval.Temporals;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
 import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
@@ -35,11 +34,9 @@ import javax.xml.bind.annotation.XmlElement;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -106,28 +103,12 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.setInterval(interval);
         Collection<RegisterType> failedRegisterTypes = new ArrayList<>();
         for (RegisterType registerType : registerTypes) {
-            if (this.commodityIsCompatible(registerType)) {
-                Optional<ChannelType> channelType = this.createChannelTypeForRegisterType(registerType);
-                if (!channelType.isPresent()) {
-                    failedRegisterTypes.add(registerType);
-                }
-            } else {
+            Optional<ChannelType> channelType = this.createChannelTypeForRegisterType(registerType);
+            if (!channelType.isPresent()) {
                 failedRegisterTypes.add(registerType);
             }
         }
         return failedRegisterTypes;
-    }
-
-    private boolean commodityIsCompatible(RegisterType registerType) {
-        return isItADataLoggerPulseReadingType(registerType) || loadProfileCompatibleCommodities().contains(registerType.getReadingType().getCommodity());
-    }
-
-    private Set<Commodity> loadProfileCompatibleCommodities() {
-        return EnumSet.complementOf(EnumSet.of(Commodity.NOTAPPLICABLE, Commodity.COMMUNICATION, Commodity.DEVICE));
-    }
-
-    private boolean isItADataLoggerPulseReadingType(RegisterType registerType) {
-        return registerType.getReadingType().getMeasurementKind().equals(MeasurementKind.RELAYCYCLE);
     }
 
     @Override

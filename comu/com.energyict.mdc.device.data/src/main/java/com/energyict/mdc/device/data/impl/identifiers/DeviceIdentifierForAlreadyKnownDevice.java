@@ -42,7 +42,7 @@ public final class DeviceIdentifierForAlreadyKnownDevice implements DeviceIdenti
     }
 
     private String getmRID() {
-        return ((com.energyict.mdc.device.data.Device) device).getmRID();
+        return ((com.energyict.mdc.common.device.data.Device) device).getmRID();
     }
 
     @Override
@@ -56,7 +56,7 @@ public final class DeviceIdentifierForAlreadyKnownDevice implements DeviceIdenti
 
         DeviceIdentifierForAlreadyKnownDevice that = (DeviceIdentifierForAlreadyKnownDevice) o;
 
-        return ((com.energyict.mdc.device.data.Device) this.device).getId() == ((com.energyict.mdc.device.data.Device) that.device).getId();
+        return ((com.energyict.mdc.common.device.data.Device) this.device).getId() == ((com.energyict.mdc.common.device.data.Device) that.device).getId();
 
     }
 

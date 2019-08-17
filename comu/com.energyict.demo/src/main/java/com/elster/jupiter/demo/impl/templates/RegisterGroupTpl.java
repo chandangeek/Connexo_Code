@@ -6,7 +6,7 @@ package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.RegisterGroupBuilder;
-import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
 
 import java.util.Arrays;
 import java.util.Collection;

@@ -17,6 +17,7 @@ public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     TRANSITION_COMTASK_CREATED("com/energyict/mdc/device/data/comtaskexecution/CREATED", "Creation of a communication task on a device"),
     TRANSITION_COMTASK_UPDATED("com/energyict/mdc/device/data/comtaskexecution/UPDATED", "Change a communication taks of a device"),
     TRANSITION_COMTASK_DELETED("com/energyict/mdc/device/data/comtaskexecution/DELETED", "Deletion of a communication task on a device"),
+    TRANSITION_COMTASK_COMPLETION("com/energyict/mdc/device/data/comtaskexecution/COMPLETION","Successful completion of a communication task on a device"),
     TRANSITION_CONNECTION_TASK_CREATED("com/energyict/mdc/device/data/connectiontask/CREATED", "Creation of a connection method on a device"),
     TRANSITION_CONNECTION_TASK_UPDATED("com/energyict/mdc/device/data/connectiontask/UPDATED", "Change of a connection method of a device"),
     TRANSITION_CONNECTION_TASK_DELETED("com/energyict/mdc/device/data/connectiontask/DELETED", "Deletion of a connection method on a device"),

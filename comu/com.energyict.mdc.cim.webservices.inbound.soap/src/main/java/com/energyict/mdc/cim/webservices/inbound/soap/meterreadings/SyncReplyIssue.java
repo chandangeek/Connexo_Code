@@ -8,10 +8,11 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import ch.iec.tc57._2011.schema.message.ErrorType;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,7 +64,7 @@ public class SyncReplyIssue {
     // additional errors to be sent synchroneously
     private List<ErrorType> errorTypes;
 
-    // not injectable in order to create this object on each request
+    @Inject
     public SyncReplyIssue(ReplyTypeFactory replyTypeFactory) {
         this.replyTypeFactory = replyTypeFactory;
     }

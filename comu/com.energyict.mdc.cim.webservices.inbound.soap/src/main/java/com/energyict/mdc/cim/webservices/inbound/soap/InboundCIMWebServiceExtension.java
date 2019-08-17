@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import aQute.bnd.annotation.ConsumerType;
 

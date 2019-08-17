@@ -12,7 +12,7 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Group;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 
 import com.jayway.jsonpath.JsonModel;

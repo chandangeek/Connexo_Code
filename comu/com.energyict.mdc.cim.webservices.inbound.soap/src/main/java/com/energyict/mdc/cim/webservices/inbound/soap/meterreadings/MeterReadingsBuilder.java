@@ -30,11 +30,11 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
 
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.meterreadings.DateTimeInterval;
@@ -191,7 +191,7 @@ public class MeterReadingsBuilder {
         } else if (endDevices.stream().anyMatch(ed -> ed instanceof Meter)) {
             if (!loadProfiles.isEmpty()) {
                 readingTypeMRIDs.addAll(loadProfiles.stream()
-                        .map (LoadProfileType::getChannelTypes)
+                        .map(LoadProfileType::getChannelTypes)
                         .flatMap(Collection::stream)
                         .map(channelType -> channelType.getReadingType().getMRID())
                         .collect(Collectors.toSet()));
@@ -214,12 +214,12 @@ public class MeterReadingsBuilder {
             endDevices.stream()
                     .filter(ed -> ed instanceof Meter)
                     .forEach(ed -> {
-                            Meter meter = (Meter) ed;
-                            meter.getChannelsContainers().stream()
-                            .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
-                            .map(this::fetchReadingsFromContainer)
-                            .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
-                                    .ifPresent(meterReadingsList::add));
+                        Meter meter = (Meter) ed;
+                        meter.getChannelsContainers().stream()
+                                .filter(cc -> !timePeriods.subRangeSet(cc.getInterval().toOpenClosedRange()).isEmpty())
+                                .map(this::fetchReadingsFromContainer)
+                                .forEach(readingsByReadingTypes -> wrapInMeterReading(null, ed, readingsByReadingTypes)
+                                        .ifPresent(meterReadingsList::add));
                     });
         }
         // filled in in scope of wrapInMeterReading
@@ -231,11 +231,11 @@ public class MeterReadingsBuilder {
                 .map(MeterReadingsBuilder::createReadingQualityType)
                 .forEach(readingQualityTypeList::add);
 
-        Set<String>referencedReadingTypesMrids = referencedReadingTypes.stream()
+        Set<String> referencedReadingTypesMrids = referencedReadingTypes.stream()
                 .map(readingType -> readingType.getMRID())
                 .collect(Collectors.toSet());
         loadProfiles.stream()
-                .map(loadProfile ->  createLoadProfile(loadProfile, referencedReadingTypesMrids))
+                .map(loadProfile -> createLoadProfile(loadProfile, referencedReadingTypesMrids))
                 .forEach(loadProfileList::add);
         registerGroups.stream()
                 .map(registerGroup -> createRegisterGroup(registerGroup, referencedReadingTypesMrids))

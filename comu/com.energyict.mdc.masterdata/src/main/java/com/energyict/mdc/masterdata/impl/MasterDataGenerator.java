@@ -5,10 +5,11 @@
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
+
+import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
 import java.util.List;

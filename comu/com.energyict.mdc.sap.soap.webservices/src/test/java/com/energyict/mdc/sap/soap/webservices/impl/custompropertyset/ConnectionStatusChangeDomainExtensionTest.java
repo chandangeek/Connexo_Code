@@ -42,7 +42,6 @@ public class ConnectionStatusChangeDomainExtensionTest {
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.ID.javaName(), id);
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName(), categoryCode);
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName(), reasonCode);
-        cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.javaName(), url);
         cpsValues.setProperty(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName(), nowDate);
 
         domainExtension.copyFrom(serviceCall, cpsValues);
@@ -50,7 +49,6 @@ public class ConnectionStatusChangeDomainExtensionTest {
         assertThat(domainExtension.getId()).isSameAs(id);
         assertThat(domainExtension.getCategoryCode()).isSameAs(categoryCode);
         assertThat(domainExtension.getReasonCode()).isSameAs(reasonCode);
-        assertThat(domainExtension.getConfirmationURL()).isSameAs(url);
         assertThat(domainExtension.getProcessDate()).isSameAs(nowDate);
     }
 
@@ -59,7 +57,6 @@ public class ConnectionStatusChangeDomainExtensionTest {
         domainExtension.setId(id);
         domainExtension.setCategoryCode(categoryCode);
         domainExtension.setReasonCode(reasonCode);
-        domainExtension.setConfirmationURL(url);
         domainExtension.setProcessDate(nowDate);
 
         domainExtension.copyTo(cpsValues);
@@ -70,8 +67,6 @@ public class ConnectionStatusChangeDomainExtensionTest {
                 .isSameAs(categoryCode);
         assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName()))
                 .isSameAs(reasonCode);
-        assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.javaName()))
-                .isSameAs(url);
         assertThat(cpsValues.getProperty(ConnectionStatusChangeDomainExtension.FieldNames.PROCESS_DATE.javaName()))
                 .isSameAs(nowDate);
     }

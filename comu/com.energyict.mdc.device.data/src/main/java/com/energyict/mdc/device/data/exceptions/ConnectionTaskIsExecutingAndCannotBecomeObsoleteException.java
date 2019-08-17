@@ -7,12 +7,12 @@ package com.energyict.mdc.device.data.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 /**
  * Models the exceptional situation that occurs when
- * an attempt is made to obsolete a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
+ * an attempt is made to obsolete a {@link ConnectionTask}
  * that is currently executing and can therefore not be made obsolete.
  *
  * @author Rudi Vankeirsbilck (rudi)

@@ -8,9 +8,10 @@ import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
 import com.energyict.mdc.channel.serial.modemproperties.postdialcommand.ModemComponent;
 import com.energyict.mdc.common.NestedIOException;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
 import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
@@ -32,7 +33,7 @@ import java.time.Clock;
 
 /**
  * Implementation of an {@link InboundComPortConnector}
- * for a {@link com.energyict.mdc.engine.config.ComPort}
+ * for a {@link ComPort}
  * of the type {@link ComPortType#SERIAL}
  * <p>
  *

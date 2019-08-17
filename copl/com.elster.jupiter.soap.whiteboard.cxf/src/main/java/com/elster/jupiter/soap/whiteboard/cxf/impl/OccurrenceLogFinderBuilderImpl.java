@@ -34,7 +34,7 @@ public class OccurrenceLogFinderBuilderImpl implements OccurrenceLogFinderBuilde
     }
 
     @Override
-    public OccurrenceLogFinderBuilder withOccurrenceId(WebServiceCallOccurrence epoc) {
+    public OccurrenceLogFinderBuilder withOccurrence(WebServiceCallOccurrence epoc) {
         this.condition = this.condition.and(where("occurrence").isEqualTo(epoc));
         return this;
     }

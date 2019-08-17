@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 
@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 
 /**
  * Extends the {@link RunningComServerImpl} and specializes on
- * {@link com.energyict.mdc.engine.config.RemoteComServer}s.
+ * {@link RemoteComServer}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-21 (16:20)

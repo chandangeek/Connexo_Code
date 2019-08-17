@@ -6,12 +6,13 @@ package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.pluggable.PluggableClass;
 
 import java.util.Set;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
- * to save properties on a {@link com.energyict.mdc.pluggable.PluggableClass}
+ * to save properties on a {@link PluggableClass}
  * that are not known to the PluggableClass, i.e. the PluggableClass
  * does not have {@link com.energyict.mdc.dynamic.PropertySpec}s for these properties.
  *

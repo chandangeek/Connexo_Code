@@ -5,6 +5,11 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
@@ -47,8 +52,16 @@ public enum TranslationKeys implements TranslationKey {
     CATEGORY_CODE("categoryCode", "Category code"),
     REASON_CODE("reasonCode", "Reason code"),
     PROCESS_DATE("processDate", "Planned processing date"),
+    OBIS("obis","OBIS code"),
+    START_DATE("startDate","Time slice start date"),
+    END_DATE("endDate","Time slice end date"),
+    RETURN_CODE("returnCode", "Return code"),
+    SERIAL_ID("serialId", "Serial id"),
+    INTERVAL("interval","Interval length"),
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
+    PROFILE_ID("profileID", "Profile ID"),
+    EXPORTER("exporter", "Use custom exporter"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
@@ -58,7 +71,21 @@ public enum TranslationKeys implements TranslationKey {
     // CPS
     CONNECTION_STATUS_CHANGE_CPS("servicecall.cps.connection.status.change",
             ConnectionStatusChangeCustomPropertySet.class.getSimpleName()),
+    MASTER_UTILITIES_DEVICE_CREATE_REQUEST_CPS("servicecall.cps.master.utilities.device.create.request",
+            MasterUtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName()),
+    MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.master.utilities.device.register.create.request",
+            MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
+    SUB_MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.sub.master.utilities.device.register.create.request",
+            SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
+    UTILITIES_DEVICE_CREATE_REQUEST_CPS("servicecall.cps.utilities.device.create.request",
+            UtilitiesDeviceCreateRequestCustomPropertySet.class.getSimpleName()),
+    UTILITIES_DEVICE_REGISTER_CREATE_REQUEST_CPS("servicecall.cps.utilities.device.register.create.request",
+            UtilitiesDeviceRegisterCreateRequestCustomPropertySet.class.getSimpleName()),
 
+    //Micro checks
+    COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
+    AT_LEAST_ONE_LRN_WAS_SET("sap.microchecks.AtLeastOneLrnWasSet", "At least one LRN was set"),
+    AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one LRN was set on the device"),
     ;
 
     private final String key;

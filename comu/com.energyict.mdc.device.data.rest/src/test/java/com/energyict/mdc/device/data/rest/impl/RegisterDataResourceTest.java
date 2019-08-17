@@ -24,15 +24,15 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.device.data.RegisterDataUpdater;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.RegisterDataUpdater;
-import com.energyict.mdc.masterdata.RegisterType;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -171,7 +171,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         doReturn(Arrays.asList(mockReadingQuality("2.7.1"), readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
         doReturn(Arrays.asList(readingQualityEdited, readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus2).getReadingQualities();
         doReturn(Arrays.asList(readingQualityConfirmed, readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus3).getReadingQualities();
-        when(topologyService.getSlaveChannel(any(com.energyict.mdc.device.data.Channel.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.getSlaveChannel(any(com.energyict.mdc.common.device.data.Channel.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 

@@ -6,7 +6,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import java.util.stream.Stream;
 
@@ -19,12 +19,15 @@ import java.util.stream.Stream;
 public enum TaskStatusTranslationKeys implements TranslationKey {
 
     PENDING(TaskStatus.Pending, "Pending"),
+    PENDING_PRIO(TaskStatus.PendingWithPriority, "Pending with Priority"),
     FAILED(TaskStatus.Failed, "Failed"),
     BUSY(TaskStatus.Busy, "Busy"),
     ON_HOLD(TaskStatus.OnHold, "Inactive"),
     RETRYING(TaskStatus.Retrying, "Retrying"),
+    RETRYING_PRIO(TaskStatus.RetryingWithPriority, "Retrying with Priority"),
     NEVER_COMPLETED(TaskStatus.NeverCompleted, "Never completed"),
     WAITING(TaskStatus.Waiting, "Waiting"),
+    WAITING_PRIO(TaskStatus.WaitingWithPriority, "Waiting with Priority"),
     PROCESSING_ERROR(TaskStatus.ProcessingError, "Processing error");
 
     private TaskStatus taskStatus;

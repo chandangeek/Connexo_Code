@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.dashboard.ConnectionTypeHeatMap;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 /**
  * Provides an implementation for the {@link ConnectionTypeHeatMap} interface.

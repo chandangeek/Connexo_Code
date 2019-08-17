@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -31,7 +32,10 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -57,6 +61,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadin
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigCustomPropertySet;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterCustomPropertySet;
+import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -89,6 +94,8 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 
 @Singleton
@@ -105,6 +112,12 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private static final String CIM_GET_END_DEVICE_EVENTS = "CIM GetEndDeviceEvents";
     private static final String CIM_END_DEVICE_EVENTS = "CIM EndDeviceEvents";
     private static final String CIM_METER_READINGS = "CIM MeterReadings";
+
+    private static final Logger LOGGER = Logger.getLogger(InboundSoapEndpointsActivator.class.getName());
+    public static final String RECURRENT_TASK_FREQUENCY = "com.energyict.mdc.cim.webservices.inbound.soap.recurrenttaskfrequency";
+    public static final String RECURRENT_TASK_NAME = "Future com tasks execution task";
+    public static final int RECURRENT_TASK_DEFAULT_FREQUENCY = 5;
+    public static final int RECURRENT_TASK_RETRY_DELAY = 60;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -249,10 +262,10 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, InstallerImpl.class,
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
                 ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
                                 version(10, 7), UpgraderV10_7.class));
-
+        createOrUpdateFutureComTasksExecutionTask();
         addConverter(new ObisCodePropertyValueConverter());
         registerHandlers();
         registerServices(bundleContext);
@@ -262,6 +275,50 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     public void stop() {
         serviceRegistrations.forEach(ServiceRegistration::unregister);
         converters.forEach(propertyValueInfoService::removePropertyValueInfoConverter);
+    }
+
+    public void createOrUpdateFutureComTasksExecutionTask() {
+        threadPrincipalService.set(() -> "Activator");
+        try (TransactionContext context = transactionService.getContext()) {
+            String property = bundleContext.getProperty(RECURRENT_TASK_FREQUENCY);
+            int frequency = RECURRENT_TASK_DEFAULT_FREQUENCY;
+            if (property != null) {
+                frequency = Integer.parseInt(property);
+            }
+
+            Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(RECURRENT_TASK_NAME);
+            if (taskOptional.isPresent()) {
+                RecurrentTask task = taskOptional.get();
+                task.setScheduleExpression(PeriodicalScheduleExpression.every(frequency).minutes().at(0).build());
+                task.save();
+            } else {
+                createActionTask(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION,
+                        RECURRENT_TASK_RETRY_DELAY,
+                        TranslationKeys.FUTURE_COM_TASK_EXECUTION_NAME,
+                        RECURRENT_TASK_NAME,
+                        "0 0/" + frequency + " * 1/1 * ? *");
+            }
+            context.commit();
+        } catch (Exception e) {
+            LOGGER.severe(e.getMessage());
+        }
+    }
+
+    private void createActionTask(String destinationSpecName, int destinationSpecRetryDelay, TranslationKey subscriberSpecName, String taskName, String taskSchedule) {
+        DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")
+                .get()
+                .createDestinationSpec(destinationSpecName, destinationSpecRetryDelay);
+        destination.activate();
+        destination.subscribe(subscriberSpecName, InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.DOMAIN);
+
+        taskService.newBuilder()
+                .setApplication("MultiSense")
+                .setName(taskName)
+                .setScheduleExpressionString(taskSchedule)
+                .setDestination(destination)
+                .setPayLoad("payload")
+                .scheduleImmediately(true)
+                .build();
     }
 
     private void registerHandlers() {

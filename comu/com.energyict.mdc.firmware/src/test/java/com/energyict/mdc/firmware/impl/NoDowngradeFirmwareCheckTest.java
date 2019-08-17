@@ -81,7 +81,7 @@ public class NoDowngradeFirmwareCheckTest extends AbstractFirmwareCheckTest {
     public void testCheckNotActivated() {
         when(firmwareManagementDeviceUtils.isReadOutAfterLastFirmwareUpgrade()).thenReturn(false);
         when(activeMeterFirmware.getRank()).thenReturn(100);
-        when(firmwareService.isFirmwareCheckActivated(deviceType, FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)).thenReturn(false);
+        when(firmwareCampaignManagementOptions.isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)).thenReturn(false);
 
         expectSuccess();
     }

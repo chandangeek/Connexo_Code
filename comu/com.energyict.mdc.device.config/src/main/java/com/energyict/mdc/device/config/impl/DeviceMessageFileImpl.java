@@ -14,9 +14,10 @@ import com.elster.jupiter.orm.UnderlyingIOException;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageFile;
-import com.energyict.mdc.device.config.DeviceType;
+
 import com.google.common.base.MoreObjects;
 
 import javax.inject.Inject;

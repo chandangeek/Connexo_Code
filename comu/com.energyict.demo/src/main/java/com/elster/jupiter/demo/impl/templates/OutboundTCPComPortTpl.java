@@ -5,7 +5,7 @@
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.OutboundTCPComPortBuilder;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 
 public enum OutboundTCPComPortTpl implements Template<OutboundComPort, OutboundTCPComPortBuilder> {
     OUTBOUND_TCP_1("Outbound TCP 1"),

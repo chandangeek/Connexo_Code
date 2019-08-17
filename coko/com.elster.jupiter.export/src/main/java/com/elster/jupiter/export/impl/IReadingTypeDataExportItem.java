@@ -7,19 +7,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.util.HasId;
 
-import java.time.Instant;
+public interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem, HasId {
 
-interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem, HasId {
-
-    void setLastRun(Instant lastRun);
-
-    void setLastExportedDate(Instant lastExportedDate);
-
-    void update();
-
-    void activate();
-
-    void deactivate();
-
-    void clearCachedReadingContainer();
 }

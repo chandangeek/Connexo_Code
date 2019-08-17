@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest;
 
-import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.GatewayType;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 

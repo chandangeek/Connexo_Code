@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.engine.config.impl;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OnlineComServer;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

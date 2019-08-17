@@ -6,9 +6,9 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

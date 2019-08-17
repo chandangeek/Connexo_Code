@@ -7,12 +7,14 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -36,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,6 +61,8 @@ public abstract class AbstractFirmwareCheckTest {
     protected Device device;
     @Mock
     protected DeviceType deviceType;
+    @Mock
+    protected FirmwareCampaignManagementOptions firmwareCampaignManagementOptions;
     @Mock
     protected FirmwareManagementOptions firmwareManagementOptions;
     @Mock
@@ -105,6 +110,8 @@ public abstract class AbstractFirmwareCheckTest {
         when(firmwareService.findFirmwareManagementOptions(deviceType)).thenReturn(Optional.of(firmwareManagementOptions));
         when(firmwareManagementOptions.isActivated(checkOption)).thenReturn(true);
         when(firmwareManagementOptions.getStatuses(checkOption)).thenReturn(EnumSet.of(FirmwareStatus.TEST, FirmwareStatus.FINAL));
+        when(firmwareCampaignManagementOptions.isActivated(checkOption)).thenReturn(true);
+        when(firmwareCampaignManagementOptions.getStatuses(checkOption)).thenReturn(EnumSet.of(FirmwareStatus.TEST, FirmwareStatus.FINAL));
         Injector injector = Guice.createInjector(getModule());
         firmwareCheck = injector.getInstance(checkClass);
     }
@@ -112,12 +119,12 @@ public abstract class AbstractFirmwareCheckTest {
     protected void expectError(String message) {
         expectedException.expect(FirmwareCheck.FirmwareCheckException.class);
         expectedException.expectMessage(message);
-        firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware);
+        firmwareCheck.execute(firmwareCampaignManagementOptions,firmwareManagementDeviceUtils, uploadedFirmware);
     }
 
     protected void expectSuccess() {
         try {
-            firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware);
+            firmwareCheck.execute(firmwareCampaignManagementOptions,firmwareManagementDeviceUtils, uploadedFirmware);
         } catch (Throwable throwable) {
             throw new AssertionError("Unexpected exception during call of firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware) : "
                     + System.lineSeparator()

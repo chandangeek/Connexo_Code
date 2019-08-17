@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.device.data.Batch;
+
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType

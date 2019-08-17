@@ -57,6 +57,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                 if (record.get('direction').toLowerCase() === 'outbound') {
                     form.down('[name=discoveryProtocolPluggableClassId]').hide();
                 } else if (record.properties().count() > 0) {
+                    form.down('[name=pctHighPrioTasks]').hide();
+                    form.down('[name=maxPriorityConnections]').hide();
+
                     form.down('#protocolDetectionDetails').show();
                     form.down('property-form').show();
                     form.down('property-form').loadRecord(record);

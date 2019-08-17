@@ -55,4 +55,17 @@ public class ServiceCallFieldResource {
                 .collect(toList());
         return states;
     }
+
+    @GET
+    @Path("/closedstates")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALLS})
+    public List<IdWithDisplayValueInfo<String>> getClosedStates(@BeanParam JsonQueryParameters queryParameters) {
+        List<IdWithDisplayValueInfo<String>> states = Arrays.stream(DefaultState.values())
+                .filter(defaultState -> !defaultState.isOpen())
+                .map(state -> new IdWithDisplayValueInfo<>(state.name(), state.getDisplayName(this.thesaurus)))
+                .sorted((s1, s2) -> s1.displayValue.compareTo(s2.displayValue))
+                .collect(toList());
+        return states;
+    }
 }

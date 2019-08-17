@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.protocol.api.inbound;
 
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
+
 /**
  * Provides contextual information to an {@link InboundDeviceProtocol}.
  *

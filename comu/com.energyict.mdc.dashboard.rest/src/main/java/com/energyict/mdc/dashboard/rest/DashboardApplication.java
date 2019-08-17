@@ -62,6 +62,7 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -104,6 +105,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
     private volatile Thesaurus thesaurus;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile PriorityComTaskService priorityComTaskService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
@@ -182,6 +184,11 @@ public class DashboardApplication extends Application implements MessageSeedProv
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
+        this.priorityComTaskService = priorityComTaskService;
     }
 
     @Reference
@@ -320,6 +327,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(dashboardService).to(DashboardService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(priorityComTaskService).to(PriorityComTaskService.class);
             bind(communicationTaskReportService).to(CommunicationTaskReportService.class);
             bind(connectionTaskService).to(ConnectionTaskService.class);
             bind(deviceService).to(DeviceService.class);

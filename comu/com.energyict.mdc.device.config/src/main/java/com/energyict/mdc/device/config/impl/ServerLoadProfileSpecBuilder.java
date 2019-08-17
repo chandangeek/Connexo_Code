@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
 
 /**
  * Adds behavior to the {@link LoadProfileSpec.LoadProfileSpecBuilder} interface

@@ -15,9 +15,9 @@ import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFacto
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolUpgradeService;
 import com.energyict.mdc.upl.TypedProperties;

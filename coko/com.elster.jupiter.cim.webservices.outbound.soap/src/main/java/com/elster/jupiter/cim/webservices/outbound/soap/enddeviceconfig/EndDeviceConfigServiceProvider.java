@@ -46,9 +46,10 @@ import java.util.UUID;
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.enddeviceconfig.provider",
         service = {TopicHandler.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
         immediate = true,
-        property = {"name=" + StateTransitionWebServiceClient.NAME})
+        property = {"name=" + EndDeviceConfigServiceProvider.NAME})
 public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProvider<EndDeviceConfigPort> implements TopicHandler, StateTransitionWebServiceClient, OutboundSoapEndPointProvider, ApplicationSpecific {
     private static final String NOUN = "EndDeviceConfig";
+    public static final String NAME = "CIM ReplyEndDeviceConfig";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory endDeviceConfigMessageObjectFactory = new ch.iec.tc57._2011.enddeviceconfigmessage.ObjectFactory();
@@ -138,7 +139,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
 
     @Override
     protected String getName() {
-        return StateTransitionWebServiceClient.NAME;
+        return NAME;
     }
 
     @Override

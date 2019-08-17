@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 
 import java.util.Calendar;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Provides a human readable representation of a {@link com.energyict.mdc.scheduling.NextExecutionSpecs} component.
+ * Provides a human readable representation of a {@link NextExecutionSpecs} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-01-17 (16:04)

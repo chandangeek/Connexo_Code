@@ -7,7 +7,7 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
 import com.energyict.mdc.firmware.DeviceFirmwareVersionHistoryRecord;
 import com.energyict.mdc.firmware.FirmwareService;

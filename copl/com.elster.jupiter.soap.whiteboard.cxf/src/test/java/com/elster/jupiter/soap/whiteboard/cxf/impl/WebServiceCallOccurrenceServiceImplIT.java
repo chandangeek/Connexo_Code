@@ -116,7 +116,7 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         assertThat(logs.size()).isEqualTo(0);
 
         logs = webServiceCallOccurrenceService.getOccurrenceLogFinderBuilder()
-                .withOccurrenceId(tmpOccurrence1)
+                .withOccurrence(tmpOccurrence1)
                 .build()
                 .paged(0, 10)
                 .find();
@@ -125,7 +125,7 @@ public class WebServiceCallOccurrenceServiceImplIT extends AbstractWebServiceIT 
         assertThat(logs.get(1).getMessage()).isEqualTo("MESSAGE2");
 
         logs = webServiceCallOccurrenceService.getOccurrenceLogFinderBuilder()
-                .withOccurrenceId(tmpOccurrence2)
+                .withOccurrence(tmpOccurrence2)
                 .build()
                 .paged(0, 10)
                 .find();
