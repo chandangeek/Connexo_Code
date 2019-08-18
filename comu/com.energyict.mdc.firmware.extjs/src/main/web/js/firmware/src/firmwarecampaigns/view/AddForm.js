@@ -344,10 +344,6 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         ];
 
         me.callParent(arguments);
-
-        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
-           item.setTooltip('Restore to default empty value');
-        })
     },
 
     onDeviceTypeChange: function (combo, newValue) {
