@@ -9,7 +9,6 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import com.atos.worldline.jss.api.JSSRuntimeControl;
-import com.atos.worldline.jss.api.ServerStatus;
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +37,15 @@ public final class HsmJssLoader {
         load();
     }
 
-    public RawConfiguration load() throws HsmBaseException {
+    public synchronized RawConfiguration load() throws HsmBaseException {
         Long timeStamp = jssFileLoader.timeStamp();
         if (loadTime == null) {
             start(jssFileLoader.build());
+            LOG.debug("Initialising JSS");
             loadTime = timeStamp;
         }
         if (loadTime < timeStamp) {
+            LOG.debug("Restarting JSS");
             shutdown();
             start(jssFileLoader.build());
             loadTime = timeStamp;
