@@ -1160,11 +1160,17 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     var comboReason = form.down('#issueReason');
                     var reasonEditedValue = comboReason.getRawValue();
 
-                    if ( reasonEditedValue.trim() == '') {
+                    if ( reasonEditedValue.trim() === '') {
                         formErrorsManualIssue.show();
-                        comboReason.markInvalid('This field is required');
+                        comboReason.markInvalid(Uni.I18n.translate('searchItems.bulk.issues.maxLength', 'MDC','This field is required'));
                         me.validation = false;
-                    }else{
+                    }
+                    else if (reasonEditedValue.length > 80) {
+                        formErrorsManualIssue.show();
+                        comboReason.markInvalid(Uni.I18n.translate('searchItems.bulk.issues.maxLength', 'MDC', "This field's text length should be between 1 and 80 symbols"));
+                        me.validation = false;
+                    }
+                    else{
                         if (!formErrorsManualIssue.isHidden()) {
                             formErrorsManualIssue.hide();
                             form.getForm().clearInvalid();

@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -32,6 +33,7 @@ import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.masterdata.MasterDataService;
 
 import ch.iec.tc57._2011.getmeterreadings.DataSource;
@@ -110,6 +112,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final MasterDataService masterDataService;
+    private final Thesaurus thesaurus;
 
 
     @Inject
@@ -120,7 +123,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                                         Clock clock, ServiceCallCommands serviceCallCommands,
                                         EndPointConfigurationService endPointConfigurationService,
                                         WebServicesService webServicesService, MeteringService meteringService,
-                                        DeviceService deviceService, MasterDataService masterDataService) {
+                                        DeviceService deviceService, MasterDataService masterDataService, Thesaurus thesaurus) {
         this.readingBuilderProvider = readingBuilderProvider;
         this.syncReplyIssueProvider = syncReplyIssueProvider;
         this.replyTypeFactory = replyTypeFactory;
@@ -132,6 +135,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.masterDataService = masterDataService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -304,7 +308,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     private void fillDevicesMessagesComTaskExecutions(Set<Device> devices, SyncReplyIssue syncReplyIssue) {
-        devices.forEach(device -> {
+        devices.forEach(originDevice -> {
+            Device device = deviceService.findAndLockDeviceById(originDevice.getId())
+                    .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
                 Optional<ComTaskExecution> comTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device);
                 if (comTaskExecutionOptional.isPresent()) {
@@ -315,7 +321,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     private void fillDevicesComTaskExecutions(Set<Device> devices, boolean isRegular, SyncReplyIssue syncReplyIssue) {
-        for (Device device : devices) {
+        for (Device originDevice : devices) {
+            Device device = deviceService.findAndLockDeviceById(originDevice.getId())
+                    .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             final Class<?> clazz;
             if (isRegular) {
                 if (syncReplyIssue.getDeviceRegularComTaskExecutionMap().containsKey(device.getId())) {

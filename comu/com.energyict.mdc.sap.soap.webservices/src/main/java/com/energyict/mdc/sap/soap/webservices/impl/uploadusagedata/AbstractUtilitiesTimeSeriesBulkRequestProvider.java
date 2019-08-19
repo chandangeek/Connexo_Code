@@ -190,7 +190,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
 
     Map<Pair<String, String>, RangeSet<Instant>> getTimeSlicedLrnAndProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter, String readingTypeName) {
         Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileId = sapCustomPropertySets.getLrnAndProfileId(channel, range);
-        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
+        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.intersects(range)).isPresent()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL,
                     readingTypeName,
                     meter.getName());

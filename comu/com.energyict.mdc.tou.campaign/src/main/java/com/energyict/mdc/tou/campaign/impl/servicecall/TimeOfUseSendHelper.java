@@ -82,7 +82,7 @@ public class TimeOfUseSendHelper {
             }
         }
         Optional<ComTaskEnablement> comTaskEnablementOptional = timeOfUseCampaignService.getActiveTaskForCalendarsById(device, timeOfUseCampaign.getCalendarUploadComTaskId());
-        if (!comTaskEnablementOptional.isPresent()) {
+        if (comTaskEnablementOptional.isPresent()) {
             ComTaskEnablement comTaskEnablement = comTaskEnablementOptional.get();
             SendCalendarInfo sendCalendarInfo = new SendCalendarInfo();
             sendCalendarInfo.allowedCalendarId = timeOfUseCampaign.getCalendar().getId();
