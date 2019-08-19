@@ -138,6 +138,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(fcvs.getRank()).thenReturn(1);
         when(fcvs.getMeterFirmwareDependency()).thenReturn("fvMDep");
         when(fcvs.getCommunicationFirmwareDependency()).thenReturn("fvCdep");
+        when(fcvs.getAuxiliaryFirmwareDependency()).thenReturn("fvAdep");
         firmwareCampaignVersionStateShapshots.add(fcvs);
         when(firmwareCampaignService.getFirmwareCampaignById(anyLong())).thenReturn(Optional.ofNullable(firmwareCampaign));
         when(firmwareService.findFirmwareCampaignVersionStateSnapshots(firmwareCampaign)).thenReturn(firmwareCampaignVersionStateShapshots);

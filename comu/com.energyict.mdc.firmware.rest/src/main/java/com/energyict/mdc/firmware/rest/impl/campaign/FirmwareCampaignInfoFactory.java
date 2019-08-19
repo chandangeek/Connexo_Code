@@ -252,6 +252,7 @@ public class FirmwareCampaignInfoFactory {
         firmwareVersionInfo.rank = firmwareCampaignVersionStateShapshot.getRank();
         firmwareVersionInfo.meterFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionStateShapshot.getMeterFirmwareDependency());
         firmwareVersionInfo.communicationFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionStateShapshot.getCommunicationFirmwareDependency());
+        firmwareVersionInfo.auxiliaryFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionStateShapshot.getAuxiliaryFirmwareDependency());
         return firmwareVersionInfo;
     }
 }

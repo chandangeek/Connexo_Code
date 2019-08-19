@@ -181,6 +181,10 @@ public enum TableSpecs {
                     .varChar(NAME_LENGTH)
                     .map(FirmwareCampaignVersionSnapshotImpl.Fields.COM_FW_DEP.fieldName())
                     .add();
+            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.AUX_FW_DEP.name())
+                    .varChar(NAME_LENGTH)
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.AUX_FW_DEP.fieldName())
+                    .add();
 
             table.primaryKey("FWC_PK_VERSION_SNAPSHOT").on(firmwareCampaignColumn, cps,version,type).add();
             table.foreignKey("FK_FWC_VRST_TO_CAMPAIGN")
