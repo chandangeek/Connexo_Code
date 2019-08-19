@@ -33,6 +33,13 @@ Ext.define('Wss.model.endpoint.Occurrence', {
             return (data && data.status && data.status.name) ? data.status.name : null
         },
     },
+    {
+        name: 'statusId',
+        type: 'auto',
+        mapping: function (data) {
+            return (data && data.status && data.status.id) ? data.status.id : null
+        },
+    },
     {name: 'payload', type: 'string'}
   ],
 
