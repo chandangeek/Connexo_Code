@@ -284,6 +284,16 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        /*
+
+        TODO : Add handling of initial SSO authentication request
+            Steps :
+            1. Create SAML Request
+            2. Set RelayState
+            3. Redirect user via browser to IDP with SAMLRequest and RelayState
+        */
+
         // Set no caching for specific resources regardless of the authentication type
         if (isCachedResource(request.getRequestURL().toString())) {
             response.setHeader("Cache-Control", "max-age=86400");
