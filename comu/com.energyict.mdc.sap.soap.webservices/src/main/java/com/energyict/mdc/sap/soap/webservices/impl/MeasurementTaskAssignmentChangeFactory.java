@@ -229,14 +229,16 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
                     if (!sapCustomPropertySets.isProfileIdAlreadyExists(channel.get(), profileId, profileInterval)) {
                         CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
                                 channel.get().getChannelSpec(), lrnInterval.lowerEndpoint(), deviceId);
-                        Range tailRange = Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint());
-                        if (tailRange != null && !tailRange.isEmpty()) {
+                        if (!profileId.equals(oldValues.getProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()))) {
+                            Range tailRange = Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint());
+                            if (tailRange != null && !tailRange.isEmpty()) {
+                                customPropertySetService.setValuesVersionFor(customPropertySet.get(),
+                                        channel.get().getChannelSpec(), oldValues, tailRange, deviceId);
+                            }
+                            oldValues.setProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), profileId);
                             customPropertySetService.setValuesVersionFor(customPropertySet.get(),
-                                    channel.get().getChannelSpec(), oldValues, tailRange, deviceId);
+                                    channel.get().getChannelSpec(), oldValues, profileInterval, deviceId);
                         }
-                        oldValues.setProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), profileId);
-                        customPropertySetService.setValuesVersionFor(customPropertySet.get(),
-                                channel.get().getChannelSpec(), oldValues, profileInterval, deviceId);
                     } else {
                         throw new SAPWebServiceException(thesaurus, MessageSeeds.PROFILE_ID_IS_ALREADY_SET, profileId, channel.get().getName());
                     }

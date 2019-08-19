@@ -178,7 +178,9 @@ public abstract class AbstractMockActivator {
         ServiceCallBuilder builder = mock(ServiceCallBuilder.class);
         when(builder.origin(anyString())).thenReturn(builder);
         when(builder.extendedWith(any())).thenReturn(builder);
+        when(builder.targetObject(any())).thenReturn(builder);
         when(builder.create()).thenReturn(serviceCall);
+
         when(serviceCallType.newServiceCall()).thenReturn(builder);
         when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
         when(messageService.getDestinationSpec(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION)).thenReturn(Optional.of(destinationSpec));
