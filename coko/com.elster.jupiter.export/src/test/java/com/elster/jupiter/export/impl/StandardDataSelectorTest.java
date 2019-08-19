@@ -14,8 +14,8 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.FormattedData;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MissingDataOption;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -110,7 +110,7 @@ public class StandardDataSelectorTest {
     @Mock
     private Meter meter1, meter2, meter3;
     @Mock
-    private IReadingTypeDataExportItem existingItem, newItem, obsoleteItem;
+    private ReadingTypeDataExportItem existingItem, newItem, obsoleteItem;
     @Mock
     private ReadingType readingType1;
     @Mock
@@ -305,7 +305,7 @@ public class StandardDataSelectorTest {
         assertThat(obsoleteItem.isActive()).isFalse();
 
         assertThat(selectorConfig.getExportItems().stream()
-                .filter(IReadingTypeDataExportItem::isActive)
+                .filter(ReadingTypeDataExportItem::isActive)
                 .count()).isEqualTo(2);
     }
 }
