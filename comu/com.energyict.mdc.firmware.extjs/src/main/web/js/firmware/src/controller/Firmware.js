@@ -256,6 +256,12 @@ Ext.define('Fwc.controller.Firmware', {
                         me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').hide();
                     }
 
+                    if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "auxiliary"}).length){
+                        me.getContainer().down('firmware-form-add #firmware-min-auxiliary-version-common').show();
+                    }else{
+                        me.getContainer().down('firmware-form-add #firmware-min-auxiliary-version-common').hide();
+                    }
+
                     if (supportedFirmwareTypesStore.totalCount===1) {
                         var id = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.id;
                         var onlyType = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.localizedValue;
