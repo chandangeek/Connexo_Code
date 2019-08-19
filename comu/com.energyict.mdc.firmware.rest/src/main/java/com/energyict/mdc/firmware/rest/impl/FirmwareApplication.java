@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -22,8 +23,12 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.SecurityAccessorInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.campaign.DeviceInFirmwareCampaignInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignResource;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -61,6 +66,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile MdcPropertyUtils mdcPropertyUtils;
     private volatile SecurityManagementService securityManagementService;
+    private volatile FirmwareCampaignService firmwareCampaignService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -116,6 +122,8 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(DeviceFirmwareLifecycleHistoryInfoFactory.class).to(DeviceFirmwareLifecycleHistoryInfoFactory.class);
             bind(securityManagementService).to(SecurityManagementService.class);
             bind(SecurityAccessorInfoFactory.class).to(SecurityAccessorInfoFactory.class);
+            bind(firmwareCampaignService).to(FirmwareCampaignService.class);
+            bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
         }
     }
 
@@ -172,6 +180,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
     }
 
     @Reference

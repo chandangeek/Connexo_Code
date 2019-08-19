@@ -8,11 +8,10 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import java.time.Instant;

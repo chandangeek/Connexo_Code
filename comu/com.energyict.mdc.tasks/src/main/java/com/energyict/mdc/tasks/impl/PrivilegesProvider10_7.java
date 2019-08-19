@@ -7,8 +7,8 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 
+import com.energyict.mdc.common.tasks.security.Privileges;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.security.Privileges;
 
 import javax.inject.Inject;
 
@@ -16,10 +16,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_1;
-import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_2;
-import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_3;
-import static com.energyict.mdc.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_4;
+import static com.energyict.mdc.common.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_1;
+import static com.energyict.mdc.common.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_2;
+import static com.energyict.mdc.common.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_3;
+import static com.energyict.mdc.common.tasks.security.Privileges.Constants.EXECUTE_SCHEDULE_PLAN_COM_TASK_4;
 
 public class PrivilegesProvider10_7 implements PrivilegesProvider {
 

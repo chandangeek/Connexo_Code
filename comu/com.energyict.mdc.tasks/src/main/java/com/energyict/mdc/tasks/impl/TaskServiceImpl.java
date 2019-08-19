@@ -19,27 +19,27 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
-
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TopologyTask;
+import com.energyict.mdc.common.tasks.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.TopologyTask;
-import com.energyict.mdc.tasks.security.Privileges;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -61,7 +61,11 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
+//import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
+
+@Component(name = "com.energyict.mdc.tasks", service = { TaskService.class, ServerTaskService.class,
+        MessageSeedProvider.class,
+        TranslationKeyProvider.class }, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
 public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, TranslationKeyProvider {
 
     private final Logger logger = Logger.getLogger(TaskServiceImpl.class.getName());
@@ -80,8 +84,9 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
     }
 
     @Inject
-    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService, DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService, UpgradeService upgradeService,
-            UserService userService) {
+    public TaskServiceImpl(OrmService ormService, NlsService nlsService, EventService eventService,
+            DeviceMessageSpecificationService deviceMessageSpecificationService, MasterDataService masterDataService,
+            UpgradeService upgradeService, UserService userService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -94,7 +99,8 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
     }
 
     @Reference
-    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public void setDeviceMessageSpecificationService(
+            DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
@@ -125,7 +131,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         // Not actively used but required for foreign keys in TableSpecs
-     }
+    }
 
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
@@ -168,7 +174,8 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
     public void activate() {
         dataModel.register(getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel,
-                Installer.class, ImmutableMap.of(Version.version(10, 3), V10_3SimpleUpgrader.class, Version.version(10, 7), UpgraderV10_7.class));
+                Installer.class, ImmutableMap.of(Version.version(10, 3), V10_3SimpleUpgrader.class,
+                        Version.version(10, 7), UpgraderV10_7.class));
     }
 
     @Override
@@ -200,12 +207,14 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
 
     @Override
     public List<ComTask> findAllUserComTasks() {
-        return dataModel.mapper(ComTaskDefinedByUserImpl.class).find().stream().map(userComTask -> (ComTask) userComTask).collect(Collectors.toList());
+        return dataModel.mapper(ComTaskDefinedByUserImpl.class).find().stream()
+                .map(userComTask -> (ComTask) userComTask).collect(Collectors.toList());
     }
 
     @Override
     public List<ComTask> findAllSystemComTasks() {
-        return dataModel.mapper(ComTaskDefinedBySystemImpl.class).find().stream().map(comTaskDefinedBySystem -> (ComTask) comTaskDefinedBySystem).collect(Collectors.toList());
+        return dataModel.mapper(ComTaskDefinedBySystemImpl.class).find().stream()
+                .map(comTaskDefinedBySystem -> (ComTask) comTaskDefinedBySystem).collect(Collectors.toList());
     }
 
     @Override
@@ -215,37 +224,31 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
 
     @Override
     public Optional<ComTask> findFirmwareComTask() {
-        return dataModel.mapper(ComTask.class).select(where("name").isEqualTo(FIRMWARE_COMTASK_NAME)).stream().filter(ComTask::isSystemComTask).findFirst();
+        return dataModel.mapper(ComTask.class).select(where("name").isEqualTo(FIRMWARE_COMTASK_NAME)).stream()
+                .filter(ComTask::isSystemComTask).findFirst();
     }
 
     @Override
     public List<LogBooksTask> findTasksUsing(LogBookType logBookType) {
-        List<LogBookTypeUsageInProtocolTask> usages =
-                dataModel
-                        .mapper(LogBookTypeUsageInProtocolTask.class)
-                        .find(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName(), logBookType);
+        List<LogBookTypeUsageInProtocolTask> usages = dataModel.mapper(LogBookTypeUsageInProtocolTask.class)
+                .find(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName(), logBookType);
         return usages.stream().map(LogBookTypeUsageInProtocolTask::getLogBooksTask).collect(Collectors.toList());
     }
 
     @Override
     public List<LoadProfilesTask> findTasksUsing(LoadProfileType loadProfileType) {
-        List<LoadProfileTypeUsageInProtocolTask> usages =
-                dataModel
-                        .mapper(LoadProfileTypeUsageInProtocolTask.class)
-                        .find(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName(), loadProfileType);
-        return usages.stream().map(LoadProfileTypeUsageInProtocolTask::getLoadProfilesTask).collect(Collectors.toList());
+        List<LoadProfileTypeUsageInProtocolTask> usages = dataModel.mapper(LoadProfileTypeUsageInProtocolTask.class)
+                .find(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName(),
+                        loadProfileType);
+        return usages.stream().map(LoadProfileTypeUsageInProtocolTask::getLoadProfilesTask)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<RegistersTask> findTasksUsing(RegisterGroup registerGroup) {
-        List<RegisterGroupUsage> usages =
-                dataModel
-                        .mapper(RegisterGroupUsage.class)
-                        .find(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName(), registerGroup);
-        return usages
-                .stream()
-                .map(RegisterGroupUsage::getRegistersTask)
-                .collect(Collectors.toList());
+        List<RegisterGroupUsage> usages = dataModel.mapper(RegisterGroupUsage.class)
+                .find(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName(), registerGroup);
+        return usages.stream().map(RegisterGroupUsage::getRegistersTask).collect(Collectors.toList());
     }
 
     @Override
@@ -260,15 +263,12 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
 
     @Override
     public String getComponentName() {
-         return TaskService.COMPONENT_NAME;
+        return TaskService.COMPONENT_NAME;
     }
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Stream.of(Arrays.stream(Privileges.values()))
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
+        return Stream.of(Arrays.stream(Privileges.values())).flatMap(Function.identity()).collect(Collectors.toList());
     }
-
 
 }

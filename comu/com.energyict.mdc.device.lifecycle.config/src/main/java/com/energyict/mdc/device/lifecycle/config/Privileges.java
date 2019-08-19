@@ -12,6 +12,7 @@ package com.energyict.mdc.device.lifecycle.config;
  */
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.common.device.lifecycle.config.Constants;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -57,14 +58,5 @@ public enum Privileges implements TranslationKey {
                 .map(Privileges::getKey)
                 .collect(Collectors.toList())
                 .toArray(new String[Privileges.values().length]);
-    }
-
-    public interface Constants {
-        public String VIEW_DEVICE_LIFE_CYCLE = "privilege.view.deviceLifeCycle";
-        public String CONFIGURE_DEVICE_LIFE_CYCLE = "privilege.configure.deviceLifeCycle";
-        public String INITIATE_ACTION_1 = "device.lifecycle.initiate.action.level1";
-        public String INITIATE_ACTION_2 = "device.lifecycle.initiate.action.level2";
-        public String INITIATE_ACTION_3 = "device.lifecycle.initiate.action.level3";
-        public String INITIATE_ACTION_4 = "device.lifecycle.initiate.action.level4";
     }
 }

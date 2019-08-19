@@ -16,23 +16,24 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ComTaskUserAction;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
+import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import com.google.common.collect.ImmutableMap;
@@ -60,8 +61,7 @@ import java.util.stream.Collectors;
  * @author gna
  * @since 2/05/12 - 16:10
  */
-@UniqueName(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_NAME
-        + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.DUPLICATE_COMTASK_NAME + "}")
 abstract class ComTaskImpl implements ComTask, PersistenceAware {
 
     static final class ComTaskUserActionRecord {
@@ -112,7 +112,8 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
         NAME("name"),
         PROTOCOL_TASKS("protocolTasks"),
         STORE_DATE("storeData"),
-        MAX_NR_OF_TRIES("maxNrOfTries");
+        MAX_NR_OF_TRIES("maxNrOfTries"),
+        MANUAL_SYSTEM_TASK("manualSystemTask");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -125,16 +126,14 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     }
 
     /**
-     * Holds a list of all {@link com.energyict.mdc.tasks.ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
+     * Holds a list of all {@link ProtocolTask ProtocolTasks} which must be performed during the execution of this kind of ComTask
      */
     @Valid
     private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"
-            + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY
-            + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.CAN_NOT_BE_EMPTY + "}")
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
     @SuppressWarnings("unused") // Managed by ORM
@@ -145,12 +144,13 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private boolean manualSystemTask;
 
     /**
      * Keeps track of the maximum number of tries a ComTask may execute before failing
      */
-    @Min(value = 1, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_TOO_SMALL
-            + "}")
+    @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + TaskServiceKeys.VALUE_TOO_SMALL + "}")
     private int maxNrOfTries = 3;
 
     @Inject
@@ -312,6 +312,17 @@ abstract class ComTaskImpl implements ComTask, PersistenceAware {
             }
         }
     }
+
+    @Override
+    public void setManualSystemTask(boolean manualSystemTask) {
+        this.manualSystemTask = manualSystemTask;
+    }
+
+    @Override
+    public boolean isManualSystemTask() {
+        return manualSystemTask;
+    }
+
 
     @Override
     public void delete() {

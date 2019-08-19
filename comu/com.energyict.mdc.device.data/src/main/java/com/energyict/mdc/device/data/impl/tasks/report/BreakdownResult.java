@@ -4,15 +4,17 @@
 
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.util.Optional;
 
 /**
  * Models the result of breaking down counters of
- * {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s
- * or {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s
+ * {@link ConnectionTask}s
+ * or {@link ComTaskExecution}s
  * by a specified {@link BreakdownType}.
  *
  * @author Rudi Vankeirsbilck (rudi)

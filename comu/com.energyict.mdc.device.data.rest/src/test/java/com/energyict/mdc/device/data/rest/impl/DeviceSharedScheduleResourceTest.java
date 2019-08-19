@@ -7,19 +7,18 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.User;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 
 import com.google.common.collect.ImmutableList;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
-import java.security.Principal;
 import java.util.Arrays;
 import java.util.Optional;
 

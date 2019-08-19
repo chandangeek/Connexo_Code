@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.device.config.DeviceConfigChangeAction;
 import com.energyict.mdc.device.config.DeviceConfigChangeActionType;
 import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.data.LogBook;
 
 import java.util.List;
 import java.util.function.Predicate;

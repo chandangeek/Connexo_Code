@@ -16,8 +16,8 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.dataquality.DeviceDataQualityService;
 
 import com.google.common.collect.Range;

@@ -5,7 +5,10 @@
 Ext.define('Imt.usagepointmanagement.model.MeterRole', {
     extend: 'Ext.data.Model',
     fields: [
-        'id',
+        {
+            name: 'id',
+            mapping: 'meterRole.id'
+        },
         {
             name: 'name',
             mapping: 'meterRole.name'

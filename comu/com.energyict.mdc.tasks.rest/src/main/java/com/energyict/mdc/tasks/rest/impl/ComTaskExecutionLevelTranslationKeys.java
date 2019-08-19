@@ -6,7 +6,7 @@ package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-import com.energyict.mdc.tasks.ComTaskUserAction;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
 
 import java.util.stream.Stream;
 

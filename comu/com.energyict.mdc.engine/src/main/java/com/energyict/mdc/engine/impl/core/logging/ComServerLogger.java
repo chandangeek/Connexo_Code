@@ -4,8 +4,10 @@
 
 package com.energyict.mdc.engine.impl.core.logging;
 
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -38,7 +40,7 @@ public interface ComServerLogger {
     public void startFailure(ComServer comServer, SQLException cause);
 
     /**
-     * Logs that a failure to cleanup timed out {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s
+     * Logs that a failure to cleanup timed out {@link ComTaskExecution}s
      * that are running on the specified {@link ComServer} occurred.
      *
      * @param comServer The ComServer
@@ -48,7 +50,7 @@ public interface ComServerLogger {
     public void timeOutCleanupFailure(ComServer comServer, DataAccessException cause);
 
     /**
-     * Logs that a failure to cleanup outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s occurred.
+     * Logs that a failure to cleanup outdated {@link ComTaskExecutionTrigger}s occurred.
      *
      * @param cause The failure
      */
@@ -73,7 +75,7 @@ public interface ComServerLogger {
 
     /**
      * Logs that the specified {@link ComServer} is now monitoring for changes
-     * applied to itself or to one of its {@link com.energyict.mdc.engine.config.ComPort}s.
+     * applied to itself or to one of its {@link ComPort}s.
      *
      * @param comServer The ComServer
      */

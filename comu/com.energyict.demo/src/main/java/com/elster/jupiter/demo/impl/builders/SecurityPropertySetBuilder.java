@@ -10,8 +10,8 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -79,7 +79,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
 
     @Override
     public SecurityPropertySet create() {
-        com.energyict.mdc.device.config.SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet(getName())
+        com.energyict.mdc.common.device.config.SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet(getName())
                 .client(client)
                 .securitySuite(suite)
                 .authenticationLevel(authLevel)

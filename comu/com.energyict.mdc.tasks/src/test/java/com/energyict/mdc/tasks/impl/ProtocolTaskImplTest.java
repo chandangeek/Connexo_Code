@@ -10,26 +10,26 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
+import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.tasks.PersistenceTest;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.tasks.TopologyAction;
+
 import com.energyict.obis.ObisCode;
-import org.assertj.core.api.Condition;
-import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -104,7 +104,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TIMEDURATION_MUST_BE_POSITIVE + "}", property = "maximumClockDiff", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + TaskServiceKeys.TIMEDURATION_MUST_BE_POSITIVE + "}", property = "maximumClockDiff", strict = false)
     public void testCreateSETClockTaskMaximumIsZero() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SETCLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(TimeDuration.millis(0)).maximumClockShift(maximumClockShift).add();
@@ -113,7 +113,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "minimumClockDiff")
+    @ExpectedConstraintViolation(messageId = "{" + TaskServiceKeys.CAN_NOT_BE_EMPTY + "}", property = "minimumClockDiff")
     public void testCreateSETClockTaskWithoutMinimumDuration() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SETCLOCK).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
@@ -122,7 +122,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "maximumClockDiff")
+    @ExpectedConstraintViolation(messageId = "{" + TaskServiceKeys.CAN_NOT_BE_EMPTY + "}", property = "maximumClockDiff")
     public void testCreateSETClockTaskWithoutMaximumDuration() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SETCLOCK).minimumClockDifference(minimumClockDifference).maximumClockShift(maximumClockShift).add();
@@ -131,7 +131,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MIN_MUST_BE_BELOW_MAX + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + TaskServiceKeys.MIN_MUST_BE_BELOW_MAX + "}", strict = false)
     public void testCreateSETClockTaskWithMinClockLargerThenMaxClock() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SETCLOCK).
@@ -164,7 +164,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "maximumClockShift", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + TaskServiceKeys.CAN_NOT_BE_EMPTY + "}", property = "maximumClockShift", strict = false)
     public void testCreateSYNCClockTaskMaximumShiftIsZero() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SYNCHRONIZECLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).add();
@@ -173,7 +173,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TIMEDURATION_MUST_BE_POSITIVE + "}", property = "maximumClockShift")
+    @ExpectedConstraintViolation(messageId = "{" + TaskServiceKeys.TIMEDURATION_MUST_BE_POSITIVE + "}", property = "maximumClockShift")
     public void testCreateSYNCClockTaskWithoutMaximumDuration() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SYNCHRONIZECLOCK).minimumClockDifference(minimumClockDifference).maximumClockDifference(maximumClockDifference).maximumClockShift(TimeDuration.millis(0)).add();
@@ -182,7 +182,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "minimumClockDiff")
+    @ExpectedConstraintViolation(messageId = "{" + TaskServiceKeys.CAN_NOT_BE_EMPTY + "}", property = "minimumClockDiff")
     public void testCreateSYNCClockTaskWithoutMinimumDuration() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.SYNCHRONIZECLOCK).maximumClockDifference(maximumClockDifference).maximumClockShift(maximumClockShift).add();
@@ -240,7 +240,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MIN_MUST_BE_BELOW_MAX + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + TaskServiceKeys.MIN_MUST_BE_BELOW_MAX + "}", strict = false)
     public void testUpdateFORCECClockTaskToInvalidState() throws Exception {
         ComTask comTask = createSimpleComTask();
         comTask.createClockTask(ClockTaskType.FORCECLOCK).minimumClockDifference(maximumClockDifference).maximumClockDifference(minimumClockDifference).maximumClockShift(maximumClockShift).add();

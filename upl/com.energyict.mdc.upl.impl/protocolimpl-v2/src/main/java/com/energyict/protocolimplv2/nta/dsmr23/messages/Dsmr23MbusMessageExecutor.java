@@ -29,10 +29,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
@@ -91,6 +88,18 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
                     collectedMessage = partialLoadProfileRequest(pendingMessage);    //This message returns a result
                 } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST)) {
                     collectedMessage = loadProfileRegisterRequest(pendingMessage);    //This message returns a result
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE)) {
+                    collectedMessage = upgradeFirmwareWithActivationDate(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME)) {
+                    collectedMessage = upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION)) {
+                    collectedMessage = upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
+                    collectedMessage = upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
+                    collectedMessage = upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
+                    collectedMessage = upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -106,6 +115,24 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
             result.addCollectedMessage(collectedMessage);
         }
         return result;
+    }
+
+    protected CollectedMessage upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) {
+        //TODO
+        CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
+        collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
+        return collectedMessage;
+    }
+
+    protected CollectedMessage upgradeFirmwareWithActivationDate(OfflineDeviceMessage pendingMessage) {
+        //TODO
+        CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+        collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
+        collectedMessage.setDeviceProtocolInformation("Message is currently not supported by the protocol");
+        return collectedMessage;
     }
 
     private void doDisconnect(OfflineDeviceMessage pendingMessage) throws IOException {

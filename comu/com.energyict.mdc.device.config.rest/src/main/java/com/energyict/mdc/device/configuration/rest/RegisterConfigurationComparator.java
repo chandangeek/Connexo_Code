@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest;
 
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
 
 import java.util.Comparator;
 

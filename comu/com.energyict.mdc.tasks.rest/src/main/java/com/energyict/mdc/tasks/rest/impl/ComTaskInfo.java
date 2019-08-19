@@ -5,8 +5,7 @@
 package com.energyict.mdc.tasks.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +38,7 @@ public class ComTaskInfo {
     public List<MessageCategoryInfo> messages;
     public long version;
     public List<ComTaskPrivilegeInfo> privileges;
+    public boolean systemTask;
 
     public static ComTaskInfo from(ComTask comTask) {
         ComTaskInfo comTaskInfo = new ComTaskInfo();
@@ -47,6 +47,7 @@ public class ComTaskInfo {
         comTaskInfo.maxNrOfTries = comTask.getMaxNumberOfTries();
         comTaskInfo.inUse = false; //TODO: Real Implementation
         comTaskInfo.version = comTask.getVersion();
+        comTaskInfo.systemTask = comTask.isManualSystemTask();
         return comTaskInfo;
     }
 

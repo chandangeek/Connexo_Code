@@ -27,17 +27,17 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
-import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import com.google.common.collect.Range;
@@ -194,7 +194,7 @@ public class DeviceLifeCycleChangeEventsTest {
         when(this.clock.instant()).thenReturn(deviceCreationTimestamp);
 
         // Mock the device life cycle change events at the device type level
-        com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent initial = mock(com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent.class);
+        com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent initial = mock(com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent.class);
         when(initial.getTimestamp()).thenReturn(deviceTypeCreationTimestamp);
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(initial.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
@@ -231,12 +231,12 @@ public class DeviceLifeCycleChangeEventsTest {
         Instant changeDLCTimestamp = Instant.ofEpochMilli(30000L);
 
         // Mock the device life cycle change events at the device type level
-        com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent createDeviceType = mock(com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent.class);
+        com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent createDeviceType = mock(com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent.class);
         when(createDeviceType.getTimestamp()).thenReturn(deviceTypeCreationTimestamp);
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(createDeviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(createDeviceType.getUser()).thenReturn(Optional.of(this.user));
-        com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent changeDeviceLifeCycleOnDeviceType = mock(com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent.class);
+        com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent changeDeviceLifeCycleOnDeviceType = mock(com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent.class);
         when(changeDeviceLifeCycleOnDeviceType.getTimestamp()).thenReturn(changeDLCTimestamp);
         DeviceLifeCycle newDeviceLifeCycle = mock(DeviceLifeCycle.class);
         when(changeDeviceLifeCycleOnDeviceType.getDeviceLifeCycle()).thenReturn(newDeviceLifeCycle);
@@ -284,12 +284,12 @@ public class DeviceLifeCycleChangeEventsTest {
         Instant changeStateTimestamp = Instant.ofEpochMilli(40000L);
 
         // Mock the device life cycle change events at the device type level
-        com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent createDeviceType = mock(com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent.class);
+        com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent createDeviceType = mock(com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent.class);
         when(createDeviceType.getTimestamp()).thenReturn(deviceTypeCreationTimestamp);
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(createDeviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(createDeviceType.getUser()).thenReturn(Optional.of(this.user));
-        com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent changeDeviceLifeCycleOnDeviceType = mock(com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent.class);
+        com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent changeDeviceLifeCycleOnDeviceType = mock(com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent.class);
         when(changeDeviceLifeCycleOnDeviceType.getTimestamp()).thenReturn(changeDLCTimestamp);
         DeviceLifeCycle newDeviceLifeCycle = mock(DeviceLifeCycle.class);
         when(changeDeviceLifeCycleOnDeviceType.getDeviceLifeCycle()).thenReturn(newDeviceLifeCycle);

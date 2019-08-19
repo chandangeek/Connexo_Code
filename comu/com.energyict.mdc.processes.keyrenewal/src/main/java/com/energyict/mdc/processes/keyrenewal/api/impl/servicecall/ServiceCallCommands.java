@@ -12,7 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.processes.keyrenewal.api.impl.Command;
 import com.energyict.mdc.processes.keyrenewal.api.impl.DeviceCommandInfo;
 import com.energyict.mdc.processes.keyrenewal.api.impl.MessageSeeds;
@@ -29,6 +29,7 @@ public class ServiceCallCommands {
 
         private final String typeName;
         private final String typeVersion;
+        private static final String APPLICATION = "MDC";
 
         ServiceCallTypes(String typeName, String typeVersion) {
             this.typeName = typeName;
@@ -41,6 +42,10 @@ public class ServiceCallCommands {
 
         public String getTypeVersion() {
             return typeVersion;
+        }
+
+        public String getApplication() {
+            return APPLICATION;
         }
     }
 

@@ -6,8 +6,8 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ComTaskUserAction;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
 
 import java.util.List;
 import java.util.stream.Collectors;

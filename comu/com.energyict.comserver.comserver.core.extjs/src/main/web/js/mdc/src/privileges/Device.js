@@ -25,6 +25,7 @@ Ext.define('Mdc.privileges.Device', {
     viewDeviceCommunication:['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
     administrateDeviceCommunication:['privilege.administrate.deviceCommunication'],
     operateDeviceCommunication:['privilege.operate.deviceCommunication'],
+    runWithPriority:['privilege.operate.deviceCommunication.runWithPriority'],
     administrateOrOperateDeviceCommunication:['privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication'],
     viewOrAdministrateDeviceData : ['privilege.view.device','privilege.administrate.deviceData'],
     viewOrAdministrateOrOperateDeviceCommunication: ['privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication','privilege.view.device'],

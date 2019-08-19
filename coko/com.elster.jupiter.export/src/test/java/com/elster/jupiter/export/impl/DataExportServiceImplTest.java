@@ -32,9 +32,14 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
 import javax.validation.Validator;
@@ -48,13 +53,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.logging.Logger;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.export.DataExportService.DATA_TYPE_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,6 +124,8 @@ public class DataExportServiceImplTest {
     private PropertySpec propertySpec1, propertySpec2, propertySpec3;
     @Mock
     private MeterReadingSelectorConfigImpl meterReadingSelectorConfig;
+    @Mock
+    private StandardDataSelectorConfigImpl standardDataSelectorConfig;
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
@@ -201,7 +201,11 @@ public class DataExportServiceImplTest {
         DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, taskService, transactionService, thesaurus, clock);
         when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence1);
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
-        when(meterReadingSelectorConfig.getExportPeriod()).thenReturn(relativePeriod);
+
+        when(iExportTask.getStandardDataSelectorConfig()).thenReturn(Optional.of(standardDataSelectorConfig));
+        when(iExportTask.getStandardDataSelectorConfig(any())).thenReturn(Optional.of(standardDataSelectorConfig));
+        when(standardDataSelectorConfig.getExportPeriod()).thenReturn(relativePeriod);
+
         when(relativePeriod.getOpenClosedInterval(any())).thenReturn(Range.openClosed(NOW, NOW));
         when(taskOccurrence.getRetryTime()).thenReturn(Optional.empty());
         when(taskOccurrence.getAdhocTime()).thenReturn(Optional.empty());

@@ -43,6 +43,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 privileges: Mdc.privileges.Device.administrateDevice
             },
             {
+                itemId: 'createmanualissue',
+                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.newManuallyIssue', 'MDC', 'Create issue') + '</b>',
+                name: 'operation',
+                inputValue: 'createmanualissue',
+                privileges: Isu.privileges.Issue.createManualIssue
+            },
+            {
                 itemId: 'searchitemsremoveschedules',
                 boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.removeSchedules', 'MDC', 'Remove shared communication schedules') + '</b>',
                 afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.removeScheduleMsg', 'MDC', 'Shared communication schedule will no longer be visible and used on the selected devices. A record is kept for tracking purposes. This action cannot be undone.') + '</span>',

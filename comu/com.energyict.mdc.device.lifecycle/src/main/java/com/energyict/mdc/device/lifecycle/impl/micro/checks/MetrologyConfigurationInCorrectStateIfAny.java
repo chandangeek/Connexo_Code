@@ -10,10 +10,10 @@ import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
-import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import javax.inject.Inject;
 import java.time.Instant;

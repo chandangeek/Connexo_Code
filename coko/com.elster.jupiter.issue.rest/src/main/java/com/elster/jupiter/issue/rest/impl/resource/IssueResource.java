@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.MessageSeeds;
+import com.elster.jupiter.issue.rest.request.AddIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.AssignSingleIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkAddIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkSnoozeRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
@@ -44,6 +46,9 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -75,10 +80,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -96,15 +98,18 @@ public class IssueResource extends BaseResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final IssueInfoFactoryService issueInfoFactoryService;
     private final TransactionService transactionService;
+    private final LocationService locationService;
     private final Clock clock;
 
     @Inject
-    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService, TransactionService transactionService, Clock clock) {
+    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService,
+                         TransactionService transactionService, LocationService locationService, Clock clock) {
         this.issueResourceHelper = issueResourceHelper;
         this.issueInfoFactory = issueInfoFactory;
         this.conflictFactory = conflictFactory;
         this.issueInfoFactoryService = issueInfoFactoryService;
         this.transactionService = transactionService;
+        this.locationService = locationService;
         this.clock = clock;
     }
 
@@ -114,7 +119,7 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         validateMandatory(params, START, LIMIT);
-        Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter));
+        Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class);
         addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
@@ -372,11 +377,32 @@ public class IssueResource extends BaseResource {
                 .stream()
                 .filter(el -> el != null)
                 .forEach(groupFilter::withWorkGroupAssignee);
+        filter.getStringList(IssueRestModuleConst.LOCATION)
+                .stream()
+                .filter(el -> el != null)
+                .forEach(lId -> locationService.findLocationById(Long.valueOf(lId)).ifPresent(loc -> getMeteringService().findMetersByLocation(loc).forEach(m -> groupFilter.withMeter(m.getId()))));
         issueResourceHelper.getDueDates(filter)
                 .stream()
                 .forEach(dd -> groupFilter.withDueDate(dd.startTime, dd.endTime));
         List<IssueGroup> resultList = getIssueService().getIssueGroupList(groupFilter);
         List<IssueGroupInfo> infos = resultList.stream().map(IssueGroupInfo::new).collect(Collectors.toList());
+
+        if(filter.getString(IssueRestModuleConst.FIELD).equals(IssueRestModuleConst.LOCATION)) {
+            // replace location id with location name for group name
+            List<IssueGroupInfo> replacedInfos = new LinkedList<>();
+            for (IssueGroupInfo info: infos) {
+                String groupName = info.description;
+                if(isNumericValue(groupName)) {
+                    Optional<Location> location = locationService.findLocationById(Long.valueOf(groupName));
+                    if(location.isPresent()) {
+                        groupName = location.get().toString();
+                    }
+                }
+                replacedInfos.add(new IssueGroupInfo(info.id, groupName, info.number));
+            }
+            infos = replacedInfos;
+        }
+
         return PagedInfoList.fromPagedList("issueGroups", infos, queryParameters);
     }
 
@@ -474,6 +500,19 @@ public class IssueResource extends BaseResource {
         return entity(doBulkClose(request, performer, issueProvider)).build();
     }
 
+    @POST
+    @Transactional
+    @Path("/bulkadd")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.CREATE_ISSUE)
+    public Response addIssues(BulkAddIssueRequest request) {
+        ActionInfo response = new ActionInfo();
+        for (AddIssueRequest addIssueRequest : request.getIssues()) {
+            response.addSuccess(issueResourceHelper.createNewIssue(addIssueRequest).getId());
+        }
+        return entity(response).build();
+    }
 
     private boolean isNumericValue(String id) {
         try {

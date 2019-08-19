@@ -54,8 +54,8 @@ Ext.define('Bpm.monitorprocesses.view.RunningProcesses', {
                             itemId: 'status-process-tab',
                             items: [
                                 {
-                                    xtype: 'bpm-status-process-preview',
-                                    itemId: 'running-process-status-preview'
+                                    xtype: 'bpm-status-process-preview-extended',
+                                    itemId: 'running-process-status-preview-extended'
                                 }
                             ]
                         }

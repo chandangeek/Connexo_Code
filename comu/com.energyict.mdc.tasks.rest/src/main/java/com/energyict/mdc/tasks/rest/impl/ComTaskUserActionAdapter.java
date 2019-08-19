@@ -5,7 +5,7 @@
 package com.energyict.mdc.tasks.rest.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.tasks.ComTaskUserAction;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
 
 public class ComTaskUserActionAdapter extends MapBasedXmlAdapter<ComTaskUserAction> {
 

@@ -7,13 +7,13 @@ package com.energyict.mdc.device.data.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import java.sql.Date;
 
 /**
  * Models the exceptional situation that occurs when
- * an attempt is made to obsolete a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
+ * an attempt is made to obsolete a {@link ConnectionTask}
  * that is in fact already obsolete.
  *
  * @author Rudi Vankeirsbilck (rudi)

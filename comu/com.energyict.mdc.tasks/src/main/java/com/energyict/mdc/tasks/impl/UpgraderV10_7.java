@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
-import com.energyict.mdc.tasks.security.Privileges;
+import com.energyict.mdc.common.tasks.security.Privileges;
 
 import javax.inject.Inject;
 

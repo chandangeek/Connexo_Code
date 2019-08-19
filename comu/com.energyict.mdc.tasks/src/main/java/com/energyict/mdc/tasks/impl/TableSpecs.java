@@ -10,12 +10,11 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UniqueConstraint;
 import com.elster.jupiter.orm.Version;
-
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -49,6 +48,7 @@ public enum TableSpecs {
             Column nameColumn = table.column("NAME").varChar().map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
+            table.column("MANUALSYSTEMTASK").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.MANUAL_SYSTEM_TASK.fieldName()).since(Version.version(10, 7)).installValue("0").add();
             table.primaryKey("PK_CTS_COMTASK").on(idColumn).add();
             UniqueConstraint uniqueOnName = table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn).upTo(Version.version(10, 3)).add();
             table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn, discriminator).previously(uniqueOnName).since(Version.version(10, 3)).add();

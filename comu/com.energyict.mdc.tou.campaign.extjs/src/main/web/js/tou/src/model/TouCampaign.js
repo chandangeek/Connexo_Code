@@ -72,8 +72,28 @@ Ext.define('Tou.model.TouCampaign', {
             name: 'withUniqueCalendarName',
             type: 'boolean',
             defaultValue: false
-        }
-
+        }, {
+            name: 'sendCalendarComTask',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }, {
+            name: 'validationComTask',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }, {
+            name: 'sendCalendarConnectionStrategy',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        }, {
+            name: 'validationConnectionStrategy',
+            type: 'auto',
+            useNull: true,
+            defaultValue: undefined
+        },
+        {name : 'serviceCall', type: 'auto', persist: false, defaultValue: null}
     ],
     associations: [{
             type: 'hasMany',

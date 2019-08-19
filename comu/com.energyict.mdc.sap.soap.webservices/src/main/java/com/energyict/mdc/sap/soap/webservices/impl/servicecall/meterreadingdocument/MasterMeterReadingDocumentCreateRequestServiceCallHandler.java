@@ -39,6 +39,7 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
 public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implements ServiceCallHandler {
     public static final String NAME = "MasterMeterReadingDocumentCreateRequestServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile ServiceCallService serviceCallService;
     private volatile Thesaurus thesaurus;
@@ -195,7 +196,6 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         MasterMeterReadingDocumentCreateResultDomainExtension masterDomainExtension = new MasterMeterReadingDocumentCreateResultDomainExtension();
         masterDomainExtension.setRequestUUID(UUID.randomUUID().toString());
         masterDomainExtension.setReferenceID(extension.getRequestID());
-        masterDomainExtension.setResultURL(extension.getResultURL());
         masterDomainExtension.setBulk(extension.isBulk());
 
         ServiceCallBuilder serviceCallBuilder = getServiceCallTypeOrThrowException(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_RESULT)

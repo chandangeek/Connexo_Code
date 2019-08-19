@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
@@ -21,8 +20,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -30,6 +27,7 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.osgi.service.component.annotations.Activate;
@@ -41,13 +39,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
@@ -162,13 +157,18 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                     }));
         }
 
-        Optional<EventTypeInfo> newEventProps = openIssue.getRule()
-                .getProperties()
-                .entrySet()
-                .stream()
-                .filter(entry -> entry.getKey().equals(RADIOGROUP))
-                .findFirst()
-                .map(found -> (EventTypeInfo) found.getValue());
+        Optional<EventTypeInfo> newEventProps;
+        if (openIssue.getRule().isPresent()) {
+            newEventProps = openIssue.getRule().get()
+                    .getProperties()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getKey().equals(RADIOGROUP))
+                    .findFirst()
+                    .map(found -> (EventTypeInfo) found.getValue());
+        } else {
+            newEventProps = Optional.empty();
+        }
         if (newEventProps.isPresent() &&
                 newEventProps.get().hasIncreaseUrgency()) {
             openIssue.setPriority(Priority.get(openIssue.getPriority().increaseUrgency(), openIssue.getPriority()

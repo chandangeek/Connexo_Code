@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.ServerComTaskExecution;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import org.joda.time.DateTime;
 

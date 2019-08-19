@@ -4,7 +4,7 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
+    <parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>parent</artifactId>
 		<version>1.0.1-Heracles-SNAPSHOT</version>
@@ -243,6 +243,24 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.servicecall</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.servicecall.rest</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>issue.servicecall.extjs</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
 				<artifactId>slp.importers</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -423,6 +441,9 @@
 				<module>com.elster.jupiter.parties</module>
 				<module>com.elster.jupiter.parties.rest</module>
 				<module>com.elster.jupiter.slp.importers</module>
+				<module>com.elster.jupiter.issue.servicecall</module>
+				<module>com.elster.jupiter.issue.servicecall.rest</module>
+				<module>com.elster.jupiter.issue.servicecall.extjs</module>
 				<module>com.elster.jupiter.system.app</module>
 				<module>com.elster.jupiter.system.app.help</module>
 				<module>com.elster.jupiter.systemadmin.extjs</module>
@@ -446,6 +467,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
+                <module>com.elster.jupiter.export.custom</module>
 				<module>com.elster.jupiter.gogo</module>
 				<module>com.elster.jupiter.metering.cps</module>
 				<module>com.elster.jupiter.metering.cps.doa</module>

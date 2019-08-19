@@ -37,10 +37,10 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
         doRenewValue(masterKey);
     }
 
-    private void doRenewValue(HsmKey actualValue) {
+    private void doRenewValue(HsmKey masterKey) {
         SecurityAccessorType keyAccessorType = getKeyAccessorType();
         HsmKey symmetricKeyWrapper = (HsmKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
-        symmetricKeyWrapper.generateValue(keyAccessorType, actualValue);
+        symmetricKeyWrapper.generateValue(keyAccessorType, masterKey);
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
         this.save();
     }

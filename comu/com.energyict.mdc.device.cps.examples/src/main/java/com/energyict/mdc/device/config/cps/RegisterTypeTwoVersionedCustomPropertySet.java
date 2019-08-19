@@ -15,7 +15,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Module;

@@ -10,9 +10,6 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface MeterReadingDocumentResult {
-    String LOCAL_PART = "MeterReadingDocumentERPResultCreateRequest_E_OutService";
-    String NAMESPACE_URI = "urn:webservices.wsdl.soap.sap.mdc.energyict.com:meterreadingresultcreaterequest";
-    String RESOURCE = "/wsdl/sap/MeterReadingDocumentERPResultCreateRequest_E_OutService.wsdl";
     String SAP_METER_READING_DOCUMENT_RESULT = "SapMeterReadingResult";
 
     /**

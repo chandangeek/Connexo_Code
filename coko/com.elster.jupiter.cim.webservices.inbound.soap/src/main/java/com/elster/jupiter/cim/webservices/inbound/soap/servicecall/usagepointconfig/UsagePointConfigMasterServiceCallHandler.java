@@ -35,6 +35,7 @@ public class UsagePointConfigMasterServiceCallHandler extends
         AbstractMasterServiceCallHandler<UsagePointConfigMasterDomainExtension, ReplyUsagePointConfigWebService> {
     public static final String SERVICE_CALL_HANDLER_NAME = "UsagePointConfigMasterServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = null;
 
     private final JsonService jsonService;
     private final MeteringService meteringService;
@@ -59,7 +60,7 @@ public class UsagePointConfigMasterServiceCallHandler extends
                 .get();
         replyWebService.call(endPointConfiguration, extensionForChild.getOperation(),
                 getSuccessfulUsagePoints(serviceCall), getFailedUsagePoints(serviceCall),
-                extension.getExpectedNumberOfCalls());
+                extension.getExpectedNumberOfCalls(), extension.getCorrelationId());
     }
 
     private List<FailedUsagePointOperation> getFailedUsagePoints(ServiceCall serviceCall) {

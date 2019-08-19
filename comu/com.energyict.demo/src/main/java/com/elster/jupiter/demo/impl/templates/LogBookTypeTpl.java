@@ -5,7 +5,7 @@
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.LogBookTypeBuilder;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.LogBookType;
 
 public enum LogBookTypeTpl implements Template<LogBookType, LogBookTypeBuilder> {
     GENERIC("Generic logbook", "0.0.99.98.0.255"),

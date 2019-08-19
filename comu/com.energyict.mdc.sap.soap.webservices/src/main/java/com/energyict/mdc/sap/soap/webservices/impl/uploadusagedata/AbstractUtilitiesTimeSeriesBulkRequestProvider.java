@@ -17,10 +17,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
@@ -33,46 +33,41 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<MSG> implements DataExportWebService, OutboundSoapEndPointProvider {
-    private static final String URL_PROPERTY = "url";
+public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> extends AbstractOutboundEndPointProvider<EP> implements DataExportWebService, OutboundSoapEndPointProvider {
+    public static final String ACTL_STATUS = "ACTL";
+    public static final String INVL_STATUS = "INVL";
 
-    private volatile WebServicesService webServicesService;
     private volatile PropertySpecService propertySpecService;
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
 
-    public AbstractUtilitiesTimeSeriesBulkRequestProvider() {
-        // for OSGi purposes
+    AbstractUtilitiesTimeSeriesBulkRequestProvider() {
+        // for OSGi
     }
 
     @Inject
-    public AbstractUtilitiesTimeSeriesBulkRequestProvider(WebServicesService webServicesService, PropertySpecService propertySpecService,
-                                                          DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
-                                                          SAPCustomPropertySets sapCustomPropertySets) {
-        this();
-        setWebServicesService(webServicesService);
+        // for tests
+    AbstractUtilitiesTimeSeriesBulkRequestProvider(PropertySpecService propertySpecService,
+                                                   DataExportServiceCallType dataExportServiceCallType, Thesaurus thesaurus, Clock clock,
+                                                   SAPCustomPropertySets sapCustomPropertySets) {
         setPropertySpecService(propertySpecService);
         setDataExportServiceCallType(dataExportServiceCallType);
         setThesaurus(thesaurus);
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
-    }
-
-    void setWebServicesService(WebServicesService webServicesService) {
-        this.webServicesService = webServicesService;
     }
 
     void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -119,16 +114,19 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<MSG> implem
 
     @Override
     public Optional<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {
-        publish(endPointConfiguration);
         String uuid = UUID.randomUUID().toString();
         try {
-            Consumer<MSG> port = getPort(endPointConfiguration)
-                    .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS));
             Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
                     .filter(timeout -> !timeout.isEmpty())
                     .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
             MSG message = createMessage(data, uuid);
-            port.accept(message);
+            Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
+                    .toEndpoints(endPointConfiguration)
+                    .send(message)
+                    .keySet();
+            if (!processedEndpoints.contains(endPointConfiguration)) {
+                throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
+            }
             return serviceCall;
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
@@ -138,7 +136,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<MSG> implem
 
     abstract MSG createMessage(Stream<? extends ExportData> data, String uuid);
 
-    abstract Optional<Consumer<MSG>> getPort(EndPointConfiguration endPointConfiguration);
+    abstract String getMessageSenderMethod();
 
     private static Optional<TimeDuration> getTimeout(EndPointConfiguration endPoint) {
         return endPoint.getProperties().stream()
@@ -147,12 +145,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<MSG> implem
                 .map(EndPointProperty::getValue)
                 .filter(TimeDuration.class::isInstance)
                 .map(TimeDuration.class::cast);
-    }
-
-    private void publish(EndPointConfiguration endPointConfiguration) {
-        if (endPointConfiguration.isActive() && !webServicesService.isPublished(endPointConfiguration)) {
-            webServicesService.publishEndPoint(endPointConfiguration);
-        }
     }
 
     static Range<Instant> getRange(MeterReading meterReading) {
@@ -186,8 +178,8 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<MSG> implem
         return a.isAfter(b) ? a : b;
     }
 
-    Map<BigDecimal, RangeSet<Instant>> getTimeSlicedLRN(Channel channel, Range<Instant> range, IdentifiedObject meter) {
-        Map<BigDecimal, RangeSet<Instant>> lrn = sapCustomPropertySets.getLrn(channel, range);
+    Map<String, RangeSet<Instant>> getTimeSlicedLRN(Channel channel, Range<Instant> range, IdentifiedObject meter) {
+        Map<String, RangeSet<Instant>> lrn = sapCustomPropertySets.getLrn(channel, range);
         if (!lrn.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_NOT_FOUND_FOR_CHANNEL,
                     channel.getMainReadingType().getFullAliasName(),
@@ -196,7 +188,13 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<MSG> implem
         return lrn;
     }
 
-    static String getUrl(Map<String, Object> props) {
-        return props == null ? null : (String) props.get(URL_PROPERTY);
+    Map<Pair<String, String>, RangeSet<Instant>> getTimeSlicedLrnAndProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter, String readingTypeName) {
+        Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileId = sapCustomPropertySets.getLrnAndProfileId(channel, range);
+        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.intersects(range)).isPresent()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL,
+                    readingTypeName,
+                    meter.getName());
+        }
+        return lrnAndProfileId;
     }
 }

@@ -7,7 +7,7 @@ package com.energyict.mdc.tasks.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
 
-import com.energyict.mdc.tasks.ComTaskUserAction;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

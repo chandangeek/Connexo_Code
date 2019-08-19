@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -177,7 +178,8 @@ public class InMemoryIntegrationPersistence {
                 StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(
                         this.injector.getInstance(EventService.class),
                         this.injector.getInstance(BpmService.class),
-                        this.injector.getInstance(StateTransitionPropertiesProvider.class));
+                        this.injector.getInstance(StateTransitionPropertiesProvider.class),
+                        this.injector.getInstance(FiniteStateMachineService.class));
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
                 com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
                         new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
@@ -336,6 +338,7 @@ public class InMemoryIntegrationPersistence {
             bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
             bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
             bind(DataModel.class).toInstance(mock(DataModel.class));
+            bind(AppService.class).toInstance(mock(AppService.class));
         }
     }
 

@@ -72,7 +72,12 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -81,19 +86,17 @@ import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
 import com.energyict.mdc.device.configuration.rest.impl.SecurityAccessorInfoFactoryImpl;
 import com.energyict.mdc.device.configuration.rest.impl.TrustStoreValuesProviderImpl;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.CrlRequestService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -111,8 +114,6 @@ import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ComTaskUserAction;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.SystemComTask;
 
@@ -204,6 +205,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     TaskService taskService;
     @Mock
     CommunicationTaskService communicationTaskService;
+    @Mock
+    PriorityComTaskService priorityComTaskService;
     @Mock
     CommunicationTaskReportService communicationTaskReportService;
     @Mock
@@ -373,6 +376,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setRestQueryService(restQueryService);
         application.setTaskService(taskService);
         application.setCommunicationTaskService(communicationTaskService);
+        application.setPriorityComTaskService(priorityComTaskService);
         application.setCommunicationTaskReportService(communicationTaskReportService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setFavoritesService(favoritesService);

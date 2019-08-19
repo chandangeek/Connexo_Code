@@ -5,14 +5,15 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -55,6 +56,11 @@ public abstract class ScheduledJobImpl extends JobExecution {
     public abstract ScheduledConnectionTask getConnectionTask();
 
     @Override
+    public boolean isConnectedTo(OutboundConnectionTask connectionTask) {
+        return getConnectionTask().equals(connectionTask);
+    }
+
+    @Override
     public boolean isConnected() {
         return getExecutionContext().getComPortRelatedComChannel() != null;
     }
@@ -80,7 +86,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware).findFirst();
         if (firmwareComTaskExecution.isPresent()) {
             ComTaskExecution comTaskExecution = firmwareComTaskExecution.get();
-            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaign(comTaskExecution);
+            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution);
             if (firmwareCampaign.isPresent()) {
                 comWindowToUse = firmwareCampaign.get().getComWindow();
             }
@@ -112,6 +118,11 @@ public abstract class ScheduledJobImpl extends JobExecution {
         }
     }
 
+    @Override
+    public boolean isHighPriorityJob() {
+        return false;
+    }
+
     /**
      * Attempts to lock the specified {@link ComTaskExecution}
      * and returns <code>true</code> if the lock succeeded.
@@ -123,6 +134,20 @@ public abstract class ScheduledJobImpl extends JobExecution {
      * @return A flag that indicates a successful locking of the ComTaskExecution
      */
     boolean attemptLock(ComTaskExecution comTaskExecution) {
+        return this.getComServerDAO().attemptLock(comTaskExecution, this.getComPort());
+    }
+
+    /**
+     * Attempts to lock the specified {@link PriorityComTaskExecutionLink}
+     * and returns <code>true</code> if the lock succeeded.
+     * If the lock did not succeed, this is an indication
+     * that another component has already locked it,
+     * most likely for executing it.
+     *
+     * @param comTaskExecution The HighPriorityComTaskExecution
+     * @return A flag that indicates a successful locking of the HighPriorityComTaskExecution
+     */
+    protected boolean attemptLock(PriorityComTaskExecutionLink comTaskExecution) {
         return this.getComServerDAO().attemptLock(comTaskExecution, this.getComPort());
     }
 

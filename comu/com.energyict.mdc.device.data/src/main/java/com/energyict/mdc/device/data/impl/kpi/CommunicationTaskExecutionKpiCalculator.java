@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.time.Instant;
 import java.util.EnumSet;

@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectProperty;
 
 import com.google.common.collect.Range;
 

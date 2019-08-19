@@ -10,7 +10,8 @@ Ext.define('Bpm.monitorprocesses.view.MonitorProcessesMainView', {
         'Bpm.monitorprocesses.view.HistoryProcesses',
         'Bpm.monitorprocesses.view.RunningProcessPreview',
         'Bpm.monitorprocesses.view.HistoryProcessPreview',
-        'Bpm.monitorprocesses.view.StatusProcessPreview'
+        'Bpm.monitorprocesses.view.StatusProcessPreview',
+        'Bpm.monitorprocesses.view.StatusProcessPreviewExtended'
     ],
     properties: {},
     ui: 'large',

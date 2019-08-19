@@ -39,6 +39,8 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
         if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {
             getProtocol().journal("Parsing as standard event log");
             meterEvents = new ESMR50StandardEventLog(dataContainer).getMeterEvents();
+            // also check the frame-couter events when reading the frame-counter
+            checkFrameCounterEvents(meterEvents);
         } else if (logBookObisCode.equals(POWER_FAILURE_LOG)) {
             getProtocol().journal("Parsing as power failure log");
             meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
@@ -54,7 +56,11 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_CONTROL_LOG)) {
             int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus control log on channel "+channel);
-            meterEvents = new ESMR50MbusControlLog(dataContainer, channel).getMeterEvents();
+            ESMR50MbusControlLog mbusControlLog = new ESMR50MbusControlLog(dataContainer, channel);
+            meterEvents = mbusControlLog.getMeterEvents();
+            if (mbusControlLog.getIgnoredEvents()>0){
+                getProtocol().journal("Ignored events: "+mbusControlLog.getIgnoredEvents());
+            }
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus event log on channel "+channel);
@@ -63,6 +69,7 @@ public class Esmr50LogBookFactory extends Dsmr40LogBookFactory {
             getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
             return new ArrayList<>();
         }
+
         getProtocol().journal("Decoded "+meterEvents.size()+" events from "+logBookObisCode);
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
     }

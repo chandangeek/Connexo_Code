@@ -16,6 +16,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
@@ -45,6 +46,8 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
     public static final ObisCode FIRMWARE_VERSION_METER_CORE = ObisCode.fromString("1.0.0.2.0.255");
     public static final ObisCode FIRMWARE_VERSION_COMMS_MODULE = ObisCode.fromString("1.1.0.2.0.255");
+
+    public static final ObisCode MBUS_DEVICE_CONFIGURATION = ObisCode.fromString("0.x.24.2.2.255");
 
     public AbstractSmartNtaProtocol(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -355,6 +358,15 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         return FIRMWARE_VERSION_COMMS_MODULE;
     }
 
+    /**
+     * Getter for the MBus device configuration object, which stores firmware information;
+     *
+     * @return
+     */
+    private ObisCode getMbusDeviceConfigurationObisCode(String serialNumber) {
+        return getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, serialNumber);
+    }
+
     public void collectFirmwareVersionMeterCore(CollectedFirmwareVersion result) {
         ObisCode coreFirmwareVersion = getFirmwareVersionMeterCoreObisCode();
         try {
@@ -389,8 +401,60 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     }
 
 
+    protected CollectedFirmwareVersion collectSlaveFirmwareVersions(String serialNumber) {
+        DeviceIdentifierBySerialNumber slaveDevice = new DeviceIdentifierBySerialNumber(serialNumber);
+        CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(slaveDevice);
+
+        ObisCode mbusDeviceConfigurationObisCode = getMbusDeviceConfigurationObisCode(serialNumber);
+        try {
+            journal("Collecting M-Bus firmware information from " +mbusDeviceConfigurationObisCode);
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getExtendedRegister(mbusDeviceConfigurationObisCode).getValueAttr();
+
+            String fwVersion = valueAttr.getOctetString().stringValue();
+            //default set everything
+            result.setActiveMeterFirmwareVersion(fwVersion);
+            journal("MBus: Configuration " + fwVersion);
+            /*
+            String with concatenation of 5 (variable length) information fields:
+                   0 [Model/version]
+                   1 [Hardware version number]
+                   2 [Metrology (firmware) version number]
+                   3 [Other software version number]
+                   4 [Meter Configuration]
+             */
+            String[] versions = fwVersion.split("\r\n");
+            if (versions.length>2){
+                result.setActiveMeterFirmwareVersion(versions[2]);
+                journal("Active meter core firmware version is " + versions[2]);
+            }
+            if (versions.length>3){
+                result.setActiveCommunicationFirmwareVersion(versions[3]);
+                journal("Communication(other) firmware version is " + versions[3]);
+            }
+
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(mbusDeviceConfigurationObisCode, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }
+        }
+
+        return result;
+    }
+
+
+
     @Override
-    public CollectedFirmwareVersion getFirmwareVersions(){
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber){
+
+        //check for slaves first
+        if (serialNumber!=null){
+            if (!getSerialNumber().equals(serialNumber))
+                return collectSlaveFirmwareVersions(serialNumber);
+        }
+
+        // return the master
+
         CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(
                                                                         new DeviceIdentifierById(this.offlineDevice.getId()));
 

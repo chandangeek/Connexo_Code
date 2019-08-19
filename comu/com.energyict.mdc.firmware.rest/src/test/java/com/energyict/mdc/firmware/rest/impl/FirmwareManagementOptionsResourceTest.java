@@ -5,7 +5,7 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -207,3 +207,4 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
         target(URI).request().put(Entity.json(firmwareManagementOptionsInfo));
     }
 }
+

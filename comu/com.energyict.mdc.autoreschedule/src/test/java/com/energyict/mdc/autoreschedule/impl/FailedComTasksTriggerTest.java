@@ -3,12 +3,10 @@ package com.energyict.mdc.autoreschedule.impl;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.sql.Fetcher;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

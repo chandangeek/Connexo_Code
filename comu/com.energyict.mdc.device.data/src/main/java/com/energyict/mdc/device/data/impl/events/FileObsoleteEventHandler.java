@@ -9,15 +9,15 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.DeviceMessageFile;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import org.osgi.service.component.annotations.Component;
@@ -54,7 +54,7 @@ public class FileObsoleteEventHandler implements TopicHandler {
                 .flatMap(Collection::stream)
                 .map(DeviceMessageSpec::getPropertySpecs)
                 .flatMap(Collection::stream)
-                .filter(propertySpec -> propertySpec.isReference() && propertySpec.getValueFactory().getValueType().isAssignableFrom(com.energyict.mdc.protocol.api.DeviceMessageFile.class))
+                .filter(propertySpec -> propertySpec.isReference() && propertySpec.getValueFactory().getValueType().isAssignableFrom(com.energyict.mdc.common.protocol.DeviceMessageFile.class))
                 .map(PropertySpec::getName)
                 .collect(Collectors.toList());
 

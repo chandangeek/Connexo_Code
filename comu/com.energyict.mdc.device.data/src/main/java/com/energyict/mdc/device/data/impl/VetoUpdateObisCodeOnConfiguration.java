@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import java.util.List;
 import java.util.stream.Collectors;
