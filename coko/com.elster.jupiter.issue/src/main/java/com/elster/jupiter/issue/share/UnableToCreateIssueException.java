@@ -4,18 +4,22 @@
 
 package com.elster.jupiter.issue.share;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import aQute.bnd.annotation.ProviderType;
+
 @ProviderType
-public class UnableToCreateEventException extends LocalizedException {
+public class UnableToCreateIssueException extends LocalizedException {
 
     private static final long serialVersionUID = -1934348489428630312L;
 
-    public UnableToCreateEventException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+    public UnableToCreateIssueException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
+    }
+
+    public UnableToCreateIssueException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause, Object... args) {
+        super(thesaurus, messageSeed, cause, args);
     }
 }

@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NlsModule extends AbstractModule {
 
@@ -91,7 +92,7 @@ public class NlsModule extends AbstractModule {
 
         @Override
         public Thesaurus join(Thesaurus thesaurus) {
-            return this;
+            return thesaurus instanceof SimpleThesaurus ? thesaurus : this;
         }
 
         @Override
@@ -113,9 +114,13 @@ public class NlsModule extends AbstractModule {
     public static class SimpleThesaurus implements Thesaurus {
         private Map<String, String> translations;
 
+        private SimpleThesaurus(Map<String, String> translations) {
+            this.translations = translations;
+        }
+
         private SimpleThesaurus(Collection<TranslationKey> translationKeys) {
-            translations = translationKeys.stream()
-                    .collect(Collectors.toMap(TranslationKey::getKey, TranslationKey::getDefaultFormat));
+            this(translationKeys.stream()
+                    .collect(Collectors.toMap(TranslationKey::getKey, TranslationKey::getDefaultFormat)));
         }
 
         public static SimpleThesaurus from(Collection<TranslationKey> translationKeys) {
@@ -159,7 +164,10 @@ public class NlsModule extends AbstractModule {
 
         @Override
         public Thesaurus join(Thesaurus thesaurus) {
-            return this;
+            return thesaurus instanceof SimpleThesaurus ?
+                    new SimpleThesaurus(Stream.concat(translations.entrySet().stream(), ((SimpleThesaurus) thesaurus).translations.entrySet().stream())
+                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a))) :
+                    this;
         }
 
         @Override

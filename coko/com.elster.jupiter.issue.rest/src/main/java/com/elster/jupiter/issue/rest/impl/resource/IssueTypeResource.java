@@ -17,6 +17,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
@@ -44,23 +46,25 @@ public class IssueTypeResource extends BaseResource {
     }
 
     private List<IssueType> getSupportedIssueTypes(String appKey) {
-        List<IssueType> issueTypes = new ArrayList<>();
-        if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
-            issueTypes = getIssueService().query(IssueType.class)
-                    .select(where(KEY).isEqualTo(IssueTypes.USAGEPOINT_DATA_VALIDATION
-                            .getName()));
-        } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
-            issueTypes = getIssueService().query(IssueType.class)
-                    .select(where(KEY).in(new ArrayList<String>() {{
-                        add(IssueTypes.DATA_COLLECTION.getName());
-                        add(IssueTypes.DATA_VALIDATION.getName());
-                        add(IssueTypes.DEVICE_LIFECYCLE.getName());
-                        add(IssueTypes.SERVICE_CALL_ISSUE.getName());
-                        add(IssueTypes.TASK.getName());
-                        add(IssueTypes.MANUAL.getName());
-                    }}));
+        if (appKey != null) {
+            switch (appKey) {
+                case "INS":
+                    return getIssueService().query(IssueType.class)
+                            .select(where(KEY).isEqualTo(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()));
+                case "MDC":
+                    return getIssueService().query(IssueType.class)
+                            .select(where(KEY).in(Arrays.asList(
+                                    IssueTypes.DATA_COLLECTION.getName(),
+                                    IssueTypes.DATA_VALIDATION.getName(),
+                                    IssueTypes.DEVICE_LIFECYCLE.getName(),
+                                    IssueTypes.SERVICE_CALL_ISSUE.getName(),
+                                    IssueTypes.TASK.getName(),
+                                    IssueTypes.MANUAL.getName(),
+                                    IssueTypes.WEB_SERVICE.getName()
+                            )));
+            }
         }
-        return issueTypes;
+        return Collections.emptyList();
     }
 
     private List<IssueType> getSupportedIssueTypesWithoutManual(String appKey) {
@@ -77,6 +81,7 @@ public class IssueTypeResource extends BaseResource {
                         add(IssueTypes.DEVICE_LIFECYCLE.getName());
                         add(IssueTypes.SERVICE_CALL_ISSUE.getName());
                         add(IssueTypes.TASK.getName());
+                        add(IssueTypes.WEB_SERVICE.getName());
                     }}));
         }
         return issueTypes;
