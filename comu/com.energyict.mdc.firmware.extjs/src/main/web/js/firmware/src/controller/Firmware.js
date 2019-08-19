@@ -35,8 +35,10 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.store.SecurityAccessors',
         'Fwc.store.MeterFirmwareDepependencies',
         'Fwc.store.CommunicationFirmwareDepependencies',
+        'Fwc.store.AuxiliaryFirmwareDepependencies',
         'Fwc.store.MeterFirmwareDepependenciesEdit',
-        'Fwc.store.CommunicationFirmwareDepependenciesEdit'
+        'Fwc.store.CommunicationFirmwareDepependenciesEdit',
+        'Fwc.store.AuxiliaryFirmwareDepependenciesEdit'
     ],
 
     refs: [
@@ -254,6 +256,12 @@ Ext.define('Fwc.controller.Firmware', {
                         me.getContainer().down('firmware-form-add #firmware-min-communication-version-common').hide();
                     }
 
+                    if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "auxiliary"}).length){
+                        me.getContainer().down('firmware-form-add #firmware-min-auxiliary-version-common').show();
+                    }else{
+                        me.getContainer().down('firmware-form-add #firmware-min-auxiliary-version-common').hide();
+                    }
+
                     if (supportedFirmwareTypesStore.totalCount===1) {
                         var id = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.id;
                         var onlyType = me.getContainer().down('firmware-form-add #radio-firmware-type').getStore().getAt(0).data.localizedValue;
@@ -300,8 +308,14 @@ Ext.define('Fwc.controller.Firmware', {
                                     me.getContainer().down('firmware-edit #firmware-min-meter-version-common').hide();
                                }
                                if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
-                                   if(me.getContainer().down('firmware-edit #firmware-min-communication-version-common'))
+                                   if(me.getContainer().down('firmware-edit #firmware-min-communication-version-common')){
                                        me.getContainer().down('firmware-edit #firmware-min-communication-version-common').hide();
+                                   }
+                               }
+                               if (!Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "auxiliary"}).length){
+                                   if(me.getContainer().down('firmware-edit #firmware-min-auxiliary-version-common')){
+                                       me.getContainer().down('firmware-edit #firmware-min-auxiliary-version-common').hide();
+                                   }
                                }
                           }
                     });
@@ -357,6 +371,7 @@ Ext.define('Fwc.controller.Firmware', {
         record = form.updateRecord().getRecord();
         var firmwareMinMeterVersionField = form.down('#firmware-min-meter-version');
         var firmwareMinCommunicationVersionField = form.down('#firmware-min-communication-version');
+        var firmwareMinAuxiliaryVersionField = form.down('#firmware-min-auxiliary-version');
 
         record.setFirmwareType(
             form.down('#radio-firmware-type')
@@ -378,6 +393,11 @@ Ext.define('Fwc.controller.Firmware', {
         if (firmwareMinCommunicationVersionField){
             record.setCommunicationFirmwareDependency(
                  firmwareMinCommunicationVersionField.getStore().getById(firmwareMinCommunicationVersionField.getValue())
+            );
+        }
+        if (firmwareMinAuxiliaryVersionField){
+            record.setAuxiliaryFirmwareDependency(
+                 firmwareMinAuxiliaryVersionField.getStore().getById(firmwareMinAuxiliaryVersionField.getValue())
             );
         }
 
@@ -623,6 +643,9 @@ Ext.define('Fwc.controller.Firmware', {
                                 if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
                                     firmwareGrid.down('#minCommLevel').show();
                                 }
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "auxiliary"}).length){
+                                    firmwareGrid.down('#minAuxiliaryLevel').show();
+                                }
 
                                 var signatureCheckContainer = widget ? widget.down('#security-check-container') : null;
                                 if (signatureCheckContainer) {
@@ -816,6 +839,7 @@ Ext.define('Fwc.controller.Firmware', {
             if (!record.data) return;
             if (!record.data.meterFirmwareDependency) delete record.data.meterFirmwareDependency;
             if (!record.data.communicationFirmwareDependency) delete record.data.communicationFirmwareDependency;
+            if (!record.data.auxiliaryFirmwareDependency) delete record.data.auxiliaryFirmwareDependency;
             dataForSend.push(record.data);
         })
 
