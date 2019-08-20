@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Created by bvn on 8/1/14.
  */
-@ProviderType
+@ConsumerType
 public interface LoadProfileReading {
 
     Range<Instant> getRange();

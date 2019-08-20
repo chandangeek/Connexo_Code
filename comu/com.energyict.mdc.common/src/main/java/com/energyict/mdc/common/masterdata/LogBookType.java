@@ -7,10 +7,10 @@ package com.energyict.mdc.common.masterdata;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
-@ProviderType
+@ConsumerType
 public interface LogBookType extends HasId, HasName {
 
     void setName(String newName);

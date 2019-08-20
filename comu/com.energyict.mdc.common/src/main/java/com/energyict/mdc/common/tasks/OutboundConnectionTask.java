@@ -8,11 +8,11 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 
-@ProviderType
+@ConsumerType
 public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> extends ConnectionTask<OutboundComPortPool, PCTT>, OutboundConnectionTaskExecutionAspects {
 
     /**

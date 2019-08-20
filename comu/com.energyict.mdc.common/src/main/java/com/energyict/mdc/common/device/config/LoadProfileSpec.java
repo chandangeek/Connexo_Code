@@ -9,12 +9,12 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
 
-@ProviderType
+@ConsumerType
 public interface LoadProfileSpec extends HasId {
 
     LoadProfileType getLoadProfileType();

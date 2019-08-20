@@ -6,7 +6,7 @@ package com.energyict.mdc.common.tasks.history;
 
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models a {@link ComTaskExecutionJournalEntry} for a simple message
@@ -15,7 +15,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-08 (09:32)
  */
-@ProviderType
+@ConsumerType
 public interface ComTaskExecutionMessageJournalEntry extends ComTaskExecutionJournalEntry {
 
 

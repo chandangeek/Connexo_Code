@@ -8,12 +8,12 @@ import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface PassiveCalendar extends HasId {
 
     Instant getActivationDate();
