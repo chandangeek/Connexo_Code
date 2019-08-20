@@ -450,6 +450,7 @@ public class DataExportTaskResource {
         task.setLogLevel(info.logLevel);
         task.setScheduleExpression(getScheduleExpression(info));
         task.setNextExecution(info.nextRun);
+        task.setSuspendUntil(info.suspendUntilExport);
 
         if (info.standardDataSelector != null) {
             if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
