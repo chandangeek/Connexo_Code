@@ -147,7 +147,15 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         }
         if (menu.down('#runDeviceComTaskNowWithPriority')) {
             if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) {
-                menu.down('#runDeviceComTaskNowWithPriority').show();
+            	if (!privilegeToExecuteWasChecked) {
+            		canExecute = Uni.Auth.hasAnyPrivilege(selection.get('comTask').privileges);
+            		privilegeToExecuteWasChecked = true;
+            	}
+            	if (canExecute) {
+            		menu.down('#runDeviceComTaskNowWithPriority').show();
+            	} else {
+            		menu.down('#runDeviceComTaskNowWithPriority').hide();
+            	}
             } else {
                 menu.down('#runDeviceComTaskNowWithPriority').hide();
             }
