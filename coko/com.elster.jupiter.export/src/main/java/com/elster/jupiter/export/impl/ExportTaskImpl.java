@@ -638,4 +638,9 @@ final class ExportTaskImpl implements IExportTask {
     public Instant getSuspendUntil(){
         return  recurrentTask.get().getSuspendUntil();
     }
+
+    @Override
+    public void setSuspendUntil(Instant suspendUntil){
+        recurrentTask.get().setSuspendUntil(suspendUntil);
+    }
 }

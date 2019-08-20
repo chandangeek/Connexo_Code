@@ -210,6 +210,7 @@ public class DataValidationTaskResource {
         }
         task.setNextExecution(info.nextRun);
         task.setNextRecurrentTasks(this.findRecurrentTaskOrThrowException(info.nextRecurrentTasks));
+        task.setSuspendUntil(info.nextRun);
         task.update();
         return Response.ok(dataValidationTaskInfoFactory.asInfo(task)).build();
     }
