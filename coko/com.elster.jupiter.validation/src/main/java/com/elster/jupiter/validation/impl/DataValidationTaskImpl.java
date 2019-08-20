@@ -436,4 +436,14 @@ final class DataValidationTaskImpl implements DataValidationTask {
     public void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks) {
         this.nextRecurrentTasks = nextRecurrentTasks;
     }
+
+    @Override
+    public void setSuspendUntil(Instant suspendUntilTime) {
+        recurrentTask.get().setSuspendUntil(suspendUntilTime);
+    }
+
+    @Override
+    public Instant getSuspendUntil() {
+        return recurrentTask.get().getSuspendUntil();
+    }
 }

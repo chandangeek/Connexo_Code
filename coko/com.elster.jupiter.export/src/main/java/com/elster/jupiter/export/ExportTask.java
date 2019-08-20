@@ -118,4 +118,6 @@ public interface ExportTask extends HasName, HasAuditInfo {
     Optional<DataExportRunParameters> getRunParameters(Instant at);
 
     Instant getSuspendUntil();
+
+    void setSuspendUntil(Instant suspendUntil);
 }
