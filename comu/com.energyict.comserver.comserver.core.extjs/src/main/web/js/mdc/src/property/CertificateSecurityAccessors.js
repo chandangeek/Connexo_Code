@@ -5,27 +5,20 @@
 Ext.define('Mdc.property.CertificateSecurityAccessors', {
     extend: 'Uni.property.view.property.Base',
 
+    require: [
+        'Mdc.securityaccessors.store.DeviceSecurityCertificates'
+    ],
+
+    store: null,
+
     initComponent: function() {
         var me = this,
-            deviceNameToSet = me.parentForm.context.deviceName;
+            deviceName = me.parentForm.context.deviceName;
 
-        me.securityAccessorsStore = Ext.create('Ext.data.Store', {
-            model: 'Mdc.securityaccessors.model.DeviceSecurityKey',
-            proxy: {
-                type: 'rest',
-                urlTpl: '/api/ddr/devices/{deviceNameToSet}/securityaccessors/keys',
-                reader: {
-                    type: 'json',
-                    root: 'keys'
-                },
-                setUrl: function (deviceNameToSet) {
-                    this.url = this.urlTpl.replace('{deviceNameToSet}', deviceNameToSet);
-                }
-            }
-        });
+        me.store = Ext.getStore('Mdc.securityaccessors.store.DeviceSecurityCertificates');
 
         me.callParent();
-        me.securityAccessorsStore.getProxy().setUrl(deviceNameToSet);
+        me.store.getProxy().setExtraParam('deviceId', deviceName);
     },
 
     getEditCmp: function () {
@@ -35,7 +28,7 @@ Ext.define('Mdc.property.CertificateSecurityAccessors', {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
             name: this.getName(),
-            store: me.securityAccessorsStore,
+            store: me.store,
             minChars: 0,
             displayField: 'name',
             valueField: 'id',
