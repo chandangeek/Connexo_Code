@@ -37,7 +37,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public byte[] symmetricEncrypt(byte[] bytes, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
-        logger.debug("Symmetric encrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ",  Base64.getEncoder().encodeToString(bytes), label, chainingMode, paddingAlgorithm );
+        logger.debug("Symmetric encrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ",  Base64.getEncoder().encodeToString(bytes), label, icv, chainingMode, paddingAlgorithm );
         try {
             return Symmetric.encrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, bytes, getIcv(icv), paddingAlgorithm, chainingMode).getData();
         } catch (FunctionFailedException e) {
@@ -52,7 +52,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public byte[] symmetricDecrypt(byte[] cipher, String label,byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
-        logger.debug("Symmetric decrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ",  Base64.getEncoder().encodeToString(cipher), label, chainingMode, paddingAlgorithm );
+        logger.debug("Symmetric decrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ",  Base64.getEncoder().encodeToString(cipher), label, icv, chainingMode, paddingAlgorithm );
         try {
             return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, cipher, getIcv(icv), hsmConfiguration.getPaddingAlgorithm(label), hsmConfiguration.getChainingMode(label));
         } catch (FunctionFailedException e) {
