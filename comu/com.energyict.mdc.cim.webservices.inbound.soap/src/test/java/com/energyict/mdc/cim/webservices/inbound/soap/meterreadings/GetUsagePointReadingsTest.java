@@ -601,6 +601,8 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         mockDevice(device2, 2);
         when(deviceService.findDeviceById(END_DEVICE1_AMRID)).thenReturn(Optional.of(device1));
         when(deviceService.findDeviceById(END_DEVICE2_AMRID)).thenReturn(Optional.of(device2));
+        when(deviceService.findAndLockDeviceById(END_DEVICE1_AMRID)).thenReturn(Optional.of(device1));
+        when(deviceService.findAndLockDeviceById(END_DEVICE2_AMRID)).thenReturn(Optional.of(device2));
         Finder finder = mock(Finder.class);
         when(deviceService.findAllDevices(any())).thenReturn(finder);
         when(finder.stream())
