@@ -252,7 +252,8 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response runWithPriority(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info) {
+    public Response runWithPriority(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info,
+            @Context SecurityContext securityContext) {
         if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
@@ -260,14 +261,19 @@ public class DeviceComTaskResource {
         checkForNoActionsAllowedOnSystemComTask(comTaskId);
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsWithPriorityForDeviceAndComTask(comTaskId, device);
+        User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(cte -> {
-                resourceHelper.getLockedPriorityComTaskExecution(cte);
-                cte.runNow();
-            });
+            if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+                comTaskExecutions.forEach(cte -> {
+                    resourceHelper.getLockedPriorityComTaskExecution(cte);
+                    cte.runNow();
+                });
+            }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
-            comTaskEnablements.forEach(runComTaskFromEnablementWithPriority(device));
+            if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)){
+                comTaskEnablements.forEach(runComTaskFromEnablementWithPriority(device));
+            }
         }
         return Response.ok().build();
     }
