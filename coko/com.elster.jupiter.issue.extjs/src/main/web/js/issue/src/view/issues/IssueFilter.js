@@ -177,7 +177,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                         fn: me.locationBeforeQuery
                     }
                 }
-            }
+            },
             {
                 type: 'checkbox',
                 dataIndex: 'showTopology',
