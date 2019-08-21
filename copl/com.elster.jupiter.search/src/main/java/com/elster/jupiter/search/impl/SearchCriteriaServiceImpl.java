@@ -6,9 +6,14 @@ import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.search.SearchCriteria;
 import com.elster.jupiter.search.SearchCriteriaService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import org.osgi.service.component.annotations.Activate;
@@ -18,10 +23,12 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 
@@ -36,16 +43,24 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile UpgradeService upgradeService;
+    private volatile Clock clock;
 
     public SearchCriteriaServiceImpl(){
 
     }
 
     @Inject
-    public SearchCriteriaServiceImpl(OrmService ormService, QueryService queryService, NlsService nlsService) {
+    public SearchCriteriaServiceImpl(OrmService ormService,
+                                     QueryService queryService,
+                                     NlsService nlsService,
+                                     UpgradeService upgradeService,
+                                     Clock clock) {
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
+        setUpgradeService(upgradeService);
+        setClock(clock);
         activate();
     }
 
@@ -54,6 +69,7 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -62,9 +78,18 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
                 bind(QueryService.class).toInstance(queryService);
                 bind(SearchCriteriaService.class).to(SearchCriteriaServiceImpl.class).in(Scopes.SINGLETON);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(UpgradeService.class).toInstance(upgradeService);
+                bind(Clock.class).toInstance(clock);
             }
         });
         // issueCreationService = dataModel.getInstance(IssueCreationService.class);
+        this.upgradeService.register(
+                InstallIdentifier.identifier("Pulse", SearchCriteriaServiceImpl.COMPONENT_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                        version(10, 7), UpgraderV10_7.class)
+        );
     }
 
     @Override
@@ -107,6 +132,17 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
     }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
 
     @Override
     public Layer getLayer() {

@@ -250,19 +250,26 @@ public class DynamicSearchResource extends BaseResource {
     public Response saveSearchCriteria(@NotNull @PathParam("name") String name,
                                               @NotNull @FormParam("filter") String filter,
                                               @NotNull @FormParam("domain") String domainId) {
+        Map<String, Object> jsonResponse = new HashMap<>();
+        String status = "";
         try (TransactionContext transactionContext = getTransactionService().getContext()) {
             SearchCriteriaBuilder searchCriteriaBuilder = getSearchCriteriaService().newSearchCriteria();
             searchCriteriaBuilder.setUserName(threadPrincipalService.getPrincipal().getName());
             searchCriteriaBuilder.setCriteria(filter);
             searchCriteriaBuilder.setName(name);
             searchCriteriaBuilder.setDomain(domainId);
-            if (checkForSearchUpdate(name))
+            if (checkForSearchUpdate(name)) {
                 searchCriteriaBuilder.update();
-            else
+                status = "Update";
+            }
+            else {
                 searchCriteriaBuilder.complete();
+                status = "Save";
+            }
             transactionContext.commit();
         }
-        return Response.ok(Response.Status.OK).build();
+        jsonResponse.put("status", status);
+        return Response.ok().entity(jsonResponse).build();
     }
 
     @GET

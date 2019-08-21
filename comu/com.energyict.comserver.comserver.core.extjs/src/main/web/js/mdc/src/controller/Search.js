@@ -96,15 +96,15 @@ Ext.define('Mdc.controller.Search', {
                 }
             },
             'uni-view-search-overview button[action=saveSearchWindow]': {
-                click: {
-                    fn: me.service.openSaveSearch,
+                click: function(){
+                    me.service.openSaveSearch(me);
                     scope: me.service
 
                 }
             },
             'uni-view-search-overview #load-button': {
-                select: function (combo, value){
-                    fn: me.service.loadSearch(combo, value);
+                select: function (combo, value, a){
+                    var res =  me.service.loadSearch(combo, value, a, me);
                     scope: me.service;
                 }
 
@@ -119,25 +119,6 @@ Ext.define('Mdc.controller.Search', {
                 click: {
                     fn: me.service.clearFilters,
                     scope: me.service
-                }
-            },//submit-search
-            'uni-view-search-searchsavewindow #submit-search': {
-                click: function(cont){
-                   var res= me.service.saveSearchCriteria(cont);
-                        if(res === true) {
-                           me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.saveSearch', 'UNI', 'Search criteria saved'));
-                     }
-                   scope: me.service;
-                }
-            },
-
-            'uni-view-search-removesavewindow #remove-search': {
-                click: function (btn) {
-                    var res = me.service.removeSearchCriteria(btn);
-                    if(res === true) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));
-                    }
-                    scope: me.service;
                 }
             }
         });

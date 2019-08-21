@@ -3,9 +3,11 @@ package com.elster.jupiter.search.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.search.SearchCriteriaService;
 import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.logging.Logger;
 
 class Installer implements FullInstaller {
@@ -18,7 +20,16 @@ class Installer implements FullInstaller {
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
-        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
+        doTry(
+                "view for all search criteria",
+                this::createViews,
+                logger
+        );
+    }
+
+    private void createViews() {
+        new CreateSearchCriteriaViewOperation(dataModel).execute();
     }
 
 }

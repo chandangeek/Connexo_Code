@@ -79,6 +79,11 @@
           <artifactId>upgrade</artifactId>
           <scope>compile</scope>
       </dependency>
+      <dependency>
+          <groupId>com.elster.jupiter</groupId>
+          <artifactId>users</artifactId>
+          <scope>compile</scope>
+      </dependency>
 
   </dependencies>
 </project>

@@ -16,7 +16,9 @@ Ext.define('Uni.store.search.SaveLoad', {
         {type: 'string', name: 'name'},
         {type: 'string', name: 'user'},
         {type: 'string', name: 'criteria'},
-        {type: 'string', name: 'domainid'}
+        {type: 'string', name: 'domainid'},
+
+
     ],
     sorters: [{
         property: 'name',

@@ -723,30 +723,94 @@ Ext.define('Uni.service.Search', {
         }
     },
 
-    openSaveSearch: function () {
+    openSaveSearch: function (contRef) {
         var me = this;
-        Ext.create('Uni.view.search.SearchSaveWindow').show();
+        var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+            confirmText: Uni.I18n.translate('general.button.save', 'IMT', 'Save'),
+            itemId: 'saveSearchConfirmationWindow',
+            green : true,
+            closeAction: 'destroy',
+            confirmation: function (button) {
+                me.saveSearchCriteria(button, contRef);
+                this.destroy();
+            }
+        });
+        confirmationWindow.insert(1, {
+            xtype: 'container',
+            layout: {
+                type: 'hbox',
+                pack: 'end'
+            },
+            items: [{
+                xtype: 'combobox',
+                id: 'saveEntered',
+                emptyText: Uni.I18n.translate('general.typeName', 'UNI', 'Type a name'),
+                fieldLabel: Uni.I18n.translate('general.nameCombo', 'UNI', 'Name'),
+                required: true,
+                requiredField: true,
+                allowBlank: false,
+                forceSelect: true,
+                typeAhead: true,
+                minChars: 2,
+                store: Ext.create('Uni.store.search.SaveLoad'),
+                displayField: 'name',
+                valueField: 'name',
+                style: {
+                    'margin-right': '250px',
+                    'margin-top': '10px',
+                    'margin-bottom': '20px'
+                },
+                listConfig: {
+                    maxHeight: 200,
+                    style: "border-radius : 4px",
+                    shadow: true,
+                    bodyPadding: 10,
+                    margin: 0
+                }
+            }]
+        });
+        confirmationWindow.show({
+            htmlEncode: false,
+            msg: Uni.I18n.translate('general.overwriteIndication', 'UNI', 'The previously saved search criteria will be overwritten by entering the same name'),
+            title: Uni.I18n.translate('general.saveCriteriaTitle', 'UNI', 'Save the search criteria?')
+        });
+
     },
 
-    loadSearch: function (combo, value) {
+    loadSearch: function (combo, value, a, contRef) {
         var me = this,
             filters = me.getFilters();
-        me.criteriaName =value[0].getData().name;
-        if (filters && filters.length) {
-            me.getSearchResultsStore().removeAll();
-            me.setDomain(me.searchDomain, function () {
-                me.applyFilters();
+        combo.selectedValue = combo.getValue();
+
+        if(combo.nameValue !== undefined && combo.nameValue === 'delete'){
+            Ext.create('Uni.view.window.Confirmation').show({
+                title: Ext.String.format(Uni.I18n.translate('importService.remove.title', 'UNI', 'Remove \'{0}\'?'), combo.selectedValue),
+                msg: Uni.I18n.translate('importService.remove.message', 'UNI', 'This search criteria will no longer be available.'),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        me.removeSearchCriteria(combo.selectedValue, contRef);
+                        combo.nameValue = undefined;
+                       }
+                }
+            });
+        }else {
+            me.criteriaName = value[0].getData().name;
+            if (filters && filters.length) {
+                me.getSearchResultsStore().removeAll();
+                me.setDomain(me.searchDomain, function () {
+                    me.applyFilters();
+                    var criteria = JSON.parse(value[0].data.criteria);
+                    me.setFilters(criteria);
+                })
+            }
+            else {
                 var criteria = JSON.parse(value[0].data.criteria);
                 me.setFilters(criteria);
-            })
-        }
-        else {
-            var criteria = JSON.parse(value[0].data.criteria);
-            me.setFilters(criteria);
+            }
         }
     },
 
-    saveSearchCriteria: function (cont) {
+    saveSearchCriteria: function (button, contRef) {
         var me = this;
         var flag= false;
         var router = this.router;
@@ -768,7 +832,10 @@ Ext.define('Uni.service.Search', {
                     success: function (response) {
                         flag=true;
                         Ext.getCmp('loadDropDown').getStore().load();
-                        cont.up('window').destroy();
+                        if(JSON.parse(response.responseText).status === 'Save')
+                            contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.saveSearch', 'UNI', 'Search criteria saved'));
+                        else
+                            contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.updateSearch', 'UNI', 'Search criteria updated'));
                     },
                     failure: function (response) {
                         alert("fail");
@@ -778,21 +845,19 @@ Ext.define('Uni.service.Search', {
         return flag;
     },
 
-    removeSearchCriteria: function (btn) {
-        var me = this,
-            criteriaName =  me.criteriaName,
+    removeSearchCriteria: function (name, contRef) {
+        var me = this;
         flag= false;
         Ext.Ajax.request({
             type: 'rest',
-            url: "../../api/jsr/search/searchCriteria/" + criteriaName,
+            url: "../../api/jsr/search/searchCriteria/" + name,
             method: "DELETE",
             async : false,
             success: function (response) {
-                flag=true;
                 me.clearFilters();
                 Ext.getCmp('loadDropDown').clearValue();
                 Ext.getCmp('loadDropDown').getStore().load();
-                btn.up('window').destroy();
+                contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));
             },
             failure: function (response) {
                 alert("fail");

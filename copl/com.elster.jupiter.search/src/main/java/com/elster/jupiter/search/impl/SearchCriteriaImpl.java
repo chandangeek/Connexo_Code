@@ -2,6 +2,7 @@ package com.elster.jupiter.search.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.search.SearchCriteria;
 
 import javax.inject.Inject;
@@ -12,16 +13,16 @@ public class SearchCriteriaImpl extends EntityImpl implements SearchCriteria {
 
     private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 250, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String userName;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 1020, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(min = 1, max = Table.MAX_STRING_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String criteria;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 250, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = 250, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String domain;
 
     private final Thesaurus thesaurus;
