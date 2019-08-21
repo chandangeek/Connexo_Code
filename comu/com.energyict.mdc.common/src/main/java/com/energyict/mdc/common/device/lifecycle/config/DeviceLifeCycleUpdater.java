@@ -6,7 +6,7 @@ package com.energyict.mdc.common.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.StateTransition;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Extends the building services of {@link DeviceLifeCycleBuilder}
@@ -15,7 +15,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-27 (13:25)
  */
-@ProviderType
+@ConsumerType
 public interface DeviceLifeCycleUpdater extends DeviceLifeCycleBuilder {
 
     /**

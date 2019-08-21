@@ -6,7 +6,7 @@ package com.energyict.mdc.common.device.data;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-21 (09:07)
  */
-@ProviderType
+@ConsumerType
 public interface ChannelDataUpdater {
 
     ChannelDataUpdater removeChannelData(List<Instant> intervals);

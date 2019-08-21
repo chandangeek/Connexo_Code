@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.common.tasks.history;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models the statistical information that is gathered while communicating
@@ -14,7 +14,7 @@ import aQute.bnd.annotation.ProviderType;
  * Date: 23/04/12
  * Time: 14:24
  */
-@ProviderType
+@ConsumerType
 public interface ComStatistics {
 
     /**

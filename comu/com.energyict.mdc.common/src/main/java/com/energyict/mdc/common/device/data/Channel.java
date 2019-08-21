@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
@@ -18,7 +18,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface Channel {
 
     Device getDevice();

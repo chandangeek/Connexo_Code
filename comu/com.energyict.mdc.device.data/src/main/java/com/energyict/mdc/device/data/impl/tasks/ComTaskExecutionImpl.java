@@ -75,6 +75,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 @ManuallyScheduledNextExecSpecRequired(groups = {SaveScheduled.class})
@@ -90,6 +91,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR
     }
 
+    private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionImpl.class.getName());
     private final Clock clock;
 
     private final CommunicationTaskService communicationTaskService;
@@ -800,15 +802,25 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void executionCompleted() {
-        this.markSuccessfullyCompleted();
-        this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
+        markSuccessfullyCompleted();
+        Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
+        doReschedule(rescheduleDate);
+        LOGGER.info("[comtaskexec] executionCompleted for " + getDevice().getName() + "; reschedule for " + rescheduleDate);
         updateForScheduling(true);
         getBehavior().comTaskCompleted();
+        this.postEvent(EventType.COMTASKEXECUTION_COMPLETION);
     }
 
     @Override
     public void executionRescheduled(Instant rescheduleDate) {
-        this.doReschedule(rescheduleDate);
+        currentRetryCount++;    // increment the current number of retries
+        if (currentRetryCount < getMaxNumberOfTries()) {
+            LOGGER.info("[comtaskexec] executionRescheduled for " + getDevice().getName() +
+                    "; currentRetryCount=" + currentRetryCount + "; reschedule for " + rescheduleDate);
+            doReschedule(rescheduleDate);
+        } else {
+            doExecutionFailed();
+        }
         updateForScheduling(true);
     }
 
@@ -838,7 +850,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     protected void doExecutionAttemptFailed() {
         this.lastExecutionFailed = true;
-        this.doReschedule(calculateNextExecutionTimestampAfterFailure());
+        Instant rescheduleDate = calculateNextExecutionTimestampAfterFailure();
+        LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+        this.doReschedule(rescheduleDate);
     }
 
     private Instant calculateNextExecutionTimestampAfterFailure() {
@@ -897,9 +911,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.lastExecutionFailed = true;
         this.resetCurrentRetryCount();
         if (isAdHoc()) {
+            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
             this.doReschedule(null, null);
         } else {
-            this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
+            Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
+            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+            this.doReschedule(rescheduleDate);
         }
     }
 

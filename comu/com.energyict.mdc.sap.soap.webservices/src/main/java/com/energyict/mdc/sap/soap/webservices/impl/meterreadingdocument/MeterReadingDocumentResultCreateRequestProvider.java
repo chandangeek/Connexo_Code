@@ -8,15 +8,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentResult;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreaterequest.MeterReadingDocumentERPResultCreateRequestCOutService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.Map;
 
@@ -24,19 +23,19 @@ import java.util.Map;
         service = {MeterReadingDocumentResult.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentResult.SAP_METER_READING_DOCUMENT_RESULT})
-public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOutboundEndPointProvider<MeterReadingDocumentERPResultCreateRequestEOut> implements MeterReadingDocumentResult, OutboundSoapEndPointProvider, ApplicationSpecific {
+public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOutboundEndPointProvider<MeterReadingDocumentERPResultCreateRequestCOut> implements MeterReadingDocumentResult, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     public MeterReadingDocumentResultCreateRequestProvider() {
         // for OSGI purposes
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addResultPort(MeterReadingDocumentERPResultCreateRequestEOut port,
+    public void addResultPort(MeterReadingDocumentERPResultCreateRequestCOut port,
                               Map<String, Object> properties) {
         super.doAddEndpoint(port, properties);
     }
 
-    public void removeResultPort(MeterReadingDocumentERPResultCreateRequestEOut port) {
+    public void removeResultPort(MeterReadingDocumentERPResultCreateRequestCOut port) {
         super.doRemoveEndpoint(port);
     }
 
@@ -47,14 +46,12 @@ public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOut
 
     @Override
     public Service get() {
-        return new MeterReadingDocumentERPResultCreateRequestEOutService(
-                getService().getClassLoader().getResource(RESOURCE), new QName(NAMESPACE_URI, LOCAL_PART)
-        );
+        return new MeterReadingDocumentERPResultCreateRequestCOutService();
     }
 
     @Override
     public Class getService() {
-        return MeterReadingDocumentERPResultCreateRequestEOut.class;
+        return MeterReadingDocumentERPResultCreateRequestCOut.class;
     }
 
     @Override
@@ -64,7 +61,7 @@ public class MeterReadingDocumentResultCreateRequestProvider extends AbstractOut
 
     @Override
     public void call(MeterReadingDocumentCreateResultMessage resultMessage) {
-        using("meterReadingDocumentERPResultCreateRequestEOut")
+        using("meterReadingDocumentERPResultCreateRequestCOut")
                 .send(resultMessage.getResultMessage());
     }
 

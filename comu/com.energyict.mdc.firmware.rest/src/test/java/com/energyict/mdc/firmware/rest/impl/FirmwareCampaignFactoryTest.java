@@ -16,6 +16,7 @@ import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -113,6 +114,7 @@ public class FirmwareCampaignFactoryTest {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("TestDeviceType");
+        FirmwareCampaignManagementOptions firmwareCampaignMgtOptions = mock(FirmwareCampaignManagementOptions.class);
         FirmwareType firmwareType = FirmwareType.METER;
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
         when(firmwareCampaign.getFirmwareType()).thenReturn(firmwareType);
@@ -129,6 +131,7 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getFirmwareMessageSpec()).thenReturn(Optional.ofNullable(deviceMessageSpec));
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(firmwareCampaign.getStartedOn()).thenReturn(Instant.ofEpochSecond(111));
+        when(firmwareService.findFirmwareCampaignCheckManagementOptions(firmwareCampaign)).thenReturn(Optional.of(firmwareCampaignMgtOptions));
         when(firmwareCampaign.getFirmwareUploadComTaskId()).thenReturn(1L);
         when(firmwareCampaign.getFirmwareUploadConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.AS_SOON_AS_POSSIBLE));
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);

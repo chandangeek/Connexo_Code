@@ -6,9 +6,9 @@ package com.energyict.mdc.common.device.config;
 
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface PartialConnectionInitiationTaskBuilder extends PartialOutboundConnectionTaskBuilder<PartialConnectionInitiationTaskBuilder, PartialConnectionInitiationTask> {
     PartialConnectionInitiationTaskBuilder setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties);
 }

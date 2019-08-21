@@ -9,8 +9,10 @@ import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -41,35 +43,33 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
     }
 
     @Override
-    public void execute(FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
+    public void execute(FirmwareCheckManagementOptions options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
-        firmwareService.findFirmwareManagementOptions(device.getDeviceType()).ifPresent(firmwareManagementOptions -> {
-            if (firmwareManagementOptions.isActivated(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)) {
-                topologyService.getPhysicalGateway(device)
-                        .map(firmwareService::getFirmwareManagementDeviceUtilsFor)
-                        .ifPresent(masterDeviceUtils -> {
-                            Device master = masterDeviceUtils.getDevice();
-                            if (noGhostFirmwareCheck.hasGhostMeterOrCommunicationFirmware(master)) {
-                                throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_HAS_GHOST_FIRMWARE);
-                            }
-                            if (!masterDeviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
-                                throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_READOUT);
-                            }
-                            DeviceType masterDeviceType = master.getDeviceType();
-                            EnumSet<FirmwareStatus> statusesForCheck = firmwareManagementOptions.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK);
-                            EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
-                                    .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(masterDeviceType, firmwareType))
-                                    .forEach(firmwareType -> {
-                                        Optional<FirmwareVersion> maximum = firmwareService.getMaximumFirmware(masterDeviceType, EnumSet.of(firmwareType), statusesForCheck);
-                                        if (!maximum.isPresent() || !firmwareService.getActiveFirmwareVersion(master, firmwareType)
-                                                .map(ActivatedFirmwareVersion::getFirmwareVersion)
-                                                .filter(maximum.get()::equals)
-                                                .isPresent()) {
-                                            throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_LATEST);
-                                        }
-                                    });
-                        });
-            }
-        });
+        if (options.isActivated(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK)) {
+            topologyService.getPhysicalGateway(device)
+                    .map(firmwareService::getFirmwareManagementDeviceUtilsFor)
+                    .ifPresent(masterDeviceUtils -> {
+                        Device master = masterDeviceUtils.getDevice();
+                        if (noGhostFirmwareCheck.hasGhostMeterOrCommunicationFirmware(master)) {
+                            throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_HAS_GHOST_FIRMWARE);
+                        }
+                        if (!masterDeviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
+                            throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_READOUT);
+                        }
+                        DeviceType masterDeviceType = master.getDeviceType();
+                        EnumSet<FirmwareStatus> statusesForCheck = options.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK);
+                        EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
+                                .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(masterDeviceType, firmwareType))
+                                .forEach(firmwareType -> {
+                                    Optional<FirmwareVersion> maximum = firmwareService.getMaximumFirmware(masterDeviceType, EnumSet.of(firmwareType), statusesForCheck);
+                                    if (!maximum.isPresent() || !firmwareService.getActiveFirmwareVersion(master, firmwareType)
+                                            .map(ActivatedFirmwareVersion::getFirmwareVersion)
+                                            .filter(maximum.get()::equals)
+                                            .isPresent()) {
+                                        throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_FIRMWARE_NOT_LATEST);
+                                    }
+                                });
+                    });
+        }
     }
 }

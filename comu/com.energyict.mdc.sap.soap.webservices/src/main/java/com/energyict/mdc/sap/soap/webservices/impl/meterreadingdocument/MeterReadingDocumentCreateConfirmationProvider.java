@@ -8,15 +8,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentRequestConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreateconfirmation.SmartMeterMeterReadingDocumentERPCreateConfirmationCOutService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
-import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.util.Map;
 
@@ -24,19 +23,19 @@ import java.util.Map;
         service = {MeterReadingDocumentRequestConfirmation.class, OutboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + MeterReadingDocumentRequestConfirmation.SAP_METER_READING_DOCUMENT_REQUEST_CONFIRMATION})
-public class MeterReadingDocumentCreateConfirmationProvider extends AbstractOutboundEndPointProvider<SmartMeterMeterReadingDocumentERPCreateConfirmationEOut> implements MeterReadingDocumentRequestConfirmation, OutboundSoapEndPointProvider, ApplicationSpecific {
+public class MeterReadingDocumentCreateConfirmationProvider extends AbstractOutboundEndPointProvider<SmartMeterMeterReadingDocumentERPCreateConfirmationCOut> implements MeterReadingDocumentRequestConfirmation, OutboundSoapEndPointProvider, ApplicationSpecific {
 
     public MeterReadingDocumentCreateConfirmationProvider() {
         // for OSGI purposes
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addRequestConfirmationPort(SmartMeterMeterReadingDocumentERPCreateConfirmationEOut port,
+    public void addRequestConfirmationPort(SmartMeterMeterReadingDocumentERPCreateConfirmationCOut port,
                                            Map<String, Object> properties) {
         super.doAddEndpoint(port, properties);
     }
 
-    public void removeRequestConfirmationPort(SmartMeterMeterReadingDocumentERPCreateConfirmationEOut port) {
+    public void removeRequestConfirmationPort(SmartMeterMeterReadingDocumentERPCreateConfirmationCOut port) {
         super.doRemoveEndpoint(port);
     }
 
@@ -47,14 +46,12 @@ public class MeterReadingDocumentCreateConfirmationProvider extends AbstractOutb
 
     @Override
     public Service get() {
-        return new SmartMeterMeterReadingDocumentERPCreateConfirmationEOutService(
-                getService().getClassLoader().getResource(RESOURCE), new QName(NAMESPACE_URI, LOCAL_PART)
-        );
+        return new SmartMeterMeterReadingDocumentERPCreateConfirmationCOutService();
     }
 
     @Override
     public Class getService() {
-        return SmartMeterMeterReadingDocumentERPCreateConfirmationEOut.class;
+        return SmartMeterMeterReadingDocumentERPCreateConfirmationCOut.class;
     }
 
     @Override
@@ -64,7 +61,7 @@ public class MeterReadingDocumentCreateConfirmationProvider extends AbstractOutb
 
     @Override
     public void call(MeterReadingDocumentRequestConfirmationMessage confirmationMessage) {
-        using("smartMeterMeterReadingDocumentERPCreateConfirmationEOut")
+        using("smartMeterMeterReadingDocumentERPCreateConfirmationCOut")
                 .send(confirmationMessage.getConfirmationMessage());
     }
 

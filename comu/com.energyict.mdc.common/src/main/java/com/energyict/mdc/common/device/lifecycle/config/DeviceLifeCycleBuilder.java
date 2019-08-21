@@ -7,11 +7,11 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.time.TimeDuration;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Set;
 
-@ProviderType
+@ConsumerType
 public interface DeviceLifeCycleBuilder {
 
     /**
@@ -75,7 +75,7 @@ public interface DeviceLifeCycleBuilder {
      *
      * @param <T> The type of {@link AuthorizedAction} that is being built
      */
-    @ProviderType
+    @ConsumerType
     interface AuthorizedActionBuilder<T extends AuthorizedAction> {
 
         AuthorizedActionBuilder<T> addLevel(AuthorizedAction.Level level, AuthorizedAction.Level... otherLevels);
@@ -85,7 +85,7 @@ public interface DeviceLifeCycleBuilder {
         T complete();
     }
 
-    @ProviderType
+    @ConsumerType
     interface AuthorizedTransitionActionBuilder extends AuthorizedActionBuilder<AuthorizedTransitionAction> {
 
         AuthorizedTransitionActionBuilder setChecks(Set<String> checks);

@@ -10,14 +10,14 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.masterdata.ChannelType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface ChannelSpec extends HasId {
 
     ChannelType getChannelType();

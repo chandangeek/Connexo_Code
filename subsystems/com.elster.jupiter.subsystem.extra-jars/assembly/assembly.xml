@@ -22,7 +22,7 @@
             <scope>compile</scope>
             <unpack>false</unpack>
             <outputFileNameMapping>
-                ${artifact.groupId}-${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
+                ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
             </outputFileNameMapping>
             <useProjectArtifact>true</useProjectArtifact>
             <useTransitiveDependencies>false</useTransitiveDependencies>

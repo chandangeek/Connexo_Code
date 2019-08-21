@@ -406,6 +406,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         deviceMessageIds.forEach(deviceMessageId -> comTaskEnablements.add(device.getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream().
                         filter(task -> task instanceof MessagesTask).
                         flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
@@ -414,7 +415,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                         findFirst().
                         isPresent())
                 .findAny()
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_COMTASK_FOR_COMMAND).format()))));
+                .orElseThrow(() -> NoSuchElementException.comTaskCouldNotBeLocated(thesaurus))));
         return comTaskEnablements.stream().distinct();
     }
 

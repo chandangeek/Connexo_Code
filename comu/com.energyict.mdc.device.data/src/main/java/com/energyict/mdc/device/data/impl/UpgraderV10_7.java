@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -21,27 +22,30 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.Communication
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Optional;
 
 public class UpgraderV10_7 implements Upgrader {
 
     private final DataModel dataModel;
+    private final EventService eventService;
     private final MessageService messageService;
     private final ServiceCallService serviceCallService;
     private final Installer installer;
 
     @Inject
-    public UpgraderV10_7(DataModel dataModel, MessageService messageService, ServiceCallService serviceCallService, Installer installer) {
+    public UpgraderV10_7(DataModel dataModel, MessageService messageService, ServiceCallService serviceCallService,
+                         EventService eventService, Installer installer) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.serviceCallService = serviceCallService;
+        this.eventService = eventService;
         this.installer = installer;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
+        EventType.COMTASKEXECUTION_COMPLETION.createIfNotExists(eventService);
         deleteOldDestinations();
         installer.createPrioritizedMessageHandlers();
         createMessageHandlerLP();
