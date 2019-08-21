@@ -245,6 +245,14 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     }
                     if (result) record.set("checkOptions", checkOptions);
 
+                    var firmwareUpgradeOptions = me.down('#firmwareUpgradeOptions');
+                    if (!firmwareUpgradeOptions.getValue() || !firmwareUpgradeOptions.getValue().selectedOptions){
+                        me.down('#firmwareUpgradeOptionsError').show();
+                        result = false;
+                    }else{
+                        me.down('#firmwareUpgradeOptionsError').hide();
+                    }
+
                     return result;
                 },
                 items: [
@@ -296,6 +304,16 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.ondate.comment', 'FWC', 'Firmware will be uploaded to the device. Firmware will be activated at date and time specified by user') + '</span>'
                             }
                         ]
+                    },
+                    {
+                        xtype: 'displayfield',
+                        itemId: 'firmwareUpgradeOptionsError',
+                        padding: '-10 0 -10 0',
+                        fieldLabel: '&nbsp',
+                        hidden: true,
+                        renderer: function (value, field) {
+                            return '<span style="color:red;">' + Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group') + '</span>';
+                        }
                     },
                     {
                         xtype: 'checkboxgroup',
