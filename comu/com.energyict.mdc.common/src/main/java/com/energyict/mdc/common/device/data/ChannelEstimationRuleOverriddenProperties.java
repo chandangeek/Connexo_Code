@@ -6,11 +6,11 @@ package com.energyict.mdc.common.device.data;
 
 import com.elster.jupiter.metering.ReadingType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Map;
 
-@ProviderType
+@ConsumerType
 public interface ChannelEstimationRuleOverriddenProperties {
 
     long getId();

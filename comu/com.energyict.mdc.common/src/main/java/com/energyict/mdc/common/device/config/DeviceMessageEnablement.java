@@ -9,7 +9,7 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Set;
 
@@ -21,7 +21,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-04 (09:57)
  */
-@ProviderType
+@ConsumerType
 public interface DeviceMessageEnablement extends HasId {
 
     /**

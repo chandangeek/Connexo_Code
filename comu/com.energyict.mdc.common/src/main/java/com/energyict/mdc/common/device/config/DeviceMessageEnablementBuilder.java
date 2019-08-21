@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.common.device.config;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface DeviceMessageEnablementBuilder {
 
     /**

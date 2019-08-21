@@ -6,7 +6,7 @@ package com.energyict.mdc.common.device.data;
 
 import com.elster.jupiter.pki.SecurityValueWrapper;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Represents access to a wrapper object on device level. This security object can be a certificate, symmetric key or password.
@@ -14,7 +14,7 @@ import aQute.bnd.annotation.ProviderType;
  * An accessor stores two values: one for current use (ActualValue), and one value that is stored during the renew
  * process (TempValue).
  */
-@ProviderType
+@ConsumerType
 public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.elster.jupiter.pki.SecurityAccessor<T> {
 
     /**

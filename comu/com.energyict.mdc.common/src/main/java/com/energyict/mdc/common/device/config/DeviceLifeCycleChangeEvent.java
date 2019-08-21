@@ -7,7 +7,7 @@ package com.energyict.mdc.common.device.config;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -18,7 +18,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-15 (12:47)
  */
-@ProviderType
+@ConsumerType
 public interface DeviceLifeCycleChangeEvent {
 
     /**

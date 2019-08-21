@@ -6,9 +6,9 @@ package com.energyict.mdc.common.device.config;
 
 import com.energyict.mdc.common.ComWindow;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface PartialScheduledConnectionTaskBuilder extends PartialOutboundConnectionTaskBuilder<PartialScheduledConnectionTaskBuilder, PartialScheduledConnectionTask> {
 
     PartialScheduledConnectionTaskBuilder comWindow(ComWindow communicationWindow);

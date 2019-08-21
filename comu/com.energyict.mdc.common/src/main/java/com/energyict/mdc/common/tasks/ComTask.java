@@ -8,7 +8,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import java.util.List;
  * @author gna
  * @since 19/04/12 - 13:52
  */
-@ProviderType
+@ConsumerType
 public interface ComTask extends HasId, HasName {
 
     /**
