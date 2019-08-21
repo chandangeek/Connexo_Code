@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.rest.resource;
@@ -31,6 +31,7 @@ import com.elster.jupiter.issue.share.entity.UsagePointGroupNotFoundException;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -71,11 +72,12 @@ public class IssueResourceHelper {
     private final SecurityContext securityContext;
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupService;
+    private final LocationService locationService;
     private final UserService userService;
 
     @Inject
-    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService,MeteringGroupsService meteringGroupService, UserService userService,
-                               IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext) {
+    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, LocationService locationService, MeteringGroupsService meteringGroupService,
+                               UserService userService, IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext) {
         this.transactionService = transactionService;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
@@ -84,6 +86,7 @@ public class IssueResourceHelper {
         this.thesaurus = thesaurus;
         this.securityContext = securityContext;
         this.meteringService = meteringService;
+        this.locationService = locationService;
         this.meteringGroupService = meteringGroupService;
         this.userService = userService;
     }
@@ -180,6 +183,10 @@ public class IssueResourceHelper {
             if(jsonFilter.hasProperty("showTopology")) {
                 filter.setShowTopology(jsonFilter.getBoolean("showTopology"));
             }
+        }
+        if (jsonFilter.hasProperty(IssueRestModuleConst.LOCATION)) {
+            Long locationId = Long.valueOf(jsonFilter.getString(IssueRestModuleConst.LOCATION));
+            locationService.findLocationById(locationId).ifPresent(filter::addLocation);
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.DEVICE_GROUP)) {

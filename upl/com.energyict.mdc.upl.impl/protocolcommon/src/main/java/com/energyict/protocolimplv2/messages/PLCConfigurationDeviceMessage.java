@@ -445,6 +445,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.KeepAliveScheduleInterval, DeviceMessageConstants.KeepAliveScheduleIntervalDefaultTranslation));
         }
     },
+    @Deprecated
     SetKeepAliveBucketSize(3054, "Set bucket size for keep alive") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
@@ -463,13 +464,13 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.maxInactiveMeterTime, DeviceMessageConstants.maxInactiveMeterTimeDefaultTranslation));
         }
     },
-    SetKeepAliveRetries(3057, "Set retries for keep alive") {
+    SetKeepAliveRetries(3057, "Set retries for keep alive (fail count)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.KeepAliveRetries, DeviceMessageConstants.KeepAliveRetriesDefaultTranslation));
         }
     },
-    SetKeepAliveTimeout(3058, "Set timeout for keep alive") {
+    SetKeepAliveTimeout(3058, "Set timeout for keep alive (delay between pings)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.KeepAliveTimeout, DeviceMessageConstants.KeepAliveTimeoutDefaultTranslation));

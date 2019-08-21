@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 
 import java.time.Instant;
 import java.util.List;

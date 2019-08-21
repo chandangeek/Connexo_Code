@@ -4,15 +4,15 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.CommandCreator;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;
@@ -30,6 +30,11 @@ public class DeviceProtocolCommandCreator implements CommandCreator {
             ComTaskExecution comTaskExecution,
             IssueService issueService) {
 
+        if (!hasCommandsToExecute(groupedDeviceCommand, protocolTasks, comTaskExecution)) {
+            // create an entry in the comTaskExecutionComCommands map for the comTaskExecution, without any command
+            groupedDeviceCommand.getComTaskRoot(comTaskExecution);
+            return;
+        }
         if (comTaskExecutionConnectionStep.isLogOnRequired()) {
             doSetupNewDevice(groupedDeviceCommand, protocolDialectProperties, comChannel, groupedDeviceCommand.getOfflineDevice(), deviceProtocolSecurityPropertySet, comTaskExecution);
             CommandFactory.createLogOnCommand(groupedDeviceCommand, comTaskExecution);
@@ -47,6 +52,15 @@ public class DeviceProtocolCommandCreator implements CommandCreator {
             CommandFactory.createLogOffCommand(groupedDeviceCommand, comTaskExecution);
             doTearDown(groupedDeviceCommand, groupedDeviceCommand.getOfflineDevice(), comTaskExecution);
         }
+    }
+
+    private boolean hasCommandsToExecute(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ComTaskExecution comTaskExecution) {
+        GroupedDeviceCommand clonedGroupedDeviceCommand = groupedDeviceCommand.clone();
+        CommandFactory.createCommandsFromTask(clonedGroupedDeviceCommand, comTaskExecution, protocolTasks);
+        if (clonedGroupedDeviceCommand.getComTaskRoot(comTaskExecution).getCommands().isEmpty()) {
+            return false;
+        }
+        return true;
     }
 
     private void doSetupNewDevice(GroupedDeviceCommand groupedDeviceCommand, TypedProperties protocolDialectProperties, ComChannelPlaceHolder comChannel, OfflineDevice offlineDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, ComTaskExecution comTaskExecution) {

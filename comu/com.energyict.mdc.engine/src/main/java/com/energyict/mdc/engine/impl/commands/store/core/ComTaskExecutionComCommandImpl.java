@@ -6,8 +6,9 @@ package com.energyict.mdc.engine.impl.commands.store.core;
 
 
 import com.energyict.mdc.common.ComServerRuntimeException;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
@@ -17,7 +18,6 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLNlsServiceAdapter;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -73,7 +73,10 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
             }
         } finally {
             if (!getProblems().isEmpty()) { // if one of my commands failed with an error
-                setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
+                if (!getExecutionState().equals(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED)) {
+                    // if executionState is already marked as 'Not_Executed' then don't regard as failure
+                    setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
+                }
                 delegateToJournalistIfAny(executionContext);
             } else {
                 setExecutionState(BasicComCommandBehavior.ExecutionState.SUCCESSFULLY_EXECUTED);
@@ -96,13 +99,16 @@ public class ComTaskExecutionComCommandImpl extends CompositeComCommandImpl impl
     @Override
     public List<CollectedData> getCollectedData() {
         List<CollectedData> collectedData = new ArrayList<>();
-        collectedData.add(
-                new ComTaskExecutionCollectedData(
-                        this.comTaskExecution,
-                        this.getNestedCollectedData(),
-                        this.getCommandRoot().getExecutionContext().getComPort().getComServer().getCommunicationLogLevel(),
-                        this.getCommandRoot().isExposeStoringException())
-        );
+        List<ServerCollectedData> nestedCollectedData = getNestedCollectedData();
+        if (!nestedCollectedData.isEmpty()) {
+            collectedData.add(
+                    new ComTaskExecutionCollectedData(
+                            comTaskExecution,
+                            nestedCollectedData,
+                            getCommandRoot().getExecutionContext().getComPort().getComServer().getCommunicationLogLevel(),
+                            getCommandRoot().isExposeStoringException())
+            );
+        }
         return collectedData;
     }
 

@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 

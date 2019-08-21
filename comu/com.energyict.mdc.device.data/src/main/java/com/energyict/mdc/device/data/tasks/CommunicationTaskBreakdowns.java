@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 
 import aQute.bnd.annotation.ProviderType;
 

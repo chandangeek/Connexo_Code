@@ -30,23 +30,23 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignCustomPropertySet;
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignDomainExtension;
@@ -56,7 +56,6 @@ import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseItemPersistenceS
 import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseSendHelper;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
-import javafx.concurrent.Task;
 import org.osgi.framework.BundleContext;
 
 import java.lang.reflect.Field;
@@ -157,6 +156,7 @@ public class ToUCampaignServiceTest {
         customPropertySetValues.setProperty("device", device);
         customPropertySetValues.setProperty("parentServiceCallId", 11L);
         customPropertySetValues.setProperty("deviceMessage", null);
+        customPropertySetValues.setProperty("stepOfUpdate", 0L);
         timeOfUseItem.copyFrom(serviceCall, customPropertySetValues);
         when(device.getId()).thenReturn(1L);
         EndDevice endDevice = mock(EndDevice.class);
@@ -208,6 +208,7 @@ public class ToUCampaignServiceTest {
         customPropertySetValues.setProperty("device", device);
         customPropertySetValues.setProperty("parentServiceCallId", 11L);
         customPropertySetValues.setProperty("deviceMessage", null);
+        customPropertySetValues.setProperty("stepOfUpdate", 0L);
         timeOfUseItem.copyFrom(serviceCall, customPropertySetValues);
 
         timeOfUseItem.retry();

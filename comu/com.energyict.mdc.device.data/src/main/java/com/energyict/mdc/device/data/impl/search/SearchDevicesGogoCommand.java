@@ -11,8 +11,8 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -111,7 +111,7 @@ public class SearchDevicesGogoCommand {
                 .stream()
                 .filter(p -> p.getDomainClass().isAssignableFrom(Device.class))
                 .findAny()
-                .orElseThrow(() -> new RuntimeException("SearchDomain for com.energyict.mdc.device.data.Device not found"));
+                .orElseThrow(() -> new RuntimeException("SearchDomain for " + Device.class.getCanonicalName() + " not found"));
     }
 
     @SuppressWarnings("unused")

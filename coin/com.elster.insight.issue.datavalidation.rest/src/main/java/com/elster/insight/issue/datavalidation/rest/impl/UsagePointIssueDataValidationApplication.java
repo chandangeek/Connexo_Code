@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.insight.issue.datavalidation.rest.impl;
@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
@@ -43,6 +44,7 @@ public class UsagePointIssueDataValidationApplication extends Application {
     private volatile UsagePointIssueDataValidationService usagePointIssueDataValidationService;
     private volatile IssueActionService issueActionService;
     private volatile MeteringService meteringService;
+    private volatile LocationService locationService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
 
@@ -78,6 +80,11 @@ public class UsagePointIssueDataValidationApplication extends Application {
     }
 
     @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(UsagePointIssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN)
@@ -107,6 +114,7 @@ public class UsagePointIssueDataValidationApplication extends Application {
             bind(userService).to(UserService.class);
             bind(transactionService).to(TransactionService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(locationService).to(LocationService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);

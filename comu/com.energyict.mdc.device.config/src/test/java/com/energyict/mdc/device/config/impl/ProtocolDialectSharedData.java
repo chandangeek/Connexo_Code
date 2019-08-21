@@ -6,7 +6,8 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+
 import com.google.common.base.Strings;
 
 import java.util.Optional;

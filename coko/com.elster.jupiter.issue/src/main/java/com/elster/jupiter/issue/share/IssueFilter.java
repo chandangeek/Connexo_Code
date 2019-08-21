@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.share;
@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -32,6 +33,8 @@ public interface IssueFilter {
     void setUnassignedWorkGroupSelected();
 
     void addDevice(EndDevice device);
+
+    void addLocation(Location location);
 
     void addDeviceGroup(EndDeviceGroup deviceGroup);
 
@@ -66,6 +69,8 @@ public interface IssueFilter {
     void setShowTopology(boolean showTopology);
 
     List<UsagePointGroup> getUsagePointGroups();
+
+    List<Location> getLocations();
 
     List<UsagePoint> getUsagePoints();
 

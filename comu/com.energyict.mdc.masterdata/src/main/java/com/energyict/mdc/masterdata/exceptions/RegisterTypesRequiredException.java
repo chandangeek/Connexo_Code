@@ -5,11 +5,13 @@
 package com.energyict.mdc.masterdata.exceptions;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
 
 /**
  * Models the exceptional situation that occurs when an attempt
- * is made to update a {@link com.energyict.mdc.masterdata.RegisterGroup},
- * but there is no {@link com.energyict.mdc.masterdata.MeasurementType} selected.
+ * is made to update a {@link RegisterGroup},
+ * but there is no {@link MeasurementType} selected.
  *
  */
 public class RegisterTypesRequiredException extends LocalizedFieldValidationException {

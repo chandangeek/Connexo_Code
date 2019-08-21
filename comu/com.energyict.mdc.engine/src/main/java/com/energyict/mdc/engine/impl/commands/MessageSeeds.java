@@ -87,7 +87,8 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
     INCOMPATIBLE_PROTOCOL_PROPERTY_VALUE(5067, "protocolPropertyIncompatibleValue", "Value of protocol property is not compatible with the type definition"),
     UNKNOWN_DEVICE(5068, "collectedDeviceProtocolPropertyForUnknownDevice", "Protocol property for unknown device"),
     ANY_CHANNEL_OBIS_CODE_REQUIRES_SERIAL_NUMBER(5069, "anyChannelObisCodeRequiresSerialNumber", "The device serial number is required to resolve the x (any channel) in OBIS code ''{0}''"),
-    COULD_NOT_PARSE_OBIS_CODE(5070, "couldNotParseObisCode", "Not a valid obis code: {0}");
+    COULD_NOT_PARSE_OBIS_CODE(5070, "couldNotParseObisCode", "Not a valid obis code: {0}"),
+    NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED(5071, "notExecutedDueToConnectionInterrupted", "Communication task will be rescheduled due to an interrupted connection");
 
     private final int number;
     private final String key;

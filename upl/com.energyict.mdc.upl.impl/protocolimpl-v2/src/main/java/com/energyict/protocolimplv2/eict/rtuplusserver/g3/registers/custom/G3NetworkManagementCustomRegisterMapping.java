@@ -46,8 +46,8 @@ public class G3NetworkManagementCustomRegisterMapping extends CustomRegisterMapp
                 g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_BUCKET_SIZE.getAttributeNumber()),
                 g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_MIN_INACTIVE_METER_TIME.getAttributeNumber()),
                 g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_MAX_INACTIVE_METER_TIME.getAttributeNumber()),
-                g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_RETRIES.getAttributeNumber()),
-                g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_TIMEOUT.getAttributeNumber())
+                g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_FAIL_COUNT.getAttributeNumber()),
+                g3NetworkManagement.getAttrbAbstractDataType(G3NetworkManagementAttributes.KEEP_ALIVE_DELAY_BETWEEN_PINGS.getAttributeNumber())
         );
 
         return new RegisterValue(result.getObisCode(), result.getText());

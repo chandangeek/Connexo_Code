@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Isu.view.issues.IssueFilter', {
@@ -16,7 +16,9 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.Devices',
         'Isu.store.DueDate',
         'Isu.store.IssueReasons',
-        'Isu.store.DeviceGroups'
+        'Isu.store.DeviceGroups',
+        'Isu.store.IssueReasons',
+        'Isu.store.Locations'
     ],
 
     initComponent: function () {
@@ -153,6 +155,30 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 multiSelect: true,
             },
             {
+                type: 'combobox',
+                itemId: 'issue-location-filter',
+                dataIndex: 'location',
+                emptyText: Uni.I18n.translate('general.location', 'ISU', 'Location'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Isu.store.Locations',
+                queryMode: 'remote',
+                queryParam: 'like',
+                loadStore: false,
+                queryCaching: false,
+                minChars: 0,
+                forceSelection: false,
+                matchFieldWidth: false,
+                getParamValue: me.comboGetParamValue,
+                width: 377,
+                triggerAction: 'last',
+                listeners: {
+                    beforequery: {
+                        fn: me.locationBeforeQuery
+                    }
+                }
+            }
+            {
                 type: 'checkbox',
                 dataIndex: 'showTopology',
                 layout: 'hbox',
@@ -180,6 +206,13 @@ Ext.define('Isu.view.issues.IssueFilter', {
         ];
 
         me.callParent(arguments);
+    },
+
+    locationBeforeQuery: function (qe) {
+        if ( typeof qe.combo.lastQuery !== 'undefined' && qe.combo.lastQuery !== '' && qe.combo.getValue() === null ) {
+            delete qe.combo.lastQuery;
+            return false;
+        }
     },
 
     onBeforeLoad: function (store, options) {

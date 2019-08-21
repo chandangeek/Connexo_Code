@@ -17,6 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -122,7 +123,7 @@ public class UsagePointConfigCustomPropertySet
                         .named(UsagePointConfigDomainExtension.FieldNames.USAGE_POINT.javaName(),
                                 TranslationKeys.USAGE_POINT_INFO)
                         .describedAs(TranslationKeys.USAGE_POINT_INFO).fromThesaurus(thesaurus).finish(),
-                propertySpecService.longSpec()
+                propertySpecService.specForValuesOf(new InstantFactory())
                         .named(UsagePointConfigDomainExtension.FieldNames.REQUEST_TIMESTAMP.javaName(),
                                 TranslationKeys.REQUEST_TIMESTAMP)
                         .describedAs(TranslationKeys.REQUEST_TIMESTAMP).fromThesaurus(thesaurus).finish(),

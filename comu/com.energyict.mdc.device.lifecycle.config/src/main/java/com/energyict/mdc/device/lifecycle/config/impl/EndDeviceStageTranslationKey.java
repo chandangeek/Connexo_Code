@@ -6,9 +6,6 @@ package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.StringChecker;
-import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 /**
  * Represents the translation keys for the stages of states.

@@ -6,7 +6,7 @@ package com.energyict.mdc.device.configuration.rest;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

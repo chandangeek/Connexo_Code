@@ -8,11 +8,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import java.time.Clock;
@@ -60,6 +60,16 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
             this.doExecutionFailed();
         }
         this.update();
+    }
+
+    @Override
+    public void executionRescheduled() {
+        doExecutionRescheduled();
+        update();
+    }
+
+    protected void doExecutionRescheduled() {
+        setExecutingComServer(null);
     }
 
     protected boolean doWeNeedToRetryTheConnectionTask() {

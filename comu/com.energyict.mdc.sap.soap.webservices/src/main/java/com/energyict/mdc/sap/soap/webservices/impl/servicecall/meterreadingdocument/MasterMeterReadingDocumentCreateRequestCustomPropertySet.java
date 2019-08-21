@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateRequestCustomPropertySet",
@@ -133,18 +134,6 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.javaName(), TranslationKeys.CONFIRMATION_URL)
-                        .describedAs(TranslationKeys.CONFIRMATION_URL)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
-                        .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.javaName(), TranslationKeys.RESULT_URL)
-                        .describedAs(TranslationKeys.RESULT_URL)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
                         .booleanSpec()
                         .named(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .describedAs(TranslationKeys.BULK)
@@ -204,16 +193,16 @@ public class MasterMeterReadingDocumentCreateRequestCustomPropertySet implements
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.ATTEMPT_NUMBER.javaName())
                     .notNull()
                     .add();
-            table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
+            /*table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
                     .varChar()
-                    .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.CONFIRMATION_URL.javaName())
                     .notNull()
+                    .upTo(version(10,7))
                     .add();
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.databaseName())
                     .varChar()
-                    .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.RESULT_URL.javaName())
                     .notNull()
-                    .add();
+                    .upTo(version(10,7))
+                    .add();*/
             table.column(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
                     .map(MasterMeterReadingDocumentCreateRequestDomainExtension.FieldNames.BULK.javaName())

@@ -20,16 +20,16 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.masterdata.LoadProfileType;
 
 import com.google.common.collect.Range;
 
@@ -109,7 +109,7 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     @Mock
     private LoadProfileType loadProfileType1;
     @Mock
-    private com.energyict.mdc.device.data.Channel ch1, ch2;
+    private com.energyict.mdc.common.device.data.Channel ch1, ch2;
     @Mock
     private DeviceValidation deviceValidation;
     @Mock

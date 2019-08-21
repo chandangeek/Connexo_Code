@@ -5,14 +5,15 @@ package com.energyict.mdc.webservices.demo.meterreadingdocument;
 
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.RegistersTask;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -77,6 +78,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                 .map(Device::getComTaskExecutions)
                 .orElseGet(Collections::emptyList)
                 .stream()
+                .filter(comTaskExecution -> comTaskExecution.getComTask().isManualSystemTask())
                 .filter(comTaskExecution -> comTaskExecution.getComTask().getProtocolTasks()
                         .stream()
                         .allMatch(protocolTask -> isRegular
@@ -84,7 +86,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                                 : protocolTask instanceof RegistersTask))
                 .min(Comparator.nullsLast((e1, e2) -> e2.getLastSuccessfulCompletionTimestamp()
                         .compareTo(e1.getLastSuccessfulCompletionTimestamp())))
-                .orElseThrow(IllegalArgumentException::new);
+                .orElseThrow(() -> new IllegalStateException("A comtask to execute the device messages could not be located"));
     }
 
     private boolean hasLastTaskExecutionTimestamp(ComTaskExecution comTaskExecution, Instant scheduledReadingDate) {

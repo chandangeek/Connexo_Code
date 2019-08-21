@@ -6,11 +6,11 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -124,7 +124,6 @@ public enum ServerConnectionTaskStatus {
             this.appendBreakdownThenClause(sqlBuilder);
         }
     },
-
     /**
      * @see TaskStatus#NeverCompleted
      */
@@ -161,6 +160,8 @@ public enum ServerConnectionTaskStatus {
         }
     },
 
+
+
     /**
      * @see TaskStatus#Retrying
      */
@@ -194,7 +195,6 @@ public enum ServerConnectionTaskStatus {
             this.appendBreakdownThenClause(sqlBuilder);
         }
     },
-
     /**
      * @see TaskStatus#Failed
      */
@@ -273,7 +273,6 @@ public enum ServerConnectionTaskStatus {
         }
     },
 
-
     /**
      * Purely technical state which serves as an indication that there is some inconsitent state in a particular communication task
      */
@@ -302,7 +301,7 @@ public enum ServerConnectionTaskStatus {
     public static final String BUSY_TASK_ALIAS_NAME = "busytask";
 
     /**
-     * Gets the {@link com.energyict.mdc.device.data.tasks.TaskStatus} that applies to the specified {@link ScheduledConnectionTask}.
+     * Gets the {@link TaskStatus} that applies to the specified {@link ScheduledConnectionTask}.
      *
      * @param task The ServerOutboundConnectionTask
      * @return The applicable TaskStatus
@@ -367,7 +366,7 @@ public enum ServerConnectionTaskStatus {
 
     /**
      * Builds the Condition that is necessary to select
-     * all {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s
+     * all {@link ConnectionTask}s
      * that are in this status.
      *
      * @return The Condition

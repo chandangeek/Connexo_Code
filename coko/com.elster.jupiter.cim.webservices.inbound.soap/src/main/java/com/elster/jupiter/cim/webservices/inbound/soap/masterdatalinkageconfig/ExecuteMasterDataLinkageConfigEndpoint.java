@@ -105,7 +105,7 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
         }
         createServiceCallAndTransition(message, outboundEndPointConfiguration, action);
         return masterDataLinkageHandlerProvider.get().forMessage(message)
-                .createQuickResponseMessage(HeaderType.Verb.REPLY);
+                .createQuickResponseMessage(HeaderType.Verb.REPLY, message.getHeader().getCorrelationID());
     }
 
     @Override

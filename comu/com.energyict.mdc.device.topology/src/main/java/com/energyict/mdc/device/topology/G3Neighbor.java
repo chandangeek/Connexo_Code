@@ -4,8 +4,9 @@
 
 package com.energyict.mdc.device.topology;
 
+import com.energyict.mdc.common.device.data.Device;
+
 import aQute.bnd.annotation.ProviderType;
-import com.energyict.mdc.device.data.Device;
 
 import java.time.Duration;
 import java.time.Instant;

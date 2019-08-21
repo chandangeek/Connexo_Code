@@ -6,8 +6,8 @@ package com.energyict.mdc.device.data.impl.sync;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 

@@ -19,7 +19,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchange
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.Log;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.LogItem;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UUID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilitiesTimeSeriesERPItemBulkChangeConfirmationEIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilitiesTimeSeriesERPItemBulkChangeConfirmationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiestimeseriesbulkchangeconfirmation.UtilsTmeSersERPItmBulkChgConfMsg;
 
 import com.google.common.collect.ImmutableSet;
@@ -37,7 +37,7 @@ import java.util.stream.Stream;
         service = {InboundSoapEndPointProvider.class},
         immediate = true,
         property = {"name=" + UtilitiesTimeSeriesBulkChangeConfirmationReceiver.NAME})
-public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkChangeConfirmationEIn, ApplicationSpecific {
+public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractInboundEndPoint implements InboundSoapEndPointProvider, UtilitiesTimeSeriesERPItemBulkChangeConfirmationCIn, ApplicationSpecific {
     static final String NAME = "SAP UtilitiesTimeSeriesERPItemBulkChangeConfirmation_C_In";
     private static final Set<String> FAILURE_CODES = ImmutableSet.of("5");
 
@@ -70,7 +70,7 @@ public class UtilitiesTimeSeriesBulkChangeConfirmationReceiver extends AbstractI
     }
 
     @Override
-    public void utilitiesTimeSeriesERPItemBulkChangeConfirmationEIn(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
+    public void utilitiesTimeSeriesERPItemBulkChangeConfirmationCIn(UtilsTmeSersERPItmBulkChgConfMsg confirmation) {
         runInTransactionWithOccurrence(() -> {
             Optional<String> uuid = findReferenceUuid(confirmation);
             ServiceCall serviceCall = uuid.flatMap(dataExportServiceCallType::findServiceCall)

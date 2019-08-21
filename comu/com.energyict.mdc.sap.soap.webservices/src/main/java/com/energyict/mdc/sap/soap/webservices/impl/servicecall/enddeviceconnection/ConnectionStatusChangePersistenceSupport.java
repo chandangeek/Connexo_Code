@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.google.inject.Module;
@@ -70,11 +71,11 @@ public class ConnectionStatusChangePersistenceSupport implements PersistenceSupp
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.CATEGORY_CODE.javaName())
                 .notNull()
                 .add();
-        table.column(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
+        /*table.column(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.databaseName())
                 .varChar()
-                .map(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.javaName())
                 .notNull()
-                .add();
+                .upTo(Version.version(10, 7))
+                .add();*/
         table.column(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.databaseName())
                 .varChar()
                 .map(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName())

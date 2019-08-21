@@ -15,10 +15,10 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
@@ -33,7 +33,7 @@ import java.util.List;
  * A runtime error is thrown when the device is not set for validation and/or estimation.
  * When after validation and estimation still invalid values are encountered, the action is undone.
  *
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#FORCE_VALIDATION_AND_ESTIMATION}
+ * @see {@link MicroAction#FORCE_VALIDATION_AND_ESTIMATION}
  */
 public class ForceValidationAndEstimation extends TranslatableServerMicroAction {
 

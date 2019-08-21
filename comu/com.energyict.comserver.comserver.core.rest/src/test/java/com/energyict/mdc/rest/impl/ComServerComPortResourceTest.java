@@ -4,12 +4,11 @@
 
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.rest.impl.comserver.ComPortInfo;
 import com.energyict.mdc.rest.impl.comserver.TcpInboundComPortInfo;
-import org.junit.Test;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;

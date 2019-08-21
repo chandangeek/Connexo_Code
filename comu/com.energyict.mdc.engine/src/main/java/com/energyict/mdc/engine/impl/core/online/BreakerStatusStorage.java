@@ -5,8 +5,8 @@
 package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 

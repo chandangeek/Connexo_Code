@@ -6,9 +6,9 @@ package com.energyict.mdc.protocol.api.device.offline;
 
 import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.offline.Offline;
 
 import java.util.List;

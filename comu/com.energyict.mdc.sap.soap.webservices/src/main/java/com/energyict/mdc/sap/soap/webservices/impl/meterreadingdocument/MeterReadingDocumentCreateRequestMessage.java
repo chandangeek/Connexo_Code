@@ -17,8 +17,6 @@ public class MeterReadingDocumentCreateRequestMessage {
     private boolean bulk;
     private BigDecimal attemptNumber = BigDecimal.ZERO;
     private String id;
-    private String confirmationURL;
-    private String resultURL;
     private List<MeterReadingDocumentCreateMessage> meterReadingDocumentCreateMessages = new ArrayList<>();
 
     private MeterReadingDocumentCreateRequestMessage() {
@@ -26,14 +24,6 @@ public class MeterReadingDocumentCreateRequestMessage {
 
     public String getId() {
         return id;
-    }
-
-    public String getConfirmationURL() {
-        return confirmationURL;
-    }
-
-    public String getResultURL() {
-        return resultURL;
     }
 
     public BigDecimal getAttemptNumber() {
@@ -45,7 +35,7 @@ public class MeterReadingDocumentCreateRequestMessage {
     }
 
     public boolean isValid() {
-        return id != null && confirmationURL != null && resultURL != null;
+        return id != null;
     }
 
     public boolean isBulk() {
@@ -66,8 +56,6 @@ public class MeterReadingDocumentCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setId(getId(messageHeader));
-                        setConfirmationURL(getConfirmationURL(messageHeader));
-                        setResultURL(getResultURL(messageHeader));
                     });
             meterReadingDocumentCreateMessages.add(MeterReadingDocumentCreateMessage
                     .builder()
@@ -81,8 +69,6 @@ public class MeterReadingDocumentCreateRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setId(getId(messageHeader));
-                        setConfirmationURL(getConfirmationURL(messageHeader));
-                        setResultURL(getResultURL(messageHeader));
                     });
             requestMessage.getSmartMeterMeterReadingDocumentERPCreateRequestMessage()
                     .forEach(message ->
@@ -95,16 +81,6 @@ public class MeterReadingDocumentCreateRequestMessage {
 
         public MeterReadingDocumentCreateRequestMessage.Builder setId(String id) {
             MeterReadingDocumentCreateRequestMessage.this.id = id;
-            return this;
-        }
-
-        public MeterReadingDocumentCreateRequestMessage.Builder setConfirmationURL(String confirmationURL) {
-            MeterReadingDocumentCreateRequestMessage.this.confirmationURL = confirmationURL;
-            return this;
-        }
-
-        public MeterReadingDocumentCreateRequestMessage.Builder setResultURL(String resultURL) {
-            MeterReadingDocumentCreateRequestMessage.this.resultURL = resultURL;
             return this;
         }
 
@@ -126,28 +102,5 @@ public class MeterReadingDocumentCreateRequestMessage {
                     .orElse(null);
         }
 
-        private String getConfirmationURL(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.BusinessDocumentMessageHeader meterReadingDocument) {
-            return Optional.ofNullable(meterReadingDocument.getConfirmationURL())
-                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                    .orElse(null);
-        }
-
-        private String getConfirmationURL(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader meterReadingDocument) {
-            return Optional.ofNullable(meterReadingDocument.getConfirmationURL())
-                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                    .orElse(null);
-        }
-
-        private String getResultURL(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.BusinessDocumentMessageHeader meterReadingDocument) {
-            return Optional.ofNullable(meterReadingDocument.getResultURL())
-                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                    .orElse(null);
-        }
-
-        private String getResultURL(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.BusinessDocumentMessageHeader meterReadingDocument) {
-            return Optional.ofNullable(meterReadingDocument.getResultURL())
-                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-                    .orElse(null);
-        }
     }
 }

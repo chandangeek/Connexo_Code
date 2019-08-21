@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.rest.GroupInfo;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.LocaleInfo;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfoFactory;
@@ -28,6 +28,7 @@ import java.util.Collections;
         service = UserInfoFactory.class)
 public class UserInfoFactoryImpl implements com.elster.jupiter.users.rest.UserInfoFactory {
     private GroupInfoFactory groupInfoFactory;
+    private UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
 
     public UserInfoFactoryImpl() {
@@ -35,9 +36,10 @@ public class UserInfoFactoryImpl implements com.elster.jupiter.users.rest.UserIn
     }
 
     @Inject
-    public UserInfoFactoryImpl(ThreadPrincipalService threadPrincipalService, GroupInfoFactory groupInfoFactory) {
+    public UserInfoFactoryImpl(ThreadPrincipalService threadPrincipalService, GroupInfoFactory groupInfoFactory, UserService userService) {
         this.threadPrincipalService = threadPrincipalService;
         this.groupInfoFactory = groupInfoFactory;
+        this.userService = userService;
     }
 
     @Override
@@ -66,6 +68,6 @@ public class UserInfoFactoryImpl implements com.elster.jupiter.users.rest.UserIn
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
-        groupInfoFactory = new GroupInfoFactory(threadPrincipalService);
+        groupInfoFactory = new GroupInfoFactory(threadPrincipalService, userService);
     }
 }

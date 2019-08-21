@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 
 /**
  * Models the required behavior of a component that is depending on

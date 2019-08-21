@@ -94,9 +94,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             periodCount = form.down('#period-number'),
             timeBoundaryStart = form.down('#timeBoundaryStart'),
             timeBoundaryEnd = form.down('#timeBoundaryEnd'),
-            baseForm = form.getForm();
+            baseForm = form.getForm(),
+            firmwareVersionsView = form.down('firmware-version-options');
 
-        if (!form.isValid()) {
+        var versionOptions = firmwareVersionsView.getDataFromChecks(true);
+
+        if (!form.isValid() || !versionOptions) {
             errorMessage.show();
             return;
         }
@@ -108,12 +111,18 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         page.setLoading();
         var record = form.getRecord();
         var propertyForm = form.down('property-form');
+        var firmwareVersionsView = form.down('firmware-version-options');
+
 
         if(record.get('managementOption')){
             record.set('validationTimeout', {
                 count: periodCount.getValue(),
                 timeUnit: periodCombo.findRecordByDisplay(periodCombo.getRawValue()).get('name')
             });
+        }
+
+        if (versionOptions){
+            record.set('checkOptions', versionOptions);
         }
 
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));

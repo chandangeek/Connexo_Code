@@ -74,7 +74,6 @@ public class ConnexoLauncher {
         } else {
             registerShutdownHook();
         }
-
     }
 
     private static void stopFramework() {
