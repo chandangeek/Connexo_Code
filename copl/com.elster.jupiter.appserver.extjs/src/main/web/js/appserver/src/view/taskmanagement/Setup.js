@@ -35,21 +35,19 @@ Ext.define('Apr.view.taskmanagement.Setup', {
                     {
                         store: 'Apr.store.Tasks',
                         xtype: 'uni-grid-commander-sortingpanel',
+                        itemId: 'taskmanagement-sortingpanel',
                         menu: 'taskmanagement-sort-menu',
                         items: [
                           {
                             property: 'nextRun',
-                            itemId: 'taskmanagement-sort-menu-nextrun',
                             direction: Uni.component.sort.model.Sort.ASC
                           },
                           {
                             property: 'queue',
-                            itemId: 'taskmanagement-sort-menu-queue',
                             direction: Uni.component.sort.model.Sort.ASC
                           },
                           {
                             property: 'priority',
-                            itemId: 'taskmanagement-sort-menu-priority',
                             direction: Uni.component.sort.model.Sort.DESC
                           }
                         ]
