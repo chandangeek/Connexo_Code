@@ -166,6 +166,7 @@ public class DeviceChannelSAPInfoCustomPropertySet implements CustomPropertySet<
             Column profileColumn = table.column(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName())
+                    .since(Version.version(10, 7))
                     .add();
             table.index(IDX).on(lrnColumnString).add();
             table.index(IDX_P).on(profileColumn).add();

@@ -37,6 +37,7 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -44,7 +45,6 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceChannelSAPInfoCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceChannelSAPInfoDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.TranslationKeys;
-import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestRole;
 import com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeRequestProvider;
@@ -65,10 +65,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -79,13 +81,13 @@ import static com.energyict.mdc.sap.soap.webservices.impl.InboundServices.SAP_ME
 import static com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys.EXPORTER;
 import static java.time.temporal.ChronoUnit.DAYS;
 
-@Component(name = MeasurementTaskAssignmentChangeFactory.NAME,
-        service = MeasurementTaskAssignmentChangeFactory.class, immediate = true,
-        property = "name=" + MeasurementTaskAssignmentChangeFactory.NAME)
-public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyProvider {
+@Component(name = MeasurementTaskAssignmentChangeProcessor.NAME,
+        service = MeasurementTaskAssignmentChangeProcessor.class, immediate = true,
+        property = "name=" + MeasurementTaskAssignmentChangeProcessor.NAME)
+public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyProvider {
     static final String COMPONENT_NAME = "MTA"; // only for translations
 
-    public static final String NAME = "MeasurementTaskAssignmentChangeFactory";
+    public static final String NAME = "MeasurementTaskAssignmentChangeProcessor";
     public static final String VERSION = "v1.0";
     public static final String GROUP_MRID_PREFIX = "MDC:";
 
@@ -105,24 +107,6 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
     private volatile TimeService timeService;
     private volatile Thesaurus thesaurus;
 
-    public void sendMessage(String id) {
-        MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id)
-                        .from()
-                        .build();
-        WebServiceActivator.MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS
-                .forEach(service -> service.call(confirmationMessage));
-    }
-
-    public void sendErrorMessage(String id, String level, String typeId, String errorMessage) {
-        MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
-                MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), id)
-                        .from(level, typeId, errorMessage)
-                        .build();
-        WebServiceActivator.MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS
-                .forEach(service -> service.call(confirmationMessage));
-    }
-
     public void processServiceCall(MeasurementTaskAssignmentChangeRequestMessage message) {
         String profileId = message.getProfileId();
         // parse role infos (lrn, time periods)
@@ -141,7 +125,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
         }
 
         if (!lrns.isEmpty()) {
-            // set profile ID
+            // set profile id
             Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> profileIntervals = findChannelInfos(lrns);
             for (Map.Entry<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> entry : profileIntervals.entrySet()) {
                 entry.getValue().stream().forEach(e -> setProfileId(profileId, entry.getKey().getFirst(),
@@ -149,7 +133,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
             }
 
             // update/create end device group for export task
-            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(GROUP_MRID_PREFIX + WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
+            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
             List<Long> deviceIds = getDeviceIds(profileIntervals);
             if (endDeviceGroup.isPresent()) {
                 updateEnumeratedEndDeviceGroup((EnumeratedEndDeviceGroup) endDeviceGroup.get(), deviceIds);
@@ -161,7 +145,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
                 // update/create export task
                 Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService
                         .getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
-                List<ReadingType> readingTypes = getReadingTypes(profileIntervals);
+                Set<ReadingType> readingTypes = getReadingTypes(profileIntervals);
                 if (exportTask.isPresent()) {
                     updateExportTask(exportTask.get(), readingTypes, true);
                 } else {
@@ -171,7 +155,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
         } else {
             Optional<ExportTask> exportTask = (Optional<ExportTask>) dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
             if (exportTask.isPresent()) {
-                List<ReadingType> readingTypes = sapCustomPropertySets.findReadingTypesForProfileId(profileId);
+                Set<ReadingType> readingTypes = sapCustomPropertySets.findReadingTypesForProfileId(profileId);
                 // remove reading types from the data export task
                 updateExportTask(exportTask.get(), readingTypes, false);
                 if (getNumberOfReadingTypes(exportTask.get()) == 0) {
@@ -193,7 +177,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
                 List<Range<Instant>> ranges = new ArrayList<>();
                 channelsForLrnWithinInterval.values().stream().forEach(listR ->
                         ranges.addAll(listR.stream().map(r -> r.getFirst()).collect(Collectors.toList())));
-                if (sapCustomPropertySets.isRangesIntersected(ranges)) {
+                if (Ranges.doAnyRangesIntersect(ranges)) {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_IS_NOT_UNIQUE, entry.getKey(),
                             range.lowerEndpoint().toString(), range.upperEndpoint().toString());
                 }
@@ -226,7 +210,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
                         .map(RegisteredCustomPropertySet::getCustomPropertySet)
                         .filter(cps -> cps.getId().equals(DeviceChannelSAPInfoCustomPropertySet.CPS_ID));
                 if (customPropertySet.isPresent()) {
-                    if (!sapCustomPropertySets.isProfileIdAlreadyExists(channel.get(), profileId, profileInterval)) {
+                    if (!sapCustomPropertySets.isProfileIdPresent(channel.get(), profileId, profileInterval)) {
                         CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
                                 channel.get().getChannelSpec(), lrnInterval.lowerEndpoint(), deviceId);
                         if (!profileId.equals(oldValues.getProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()))) {
@@ -255,12 +239,12 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
         return devices.stream().distinct().collect(Collectors.toList());
     }
 
-    private List<ReadingType> getReadingTypes(Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> channelInfos) {
-        List<ReadingType> readingTypes = new ArrayList<>();
+    private Set<ReadingType> getReadingTypes(Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> channelInfos) {
+        Set<ReadingType> readingTypes = new HashSet<>();
         for (Pair<Long, ReadingType> pair : channelInfos.keySet()) {
             readingTypes.add(pair.getLast());
         }
-        return readingTypes.stream().distinct().collect(Collectors.toList());
+        return readingTypes.stream().collect(Collectors.toSet());
     }
 
     private EndDevice[] buildListOfEndDevices(List<Long> deviceIds) {
@@ -291,7 +275,7 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
         endDeviceGroup.update();
     }
 
-    private void createExportTask(EnumeratedEndDeviceGroup endDeviceGroup, List<ReadingType> readingTypes) {
+    private void createExportTask(EnumeratedEndDeviceGroup endDeviceGroup, Set<ReadingType> readingTypes) {
         RelativePeriod exportWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskExportWindow().orElse(DEFAULT_EXPORT_WINDOW));
         RelativePeriod updateWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskUpdateWindow().orElse(DEFAULT_UPDATE_WINDOW));
         Instant startOn = clock.instant().plus(1, DAYS);
@@ -336,9 +320,10 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
     }
 
     private EndPointConfiguration getEndPointConfiguration(String webServiceName) {
-        Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
+        Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.getEndPointConfigurationsForWebService(webServiceName)
+                .stream()
                 .filter(EndPointConfiguration::isActive)
-                .filter(endPointConfiguration -> endPointConfiguration.getWebServiceName().equals(webServiceName)).findFirst();
+                .findFirst();
         if (endPointConfig.isPresent()) {
             return endPointConfig.get();
         }
@@ -352,31 +337,25 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
 
     private int getNumberOfReadingTypes(ExportTask exportTask) {
         Optional<DataSelectorConfig> selectorConfig = exportTask.getStandardDataSelectorConfig();
-        if (exportTask.getStandardDataSelectorConfig().isPresent()) {
+        if (selectorConfig.isPresent()) {
             return ((MeterReadingSelectorConfig) selectorConfig.get()).getReadingTypes().size();
         }
         return 0;
     }
 
-    private void updateExportTask(ExportTask exportTask, List<ReadingType> readingTypes, boolean addReadingTypes) {
+    private void updateExportTask(ExportTask exportTask, Set<ReadingType> readingTypes, boolean addReadingTypes) {
         Optional<DataSelectorConfig> selectorConfig = exportTask.getStandardDataSelectorConfig();
-        if (exportTask.getStandardDataSelectorConfig().isPresent()) {
+        if (selectorConfig.isPresent()) {
             MeterReadingSelectorConfig meterReadingSelectorConfig = (MeterReadingSelectorConfig) selectorConfig.get();
             ReadingDataSelectorConfig.Updater updater = meterReadingSelectorConfig.startUpdate();
 
             if (addReadingTypes) {
                 // update reading types
                 readingTypes.stream()
-                        .filter(r -> meterReadingSelectorConfig.getReadingTypes()
-                                .stream()
-                                .noneMatch(r::equals))
                         .forEach(updater::addReadingType);
             } else {
                 // update reading types
                 readingTypes.stream()
-                        .filter(r -> meterReadingSelectorConfig.getReadingTypes()
-                                .stream()
-                                .noneMatch(r::equals))
                         .forEach(updater::removeReadingType);
             }
             exportTask.update();

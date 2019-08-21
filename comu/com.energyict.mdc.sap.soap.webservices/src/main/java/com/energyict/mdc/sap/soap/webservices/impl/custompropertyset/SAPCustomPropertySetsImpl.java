@@ -47,6 +47,7 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -65,6 +66,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -285,15 +287,18 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public boolean isProfileIdAlreadyExists(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval) {
+    public boolean isProfileIdPresent(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval) {
         Condition whereOverlapped = getOverlappedCondition(interval);
+        Condition notThisChannelSpec = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channel.getChannelSpec());
+        Condition notThisDevice = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isNotEqual(channel.getDevice().getId());
+        Condition thisDevice = notThisDevice.not();
         return (getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId)
-                        .and(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channel.getChannelSpec())))
-                .filter(whereOverlapped).count() > 0);
+                        .and(notThisDevice.or(thisDevice.and(notThisChannelSpec))))
+                .anyMatch(whereOverlapped));
     }
 
     @Override
@@ -307,18 +312,23 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .filter(whereOverlapped);
 
         Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
-        for (DeviceChannelSAPInfoDomainExtension e : stream.collect(Collectors.toList())) {
-            Range cutRange = cutRange(e.getRange());
-            if (cutRange != null) {
+        stream.forEach(e -> {
+            Range range = e.getRange();
+            Optional<Range<Instant>> cutRange = cutRange(range);
+            if (cutRange.isPresent()) {
                 Pair<Long, ReadingType> key = Pair.of(e.getDeviceId(), e.getChannelSpec().getReadingType());
-                List list = map.getOrDefault(key, new ArrayList<>());
-                Range<Instant> rangeIntersection = cutRange.intersection(interval);
-                if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
-                    list.add(Pair.of(cutRange(e.getRange()).intersection(interval), e.getRange()));
-                }
-                map.put(key, list);
+                List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
+                try {
+                    Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
+                    if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
+                        list.add(Pair.of(rangeIntersection, range));
+                    }
+                    map.put(key, list);
+                } catch (IllegalArgumentException ex) {
+                    // no intersection with interval (should never occur)
+                };
             }
-        }
+        });
         return map;
     }
 
@@ -334,19 +344,19 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         return (whereStartLess.and(whereEndLess).or(whereStartGreater.and(whereEndGreater))).not();
     }
 
-    private Range<Instant> cutRange(Range<Instant> range) {
+    private Optional<Range<Instant>> cutRange(Range<Instant> range) {
         Instant start = truncateToDays(range.lowerEndpoint()).equals(range.lowerEndpoint()) ?
                 range.lowerEndpoint() : truncateToDays(range.lowerEndpoint()).plus(1, DAYS);
         Instant end = truncateToDays(range.upperEndpoint());
 
         if (start.isBefore(end)) {
             if (end.equals(range.upperEndpoint())) {
-                return Range.closedOpen(start, end);
+                return Optional.of(Range.closedOpen(start, end));
             } else {
-                return Range.closed(start, end);
+                return Optional.of(Range.closed(start, end));
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private Instant truncateToDays(Instant dateTime) {
@@ -354,28 +364,14 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public List<ReadingType> findReadingTypesForProfileId(String profileId) {
+    public Set<ReadingType> findReadingTypesForProfileId(String profileId) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId))
                 .map(e -> e.getChannelSpec().getReadingType())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean isRangesIntersected(List<Range<Instant>> ranges) {
-        List<Range<Instant>> previousRanges = new ArrayList<>();
-        for (Range<Instant> range : ranges) {
-            for (Range<Instant> previousRange : previousRanges) {
-                if (Ranges.does(range).overlap(previousRange)) {
-                    return true;
-                }
-            }
-            previousRanges.add(range);
-        }
-        return false;
+                .collect(Collectors.toSet());
     }
 
     private Optional<Pair<Long, ReadingType>> getChannelIdentification(String lrn, Instant when) {
@@ -454,11 +450,10 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         extensions.forEach(ext -> {
             if (ext.getLogicalRegisterNumber().isPresent() && ext.getProfileId().isPresent()) {
                 RangeSet<Instant> rangeSet = map.get(Pair.of(ext.getLogicalRegisterNumber().get(), ext.getProfileId().get()));
-                if (rangeSet != null) {
-                    rangeSet.addAll(ImmutableRangeSet.of(ext.getRange().intersection(range)));
-                } else {
-                    rangeSet = ImmutableRangeSet.of(ext.getRange().intersection(range));
+                if (rangeSet == null) {
+                    rangeSet = TreeRangeSet.create();
                 }
+                rangeSet.add(ext.getRange().intersection(range));
                 map.put(Pair.of(ext.getLogicalRegisterNumber().get(), ext.getProfileId().get()), rangeSet);
             }
         });
