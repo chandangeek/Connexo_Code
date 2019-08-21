@@ -214,7 +214,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
         while (continueRunning()) {
             try {
-                LOGGER.info("[" + Thread.currentThread().getName() + "] run");
                 doRun();
             } catch (Throwable t) {
                 this.exceptionLogger.unexpectedError(t);
