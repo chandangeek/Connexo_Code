@@ -212,9 +212,9 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 if (customPropertySet.isPresent()) {
                     if (!sapCustomPropertySets.isProfileIdPresent(channel.get(), profileId, profileInterval)) {
                         CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
-                                channel.get().getChannelSpec(), lrnInterval.lowerEndpoint(), deviceId);
+                                channel.get().getChannelSpec(), lrnInterval.hasLowerBound() ? lrnInterval.lowerEndpoint() : Instant.EPOCH, deviceId);
                         if (!profileId.equals(oldValues.getProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()))) {
-                            Range tailRange = Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint());
+                            Range tailRange = lrnInterval.hasUpperBound() ? Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint()) : Range.atLeast(profileInterval.upperEndpoint());
                             if (tailRange != null && !tailRange.isEmpty()) {
                                 customPropertySetService.setValuesVersionFor(customPropertySet.get(),
                                         channel.get().getChannelSpec(), oldValues, tailRange, deviceId);
