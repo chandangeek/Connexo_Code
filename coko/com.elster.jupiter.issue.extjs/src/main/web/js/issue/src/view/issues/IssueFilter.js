@@ -16,6 +16,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.Devices',
         'Isu.store.DueDate',
         'Isu.store.IssueReasons',
+        'Isu.store.IssueUsagePoints',
         'Isu.store.DeviceGroups',
         'Isu.store.IssueReasons',
         'Isu.store.Locations'
@@ -153,6 +154,44 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 valueField: 'id',
                 store: 'Isu.store.DeviceGroups',
                 multiSelect: true,
+            },
+            {
+                emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
+                type: 'combobox',
+                itemId: 'issue-usagePoints-filter',
+                dataIndex: 'usagePoint',
+                displayField: 'name',
+                valueField: 'name',
+                store: 'Isu.store.IssueUsagePoints',
+                queryMode: 'remote',
+                queryParam: 'like',
+                queryCaching: false,
+                minChars: 0,
+                loadStore: false,
+                setFilterValue: me.comboSetFilterValue,
+                getParamValue: me.comboGetParamValue,
+                forceSelection: false,
+                hidden: me.isOverviewFilter,
+                listeners: {
+                    expand: {
+                        fn: me.comboLimitNotification
+                    }
+                }
+            },
+            {
+                type: 'interval',
+                itemId: 'issue-creationDate-filter',
+                dataIndex: 'startInterval',
+                dataIndexFrom: 'startIntervalFrom',
+                dataIndexTo: 'startIntervalTo',
+                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
+                hidden: me.isOverviewFilter
+            },
+            {
+                type: 'numeric',
+                dataIndex: 'priority',
+                itemId: 'isu-priority-filter',
+                text: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority')
             },
             {
                 type: 'combobox',

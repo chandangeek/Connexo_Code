@@ -75,6 +75,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -91,6 +92,8 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -105,6 +108,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -857,9 +861,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             condition = condition.and(getDeviceGroupSearchCondition(filter.getDeviceGroups()));
         }
         //filter by usagepoint
-        if (!filter.getUsagePoints().isEmpty()) {
-            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
-        }
+//        if (!filter.getUsagePoints().isEmpty()) {
+//            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
+//        }
 
         //filter by usagepoint
         if (!filter.getUsagePointGroups().isEmpty()) {
@@ -886,6 +890,38 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .and(where("dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
             }
             condition = condition.and(dueDateCondition);
+        }
+
+        //filter by createDate
+        if (filter.getStartCreateTime() != null && filter.getEndCreateTime() != null) {
+            Condition creationDate = Condition.FALSE;
+            creationDate = creationDate.or(where("createTime").isGreaterThan(filter.getStartCreateTime())
+                    .and(where("createTime").isLessThan(filter.getEndCreateTime())));
+            condition = condition.and(creationDate);
+        }
+
+        //filter by priority
+        if (!filter.getPriorities().isEmpty()){
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = null;
+            try {
+                node = mapper.readTree(filter.getPriorities());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if ( node.get("operator").asText().equals("<") ){
+                condition = condition.and(where("priorityTotal").isLessThan(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals(">")){
+                condition = condition.and(where("priorityTotal").isGreaterThan(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals("==")){
+                condition = condition.and(where("priorityTotal").isEqualTo(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals("BETWEEN")){
+                int first = node.get("criteria").get(0).asInt();
+                int second = node.get("criteria").get(1).asInt();
+                condition = condition.and(where("priorityTotal").isGreaterThan(first))
+                        .and(where("priorityTotal").isLessThan(second));
+            }
+
         }
         return condition;
     }

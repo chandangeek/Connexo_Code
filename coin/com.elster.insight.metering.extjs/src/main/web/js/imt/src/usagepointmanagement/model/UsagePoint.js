@@ -13,6 +13,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'id', type: 'int'},
         {name: 'mRID', type: 'string'},
         {name: 'serviceCategory', type: 'string'},
+        {name: 'displayServiceCategory', type: 'auto', useNull: true, persist: false},
         {name: 'lifeCycle', type: 'auto', useNull: true},
         {name: 'name', type: 'string'},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},

@@ -76,6 +76,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
         }
 
         if (sapCustomPropertySets.isRangesIntersected(message.getRoles().stream()
+                .filter(role -> !WebServiceActivator.getListOfRoleCodes().contains(role.getRoleCode()))
                 .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
             sendProcessError(message, MessageSeeds.TIME_PERIODS_INTERSECT);
             return;
@@ -101,7 +102,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                                 .build();
                 sendMessage(confirmationMessage);
             } else {
-                MessageSeeds messageSeeds = MessageSeeds.EXCEPTION_GENERATED;
+                MessageSeeds messageSeeds = MessageSeeds.COULD_NOT_PROCESS_REQUEST;
                 String errorMessage = messageSeeds.translate(thesaurus, ex.getLocalizedMessage());
                 log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(ex.getLocalizedMessage()));
                 MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =

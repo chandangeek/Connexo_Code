@@ -27,7 +27,8 @@ public class Dsmr40MbusProtocol extends MbusDevice {
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT WebRTU KP DLMS (NTA DSMR4.0) Mbus Slave V2";
+//        return "EnergyICT WebRTU KP DLMS (NTA DSMR4.0) Mbus Slave V2";
+        return "Generic MbusDevice DLMS (NTA DSMR4.0) V2";
     }
 
 }

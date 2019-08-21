@@ -230,7 +230,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 }
                 this.metrologyConfigurationService.getDataModel()
                         .mapper(MeterActivationImpl.class)
-                        .find("usagePoint", activation.getUsagePoint()).stream().forEach(MeterActivationImpl::detachUsagePoint);
+                        .find("usagePoint", activation.getUsagePoint()).stream()
+                        .filter(ma -> !ma.getInterval().toOpenClosedRange().hasUpperBound())
+                        .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().equals(activation.getMeterRole()))
+                        .forEach(MeterActivationImpl::detachUsagePoint);
                 /* Post event after unlink actually performed */
                 if (eventSource.isPresent()){
                     eventService.postEvent(EventType.METER_UNLINKED.topic(), eventSource.get());
@@ -248,8 +251,28 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 MeterActivationImpl meterActivation = this.metrologyConfigurationService.getDataModel()
                         .query(MeterActivationImpl.class).select(Where.where("meter").isEqualTo(meter)).stream()
                         .filter(ma -> ma.getEnd() == null)
-                        .findFirst().get();
+                        .findFirst()
+                        .map(ma -> {
+                            if (ma.getRange().contains(activationStart)) {
+                                MeterActivation newActivation = ma.split(activationStart);
+                                saveMeterActivation(((MeterActivationImpl)newActivation), meterRole);
+                            } else {
+                                try {
+                                    ma.doSetUsagePoint(usagePoint);
+                                    ma.doSetMeterRole(meterRole);
+                                    ma.advanceStartDate(activationStart);
+                                } catch (IllegalArgumentException ex) {
+                                    throw new UsagePointMeterActivationException.MeterActivationOverlap(metrologyConfigurationService.getThesaurus(),
+                                            meter.getName(), formatDate(activationStart));
+                                }
+                            }
+                            return ma;
+                        })
+                        .orElseGet(() ->
+                            (MeterActivationImpl)activation.getUsagePoint().activate(meter, meterRole, activationStart)
+                        );
 
+                /*
                 if (meterActivation.getRange().contains(activationStart)) {
                     MeterActivation newActivation = meterActivation.split(activationStart);
                     saveMeterActivation(((MeterActivationImpl)newActivation), meterRole);
@@ -263,6 +286,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                                 meter.getName(), formatDate(activationStart));
                     }
                 }
+                 */
 
                 this.meterTimeLines = new HashMap<>();
                 convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations())
