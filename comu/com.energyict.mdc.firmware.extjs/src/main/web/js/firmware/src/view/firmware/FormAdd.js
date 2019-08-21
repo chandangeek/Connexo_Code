@@ -175,7 +175,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                             xtype: 'combobox',
                             itemId: 'firmware-min-communication-version',
                             allowBlank: false,
-                            store: 'Fwc.store.CommunicationFirmwareDepependencies',
+                            store: 'Fwc.store.CommunicationFirmwareDependencies',
                             displayField: 'name',
                             valueField: 'id',
                             hiddenName: 'communicationFirmwareDependency',
@@ -218,7 +218,7 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                             xtype: 'combobox',
                             itemId: 'firmware-min-auxiliary-version',
                             allowBlank: false,
-                            store: 'Fwc.store.AuxiliaryFirmwareDepependencies',
+                            store: 'Fwc.store.AuxiliaryFirmwareDependencies',
                             displayField: 'name',
                             valueField: 'id',
                             hiddenName: 'auxiliaryFirmwareDependency',
@@ -271,9 +271,9 @@ Ext.define('Fwc.view.firmware.FormAdd', {
                  }
             });
         }
-        setMinLevelComboBoxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDepependencies', 'meter');
-        setMinLevelComboBoxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDepependencies', 'communication');
-        setMinLevelComboBoxStore('firmware-min-auxiliary-version', 'Fwc.store.AuxiliaryFirmwareDepependencies', 'auxiliary');
+        setMinLevelComboBoxStore('firmware-min-meter-version', 'Fwc.store.MeterFirmwareDependencies', 'meter');
+        setMinLevelComboBoxStore('firmware-min-communication-version', 'Fwc.store.CommunicationFirmwareDependencies', 'communication');
+        setMinLevelComboBoxStore('firmware-min-auxiliary-version', 'Fwc.store.AuxiliaryFirmwareDependencies', 'auxiliary');
 
         me.callParent(arguments);
     },

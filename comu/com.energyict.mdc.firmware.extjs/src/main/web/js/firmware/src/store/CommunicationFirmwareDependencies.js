@@ -2,9 +2,9 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Fwc.store.AuxiliaryFirmwareDepependencies', {
+Ext.define('Fwc.store.CommunicationFirmwareDependencies', {
     extend: 'Uni.data.store.Filterable',
-    model: 'Fwc.model.FirmwareAuxiliaryDependency',
+    model: 'Fwc.model.FirmwareCommunicationDependency',
     autoLoad: false,
     remoteFilter: false,
     proxy: {

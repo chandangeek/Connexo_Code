@@ -33,12 +33,12 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.store.FirmwareTypes',
         'Fwc.store.SupportedFirmwareTypes',
         'Fwc.store.SecurityAccessors',
-        'Fwc.store.MeterFirmwareDepependencies',
-        'Fwc.store.CommunicationFirmwareDepependencies',
-        'Fwc.store.AuxiliaryFirmwareDepependencies',
-        'Fwc.store.MeterFirmwareDepependenciesEdit',
-        'Fwc.store.CommunicationFirmwareDepependenciesEdit',
-        'Fwc.store.AuxiliaryFirmwareDepependenciesEdit'
+        'Fwc.store.MeterFirmwareDependencies',
+        'Fwc.store.CommunicationFirmwareDependencies',
+        'Fwc.store.AuxiliaryFirmwareDependencies',
+        'Fwc.store.MeterFirmwareDependenciesEdit',
+        'Fwc.store.CommunicationFirmwareDependenciesEdit',
+        'Fwc.store.AuxiliaryFirmwareDependenciesEdit'
     ],
 
     refs: [
