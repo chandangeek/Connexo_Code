@@ -70,7 +70,8 @@ public class CloseIssueAction extends AbstractIssueAction {
         }
         if (isApplicable(issue)) {
             ((OpenIssue) issue).close(closeStatus.get());
-            getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User)threadPrincipalService.getPrincipal()));
+            getCommentFromParameters(properties).ifPresent(comment -> issue.addComment(comment, (User) threadPrincipalService
+                    .getPrincipal()));
             result.success(getThesaurus().getSimpleFormat(MessageSeeds.CLOSE_ACTION_ISSUE_CLOSED).format());
         } else {
             result.fail(getThesaurus().getSimpleFormat(MessageSeeds.CLOSE_ACTION_ISSUE_ALREADY_CLOSED).format());
@@ -99,7 +100,8 @@ public class CloseIssueAction extends AbstractIssueAction {
     }
 
     private Status[] getPossibleStatuses() {
-        List<IssueStatus> statuses = issueService.query(IssueStatus.class).select((Where.where("isHistorical").isEqualTo(Boolean.TRUE)));
+        List<IssueStatus> statuses = issueService.query(IssueStatus.class)
+                .select((Where.where("isHistorical").isEqualTo(Boolean.TRUE)));
         return statuses.stream().map(Status::new).toArray(Status[]::new);
     }
 
@@ -110,12 +112,15 @@ public class CloseIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(Issue issue) {
-        return super.isApplicable(issue) && (IssueStatus.OPEN.equals(issue.getStatus().getKey()) || IssueStatus.SNOOZED.equals(issue.getStatus().getKey()));
+        return super.isApplicable(issue) && (IssueStatus.OPEN.equals(issue.getStatus()
+                .getKey()) || IssueStatus.SNOOZED.equals(issue.getStatus().getKey()));
     }
 
     @Override
     public boolean isApplicableForUser(User user) {
-        return super.isApplicableForUser(user) && user.getPrivileges().stream().anyMatch(p -> Privileges.Constants.CLOSE_ISSUE.equals(p.getName()));
+        return super.isApplicableForUser(user) && user.getPrivileges()
+                .stream()
+                .anyMatch(p -> Privileges.Constants.CLOSE_ISSUE.equals(p.getName()));
     }
 
     @Override
@@ -132,7 +137,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         return "";
     }
 
-    private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
+    private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties) {
         Object value = properties.get(CLOSE_STATUS);
         if (value != null) {
             String statusKey = getPropertySpec(CLOSE_STATUS).get().getValueFactory().toStringValue(value);
@@ -200,8 +205,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         public void bind(PreparedStatement statement, int offset, Status value) throws SQLException {
             if (value != null) {
                 statement.setObject(offset, valueToDatabase(value));
-            }
-            else {
+            } else {
                 statement.setNull(offset, Types.VARCHAR);
             }
         }
@@ -210,8 +214,7 @@ public class CloseIssueAction extends AbstractIssueAction {
         public void bind(SqlBuilder builder, Status value) {
             if (value != null) {
                 builder.addObject(this.valueToDatabase(value));
-            }
-            else {
+            } else {
                 builder.addNull(Types.VARCHAR);
             }
         }

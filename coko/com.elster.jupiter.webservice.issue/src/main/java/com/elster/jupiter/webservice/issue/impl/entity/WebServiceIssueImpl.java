@@ -47,9 +47,13 @@ public class WebServiceIssueImpl implements WebServiceIssue {
     private Reference<WebServiceCallOccurrence> webServiceCallOccurrence = ValueReference.absent();
 
     // Audit fields
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     private final DataModel dataModel;

@@ -100,6 +100,8 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     }
 
     private static Object retrieveId(Object value) {
-        return value instanceof HasIdAndName ? ((HasIdAndName) value).getId() : value instanceof HasId ? ((HasId) value).getId() : value;
+        return value instanceof HasIdAndName
+                ? ((HasIdAndName) value).getId()
+                : value instanceof HasId ? ((HasId) value).getId() : value;
     }
 }

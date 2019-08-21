@@ -37,27 +37,25 @@ class Installer implements FullInstaller {
     private final IssueService issueService;
     private final IssueActionService issueActionService;
     private final DataModel dataModel;
-    private final EventService eventService;
     private final MessageService messageService;
 
     @Inject
-    Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, EventService eventService, MessageService messageService) {
+    Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
-        this.eventService = eventService;
         this.messageService = messageService;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        doTry("Create all web service issues view", this::createView, logger);
+        doTry("Create or replace all web service issues view", this::createOrReplaceView, logger);
         doTry("Create web service issue type, reasons and actions", this::createIssueTypeReasonsAndActions, logger);
         doTry("Create web service issue event subscriber", this::setAQSubscriber, logger);
     }
 
-    private void createView() {
+    private void createOrReplaceView() {
         execute(dataModel,
                 "create or replace view " + TableSpecs.WSI_ISSUE_ALL.name() + " as " +
                 "select * from " + TableSpecs.WSI_ISSUE_OPEN.name() + " union select * from " + TableSpecs.WSI_ISSUE_HISTORY.name());
