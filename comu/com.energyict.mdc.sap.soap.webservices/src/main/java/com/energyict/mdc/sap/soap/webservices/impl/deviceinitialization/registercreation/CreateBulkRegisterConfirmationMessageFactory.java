@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
@@ -28,6 +29,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
+import static com.elster.jupiter.servicecall.DefaultState.FAILED;
+import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
+
 public class CreateBulkRegisterConfirmationMessageFactory {
 
     private static final ObjectFactory objectFactory = new ObjectFactory();
@@ -41,9 +46,9 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegBulkCrteConfMsg();
 
         bulkConfirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), now));
-        if (parent.getState().equals(DefaultState.CANCELLED)) {
-            bulkConfirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
-        } else if (hasAllChildState(children, DefaultState.SUCCESSFUL)) {
+        if (parent.getState().equals(CANCELLED)) {
+            bulkConfirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+        } else if (hasAllChildrenInState(children, SUCCESSFUL)) {
             bulkConfirmationMessage.setLog(createSuccessfulLog());
         } else {
             bulkConfirmationMessage.setLog(createFailedLog());
@@ -102,45 +107,46 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         confirmationMessage.setUtilitiesDevice(createChildBody(extension.getDeviceId()));
 
         List<ServiceCall> children = findChildren(childServiceCall);
-        if (childServiceCall.getState() == DefaultState.SUCCESSFUL) {
-            confirmationMessage.setLog(createSuccessfulLog());
-        } else if (childServiceCall.getState() == DefaultState.FAILED) {
-            if (isDeviceNotFoundError(children)) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.code(), MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.getDefaultFormat(extension.getDeviceId())));
-            } else {
-                String failedRegisterError = createRegisterError(children);
-                if (!failedRegisterError.isEmpty()) {
-                    confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_DATA_SOURCE.code(), MessageSeeds.FAILED_DATA_SOURCE.getDefaultFormat(failedRegisterError)));
+        switch (childServiceCall.getState()) {
+            case SUCCESSFUL:
+                confirmationMessage.setLog(createSuccessfulLog());
+                break;
+            case FAILED:
+                if (isDeviceNotFoundError(children)) {
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.code(), MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.getDefaultFormat(extension.getDeviceId())));
                 } else {
-                    confirmationMessage.setLog(createFailedLog());
+                    String failedRegisterError = createRegisterError(children);
+                    if (!failedRegisterError.isEmpty()) {
+                        confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_DATA_SOURCE.code(), MessageSeeds.FAILED_DATA_SOURCE.getDefaultFormat(failedRegisterError)));
+                    } else {
+                        confirmationMessage.setLog(createFailedLog());
+                    }
                 }
-            }
-        }else if (childServiceCall.getState() == DefaultState.CANCELLED) {
-            confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.code(), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
+                break;
+            case CANCELLED:
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.code(), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                break;
+            default:
+                // No specific action required for these states
+                break;
         }
         return confirmationMessage;
     }
 
     private boolean isDeviceNotFoundError(List<ServiceCall> serviceCalls) {
         return serviceCalls.stream()
-                .filter(child -> child.getState() == DefaultState.FAILED)
+                .filter(child -> child.getState() == FAILED)
                 .map(child -> child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get())
                 .anyMatch(each -> each.getErrorCode().equals(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.code()));
     }
 
     private String createRegisterError(List<ServiceCall> serviceCalls) {
-        StringBuffer message = new StringBuffer();
-        for (ServiceCall child : serviceCalls) {
-            if (child.getState() == DefaultState.FAILED || child.getState() == DefaultState.CANCELLED) {
-                UtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-                String startMsg = "";
-                if (message.length() != 0) {
-                    startMsg = "; ";
-                }
-                message.append(startMsg +  extension.getErrorMessage());
-            }
-        }
-        return message.toString();
+        return serviceCalls.stream()
+                .filter(child -> child.getState() == FAILED || child.getState() == CANCELLED)
+                .map(child -> {
+                    UtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
+                    return extension.getErrorMessage();
+                }).collect(Collectors.joining("; "));
     }
 
     private UtilsDvceERPSmrtMtrRegCrteConfUtilsDvce createChildBody(String sapDeviceId) {
@@ -174,19 +180,19 @@ public class CreateBulkRegisterConfirmationMessageFactory {
 
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode("3");
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
         return log;
     }
 
     private Log createFailedLog() {
         Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode("5");
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
         return log;
     }
 
     private Log createFailedLog(String code, String message) {
         Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode("5");
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
         log.getItem().add(createLogItem(code, message));
         return log;
     }
@@ -203,7 +209,7 @@ public class CreateBulkRegisterConfirmationMessageFactory {
         return logItem;
     }
 
-    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 

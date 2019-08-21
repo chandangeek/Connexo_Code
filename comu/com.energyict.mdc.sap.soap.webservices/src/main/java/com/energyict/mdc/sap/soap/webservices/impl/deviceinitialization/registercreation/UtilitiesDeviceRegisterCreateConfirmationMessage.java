@@ -5,13 +5,12 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registe
 
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreateconfirmation.UtilsDvceERPSmrtMtrRegBulkCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreateconfirmation.UtilsDvceERPSmrtMtrRegCrteConfMsg;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public class UtilitiesDeviceRegisterCreateConfirmationMessage {
 
@@ -21,12 +20,12 @@ public class UtilitiesDeviceRegisterCreateConfirmationMessage {
     private UtilsDvceERPSmrtMtrRegBulkCrteConfMsg bulkConfirmationMessage;
     private UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage;
 
-    public UtilsDvceERPSmrtMtrRegBulkCrteConfMsg getBulkConfirmationMessage() {
-        return bulkConfirmationMessage;
+    public Optional<UtilsDvceERPSmrtMtrRegBulkCrteConfMsg> getBulkConfirmationMessage() {
+        return Optional.ofNullable(bulkConfirmationMessage);
     }
 
-    public UtilsDvceERPSmrtMtrRegCrteConfMsg getConfirmationMessage() {
-        return confirmationMessage;
+    public Optional<UtilsDvceERPSmrtMtrRegCrteConfMsg> getConfirmationMessage() {
+        return Optional.ofNullable(confirmationMessage);
     }
 
 
@@ -43,7 +42,7 @@ public class UtilitiesDeviceRegisterCreateConfirmationMessage {
             if (isBulk) {
                 bulkConfirmationMessage = BULK_MESSAGE_FACTORY.createMessage(serviceCall, children, now);
             } else {
-                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(serviceCall, children, now);
+                confirmationMessage = SINGLE_MESSAGE_FACTORY.createMessage(serviceCall, children.get(0), now);
             }
             return this;
         }

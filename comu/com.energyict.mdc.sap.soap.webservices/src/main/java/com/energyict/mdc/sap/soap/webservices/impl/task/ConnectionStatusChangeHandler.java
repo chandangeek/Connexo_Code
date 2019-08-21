@@ -58,7 +58,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
-    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
@@ -76,9 +76,9 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
     private void resultTransition(ServiceCall parent) {
         List<ServiceCall> childs = findAllChilds(parent);
         if (isLastChild(childs)) {
-            if (hasAllChildState(childs, DefaultState.SUCCESSFUL)) {
+            if (hasAllChildrenInState(childs, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.SUCCESSFUL);
-            } else if (hasAllChildState(childs, DefaultState.CANCELLED)) {
+            } else if (hasAllChildrenInState(childs, DefaultState.CANCELLED)) {
                 sendResponseMessage(parent, DefaultState.CANCELLED);
             } else if (hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.PARTIAL_SUCCESS);

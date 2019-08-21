@@ -7,6 +7,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 
@@ -29,6 +30,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.servicecall.DefaultState.CANCELLED;
+import static com.elster.jupiter.servicecall.DefaultState.FAILED;
+import static com.elster.jupiter.servicecall.DefaultState.SUCCESSFUL;
+
 public class CreateRegisterConfirmationMessageFactory {
 
     private static final ObjectFactory objectFactory = new ObjectFactory();
@@ -36,40 +41,46 @@ public class CreateRegisterConfirmationMessageFactory {
     public CreateRegisterConfirmationMessageFactory() {
     }
 
-    public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(ServiceCall parent, List<ServiceCall> children, Instant now) {
+    public UtilsDvceERPSmrtMtrRegCrteConfMsg createMessage(ServiceCall parent, ServiceCall deviceServiceCall, Instant now) {
         MasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = parent.getExtensionFor(new MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
         UtilsDvceERPSmrtMtrRegCrteConfMsg confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrRegCrteConfMsg();
         confirmationMessage.setMessageHeader(createHeader(extension.getRequestID(), now));
 
-        ServiceCall deviceServiceCall = children.get(0);
         SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension subExtension = deviceServiceCall.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
 
-        if (parent.getState().equals(DefaultState.CANCELLED)) {
-            confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
-        } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
-            confirmationMessage.setLog(createSuccessfulLog());
-        } else if (parent.getState().equals(DefaultState.FAILED)) {
-            List<ServiceCall> registerServiceCalls = findChildren(deviceServiceCall);
-            if (deviceServiceCall.getState() == DefaultState.SUCCESSFUL) {
+        switch (parent.getState()) {
+            case SUCCESSFUL:
                 confirmationMessage.setLog(createSuccessfulLog());
-            } else if (deviceServiceCall.getState() == DefaultState.FAILED) {
-                if (isDeviceNotFoundError(registerServiceCalls)) {
-                    confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.code(), MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.getDefaultFormat(subExtension.getDeviceId())));
-                } else {
-                    String failedRegisterError = createRegisterError(registerServiceCalls);
-                    if (!failedRegisterError.isEmpty()) {
-                        confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_DATA_SOURCE.code(), MessageSeeds.FAILED_DATA_SOURCE.getDefaultFormat(failedRegisterError)));
+                break;
+            case FAILED:
+                List<ServiceCall> registerServiceCalls = findChildren(deviceServiceCall);
+                if (deviceServiceCall.getState() == SUCCESSFUL) {
+                    confirmationMessage.setLog(createSuccessfulLog());
+                } else if (deviceServiceCall.getState() == FAILED) {
+                    if (isDeviceNotFoundError(registerServiceCalls)) {
+                        confirmationMessage.setLog(createFailedLog(MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.code(), MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID.getDefaultFormat(subExtension.getDeviceId())));
                     } else {
-                        confirmationMessage.setLog(createFailedLog());
+                        String failedRegisterError = createRegisterError(registerServiceCalls);
+                        if (!failedRegisterError.isEmpty()) {
+                            confirmationMessage.setLog(createFailedLog(MessageSeeds.FAILED_DATA_SOURCE.code(), MessageSeeds.FAILED_DATA_SOURCE.getDefaultFormat(failedRegisterError)));
+                        } else {
+                            confirmationMessage.setLog(createFailedLog());
+                        }
                     }
+                }else if (deviceServiceCall.getState() == CANCELLED) {
+                    confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.code(), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
                 }
-            }else if (deviceServiceCall.getState() == DefaultState.CANCELLED) {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.code(), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
-            }
+                break;
+            case CANCELLED:
+                confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+                break;
+            default:
+                // No specific action required for these states
+                break;
         }
 
-        createBody(confirmationMessage, children.get(0), now);
+        createBody(confirmationMessage, deviceServiceCall, now);
 
         return confirmationMessage;
     }
@@ -96,18 +107,12 @@ public class CreateRegisterConfirmationMessageFactory {
     }
 
     private String createRegisterError(List<ServiceCall> serviceCalls) {
-        StringBuffer message = new StringBuffer();
-        for (ServiceCall child : serviceCalls) {
-            if (child.getState() == DefaultState.FAILED || child.getState() == DefaultState.CANCELLED) {
-                UtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
-                String startMsg = "";
-                if (message.length() != 0) {
-                    startMsg = "; ";
-                }
-                message.append(startMsg + extension.getErrorMessage());
-            }
-        }
-        return message.toString();
+        return serviceCalls.stream()
+                .filter(child -> child.getState() == FAILED || child.getState() == CANCELLED)
+                .map(child -> {
+                    UtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new UtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
+                    return extension.getErrorMessage();
+                }).collect(Collectors.joining("; "));
     }
 
     private BusinessDocumentMessageHeader createHeader(String requestId, Instant now) {
@@ -153,19 +158,19 @@ public class CreateRegisterConfirmationMessageFactory {
 
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode("3");
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
         return log;
     }
 
     private Log createFailedLog() {
         Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode("5");
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
         return log;
     }
 
     private Log createFailedLog(String code, String message) {
         Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode("5");
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
         log.getItem().add(createLogItem(code, message));
         return log;
     }
@@ -196,9 +201,5 @@ public class CreateRegisterConfirmationMessageFactory {
 
     private List<ServiceCall> findChildren(ServiceCall serviceCall) {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
-    }
-
-    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
-        return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 }

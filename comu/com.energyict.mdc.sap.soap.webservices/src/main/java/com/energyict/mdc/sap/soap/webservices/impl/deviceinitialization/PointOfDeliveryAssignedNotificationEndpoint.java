@@ -103,7 +103,7 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
         private String getPodId(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             return Optional.ofNullable(msg.getUtilitiesMeasurementTask())
                     .map(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsMsmtTsk::getUtilitiesPointOfDeliveryAssignment)
-                    .map(pod -> pod.get(0))
+                    .flatMap(pod -> pod.stream().findFirst())
                     .map(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsPtDeliv::getUtilitiesPointOfDeliveryPartyID)
                     .map(UtilitiesPointOfDeliveryPartyID::getValue)
                     .orElse(null);
