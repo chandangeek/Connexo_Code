@@ -17,7 +17,7 @@ import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @author Karel
  */
-@ProviderType
+@ConsumerType
 public interface DeviceType extends HasId, HasName {
 
     /**
@@ -297,7 +297,7 @@ public interface DeviceType extends HasId, HasName {
         DeviceType create();
     }
 
-    @ProviderType
+    @ConsumerType
     interface DeviceConfigurationBuilder {
 
         /**

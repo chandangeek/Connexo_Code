@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.common.device.config;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
 /**
@@ -12,7 +12,7 @@ import com.energyict.obis.ObisCode;
  *
  * @author Geert
  */
-@ProviderType
+@ConsumerType
 public interface TextualRegisterSpec extends RegisterSpec {
 
     /**

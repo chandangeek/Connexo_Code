@@ -5,7 +5,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -33,7 +33,7 @@ class MeterReadingItemDataSelector extends AbstractItemDataSelector {
     }
 
     @Override
-    void handleExcludeObject(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
+    void handleExcludeObject(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         throw new UnsupportedOperationException(
                 "Data exclusion on usage point not supported for meter reading item");
     }

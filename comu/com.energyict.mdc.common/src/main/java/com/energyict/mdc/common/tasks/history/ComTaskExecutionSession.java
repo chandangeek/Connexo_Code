@@ -11,14 +11,14 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-@ProviderType
+@ConsumerType
 public interface ComTaskExecutionSession extends HasId {
 
     enum SuccessIndicator {

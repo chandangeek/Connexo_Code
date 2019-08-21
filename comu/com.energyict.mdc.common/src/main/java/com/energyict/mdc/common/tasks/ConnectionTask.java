@@ -18,7 +18,7 @@ import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.common.tasks.history.TaskExecutionSummary;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.List;
@@ -53,7 +53,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (09:59)
  */
-@ProviderType
+@ConsumerType
 public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask>
     extends
         ConnectionProvider,

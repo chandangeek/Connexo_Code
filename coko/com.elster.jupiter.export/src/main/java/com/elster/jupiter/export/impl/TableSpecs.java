@@ -9,7 +9,7 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportRunParameters;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -199,7 +199,7 @@ enum TableSpecs {
                     .map("readingTask").add();
         }
     },
-    DES_RTDATAEXPORTITEM(IReadingTypeDataExportItem.class) {
+    DES_RTDATAEXPORTITEM(ReadingTypeDataExportItem.class) {
         @Override
         void describeTable(Table table) {
             table.map(ReadingTypeDataExportItemImpl.class);

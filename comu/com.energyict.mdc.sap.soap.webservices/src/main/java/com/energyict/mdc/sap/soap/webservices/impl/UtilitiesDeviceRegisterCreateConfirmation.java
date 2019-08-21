@@ -5,9 +5,6 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateConfirmationMessage;
 
-import aQute.bnd.annotation.ProviderType;
-
-@ProviderType
 public interface UtilitiesDeviceRegisterCreateConfirmation {
     String NAME = "SAP UtilitiesDeviceERPSmartMeterRegisterCreateConfirmation_C_Out";
 

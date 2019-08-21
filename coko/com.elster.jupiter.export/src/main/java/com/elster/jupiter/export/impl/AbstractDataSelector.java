@@ -7,7 +7,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.nls.Thesaurus;
@@ -48,14 +47,14 @@ abstract class AbstractDataSelector implements DataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        Set<IReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
-        Map<Long, Optional<Instant>> lastRuns = activeItems.stream().collect(Collectors.toMap(IReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastRun));
+        Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
+        Map<Long, Optional<Instant>> lastRuns = activeItems.stream().collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastRun));
         AbstractItemDataSelector itemDataSelector = getItemDataSelector();
 
         try {
             Map<Long, Optional<MeterReadingData>> selectedData = new LinkedHashMap<>();
             Map<Long, Optional<MeterReadingData>> updateData = new HashMap<>();
-            for (IReadingTypeDataExportItem activeItem : activeItems) {
+            for (ReadingTypeDataExportItem activeItem : activeItems) {
                 selectedData.put(activeItem.getId(), itemDataSelector.selectData(occurrence, activeItem));
                 if (lastRuns.containsKey(activeItem.getId()) && lastRuns.get(activeItem.getId()).isPresent()) {
                     updateData.put(activeItem.getId(), itemDataSelector.selectDataForUpdate(occurrence, activeItem, lastRuns.get(activeItem.getId()).get()));
@@ -70,7 +69,7 @@ abstract class AbstractDataSelector implements DataSelector {
             long numberOfItemsSkipped = activeItems.size() - numberOfItemsExported;
 
             ((IDataExportOccurrence) occurrence).summarize(
-                    getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED).format(numberOfItemsExported) +
+                    getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SELECTED).format(numberOfItemsExported) +
                             System.getProperty("line.separator") +
                             getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SKIPPED).format(numberOfItemsSkipped));
 
@@ -90,15 +89,15 @@ abstract class AbstractDataSelector implements DataSelector {
         }
     }
 
-    private Set<IReadingTypeDataExportItem> manageActiveItems(DataExportOccurrence occurrence) {
-        Set<IReadingTypeDataExportItem> activeItems;
+    private Set<ReadingTypeDataExportItem> manageActiveItems(DataExportOccurrence occurrence) {
+        Set<ReadingTypeDataExportItem> activeItems;
         try (TransactionContext context = getTransactionService().getContext()) {
             activeItems = getSelectorConfig().getActiveItems(occurrence);
             getSelectorConfig().getExportItems().stream()
                     .filter(item -> !activeItems.contains(item))
-                    .peek(IReadingTypeDataExportItem::deactivate)
-                    .forEach(IReadingTypeDataExportItem::update);
-            activeItems.forEach(IReadingTypeDataExportItem::activate);
+                    .peek(ReadingTypeDataExportItem::deactivate)
+                    .forEach(ReadingTypeDataExportItem::update);
+            activeItems.forEach(ReadingTypeDataExportItem::activate);
             warnIfObjectsHaveNoneOfTheReadingTypes(occurrence);
             context.commit();
         }

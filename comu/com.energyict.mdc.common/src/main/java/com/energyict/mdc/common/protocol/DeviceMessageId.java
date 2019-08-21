@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.common.protocol;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -16,7 +16,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-15 (09:22)
  */
-@ProviderType
+@ConsumerType
 public enum DeviceMessageId {
 
     ACTIVITY_CALENDAR_READ(1),

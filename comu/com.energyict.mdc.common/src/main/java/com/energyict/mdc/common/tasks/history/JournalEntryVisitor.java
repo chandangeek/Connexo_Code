@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.common.tasks.history;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface JournalEntryVisitor {
 
     void visit(ComCommandJournalEntry entry);

@@ -8,9 +8,9 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -86,7 +86,7 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
     }
 
     @Override
-    public Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+    public Set<ReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
         return decorate(getEndDeviceGroup()
                 .getMembers(occurrence.getDefaultSelectorOccurrence()
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)
@@ -98,12 +98,12 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer, DataExportOccurrence occurrence) {
+    private Stream<ReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer, DataExportOccurrence occurrence) {
         Set<ReadingType> readingTypeSet = occurrence.getRetryTime()
                 .isPresent() ? getReadingTypes(occurrence.getRetryTime().get()) : getReadingTypes();
         return readingTypeSet.stream()
                 .map(r -> getExportItems().stream()
-                        .map(IReadingTypeDataExportItem.class::cast)
+                        .map(ReadingTypeDataExportItem.class::cast)
                         .filter(item -> r.equals(item.getReadingType()))
                         .filter(i -> i.getReadingContainer().is(readingContainer))
                         .findAny()

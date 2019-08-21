@@ -5,10 +5,8 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.servicecall.ServiceCall;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
 
-@ProviderType
 public interface StatusChangeRequestCreateConfirmation {
 
     String SAP_STATUS_CHANGE_REQUEST_CREATE_CONFIRMATION = "SapStatusChangeRequestCreateConfirmation";

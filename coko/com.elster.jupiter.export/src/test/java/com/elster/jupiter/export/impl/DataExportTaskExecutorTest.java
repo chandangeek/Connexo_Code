@@ -17,7 +17,6 @@ import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.ReadingDataFormatter;
@@ -141,7 +140,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private Meter meter1, meter2, meter3;
     @Mock
-    private IReadingTypeDataExportItem existingItem, newItem, obsoleteItem;
+    private ReadingTypeDataExportItem existingItem, newItem, obsoleteItem;
     @Mock
     private ReadingType readingType1, readingType2;
     @Mock
@@ -837,7 +836,7 @@ public class DataExportTaskExecutorTest {
         }
     }
 
-    private MeterReadingImpl getMeterReadingWithIntervalBlock(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+    private MeterReadingImpl getMeterReadingWithIntervalBlock(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(buildIntervalBlock(item, readings));
         return meterReading;

@@ -6,7 +6,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -49,7 +49,7 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
     }
 
     @Override
-    List<BaseReadingRecord> getReadings(IReadingTypeDataExportItem item, Range<Instant> exportInterval) {
+    List<BaseReadingRecord> getReadings(ReadingTypeDataExportItem item, Range<Instant> exportInterval) {
         List<BaseReadingRecord> readings;
         // data aggregation engine requires to wrap getReadings() call in transaction
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -63,7 +63,7 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
     }
 
     @Override
-    List<BaseReadingRecord> getReadingsUpdatedSince(IReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
+    List<BaseReadingRecord> getReadingsUpdatedSince(ReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
         List<BaseReadingRecord> readings;
         // data aggregation engine requires to wrap getReadings() call in transaction
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -79,7 +79,7 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
     }
 
     @Override
-    boolean isComplete(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
+    boolean isComplete(ReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
         switch (item.getSelector().getStrategy().getMissingDataOption()) {
             case EXCLUDE_OBJECT:
                 if (!isCompleteData.containsKey(item.getDomainObject())) {
@@ -109,7 +109,7 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
     }
 
     @Override
-    void handleExcludeObject(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
+    void handleExcludeObject(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         if (!hasSuspectData.containsKey(item.getDomainObject())) {
             if (hasUnvalidatedReadings(item, readings) || ((UsagePoint) item.getDomainObject()).getEffectiveMetrologyConfigurations(interval).stream()
                     .anyMatch(metrologyConfiguration ->

@@ -11,7 +11,6 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
@@ -254,7 +253,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+                .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
@@ -296,7 +295,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+                .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
@@ -364,7 +363,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+                .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
@@ -414,7 +413,7 @@ public class MeterReadingDataSelectorImplTest {
 
             selectorConfig.getActiveItems(occurrence).stream()
                     .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                    .forEach(IReadingTypeDataExportItem::update);
+                    .forEach(ReadingTypeDataExportItem::update);
 
             collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
@@ -477,7 +476,7 @@ public class MeterReadingDataSelectorImplTest {
 
         selectorConfig.getActiveItems(occurrence).stream()
                 .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                .forEach(IReadingTypeDataExportItem::update);
+                .forEach(ReadingTypeDataExportItem::update);
 
         collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
@@ -533,10 +532,10 @@ public class MeterReadingDataSelectorImplTest {
 
             assertThat(collect).hasSize(1);
 
-            Set<IReadingTypeDataExportItem> activeItems = selectorConfig.getActiveItems(occurrence);
+            Set<ReadingTypeDataExportItem> activeItems = selectorConfig.getActiveItems(occurrence);
             activeItems.stream()
                     .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                    .forEach(IReadingTypeDataExportItem::update);
+                    .forEach(ReadingTypeDataExportItem::update);
 
             collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 

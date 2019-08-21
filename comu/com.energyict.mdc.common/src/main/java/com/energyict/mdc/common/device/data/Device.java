@@ -51,7 +51,7 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Range;
@@ -64,7 +64,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.function.Consumer;
 
-@ProviderType
+@ConsumerType
 public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, HasName {
 
     Meter getMeter();
@@ -535,7 +535,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */
-    @ProviderType
+    @ConsumerType
     interface ScheduledConnectionTaskBuilder {
 
         ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow);
@@ -567,7 +567,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     /**
      * Builder that supports basic value setters for an InboundConnectionTask.
      */
-    @ProviderType
+    @ConsumerType
     interface InboundConnectionTaskBuilder {
 
         InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool);
@@ -586,7 +586,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
         InboundConnectionTask add();
     }
 
-    @ProviderType
+    @ConsumerType
     interface ConnectionInitiationTaskBuilder {
 
         ConnectionInitiationTaskBuilder setComPortPool(OutboundComPortPool comPortPool);
@@ -605,7 +605,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
         ConnectionInitiationTask add();
     }
 
-    @ProviderType
+    @ConsumerType
     interface DeviceMessageBuilder {
 
         /**
@@ -644,7 +644,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
         DeviceMessage add();
     }
 
-    @ProviderType
+    @ConsumerType
     interface CalendarSupport {
         Optional<ActiveEffectiveCalendar> getActive();
 

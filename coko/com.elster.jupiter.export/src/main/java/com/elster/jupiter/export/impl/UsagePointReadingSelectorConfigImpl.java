@@ -9,8 +9,8 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MissingDataOption;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -88,7 +88,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
     }
 
     @Override
-    public Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+    public Set<ReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
         Range<Instant> exportInterval = occurrence.getDefaultSelectorOccurrence()
                 .map(DefaultSelectorOccurrence::getExportedDataInterval)
                 .orElse(Range.all());
@@ -105,10 +105,10 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ChannelsContainer channelsContainer, Range<Instant> exportInterval) {
+    private Stream<ReadingTypeDataExportItem> readingTypeDataExportItems(ChannelsContainer channelsContainer, Range<Instant> exportInterval) {
         return getFilteredReadingTypes(channelsContainer, exportInterval)
                 .map(readingType -> getExportItems().stream()
-                        .map(IReadingTypeDataExportItem.class::cast)
+                        .map(ReadingTypeDataExportItem.class::cast)
                         .filter(item -> readingType.equals(item.getReadingType()) && item.getReadingContainer().equals(channelsContainer))
                         .findAny()
                         .orElseGet(() -> addExportItem(channelsContainer, readingType))

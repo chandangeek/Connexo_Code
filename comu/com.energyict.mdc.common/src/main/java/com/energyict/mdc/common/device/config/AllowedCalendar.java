@@ -6,12 +6,12 @@ package com.energyict.mdc.common.device.config;
 
 import com.elster.jupiter.calendar.Calendar;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface AllowedCalendar {
 
     /**

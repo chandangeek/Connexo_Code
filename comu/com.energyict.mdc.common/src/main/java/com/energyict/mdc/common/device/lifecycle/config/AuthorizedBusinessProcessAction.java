@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.common.device.lifecycle.config;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models an action that can be authorized to initiate an externally defined
@@ -13,7 +13,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (14:38)
  */
-@ProviderType
+@ConsumerType
 public interface AuthorizedBusinessProcessAction extends AuthorizedAction {
 
     TransitionBusinessProcess getTransitionBusinessProcess();

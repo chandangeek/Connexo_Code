@@ -18,7 +18,6 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
-import com.elster.jupiter.export.IReadingTypeDataExportItem;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
@@ -623,7 +622,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
                 .orElseThrow(IllegalArgumentException::new)
                 .newMeter("test", "myName")
                 .create();
-        IReadingTypeDataExportItem item = task.getReadingDataSelectorConfig().get().addExportItem(meter, readingType);
+        ReadingTypeDataExportItem item = task.getReadingDataSelectorConfig().get().addExportItem(meter, readingType);
         item.deactivate();
         item.update();
 

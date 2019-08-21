@@ -24,9 +24,11 @@ import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
 
+    private static final Logger LOGGER = Logger.getLogger(PriorityComTaskExecutionImpl.class.getName());
     private long id;
     private ServerComTaskExecution comTaskExecution;
     private ServerPriorityComTaskExecutionLink comTaskExecutionLink;
@@ -297,17 +299,26 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     @Override
     public void executionFailed() {
         ((ComTaskExecutionImpl) comTaskExecution).executionFailed();
-        if (TaskStatus.Failed.equals(comTaskExecution.getStatus())) {
+        LOGGER.info("[high-prio] device: " + comTaskExecution.getDevice().getName() + "; comTaskExecution status: " + comTaskExecution.getStatus());        if (TaskStatus.Failed.equals(comTaskExecution.getStatus())) {
             ((PriorityComTaskExecutionLinkImpl) comTaskExecutionLink).delete();
         } else {
             // execution attempt failed, will retry - should not delete yet the high-prio task
+            LOGGER.info("[high-prio] execution attempt failed, id=" + comTaskExecutionLink.getId()+ "; device: " + comTaskExecution.getDevice().getName() + "; rescheduled for " + comTaskExecution.getNextExecutionTimestamp());
             comTaskExecutionLink.executionRescheduled(comTaskExecution.getNextExecutionTimestamp());
         }
     }
 
     public void executionRescheduled(Instant rescheduleDate) {
         ((ComTaskExecutionImpl) comTaskExecution).executionRescheduled(rescheduleDate);
-        comTaskExecutionLink.executionRescheduled(rescheduleDate);
+        LOGGER.info("[high-prio] device: " + comTaskExecution.getDevice().getName() + "; comTaskExecution status: " + comTaskExecution.getStatus());
+        // depending on the current retry count, the comtaskexecution might be failed
+        if (TaskStatus.Failed.equals(comTaskExecution.getStatus()) || TaskStatus.NeverCompleted.equals(comTaskExecution.getStatus())) {
+            ((PriorityComTaskExecutionLinkImpl) comTaskExecutionLink).delete();
+        } else {
+            // execution attempt failed, will retry - should not delete yet the high-prio task
+            LOGGER.info("[high-prio] execution attempt failed, id=" + comTaskExecutionLink.getId()+ "; device: " + comTaskExecution.getDevice().getName() + "; rescheduled for " + rescheduleDate);
+            comTaskExecutionLink.executionRescheduled(rescheduleDate);
+        }
     }
 
     @Override
