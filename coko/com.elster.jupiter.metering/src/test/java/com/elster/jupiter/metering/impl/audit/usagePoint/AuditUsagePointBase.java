@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.audit.customPropertySet.AuditTrailCPSHandle;
 import com.elster.jupiter.metering.impl.audit.generalAttributes.AuditTrailGeneralAttributesHandle;
+import com.elster.jupiter.metering.impl.audit.metrologyConfiguration.AuditTrailMetrologyHandle;
 import com.elster.jupiter.metering.impl.audit.technicalAttributes.AuditTrailTechnicalAttributesHandle;
 import com.elster.jupiter.metering.impl.cps.UsagePointTestCustomPropertySet;
 import com.elster.jupiter.metering.security.Privileges;
@@ -59,7 +60,6 @@ import static org.mockito.Mockito.when;
 public class AuditUsagePointBase {
 
     protected final ApplicationType applicationType = ApplicationType.MDM_APPLICATION_KEY;
-    private static final String METROLOGY_CONFIGURATION_MRID = "metrologyConfiguration";
 
     protected static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     @Rule
@@ -77,6 +77,7 @@ public class AuditUsagePointBase {
             ((AuditServiceImpl) auditService).addAuditTrailDecoderHandle(getGeneralAttributesHandle());
             ((AuditServiceImpl) auditService).addAuditTrailDecoderHandle(getGeneralTechnicalAttributesHandle());
             ((AuditServiceImpl) auditService).addAuditTrailDecoderHandle(getAuditTrailCPSHandleHandle());
+            ((AuditServiceImpl) auditService).addAuditTrailDecoderHandle(getAuditTrailMetrologyHandleHandle());
             context.commit();
         }
         customPropertySet = new UsagePointTestCustomPropertySet(inMemoryBootstrapModule.getPropertySpecService());
@@ -121,6 +122,14 @@ public class AuditUsagePointBase {
         decoder.setNlsService(inMemoryBootstrapModule.getNlsService());
         decoder.setOrmService(inMemoryBootstrapModule.getOrmService());
         decoder.setCustomPropertySetService(inMemoryBootstrapModule.getCustomPropertySetService());
+        return decoder;
+    }
+
+    static protected AuditTrailMetrologyHandle getAuditTrailMetrologyHandleHandle(){
+        AuditTrailMetrologyHandle decoder = new AuditTrailMetrologyHandle();
+        decoder.setMeteringService(inMemoryBootstrapModule.getMeteringService());
+        decoder.setNlsService(inMemoryBootstrapModule.getNlsService());
+        decoder.setOrmService(inMemoryBootstrapModule.getOrmService());
         return decoder;
     }
 
@@ -188,19 +197,10 @@ public class AuditUsagePointBase {
         when(newCurrentUser.getPrivileges(anyString())).thenReturn(privileges);
         when(newCurrentUser.hasPrivilege(null, Privileges.Constants.VIEW_ANY_USAGEPOINT)).thenReturn(true);
         when(newCurrentUser.hasPrivilege(null, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT)).thenReturn(true);
+        when(newCurrentUser.hasPrivilege(null, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION)).thenReturn(true);
+        when(newCurrentUser.hasPrivilege(null, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION)).thenReturn(true);
         inMemoryBootstrapModule.getThreadPrincipalService().set(newCurrentUser);
     }
-
-    /*protected static Set<Privilege> getCurrentPrivileges() {
-        Set<Privilege> privileges = new HashSet<>();
-        Privilege editPrivilege = mock(Privilege.class);
-        when(editPrivilege.getName()).thenReturn(Privileges.Constants.VIEW_ANY_USAGEPOINT);
-        privileges.add(editPrivilege);
-        Privilege viewPrivilege = mock(Privilege.class);
-        when(viewPrivilege.getName()).thenReturn(Privileges.Constants.ADMINISTER_ANY_USAGEPOINT);
-        privileges.add(viewPrivilege);
-        return privileges;
-    }*/
 
     protected static Set<Privilege> getCurrentPrivileges() {
         Principal principal = inMemoryBootstrapModule.getThreadPrincipalService().getPrincipal();
@@ -220,17 +220,28 @@ public class AuditUsagePointBase {
         when(newCurrentUser.getPrivileges(anyString())).thenReturn(newPrivileges);
         when(newCurrentUser.hasPrivilege(null, Privileges.Constants.VIEW_ANY_USAGEPOINT)).thenReturn(true);
         when(newCurrentUser.hasPrivilege(null, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT)).thenReturn(true);
+
         inMemoryBootstrapModule.getThreadPrincipalService().set(newCurrentUser);
         return newPrivileges;
     }
 
-    protected UsagePointMetrologyConfiguration createMetrologyConfiguration() {
+    protected UsagePointMetrologyConfiguration createMetrologyConfiguration(String name) {
         return inMemoryBootstrapModule.getMetrologyConfigurationService()
-                .newUsagePointMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID, getServiceCategory()).create();
+                .newUsagePointMetrologyConfiguration(name, getServiceCategory()).create();
     }
 
     protected void linkUsagePointToMetrologyConfiguration(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         usagePoint.apply(metrologyConfiguration);
+    }
+
+    protected void linkUsagePointToMetrologyConfiguration(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
+        usagePoint.apply(metrologyConfiguration, start);
+    }
+
+
+    protected void linkUsagePointToMetrologyConfiguration(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration,
+                                                          Instant start, Instant end) {
+        usagePoint.apply(metrologyConfiguration, start, end);
     }
 
     protected void grantViewPrivilegesForCurrentUser() {
