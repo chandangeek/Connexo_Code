@@ -96,7 +96,7 @@ public class SecurityAccessorTypeInfoFactory {
             SecurityAccessorType securityAccessorType = wrappingSecurityAccessor.get();
             info.wrapperIdAndName = new IdWithNameInfo(securityAccessorType.getId(), securityAccessorType.getName());
         } else {
-            info.wrapperIdAndName = new IdWithNameInfo(getNotAvailableSecurityAccessorWrapper().id, getNotAvailableSecurityAccessorWrapper().name);
+            info.wrapperIdAndName = new IdWithNameInfo(getNotSetSecurityAccessorWrapper().id, getNotSetSecurityAccessorWrapper().name);
         }
 
 
@@ -135,7 +135,7 @@ public class SecurityAccessorTypeInfoFactory {
         return SecurityAccessorType.Purpose.valueOf(info.id.toString());
     }
 
-    public SecurityAccessorTypeInfo getNotAvailableSecurityAccessorWrapper() {
+    public SecurityAccessorTypeInfo getNotSetSecurityAccessorWrapper() {
         return SecurityAccessorTypeInfo.getNotAvailable(thesaurus.getString(MessageSeeds.SECACC_WRAPPER_NOT_SET.getKey(), MessageSeeds.SECACC_WRAPPER_NOT_SET.getDefaultFormat()));
     }
 
