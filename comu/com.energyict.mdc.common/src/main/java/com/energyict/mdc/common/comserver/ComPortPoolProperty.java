@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.common.comserver;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface ComPortPoolProperty {
     /**
      * Gets the name of the property for which a value is held.

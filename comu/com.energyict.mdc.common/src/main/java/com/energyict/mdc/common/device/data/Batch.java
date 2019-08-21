@@ -6,9 +6,9 @@ package com.energyict.mdc.common.device.data;
 
 import com.elster.jupiter.util.HasId;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface Batch extends HasId {
 
     String getName();

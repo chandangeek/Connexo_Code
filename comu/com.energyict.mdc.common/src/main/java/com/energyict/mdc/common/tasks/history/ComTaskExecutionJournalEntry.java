@@ -7,11 +7,11 @@ package com.energyict.mdc.common.tasks.history;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.comserver.ComServer;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 
-@ProviderType
+@ConsumerType
 public interface ComTaskExecutionJournalEntry extends HasId {
 
     ComTaskExecutionSession getComTaskExecutionSession();

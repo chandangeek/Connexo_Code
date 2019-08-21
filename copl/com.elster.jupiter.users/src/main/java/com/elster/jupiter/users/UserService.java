@@ -176,4 +176,6 @@ public interface UserService {
     Optional<KeyStore> getTrustedKeyStoreForUserDirectory(LdapUserDirectory userDirectory);
 
     Optional<KeyStore> getKeyStoreForUserDirectory(LdapUserDirectory userDirectory, char [] password);
+
+    String[] userAdminPrivileges();
 }

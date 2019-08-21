@@ -53,7 +53,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_NOT_IN_OPERATIONAL_STAGE(4011, "DeviceNotInOperationalStage", "Device {0} isn''t in operational stage."),
     CHANNEL_NOT_FOUND(4012, "ChannelNotFound", "Channel ''{0}'' not found on ''{1}-min'' interval"),
     SEVERAL_CHANNELS(4013, "SeveralChannels", "There are several channels with obis code ''{0}''"),
-    CHANNEL_ALREADY_HAS_LRN(4014, "ChannelAlreadyHasLrn", "Channel ''{0}'' already has LRN(range is ''{1}'')"),
+    CHANNEL_ALREADY_HAS_LRN(4014, "ChannelAlreadyHasLrn", "Channel ''{0}'' already has LRN (range is ''{1}'')"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -69,7 +69,8 @@ public enum MessageSeeds implements MessageSeed {
     LRN_IS_NOT_UNIQUE(7004, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [{1},{2})."),
     PROPERTY_IS_NOT_SET(7005, "PropertyNotSet", "Property ''{0}'' isn''t set."),
     LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7006, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile Id aren''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
-    EXCEPTION_GENERATED(7007, "ExceptionGenerated", "Exception generated: ''{0}''"),
+    ENDPOINT_NOT_FOUND(7007, "EndpointNotFound", "Couldn''t find active endpoint for webservice ''{0}''"),
+    COULD_NOT_PROCESS_REQUEST(7008, "CouldNotProcessRequest", "Couldn''t process measurement task assignment change request: ''{0}''"),
 
     //Micro checks
     AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "No LRN has been set on the device.");

@@ -13,8 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0} : {1}"),
-
     SUSPECT_INTERVAL(1022, "dataexport.item.suspectinterval", "The interval(s) starting from {0} till {1} with suspect/not validated data are not exported for item {2}", Level.INFO),
     SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO),
     SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1027, "dataexport.device.mismatch", "Some devices of device group {0} don''t contain the selected reading type(s) that have to be exported.", Level.WARNING),
@@ -66,19 +64,6 @@ public enum MessageSeeds implements MessageSeed {
     public void log(Logger logger, Thesaurus thesaurus, Object... args) {
         NlsMessageFormat format = thesaurus.getFormat(this);
         logger.log(getLevel(), format.format(args));
-    }
-
-    public void log(Logger logger, Thesaurus thesaurus, Throwable t, Object... args) {
-        NlsMessageFormat format = thesaurus.getFormat(this);
-        logger.log(getLevel(), format.format(args), t);
-    }
-
-    public enum Keys {
-        ;
-        public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
-        public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
-        public static final String MUST_SELECT_AT_LEAST_ONE_READING_TYPE = "MustHaveReadingTypes";
-        public static final String FIELD_SIZE_BETWEEN_MIN_AND_MAX = "FieldSizeBetweenMinAndMax";
     }
 }
 

@@ -8,7 +8,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -34,7 +34,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (14:17)
  */
-@ProviderType
+@ConsumerType
 public interface AuthorizedAction extends HasId, HasName {
     enum Level {
         ONE(Constants.INITIATE_ACTION_1),

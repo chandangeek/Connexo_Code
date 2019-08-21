@@ -86,7 +86,6 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
                                 : protocolTask instanceof RegistersTask))
                 .min(Comparator.nullsLast((e1, e2) -> e2.getLastSuccessfulCompletionTimestamp()
                         .compareTo(e1.getLastSuccessfulCompletionTimestamp())))
-                //TODO: need to refactor this message
                 .orElseThrow(() -> new IllegalStateException("A comtask to execute the device messages could not be located"));
     }
 

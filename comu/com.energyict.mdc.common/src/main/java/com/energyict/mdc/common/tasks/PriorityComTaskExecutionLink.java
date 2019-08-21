@@ -7,14 +7,14 @@ package com.energyict.mdc.common.tasks;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.comserver.ComPort;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 
 /**
  * Created by Jozsef Szekrenyes on 06/02/2019.
  */
-@ProviderType
+@ConsumerType
 public interface PriorityComTaskExecutionLink extends HasId {
 
     /**
