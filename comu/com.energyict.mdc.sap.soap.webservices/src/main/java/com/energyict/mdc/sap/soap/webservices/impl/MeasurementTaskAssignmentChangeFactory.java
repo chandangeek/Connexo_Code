@@ -337,11 +337,12 @@ public class MeasurementTaskAssignmentChangeFactory implements TranslationKeyPro
 
     private EndPointConfiguration getEndPointConfiguration(String webServiceName) {
         Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.findEndPointConfigurations().stream()
+                .filter(EndPointConfiguration::isActive)
                 .filter(endPointConfiguration -> endPointConfiguration.getWebServiceName().equals(webServiceName)).findFirst();
         if (endPointConfig.isPresent()) {
             return endPointConfig.get();
         }
-        return null;
+        throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINT_NOT_FOUND, webServiceName);
     }
 
     private RelativePeriod findRelativePeriodOrThrowException(String name) {
