@@ -58,6 +58,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.X509KeyManager;
 import java.io.IOException;
@@ -77,6 +79,8 @@ import java.util.Map;
         service = {HsmEnergyService.class, HsmProtocolService.class},
         immediate = true, property = "name=" + HsmEnergyServiceImpl.COMPONENTNAME)
 public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolService {
+
+    private static final Logger logger = LoggerFactory.getLogger(HsmEnergyServiceImpl.class);
 
     private static final int AES_KEY_LENGTH = 16;
 
@@ -115,6 +119,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
     @Override
     public HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException {
+        logger.debug("Import request:" + importKeyRequest);
         HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
         if (importKeyRequest.getHsmKeyType().isReversible()) {
             return new ReversibleKeyImporter().importKey(importKeyRequest, hsmConfiguration, hsmEncryptService);

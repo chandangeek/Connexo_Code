@@ -36,8 +36,6 @@ public class HsmLabelConfigurationTest {
         new HsmLabelConfiguration("","alabel");
     }
 
-
-
     @Test
     public void testAllOkConfiguration() throws HsmBaseException {
         String label = "IMP-SM-KEK";
