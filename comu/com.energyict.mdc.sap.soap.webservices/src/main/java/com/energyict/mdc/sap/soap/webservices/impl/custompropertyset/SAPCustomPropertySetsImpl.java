@@ -189,8 +189,8 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public void addSapDeviceId(Device device, String sapDeviceId) {
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
         lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
         if (!getSapDeviceId(device).isPresent()) {
             setDeviceCPSProperty(lockedDevice, deviceInfo.getId(), DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
@@ -229,16 +229,16 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public void setLocation(Device device, String locationId) {
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
         lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
         setDeviceCPSProperty(lockedDevice, deviceInfo.getId(), DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), locationId);
     }
 
     @Override
     public void setPod(Device device, String podId) {
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
         lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
         setDeviceCPSProperty(lockedDevice, deviceInfo.getId(), DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), podId);
     }

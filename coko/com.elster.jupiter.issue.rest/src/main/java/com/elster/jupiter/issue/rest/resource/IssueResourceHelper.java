@@ -186,6 +186,9 @@ public class IssueResourceHelper {
         if (jsonFilter.hasProperty(IssueRestModuleConst.METER)) {
             meteringService.findEndDeviceByName(jsonFilter.getString(IssueRestModuleConst.METER))
                     .ifPresent(filter::addDevice);
+            if(jsonFilter.hasProperty("showTopology")) {
+                filter.setShowTopology(jsonFilter.getBoolean("showTopology"));
+            }
         }
         if (jsonFilter.hasProperty(IssueRestModuleConst.LOCATION)) {
             Long locationId = Long.valueOf(jsonFilter.getString(IssueRestModuleConst.LOCATION));

@@ -30,7 +30,6 @@ public enum SymmetricAlgorithm implements Algorithm {
         this.keySize = keySize;
     }
 
-
     /**
      * Get cipher name
      *
@@ -57,8 +56,6 @@ public enum SymmetricAlgorithm implements Algorithm {
     public String getPadding(){
         return this.cipherName.split("/")[2];
     }
-
-
 
     /**
      * See https://www.w3.org/TR/2002/REC-xmlenc-core-20021210/Overview.html#aes256-cbc
