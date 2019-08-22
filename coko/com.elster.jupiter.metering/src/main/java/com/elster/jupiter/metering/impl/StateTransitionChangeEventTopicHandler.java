@@ -67,11 +67,15 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
 
     // For testing purposes
     @Inject
-    public StateTransitionChangeEventTopicHandler(Clock clock, FiniteStateMachineService stateMachineService, MeteringService meteringService) {
+    public StateTransitionChangeEventTopicHandler(Clock clock, FiniteStateMachineService stateMachineService, MeteringService meteringService,
+                                                  ThreadPrincipalService threadPrincipalService, NlsService nlsService, UserService userService) {
         this();
         this.setClock(clock);
         this.setStateMachineService(stateMachineService);
         this.setMeteringService(meteringService);
+        this.setNlsService(nlsService);
+        this.setThreadPrincipalService(threadPrincipalService);
+        this.setUserService(userService);
     }
 
     @Reference
