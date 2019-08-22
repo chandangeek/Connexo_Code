@@ -8,7 +8,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.ports.ComPortType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 
@@ -41,7 +41,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (16:26)
  */
-@ProviderType
+@ConsumerType
 public interface ComPort extends HasId, HasName  {
 
     /**

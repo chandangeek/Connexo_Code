@@ -6,7 +6,7 @@ package com.energyict.mdc.common.device.config;
 
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Partial version of an InboundConnectionTask.
@@ -14,7 +14,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author sva
  * @since 21/01/13 - 15:22
  */
-@ProviderType
+@ConsumerType
 public interface PartialInboundConnectionTask extends ServerPartialConnectionTask {
 
     /**

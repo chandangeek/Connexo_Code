@@ -6,7 +6,7 @@ package com.energyict.mdc.common.tasks;
 
 import com.energyict.mdc.common.comserver.ComServer;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * A PriorityComTaskExecution is a special variant of the regular {@link ComTaskExecution}
@@ -30,7 +30,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author sva
  * @since 29/04/2016 - 10:59
  */
-@ProviderType
+@ConsumerType
 public interface PriorityComTaskExecution extends ServerComTaskExecution {
 
 }

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.common.tasks.history;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models a {@link ComTaskExecutionJournalEntry} for a command that was executed
@@ -13,7 +13,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-08 (09:13)
  */
-@ProviderType
+@ConsumerType
 public interface ComCommandJournalEntry extends ComTaskExecutionJournalEntry {
 
     /**

@@ -6,7 +6,7 @@ package com.energyict.mdc.common.device.data;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 
@@ -18,7 +18,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-21 (09:56)
  */
-@ProviderType
+@ConsumerType
 public interface RegisterDataUpdater {
 
     RegisterDataUpdater editReading(BaseReading modified, Instant editTimeStamp);

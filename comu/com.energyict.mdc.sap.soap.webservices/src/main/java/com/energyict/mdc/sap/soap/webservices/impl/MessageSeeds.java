@@ -53,7 +53,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_NOT_IN_OPERATIONAL_STAGE(4011, "DeviceNotInOperationalStage", "Device {0} isn''t in operational stage."),
     CHANNEL_NOT_FOUND(4012, "ChannelNotFound", "Channel ''{0}'' not found on ''{1}-min'' interval"),
     SEVERAL_CHANNELS(4013, "SeveralChannels", "There are several channels with obis code ''{0}''"),
-    CHANNEL_ALREADY_HAS_LRN(4014, "ChannelAlreadyHasLrn", "Channel ''{0}'' already has LRN(range is ''{1}'')"),
+    CHANNEL_ALREADY_HAS_LRN(4014, "ChannelAlreadyHasLrn", "Channel ''{0}'' already has LRN (range is ''{1}'')"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -63,13 +63,14 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_REASON_CODE(6002, "UnsupportedReasonCode", "[MeterReadingDocumentId: {0}] Unsupported reason code or reason code does not support bulk request"),
 
     CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Couldn''t find channel with LRN ''{0}''."),
-    PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile Id ''{0}'' is already set for channel ''{1}''."),
+    PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile id ''{0}'' is already set for channel ''{1}''."),
     INVALID_TIME_PERIOD(7002, "InvalidTimePeriod", "Measurement task assignment time period is invalid."),
     TIME_PERIODS_INTERSECT(7003, "TimePeriodsIntersect", "Measurement task assignment time periods intersect."),
     LRN_IS_NOT_UNIQUE(7004, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [{1},{2})."),
     PROPERTY_IS_NOT_SET(7005, "PropertyNotSet", "Property ''{0}'' isn''t set."),
-    LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7006, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile Id aren''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
-    EXCEPTION_GENERATED(7007, "ExceptionGenerated", "Exception generated: ''{0}''"),
+    LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7006, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile id aren''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
+    ENDPOINT_NOT_FOUND(7007, "EndpointNotFound", "Couldn''t find active endpoint for webservice ''{0}''"),
+    ERROR_PROCESSING_MTA_REQUEST(7008, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
 
     //Micro checks
     AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "No LRN has been set on the device.");

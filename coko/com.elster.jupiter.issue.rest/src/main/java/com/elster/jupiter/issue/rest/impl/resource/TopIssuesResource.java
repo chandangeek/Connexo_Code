@@ -31,13 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.DUEDATE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.PRIORITYTOTAL;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.USER;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.WORKGROUP;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/topissues")
@@ -106,7 +100,14 @@ public class TopIssuesResource extends BaseResource {
                         and(conditionStatus).
                         and(conditionUser.
                                 or(conditionNullUser.
-                                        and(conditionWG))), 1, 5, Order.ascending(PRIORITYTOTAL));
+                                        and(conditionWG))), 1, 7, Order
+                        .ascending(PRIORITYTOTAL)
+                        .ascending(DUEDATE)
+                        .ascending(CREATIONDATE)
+                        .ascending(DEVICE)
+                        .ascending(USAGEPOINT)
+                        .ascending(ISSUEID)
+                        .ascending(REASON));
         return new
 
                 TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);

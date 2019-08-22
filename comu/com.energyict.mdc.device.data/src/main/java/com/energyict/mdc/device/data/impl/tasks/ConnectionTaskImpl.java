@@ -779,6 +779,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void deactivate() {
         if(!ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE.equals(this.getStatus())) {
             this.status = ConnectionTaskLifecycleStatus.INACTIVE;
+            setExecutingComServer(null);
             this.update();
         }
     }

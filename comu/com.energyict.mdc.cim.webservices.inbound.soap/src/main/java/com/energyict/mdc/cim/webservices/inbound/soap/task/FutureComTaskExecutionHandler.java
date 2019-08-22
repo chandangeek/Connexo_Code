@@ -54,6 +54,7 @@ public class FutureComTaskExecutionHandler implements TaskExecutor {
                         device = deviceOptional.get();
                     } else {
                         serviceCall.log(LogLevel.SEVERE, "Unable to get device for mrid " + deviceMrid);
+                        serviceCall.requestTransition(DefaultState.ONGOING);
                         serviceCall.requestTransition(DefaultState.FAILED);
                         return;
                     }
@@ -68,6 +69,7 @@ public class FutureComTaskExecutionHandler implements TaskExecutor {
                         comTaskExecutionOptional.get().runNow();
                     } else {
                         serviceCall.log(LogLevel.SEVERE, "The communication task required for the read-out not found on the device");
+                        serviceCall.requestTransition(DefaultState.ONGOING);
                         serviceCall.requestTransition(DefaultState.FAILED);
                     }
                 }

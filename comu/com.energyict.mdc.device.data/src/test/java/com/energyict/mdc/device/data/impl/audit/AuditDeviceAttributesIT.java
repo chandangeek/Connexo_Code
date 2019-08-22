@@ -81,7 +81,8 @@ public class AuditDeviceAttributesIT extends AuditDeviceBase {
         assertThat(auditTrailValue.getPkContext1()).isEqualTo(0);
 
         List<AuditLogChange> auditLogChanges = auditTrail.get().getLogs();
-        assertThat(auditLogChanges).hasSize(to.size());
+        int auditLogChangesSize = auditLogChanges.size();
+        assertThat(auditLogChangesSize).isGreaterThanOrEqualTo(to.size());
         to.forEach((key, value) -> {
             Optional<AuditLogChange> auditLogChange = auditLogChanges.stream()
                     .filter(log -> log.getName().compareToIgnoreCase(key.getName()) == 0)

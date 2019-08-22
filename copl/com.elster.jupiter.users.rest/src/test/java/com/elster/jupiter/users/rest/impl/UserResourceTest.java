@@ -29,11 +29,11 @@ import static org.mockito.Mockito.when;
 public class UserResourceTest extends UsersRestApplicationJerseyTest {
 
     private UserInfoFactory userInfoFactory;
-    private GroupInfoFactory groupInfoFactory = new GroupInfoFactory(threadPrincipalService);
+    private GroupInfoFactory groupInfoFactory = new GroupInfoFactory(threadPrincipalService, userService);
 
     @Before
     public void setupFactories() {
-        userInfoFactory = new UserInfoFactoryImpl(threadPrincipalService, groupInfoFactory);
+        userInfoFactory = new UserInfoFactoryImpl(threadPrincipalService, groupInfoFactory, userService);
     }
 
     @Test

@@ -6,7 +6,7 @@ package com.energyict.mdc.common.device.config;
 
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Partial version of a ConnectionTaskProperty
@@ -14,7 +14,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author sva
  * @since 21/01/13 - 16:15
  */
-@ProviderType
+@ConsumerType
 public interface PartialConnectionTaskProperty {
 
     /**

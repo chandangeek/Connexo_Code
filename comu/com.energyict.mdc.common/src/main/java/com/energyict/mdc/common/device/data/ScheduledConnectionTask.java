@@ -15,7 +15,7 @@ import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.List;
@@ -44,7 +44,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (16:40)
  */
-@ProviderType
+@ConsumerType
 public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialScheduledConnectionTask> {
 
     void setMaxNumberOfTries(int maxNumberOfTries);

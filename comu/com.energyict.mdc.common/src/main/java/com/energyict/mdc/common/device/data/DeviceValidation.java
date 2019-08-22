@@ -13,7 +13,7 @@ import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface DeviceValidation {
 
     Device getDevice();
@@ -136,7 +136,7 @@ public interface DeviceValidation {
     /**
      * Builder for {@link ChannelValidationRuleOverriddenProperties}
      */
-    @ProviderType
+    @ConsumerType
     interface PropertyOverrider {
 
         PropertyOverrider override(String propertyName, Object propertyValue);

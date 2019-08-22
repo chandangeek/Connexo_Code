@@ -98,12 +98,12 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer, DataExportOccurrence occurrence) {
+    private Stream<ReadingTypeDataExportItem> readingTypeDataExportItems(ReadingContainer readingContainer, DataExportOccurrence occurrence) {
         Set<ReadingType> readingTypeSet = occurrence.getRetryTime()
                 .isPresent() ? getReadingTypes(occurrence.getRetryTime().get()) : getReadingTypes();
         return readingTypeSet.stream()
                 .map(r -> getExportItems().stream()
-                        .map(IReadingTypeDataExportItem.class::cast)
+                        .map(ReadingTypeDataExportItem.class::cast)
                         .filter(item -> r.equals(item.getReadingType()))
                         .filter(i -> i.getReadingContainer().is(readingContainer))
                         .findAny()

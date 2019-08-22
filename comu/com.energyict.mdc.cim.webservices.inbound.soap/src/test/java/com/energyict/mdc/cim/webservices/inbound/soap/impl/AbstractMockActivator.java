@@ -49,6 +49,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -159,6 +160,8 @@ public abstract class AbstractMockActivator {
     protected DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     protected MasterDataService masterDataService;
+    @Mock
+    protected CommunicationTaskService communicationTaskService;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -178,7 +181,9 @@ public abstract class AbstractMockActivator {
         ServiceCallBuilder builder = mock(ServiceCallBuilder.class);
         when(builder.origin(anyString())).thenReturn(builder);
         when(builder.extendedWith(any())).thenReturn(builder);
+        when(builder.targetObject(any())).thenReturn(builder);
         when(builder.create()).thenReturn(serviceCall);
+
         when(serviceCallType.newServiceCall()).thenReturn(builder);
         when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
         when(messageService.getDestinationSpec(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION)).thenReturn(Optional.of(destinationSpec));
@@ -228,6 +233,7 @@ public abstract class AbstractMockActivator {
         activator.setTaskService(taskService);
         activator.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         activator.setMasterDataService(masterDataService);
+        activator.setCommunicationTaskService(communicationTaskService);
         activator.activate(mock(BundleContext.class));
     }
 

@@ -146,12 +146,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String EXPORT_TASK_EXPORT_WINDOW = "sap.soap.measurementtaskassignment.export.window";
     public static final String EXPORT_TASK_UPDATE_WINDOW = "sap.soap.measurementtaskassignment.update.window";
 
-    private static Optional<String> exportTaskName;
-    private static Optional<String> exportTaskDeviceGroupName;
+    private static String exportTaskName;
+    private static String exportTaskDeviceGroupName;
     private static List<String> listOfRoleCodes;
-    private static Optional<String> exportTaskStartOnDate;
-    private static Optional<String> exportTaskExportWindow;
-    private static Optional<String> exportTaskUpdateWindow;
+    private static String exportTaskStartOnDate;
+    private static String exportTaskExportWindow;
+    private static String exportTaskUpdateWindow;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -182,16 +182,16 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile DataExportService dataExportService;
     private volatile TimeService timeService;
-    private volatile MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory;
+    private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     public static Optional<String> getExportTaskName() {
-        return exportTaskName;
+        return Optional.ofNullable(exportTaskName);
     }
 
     public static Optional<String> getExportTaskDeviceGroupName() {
-        return exportTaskDeviceGroupName;
+        return Optional.ofNullable(exportTaskDeviceGroupName);
     }
 
     public static List<String> getListOfRoleCodes() {
@@ -199,15 +199,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     public static Optional<String> getExportTaskStartOnDate() {
-        return exportTaskStartOnDate;
+        return Optional.ofNullable(exportTaskStartOnDate);
     }
 
     public static Optional<String> getExportTaskExportWindow() {
-        return exportTaskExportWindow;
+        return Optional.ofNullable(exportTaskExportWindow);
     }
 
     public static Optional<String> getExportTaskUpdateWindow() {
-        return exportTaskUpdateWindow;
+        return Optional.ofNullable(exportTaskUpdateWindow);
     }
 
     public WebServiceActivator() {
@@ -227,7 +227,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                                TaskService taskService, SAPCustomPropertySets sapCustomPropertySets, OrmService ormService,
                                MeteringGroupsService meteringGroupsService, DataExportService dataExportService,
                                TimeService timeService,
-                               MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory) {
+                               MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -255,7 +255,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         seMeteringGroupsService(meteringGroupsService);
         setDataExportService(dataExportService);
         setTimeService(timeService);
-        setMeasurementTaskAssignmentChangeFactory(measurementTaskAssignmentChangeFactory);
+        setMeasurementTaskAssignmentChangeProcessor(measurementTaskAssignmentChangeProcessor);
         activate(bundleContext);
     }
 
@@ -292,7 +292,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(DataExportService.class).toInstance(dataExportService);
                 bind(TimeService.class).toInstance(timeService);
-                bind(MeasurementTaskAssignmentChangeFactory.class).toInstance(measurementTaskAssignmentChangeFactory);
+                bind(MeasurementTaskAssignmentChangeProcessor.class).toInstance(measurementTaskAssignmentChangeProcessor);
             }
         };
     }
@@ -310,13 +310,13 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
         registerServices(bundleContext);
 
-        exportTaskName = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_NAME));
-        exportTaskDeviceGroupName = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_DEVICE_GROUP_NAME));
+        exportTaskName = getPropertyValue(bundleContext, EXPORT_TASK_NAME);
+        exportTaskDeviceGroupName = getPropertyValue(bundleContext, EXPORT_TASK_DEVICE_GROUP_NAME);
         listOfRoleCodes = Collections.emptyList();
         Optional.ofNullable(getPropertyValue(bundleContext, LIST_OF_ROLE_CODES)).ifPresent(r -> listOfRoleCodes = Arrays.asList((r.split(","))));
-        exportTaskStartOnDate = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_START_ON_DATE));
-        exportTaskExportWindow = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_EXPORT_WINDOW));
-        exportTaskUpdateWindow = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_UPDATE_WINDOW));
+        exportTaskStartOnDate = getPropertyValue(bundleContext, EXPORT_TASK_START_ON_DATE);
+        exportTaskExportWindow = getPropertyValue(bundleContext, EXPORT_TASK_EXPORT_WINDOW);
+        exportTaskUpdateWindow = getPropertyValue(bundleContext, EXPORT_TASK_UPDATE_WINDOW);
     }
 
     @Deactivate
@@ -674,8 +674,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     @Reference
-    public void setMeasurementTaskAssignmentChangeFactory(MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory) {
-        this.measurementTaskAssignmentChangeFactory = measurementTaskAssignmentChangeFactory;
+    public void setMeasurementTaskAssignmentChangeProcessor(MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor) {
+        this.measurementTaskAssignmentChangeProcessor = measurementTaskAssignmentChangeProcessor;
     }
 
     @Override
