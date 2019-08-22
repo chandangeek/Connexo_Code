@@ -62,6 +62,7 @@ public enum TranslationKeys implements TranslationKey {
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
     PROFILE_ID("profileId", "Profile id"),
     EXPORTER("exporter", "Use custom exporter"),
+    EXPORTER_DESCRIPTION("exporterDescription", "Specifies if the custom exporter is used to select and export readings"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
