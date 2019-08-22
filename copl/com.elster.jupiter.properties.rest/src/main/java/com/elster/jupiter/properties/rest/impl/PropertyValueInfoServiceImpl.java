@@ -226,6 +226,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.DEVICEGROUPTYPE
                 && propertyType != SimplePropertyType.SERVICE_CALL
                 && propertyType != SimplePropertyType.SERVICE_CALL_STATE
+                && propertyType != SimplePropertyType.CUSTOM_EVENT_TYPE
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
             return null;
@@ -240,7 +241,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                         propertyType == SimplePropertyType.TASK || propertyType == SimplePropertyType.RECURRENCE_SELECTION_PROPS || propertyType == SimplePropertyType.SERVICE_CALL || propertyType == SimplePropertyType.SERVICE_CALL_STATE) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
                 } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.BPM_PROCESS ||
-                        propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT) {
+                        propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT || propertyType == SimplePropertyType.CUSTOM_EVENT_TYPE) {
                     Object idWithName = possibleValues.getAllValues().get(i);
                     possibleObjects[i] = idWithName instanceof HasIdAndName
                             ? asInfo(((HasIdAndName) idWithName).getId(), ((HasIdAndName) idWithName).getName())

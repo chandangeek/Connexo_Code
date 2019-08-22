@@ -59,7 +59,9 @@ public enum SimplePropertyType implements PropertyType {
     TASK(ListValueFactory.class),
     RECURRENCE(HasIdAndName.class),
     SERVICE_CALL(HasIdAndName.class),
-    SERVICE_CALL_STATE(HasIdAndName.class);
+    SERVICE_CALL_STATE(HasIdAndName.class),
+    CUSTOM_EVENT_TYPE(HasIdAndName.class),
+    EXCLUDED_COM_TASKS(ListValueFactory.class);
 
 
     private Class typeClass;
