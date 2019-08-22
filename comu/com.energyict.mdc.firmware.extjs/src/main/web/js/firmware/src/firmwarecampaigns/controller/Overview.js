@@ -22,7 +22,10 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         'Fwc.store.DeviceGroups',
         'Fwc.firmwarecampaigns.store.FirmwareVersionsList',
         'Fwc.firmwarecampaigns.store.FirmvareVersionsOptions',
-        'Fwc.store.SupportedFirmwareTypes'
+        'Fwc.store.SupportedFirmwareTypes',
+        'Fwc.firmwarecampaigns.store.ConnectionStrategy',
+        'Fwc.firmwarecampaigns.store.ComTasksForValidate',
+        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
     ],
 
     refs: [
