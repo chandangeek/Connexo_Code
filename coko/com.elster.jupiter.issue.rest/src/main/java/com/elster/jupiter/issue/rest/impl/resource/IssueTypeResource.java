@@ -68,22 +68,24 @@ public class IssueTypeResource extends BaseResource {
     }
 
     private List<IssueType> getSupportedIssueTypesWithoutManual(String appKey) {
-        List<IssueType> issueTypes = new ArrayList<>();
-        if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
-            issueTypes = getIssueService().query(IssueType.class)
-                    .select(where(KEY).isEqualTo(IssueTypes.USAGEPOINT_DATA_VALIDATION
-                            .getName()));
-        } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
-            issueTypes = getIssueService().query(IssueType.class)
-                    .select(where(KEY).in(new ArrayList<String>() {{
-                        add(IssueTypes.DATA_COLLECTION.getName());
-                        add(IssueTypes.DATA_VALIDATION.getName());
-                        add(IssueTypes.DEVICE_LIFECYCLE.getName());
-                        add(IssueTypes.SERVICE_CALL_ISSUE.getName());
-                        add(IssueTypes.TASK.getName());
-                        add(IssueTypes.WEB_SERVICE.getName());
-                    }}));
+        if (appKey != null) {
+            switch (appKey) {
+                case "INS":
+                    return getIssueService().query(IssueType.class)
+                            .select(where(KEY).isEqualTo(IssueTypes.USAGEPOINT_DATA_VALIDATION
+                                    .getName()));
+                case "MDC":
+                    return getIssueService().query(IssueType.class)
+                            .select(where(KEY).in(new ArrayList<String>() {{
+                                add(IssueTypes.DATA_COLLECTION.getName());
+                                add(IssueTypes.DATA_VALIDATION.getName());
+                                add(IssueTypes.DEVICE_LIFECYCLE.getName());
+                                add(IssueTypes.SERVICE_CALL_ISSUE.getName());
+                                add(IssueTypes.TASK.getName());
+                                add(IssueTypes.WEB_SERVICE.getName());
+                            }}));
+            }
         }
-        return issueTypes;
+        return Collections.emptyList();
     }
 }

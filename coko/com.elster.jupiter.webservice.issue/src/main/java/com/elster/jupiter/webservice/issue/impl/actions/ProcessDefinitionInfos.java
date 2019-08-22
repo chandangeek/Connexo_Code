@@ -13,7 +13,6 @@ import java.util.List;
 
 public class ProcessDefinitionInfos {
 
-    public int total;
 
     public List<ProcessDefinitionInfo> processes = new ArrayList<>();
 
@@ -31,7 +30,6 @@ public class ProcessDefinitionInfos {
                     JSONObject task = processList.getJSONObject(i);
                     ProcessDefinitionInfo result = new ProcessDefinitionInfo(task);
                     processes.add(result);
-                    total++;
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
