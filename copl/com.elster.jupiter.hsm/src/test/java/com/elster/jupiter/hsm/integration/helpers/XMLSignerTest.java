@@ -45,18 +45,17 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class XMLSignerTest {
 
-    private static final String XML = "my.xml";
+    private static final String XML = "shipment.xml";
 
     /**
      * Truststore and all attached elements to get the key used during test
      */
-    private static final String JKS = "my.jks";
+    private static final String JKS = "hsm-bundle-test.jks";
     private static final String JKS_PASSWORD = "password";
 
-    private static final String KEY_ALIAS = "shipment-importer";
+    private static final String KEY_ALIAS = "hsm-bundle-test";
     private static final String KEY_PASSWORD = "password";
 
     private InputStream xmlStream;
