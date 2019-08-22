@@ -38,6 +38,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -77,8 +78,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
-import static com.energyict.mdc.sap.soap.webservices.impl.InboundServices.SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST;
-import static com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys.EXPORTER;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component(name = MeasurementTaskAssignmentChangeProcessor.NAME,
@@ -107,7 +106,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     private volatile TimeService timeService;
     private volatile Thesaurus thesaurus;
 
-    public void processServiceCall(MeasurementTaskAssignmentChangeRequestMessage message) {
+    public void process(MeasurementTaskAssignmentChangeRequestMessage message, boolean custom) {
         String profileId = message.getProfileId();
         // parse role infos (lrn, time periods)
         Map<String, List<Range<Instant>>> lrns = new HashMap<>();
@@ -126,17 +125,17 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
 
         if (!lrns.isEmpty()) {
             // set profile id
-            Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> profileIntervals = findChannelInfos(lrns);
-            for (Map.Entry<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> entry : profileIntervals.entrySet()) {
+            Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> profileIntervals = findChannelInfos(lrns);
+            for (Map.Entry<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> entry : profileIntervals.entrySet()) {
                 entry.getValue().stream().forEach(e -> setProfileId(profileId, entry.getKey().getFirst(),
                         entry.getKey().getLast(), e.getFirst(), e.getLast()));
             }
 
             // update/create end device group for export task
             Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME));
-            List<Long> deviceIds = getDeviceIds(profileIntervals);
+            Set<Long> deviceIds = getDeviceIds(profileIntervals);
             if (endDeviceGroup.isPresent()) {
-                updateEnumeratedEndDeviceGroup((EnumeratedEndDeviceGroup) endDeviceGroup.get(), deviceIds);
+                addDevicesToEnumeratedGroup((EnumeratedEndDeviceGroup) endDeviceGroup.get(), deviceIds);
             } else {
                 endDeviceGroup = Optional.of(createEnumeratedEndDeviceGroup(deviceIds));
             }
@@ -149,7 +148,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 if (exportTask.isPresent()) {
                     updateExportTask(exportTask.get(), readingTypes, true);
                 } else {
-                    createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes);
+                    createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, custom);
                 }
             }
         } else {
@@ -165,11 +164,11 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         }
     }
 
-    private Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> findChannelInfos(Map<String, List<Range<Instant>>> lrns) {
-        Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> channelsWithIntervals = new HashMap<>();
+    private Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> findChannelInfos(Map<String, List<Range<Instant>>> lrns) {
+        Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> channelsWithIntervals = new HashMap<>();
         for (Map.Entry<String, List<Range<Instant>>> entry : lrns.entrySet()) {
             for (Range<Instant> range : entry.getValue()) {
-                Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> channelsForLrnWithinInterval =
+                Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> channelsForLrnWithinInterval =
                         sapCustomPropertySets.getChannelInfos(entry.getKey(), range);
                 if (channelsForLrnWithinInterval.isEmpty()) {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_IS_NOT_FOUND, entry.getKey());
@@ -187,9 +186,9 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         return channelsWithIntervals;
     }
 
-    private Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> joinChannelInfos(Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> channelInfos,
-                                                                                                      Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> addChannelInfos) {
-        for (Map.Entry<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> entry : addChannelInfos.entrySet()) {
+    private Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> joinChannelInfos(Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> channelInfos,
+                                                                                                      Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> addChannelInfos) {
+        for (Map.Entry<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> entry : addChannelInfos.entrySet()) {
             List<Pair<Range<Instant>, Range<Instant>>> intervals = channelInfos.getOrDefault(entry.getKey(), new ArrayList<>());
             intervals.addAll(entry.getValue());
             // need sort profile ranges by start time
@@ -199,55 +198,53 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         return channelInfos;
     }
 
-    private void setProfileId(String profileId, Long deviceId, ReadingType readingType,
+    private void setProfileId(String profileId, Long deviceId, ChannelSpec channelSpec,
                               Range<Instant> profileInterval, Range<Instant> lrnInterval) {
         Optional<Device> device = deviceService.findDeviceById(deviceId);
         if (device.isPresent()) {
-            Optional<Channel> channel = device.get().getChannels().stream().filter(c -> c.getReadingType().equals(readingType)).findFirst();
-            if (channel.isPresent()) {
-                Optional<CustomPropertySet> customPropertySet = device.get().getDeviceType()
-                        .getLoadProfileTypeCustomPropertySet(channel.get().getLoadProfile().getLoadProfileSpec().getLoadProfileType())
-                        .map(RegisteredCustomPropertySet::getCustomPropertySet)
-                        .filter(cps -> cps.getId().equals(DeviceChannelSAPInfoCustomPropertySet.CPS_ID));
-                if (customPropertySet.isPresent()) {
-                    if (!sapCustomPropertySets.isProfileIdPresent(channel.get(), profileId, profileInterval)) {
-                        CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
-                                channel.get().getChannelSpec(), lrnInterval.hasLowerBound() ? lrnInterval.lowerEndpoint() : Instant.EPOCH, deviceId);
-                        if (!profileId.equals(oldValues.getProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()))) {
-                            Range tailRange = lrnInterval.hasUpperBound() ? Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint()) : Range.atLeast(profileInterval.upperEndpoint());
-                            if (tailRange != null && !tailRange.isEmpty()) {
-                                customPropertySetService.setValuesVersionFor(customPropertySet.get(),
-                                        channel.get().getChannelSpec(), oldValues, tailRange, deviceId);
-                            }
-                            oldValues.setProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), profileId);
+            Optional<CustomPropertySet> customPropertySet = device.get().getDeviceType()
+                    .getLoadProfileTypeCustomPropertySet(channelSpec.getLoadProfileSpec().getLoadProfileType())
+                    .map(RegisteredCustomPropertySet::getCustomPropertySet)
+                    .filter(cps -> cps.getId().equals(DeviceChannelSAPInfoCustomPropertySet.CPS_ID));
+            if (customPropertySet.isPresent()) {
+                Optional<ChannelSpec> channelSpecForProfileId = sapCustomPropertySets.getChannelSpecForProfileId(channelSpec, deviceId, profileId, profileInterval);
+                if (!channelSpecForProfileId.isPresent()) {
+                    CustomPropertySetValues oldValues = customPropertySetService.getUniqueValuesFor(customPropertySet.get(),
+                            channelSpec, lrnInterval.hasLowerBound() ? lrnInterval.lowerEndpoint() : Instant.EPOCH, deviceId);
+                    if (!profileId.equals(oldValues.getProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()))) {
+                        Range tailRange = lrnInterval.hasUpperBound() ? Range.closedOpen(profileInterval.upperEndpoint(), lrnInterval.upperEndpoint()) : Range.atLeast(profileInterval.upperEndpoint());
+                        if (tailRange != null && !tailRange.isEmpty()) {
                             customPropertySetService.setValuesVersionFor(customPropertySet.get(),
-                                    channel.get().getChannelSpec(), oldValues, profileInterval, deviceId);
+                                    channelSpec, oldValues, tailRange, deviceId);
                         }
-                    } else {
-                        throw new SAPWebServiceException(thesaurus, MessageSeeds.PROFILE_ID_IS_ALREADY_SET, profileId, channel.get().getName());
+                        oldValues.setProperty(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName(), profileId);
+                        customPropertySetService.setValuesVersionFor(customPropertySet.get(),
+                                channelSpec, oldValues, profileInterval, deviceId);
                     }
+                } else {
+                    throw new SAPWebServiceException(thesaurus, MessageSeeds.PROFILE_ID_IS_ALREADY_SET, profileId, channelSpecForProfileId.get().getReadingType().getFullAliasName());
                 }
             }
         }
     }
 
-    private List<Long> getDeviceIds(Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> channelInfos) {
+    private Set<Long> getDeviceIds(Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> channelInfos) {
         List<Long> devices = new ArrayList<>();
-        for (Pair<Long, ReadingType> pair : channelInfos.keySet()) {
+        for (Pair<Long, ChannelSpec> pair : channelInfos.keySet()) {
             devices.add(pair.getFirst());
         }
-        return devices.stream().distinct().collect(Collectors.toList());
+        return devices.stream().collect(Collectors.toSet());
     }
 
-    private Set<ReadingType> getReadingTypes(Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> channelInfos) {
+    private Set<ReadingType> getReadingTypes(Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> channelInfos) {
         Set<ReadingType> readingTypes = new HashSet<>();
-        for (Pair<Long, ReadingType> pair : channelInfos.keySet()) {
-            readingTypes.add(pair.getLast());
+        for (Pair<Long, ChannelSpec> pair : channelInfos.keySet()) {
+            readingTypes.add(pair.getLast().getReadingType());
         }
         return readingTypes.stream().collect(Collectors.toSet());
     }
 
-    private EndDevice[] buildListOfEndDevices(List<Long> deviceIds) {
+    private EndDevice[] buildListOfEndDevices(Set<Long> deviceIds) {
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return deviceIds.stream().map(number -> amrSystem.findMeter(number.toString()))
@@ -255,7 +252,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 .toArray(EndDevice[]::new);
     }
 
-    private EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(List<Long> deviceIds) {
+    private EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(Set<Long> deviceIds) {
         GroupBuilder.GroupCreator<? extends EnumeratedEndDeviceGroup> creator = meteringGroupsService
                 .createEnumeratedEndDeviceGroup(buildListOfEndDevices(deviceIds))
                 .setName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME))
@@ -264,7 +261,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         return creator.create();
     }
 
-    private void updateEnumeratedEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup, List<Long> deviceIds) {
+    private void addDevicesToEnumeratedGroup(EnumeratedEndDeviceGroup endDeviceGroup, Set<Long> deviceIds) {
         EndDevice[] endDevices = buildListOfEndDevices(deviceIds);
         Map<Long, EnumeratedGroup.Entry<EndDevice>> currentEntries = endDeviceGroup.getEntries().stream()
                 .collect(Collectors.toMap(entry -> entry.getMember().getId(), Function.identity()));
@@ -275,7 +272,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         endDeviceGroup.update();
     }
 
-    private void createExportTask(EnumeratedEndDeviceGroup endDeviceGroup, Set<ReadingType> readingTypes) {
+    private void createExportTask(EnumeratedEndDeviceGroup endDeviceGroup, Set<ReadingType> readingTypes, boolean custom) {
         RelativePeriod exportWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskExportWindow().orElse(DEFAULT_EXPORT_WINDOW));
         RelativePeriod updateWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskUpdateWindow().orElse(DEFAULT_UPDATE_WINDOW));
         Instant startOn = clock.instant().plus(1, DAYS);
@@ -292,8 +289,6 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setNextExecution(startOn);
 
-        EndPointConfiguration endPointChangeTask = getEndPointConfiguration(SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST.getName());
-        boolean custom = (Boolean) endPointChangeTask.getPropertiesWithValue().get(EXPORTER.getKey());
         String selector = dataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
         if (custom) {
             selector = dataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR;
@@ -313,7 +308,6 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         EndPointConfiguration endPointChange = getEndPointConfiguration(UtilitiesTimeSeriesBulkChangeRequestProvider.NAME);
         if (endPointCreate != null && endPointChange != null) {
             ExportTask dataExportTask = builder.create();
-
             // add create and update end points
             dataExportTask.addWebServiceDestination(endPointCreate, endPointChange);
         }

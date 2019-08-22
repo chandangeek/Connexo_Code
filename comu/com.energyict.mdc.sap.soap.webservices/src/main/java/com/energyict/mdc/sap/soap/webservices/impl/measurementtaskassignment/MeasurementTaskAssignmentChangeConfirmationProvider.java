@@ -27,8 +27,6 @@ import java.util.Map;
         property = {"name=" + MeasurementTaskAssignmentChangeConfirmation.SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATION})
 public class MeasurementTaskAssignmentChangeConfirmationProvider extends AbstractOutboundEndPointProvider<UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut> implements MeasurementTaskAssignmentChangeConfirmation, OutboundSoapEndPointProvider, ApplicationSpecific {
 
-//    private final Map<String, UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut> ports = new HashMap<>();
-
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
 
@@ -39,16 +37,11 @@ public class MeasurementTaskAssignmentChangeConfirmationProvider extends Abstrac
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addRequestConfirmationPort(UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut port,
                                            Map<String, Object> properties) {
-/*        Optional.ofNullable(properties)
-                .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
-                .map(String.class::cast)
-                .ifPresent(url -> ports.put(url, port));*/
         super.doAddEndpoint(port, properties);
     }
 
     public void removeRequestConfirmationPort(UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut port) {
         super.doRemoveEndpoint(port);
-        //ports.values().removeIf(entryPort -> port == entryPort);
     }
 
     @Reference
@@ -81,14 +74,10 @@ public class MeasurementTaskAssignmentChangeConfirmationProvider extends Abstrac
         UtilsTmeSersERPMsmtTskAssgmtChgConfMsg message = confirmationMessage.getConfirmationMessage();
         using("utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut")
                 .send(message);
-/*        if (ports.isEmpty()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS);
-        }
-        ports.values().stream().findFirst().get().utilitiesTimeSeriesERPMeasurementTaskAssignmentChangeConfirmationCOut(confirmationMessage.getConfirmationMessage());*/
     }
 
     @Override
-    public String getApplication(){
+    public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

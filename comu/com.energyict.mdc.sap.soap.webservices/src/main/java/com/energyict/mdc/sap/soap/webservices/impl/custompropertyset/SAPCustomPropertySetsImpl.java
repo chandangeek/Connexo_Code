@@ -34,6 +34,7 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -285,10 +286,10 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public boolean isProfileIdPresent(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval) {
+    public Optional<ChannelSpec> getChannelSpecForProfileId(ChannelSpec channelSpec, long deviceId, String profileId, Range<Instant> interval) {
         Condition whereOverlapped = getOverlappedCondition(interval);
-        Condition notThisChannelSpec = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channel.getChannelSpec());
-        Condition notThisDevice = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isNotEqual(channel.getDevice().getId());
+        Condition notThisChannelSpec = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channelSpec);
+        Condition notThisDevice = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isNotEqual(deviceId);
         Condition thisDevice = notThisDevice.not();
         return (getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
@@ -296,11 +297,11 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId)
                         .and(notThisDevice.or(thisDevice.and(notThisChannelSpec))))
-                .anyMatch(whereOverlapped));
+                .filter(whereOverlapped).map(s -> s.getChannelSpec()).findAny());
     }
 
     @Override
-    public Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval) {
+    public Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval) {
         Condition whereOverlapped = getOverlappedCondition(interval);
         Stream<DeviceChannelSAPInfoDomainExtension> stream = getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
@@ -309,12 +310,12 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isEqualTo(lrn))
                 .filter(whereOverlapped);
 
-        Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
+        Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
         stream.forEach(e -> {
             Range range = e.getRange();
             Optional<Range<Instant>> cutRange = cutRange(range);
-            if (cutRange.isPresent()) {
-                Pair<Long, ReadingType> key = Pair.of(e.getDeviceId(), e.getChannelSpec().getReadingType());
+            if (cutRange.isPresent() && isDeviceActive(e.getDeviceId())) {
+                Pair<Long, ChannelSpec> key = Pair.of(e.getDeviceId(), e.getChannelSpec());
                 List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
                 try {
                     Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
@@ -325,10 +326,17 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 } catch (IllegalArgumentException ex) {
                     // no intersection with interval (should never occur)
                 }
-                ;
             }
         });
         return map;
+    }
+
+    private boolean isDeviceActive(long deviceId) {
+        Optional<Device> device = deviceService.findDeviceById(deviceId);
+        if (device.isPresent()) {
+            return device.get().getState().getName().equals(DefaultState.ACTIVE.getKey());
+        }
+        return false;
     }
 
     private Condition getOverlappedCondition(Range<Instant> range) {
