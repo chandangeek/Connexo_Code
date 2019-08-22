@@ -32,9 +32,12 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -189,7 +192,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public void setSapDeviceId(Device device, String sapDeviceId) {
-        lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+        lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
         if (!getSapDeviceId(device).isPresent()) {
@@ -229,7 +232,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public void setLocation(Device device, String locationId) {
-        lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+        lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
         setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), locationId);
@@ -237,7 +240,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public void setPod(Device device, String podId) {
-        lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+        lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
         setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), podId);
@@ -510,15 +513,15 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private void setLrn(Register register, String lrn, Range<Instant> range) {
-        lockRegisterTypeOrThrowException(register.getRegisterSpec().getRegisterType().getId());
-        lockRegisterSpecOrThrowException(register.getRegisterSpec().getId());
+        lockRegisterTypeOrThrowException(register.getRegisterSpec().getRegisterType());
+        lockRegisterSpecOrThrowException(register.getRegisterSpec());
 
         addRegisterCustomPropertySetVersioned(register, DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
     }
 
     private void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Range<Instant> range) {
-        lockLoadProfileTypeOrThrowException(channel.getLoadProfile().getLoadProfileTypeId());
-        lockChannelSpecOrThrowException(channel.getChannelSpec().getId());
+        lockLoadProfileTypeOrThrowException(channel.getLoadProfile());
+        lockChannelSpecOrThrowException(channel.getChannelSpec());
 
         addChannelCustomPropertySetVersioned(channel, DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
     }
@@ -562,33 +565,32 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_SUCH_DEVICE, deviceId));
     }
 
-    private void lockDeviceTypeOrThrowException(long id) {
+    private void lockDeviceTypeOrThrowException(DeviceType deviceType) {
         deviceConfigurationService
-                .findAndLockDeviceType(id)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE_FOUND, id));
+                .findAndLockDeviceType(deviceType.getId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE_FOUND, deviceType.getName()));
     }
 
-    private void lockRegisterTypeOrThrowException(long id) {
+    private void lockRegisterTypeOrThrowException(RegisterType registerType) {
         masterDataService
-                .findAndLockRegisterTypeById(id)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_TYPE_FOUND, id));
-
+                .findAndLockRegisterTypeById(registerType.getId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_TYPE_FOUND, registerType.getObisCode()));
     }
 
-    private void lockLoadProfileTypeOrThrowException(long id) {
+    private void lockLoadProfileTypeOrThrowException(LoadProfile loadProfile) {
         masterDataService
-                .findAndLockLoadProfileTypeById(id)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, id));
+                .findAndLockLoadProfileTypeById(loadProfile.getLoadProfileTypeId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfile.getLoadProfileTypeObisCode()));
     }
 
-    private void lockRegisterSpecOrThrowException(long id) {
-        deviceConfigurationService.findAndLockRegisterSpecById(id)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_SPEC_FOUND, id));
+    private void lockRegisterSpecOrThrowException( RegisterSpec registerSpec) {
+        deviceConfigurationService.findAndLockRegisterSpecById(registerSpec.getId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_SPEC_FOUND, registerSpec.getObisCode()));
     }
 
-    private void lockChannelSpecOrThrowException(long id) {
-        deviceConfigurationService.findAndLockChannelSpecById(id)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, id));
+    private void lockChannelSpecOrThrowException(ChannelSpec channelSpec) {
+        deviceConfigurationService.findAndLockChannelSpecById(channelSpec.getId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getObisCode()));
     }
 
     private void setDeviceCPSProperty(Device device, String property, String value) {

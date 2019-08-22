@@ -56,11 +56,11 @@ public enum MessageSeeds implements MessageSeed {
     SEVERAL_CHANNELS(4013, "SeveralChannels", "There are several channels with obis code ''{0}''"),
     CHANNEL_ALREADY_HAS_LRN(4014, "ChannelAlreadyHasLrn", "Channel ''{0}'' already has LRN (range is ''{1}'')"),
     NO_SUCH_DEVICE(4015, "NoSuchDevice", "No device with id ''{0}''."),
-    NO_DEVICE_TYPE_FOUND(4016, "NoDeviceTypeFound", "No device type found with id ''{0}''."),
-    NO_REGISTER_TYPE_FOUND(4017, "NoRegisterTypeFound", "No register type found with id ''{0}''"),
-    NO_LOAD_PROFILE_TYPE_FOUND(4018, "NoLoadProfileTypeFound", "No load profile type found with id ''{0}''"),
-    NO_REGISTER_SPEC_FOUND(4019, "NoRegisterSpecFound", "No register spec found with id ''{0}''"),
-    NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with id ''{0}''"),
+    NO_DEVICE_TYPE_FOUND(4016, "NoDeviceTypeFound", "No device type found with name ''{0}''."),
+    NO_REGISTER_TYPE_FOUND(4017, "NoRegisterTypeFound", "No register type found with obis code ''{0}''"),
+    NO_LOAD_PROFILE_TYPE_FOUND(4018, "NoLoadProfileTypeFound", "No load profile type found with obis code ''{0}''"),
+    NO_REGISTER_SPEC_FOUND(4019, "NoRegisterSpecFound", "No register spec found with obis code ''{0}''"),
+    NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with obis code ''{0}''"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
