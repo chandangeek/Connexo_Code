@@ -26,15 +26,19 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -188,14 +192,14 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public void addSapDeviceId(Device device, String sapDeviceId) {
-        lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+    public void setSapDeviceId(Device device, String sapDeviceId) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
         if (!getSapDeviceId(device).isPresent()) {
-            setDeviceCPSProperty(lockedDevice, deviceInfo.getId(), DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
+            setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getSerialNumber());
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getSerialNumber() );
         }
     }
 
@@ -229,18 +233,18 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Override
     public void setLocation(Device device, String locationId) {
-        lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+        lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
-        setDeviceCPSProperty(lockedDevice, deviceInfo.getId(), DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), locationId);
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), locationId);
     }
 
     @Override
     public void setPod(Device device, String podId) {
-        lockDeviceTypeOrThrowException(device.getDeviceType().getId());
+        lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
-        setDeviceCPSProperty(lockedDevice, deviceInfo.getId(), DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), podId);
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), podId);
     }
 
     @Override
@@ -517,25 +521,24 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private void setLrn(Register register, String lrn, Range<Instant> range) {
-        lockRegisterTypeOrThrowException(register);
-        lockRegisterSpecOrThrowException(register);
+        lockRegisterTypeOrThrowException(register.getRegisterSpec().getRegisterType());
+        lockRegisterSpecOrThrowException(register.getRegisterSpec());
 
-        addRegisterCustomPropertySetVersioned(register, registerInfo.getId(), DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
+        addRegisterCustomPropertySetVersioned(register, DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
     }
 
     private void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Range<Instant> range) {
-        lockLoadProfileTypeOrThrowException(channel);
-        lockChannelSpecOrThrowException(channel);
+        lockLoadProfileTypeOrThrowException(channel.getLoadProfile());
+        lockChannelSpecOrThrowException(channel.getChannelSpec());
 
-        addChannelCustomPropertySetVersioned(channel, channelInfo.getId(), DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
+        addChannelCustomPropertySetVersioned(channel, DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
     }
 
     private boolean isAnyRegisterLrn(long deviceId) {
         return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
-                .join(RegisterSpec.class)
-                .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
                 .findAny()
                 .isPresent();
     }
@@ -544,9 +547,8 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     private boolean isAnyChannelLrn(long deviceId) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
-                .join(ChannelSpec.class)
-                .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(deviceId))
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isNotNull())
                 .findAny()
                 .isPresent();
     }
@@ -554,17 +556,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     private Range<Instant> getTimeInterval(Instant startDateTime, Instant endDateTime) {
         Range<Instant> range;
         try {
-            if (startDateTime == null) {
-                if (endDateTime == null) {
-                    range = Range.all();
-                } else {
-                    range = Range.lessThan(endDateTime);
-                }
-            } else if (endDateTime == null) {
-                range = Range.atLeast(startDateTime);
-            } else {
-                range = Range.closedOpen(startDateTime, endDateTime);
-            }
+            range = Ranges.closedOpen(startDateTime, endDateTime);
         } catch (IllegalArgumentException e) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.INTERVAL_INVALID,
                     startDateTime.toString(), endDateTime.toString());
@@ -578,74 +570,73 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     private Device lockDeviceOrThrowException(long deviceId) {
         return deviceService.findAndLockDeviceById(deviceId)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID));
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_SUCH_DEVICE, deviceId));
     }
 
-    private void lockDeviceTypeOrThrowException(long id) {
+    private void lockDeviceTypeOrThrowException(DeviceType deviceType) {
         deviceConfigurationService
-                .findAndLockDeviceType(id)
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID));
+                .findAndLockDeviceType(deviceType.getId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE_FOUND, deviceType.getName()));
     }
 
-    private void lockRegisterTypeOrThrowException(Register register) {
+    private void lockRegisterTypeOrThrowException(RegisterType registerType) {
         masterDataService
-                .findAndLockRegisterTypeById(register.getRegisterSpec().getRegisterType().getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_NOT_FOUND, register.getObisCode()));
-
+                .findAndLockRegisterTypeById(registerType.getId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_TYPE_FOUND, registerType.getObisCode()));
     }
 
-    private void lockLoadProfileTypeOrThrowException(com.energyict.mdc.common.device.data.Channel channel) {
+    private void lockLoadProfileTypeOrThrowException(LoadProfile loadProfile) {
         masterDataService
-                .findAndLockLoadProfileTypeById(channel.getLoadProfile().getLoadProfileTypeId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_NOT_FOUND, channel.getObisCode()));
+                .findAndLockLoadProfileTypeById(loadProfile.getLoadProfileTypeId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfile.getLoadProfileTypeObisCode()));
     }
 
-    private void lockRegisterSpecOrThrowException(Register register) {
-        deviceConfigurationService.findAndLockRegisterSpecById(register.getRegisterSpec().getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_NOT_FOUND, register.getObisCode()));
+    private void lockRegisterSpecOrThrowException( RegisterSpec registerSpec) {
+        deviceConfigurationService.findAndLockRegisterSpecById(registerSpec.getId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_SPEC_FOUND, registerSpec.getObisCode()));
     }
 
-    private void lockChannelSpecOrThrowException(com.energyict.mdc.common.device.data.Channel channel) {
-        deviceConfigurationService.findAndLockChannelSpecById(channel.getChannelSpec().getId())
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_NOT_FOUND, channel.getObisCode()));
+    private void lockChannelSpecOrThrowException(ChannelSpec channelSpec) {
+        deviceConfigurationService.findAndLockChannelSpecById(channelSpec.getId())
+                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getObisCode()));
     }
 
-    private void setDeviceCPSProperty(Device device, String cpsId, String property, String value) {
-        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(device, cpsId);
-        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId);
+    private void setDeviceCPSProperty(Device device, String property, String value) {
+        String cpsId = deviceInfo.getId();
+        if (!getRegisteredCustomPropertySet(device, cpsId).isEditableByCurrentUser()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
         }
 
-        CustomPropertySetValues customPropertySetValues = customPropertySetService.getUniqueValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device);
+        CustomPropertySetValues customPropertySetValues = customPropertySetService.getUniqueValuesFor(deviceInfo, device);
         customPropertySetValues.setProperty(property, value);
-        customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, customPropertySetValues);
+        customPropertySetService.setValuesFor(deviceInfo, device, customPropertySetValues);
         device.touchDevice();
     }
 
-    private void addRegisterCustomPropertySetVersioned(Register register, String cpsId, String property, String value, Range<Instant> range) {
-        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(register, cpsId);
-        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId);
+    private void addRegisterCustomPropertySetVersioned(Register register, String property, String value, Range<Instant> range) {
+        String cpsId = registerInfo.getId();
+        if (!getRegisteredCustomPropertySet(register, cpsId).isEditableByCurrentUser()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
         }
 
-        if (!setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
-                register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_ALREADY_HAS_LRN,
+        if(!setValuesVersionFor(registerInfo,
+                register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)){
+            throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_ALREADY_HAS_LRN,
                     register.getObisCode(), range.toString());
         }
 
         register.getRegisterSpec().save();
     }
 
-    private void addChannelCustomPropertySetVersioned(com.energyict.mdc.common.device.data.Channel channel, String cpsId, String property, String value, Range<Instant> range) {
-        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(channel, cpsId);
-        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId);
+    private void addChannelCustomPropertySetVersioned(com.energyict.mdc.common.device.data.Channel channel, String property, String value, Range<Instant> range) {
+        String cpsId = channelInfo.getId();
+        if (!getRegisteredCustomPropertySet(channel, cpsId).isEditableByCurrentUser()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
         }
 
-        if (!setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
-                channel.getChannelSpec(), channel.getDevice().getId(), channel.getObisCode(), property, value, range)) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
+        if(!setValuesVersionFor(channelInfo,
+                channel.getChannelSpec(),channel.getDevice().getId(), channel.getObisCode(), property, value, range)){
+            throw new SAPWebServiceException(thesaurus,MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
                     channel.getObisCode(), range.toString());
         }
 

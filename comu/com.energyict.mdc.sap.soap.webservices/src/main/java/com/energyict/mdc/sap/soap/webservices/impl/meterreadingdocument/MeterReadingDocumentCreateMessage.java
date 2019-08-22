@@ -42,10 +42,7 @@ public class MeterReadingDocumentCreateMessage {
     }
 
     public boolean isValid() {
-        if (id != null && deviceId != null && lrn != null && readingReasonCode != null && scheduledMeterReadingDate != null) {
-            return true;
-        }
-        return false;
+        return id != null && deviceId != null && lrn != null && readingReasonCode != null && scheduledMeterReadingDate != null;
     }
 
     public boolean isReasonCodeSupported(boolean bulk) {

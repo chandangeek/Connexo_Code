@@ -15,8 +15,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.util.Optional;
+import java.text.MessageFormat;
 
 public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
@@ -99,7 +98,7 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
 
     public void setError(MessageSeed messageSeed, Object... args ){
         setErrorCode(String.valueOf(messageSeed.getNumber()));
-        setErrorMessage(((MessageSeeds)messageSeed).getDefaultFormat(args));
+        setErrorMessage(MessageFormat.format(messageSeed.getDefaultFormat(), args));
     }
 
     @Override

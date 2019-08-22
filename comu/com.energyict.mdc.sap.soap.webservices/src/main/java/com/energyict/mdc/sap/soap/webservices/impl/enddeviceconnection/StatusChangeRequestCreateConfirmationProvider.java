@@ -90,13 +90,13 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
         endpoints.removeAll(successEndpoints);
         if (!endpoints.isEmpty()) {
             retValue = false;
-            parent.log(LogLevel.INFO, "Confirmation is not sent for the following endpoints: " + endpoints.stream()
+            parent.log(LogLevel.INFO, "Failed to send confirmation to the following endpoints: " + endpoints.stream()
                     .map(EndPointConfiguration::getName)
                     .collect(Collectors.joining(", ")));
         }
 
         if (!successEndpoints.isEmpty()) {
-            parent.log(LogLevel.INFO, "Confirmation is sent for the following endpoints: " + successEndpoints.stream()
+            parent.log(LogLevel.INFO, "Sent confirmation to the following endpoints: " + successEndpoints.stream()
                     .map(EndPointConfiguration::getName)
                     .collect(Collectors.joining(", ")));
         }else{
