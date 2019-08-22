@@ -27,6 +27,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -41,15 +42,15 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.database.UpgraderV10_7;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.PointOfDeliveryBulkAssignedNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceLocationBulkNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.UtilitiesDeviceLocationNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateEndpoint;
@@ -95,6 +96,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -103,6 +108,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -110,6 +116,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Singleton
 @Component(
@@ -146,12 +153,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String EXPORT_TASK_EXPORT_WINDOW = "sap.soap.measurementtaskassignment.export.window";
     public static final String EXPORT_TASK_UPDATE_WINDOW = "sap.soap.measurementtaskassignment.update.window";
 
+    private static final String DEFAULT_EXPORT_WINDOW = "Yesterday";
+    private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
+
     private static String exportTaskName;
     private static String exportTaskDeviceGroupName;
     private static List<String> listOfRoleCodes;
-    private static String exportTaskStartOnDate;
-    private static String exportTaskExportWindow;
-    private static String exportTaskUpdateWindow;
+    private static Instant exportTaskStartOnDate;
+    private static RelativePeriod exportTaskExportWindow;
+    private static RelativePeriod exportTaskUpdateWindow;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -198,16 +208,16 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return listOfRoleCodes;
     }
 
-    public static Optional<String> getExportTaskStartOnDate() {
-        return Optional.ofNullable(exportTaskStartOnDate);
+    public static Instant getExportTaskStartOnDate() {
+        return exportTaskStartOnDate;
     }
 
-    public static Optional<String> getExportTaskExportWindow() {
-        return Optional.ofNullable(exportTaskExportWindow);
+    public static RelativePeriod getExportTaskExportWindow() {
+        return exportTaskExportWindow;
     }
 
-    public static Optional<String> getExportTaskUpdateWindow() {
-        return Optional.ofNullable(exportTaskUpdateWindow);
+    public static RelativePeriod getExportTaskUpdateWindow() {
+        return exportTaskUpdateWindow;
     }
 
     public WebServiceActivator() {
@@ -314,9 +324,22 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         exportTaskDeviceGroupName = getPropertyValue(bundleContext, EXPORT_TASK_DEVICE_GROUP_NAME);
         listOfRoleCodes = Collections.emptyList();
         Optional.ofNullable(getPropertyValue(bundleContext, LIST_OF_ROLE_CODES)).ifPresent(r -> listOfRoleCodes = Arrays.asList((r.split(","))));
-        exportTaskStartOnDate = getPropertyValue(bundleContext, EXPORT_TASK_START_ON_DATE);
-        exportTaskExportWindow = getPropertyValue(bundleContext, EXPORT_TASK_EXPORT_WINDOW);
-        exportTaskUpdateWindow = getPropertyValue(bundleContext, EXPORT_TASK_UPDATE_WINDOW);
+
+        exportTaskStartOnDate = clock.instant().plus(1, DAYS);
+        Optional<String> exportTaskStartOnDateParam = Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_START_ON_DATE));
+        if (exportTaskStartOnDateParam.isPresent()) {
+            LocalDateTime startOnDate = LocalDateTime.parse(exportTaskStartOnDateParam.get(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH));
+            exportTaskStartOnDate = startOnDate.atZone(ZoneId.systemDefault()).toInstant();
+        }
+        exportTaskExportWindow = findRelativePeriodOrThrowException(Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_EXPORT_WINDOW))
+                .orElse(DEFAULT_EXPORT_WINDOW));
+        exportTaskUpdateWindow = findRelativePeriodOrThrowException(Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_UPDATE_WINDOW))
+                .orElse(DEFAULT_UPDATE_WINDOW));
+    }
+
+    private RelativePeriod findRelativePeriodOrThrowException(String name) {
+        return timeService.findRelativePeriodByName(name)
+                .orElseThrow(() -> new IllegalArgumentException("Unable to find relative period '" + name + "'."));
     }
 
     @Deactivate

@@ -340,15 +340,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Condition getOverlappedCondition(Range<Instant> range) {
-        Condition whereStartLess = Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start")
-                .isLessThan(range.lowerEndpoint().toEpochMilli());
-        Condition whereEndLess = Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".end")
-                .isLessThan(range.lowerEndpoint().toEpochMilli());
-        Condition whereStartGreater = Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".start")
-                .isGreaterThanOrEqual(range.upperEndpoint().toEpochMilli());
-        Condition whereEndGreater = Where.where(HardCodedFieldNames.INTERVAL.javaName() + ".end")
-                .isGreaterThanOrEqual(range.upperEndpoint().toEpochMilli());
-        return (whereStartLess.and(whereEndLess).or(whereStartGreater.and(whereEndGreater))).not();
+        return Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range);
     }
 
     private Optional<Range<Instant>> cutRange(Range<Instant> range) {
