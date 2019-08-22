@@ -25,7 +25,7 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getSapDeviceId(String deviceName);
 
-    void addSapDeviceId(Device device, String sapDeviceId);
+    void setSapDeviceId(Device device, String sapDeviceId);
 
     Optional<Device> getDevice(String sapDeviceId);
 

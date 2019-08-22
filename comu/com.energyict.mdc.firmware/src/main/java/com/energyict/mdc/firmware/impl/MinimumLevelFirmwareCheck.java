@@ -38,22 +38,25 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
     public void execute(FirmwareCheckManagementOptions options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
         if (options.isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)) {
-            if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
-                throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
+            if (firmwareVersion.getMeterFirmwareDependency().isPresent()) {
+                if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
+                    throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
+                }
+                Stream.of(firmwareVersion.getMeterFirmwareDependency(), firmwareVersion.getCommunicationFirmwareDependency())
+                        .flatMap(Functions.asStream())
+                        .forEach(dependency -> {
+                            FirmwareType firmwareType = dependency.getFirmwareType();
+                            if (!firmwareService.getActiveFirmwareVersion(device, firmwareType)
+                                    .map(ActivatedFirmwareVersion::getFirmwareVersion)
+                                    .filter(current -> current.compareTo(dependency) >= 0)
+                                    .isPresent()) {
+                                throw new FirmwareCheckException(thesaurus, messageSeedForType(firmwareType));
+                            }
+                        });
             }
-            Stream.of(firmwareVersion.getMeterFirmwareDependency(), firmwareVersion.getCommunicationFirmwareDependency())
-                    .flatMap(Functions.asStream())
-                    .forEach(dependency -> {
-                        FirmwareType firmwareType = dependency.getFirmwareType();
-                        if (!firmwareService.getActiveFirmwareVersion(device, firmwareType)
-                                .map(ActivatedFirmwareVersion::getFirmwareVersion)
-                                .filter(current -> current.compareTo(dependency) >= 0)
-                                .isPresent()) {
-                            throw new FirmwareCheckException(thesaurus, messageSeedForType(firmwareType));
-                        }
-                    });
         }
     }
+
     private MessageSeeds messageSeedForType(FirmwareType firmwareType) {
         switch (firmwareType) {
             case METER:

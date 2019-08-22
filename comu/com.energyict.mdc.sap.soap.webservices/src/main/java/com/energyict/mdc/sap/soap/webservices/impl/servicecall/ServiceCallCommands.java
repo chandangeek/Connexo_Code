@@ -217,7 +217,7 @@ public class ServiceCallCommands {
 
         List<ServiceCall> children = findChildren(serviceCall);
 
-        if (children.size() > 0 && !hasAllChildState(children, DefaultState.FAILED)) {
+        if (children.size() > 0 && !hasAllChildrenInState(children, DefaultState.FAILED)) {
             serviceCall.requestTransition(DefaultState.WAITING);
         } else {
             serviceCall.requestTransition(DefaultState.FAILED);
@@ -228,7 +228,7 @@ public class ServiceCallCommands {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
-    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
@@ -250,7 +250,7 @@ public class ServiceCallCommands {
                     }
                 });
 
-        if (serviceCall.findChildren().stream().count() > 0) {
+        if (!serviceCall.findChildren().paged(0, 0).find().isEmpty()) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
