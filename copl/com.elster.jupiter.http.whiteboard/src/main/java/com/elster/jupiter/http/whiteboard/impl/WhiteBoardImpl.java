@@ -197,7 +197,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class);
+        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, AcsResource.class);
     }
 
     List<HttpResource> getResources() {

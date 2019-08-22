@@ -16,10 +16,13 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.opensaml.core.config.InitializationException;
+import org.opensaml.core.config.InitializationService;
+import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -32,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -62,7 +67,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             // Anything below will only be used in development.
             "/apps/sky/",
             "/apps/uni/",
-            "/apps/ext/"
+            "/apps/ext/",
+            "/api/apps/apps/security/acs",
+            "/api/apps/security/acs"
     };
 
     // No caching for index.html files, so that authentication will be verified first;
@@ -89,6 +96,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private volatile BpmService bpmService;
     private volatile EventService eventService;
     private volatile MessageService messageService;
+    private volatile SamlRequestService samlRequestService;
 
     private int timeout;
     private int tokenRefreshMaxCount;
@@ -157,6 +165,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setSamlRequestService(SamlRequestService samlRequestService) {
+        this.samlRequestService = samlRequestService;
+    }
+
     @Activate
     public void activate(BundleContext context) throws InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -188,6 +201,18 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             }
         }).orElse(Optional.<Integer>empty());
         scheme = getOptionalStringProperty("com.elster.jupiter.url.rewrite.scheme", context);
+
+        Thread thread = Thread.currentThread();
+        thread.setContextClassLoader(InitializationService.class.getClassLoader());
+        BundleWiring bundleWiring = context.getBundle().adapt(BundleWiring.class);
+        ClassLoader loader = bundleWiring.getClassLoader();
+        try {
+            SamlUtils.initializeOpenSAML();
+        } catch (InitializationException e) {
+            throw new RuntimeException(e);
+        } finally {
+            thread.setContextClassLoader(loader);
+        }
     }
 
     public void createNewTokenKey(String... args) {
@@ -293,6 +318,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             2. Set RelayState
             3. Redirect user via browser to IDP with SAMLRequest and RelayState
         */
+        if(!request.getRequestURL().toString().contains("/security/acs")){
+            Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response);
+            if(ssoAuthenticationRequestOptional.isPresent()){
+                String redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
+                response.sendRedirect(redirectUrl);
+            }
+        }
 
         // Set no caching for specific resources regardless of the authentication type
         if (isCachedResource(request.getRequestURL().toString())) {
@@ -492,6 +524,20 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
     private void postWhiteboardEvent(String topic, Object user) {
             eventService.postEvent(topic, user);
+    }
+
+    private String getSamlRequestUrl(String ssoAuthnRequest, String requestUrl) throws UnsupportedEncodingException {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(SamlUtils.SAML_IDP_ENDPOINT);
+        stringBuilder.append("?");
+        stringBuilder.append("SAMLRequest=");
+        stringBuilder.append(ssoAuthnRequest);
+        stringBuilder.append("&");
+        stringBuilder.append(RelayState.DEFAULT_ELEMENT_LOCAL_NAME);
+        stringBuilder.append("=");
+        stringBuilder.append(URLEncoder.encode(requestUrl, "UTF-8").trim());
+
+        return stringBuilder.toString();
     }
 
 }
