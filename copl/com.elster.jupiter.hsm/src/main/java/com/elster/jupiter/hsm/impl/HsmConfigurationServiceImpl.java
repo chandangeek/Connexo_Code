@@ -6,6 +6,10 @@ package com.elster.jupiter.hsm.impl;
 
 
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
+import com.elster.jupiter.hsm.impl.loader.HsmResourceLoader;
+import com.elster.jupiter.hsm.impl.loader.HsmResourceLoaderFactory;
+import com.elster.jupiter.hsm.impl.resources.HsmReloadableConfigResource;
+import com.elster.jupiter.hsm.impl.resources.HsmReloadableJssConfigResource;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import com.atos.worldline.jss.configuration.RawConfiguration;
@@ -13,21 +17,35 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.hsm.impl.HsmConfigurationServiceImpl", service = {HsmConfigurationService.class}, immediate = true, property = "name=" + "HsmConfigurationServiceImpl")
 public class HsmConfigurationServiceImpl implements HsmConfigurationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(HsmConfigurationServiceImpl.class);
+
+
+    private static final String HSM_CONFIGURATION = "com.elster.jupiter.hsm.config";
+    private static final String HSM_CONFIGURATION_RELOAD = "com.elster.jupiter.hsm.config.reload";
+    private final long DEFAULT_RELOAD_TIME = 30 * 1000L;
+
     private HsmConfiguration hsmConfiguration;
     private RawConfiguration rawConfiguration;
     private HsmConfigurationObserver hsmConfigurationObserver;
 
+    private String bundleConfigFile;
+
     @Activate
     public void activate(BundleContext context) {
+        bundleConfigFile = context.getProperty(HSM_CONFIGURATION);
+        Boolean automaticConfigReload = getAutomaticConfig(context);
         // this is ok while this is a service and therefore a singleton
-        hsmConfigurationObserver = new HsmConfigurationObserver(this, context);
+        hsmConfigurationObserver = new HsmConfigurationObserver(this, bundleConfigFile, automaticConfigReload, DEFAULT_RELOAD_TIME);
         new Thread(hsmConfigurationObserver, "HSM-reloader").start();
     }
 
@@ -54,9 +72,23 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     }
 
     @Override
-    public void update(HsmConfiguration hsmConfiguration, RawConfiguration rawConfiguration) {
-        this.hsmConfiguration = hsmConfiguration;
-        this.rawConfiguration = rawConfiguration;
+    public void reload() {
+        try {
+            HsmResourceLoader<HsmConfiguration> hsmConfigLoader = HsmResourceLoaderFactory.getInstance(new HsmReloadableConfigResource(new File(bundleConfigFile)));
+            HsmResourceLoader<RawConfiguration> jssLoader = HsmResourceLoaderFactory.getInstance(new HsmReloadableJssConfigResource(new File(hsmConfigLoader.load().getJssInitFile())));
+            this.hsmConfiguration = hsmConfigLoader.load();
+            this.rawConfiguration = jssLoader.load();
+        } catch (HsmBaseException e) {
+            logger.error("Unable to configure/load JSS", e);
+        }
+    }
+
+    private Boolean getAutomaticConfig(BundleContext context) {
+        String property = context.getProperty(HSM_CONFIGURATION_RELOAD);
+        if (property != null) {
+            return Boolean.valueOf(property.trim());
+        }
+        return false;
     }
 
 }

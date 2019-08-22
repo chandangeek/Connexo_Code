@@ -13,22 +13,22 @@ import com.atos.worldline.jss.api.key.KeyLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IreversibleKeyImporter  {
+public class IreversibleKeyImporter {
 
     private static final Logger logger = LoggerFactory.getLogger(IreversibleKeyImporter.class);
 
     public HsmIrreversibleKey importKey(ImportKeyRequest importKeyRequest, HsmConfiguration hsmConfiguration) throws HsmBaseException {
-        String encryptLabel = importKeyRequest.getStorageLabel();
         try {
-            KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration), importKeyRequest.getWrapperKeyAlgorithm()
-                    .getHsmSpecs()
-                    .getPaddingAlgorithm(), importKeyRequest.getDeviceKey(), new KeyLabel(encryptLabel), importKeyRequest.getHsmKeyType().getImportCapability()
-                    .toProtectedSessionKeyCapability());
+            KeyImportResponse keyImportResponse = Energy.keyImport(importKeyRequest.getTransportKey(hsmConfiguration),
+                    importKeyRequest.getWrapperKeyAlgorithm().getHsmSpecs().getPaddingAlgorithm(),
+                    importKeyRequest.getDeviceKey(),
+                    new KeyLabel(importKeyRequest.getStorageLabel()),
+                    importKeyRequest.getHsmKeyType().getImportCapability().toProtectedSessionKeyCapability());
             ProtectedSessionKey psk = keyImportResponse.getProtectedSessionKey();
             String kekLabel = ((KeyLabel) psk.getKek()).getValue();
             return new HsmIrreversibleKey(psk.getValue(), kekLabel);
         } catch (FunctionFailedException e) {
-            logger.error("Failed to import key:" + importKeyRequest );
+            logger.error("Failed to import key:" + importKeyRequest);
             throw new HsmBaseException(e);
         }
     }

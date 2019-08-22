@@ -3,6 +3,7 @@ package com.elster.jupiter.hsm.impl;
 import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
 import com.atos.worldline.jss.api.basecrypto.Asymmetric;
@@ -32,12 +33,14 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public byte[] symmetricEncrypt(byte[] bytes, String label) throws HsmBaseException {
-            return symmetricEncrypt(bytes, label, null, hsmConfiguration.getChainingMode(label), hsmConfiguration.getPaddingAlgorithm(label));
+        HsmLabelConfiguration hsmLabelConfiguration = hsmConfiguration.get(label);
+        return symmetricEncrypt(bytes, label, null, hsmLabelConfiguration.getChainingMode(), hsmLabelConfiguration.getPaddingAlgorithm());
     }
 
     @Override
     public byte[] symmetricEncrypt(byte[] bytes, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
-        logger.debug("Symmetric encrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ",  Base64.getEncoder().encodeToString(bytes), label, icv, chainingMode, paddingAlgorithm );
+        logger.debug("Symmetric encrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ", Base64.getEncoder()
+                .encodeToString(bytes), label, icv, chainingMode, paddingAlgorithm);
         try {
             return Symmetric.encrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, bytes, getIcv(icv), paddingAlgorithm, chainingMode).getData();
         } catch (FunctionFailedException e) {
@@ -47,22 +50,24 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public byte[] symmetricDecrypt(byte[] cipher, String label) throws HsmBaseException {
-        return symmetricDecrypt(cipher, label, null, hsmConfiguration.getChainingMode(label), hsmConfiguration.getPaddingAlgorithm(label));
+        HsmLabelConfiguration hsmLabelConfiguration = hsmConfiguration.get(label);
+        return symmetricDecrypt(cipher, label, null, hsmLabelConfiguration.getChainingMode(), hsmLabelConfiguration.getPaddingAlgorithm());
     }
 
     @Override
-    public byte[] symmetricDecrypt(byte[] cipher, String label,byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
-        logger.debug("Symmetric decrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ",  Base64.getEncoder().encodeToString(cipher), label, icv, chainingMode, paddingAlgorithm );
+    public byte[] symmetricDecrypt(byte[] cipher, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
+        logger.debug("Symmetric decrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ", Base64.getEncoder()
+                .encodeToString(cipher), label, icv, chainingMode, paddingAlgorithm);
         try {
-            return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, cipher, getIcv(icv), hsmConfiguration.getPaddingAlgorithm(label), hsmConfiguration.getChainingMode(label));
+            return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, cipher, getIcv(icv), paddingAlgorithm, chainingMode);
         } catch (FunctionFailedException e) {
             throw new HsmBaseException(e);
         }
     }
 
     @Override
-    public byte[] asymmetricDecrypt(byte[] cipher, String label, PaddingAlgorithm paddingAlgorithm) throws  HsmBaseException {
-        logger.debug("Asymmetric decrypt:\n bytes:{}\nlabel:{}\npadding algorithm:{}\n ",  Base64.getEncoder().encodeToString(cipher), label,  paddingAlgorithm );
+    public byte[] asymmetricDecrypt(byte[] cipher, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
+        logger.debug("Asymmetric decrypt:\n bytes:{}\nlabel:{}\npadding algorithm:{}\n ", Base64.getEncoder().encodeToString(cipher), label, paddingAlgorithm);
         try {
             return Asymmetric.decrypt(new KeyLabel(label), cipher, paddingAlgorithm);
         } catch (FunctionFailedException e) {
@@ -72,7 +77,7 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
 
     @Override
     public byte[] asymmetricEncrypt(byte[] bytes, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
-        logger.debug("Asymmetric encrypt:\n bytes:{}\nlabel:{}\npadding algorithm:{}\n ",  Base64.getEncoder().encodeToString(bytes), label,  paddingAlgorithm );
+        logger.debug("Asymmetric encrypt:\n bytes:{}\nlabel:{}\npadding algorithm:{}\n ", Base64.getEncoder().encodeToString(bytes), label, paddingAlgorithm);
         try {
             return Asymmetric.encrypt(new KeyLabel(label), bytes, paddingAlgorithm);
         } catch (FunctionFailedException e) {

@@ -5,6 +5,7 @@ import com.elster.jupiter.hsm.model.HsmBaseException;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
 import com.atos.worldline.jss.api.JSSRuntimeControl;
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import com.atos.worldline.jss.internal.spring.JssEmbeddedRuntimeConfig;
@@ -72,9 +73,9 @@ public class HsmReloadableJssConfigResource implements HsmReloadableResource<Raw
             configurator.setContext(context);
             context.reset();
             configurator.doConfigure(resource);
-        } catch (Exception e) {
+        } catch (JoranException e) {
             String msg = "Unable to re-configure logger";
-            System.out.println(msg + e.getMessage() + " stackTrace:");
+            System.out.println(msg + e.getMessage() + " stackTrace:"); e.printStackTrace(System.out);
             logger.warn(msg, e);
         }
     }
@@ -82,29 +83,22 @@ public class HsmReloadableJssConfigResource implements HsmReloadableResource<Raw
     private RawConfiguration start() throws HsmBaseException {
         logger.debug("Starting JSS ...");
         RawConfiguration rawConfiguration = new HsmJssConfigLoader().load(jssJsonFile);
-        try {
-            setupContext();
-            JSSRuntimeControl.initialize();
-            JSSRuntimeControl.newConfiguration(rawConfiguration);
-            jssStarted = true;
-        } catch (Exception e) {
-            logger.error("Failed to start JSS:", e);
-        }
+        setupContext();
+        JSSRuntimeControl.initialize();
+        JSSRuntimeControl.newConfiguration(rawConfiguration);
+        jssStarted = true;
         logger.debug("JSS started");
         return rawConfiguration;
     }
 
     private void shutdown() {
         logger.debug("Stopping JSS ...");
-        try {
-            if (jssStarted = true) {
-                JSSRuntimeControl.shutdown();
-                jssStarted = false;
-                logger.debug("JSS stopped");
-            }
-        } catch (Exception e) {
-            logger.error("Failed to stop JSS:", e);
+        if (jssStarted = true) {
+            JSSRuntimeControl.shutdown();
+            jssStarted = false;
+            logger.debug("JSS stopped");
         }
+
     }
 
     @Override

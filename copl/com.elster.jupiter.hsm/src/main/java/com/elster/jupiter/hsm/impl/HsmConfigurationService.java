@@ -23,5 +23,5 @@ public interface HsmConfigurationService {
 
     Collection<String> getLabels() throws HsmBaseException;
 
-    void update(HsmConfiguration hsmConfiguration, RawConfiguration rawConfiguration);
+    void reload();
 }
