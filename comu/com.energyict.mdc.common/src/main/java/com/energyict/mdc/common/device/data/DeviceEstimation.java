@@ -9,12 +9,12 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface DeviceEstimation {
 
     boolean isEstimationActive();
@@ -74,7 +74,7 @@ public interface DeviceEstimation {
     /**
      * Builder for {@link ChannelEstimationRuleOverriddenProperties}
      */
-    @ProviderType
+    @ConsumerType
     interface PropertyOverrider {
 
         PropertyOverrider override(String propertyName, Object propertyValue);

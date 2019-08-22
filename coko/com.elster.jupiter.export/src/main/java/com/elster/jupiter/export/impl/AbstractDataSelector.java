@@ -55,9 +55,9 @@ abstract class AbstractDataSelector implements DataSelector {
             Map<Long, Optional<MeterReadingData>> selectedData = new LinkedHashMap<>();
             Map<Long, Optional<MeterReadingData>> updateData = new HashMap<>();
             for (ReadingTypeDataExportItem activeItem : activeItems) {
-                selectedData.put(activeItem.getId(), itemDataSelector.selectData(occurrence, (IReadingTypeDataExportItem)activeItem));
+                selectedData.put(activeItem.getId(), itemDataSelector.selectData(occurrence, activeItem));
                 if (lastRuns.containsKey(activeItem.getId()) && lastRuns.get(activeItem.getId()).isPresent()) {
-                    updateData.put(activeItem.getId(), itemDataSelector.selectDataForUpdate(occurrence, (IReadingTypeDataExportItem)activeItem, lastRuns.get(activeItem.getId()).get()));
+                    updateData.put(activeItem.getId(), itemDataSelector.selectDataForUpdate(occurrence, activeItem, lastRuns.get(activeItem.getId()).get()));
                 } else {
                     updateData.put(activeItem.getId(), Optional.empty());
                 }
@@ -69,7 +69,7 @@ abstract class AbstractDataSelector implements DataSelector {
             long numberOfItemsSkipped = activeItems.size() - numberOfItemsExported;
 
             ((IDataExportOccurrence) occurrence).summarize(
-                    getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED).format(numberOfItemsExported) +
+                    getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SELECTED).format(numberOfItemsExported) +
                             System.getProperty("line.separator") +
                             getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SKIPPED).format(numberOfItemsSkipped));
 
@@ -95,8 +95,8 @@ abstract class AbstractDataSelector implements DataSelector {
             activeItems = getSelectorConfig().getActiveItems(occurrence);
             getSelectorConfig().getExportItems().stream()
                     .filter(item -> !activeItems.contains(item))
-                    .peek(IReadingTypeDataExportItem::deactivate)
-                    .forEach(IReadingTypeDataExportItem::update);
+                    .peek(ReadingTypeDataExportItem::deactivate)
+                    .forEach(ReadingTypeDataExportItem::update);
             activeItems.forEach(ReadingTypeDataExportItem::activate);
             warnIfObjectsHaveNoneOfTheReadingTypes(occurrence);
             context.commit();

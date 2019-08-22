@@ -292,14 +292,12 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     }
 
     public void executionCompleted() {
-        LOGGER.info("[high-prio] executionCompleted for id=" + comTaskExecutionLink.getId());
         comTaskExecution.executionCompleted();
         ((PriorityComTaskExecutionLinkImpl) comTaskExecutionLink).delete();
     }
 
     @Override
     public void executionFailed() {
-        LOGGER.info("[high-prio] executionFailed for id=" + comTaskExecutionLink.getId());
         ((ComTaskExecutionImpl) comTaskExecution).executionFailed();
         LOGGER.info("[high-prio] device: " + comTaskExecution.getDevice().getName() + "; comTaskExecution status: " + comTaskExecution.getStatus());        if (TaskStatus.Failed.equals(comTaskExecution.getStatus())) {
             ((PriorityComTaskExecutionLinkImpl) comTaskExecutionLink).delete();
@@ -311,7 +309,6 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     }
 
     public void executionRescheduled(Instant rescheduleDate) {
-        LOGGER.info("[high-prio] executionRescheduled for id=" + comTaskExecutionLink.getId() + "; device: " + comTaskExecution.getDevice().getName());
         ((ComTaskExecutionImpl) comTaskExecution).executionRescheduled(rescheduleDate);
         LOGGER.info("[high-prio] device: " + comTaskExecution.getDevice().getName() + "; comTaskExecution status: " + comTaskExecution.getStatus());
         // depending on the current retry count, the comtaskexecution might be failed

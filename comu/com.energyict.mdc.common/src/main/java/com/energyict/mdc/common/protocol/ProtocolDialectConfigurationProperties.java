@@ -10,7 +10,7 @@ import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.upl.TypedProperties;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 //import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
 
@@ -18,7 +18,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author sva
  * @since 5/03/13 - 14:15
  */
-@ProviderType
+@ConsumerType
 public interface ProtocolDialectConfigurationProperties extends HasName, HasId, HasDynamicProperties {
 
     /**

@@ -7,11 +7,9 @@ import com.atos.worldline.jss.api.key.UnsupportedKEKEncryptionMethodException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
-import com.elster.jupiter.hsm.model.keys.SessionKeyCapability;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 
-import java.util.Arrays;
 import java.util.Base64;
 
 
@@ -127,15 +125,15 @@ public class ImportKeyRequest {
         return "ImportKeyRequest{" +
                 "wrapperKeyLabel='" + wrapperKeyLabel + '\'' +
                 ", wrapperKeyAlgorithm=" + wrapperKeyAlgorithm +
-                ", encryptedTransportKey=" + getString(encryptedTransportKey) +
+                ", encryptedTransportKey=" + b64String(encryptedTransportKey) +
                 ", deviceKeyAlgorhitm=" + deviceKeyAlgorhitm +
-                ", deviceKeyValue=" + getString(deviceKeyValue) +
-                ", deviceKeyInitialVector=" + getString(deviceKeyInitialVector) +
+                ", deviceKeyValue=" + b64String(deviceKeyValue) +
+                ", deviceKeyInitialVector=" + b64String(deviceKeyInitialVector) +
                 ", hsmKeyType=" + hsmKeyType +
                 '}';
     }
 
-    private String getString(byte[] array) {
+    private String b64String(byte[] array) {
         if (array == null) {
             return null;
         }

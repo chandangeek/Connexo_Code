@@ -6,7 +6,7 @@ package com.energyict.mdc.common.device.config;
 
 import com.elster.jupiter.validation.ValidationRuleSet;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,7 +15,7 @@ import aQute.bnd.annotation.ProviderType;
  * Time: 8:58
  * To change this template use File | Settings | File Templates.
  */
-@ProviderType
+@ConsumerType
 public interface DeviceConfValidationRuleSetUsage {
 
     DeviceConfiguration getDeviceConfiguration();

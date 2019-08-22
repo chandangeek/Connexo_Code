@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.common.device.data;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-26 (13:16)
  */
-@ProviderType
+@ConsumerType
 public interface CIMLifecycleDates {
 
     /**

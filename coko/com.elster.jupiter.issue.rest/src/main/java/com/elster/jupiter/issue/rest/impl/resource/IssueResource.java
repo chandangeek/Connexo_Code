@@ -35,10 +35,7 @@ import com.elster.jupiter.issue.rest.transactions.BulkSnoozeTransaction;
 import com.elster.jupiter.issue.rest.transactions.SingleSnoozeTransaction;
 import com.elster.jupiter.issue.rest.transactions.UnassignSingleIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.IssueActionResult;
-import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.Priority;
+import com.elster.jupiter.issue.share.*;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueGroup;
@@ -46,6 +43,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationService;
@@ -82,7 +80,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
@@ -119,8 +119,9 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         validateMandatory(params, START, LIMIT);
+        IssueFilter issueFilter = issueResourceHelper.buildFilterFromQueryParameters(filter);
         Finder<? extends Issue> finder = getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter), EndDevice.class);
-        addSorting(finder, params);
+        //addSorting(finder, params);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
         }
@@ -129,11 +130,24 @@ public class IssueResource extends BaseResource {
         for (Issue baseIssue : issues) {
             for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
-                issueRef.ifPresent(issue -> issueInfos.add(IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issue)
-                        .from(issue))));
+                issueRef.ifPresent(issue -> {
+                    IssueInfo issueInfo = IssueInfo.class.cast(issueInfoFactoryService.getInfoFactoryFor(issue).from(issue));
+                    if ( !issueFilter.getUsagePoints().isEmpty()) {
+                        issueFilter.getUsagePoints().stream().forEach(usagePoint -> {
+                            try{
+                                if ( usagePoint.getId() == issueInfo.usagePointInfo.getId() ){
+                                    issueInfos.add(issueInfo);
+                                }
+                            }catch(NullPointerException e){}
+                        });
+                    }else{
+                        issueInfos.add(issueInfo);
+                    }
+                });
             }
         }
-        return PagedInfoList.fromPagedList("data", issueInfos, queryParams);
+        List<IssueInfo> issueInfosSorted = sortIssues(issueInfos, params);
+        return PagedInfoList.fromPagedList("data", issueInfosSorted, queryParams);
     }
 
     @GET @Transactional
@@ -597,6 +611,51 @@ public class IssueResource extends BaseResource {
         return finder;
     }
 
+    private List<IssueInfo> sortIssues(List<IssueInfo> listIssues, StandardParametersBean parameters) {
+        Order[] orders = parameters.getOrder("");
+        Comparator<IssueInfo> comparatorIssue = null;
+        for (Order order : orders) {
+           comparatorIssue = getComparatorIssueInfo(order, comparatorIssue);
+        }
+        if(comparatorIssue != null)
+            listIssues.sort(comparatorIssue);
+        return listIssues;
+    }
+
+    public Comparator<IssueInfo> getComparatorIssueInfo(Order order, Comparator<IssueInfo> comparatorIssue){
+        Comparator<IssueInfo> comparatorIssueTemp = null;
+        switch (order.getName()) {
+            case "device_name":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getDeviceName);
+                break;
+            case "usagePoint_name":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getUsageName);
+                break;
+            case "priorityTotal":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getPriorityTotal);
+                break;
+            case "dueDate":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getDueDate);
+                break;
+            case "id":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getId);
+                break;
+            case "createDateTime":
+                comparatorIssueTemp = Comparator.comparing(IssueInfo::getCreatedDateTime);
+                break;
+        }
+
+
+        if(comparatorIssueTemp != null && !order.ascending())
+            comparatorIssueTemp = comparatorIssueTemp.reversed();
+
+        if (comparatorIssue == null)
+            comparatorIssue = comparatorIssueTemp;
+        else
+            comparatorIssue = comparatorIssue.thenComparing(comparatorIssueTemp);
+
+        return comparatorIssue;
+    }
     private ActionInfo doBulkSetPriority(SetPriorityIssueRequest request, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
         for (Issue issue : issueProvider.apply(response)) {

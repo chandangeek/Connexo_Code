@@ -47,7 +47,7 @@ Ext.define('Dxp.view.log.Preview', {
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('general.summary', 'DES', 'Summary'),
+                    fieldLabel: Uni.I18n.translate('general.dataSelectorSummary', 'DES', 'Data selector summary'),
                     itemId: 'des-summary-container'
                 }
             ]

@@ -622,7 +622,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
                 .orElseThrow(IllegalArgumentException::new)
                 .newMeter("test", "myName")
                 .create();
-        IReadingTypeDataExportItem item = task.getReadingDataSelectorConfig().get().addExportItem(meter, readingType);
+        ReadingTypeDataExportItem item = task.getReadingDataSelectorConfig().get().addExportItem(meter, readingType);
         item.deactivate();
         item.update();
 

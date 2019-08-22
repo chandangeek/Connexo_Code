@@ -8,9 +8,9 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface PartialOutboundConnectionTaskBuilder<S, U extends PartialConnectionTask> extends PartialConnectionTaskBuilder<S, OutboundComPortPool, U> {
 
     NextExecutionSpecBuilder<S> nextExecutionSpec();

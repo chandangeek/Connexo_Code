@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.common.device.config;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Partial version of a ConnectionInitiationTask.
@@ -12,6 +12,6 @@ import aQute.bnd.annotation.ProviderType;
  * @author sva
  * @since 21/01/13 - 16:04
  */
-@ProviderType
+@ConsumerType
 public interface PartialConnectionInitiationTask extends PartialOutboundConnectionTask {
 }

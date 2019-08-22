@@ -6,7 +6,7 @@ package com.energyict.mdc.common.tasks.history;
 
 import com.energyict.mdc.common.comserver.ComServer;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 
@@ -18,7 +18,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-27 (16:47)
  */
-@ProviderType
+@ConsumerType
 public interface ComSessionJournalEntry {
 
     /**

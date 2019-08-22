@@ -3,11 +3,8 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.util.List;
 
-@ProviderType
 public interface UtilitiesDeviceRegisteredBulkNotification {
     String NAME = "SAP UtilitiesDeviceERPSmartMeterRegisteredBulkNotification_C_Out";
 
