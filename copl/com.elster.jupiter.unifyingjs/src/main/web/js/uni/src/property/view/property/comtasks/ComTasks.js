@@ -122,7 +122,7 @@ Ext.define('Uni.property.view.property.comtasks.ComTasks', {
             store = grid.getStore(),
 			eventTypePropertyField = me.up().getComponent('BasicDataCollectionRuleTemplate.eventType');
 
-		if(value && Ext.isArray(value)) {
+		if(value && Ext.isArray(value) && value.length > 0) {
 			Ext.suspendLayouts();
 			me.idsToRecords(value, function(records) {
 				if (Ext.isArray(records)) {

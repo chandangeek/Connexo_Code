@@ -186,8 +186,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
             if (isIssueCreationRestrictedByComTask(firedRule, event)) {
+                final String deviceName = event.getEndDevice().map(dev -> dev.getName()).orElse("");
                 LOG.info("Issue creation rule \'" + firedRule.getName()
-                        + "\' is restricted by the ComTask(s) of the event");
+                        + "\' is restricted by the ComTask(s) of the event, for device \'" + deviceName + "\'");
                 return;
             }
             CreationRuleTemplate template = firedRule.getTemplate();
