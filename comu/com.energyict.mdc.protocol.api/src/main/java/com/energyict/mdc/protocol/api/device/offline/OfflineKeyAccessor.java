@@ -5,8 +5,11 @@ import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.Offline;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
+@ProviderType
 public interface OfflineKeyAccessor<T extends SecurityValueWrapper> extends Offline {
 
     /**
@@ -40,5 +43,7 @@ public interface OfflineKeyAccessor<T extends SecurityValueWrapper> extends Offl
      * @return the deviceIdentifier
      */
     DeviceIdentifier getDeviceIdentifier();
+
+    Optional<T> getWrappingKeyActualValue();
 
 }

@@ -206,7 +206,7 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_USED_BY_DEVICE(2178, "CertificateUsedByDevice", "Certificate {0} is still used by a device.", Level.WARNING),
     CERTIFICATE_REVOKED_SUCCESSFULLY(2179, "CertificateRevokedSuccessfully", "Certificate {0} has been revoked.", Level.INFO),
     EXCEPTION_FROM_CRL_REQUEST_TASK(2180, "ExceptionFromCrlRequestTask", "Exception during CRL request task execution: {0}"),
-    NO_CRL_REQUEST_TASK(2181, "NoCrlRequestTask", "No CRL request task.");
+    NO_CRL_REQUEST_TASK(2181, "NoCrlRequestTask", "No CRL request task."),
     CAN_NOT_BE_EMPTY(2182, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
     UNKNOWN_PROPERTY(2183, Keys.UNKNOWN_PROPERTY, "Unknown property {name}"),
     NO_SUCH_ZONE(2184, "NoSuchZone", "No zone with id {0}"),
@@ -214,8 +214,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_LOAD_PROFILE_ON_DEVICE(2186, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
     NO_WRAPPER_DEFINED(2187, "hsm.no.wrapper.defined", "No wrapper defined"),
     NO_WRAPPER_ACTUAL_VALUE(2188, "hsm.no.wrapper.value", "No wrapper value"),
-    WRAPPER_NOT_HSMKEY(2189, "hsm.wrong.type", "Wrapper is not hsm key");
-
+    WRAPPER_NOT_HSMKEY(2189, "hsm.wrong.type", "Wrapper is not hsm key"),
+    NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME(2190, "NoSecurityAccessorOnDeviceTypeForName", "No security accessor on device type with name {0}"),
+    NO_KEY_RENEWAL_COMMAND_CONFIGURED(2191, "NoKeyRenewalCommandConfigured", "No key renewal command configured at device type level on security accessor with name {0}"),
+    ONLY_ONE_KEY_TYPE_ATTRIBUTE_EXPECTED(2192, "OnlyOneKeyTypeAttributeExpetced", "Key renewal process does not support commands having more that one key type attribute"),
+    SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized.");
 
     private final int number;
     private final String key;

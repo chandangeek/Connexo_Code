@@ -25,6 +25,7 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     private int deviceId;
 
     private String deviceMRID;
+    private Optional<T> wrappingKeyActualValue;
 
     public OfflineKeyAccessorImpl(SecurityAccessor securityAccessor, IdentificationService identificationService) {
         this.securityAccessor = securityAccessor;
@@ -44,6 +45,9 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
         setSecurityAccessorType(this.securityAccessor.getKeyAccessorType());
         setActualValue(this.securityAccessor.getActualValue());
         setTempValue(this.securityAccessor.getTempValue());
+        //set wrapping key info
+        Optional<SecurityAccessorType> wrappingKeyAssignedToAccessor = getWrappingKeyAssignedToAccessor();
+        setWrappingKeyActualValue(getWrappingKeyActualValue(wrappingKeyAssignedToAccessor));
     }
 
 
@@ -101,15 +105,46 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
         return tempValue;
     }
 
-    public void setSecurityAccessorType(SecurityAccessorType securityAccessorType) {
+    @Override
+    public Optional<T> getWrappingKeyActualValue() {
+        return wrappingKeyActualValue;
+    }
+
+    private void setWrappingKeyActualValue(Optional<T> wrappingKeyActualValue) {
+        this.wrappingKeyActualValue = wrappingKeyActualValue;
+    }
+
+    private Optional<SecurityAccessorType> getWrappingKeyAssignedToAccessor() {
+        Optional<SecurityAccessorTypeOnDeviceType> accessor = getDevice()
+                .getDeviceType()
+                .getSecurityAccessors()
+                .stream()
+                .filter(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType().getName().equals(getSecurityAccessor().getName()))
+                .findFirst();
+
+        if (accessor.isPresent()) {
+            return accessor.get().getDeviceSecurityAccessorType().getWrappingSecurityAccessor();
+        }
+        return Optional.empty();
+    }
+
+    private Optional<T> getWrappingKeyActualValue(Optional<SecurityAccessorType> wrappingKey) {
+        if (wrappingKey.isPresent()) {
+            Optional<SecurityAccessor> securityAccessorByName = device.getSecurityAccessorByName(wrappingKey.get().getName());
+            return securityAccessorByName.isPresent() ? securityAccessorByName.get().getActualValue() : Optional.empty();
+        }
+        return Optional.empty();
+    }
+
+    private void setSecurityAccessorType(SecurityAccessorType securityAccessorType) {
         this.securityAccessorType = securityAccessorType;
     }
 
-    public void setActualValue(Optional<T> actualValue) {
+    private void setActualValue(Optional<T> actualValue) {
         this.actualValue = actualValue;
     }
 
-    public void setTempValue(Optional<T> tempValue) {
+    private void setTempValue(Optional<T> tempValue) {
         this.tempValue = tempValue;
     }
 }

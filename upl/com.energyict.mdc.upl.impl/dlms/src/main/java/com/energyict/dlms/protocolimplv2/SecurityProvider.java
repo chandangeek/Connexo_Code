@@ -1,7 +1,8 @@
 package com.energyict.dlms.protocolimplv2;
 
-import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.mdc.upl.UnsupportedException;
+
+import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 
 import java.io.IOException;
 
@@ -101,8 +102,10 @@ public interface SecurityProvider {
     void changeMasterKey(byte[] newMasterKey) throws IOException;
 
     /**
-     * A master key shall be present in each COSEM server logical device configured in the system.
-     * This key is used for wrapping global keys. The MasterKey should not be transfered during a session.
+     *
+     * The only purpose of this master key property should be the creation of a session key (encryption key) when using {@link com.energyict.dlms.GeneralCipheringKeyType.WrappedKeyTypes}
+     * For key wrapping, the configuration available on security accessor at device type level, should be used
+     * Currently some v1 protocols still depend on this property for doing a key change. Those should be marked as obsolete and v2 version should be used.
      */
     byte[] getMasterKey();
 }

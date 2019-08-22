@@ -35,7 +35,7 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
     protected final List<DeviceMessageId> possibleDeviceMessageIds;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceService deviceService;
-    private final Thesaurus thesaurus;
+    protected final Thesaurus thesaurus;
 
     private List<PropertySpec> commandArgumentSpecs = null;
     private Map<PropertySpec, Object> propertyValueMap = new HashMap<>();
