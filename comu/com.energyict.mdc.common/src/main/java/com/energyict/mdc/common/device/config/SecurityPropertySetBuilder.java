@@ -7,11 +7,11 @@ package com.energyict.mdc.common.device.config;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Set;
 
-@ProviderType
+@ConsumerType
 public interface SecurityPropertySetBuilder {
 
     SecurityPropertySetBuilder authenticationLevel(int level);

@@ -193,7 +193,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private EarliestNextExecutionTimeStampAndPriority getEarliestNextExecutionTimeStampAndPriority() {
         Condition condition = where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull());
 
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition,
                 Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),

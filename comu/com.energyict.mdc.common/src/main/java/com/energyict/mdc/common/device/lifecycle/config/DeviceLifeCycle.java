@@ -10,7 +10,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:18)
  */
-@ProviderType
+@ConsumerType
 public interface DeviceLifeCycle extends HasId, HasName {
 
     /**

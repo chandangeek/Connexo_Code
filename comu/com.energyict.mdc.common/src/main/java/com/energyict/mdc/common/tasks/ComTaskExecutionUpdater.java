@@ -8,14 +8,14 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 
 /**
  * Updater that supports basic value setters for a {@link ComTaskExecution}.
  */
-@ProviderType
+@ConsumerType
 public interface ComTaskExecutionUpdater {
 
     ComTaskExecutionUpdater useDefaultConnectionTask(boolean useDefaultConnectionTask);

@@ -4,11 +4,11 @@
 
 package com.energyict.mdc.common.masterdata;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 
-@ProviderType
+@ConsumerType
 public interface RegisterType extends MeasurementType {
 
     /**

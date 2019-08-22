@@ -10,7 +10,7 @@ import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.device.config.LogBookSpec;
 import com.energyict.mdc.common.masterdata.LogBookType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
@@ -18,7 +18,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface LogBook extends com.energyict.mdc.upl.meterdata.LogBook, HasId {
 
     ObisCode getDeviceObisCode();
@@ -44,7 +44,7 @@ public interface LogBook extends com.energyict.mdc.upl.meterdata.LogBook, HasId 
     /**
      * Defines an <i>update</i> component to update a {@link LogBook} implementation
      */
-    @ProviderType
+    @ConsumerType
     interface LogBookUpdater {
 
         /**

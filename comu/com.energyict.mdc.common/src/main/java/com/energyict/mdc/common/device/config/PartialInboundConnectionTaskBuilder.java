@@ -6,9 +6,9 @@ package com.energyict.mdc.common.device.config;
 
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface PartialInboundConnectionTaskBuilder extends PartialConnectionTaskBuilder<PartialInboundConnectionTaskBuilder, InboundComPortPool, PartialInboundConnectionTask> {
 
     PartialInboundConnectionTaskBuilder asDefault(boolean asDefault);

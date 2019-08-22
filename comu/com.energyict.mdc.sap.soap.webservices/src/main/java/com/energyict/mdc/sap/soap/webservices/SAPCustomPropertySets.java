@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface SAPCustomPropertySets {
 
@@ -56,11 +57,9 @@ public interface SAPCustomPropertySets {
 
     Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval);
 
-    boolean isProfileIdAlreadyExists(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval);
+    boolean isProfileIdPresent(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval);
 
-    List<ReadingType> findReadingTypesForProfileId(String profileId);
-
-    boolean isRangesIntersected(List<Range<Instant>> ranges);
+    Set<ReadingType> findReadingTypesForProfileId(String profileId);
 
     Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Channel channel, Range<Instant> range);
 }

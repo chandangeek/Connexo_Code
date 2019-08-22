@@ -11,9 +11,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeProcessor;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
@@ -33,23 +33,20 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
     private final Clock clock;
     private final DataExportService dataExportService;
-    private volatile MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory;
+    private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
     private final PropertySpecService propertySpecService;
-    private final SAPCustomPropertySets sapCustomPropertySets;
     private final Thesaurus thesaurus;
 
     @Inject
     MeasurementTaskAssignmentChangeRequestEndpoint(Clock clock,
                                                    DataExportService dataExportService,
-                                                   MeasurementTaskAssignmentChangeFactory measurementTaskAssignmentChangeFactory,
+                                                   MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor,
                                                    PropertySpecService propertySpecService,
-                                                   SAPCustomPropertySets sapCustomPropertySets,
                                                    Thesaurus thesaurus) {
         this.clock = clock;
         this.dataExportService = dataExportService;
-        this.measurementTaskAssignmentChangeFactory = measurementTaskAssignmentChangeFactory;
+        this.measurementTaskAssignmentChangeProcessor = measurementTaskAssignmentChangeProcessor;
         this.propertySpecService = propertySpecService;
-        this.sapCustomPropertySets = sapCustomPropertySets;
         this.thesaurus = thesaurus;
     }
 
@@ -75,14 +72,15 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
             return;
         }
 
-        if (sapCustomPropertySets.isRangesIntersected(message.getRoles().stream()
+        if (Ranges.doAnyRangesIntersect(message.getRoles().stream()
+                .filter(role -> !WebServiceActivator.getListOfRoleCodes().contains(role.getRoleCode()))
                 .map(r -> Range.closedOpen(r.getStartDateTime(), r.getEndDateTime())).collect(Collectors.toList()))) {
             sendProcessError(message, MessageSeeds.TIME_PERIODS_INTERSECT);
             return;
         }
 
         try {
-            measurementTaskAssignmentChangeFactory.processServiceCall(message);
+            measurementTaskAssignmentChangeProcessor.processServiceCall(message);
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                     MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
@@ -101,7 +99,7 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
                                 .build();
                 sendMessage(confirmationMessage);
             } else {
-                MessageSeeds messageSeeds = MessageSeeds.EXCEPTION_GENERATED;
+                MessageSeeds messageSeeds = MessageSeeds.ERROR_PROCESSING_MTA_REQUEST;
                 String errorMessage = messageSeeds.translate(thesaurus, ex.getLocalizedMessage());
                 log(LogLevel.SEVERE, thesaurus.getFormat(messageSeeds).format(ex.getLocalizedMessage()));
                 MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =

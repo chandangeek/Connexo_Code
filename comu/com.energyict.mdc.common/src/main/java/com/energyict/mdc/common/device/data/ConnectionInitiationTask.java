@@ -9,7 +9,7 @@ import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models a {@link ConnectionTask} that is designed to initiate
@@ -22,7 +22,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-11 (11:36)
  */
-@ProviderType
+@ConsumerType
 public interface ConnectionInitiationTask extends OutboundConnectionTask<PartialConnectionInitiationTask> {
 
     /**

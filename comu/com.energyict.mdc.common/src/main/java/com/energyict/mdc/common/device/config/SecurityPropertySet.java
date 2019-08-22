@@ -16,7 +16,7 @@ import com.energyict.mdc.common.protocol.security.ResponseSecurityLevel;
 import com.energyict.mdc.common.protocol.security.SecurityPropertySpecProvider;
 import com.energyict.mdc.common.protocol.security.SecuritySuite;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +34,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-14 (10:29)
  */
-@ProviderType
+@ConsumerType
 public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpecProvider {
 
     void setName(String name);

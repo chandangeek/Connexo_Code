@@ -7,7 +7,7 @@ package com.energyict.mdc.common.device.config;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.TypedProperties;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models the general protocol properties that can be specified on the
@@ -28,7 +28,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-24 (09:03)
  */
-@ProviderType
+@ConsumerType
 public interface DeviceProtocolConfigurationProperties extends HasDynamicProperties {
 
     public DeviceConfiguration getDeviceConfiguration();

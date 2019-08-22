@@ -239,7 +239,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 (connectionTask.isPresent() && connectionTask.getOptional().isPresent()
                     && (connectionTask.get().getExecutingComServer() != null)
                     && comTaskStartedAfterConnectionStarted()
-                    && ((getNextExecutionTimestamp() != null && getNextExecutionTimestamp().isBefore(clock.instant()))
+                    && ((getNextExecutionTimestamp() != null
+                        && getNextExecutionTimestamp().isBefore(clock.instant())
+                        && connectionTask.get().getLastCommunicationStart().isAfter(getNextExecutionTimestamp()))
                         || (getNextExecutionTimestamp() == null && isIgnoreNextExecutionSpecsForInbound()
                             && connectionTask.get() instanceof InboundConnectionTask))
                 );

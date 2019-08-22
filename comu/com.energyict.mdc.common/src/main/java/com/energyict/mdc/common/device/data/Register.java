@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.RegisterSpec;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
@@ -16,7 +16,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface Register<R extends Reading, RS extends RegisterSpec> extends com.energyict.mdc.upl.meterdata.Register {
 
     Device getDevice();
