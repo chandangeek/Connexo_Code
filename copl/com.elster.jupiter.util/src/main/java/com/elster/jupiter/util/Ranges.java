@@ -11,7 +11,10 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -313,5 +316,21 @@ public class Ranges {
             default:
                 throw new IllegalArgumentException();
         }
+    }
+
+    public static boolean doAnyRangesIntersect(List<Range<Instant>> ranges) {
+        if (ranges.size() > 1) {
+            List<Range<Instant>> previousRanges = new ArrayList<>(ranges.size());
+            previousRanges.add(ranges.get(0));
+            for (int i = 1; i < ranges.size(); i++) {
+                for (Range<Instant> previousRange : previousRanges) {
+                    if (Ranges.does(ranges.get(i)).overlap(previousRange)) {
+                        return true;
+                    }
+                }
+                previousRanges.add(ranges.get(i));
+            }
+        }
+        return false;
     }
 }

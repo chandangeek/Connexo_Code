@@ -32,6 +32,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueDeviceFilter;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -171,6 +172,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private final List<IssueProvider> issueProviders = new ArrayList<>();
     private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
+    private volatile Optional<IssueDeviceFilter> issueDeviceFilterProvider = Optional.empty();
+
 
     public IssueServiceImpl() {
     }
@@ -360,6 +363,15 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @SuppressWarnings("unused") // Called by OSGi framework when IssueReasonTranslationProvider component deactivates
     public void removeIssueReasonTranslationProvider(IssueReasonTranslationProvider obsolete) {
         // Don't bother unjoining the provider's thesaurus
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addIssueDeviceFilter(IssueDeviceFilter issueDeviceFilter) {
+        this.issueDeviceFilterProvider = Optional.of(issueDeviceFilter);
+    }
+
+    public void removeIssueDeviceFilter(IssueDeviceFilter issueDeviceFilter) {
+        this.issueDeviceFilterProvider = Optional.empty();
     }
 
     private void addTranslationProvider(String componentName, Layer layer) {
@@ -832,7 +844,12 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         //filter by device
         if (!filter.getDevices().isEmpty()) {
-            condition = condition.and(where("device").in(filter.getDevices()));
+            List<EndDevice> filterDevices = new ArrayList<>(filter.getDevices());
+            //add topology devices
+            if (filter.getShowTopology() && issueDeviceFilterProvider.isPresent()) {
+                filterDevices.addAll(issueDeviceFilterProvider.get().getShowTopologyCondition(filter.getDevices()));
+            }
+            condition = condition.and(where("device").in(filterDevices));
         }
         //filter by location
         if (!filter.getLocations().isEmpty()) {
