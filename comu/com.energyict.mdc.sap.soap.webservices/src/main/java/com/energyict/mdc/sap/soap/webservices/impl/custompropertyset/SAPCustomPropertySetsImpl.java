@@ -26,7 +26,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.RangeSets;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
@@ -41,12 +40,12 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -65,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -194,7 +194,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         if (!getSapDeviceId(device).isPresent()) {
             setDeviceCPSProperty(lockedDevice, deviceInfo.getId(), DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getSerialNumber() );
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getSerialNumber());
         }
     }
 
@@ -227,7 +227,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public void setLocation(Device device, String locationId){
+    public void setLocation(Device device, String locationId) {
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
         lockDeviceTypeOrThrowException(device.getDeviceType().getId());
 
@@ -235,7 +235,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public void setPod(Device device, String podId){
+    public void setPod(Device device, String podId) {
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
         lockDeviceTypeOrThrowException(device.getDeviceType().getId());
 
@@ -253,7 +253,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public boolean isAnyLrnPresent(long deviceId){
+    public boolean isAnyLrnPresent(long deviceId) {
         return isAnyRegisterLrn(deviceId) || isAnyChannelLrn(deviceId);
     }
 
@@ -285,15 +285,18 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public boolean isProfileIdAlreadyExists(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval) {
+    public boolean isProfileIdPresent(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval) {
         Condition whereOverlapped = getOverlappedCondition(interval);
+        Condition notThisChannelSpec = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channel.getChannelSpec());
+        Condition notThisDevice = Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isNotEqual(channel.getDevice().getId());
+        Condition thisDevice = notThisDevice.not();
         return (getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId)
-                        .and(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isNotEqual(channel.getChannelSpec())))
-                .filter(whereOverlapped).count() > 0);
+                        .and(notThisDevice.or(thisDevice.and(notThisChannelSpec))))
+                .anyMatch(whereOverlapped));
     }
 
     @Override
@@ -307,18 +310,24 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .filter(whereOverlapped);
 
         Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> map = new HashMap<>();
-        for (DeviceChannelSAPInfoDomainExtension e : stream.collect(Collectors.toList())) {
-            Range cutRange = cutRange(e.getRange());
-            if (cutRange != null) {
+        stream.forEach(e -> {
+            Range range = e.getRange();
+            Optional<Range<Instant>> cutRange = cutRange(range);
+            if (cutRange.isPresent()) {
                 Pair<Long, ReadingType> key = Pair.of(e.getDeviceId(), e.getChannelSpec().getReadingType());
-                List list = map.getOrDefault(key, new ArrayList<>());
-                Range<Instant> rangeIntersection = cutRange.intersection(interval);
-                if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
-                    list.add(Pair.of(cutRange(e.getRange()).intersection(interval), e.getRange()));
+                List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
+                try {
+                    Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
+                    if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
+                        list.add(Pair.of(rangeIntersection, range));
+                    }
+                    map.put(key, list);
+                } catch (IllegalArgumentException ex) {
+                    // no intersection with interval (should never occur)
                 }
-                map.put(key, list);
+                ;
             }
-        }
+        });
         return map;
     }
 
@@ -334,19 +343,31 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         return (whereStartLess.and(whereEndLess).or(whereStartGreater.and(whereEndGreater))).not();
     }
 
-    private Range<Instant> cutRange(Range<Instant> range) {
-        Instant start = truncateToDays(range.lowerEndpoint()).equals(range.lowerEndpoint()) ?
-                range.lowerEndpoint() : truncateToDays(range.lowerEndpoint()).plus(1, DAYS);
-        Instant end = truncateToDays(range.upperEndpoint());
+    private Optional<Range<Instant>> cutRange(Range<Instant> range) {
+        Instant start = range.hasLowerBound() ? truncateToDays(range.lowerEndpoint()).equals(range.lowerEndpoint()) ?
+                range.lowerEndpoint() : truncateToDays(range.lowerEndpoint()).plus(1, DAYS) : null;
 
-        if (start.isBefore(end)) {
-            if (end.equals(range.upperEndpoint())) {
-                return Range.closedOpen(start, end);
-            } else {
-                return Range.closed(start, end);
+        Instant end = range.hasUpperBound() ? truncateToDays(range.upperEndpoint()) : null;
+
+        if (start != null && end != null) {
+            if (start.isBefore(end)) {
+                if (end.equals(range.upperEndpoint())) {
+                    return Optional.of(Range.closedOpen(start, end));
+                } else {
+                    return Optional.of(Range.closed(start, end));
+                }
+            }
+            return Optional.empty();
+        } else {
+            if (start != null) {
+                return Optional.of(Range.atLeast(start));
+            }
+
+            if (end != null) {
+                return Optional.of(Range.atMost(end));
             }
         }
-        return null;
+        return Optional.of(range);
     }
 
     private Instant truncateToDays(Instant dateTime) {
@@ -354,28 +375,14 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public List<ReadingType> findReadingTypesForProfileId(String profileId) {
+    public Set<ReadingType> findReadingTypesForProfileId(String profileId) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
                 .join(ReadingType.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.PROFILE_ID.javaName()).isEqualTo(profileId))
                 .map(e -> e.getChannelSpec().getReadingType())
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public boolean isRangesIntersected(List<Range<Instant>> ranges) {
-        List<Range<Instant>> previousRanges = new ArrayList<>();
-        for (Range<Instant> range : ranges) {
-            for (Range<Instant> previousRange : previousRanges) {
-                if (Ranges.does(range).overlap(previousRange)) {
-                    return true;
-                }
-            }
-            previousRanges.add(range);
-        }
-        return false;
+                .collect(Collectors.toSet());
     }
 
     private Optional<Pair<Long, ReadingType>> getChannelIdentification(String lrn, Instant when) {
@@ -454,11 +461,10 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         extensions.forEach(ext -> {
             if (ext.getLogicalRegisterNumber().isPresent() && ext.getProfileId().isPresent()) {
                 RangeSet<Instant> rangeSet = map.get(Pair.of(ext.getLogicalRegisterNumber().get(), ext.getProfileId().get()));
-                if (rangeSet != null) {
-                    rangeSet.addAll(ImmutableRangeSet.of(ext.getRange().intersection(range)));
-                } else {
-                    rangeSet = ImmutableRangeSet.of(ext.getRange().intersection(range));
+                if (rangeSet == null) {
+                    rangeSet = TreeRangeSet.create();
                 }
+                rangeSet.add(ext.getRange().intersection(range));
                 map.put(Pair.of(ext.getLogicalRegisterNumber().get(), ext.getProfileId().get()), rangeSet);
             }
         });
@@ -516,7 +522,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         addChannelCustomPropertySetVersioned(channel, channelInfo.getId(), DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName(), lrn, range);
     }
 
-    private boolean isAnyRegisterLrn(long deviceId){
+    private boolean isAnyRegisterLrn(long deviceId) {
         return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceRegisterSAPInfoDomainExtension.class)
                 .join(RegisterSpec.class)
@@ -527,7 +533,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
 
-    private boolean isAnyChannelLrn(long deviceId){
+    private boolean isAnyChannelLrn(long deviceId) {
         return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .join(ChannelSpec.class)
@@ -552,12 +558,12 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 range = Range.closedOpen(startDateTime, endDateTime);
             }
         } catch (IllegalArgumentException e) {
-            throw new SAPWebServiceException(thesaurus,MessageSeeds.INTERVAL_INVALID,
-                                                startDateTime.toString(), endDateTime.toString());
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.INTERVAL_INVALID,
+                    startDateTime.toString(), endDateTime.toString());
         }
         if (range.isEmpty()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.INTERVAL_INVALID,
-                                                startDateTime.toString(), endDateTime.toString());
+                    startDateTime.toString(), endDateTime.toString());
         }
         return range;
     }
@@ -614,9 +620,9 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
             throw new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId);
         }
 
-        if(!setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
-                register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)){
-            throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_ALREADY_HAS_LRN,
+        if (!setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
+                register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_ALREADY_HAS_LRN,
                     register.getObisCode(), range.toString());
         }
 
@@ -629,9 +635,9 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
             throw new SAPWebServiceException(thesaurus, MessageSeeds.COULD_NOT_FIND_ACTIVE_CPS, cpsId);
         }
 
-        if(!setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
-                channel.getChannelSpec(),channel.getDevice().getId(), channel.getObisCode(), property, value, range)){
-            throw new SAPWebServiceException(thesaurus,MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
+        if (!setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(),
+                channel.getChannelSpec(), channel.getDevice().getId(), channel.getObisCode(), property, value, range)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
                     channel.getObisCode(), range.toString());
         }
 
@@ -639,13 +645,13 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private <D, T extends PersistentDomainExtension<D>> boolean setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject,
-                                                                                 long deviceId, ObisCode obis,
-                                                                                 String property, String value, Range<Instant> range) {
+                                                                                    long deviceId, ObisCode obis,
+                                                                                    String property, String value, Range<Instant> range) {
         CustomPropertySetValues customPropertySetValues;
 
         if (!range.hasLowerBound()) {
             customPropertySetValues = CustomPropertySetValues.empty();
-        }else{
+        } else {
             customPropertySetValues = CustomPropertySetValues.emptyDuring(range);
         }
 
@@ -667,29 +673,27 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
             } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE)) {
                 customPropertySetService.setValuesVersionFor(customPropertySet,
                         businesObject, CustomPropertySetValues.empty(), conflict.getConflictingRange(), deviceId);
-            }else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START)) {
-                if(conflict.getValues().getEffectiveRange().hasLowerBound()){
+            } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START)) {
+                if (conflict.getValues().getEffectiveRange().hasLowerBound()) {
                     return false;
                 }
-            }else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)) {
-                if(conflict.getValues().getEffectiveRange().hasLowerBound()){
-                    if(conflict.getValues().getEffectiveRange().hasUpperBound() &&
+            } else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)) {
+                if (conflict.getValues().getEffectiveRange().hasLowerBound()) {
+                    if (conflict.getValues().getEffectiveRange().hasUpperBound() &&
                             (!conflict.getValues().getEffectiveRange().intersection(conflict.getConflictingRange()).isEmpty())) {
                         return false;
                     }
-                }else{
+                } else {
                     Instant endTime;
-                    if(conflict.getValues().getEffectiveRange().hasUpperBound())
-                    {
+                    if (conflict.getValues().getEffectiveRange().hasUpperBound()) {
                         endTime = conflict.getValues().getEffectiveRange().upperEndpoint();
-                    }else{
-                        endTime =  null;
+                    } else {
+                        endTime = null;
                     }
                     Instant startTime;
-                    if(conflict.getConflictingRange().hasUpperBound())
-                    {
+                    if (conflict.getConflictingRange().hasUpperBound()) {
                         startTime = conflict.getConflictingRange().upperEndpoint();
-                    }else{
+                    } else {
                         //throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_ALREADY_HAS_LRN,
                         //        register.getObisCode(), range.toString());
                         continue;
@@ -704,7 +708,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         customPropertySetService.setValuesVersionFor(customPropertySet,
                 businesObject, customPropertySetValues, range, deviceId);
 
-        if(!savedCustomPropertySetValues.isEmpty()) {
+        if (!savedCustomPropertySetValues.isEmpty()) {
             customPropertySetService.setValuesVersionFor(customPropertySet,
                     businesObject, savedCustomPropertySetValues, savedCustomPropertySetValues.getEffectiveRange(), deviceId);
         }
