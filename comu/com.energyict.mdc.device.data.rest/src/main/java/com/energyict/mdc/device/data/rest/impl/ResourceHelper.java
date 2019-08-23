@@ -29,6 +29,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
@@ -53,6 +54,7 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
@@ -1313,5 +1315,13 @@ public class ResourceHelper {
     public PriorityComTaskExecutionLink getLockedPriorityComTaskExecution(ComTaskExecution cte) {
         Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(cte);
         return priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(cte));
+    }
+
+    public List<DeviceMessage> getDeviceMessages(DeviceMessageQueryFilter deviceMessageQueryFilter, JsonQueryParameters queryParameters) {
+        return deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
+                .from(queryParameters)
+                .sorted("RELEASEDATE", true)
+                .stream()
+                .collect(Collectors.toList());
     }
 }

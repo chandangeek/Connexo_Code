@@ -27,6 +27,7 @@ import java.util.Set;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MasterUtilitiesDeviceCreateRequestDomainExtension> {
+    public static final String MODEL_NAME = "UD5";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -98,7 +99,7 @@ public class MasterUtilitiesDeviceCreateRequestCustomPropertySet implements Cust
 
         @Override
         public String componentName() {
-            return "UD5";
+            return MODEL_NAME;
         }
 
         @Override

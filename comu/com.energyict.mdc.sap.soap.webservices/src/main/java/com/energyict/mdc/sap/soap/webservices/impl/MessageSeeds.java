@@ -23,6 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_TOO_LONG(1002, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     UNKNOWN_PROPERTY(1003, Keys.UNKNOWN_PROPERTY, "Unknown property {name}"),
     FIELD_HAS_UNEXPECTED_SIZE(1004, Keys.FIELD_HAS_UNEXPECTED_SIZE, "Field should have from {min} to {max} characters"),
+    CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER(1005, Keys.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, "The custom attribute set ''{0}'' is not editable by current user."),
 
     // Service call
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2001, "CouldNotFindServiceCallType", "Couldn''t find service call type {0} having version {1}."),
@@ -48,12 +49,18 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_ALREADY_HAS_SAP_IDENTIFIER(4006, "DeviceAlreadyHasSAPIdentifier", "Device with serial id ''{0}'' already has SAP identifier."),
     REGISTER_NOT_FOUND(4007, "RegisterNotFound", "Register ''{0}'' not found"),
     REGISTER_ALREADY_HAS_LRN(4008, "RegisterAlreadyHasLrn", "Register ''{0}'' already has LRN (range is ''{1}'')"),
-    FAILED_DATA_SOURCE(4009, "FailedDataSources", "The following data sources are failed: ''{0}''."),
+    FAILED_DATA_SOURCE(4009, "FailedDataSources", "The following data sources are failed: {0}."),
     NO_ANY_LRN_ON_DEVICE(4010,"NoAnyLrnOnDevice", "No any LRN on device ''{0}''."),
     DEVICE_NOT_IN_OPERATIONAL_STAGE(4011, "DeviceNotInOperationalStage", "Device {0} isn''t in operational stage."),
     CHANNEL_NOT_FOUND(4012, "ChannelNotFound", "Channel ''{0}'' not found on ''{1}-min'' interval"),
     SEVERAL_CHANNELS(4013, "SeveralChannels", "There are several channels with obis code ''{0}''"),
     CHANNEL_ALREADY_HAS_LRN(4014, "ChannelAlreadyHasLrn", "Channel ''{0}'' already has LRN (range is ''{1}'')"),
+    NO_SUCH_DEVICE(4015, "NoSuchDevice", "No device with id ''{0}''."),
+    NO_DEVICE_TYPE_FOUND(4016, "NoDeviceTypeFound", "No device type found with name ''{0}''."),
+    NO_REGISTER_TYPE_FOUND(4017, "NoRegisterTypeFound", "No register type found with obis code ''{0}''"),
+    NO_LOAD_PROFILE_TYPE_FOUND(4018, "NoLoadProfileTypeFound", "No load profile type found with obis code ''{0}''"),
+    NO_REGISTER_SPEC_FOUND(4019, "NoRegisterSpecFound", "No register spec found with obis code ''{0}''"),
+    NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with obis code ''{0}''"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -134,5 +141,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String FIELD_HAS_UNEXPECTED_SIZE = "FieldHasUnexpectedSize";
         public static final String UNKNOWN_PROPERTY = "UnknownProperty";
+        public static final String CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER = "CustomPropertySetIsNotEditableByUser";
     }
 }

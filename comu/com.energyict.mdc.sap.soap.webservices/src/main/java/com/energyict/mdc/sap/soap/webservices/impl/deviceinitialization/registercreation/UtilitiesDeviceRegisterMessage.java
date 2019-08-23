@@ -9,14 +9,14 @@ import java.time.Instant;
 import java.util.Optional;
 
 public class UtilitiesDeviceRegisterMessage {
-    private String OBIS;
+    private String obis;
     private String interval;
     private String lrn;
     private Instant startDate;
     private Instant endDate;
 
-    public String getOBIS() {
-        return OBIS;
+    public String getObis() {
+        return obis;
     }
 
     public String getInterval() {
@@ -40,7 +40,7 @@ public class UtilitiesDeviceRegisterMessage {
     }
 
     public boolean isValid() {
-        return lrn != null && OBIS != null;
+        return lrn != null && obis != null;
     }
 
     public class Builder {
@@ -49,7 +49,7 @@ public class UtilitiesDeviceRegisterMessage {
         }
 
         public UtilitiesDeviceRegisterMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
-            setOBIS(getOBIS(requestMessage));
+            setObis(getObis(requestMessage));
             setInterval(getInterval(requestMessage));
             setLrn(getLrn(requestMessage));
             setStartDate(requestMessage.getStartDate());
@@ -59,7 +59,7 @@ public class UtilitiesDeviceRegisterMessage {
         }
 
         public UtilitiesDeviceRegisterMessage.Builder from(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
-            setOBIS(getOBIS(requestMessage));
+            setObis(getObis(requestMessage));
             setInterval(getInterval(requestMessage));
             setLrn(getLrn(requestMessage));
             setStartDate(requestMessage.getStartDate());
@@ -76,8 +76,8 @@ public class UtilitiesDeviceRegisterMessage {
             UtilitiesDeviceRegisterMessage.this.lrn = lrn;
         }
 
-        private void setOBIS(String OBIS) {
-            UtilitiesDeviceRegisterMessage.this.OBIS = OBIS;
+        private void setObis(String obis) {
+            UtilitiesDeviceRegisterMessage.this.obis = obis;
         }
 
         private void setInterval(String interval) {
@@ -92,13 +92,13 @@ public class UtilitiesDeviceRegisterMessage {
             UtilitiesDeviceRegisterMessage.this.endDate = endDate;
         }
 
-        private String getOBIS(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+        private String getObis(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
             return Optional.ofNullable(requestMessage.getUtilitiesObjectIdentificationSystemCodeText())
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 
-        private String getOBIS(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+        private String getObis(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
             return Optional.ofNullable(requestMessage.getUtilitiesObjectIdentificationSystemCodeText())
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);

@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -10,9 +11,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -31,6 +34,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce;
 
 import javax.inject.Inject;
+import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -81,9 +85,9 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
                     String sapDeviceId = getDeviceId(msg);
 
                     try{
-                        sapCustomPropertySets.addSapDeviceId(device, sapDeviceId);
-                    } catch (SAPWebServiceException ex) {
-                        sendProcessError(msg, (MessageSeeds) ex.getMessageSeed(), ex.getMessageArgs());
+                        sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+                    } catch (LocalizedException ex) {
+                        sendProcessError(msg, ex.getMessageSeed(), ex.getMessageArgs());
                         return;
                     }
 
@@ -100,7 +104,7 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
         }
     }
 
-    private void sendProcessError(UtilsDvceERPSmrtMtrCrteReqMsg msg, MessageSeeds messageSeed, Object... args) {
+    private void sendProcessError(UtilsDvceERPSmrtMtrCrteReqMsg msg, MessageSeed messageSeed, Object... args) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(args));
 
         UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = objectFactory.createUtilsDvceERPSmrtMtrCrteConfMsg();
@@ -118,8 +122,8 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
 
     private boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
-                .findEndPointConfigurations().find().stream()
-                .filter(epc -> epc.getWebServiceName().equals(name))
+                .getEndPointConfigurationsForWebService(name)
+                .stream()
                 .filter(EndPointConfiguration::isActive)
                 .findAny().isPresent();
     }
@@ -153,25 +157,25 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
 
     private Log createSuccessfulLog() {
         Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode("3");
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
         return log;
     }
 
-    private Log createFailedLog(MessageSeeds messageSeeds, Object... args) {
+    private Log createFailedLog(MessageSeed messageSeed, Object... args) {
         Log log = objectFactory.createLog();
-        log.setBusinessDocumentProcessingResultCode("5");
-        log.getItem().add(createLogItem(messageSeeds, args));
+        log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
+        log.getItem().add(createLogItem(messageSeed, args));
         return log;
     }
 
-    private LogItem createLogItem(MessageSeeds messageSeeds, Object... args) {
+    private LogItem createLogItem(MessageSeed messageSeed, Object... args) {
         LogItemCategoryCode logItemCategoryCode = objectFactory.createLogItemCategoryCode();
         logItemCategoryCode.setValue("PRE");
 
         LogItem logItem = objectFactory.createLogItem();
-        logItem.setTypeID(String.valueOf(messageSeeds.getNumber()));
+        logItem.setTypeID(String.valueOf(messageSeed.getNumber()));
         logItem.setCategoryCode(logItemCategoryCode);
-        logItem.setNote(messageSeeds.getDefaultFormat(args));
+        logItem.setNote(MessageFormat.format(messageSeed.getDefaultFormat(), args));
 
         return logItem;
     }

@@ -101,7 +101,7 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
         private String getLocationId(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
             return Optional.ofNullable(msg.getUtilitiesDevice())
                     .map(UtilsDvceERPSmrtMtrLocNotifUtilsDvce::getLocation)
-                    .map(location -> location.get(0))
+                    .flatMap(location -> location.stream().findFirst())
                     .map(UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointID)
                     .map(InstallationPointID::getValue)
                     .orElse(null);

@@ -72,7 +72,9 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     }
 
     public String getDeviceName(){
-        return this.device.getName();
+        if (this.device != null)
+            return this.device.getName();
+        return "";
     }
 
     public String getUsageName() {

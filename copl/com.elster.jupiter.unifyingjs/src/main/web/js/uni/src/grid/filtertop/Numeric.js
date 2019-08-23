@@ -25,6 +25,7 @@ Ext.define('Uni.grid.filtertop.Numeric', {
                         minWidth: undefined,
                         width: 280,
                         itemsDefaultConfig: {
+                            minValue: me.minValue,
                             isFilterField: true
                         },
                         customOperatorMap: {
