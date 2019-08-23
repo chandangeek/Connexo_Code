@@ -32,7 +32,7 @@
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.systemTask', 'UNI', 'Is system ComTask'),
+                header: Uni.I18n.translate('general.systemTask', 'UNI', 'Is system communication task'),
                 dataIndex: 'systemTask',
                 renderer: function (value) {
                     if (value) {

@@ -14,7 +14,7 @@ Ext.define('Uni.property.view.property.comtasks.AddComTasksView', {
         {
             ui: 'large',
             itemId: 'uni-add-comtasks-panel',
-            title: Uni.I18n.translate('comTaskFiltering.filterOutComTasks', 'UNI', 'Filter out communication tasks'),
+            title: Uni.I18n.translate('comTaskFiltering.excludeComTasks', 'UNI', 'Exclude communication tasks'),
             items: [
                 {
 					xtype: 'uni-comtasks-selection-grid',

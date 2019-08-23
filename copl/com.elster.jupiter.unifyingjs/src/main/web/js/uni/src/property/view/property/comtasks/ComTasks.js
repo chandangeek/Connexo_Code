@@ -58,7 +58,7 @@ Ext.define('Uni.property.view.property.comtasks.ComTasks', {
                             }
 						},
 						{
-							header: Uni.I18n.translate('general.systemTask', 'UNI', 'Is system ComTask'),
+							header: Uni.I18n.translate('general.systemTask', 'UNI', 'Is system communication task'),
 							dataIndex: 'systemTask',
 							renderer: function (value) {
 								if (value) {
@@ -81,7 +81,7 @@ Ext.define('Uni.property.view.property.comtasks.ComTasks', {
                 {
                     xtype: 'button',
                     itemId: 'id-comtasks-add-button',
-                    text: Uni.I18n.translate('comTasks.addComTasks', 'UNI', 'Add com tasks'),
+                    text: Uni.I18n.translate('comTasks.addComTasks', 'UNI', 'Add communication tasks'),
                     action: 'addComTasks',
                     margin: '0 0 0 10',
                     handler: Ext.bind(me.showAddView, me)
@@ -278,7 +278,7 @@ Ext.define('Uni.property.view.property.comtasks.ComTasks', {
             lastBreadcrumbLink.renderData.href = window.location.href;
             lastBreadcrumbLink.update(lastBreadcrumbLink.renderTpl.apply(lastBreadcrumbLink.renderData));
             breadcrumbTrail.addBreadcrumbItem(Ext.create('Uni.model.BreadcrumbItem', {
-                text: Uni.I18n.translate('comTaskFiltering.filterOutComTasks', 'UNI', 'Filter out communication tasks'),
+                text: Uni.I18n.translate('comTaskFiltering.excludeComTasks', 'UNI', 'Exclude communication tasks'),
                 relative: false
             }));
             lastBreadcrumbLink.getEl().on('click', me.hideAddView, me, {single: true});

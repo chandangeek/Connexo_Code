@@ -22,7 +22,7 @@ public enum TranslationKeys implements TranslationKey {
     TEMPLATE_UNREGISTERED_FROM_GATEWAY_DESCRIPTION("TemplateUnregisteredFromGatewayDescription", "Create an issue when a slave is unregistered from a gateway for some time"),
 
     PARAMETER_NAME_EVENT_TYPE(BasicDataCollectionRuleTemplate.EVENTTYPE, "Event"),
-    PARAMETER_EXCLUDED_COM_TASKS(BasicDataCollectionRuleTemplate.EXCLUDEDCOMTASKS, "Excluded com tasks"),
+    PARAMETER_EXCLUDED_COM_TASKS(BasicDataCollectionRuleTemplate.EXCLUDEDCOMTASKS, "Excluded communication tasks"),
     PARAMETER_AUTO_RESOLUTION(BasicDataCollectionRuleTemplate.AUTORESOLUTION, "Auto resolution"),
     PARAMETER_RADIO_GROUP(BasicDataCollectionRuleTemplate.RADIOGROUP, "When recurring"),
     PARAMETER_DO_NOTHING("WhenRecurringDoNothing", "Do nothing"),
