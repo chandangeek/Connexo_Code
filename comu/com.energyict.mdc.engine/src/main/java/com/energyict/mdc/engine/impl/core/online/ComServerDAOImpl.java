@@ -1287,6 +1287,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider.firmwareService(), serviceProvider.clock());
             firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
             firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
+            firmwareStorage.updateAuxiliaryFirmwareVersion(collectedFirmwareVersions.getActiveAuxiliaryFirmwareVersion(), device);
             firmwareStorage.updateCaConfigImageVersion(collectedFirmwareVersions.getActiveCaConfigImageVersion(), device);
         });
     }

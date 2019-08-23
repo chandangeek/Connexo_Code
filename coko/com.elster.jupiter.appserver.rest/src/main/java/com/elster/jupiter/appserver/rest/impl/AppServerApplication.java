@@ -113,7 +113,8 @@ public class AppServerApplication extends Application implements MessageSeedProv
         this.nlsService = nlsService;
         Thesaurus domainThesaurus = nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
-        this.thesaurus = domainThesaurus.join(restThesaurus);
+        this.thesaurus = domainThesaurus.join(restThesaurus)
+                .join(nlsService.getThesaurus(WebServicesService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference

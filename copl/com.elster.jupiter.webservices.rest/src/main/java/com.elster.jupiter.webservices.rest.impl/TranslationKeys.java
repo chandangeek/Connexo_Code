@@ -10,19 +10,10 @@ import com.elster.jupiter.nls.TranslationKey;
  * Created by bvn on 6/15/16.
  */
 public enum TranslationKeys implements TranslationKey {
-
-    LL_SEVERE("webservices.loglevel.severe", "Severe"),
-    LL_WARNING("webservices.loglevel.warning", "Warning"),
-    LL_INFO("webservices.loglevel.info", "Information"),
-    LL_CONFIG("webservices.loglevel.config", "Configuration"),
-    LL_FINE("webservices.loglevel.fine", "Fine"),
-    LL_FINER("webservices.loglevel.finer", "Finer"),
-    LL_FINEST("webservices.loglevel.finest", "Finest"),
     WST_INBOUND("webservices.direction.inbound", "Inbound"),
     WST_OUTBOUND("webservices.direction.outbound", "Outbound"),
     AUTH_NONE("webservices.authentication.none", "No authentication"),
     AUTH_BASIC("webservices.authentication.basic_authentication", "Basic authentication");
-    ;
 
     private final String key;
     private final String defaultFormat;

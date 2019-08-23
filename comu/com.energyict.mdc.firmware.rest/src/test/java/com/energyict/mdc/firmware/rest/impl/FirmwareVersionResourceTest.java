@@ -49,10 +49,11 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     private static final String FIRMWARE_VERSION = "firmwareVersion";
     private static final String METER_FW_DEPENDENCY = "meterFW";
     private static final String COMM_FW_DEPENDENCY = "commFW";
+    private static final String AUX_FW_DEPENDENCY = "auxFW";
     @Mock
     private DeviceType deviceType;
     @Mock
-    private FirmwareVersion firmwareVersion, meterFWDependency, commFWDependency;
+    private FirmwareVersion firmwareVersion, meterFWDependency, commFWDependency, auxFWDependency;
     @Mock
     private FirmwareVersionBuilder firmwareVersionBuilder;
 
@@ -69,6 +70,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         when(firmwareVersion.getImageIdentifier()).thenReturn("10.4.0");
         when(firmwareVersion.getMeterFirmwareDependency()).thenReturn(Optional.empty());
         when(firmwareVersion.getCommunicationFirmwareDependency()).thenReturn(Optional.empty());
+        when(firmwareVersion.getAuxiliaryFirmwareDependency()).thenReturn(Optional.empty());
         Finder<FirmwareVersion> firmwareVersionFinder = mockFinder(Collections.singletonList(firmwareVersion));
         when(firmwareService.findAllFirmwareVersions(any(FirmwareVersionFilter.class))).thenReturn(firmwareVersionFinder);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
@@ -91,6 +93,9 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         when(firmwareService.getFirmwareVersionById(21)).thenReturn(Optional.of(commFWDependency));
         when(commFWDependency.getId()).thenReturn(21L);
         when(commFWDependency.getFirmwareVersion()).thenReturn(COMM_FW_DEPENDENCY);
+        when(firmwareService.getFirmwareVersionById(27)).thenReturn(Optional.of(auxFWDependency));
+        when(auxFWDependency.getId()).thenReturn(27L);
+        when(auxFWDependency.getFirmwareVersion()).thenReturn(AUX_FW_DEPENDENCY);
     }
 
     @Test
@@ -134,6 +139,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     public void testGetFirmwareWithDependencies() {
         when(firmwareVersion.getMeterFirmwareDependency()).thenReturn(Optional.of(meterFWDependency));
         when(firmwareVersion.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
+        when(firmwareVersion.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
 
         String json = target("devicetypes/1/firmwares/1").request().get(String.class);
 
@@ -144,6 +150,8 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<String>get("$.meterFirmwareDependency.name")).isEqualTo(METER_FW_DEPENDENCY);
         assertThat(jsonModel.<Number>get("$.communicationFirmwareDependency.id")).isEqualTo(21);
         assertThat(jsonModel.<String>get("$.communicationFirmwareDependency.name")).isEqualTo(COMM_FW_DEPENDENCY);
+        assertThat(jsonModel.<Number>get("$.auxiliaryFirmwareDependency.id")).isEqualTo(27);
+        assertThat(jsonModel.<String>get("$.auxiliaryFirmwareDependency.name")).isEqualTo(AUX_FW_DEPENDENCY);
     }
 
     @Test
@@ -193,12 +201,14 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         firmwareVersionInfo.firmwareStatus = new FirmwareStatusInfo();
         firmwareVersionInfo.meterFirmwareDependency = new IdWithNameInfo(25, null);
         firmwareVersionInfo.communicationFirmwareDependency = new IdWithNameInfo(21, null);
+        firmwareVersionInfo.auxiliaryFirmwareDependency = new IdWithNameInfo(27, null);
         firmwareVersionInfo.fileSize = 1;
 
         Response response = target("devicetypes/1/firmwares/validate").request().post(Entity.json(firmwareVersionInfo));
 
         verify(firmwareVersionBuilder).setMeterFirmwareDependency(meterFWDependency);
         verify(firmwareVersionBuilder).setCommunicationFirmwareDependency(commFWDependency);
+        verify(firmwareVersionBuilder).setAuxiliaryFirmwareDependency(auxFWDependency);
         verify(firmwareVersionBuilder).validate();
         assertThat(response.getEntity()).isNotNull();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -231,6 +241,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
                 .field("imageIdentifier", "10.4.0")
                 .field("meterFirmwareDependency", "25")
                 .field("communicationFirmwareDependency", "21")
+                .field("auxiliaryFirmwareDependency", "27")
                 .bodyPart(new FileDataBodyPart("firmwareFile", File.createTempFile("prefix", "suffix")))
                 .close();
 
@@ -239,6 +250,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         verify(firmwareService).newFirmwareVersion(deviceType, "METER1", FirmwareStatus.TEST, FirmwareType.METER, "10.4.0");
         verify(firmwareVersionBuilder).setMeterFirmwareDependency(meterFWDependency);
         verify(firmwareVersionBuilder).setCommunicationFirmwareDependency(commFWDependency);
+        verify(firmwareVersionBuilder).setAuxiliaryFirmwareDependency(auxFWDependency);
         verify(firmwareVersionBuilder).create();
         verifyNoMoreInteractions(firmwareVersionBuilder);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -295,6 +307,8 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         firmwareVersionInfo.imageIdentifier = "abc";
         firmwareVersionInfo.meterFirmwareDependency = new IdWithNameInfo(25, null);
         firmwareVersionInfo.communicationFirmwareDependency = new IdWithNameInfo(21, null);
+        firmwareVersionInfo.auxiliaryFirmwareDependency = new IdWithNameInfo(27, null);
+
 
         Response response = target("devicetypes/1/firmwares/1/validate").request().put(Entity.json(firmwareVersionInfo));
 
@@ -303,6 +317,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         verify(firmwareVersion).setFirmwareStatus(FirmwareStatus.FINAL);
         verify(firmwareVersion).setMeterFirmwareDependency(meterFWDependency);
         verify(firmwareVersion).setCommunicationFirmwareDependency(commFWDependency);
+        verify(firmwareVersion).setAuxiliaryFirmwareDependency(auxFWDependency);
         verify(firmwareVersion).validate();
         assertThat(response.getEntity()).isNotNull();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -335,6 +350,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
                 .field("imageIdentifier", "10.4.0")
                 .field("meterFirmwareDependency", "25")
                 .field("communicationFirmwareDependency", "21")
+                .field("auxiliaryFirmwareDependency", "27")
                 .bodyPart(new FileDataBodyPart("firmwareFile", File.createTempFile("prefix", "suffix"))).close();
 
         Response response = target("devicetypes/1/firmwares/1").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
@@ -344,6 +360,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         verify(firmwareVersion).setFirmwareStatus(FirmwareStatus.FINAL);
         verify(firmwareVersion).setMeterFirmwareDependency(meterFWDependency);
         verify(firmwareVersion).setCommunicationFirmwareDependency(commFWDependency);
+        verify(firmwareVersion).setAuxiliaryFirmwareDependency(auxFWDependency);
         verify(firmwareVersion).update();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }

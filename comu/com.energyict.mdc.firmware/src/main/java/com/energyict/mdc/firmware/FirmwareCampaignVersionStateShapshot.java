@@ -20,5 +20,5 @@ public interface FirmwareCampaignVersionStateShapshot {
     int getRank();
     String getMeterFirmwareDependency();
     String getCommunicationFirmwareDependency();
-
+    String getAuxiliaryFirmwareDependency();
 }
