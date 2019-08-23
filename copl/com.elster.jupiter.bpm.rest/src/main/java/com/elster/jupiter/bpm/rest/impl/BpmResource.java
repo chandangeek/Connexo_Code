@@ -744,6 +744,9 @@ public class BpmResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
 
+        /**
+         * TODO: make this pluggable via {@link ProcessAssociationProvider}
+         */
         HashMap<String, String> connexoFlowHashMap = new HashMap<>();
         connexoFlowHashMap.put("devicealarm", "alarmId");
         connexoFlowHashMap.put("device", "deviceId");
@@ -752,6 +755,7 @@ public class BpmResource {
         connexoFlowHashMap.put("devicelifecycleissue", "issueId");
         connexoFlowHashMap.put("taskissue", "issueId");
         connexoFlowHashMap.put("servicecallissue", "issueId");
+        connexoFlowHashMap.put("webserviceissue", "issueId");
 
         String requiredVariable = connexoFlowHashMap.get(info.type);
 

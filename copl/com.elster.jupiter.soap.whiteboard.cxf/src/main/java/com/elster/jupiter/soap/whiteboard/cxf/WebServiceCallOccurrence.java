@@ -1,5 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import com.elster.jupiter.domain.util.Finder;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
@@ -24,6 +26,8 @@ public interface WebServiceCallOccurrence {
 
     void log(LogLevel logLevel, String message);
     void log(String message, Exception exception);
+
+    Finder<EndPointLog> getLogs();
 
     void setEndTime(Instant endTime);
     void setRequest(String request);

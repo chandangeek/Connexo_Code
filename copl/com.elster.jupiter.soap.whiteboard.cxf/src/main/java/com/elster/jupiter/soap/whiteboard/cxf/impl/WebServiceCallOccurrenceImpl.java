@@ -1,9 +1,12 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
@@ -17,6 +20,8 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, HasId {
     private final DataModel dataModel;
@@ -192,5 +197,11 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
                 log(LogLevel.SEVERE, "Couldn't retry web service call occurrence: web service is either not registered in the system or doesn't support retry.");
             }
         }
+    }
+
+    @Override
+    public Finder<EndPointLog> getLogs() {
+        return DefaultFinder.of(EndPointLog.class, where("occurrence").isEqualTo(this), dataModel)
+                .defaultSortColumn("timestamp", false);
     }
 }

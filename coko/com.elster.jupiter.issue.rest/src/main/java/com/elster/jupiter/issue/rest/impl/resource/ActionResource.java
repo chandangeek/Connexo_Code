@@ -66,7 +66,7 @@ public class ActionResource extends BaseResource {
         
         List<IssueActionTypeInfo> ruleActionTypes = query.select(condition).stream()
                 .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
-                .map(at -> actionInfoFactory.asInfo(at, issueReason.map(IssueReason::getName).orElse(null)))
+                .map(at -> actionInfoFactory.asInfo(at, reasonParam))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
     }

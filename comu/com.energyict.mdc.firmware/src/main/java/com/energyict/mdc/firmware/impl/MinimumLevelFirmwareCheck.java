@@ -42,7 +42,7 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
                 if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                     throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
                 }
-                Stream.of(firmwareVersion.getMeterFirmwareDependency(), firmwareVersion.getCommunicationFirmwareDependency())
+                Stream.of(firmwareVersion.getMeterFirmwareDependency(), firmwareVersion.getCommunicationFirmwareDependency(), firmwareVersion.getAuxiliaryFirmwareDependency())
                         .flatMap(Functions.asStream())
                         .forEach(dependency -> {
                             FirmwareType firmwareType = dependency.getFirmwareType();
@@ -63,6 +63,8 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
                 return MessageSeeds.METER_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED;
             case COMMUNICATION:
                 return MessageSeeds.COMMUNICATION_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED;
+            case AUXILIARY:
+                return MessageSeeds.AUXILIARY_FIRMWARE_RANK_BELOW_MINIMUM_SUPPORTED;
             default:
                 throw new IllegalArgumentException("Firmware type " + firmwareType.name() + " isn't supported by " + MinimumLevelFirmwareCheck.class.getSimpleName());
         }

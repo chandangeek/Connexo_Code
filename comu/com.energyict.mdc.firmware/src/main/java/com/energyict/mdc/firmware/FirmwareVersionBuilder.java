@@ -23,6 +23,8 @@ public interface FirmwareVersionBuilder {
 
     FirmwareVersionBuilder setCommunicationFirmwareDependency(FirmwareVersion communicationFirmwareDependency);
 
+    FirmwareVersionBuilder setAuxiliaryFirmwareDependency(FirmwareVersion auxiliaryFirmwareDependency);
+
     FirmwareVersion create();
 
     /**

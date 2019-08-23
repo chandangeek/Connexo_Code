@@ -59,4 +59,18 @@ public interface CollectedFirmwareVersion extends CollectedData {
 
     void setDataCollectionConfiguration(DataCollectionConfiguration configuration);
 
+    /**
+     * @return the String representation of the currently active Auxiliary firmware version. An empty optional is returned when no active communication firmware version is present.
+     */
+    Optional<String> getActiveAuxiliaryFirmwareVersion();
+
+    void setActiveAuxiliaryFirmwareVersion(String activeAuxiliaryFirmwareVersion);
+
+    /**
+     * @return the String representation of the passive Auxiliary firmware version. An empty optional is returned when no passive Communication firmware version is present.
+     */
+    Optional<String> getPassiveAuxiliaryFirmwareVersion();
+
+    void setPassiveAuxiliaryFirmwareVersion(String passiveAuxiliaryFirmwareVersion);
+
 }

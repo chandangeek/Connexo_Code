@@ -9,9 +9,11 @@ Ext.define('Apr.view.taskmanagement.Setup', {
     applicationKey: null,
     requires: [
         'Uni.util.FormEmptyMessage',
+        'Uni.grid.commander.SortingPanel',
         'Apr.view.taskmanagement.TaskPreview',
         'Apr.view.taskmanagement.TaskFilter',
         'Apr.view.taskmanagement.TaskGrid',
+        'Apr.view.taskmanagement.SortMenu',
         'Apr.TaskManagementApp'
     ],
 
@@ -29,6 +31,28 @@ Ext.define('Apr.view.taskmanagement.Setup', {
                         applicationKey: me.applicationKey,
                         queuesStore: me.queuesStore,
                         queueTypesStore: me.queueTypesStore
+                    },
+                    {
+                        store: 'Apr.store.Tasks',
+                        xtype: 'uni-grid-commander-sortingpanel',
+                        menu: 'taskmanagement-sort-menu',
+                        items: [
+                          {
+                            property: 'nextRun',
+                            itemId: 'taskmanagement-sort-menu-nextrun',
+                            direction: Uni.component.sort.model.Sort.DESC
+                          },
+                          {
+                            property: 'queue',
+                            itemId: 'taskmanagement-sort-menu-queue',
+                            direction: Uni.component.sort.model.Sort.DESC
+                          },
+                          {
+                            property: 'priority',
+                            itemId: 'taskmanagement-sort-menu-priority',
+                            direction: Uni.component.sort.model.Sort.DESC
+                          }
+                        ]
                     },
                     {
                         xtype: 'preview-container',
