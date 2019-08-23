@@ -59,7 +59,7 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
     }
 
     @Override
-    public List<? extends ReadingTypeDataExportItem> getExportItems() {
+    public List<ReadingTypeDataExportItem> getExportItems() {
         return Collections.unmodifiableList(exportItems);
     }
 

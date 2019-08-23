@@ -9,10 +9,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -33,8 +31,6 @@ public class TaskApplication extends Application implements TranslationKeyProvid
 
     private volatile TaskService taskService;
     private volatile TimeService timeService;
-    private volatile TransactionService transactionService;
-    private volatile RestQueryService restQueryService;
     private volatile Thesaurus thesaurus;
     private volatile Clock clock;
 
@@ -50,16 +46,6 @@ public class TaskApplication extends Application implements TranslationKeyProvid
     @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setRestQueryService(RestQueryService restQueryService) {
-        this.restQueryService = restQueryService;
     }
 
     @Reference
@@ -83,8 +69,6 @@ public class TaskApplication extends Application implements TranslationKeyProvid
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
-            bind(restQueryService).to(RestQueryService.class);
-            bind(transactionService).to(TransactionService.class);
             bind(timeService).to(TimeService.class);
             bind(taskService).to(TaskService.class);
             bind(thesaurus).to(Thesaurus.class);

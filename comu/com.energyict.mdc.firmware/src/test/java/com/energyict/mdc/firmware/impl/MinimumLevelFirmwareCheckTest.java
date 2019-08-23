@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
 
     @Mock
-    private FirmwareVersion meterFWDependency, commFWDependency;
+    private FirmwareVersion meterFWDependency, commFWDependency, auxFWDependency;
 
     public MinimumLevelFirmwareCheckTest() {
         super(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK, MinimumLevelFirmwareCheck.class);
@@ -27,12 +27,15 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
     @Override
     public void setUp() {
         super.setUp();
-        when(meterFWDependency.getRank()).thenReturn(3);
+        when(meterFWDependency.getRank()).thenReturn(4);
         when(meterFWDependency.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(meterFWDependency.getDeviceType()).thenReturn(deviceType);
-        when(commFWDependency.getRank()).thenReturn(4);
+        when(commFWDependency.getRank()).thenReturn(5);
         when(commFWDependency.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(commFWDependency.getDeviceType()).thenReturn(deviceType);
+        when(auxFWDependency.getRank()).thenReturn(6);
+        when(auxFWDependency.getFirmwareType()).thenReturn(FirmwareType.AUXILIARY);
+        when(auxFWDependency.getDeviceType()).thenReturn(deviceType);
     }
 
     @Test
@@ -47,6 +50,13 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
         when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
 
         expectError("Communication firmware is below its minimal level.");
+    }
+
+    @Test
+    public void testOldAuxFirmware() {
+        when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
+
+        expectError("Auxiliary firmware is below its minimal level.");
     }
 
     @Test
@@ -66,11 +76,21 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
     }
 
     @Test
+    public void testNoAuxFirmware() {
+        when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
+        when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.AUXILIARY)).thenReturn(Optional.empty());
+
+        expectError("Auxiliary firmware is below its minimal level.");
+    }
+
+    @Test
     public void testAcceptableRanksOfCurrentFirmware() {
         when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.of(meterFWDependency));
         when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
+        when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
         when(meterFWDependency.getRank()).thenReturn(1);
         when(commFWDependency.getRank()).thenReturn(2);
+        when(auxFWDependency.getRank()).thenReturn(3);
 
         expectSuccess();
     }
@@ -83,7 +103,9 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
     @Test
     public void testFirmwareNotReadOut() {
         when(firmwareManagementDeviceUtils.isReadOutAfterLastFirmwareUpgrade()).thenReturn(false);
-
+        when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.of(meterFWDependency));
+        when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
+        when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
         expectError("Firmware hasn't been read out after the last upload.");
     }
 
@@ -92,6 +114,7 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
         when(firmwareManagementDeviceUtils.isReadOutAfterLastFirmwareUpgrade()).thenReturn(false);
         when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.of(meterFWDependency));
         when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
+        when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
         when(firmwareCampaignManagementOptions.isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)).thenReturn(false);
 
         expectSuccess();

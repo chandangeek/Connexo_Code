@@ -148,7 +148,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
     }
 
-    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
@@ -161,7 +161,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
         if (isLastChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
-            } else if (hasAllChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
+            } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
             } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 parent.requestTransition(DefaultState.PARTIAL_SUCCESS);

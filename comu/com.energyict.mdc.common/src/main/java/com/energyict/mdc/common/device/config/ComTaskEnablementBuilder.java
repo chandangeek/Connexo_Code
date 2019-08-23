@@ -8,7 +8,7 @@ import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Provides building services to enable {@link ComTask}
@@ -19,7 +19,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-22 (09:48)
  */
-@ProviderType
+@ConsumerType
 public interface ComTaskEnablementBuilder {
 
     ComTaskEnablementBuilder setIgnoreNextExecutionSpecsForInbound(boolean flag);

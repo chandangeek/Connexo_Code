@@ -8,8 +8,8 @@ import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface InboundConnectionTask extends ConnectionTask<InboundComPortPool, PartialInboundConnectionTask> {
 }

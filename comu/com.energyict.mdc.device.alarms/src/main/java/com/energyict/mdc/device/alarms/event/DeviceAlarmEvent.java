@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.alarms.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -290,13 +290,13 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     private void getEventDevice(Map<?, ?> rawEvent) {
         Optional<Long> endDeviceId = getLong(rawEvent, ModuleConstants.DEVICE_IDENTIFIER);
         EndDevice endDevice = meteringService.findEndDeviceById(endDeviceId.orElse(0L))
-                .orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, endDeviceId));
+                .orElseThrow(() -> new UnableToCreateIssueException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, endDeviceId));
         long amrId = Long.parseLong(endDevice.getAmrId());
-        device = deviceService.findDeviceById(amrId).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
+        device = deviceService.findDeviceById(amrId).orElseThrow(() -> new UnableToCreateIssueException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_DEVICE, amrId));
     }
 
     private void getEventTimestamp(Map<?, ?> rawEvent) {
-        Long eventTimeStamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP).orElseThrow(() -> new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_TIMESTAMP));
+        Long eventTimeStamp = getLong(rawEvent, ModuleConstants.EVENT_TIMESTAMP).orElseThrow(() -> new UnableToCreateIssueException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_TIMESTAMP));
         timestamp = Instant.ofEpochMilli(eventTimeStamp);
     }
 
@@ -311,7 +311,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 return Optional.of(meterRef.get());
             }
         }
-        throw new UnableToCreateEventException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device.getId());
+        throw new UnableToCreateIssueException(getThesaurus(), MessageSeeds.EVENT_BAD_DATA_NO_KORE_DEVICE, device.getId());
     }
 
     @Override

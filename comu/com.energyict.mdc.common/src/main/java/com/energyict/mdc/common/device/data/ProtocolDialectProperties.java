@@ -12,7 +12,7 @@ import com.energyict.mdc.common.protocol.DeviceProtocolDialectUsagePluggableClas
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.upl.TypedProperties;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models the fact that a {@link com.energyict.mdc.upl.meterdata.Device} uses a {@link DeviceProtocolDialect}
@@ -21,7 +21,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-24 (11:32)
  */
-@ProviderType
+@ConsumerType
 public interface ProtocolDialectProperties
     extends
         PluggableClassUsage<

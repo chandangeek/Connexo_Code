@@ -7,7 +7,7 @@ package com.energyict.mdc.common.device.lifecycle.config;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.HasId;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Wraps an existing external business process that was designed
@@ -21,7 +21,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-30 (09:39)
  */
-@ProviderType
+@ConsumerType
 public interface TransitionBusinessProcess extends HasId {
 
     /**

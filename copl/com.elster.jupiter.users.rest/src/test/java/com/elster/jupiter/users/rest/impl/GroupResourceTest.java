@@ -50,6 +50,7 @@ public class GroupResourceTest extends UsersRestApplicationJerseyTest {
         when(group.getPrivileges()).thenReturn(Collections.singletonMap("test", Collections.singletonList(privilege)));
         when(userService.findAndLockGroupByIdAndVersion(1L, 1L)).thenReturn(Optional.of(group));
         when(userService.getGroup(1L)).thenReturn(Optional.of(group));
+        when(userService.userAdminPrivileges()).thenReturn( new String[]{});
         GroupInfo info = new GroupInfo();
         info.id = 1L;
         info.privileges = Collections.emptyList();

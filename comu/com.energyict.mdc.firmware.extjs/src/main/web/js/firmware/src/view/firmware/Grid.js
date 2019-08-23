@@ -70,6 +70,16 @@ Ext.define('Fwc.view.firmware.Grid', {
             renderer: function (value) {
                   return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
             }
+        },
+        {
+            text: Uni.I18n.translate('firmware.field.auxiliaryDepVersion', 'FWC', 'Min level Auxiliary FW'),
+            flex: 1,
+            itemId: 'minAuxiliaryLevel',
+            dataIndex: 'auxiliaryFirmwareDependency',
+            hidden: true,
+            renderer: function (value) {
+                  return value && value.name ? Ext.String.htmlEncode(value.name) : '-';
+            }
         }
     ],
 

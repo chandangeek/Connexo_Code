@@ -6,8 +6,7 @@ Ext.define('Uni.view.search.field.Simple', {
     extend: 'Uni.view.search.field.internal.Criteria',
     xtype: 'uni-search-criteria-simple',
     requires: [
-        'Uni.view.search.field.internal.CriteriaLine',
-        'Uni.view.search.field.internal.Textarea'
+        'Uni.view.search.field.internal.CriteriaLine'
     ],
 
     //reset: function() {

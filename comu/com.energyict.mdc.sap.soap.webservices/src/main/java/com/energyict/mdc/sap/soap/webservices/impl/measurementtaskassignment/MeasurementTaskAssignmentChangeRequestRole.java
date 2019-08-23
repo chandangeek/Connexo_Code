@@ -22,10 +22,10 @@ public class MeasurementTaskAssignmentChangeRequestRole {
         return lrn;
     }
 
-    Instant startDateTime;
-    Instant endDateTime;
-    String roleCode;
-    String lrn;
+    private Instant startDateTime;
+    private Instant endDateTime;
+    private String roleCode;
+    private String lrn;
 
     public MeasurementTaskAssignmentChangeRequestRole(Instant startDateTime, Instant endDateTime, String roleCode, String lrn) {
         this.startDateTime = startDateTime;

@@ -85,9 +85,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
             msg.getUtilitiesDeviceERPSmartMeterLocationNotificationMessage()
                     .forEach(message -> {
                         LocationMessage locationMsg = new LocationMessage(message);
-                        if (locationMsg.isValid()) {
-                            locationMessages.add(locationMsg);
-                        }
+                        locationMessages.add(locationMsg);
                     });
         }
 
@@ -128,7 +126,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
         private String getLocationId(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
             return Optional.ofNullable(msg.getUtilitiesDevice())
                     .map(UtilsDvceERPSmrtMtrLocNotifUtilsDvce::getLocation)
-                    .map(location -> location.get(0))
+                    .flatMap(location -> location.stream().findFirst())
                     .map(UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointID)
                     .map(InstallationPointID::getValue)
                     .orElse(null);

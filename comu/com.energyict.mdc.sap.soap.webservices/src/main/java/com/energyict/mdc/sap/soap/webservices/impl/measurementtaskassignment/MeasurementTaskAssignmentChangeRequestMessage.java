@@ -10,13 +10,8 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchan
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.measurementtaskassignmentchangerequest.UtilsTmeSersERPMsmtTskAssgmtChgReqUtilsTmeSers;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -42,13 +37,13 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
         return roles;
     }
 
-    public boolean isValidId() {
+    public boolean hasValidId() {
         return id != null;
     }
 
-    public boolean isPeriodsValid() {
+    public boolean arePeriodsValid() {
         for (MeasurementTaskAssignmentChangeRequestRole role : roles) {
-            if (role.getStartDateTime().equals(role.getEndDateTime()) || role.getStartDateTime().isAfter(role.getEndDateTime())) {
+            if (!role.getStartDateTime().isBefore(role.getEndDateTime())) {
                 return false;
             }
         }
@@ -122,12 +117,6 @@ public class MeasurementTaskAssignmentChangeRequestMessage {
                     r.getUtilitiesTimeSeriesAssignmentRoleCode().getValue(),
                     r.getUtilitiesMeasurementTaskID().getValue()))
                     .collect(Collectors.toList());
-        }
-
-        private Instant convertToUTC(Instant local) {
-            TimeZone utc = TimeZone.getTimeZone(ZoneId.systemDefault());
-            OffsetDateTime utcOffset = OffsetDateTime.ofInstant(local, ZoneOffset.systemDefault());
-            return utcOffset.toInstant();
         }
     }
 }

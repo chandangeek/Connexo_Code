@@ -138,6 +138,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(fcvs.getRank()).thenReturn(1);
         when(fcvs.getMeterFirmwareDependency()).thenReturn("fvMDep");
         when(fcvs.getCommunicationFirmwareDependency()).thenReturn("fvCdep");
+        when(fcvs.getAuxiliaryFirmwareDependency()).thenReturn("fvAdep");
         firmwareCampaignVersionStateShapshots.add(fcvs);
         when(firmwareCampaignService.getFirmwareCampaignById(anyLong())).thenReturn(Optional.ofNullable(firmwareCampaign));
         when(firmwareService.findFirmwareCampaignVersionStateSnapshots(firmwareCampaign)).thenReturn(firmwareCampaignVersionStateShapshots);
@@ -252,6 +253,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
         when(firmwareVersion.getFirmwareType()).thenReturn(firmwareType);
         when(firmwareVersion.getCommunicationFirmwareDependency()).thenReturn(Optional.of(firmwareVersion));
+        when(firmwareVersion.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(firmwareVersion));
         when(firmwareVersion.getMeterFirmwareDependency()).thenReturn(Optional.of(firmwareVersion));
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
         when(firmwareCampaign.getFirmwareType()).thenReturn(firmwareType);

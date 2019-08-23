@@ -8,13 +8,13 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface LoadProfileType extends HasId, HasName, com.energyict.mdc.upl.meterdata.LoadProfileType {
 
     void setName(String newName);

@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -186,7 +187,9 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
     @Override
     public Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> allFilterConditions = new ArrayList<>();
-        if (!deviceMessageQueryFilter.getDeviceGroups().isEmpty()) {
+        if (deviceMessageQueryFilter.getDevice().isPresent()) {
+            allFilterConditions.add(getDeviceSearchCondition(deviceMessageQueryFilter.getDevice().get()));
+        } else if (!deviceMessageQueryFilter.getDeviceGroups().isEmpty()) {
             allFilterConditions.add(getDeviceGroupSearchCondition(deviceMessageQueryFilter.getDeviceGroups()));
         }
         if (!deviceMessageQueryFilter.getMessageCategories().isEmpty()) {
@@ -264,10 +267,9 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
 
     private List<Condition> getAllMessageCategorySearchConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> deviceMessageConditions = new ArrayList<>();
-        for (DeviceMessageCategory deviceMessageCategory : deviceMessageQueryFilter.getMessageCategories()) {
-            List<Long> deviceMessageDbIds = getMessageCategorySearchCondition(deviceMessageQueryFilter, deviceMessageCategory);
-            deviceMessageConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).in(deviceMessageDbIds));
-        }
+        deviceMessageConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).in(
+                deviceMessageQueryFilter.getMessageCategories().stream()
+                        .flatMap(dmc -> getMessageCategorySearchCondition(deviceMessageQueryFilter, dmc).stream()).collect(Collectors.toList())));
         return deviceMessageConditions;
     }
 
@@ -298,6 +300,10 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
                 .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
                 .map(Condition.class::cast)
                 .reduce(Condition.FALSE, Condition::or);
+    }
+
+    private Condition getDeviceSearchCondition(Device device) {
+        return where(DeviceMessageImpl.Fields.DEVICE.fieldName()).isEqualTo(device);
     }
 
     @Override

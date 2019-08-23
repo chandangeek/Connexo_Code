@@ -50,7 +50,7 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
                     .map(firmwareService::getFirmwareManagementDeviceUtilsFor)
                     .ifPresent(masterDeviceUtils -> {
                         Device master = masterDeviceUtils.getDevice();
-                        if (noGhostFirmwareCheck.hasGhostMeterOrCommunicationFirmware(master)) {
+                        if (noGhostFirmwareCheck.hasGhostMeterOrCommunicationOrAuxiliaryFirmware(master)) {
                             throw new FirmwareCheckException(thesaurus, MessageSeeds.MASTER_HAS_GHOST_FIRMWARE);
                         }
                         if (!masterDeviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
@@ -58,7 +58,7 @@ public class MasterHasLatestFirmwareCheck implements FirmwareCheck {
                         }
                         DeviceType masterDeviceType = master.getDeviceType();
                         EnumSet<FirmwareStatus> statusesForCheck = options.getStatuses(FirmwareCheckManagementOption.MASTER_FIRMWARE_CHECK);
-                        EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION).stream()
+                        EnumSet.of(FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.AUXILIARY).stream()
                                 .filter(firmwareType -> firmwareService.isFirmwareTypeSupported(masterDeviceType, firmwareType))
                                 .forEach(firmwareType -> {
                                     Optional<FirmwareVersion> maximum = firmwareService.getMaximumFirmware(masterDeviceType, EnumSet.of(firmwareType), statusesForCheck);

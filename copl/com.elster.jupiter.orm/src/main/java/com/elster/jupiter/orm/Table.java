@@ -231,7 +231,7 @@ public interface Table<T> {
 
     boolean hasAudit();
 
-    TableAudit getTableAudit();
+    TableAudit getTableAudit(Object object);
 
     Class<?> getApi();
 

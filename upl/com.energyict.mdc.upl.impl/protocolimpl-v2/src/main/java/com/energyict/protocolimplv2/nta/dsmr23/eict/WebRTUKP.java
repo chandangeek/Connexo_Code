@@ -265,6 +265,10 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
         collectFirmwareVersionCommunicationModule(result);
 
+        if (supportsAuxiliaryFirmwareVersion()) {
+            collectFirmwareVersionAuxiliary(result);
+        }
+
         // NTA-related protocols don't support CA version, this is for tesitng purposes only
         // TODO: 19.03.2018 for testing purposes
         try {
@@ -333,5 +337,9 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         return null;
     }
 
-
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        // added support for testing surposes with the simulator
+        return true;
+    }
 }
