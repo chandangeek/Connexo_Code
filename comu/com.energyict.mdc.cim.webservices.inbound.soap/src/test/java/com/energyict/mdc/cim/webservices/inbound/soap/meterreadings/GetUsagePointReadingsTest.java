@@ -49,11 +49,22 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockActivator
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.EndDeviceGroup;
@@ -108,6 +119,8 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import static com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.DataSourceTypeName.LOAD_PROFILE;
+import static com.energyict.mdc.cim.webservices.inbound.soap.meterreadings.DataSourceTypeName.REGISTER_GROUP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -130,6 +143,9 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private static final String END_DEVICE2_MRID = "a74e77e1-c397-41c8-8c3c-6ddab969047c";
     private static final String END_DEVICE2_NAME = "SPE01000002";
     private static final long END_DEVICE2_AMRID = 2;
+    private static final String COM_TASK_NAME = "com task name";
+    private static final String LOAD_PROFILE_NAME = "load profile name";
+    private static final String REGISTER_GROUP_NAME = "register group name";
     private static final String BILLING_NAME = "Billing";
     private static final String INFORMATION_NAME = "Information";
     private static final String CHECK_NAME = "Check";
@@ -213,13 +229,29 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     @Mock
     private ComTaskEnablement devMessageTaskEnablement, regCimTaskEnablement, irregComTaskEnablement;
     @Mock
-    DeviceConfiguration devMesDeviceConfiguration, regDeviceConfiguration, irregMesDeviceConfiguration;
+    DeviceConfiguration deviceConfiguration, regDeviceConfiguration, irregMesDeviceConfiguration;
     @Mock
     ComTask devMesComTask, regComTask, irregComTask;
     @Mock
     MessagesTask messagesTask;
     @Mock
+    LoadProfilesTask loadProfilesTask;
+    @Mock
+    RegistersTask registersTask;
+    @Mock
     DeviceMessageCategory deviceMessageCategory;
+    @Mock
+    ConnectionTask connectionTask;
+    @Mock
+    LoadProfileType loadProfileType;
+    @Mock
+    LoadProfile loadProfile;
+    @Mock
+    RegisterGroup registerGroup;
+    @Mock
+    Device.DeviceMessageBuilder deviceMessageBuilder;
+    @Mock
+    DeviceMessage deviceMessage;
 
 
     private ExecuteMeterReadingsEndpoint executeMeterReadingsEndpoint;
@@ -553,25 +585,6 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
     }
 
-//    private EndPointConfiguration mockEndPointConfiguration(String url) {
-//        EndPointConfiguration mock = mock(EndPointConfiguration.class);
-//        when(mock.getUrl()).thenReturn(url);
-//        when(mock.isActive()).thenReturn(true);
-//        when(mock.isInbound()).thenReturn(false);
-//        return mock;
-//    }
-//
-//    private <T> Finder<T> mockFinder(List<T> list) {
-//        Finder<T> finder = mock(Finder.class);
-//
-//        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-//        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-//        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-//        when(finder.find()).thenReturn(list);
-//        when(finder.stream()).thenReturn(list.stream());
-//        return finder;
-//    }
-
     private void mockEndDevices() {
         mockEndDevice(meter1, END_DEVICE1_MRID, END_DEVICE1_NAME, String.valueOf(END_DEVICE1_AMRID));
         mockEndDevice(meter2, END_DEVICE2_MRID, END_DEVICE2_NAME, String.valueOf(END_DEVICE2_AMRID));
@@ -584,36 +597,48 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     }
 
     private void mockDevices() {
-        mockDevice(device1, END_DEVICE1_AMRID);
-        mockDevice(device2, END_DEVICE2_AMRID);
+        mockDevice(device1, 1);
+        mockDevice(device2, 2);
+        when(deviceService.findDeviceById(END_DEVICE1_AMRID)).thenReturn(Optional.of(device1));
+        when(deviceService.findDeviceById(END_DEVICE2_AMRID)).thenReturn(Optional.of(device2));
+        when(deviceService.findAndLockDeviceById(END_DEVICE1_AMRID)).thenReturn(Optional.of(device1));
+        when(deviceService.findAndLockDeviceById(END_DEVICE2_AMRID)).thenReturn(Optional.of(device2));
         Finder finder = mock(Finder.class);
         when(deviceService.findAllDevices(any())).thenReturn(finder);
         when(finder.stream())
                 .thenReturn(Arrays.asList(device1, device2).stream());
+        mockConnectionTask();
     }
 
-    private void mockDevice(Device mock, long amrid) {
-        when(deviceService.findDeviceById(amrid)).thenReturn(Optional.of(mock));
+    private void mockDevice(Device mock, long id) {
+        when(mock.getComTaskExecutions()).thenReturn(Arrays.asList(devMesComTaskExecution, regComTaskExecution, irregComTaskExecution));
+        when(mock.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn("deviceName");
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(devMessageTaskEnablement, regCimTaskEnablement, irregComTaskEnablement));
+        mockComTaskEnablement(devMessageTaskEnablement, devMesComTask);
+        mockComTaskEnablement(regCimTaskEnablement, regComTask);
+        mockComTaskEnablement(irregComTaskEnablement, irregComTask);
 
-        when(mock.getComTaskExecutions()).thenReturn(Arrays.asList(devMesComTaskExecution));
-        when(mock.getDeviceConfiguration()).thenReturn(devMesDeviceConfiguration);
-        mockDeviceConfiguration(devMesDeviceConfiguration, devMessageTaskEnablement, devMesComTask);
-        mockComTaskExecution(devMesComTaskExecution, devMesComTask);
-        mockComTaskExecution(regComTaskExecution, regComTask);
-        mockComTaskExecution(irregComTaskExecution, irregComTask);
-    }
-
-    private void mockDeviceConfiguration(DeviceConfiguration mock, ComTaskEnablement comTaskEnablement, ComTask comTask) {
-        when(mock.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
-        mockComTaskEnablement(comTaskEnablement, comTask);
-    }
-
-    private void mockComTaskExecution(ComTaskExecution mock, ComTask comTask) {
-        when(mock.getComTask()).thenReturn(comTask);
-        mockComTask(comTask);
-        when(mock.getProtocolTasks()).thenReturn(Arrays.asList(messagesTask));
+        mockComTaskExecution(devMesComTaskExecution, mock, devMesComTask, messagesTask);
+        mockComTaskExecution(regComTaskExecution, mock, regComTask, loadProfilesTask);
+        mockComTaskExecution(irregComTaskExecution, mock, irregComTask, registersTask);
         when(messagesTask.getDeviceMessageCategories()).thenReturn(Arrays.asList(deviceMessageCategory));
         when(deviceMessageCategory.getId()).thenReturn(16);
+    }
+
+    private void mockComTaskExecution(ComTaskExecution mock, Device device, ComTask comTask, ProtocolTask protocolTask) {
+        when(mock.getDevice()).thenReturn(device);
+        when(mock.getComTask()).thenReturn(comTask);
+        mockComTask(comTask);
+        when(mock.getProtocolTasks()).thenReturn(Arrays.asList(protocolTask));
+        when(mock.getConnectionTask()).thenReturn(Optional.of(connectionTask));
+    }
+
+    private void mockConnectionTask() {
+        PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
+        when(connectionTask.getPartialConnectionTask()).thenReturn(partialConnectionTask);
+        when(partialConnectionTask.getName()).thenReturn(COM_TASK_NAME);
     }
 
     private void mockComTaskEnablement(ComTaskEnablement mock, ComTask comTask) {
@@ -623,6 +648,40 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     private void mockComTask(ComTask mock){
         when(mock.getId()).thenReturn(1L);
         when(mock.isManualSystemTask()).thenReturn(true);
+        when(mock.getName()).thenReturn("comTaskName");
+    }
+
+
+    private void mockLoadProfileType() {
+        when(masterDataService.findAllLoadProfileTypes()).thenReturn(Arrays.asList(loadProfileType));
+        when(loadProfileType.getName()).thenReturn(LOAD_PROFILE_NAME);
+    }
+
+    private void mockLoadProfile() {
+        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
+        when(device1.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
+        when(device2.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
+        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
+    }
+
+    private void mockDeviceMessage() {
+        when(device1.newDeviceMessage(any())).thenReturn(deviceMessageBuilder);
+        when(deviceMessageBuilder.setTrackingId(any())).thenReturn(deviceMessageBuilder);
+        when(deviceMessageBuilder.setReleaseDate(any())).thenReturn(deviceMessageBuilder);
+        when(deviceMessageBuilder.add()).thenReturn(deviceMessage);
+
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
+        when(deviceMessageSpec.getName()).thenReturn("device message name");
+        when(deviceMessage.getId()).thenReturn(1L);
+    }
+
+    private void mockRegisterGroupType() {
+        Finder finder = mock(Finder.class);
+        when(masterDataService.findAllRegisterGroups()).thenReturn(finder);
+        when(finder.stream()).thenReturn(Stream.of(registerGroup));
+        when(registerGroup.getName()).thenReturn(REGISTER_GROUP_NAME);
     }
 
     private void mockReadingTypesOnDevices() {
@@ -1273,6 +1332,591 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
                 MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT.getErrorCode(),
                 "Either element 'mRID' or 'Names' is required under 'GetMeterReadings.EndDevice[0]' for identification purpose");
+    }
+
+    @Test
+    public void testAsyncModeWrongScheduleStrategy() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withScheduleStrategy("Something wrong")
+                        .get())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes(dailyReadingType, min15ReadingType);
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+
+        assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
+                MessageSeeds.SCHEDULE_STRATEGY_NOT_SUPPORTED.getErrorCode(),
+                "Schedule strategy 'Something wrong' is not supported. The possible values are: 'Run now' and 'Use schedule'");
+    }
+
+    @Test
+    public void testAsyncModeWrongConnectionMethod() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod("something wrong")
+                        .get())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes(dailyReadingType, min15ReadingType);
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getCode().equals("SIM6020")));
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getDetails().equals("The required connection method 'something wrong' wasn't found for communication task 'comTaskName' of device 'deviceName'.")));
+    }
+
+
+    @Test
+    public void testAsyncModeWrongDataSourceNameType() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .withDataSource(LOAD_PROFILE_NAME, "wrong load profile")
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+
+        assertFaultMessage(() -> executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage),
+                MessageSeeds.DATA_SOURCE_NAME_TYPE_NOT_FOUND.getErrorCode(),
+                "Data source name type 'wrong load profile' is not found in the element 'GetMeterReadings.Reading[0]'. Possible values: Load Profile or Register Group.");
+    }
+
+    @Test
+    public void testAsyncModeWrongLoadProfile() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .withDataSource("wrong load profile name", LOAD_PROFILE.getName())
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+        mockLoadProfileType();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getCode().equals("SIM6024")));
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getDetails().equals("Couldn't find load profile with name 'wrong load profile name' under element 'GetMeterReadings.Reading[0]'.")));
+    }
+
+    @Test
+    public void testAsyncModeNoDataSource() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+        mockLoadProfileType();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getCode().equals("SIM6022")));
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getDetails().equals("At least one correct 'GetMeterReadings.ReadingType' or 'GetMeterReadings.Reading.dataSource' must be specified in the request under element 'GetMeterReadings.Reading[0]'")));
+    }
+
+    @Test
+    public void testAsyncModeWrongRegisterGroup() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .withDataSource("wrong register group name", REGISTER_GROUP.getName())
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockRegisterGroupType();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getCode().equals("SIM6023")));
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getDetails().equals("Couldn't find register group with name 'wrong register group name' under element 'GetMeterReadings.Reading[0]'.")));
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeCorrelationId() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes(dailyReadingType, min15ReadingType);
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeScheduleStrategy() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withScheduleStrategy("Run now")
+                        .get())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes(dailyReadingType, min15ReadingType);
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeConnectionMethod() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .get())
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes(dailyReadingType, min15ReadingType);
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeMeterSourceLoadProfile() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.METER.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .withDataSource(LOAD_PROFILE_NAME, LOAD_PROFILE.getName())
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+        mockLoadProfileType();
+        mockLoadProfile();
+        mockDeviceMessage();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeLoadProfile() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .withDataSource(LOAD_PROFILE_NAME, LOAD_PROFILE.getName())
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+        mockLoadProfileType();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeSomeLoadProfileNotFound() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .withDataSource(LOAD_PROFILE_NAME, LOAD_PROFILE.getName())
+                        .withDataSource("wrong load profile name", LOAD_PROFILE.getName())
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+        mockLoadProfileType();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getCode().equals("SIM6024")));
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getDetails().equals("Couldn't find load profile with name 'wrong load profile name' under element 'GetMeterReadings.Reading[0]'.")));
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeRegisterGroup() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .withDataSource(REGISTER_GROUP_NAME, REGISTER_GROUP.getName())
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+        mockRegisterGroupType();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeSomeRegisterGroupNotFound() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withReading(ReadingBuilder.createRequest()
+                        .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                        .withConnectionMethod(COM_TASK_NAME)
+                        .withDataSource(REGISTER_GROUP_NAME, REGISTER_GROUP.getName())
+                        .withDataSource("wrong register group name", REGISTER_GROUP.getName())
+                        .get())
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes();
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+        mockRegisterGroupType();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.PARTIAL);
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getCode().equals("SIM6023")));
+        assertTrue(response.getReply().getError().stream()
+                .anyMatch(error -> error.getDetails().equals("Couldn't find register group with name 'wrong register group name' under element 'GetMeterReadings.Reading[0]'.")));
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseAsyncModeEndDeviceMeterSourceEmptyStartEndDates() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withTimePeriod(ReadingSourceEnum.METER.getSource(), null, null)
+                .withReadingType(DAILY_MRID, DAILY_FULL_ALIAS_NAME)
+                .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(true);
+        headerType.setReplyAddress(REPLY_ADDRESS);
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes(dailyReadingType, min15ReadingType);
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+        mockFindEndPointConfigurations();
+        mockWebServices(true);
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
+        MeterReadings meterReadings = response.getPayload().getMeterReadings();
+        // sync reply of async mode doesn't contain any readings
+        assertThat(meterReadings).isNull();
+    }
+
+    @Test
+    public void testSuccessCaseSyncModeCorrelationId() throws Exception {
+        // Prepare request
+        GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
+        GetMeterReadingsRequestType meterReadingsRequestType = GetMeterReadingsRequestBuilder.createRequest()
+                .withTimePeriod(ReadingSourceEnum.SYSTEM.getSource(), MAY_1ST.toInstant(), JUNE_1ST.toInstant())
+                .withReadingType(MIN15_MRID, MIN15_FULL_ALIAS_NAME)
+                .withEndDevice(END_DEVICE1_MRID, END_DEVICE1_NAME)
+                .get();
+        HeaderType headerType = new HeaderType();
+        headerType.setAsyncReplyFlag(false);
+        headerType.setCorrelationID("hello");
+        getMeterReadingsRequestMessage.setHeader(headerType);
+        getMeterReadingsRequestMessage.setRequest(meterReadingsRequestType);
+        mockFindReadingTypes(min15ReadingType);
+        mockFindEndDevices(meter1);
+        mockReadingTypesOnDevices();
+        mockChannelsContainers();
+
+        MeterReadingsResponseMessageType response = executeMeterReadingsEndpoint.getMeterReadings(getMeterReadingsRequestMessage);
+
+        // Assert response
+        assertThat(response.getHeader().getVerb()).isEqualTo(HeaderType.Verb.REPLY);
+        assertThat(response.getHeader().getCorrelationID()).isEqualTo("hello");
+        assertThat(response.getHeader().getNoun()).isEqualTo("MeterReadings");
+        assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
     }
 
     @Test

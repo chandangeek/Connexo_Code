@@ -7,10 +7,10 @@ package com.energyict.mdc.common.device.config;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.masterdata.LogBookType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
-@ProviderType
+@ConsumerType
 public interface LogBookSpec extends HasId {
 
     public DeviceConfiguration getDeviceConfiguration();

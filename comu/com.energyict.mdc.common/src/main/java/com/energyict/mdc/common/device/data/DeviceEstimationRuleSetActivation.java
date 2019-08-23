@@ -6,9 +6,9 @@ package com.energyict.mdc.common.device.data;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface DeviceEstimationRuleSetActivation {
 
     boolean isActive();

@@ -7,7 +7,7 @@ package com.energyict.mdc.common.masterdata;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 
@@ -16,7 +16,7 @@ import java.time.Instant;
 /**
  * Represents the definition of a Measurement.
  */
-@ProviderType
+@ConsumerType
 public interface MeasurementType extends HasId {
 
     /**

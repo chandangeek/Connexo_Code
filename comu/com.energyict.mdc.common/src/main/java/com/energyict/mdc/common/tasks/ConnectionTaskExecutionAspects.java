@@ -6,7 +6,7 @@ package com.energyict.mdc.common.tasks;
 
 import com.energyict.mdc.common.comserver.ComServer;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Todo:
@@ -21,7 +21,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author sva
  * @since 2012-09-27 (13:01)
  */
-@ProviderType
+@ConsumerType
 public interface ConnectionTaskExecutionAspects {
 
     /**

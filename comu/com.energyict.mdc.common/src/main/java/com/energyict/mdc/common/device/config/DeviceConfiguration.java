@@ -17,13 +17,13 @@ import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.common.masterdata.RegisterType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-@ProviderType
+@ConsumerType
 public interface DeviceConfiguration extends HasId, HasName, DeviceCommunicationConfiguration {
 
     void setName(String name);

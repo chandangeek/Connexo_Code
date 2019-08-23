@@ -7,7 +7,7 @@ package com.energyict.mdc.common.tasks;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-13 (14:38)
  */
-@ProviderType
+@ConsumerType
 public interface OutboundConnectionTaskExecutionAspects extends ConnectionTaskExecutionAspects {
 
     /**

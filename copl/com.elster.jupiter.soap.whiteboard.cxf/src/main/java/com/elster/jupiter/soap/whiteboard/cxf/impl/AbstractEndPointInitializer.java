@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
@@ -17,7 +18,6 @@ import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import java.lang.reflect.Field;
-import java.time.Clock;
 
 public class AbstractEndPointInitializer {
     private final TransactionService transactionService;
@@ -26,7 +26,7 @@ public class AbstractEndPointInitializer {
     private final Thesaurus thesaurus;
     private final EndPointConfigurationService endPointConfigurationService;
     private final WebServicesService webServicesService;
-    private final Clock clock;
+    private final EventService eventService;
 
     @Inject
     AbstractEndPointInitializer(TransactionService transactionService,
@@ -35,14 +35,14 @@ public class AbstractEndPointInitializer {
                                 Thesaurus thesaurus,
                                 EndPointConfigurationService endPointConfigurationService,
                                 WebServicesService webServicesService,
-                                Clock clock) {
+                                EventService eventService) {
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
         this.userService = userService;
         this.thesaurus = thesaurus;
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServicesService = webServicesService;
-        this.clock = clock;
+        this.eventService = eventService;
     }
 
     public <T> T initializeInboundEndPoint(T endPoint, InboundEndPointConfiguration endPointConfiguration) {
@@ -61,7 +61,7 @@ public class AbstractEndPointInitializer {
             inject(AbstractOutboundEndPointProvider.class, endPointProvider, "thesaurus", thesaurus);
             inject(AbstractOutboundEndPointProvider.class, endPointProvider, "endPointConfigurationService", endPointConfigurationService);
             inject(AbstractOutboundEndPointProvider.class, endPointProvider, "webServicesService", webServicesService);
-            inject(AbstractOutboundEndPointProvider.class, endPointProvider, "transactionService", transactionService);
+            inject(AbstractOutboundEndPointProvider.class, endPointProvider, "eventService", eventService);
         }
         return endPointProvider;
     }

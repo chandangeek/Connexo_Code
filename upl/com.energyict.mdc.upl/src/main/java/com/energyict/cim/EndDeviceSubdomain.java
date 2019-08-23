@@ -167,6 +167,23 @@ public enum EndDeviceSubdomain  implements CimMnemonicProvider {
     SPECIFICGRAVITY(240, "SpecificGravity"),
     THRESHOLD(261, "Threshold"),
     WRITEACCESS(282, "WriteAccess"),
+    ACTIVATION(283,"Activation"),
+    CHECKSUM(284,"Checksum"),
+    ALARMTABLE(285,"AlarmTable"),
+    MEASUREMENTTYPE(286,"MeasurementType"),
+    PHASEACURRENT(287,"PhaseACurrent"),
+    PHASEBCURRENT(288,"PhaseBCurrent"),
+    PHASECCURRENT(289,"PhaseCCurrent"),
+    APPARENTPOWER(290,"ApparentPower"),
+    PHASEAAPPARENTPOWER(291,"PhaseAApparentPower"),
+    PHASEBAPPARENTPOWER(292,"PhaseBApparentPower"),
+    PhaseCApparentPower(293,"PhaseCApparentPower"),
+    REACTIVEPOWER(294,"ReactivePower"),
+    PHASEAREACTIVEPOWER(295,"PhaseAReactivePower"),
+    PHASEBREACTIVEPOWER(296,"PhaseBReactivePower"),
+    PHASECREACTIVEPOWER(297,"PhaseCReactivePower"),
+    INITIALISATION(298,"Initialisation"),
+    DAYLIMIT(299,"DayLimit"),
     RECODER(300,"Recoder");
 
     private int value;

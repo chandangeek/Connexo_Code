@@ -91,10 +91,10 @@ class EventSelector implements DataSelector {
     }
 
     private String buildSummary() {
-        return thesaurus.getFormat(TranslationKeys.NUMBER_OF_DEVICES_WITH_EVENTS_SUCCESSFULLY_EXPORTED)
+        return thesaurus.getFormat(TranslationKeys.NUMBER_OF_DEVICES_WITH_EVENTS_SELECTED)
                 .format(devicesWithEvents.getValue()) +
                 System.getProperty("line.separator") +
-                thesaurus.getFormat(TranslationKeys.NUMBER_OF_EVENTS_EXPORTED)
+                thesaurus.getFormat(TranslationKeys.NUMBER_OF_EVENTS_SELECTED)
                         .format(events.getValue());
     }
 

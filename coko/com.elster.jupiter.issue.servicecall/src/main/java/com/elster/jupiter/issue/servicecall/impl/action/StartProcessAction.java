@@ -49,7 +49,7 @@ public class StartProcessAction extends AbstractIssueAction {
 
     private final BpmService bpmService;
 
-    private String reasonName;
+    private String reasonKey;
 
     @Inject
     protected StartProcessAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, BpmService bpmService) {
@@ -120,9 +120,9 @@ public class StartProcessAction extends AbstractIssueAction {
     private boolean getBpmProcessDefinitionFilter(BpmProcessDefinition processDefinition) {
         Object props = processDefinition.getProperties().get(PROPERTY_NAME);
         return ASSOCIATION.equals(processDefinition.getAssociation())
-                && (reasonName == null
+                && (reasonKey == null
                 || props instanceof List
-                && ((List<?>) props).stream().filter(HasIdAndName.class::isInstance).anyMatch(v -> ((HasIdAndName) v).getName().equals(reasonName)));
+                && ((List<?>) props).stream().filter(HasIdAndName.class::isInstance).anyMatch(v -> reasonKey.equals(((HasIdAndName) v).getId())));
     }
 
     @Override
@@ -138,8 +138,8 @@ public class StartProcessAction extends AbstractIssueAction {
 
 
     @Override
-    public IssueAction setReasonName(String reasonName) {
-        this.reasonName = reasonName;
+    public IssueAction setReasonKey(String reasonKey) {
+        this.reasonKey = reasonKey;
         return this;
     }
 

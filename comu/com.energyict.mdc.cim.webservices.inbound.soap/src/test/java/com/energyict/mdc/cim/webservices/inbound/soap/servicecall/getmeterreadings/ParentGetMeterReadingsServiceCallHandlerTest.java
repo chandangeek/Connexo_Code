@@ -76,8 +76,6 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     @Mock
     private ServiceCall subParentServiceCall_1, subParentServiceCall_2;
     @Mock
-    private ServiceCall childServiceCall_1, childServiceCall_2;
-    @Mock
     private ServiceCallType serviceCallType;
     @Mock
     private SendMeterReadingsProvider sendMeterReadingsProvider;
@@ -97,10 +95,6 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     MeterReadings meterReadings;
     private ParentGetMeterReadingsServiceCallHandler parentServiceCallHandler;
     private ParentGetMeterReadingsDomainExtension parentDomainExtension;
-    private SubParentGetMeterReadingsServiceCallHandler subParentServiceCallHandler1 = new SubParentGetMeterReadingsServiceCallHandler();
-    private SubParentGetMeterReadingsServiceCallHandler subParentServiceCallHandler2 = new SubParentGetMeterReadingsServiceCallHandler();
-    private SubParentGetMeterReadingsDomainExtension subParentDomainExtension;
-
 
 
     @Before
@@ -209,28 +203,28 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     public void testServiceCallFromCreatedToPending() {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.CREATED, DefaultState.PENDING);
         assertThat(serviceCall.getState().equals(DefaultState.PENDING));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Pending");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Pending");
     }
 
     @Test
     public void testServiceCallFromPendingToOngoing() {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Ongoing");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Ongoing");
     }
 
     @Test
     public void testServiceCallFromOngoingToWaiting() {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.WAITING);
         assertThat(serviceCall.getState().equals(DefaultState.WAITING));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Waiting");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Waiting");
     }
 
     @Test
     public void testServiceCallFromWaitingToOngoing() {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Ongoing");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Ongoing");
     }
 
     @Test
@@ -247,7 +241,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     public void testServiceCallFromOngoingToCancelled() {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.CANCELLED);
         assertThat(serviceCall.getState().equals(DefaultState.CANCELLED));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Cancelled");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Cancelled");
         serviceCall.findChildren().stream().forEach(subParentServiceCall -> {
             assertThat(subParentServiceCall.getState().equals(DefaultState.CANCELLED));
             verify(subParentServiceCall).requestTransition(DefaultState.CANCELLED);
@@ -258,7 +252,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     public void testServiceCallFromOngoingToRejected() {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.REJECTED);
         assertThat(serviceCall.getState().equals(DefaultState.REJECTED));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Rejected");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Rejected");
         serviceCall.findChildren().stream().forEach(subParentServiceCall -> {
             assertThat(subParentServiceCall.getState().equals(DefaultState.CANCELLED));
             verify(subParentServiceCall).requestTransition(DefaultState.CANCELLED);
@@ -269,14 +263,14 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
     public void testServiceCallFromOngoingToPaused() {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.PAUSED);
         assertThat(serviceCall.getState().equals(DefaultState.PAUSED));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Paused");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Paused");
     }
 
     @Test
     public void testServiceCallFromOngoingToSuccessful() {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
         assertThat(serviceCall.getState().equals(DefaultState.SUCCESSFUL));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Successful");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Successful");
     }
 
     @Test
@@ -290,9 +284,9 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), any(), any());
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Ongoing");
-        verify(serviceCall).log(LogLevel.FINE,"Result collection is started for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
-        verify(serviceCall).log(LogLevel.FINE,"Data successfully sent for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Ongoing");
+        verify(serviceCall).log(LogLevel.FINE, "Result collection is started for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
+        verify(serviceCall).log(LogLevel.FINE, "Data successfully sent for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
     }
 
     @Test
@@ -303,7 +297,7 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         when(mrList.isEmpty()).thenReturn(false);
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.PARTIAL_SUCCESS);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Partial success");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Partial success");
     }
 
     @Test
@@ -316,8 +310,8 @@ public class ParentGetMeterReadingsServiceCallHandlerTest {
         parentServiceCallHandler.onStateChange(serviceCall, DefaultState.PAUSED, DefaultState.ONGOING);
         assertThat(serviceCall.getState().equals(DefaultState.ONGOING));
         verify(sendMeterReadingsProvider).call(any(), any(), any());
-        verify(serviceCall).log(LogLevel.FINE,"Parent service call is switched to state Ongoing");
-        verify(serviceCall).log(LogLevel.FINE,"Result collection is started for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
-        verify(serviceCall).log(LogLevel.SEVERE,"Unable to send meter readings data for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
+        verify(serviceCall).log(LogLevel.FINE, "Parent service call is switched to state Ongoing");
+        verify(serviceCall).log(LogLevel.FINE, "Result collection is started for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
+        verify(serviceCall).log(LogLevel.SEVERE, "Unable to send meter readings data for source 'Meter', time range [(2017-04-30T12:00:00Z..2017-05-31T12:00:00Z]]");
     }
 }

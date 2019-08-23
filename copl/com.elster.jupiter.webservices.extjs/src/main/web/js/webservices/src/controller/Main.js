@@ -51,7 +51,7 @@ Ext.define('Wss.controller.Main', {
                         {
                             text: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
                             href: '#/administration/webserviceendpoints',
-                            hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.webservices')) && !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
+                            hidden: !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')),
                             route: 'webserviceendpoints'
                         },
                         {
@@ -82,7 +82,7 @@ Ext.define('Wss.controller.Main', {
                         {
                             text: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
                             href: '#/workspace/webserviceendpoints',
-                            hidden: !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
+                            hidden: !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')),
                             route: 'webserviceendpoints'
                         },
                         {

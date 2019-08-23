@@ -5,10 +5,12 @@
 package com.elster.jupiter.metering.impl.audit.metrologyConfiguration;
 
 import com.elster.jupiter.audit.AuditLogChange;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.audit.AbstractUsagePointAuditDecoder;
+import com.elster.jupiter.metering.impl.audit.AuditTranslationKeys;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.nls.Thesaurus;
@@ -33,6 +35,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Comparator.comparingLong;
+
 public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
 
     AuditTrailMetrologyDecoder(OrmService ormService, Thesaurus thesaurus, MeteringService meteringService) {
@@ -55,9 +59,10 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
             usagePoint.ifPresent(upEntry -> {
                 auditLogChanges.addAll(auditMetrologyConfiguration(upEntry));
                 auditLogChanges.addAll(auditPurpose(upEntry));
+                auditLogChanges.addAll(auditRoleAndLinkMeter(upEntry));
             });
             return auditLogChanges;
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return Collections.emptyList();
     }
@@ -75,16 +80,25 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
 
         metrologyConfiguration.ifPresent(
                 mc -> {
-                    getAuditLogChange(Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+
                     Optional.ofNullable(mc.getEnd())
-                            .ifPresent(date ->
-                                    getAuditLogChangeForOptional(Optional.empty(), Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_END_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add)
+                            .ifPresent(date -> {
+                                        getAuditLogChangeForOptional(Optional.empty(), Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_END_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
+                                        getAuditLogChange(Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                                    }
                             );
                     if (mc.getEnd() == null){
                         Optional.ofNullable(mc.getStart())
-                                .ifPresent(date ->
-                                        getAuditLogChange(Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add)
-                                );
+                                .ifPresent(date -> {
+                                    if (getAuditTrailReference().getOperation().equals(UnexpectedNumberOfUpdatesException.Operation.INSERT)){
+                                        getAuditLogChange(Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
+                                        getAuditLogChange(Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                                    }
+                                    else {
+                                        getAuditLogChangeForOptional(Optional.empty(), Optional.of(date), PropertyTranslationKeys.USAGEPOINT_METROLOGY_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
+                                        getAuditLogChangeForOptional(Optional.empty(), Optional.of(mc.getMetrologyConfiguration().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGYCONFIGURATION, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+                                    }
+                                });
                     }
                 }
         );
@@ -113,23 +127,73 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
                     }
                 }
         );
-        /*usagePoint.getEffectiveMetrologyConfiguration(getAuditTrailReference().getModTimeStart())
-                .ifPresent(effectiveMetrologyConfigurationOnUsagePoint -> {
-                    List<EffectiveMetrologyContractOnUsagePoint> actualEntries = getActualEntries(dataMapper, ImmutableMap.of("metrologyConfiguration", effectiveMetrologyConfigurationOnUsagePoint));
-                    actualEntries.addAll(getActualEntriesByCreateTime(dataMapper, ImmutableMap.of("metrologyConfiguration", effectiveMetrologyConfigurationOnUsagePoint)));
-
-                    if (actualEntries.size()>0){
-                        EffectiveMetrologyContractOnUsagePoint metrologyContract = actualEntries.get(0);
-                        getAuditLogChange(Optional.of(metrologyContract.getMetrologyContract().getMetrologyPurpose().getName()), PropertyTranslationKeys.USAGEPOINT_METROLOGY_PURPOSE_NAME, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
-                        if(metrologyContract.getRange().hasUpperBound()) {
-                            getAuditLogChange(Optional.of(metrologyContract.getRange().upperEndpoint()), PropertyTranslationKeys.USAGEPOINT_METROLOGY_PURPOSE_END_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
-                        }
-                        if (!metrologyContract.getRange().hasUpperBound() && metrologyContract.getRange().hasLowerBound()){
-                            getAuditLogChange(Optional.of(metrologyContract.getRange().lowerEndpoint()), PropertyTranslationKeys.USAGEPOINT_METROLOGY_PURPOSE_START_DATE, SimplePropertyType.TIMESTAMP).ifPresent(auditLogChanges::add);
-                        }
-                    }
-                });*/
         return auditLogChanges;
+    }
+
+    private List<AuditLogChange> auditRoleAndLinkMeter(UsagePoint usagePoint) {
+        List<AuditLogChange> auditLogChanges = new ArrayList<>();
+
+        DataMapper<MeterActivation> dataMapper = ormService.getDataModel(MeteringService.COMPONENTNAME).get().mapper(MeterActivation.class);
+        List<MeterActivation> actualEntries = getMeterActivationObjects(dataMapper);
+        List<MeterActivation> historyEntries = getMeterActivationObjectsFromHistory(dataMapper);
+
+        if (actualEntries.isEmpty() && historyEntries.size() == 1){
+            return auditLogChanges;
+        }
+
+        List<MeterActivation> allEntries = Stream.of(actualEntries, historyEntries)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        Map<Long, Optional<MeterActivation>> minGroupById = allEntries.stream()
+                .collect(Collectors.groupingBy(MeterActivation::getId, Collectors.minBy(comparingLong(MeterActivation::getVersion))));
+
+        Map<Long, Optional<MeterActivation>> maxGroupById = allEntries.stream()
+                .collect(Collectors.groupingBy(MeterActivation::getId, Collectors.maxBy(comparingLong(MeterActivation::getVersion))));
+
+        Map<Long, Optional<MeterActivation>> groupById = allEntries.stream()
+                .collect(Collectors.groupingBy(MeterActivation::getId, Collectors.maxBy(comparingLong(MeterActivation::getVersion))));
+
+        for (Map.Entry<Long, Optional<MeterActivation>> ma : groupById.entrySet()){
+            if (!ma.getValue().isPresent()){
+                continue;
+            }
+
+            MeterActivation from = minGroupById.get(ma.getKey()).get();
+            MeterActivation to = maxGroupById.get(ma.getKey()).get();
+            String changesFrom = formatRoleAndLinkMeter(from);
+            String changesTo = formatRoleAndLinkMeter(to);
+            if (changesFrom.equals(changesTo)){
+                getAuditLogChangeForOptional(Optional.of(changesFrom),
+                        AuditTranslationKeys.LINK_UNLINK_METER_PROPERTY_NAME, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+            }
+            else {
+                getAuditLogChangeForOptional(Optional.of(changesFrom), Optional.of(changesTo),
+                        AuditTranslationKeys.LINK_UNLINK_METER_PROPERTY_NAME, SimplePropertyType.TEXT).ifPresent(auditLogChanges::add);
+            }
+        }
+        return auditLogChanges;
+    }
+
+    private String formatRoleAndLinkMeter(MeterActivation meterActivation)
+    {
+        String formatRoleAndLinkMeter = "";
+        if ((meterActivation.getEnd() == null) && meterActivation.getMeter().isPresent() && meterActivation.getMeterRole().isPresent()) {
+            formatRoleAndLinkMeter =
+                    getThesaurus().getFormat(AuditTranslationKeys.LINK_METER_PROPERTY_VALUE_FROM).format(
+                                meterActivation.getMeter().get().getName(),
+                                meterActivation.getMeterRole().get().getDisplayName(),
+                                meterActivation.getStart().toString());
+        }
+        else if (meterActivation.getMeter().isPresent() && meterActivation.getMeterRole().isPresent()) {
+            formatRoleAndLinkMeter =
+                    getThesaurus().getFormat(AuditTranslationKeys.UNLINK_METER_PROPERTY_VALUE_FROM_UNTIL).format(
+                            meterActivation.getMeter().get().getName(),
+                            meterActivation.getMeterRole().get().getDisplayName(),
+                            meterActivation.getStart().toString(),
+                            meterActivation.getEnd().toString());
+        }
+        return formatRoleAndLinkMeter;
     }
 
     protected Map<String, Object> getActualClauses(long id) {
@@ -174,6 +238,34 @@ public class AuditTrailMetrologyDecoder extends AbstractUsagePointAuditDecoder {
         List<T> historyByJournalTimeEntries = getHistoryEntries(dataMapper, historyByJournalClauses);
 
         return Stream.of(actualEntries, historyByModTimeEntries, historyByJournalTimeEntries)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    private <T> List<T> getMeterActivationObjects(DataMapper dataMapper)
+    {
+        long id = getAuditTrailReference().getPkContext1();
+        Map<String, Object> actualClause = ImmutableMap.of("id", id);
+
+        return getActualEntries(dataMapper, actualClause);
+    }
+
+    private <T> List<T> getMeterActivationObjectsFromHistory(DataMapper dataMapper)
+    {
+        long id = getAuditTrailReference().getPkContext1();
+
+        ImmutableSetMultimap<Operator, Pair<String, Object>> modTimeClauses = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("id", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeStart()),
+                Operator.LESSTHANOREQUAL, Pair.of("modTime", getAuditTrailReference().getModTimeEnd()));
+
+        ImmutableSetMultimap<Operator, Pair<String, Object>> historyByJournalClauses = ImmutableSetMultimap.of(Operator.EQUAL, Pair.of("id", id),
+                Operator.GREATERTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeStart()),
+                Operator.LESSTHANOREQUAL, Pair.of("journalTime", getAuditTrailReference().getModTimeEnd()));
+
+        List<T> historyByModTimeEntries = getHistoryEntries(dataMapper, modTimeClauses);
+        List<T> historyByJournalTimeEntries = getHistoryEntries(dataMapper, historyByJournalClauses);
+
+        return Stream.of(historyByModTimeEntries, historyByJournalTimeEntries)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }

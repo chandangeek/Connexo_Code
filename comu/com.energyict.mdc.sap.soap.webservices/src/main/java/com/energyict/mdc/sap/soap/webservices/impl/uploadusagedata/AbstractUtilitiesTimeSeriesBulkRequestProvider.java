@@ -116,9 +116,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     public Optional<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {
         String uuid = UUID.randomUUID().toString();
         try {
-            Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
-                    .filter(timeout -> !timeout.isEmpty())
-                    .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
             MSG message = createMessage(data, uuid);
             Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                     .toEndpoints(endPointConfiguration)
@@ -127,6 +124,9 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
             if (!processedEndpoints.contains(endPointConfiguration)) {
                 throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
             }
+            Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
+                    .filter(timeout -> !timeout.isEmpty())
+                    .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
             return serviceCall;
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
@@ -190,7 +190,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
 
     Map<Pair<String, String>, RangeSet<Instant>> getTimeSlicedLrnAndProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter, String readingTypeName) {
         Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileId = sapCustomPropertySets.getLrnAndProfileId(channel, range);
-        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
+        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.intersects(range)).isPresent()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL,
                     readingTypeName,
                     meter.getName());

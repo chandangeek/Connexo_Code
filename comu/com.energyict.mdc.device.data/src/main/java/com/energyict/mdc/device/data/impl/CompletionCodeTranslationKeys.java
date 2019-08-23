@@ -22,7 +22,8 @@ public enum CompletionCodeTranslationKeys implements TranslationKey {
     TIME_ERROR(CompletionCode.TimeError, "Time error"),
     INIT_ERROR(CompletionCode.InitError, "Initialization error"),
     TIMEOUT_ERROR(CompletionCode.TimeoutError, "Timeout error"),
-    CONNECTION_ERROR(CompletionCode.ConnectionError, "Connection error")
+    CONNECTION_ERROR(CompletionCode.ConnectionError, "Connection error"),
+    RESCHEDULED(CompletionCode.Rescheduled, "Rescheduled"),
     ;
 
     private CompletionCode completionCode;

@@ -14,8 +14,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterednotification.BusinessDocumentMessageHeader;
@@ -40,9 +38,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = UtilitiesDeviceRegisteredNotification.NAME,
         service = {UtilitiesDeviceRegisteredNotification.class, StateTransitionWebServiceClient.class, OutboundSoapEndPointProvider.class},
@@ -152,12 +150,8 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
                             sapCustomPropertySets.getSapDeviceId(device).ifPresent(sapDeviceId -> {
                                 if (sapCustomPropertySets.isAnyLrnPresent(device.getId())) {
                                     call(sapDeviceId, getEndPointConfigurationByIds(endPointConfigurationIds));
-                                }else{
-                                    throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_ANY_LRN_ON_DEVICE, sapDeviceId);
                                 }
                             });
-                        }else{
-                            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_NOT_IN_OPERATIONAL_STAGE, endDevice.getMRID());
                         }
                     }
             );
@@ -206,11 +200,7 @@ public class UtilitiesDeviceRegisteredNotificationProvider extends AbstractOutbo
     }
 
     private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
-        return endPointConfigurationIds.stream()
-                .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        return endPointConfigurationService.streamEndPointConfigurations().filter(where("id").in(endPointConfigurationIds)).select();
     }
 
     private BusinessDocumentMessageHeader createMessageHeader(Instant now) {

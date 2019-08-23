@@ -6,12 +6,12 @@ package com.energyict.mdc.common.tasks;
 
 import com.energyict.mdc.common.protocol.ConnectionFunction;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Builder that supports basic value setters for a {@link ComTaskExecution}.
  */
-@ProviderType
+@ConsumerType
 public interface ComTaskExecutionBuilder {
 
     ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);
