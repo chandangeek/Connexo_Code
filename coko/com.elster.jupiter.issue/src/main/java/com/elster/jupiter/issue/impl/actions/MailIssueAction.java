@@ -27,10 +27,12 @@ import javax.mail.internet.MimeMessage;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class MailIssueAction extends AbstractIssueAction {
     private static final String NAME = "MailIssueAction";
@@ -150,20 +152,29 @@ public class MailIssueAction extends AbstractIssueAction {
     }
 
     private String getContent(Issue issue) {
-        int totalPriority = issue.getPriority().getImpact() + issue.getPriority().getUrgency();
+        Integer totalPriority = issue.getPriority().getImpact() + issue.getPriority().getUrgency();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE dd MMM''''YY 'at' HH:mm:ss zzz");
         long unixTime = issue.getCreateDateTime().getEpochSecond();
         String formattedDtm = Instant.ofEpochSecond(unixTime)
-                .atZone(ZoneId.of("GMT-4"))
+                .atZone(ZoneId.systemDefault())
                 .format(formatter);
         Optional<String> user = Optional.of("Unassigned");
         if(issue.getAssignee().getUser() != null){
             user = Optional.of(issue.getAssignee().getUser().getName());
         }
 
-        return "Issue ID:" + issue.getIssueId() + "\n" + "Issue reason: " + issue.getReason().getName() + "\n" +
-                "Issue type: " + issue.getReason().getIssueType().getName() + "\n" +"Device : " +  issue.getDevice().getName()+ "\n" + "User: " + user.get() + "\n" +
-                "Priority: " + totalPriority + "\n" + "Creation Time: " + formattedDtm + "\n";
+        String issueId = issue.getIssueId(),
+                issueReason = issue.getReason().getName(),
+                issueType =  issue.getReason().getIssueType().getName(),
+                device = issue.getDevice().getName(),
+                userName =  user.get(),
+                priority = String.valueOf(totalPriority),
+                creationTime= formattedDtm;
+
+        return MessageFormat.format("Issue ID: {0}\nIssue reason: {1}\nIssue type: {2}\nDevice: {3}\n" +
+                "User: {4}\nPriority: {5}\nCreation Time: {6}", issueId, issueReason, issueType, device, userName, priority, creationTime);
+
+
     }
 
     @SuppressWarnings("unchecked")
