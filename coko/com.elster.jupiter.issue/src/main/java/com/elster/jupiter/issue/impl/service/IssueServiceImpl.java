@@ -41,10 +41,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueAssignmentService;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.issue.share.service.*;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
@@ -456,6 +453,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             issue = findHistoricalIssue(id);
         }
         return issue.isPresent() && !issue.get().getReason().getIssueType().getPrefix().equals("ALM") ? issue : Optional.empty();
+    }
+
+    @Override
+    public ManualIssueBuilder newIssueBuilder() {
+        return null;
     }
 
     @Override
