@@ -39,7 +39,6 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.device.config.ChannelSpec;
-import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -51,6 +50,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.Mea
 import com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkChangeRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata.UtilitiesTimeSeriesBulkCreateRequestProvider;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -58,9 +59,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,7 +66,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -78,7 +75,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Component(name = MeasurementTaskAssignmentChangeProcessor.NAME,
         service = MeasurementTaskAssignmentChangeProcessor.class, immediate = true,
@@ -92,8 +88,6 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
 
     private static final String DEFAULT_TASK_NAME = "Device data exporter";
     private static final String DEFAULT_GROUP_NAME = "Export device group";
-    private static final String DEFAULT_EXPORT_WINDOW = "Yesterday";
-    private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
 
     private volatile Clock clock;
     private volatile CustomPropertySetService customPropertySetService;
@@ -109,7 +103,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     public void process(MeasurementTaskAssignmentChangeRequestMessage message, boolean custom) {
         String profileId = message.getProfileId();
         // parse role infos (lrn, time periods)
-        Map<String, List<Range<Instant>>> lrns = new HashMap<>();
+        Map<String, RangeSet<Instant>> lrns = new HashMap<>();
         for (MeasurementTaskAssignmentChangeRequestRole role : message.getRoles()) {
             if (WebServiceActivator.getListOfRoleCodes().contains(role.getRoleCode())) {
                 // skip role codes from config
@@ -118,9 +112,9 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
             String lrn = role.getLrn();
             Instant startDateTime = role.getStartDateTime();
             Instant endDateTime = role.getEndDateTime();
-            List<Range<Instant>> listRanges = lrns.getOrDefault(lrn, new ArrayList<>());
-            listRanges.add(Range.closedOpen(startDateTime, endDateTime));
-            lrns.put(lrn, listRanges);
+            RangeSet<Instant> rangeSet = lrns.getOrDefault(lrn, TreeRangeSet.create());
+            rangeSet.add(Range.closedOpen(startDateTime, endDateTime));
+            lrns.put(lrn, rangeSet);
         }
 
         if (!lrns.isEmpty()) {
@@ -164,10 +158,10 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         }
     }
 
-    private Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> findChannelInfos(Map<String, List<Range<Instant>>> lrns) {
+    private Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> findChannelInfos(Map<String, RangeSet<Instant>> lrns) {
         Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> channelsWithIntervals = new HashMap<>();
-        for (Map.Entry<String, List<Range<Instant>>> entry : lrns.entrySet()) {
-            for (Range<Instant> range : entry.getValue()) {
+        for (Map.Entry<String, RangeSet<Instant>> entry : lrns.entrySet()) {
+            for (Range<Instant> range : entry.getValue().asRanges()) {
                 Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> channelsForLrnWithinInterval =
                         sapCustomPropertySets.getChannelInfos(entry.getKey(), range);
                 if (channelsForLrnWithinInterval.isEmpty()) {
@@ -273,29 +267,21 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     }
 
     private void createExportTask(EnumeratedEndDeviceGroup endDeviceGroup, Set<ReadingType> readingTypes, boolean custom) {
-        RelativePeriod exportWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskExportWindow().orElse(DEFAULT_EXPORT_WINDOW));
-        RelativePeriod updateWindow = findRelativePeriodOrThrowException(WebServiceActivator.getExportTaskUpdateWindow().orElse(DEFAULT_UPDATE_WINDOW));
-        Instant startOn = clock.instant().plus(1, DAYS);
-        if (WebServiceActivator.getExportTaskStartOnDate().isPresent()) {
-            LocalDateTime startOnDate = LocalDateTime.parse(WebServiceActivator.getExportTaskStartOnDate().get(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.ENGLISH));
-            startOn = startOnDate.atZone(ZoneId.systemDefault()).toInstant();
-        }
-
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME))
                 .setLogLevel(Level.WARNING.intValue())
                 .setApplication(WebServiceActivator.APPLICATION_NAME)
                 .setDataFormatterFactoryName("No operation data formatter")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                .setNextExecution(startOn);
+                .setNextExecution(WebServiceActivator.getExportTaskStartOnDate());
 
         String selector = dataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
         if (custom) {
             selector = dataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR;
         }
         DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings(selector)
-                .fromExportPeriod(exportWindow)
-                .fromUpdatePeriod(updateWindow)
+                .fromExportPeriod(WebServiceActivator.getExportTaskExportWindow())
+                .fromUpdatePeriod(WebServiceActivator.getExportTaskUpdateWindow())
                 .fromEndDeviceGroup(endDeviceGroup)
                 .continuousData(true)
                 .exportComplete(MissingDataOption.EXCLUDE_INTERVAL)

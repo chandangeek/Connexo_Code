@@ -58,7 +58,7 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationProvider extends Abstr
     @Override
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
         using("utilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut")
-                .send(msg.getBulkConfirmationMessage());
+                .send(msg.getBulkConfirmationMessage().get());
     }
 
     @Override

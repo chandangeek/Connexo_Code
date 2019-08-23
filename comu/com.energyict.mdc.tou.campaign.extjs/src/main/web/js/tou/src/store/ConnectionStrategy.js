@@ -8,7 +8,7 @@ Ext.define('Tou.store.ConnectionStrategy', {
   fields: ['id', 'name'],
   data: [
     {
-      id: 1,
+      id: 'MINIMIZE_CONNECTIONS',
       name: Uni.I18n.translate(
         'general.connectionStrategy.minimizeConnections',
         'TOU',
@@ -16,7 +16,7 @@ Ext.define('Tou.store.ConnectionStrategy', {
       )
     },
     {
-      id: 2,
+      id: 'AS_SOON_AS_POSSIBLE',
       name: Uni.I18n.translate(
         'general.connectionStrategy.asSoonAsPossible',
         'TOU',

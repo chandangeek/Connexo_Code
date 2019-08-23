@@ -58,7 +58,7 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider extends AbstractO
     @Override
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
         using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut")
-                .send(msg.getConfirmationMessage());
+                .send(msg.getConfirmationMessage().get());
     }
 
     @Override
