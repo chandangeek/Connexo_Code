@@ -73,6 +73,9 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
                                 if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
                                     firmwareGrid.down('#minCommLevel').show();
                                 }
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "auxiliary"}).length){
+                                    firmwareGrid.down('#minAuxiliaryLevel').show();
+                                }
                             }
                         });
                     }

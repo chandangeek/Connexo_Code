@@ -14,11 +14,13 @@ Ext.define('Isc.model.Issue', {
         {
             name: 'serviceCall',
             persist: false,
-            mapping: function (data) {
-                return {
-                    id: data.serviceCallInfo.id,
-                    name: data.serviceCallInfo.name
-                }
+            mapping: function(data) {
+                if ( data && data.serviceCallInfo && data.serviceCallInfo.id && data.serviceCallInfo.name) {
+                    return {
+                        id: data.serviceCallInfo.id,
+                        name: data.serviceCallInfo.name
+                    }
+                } 
             }
         },
     ],

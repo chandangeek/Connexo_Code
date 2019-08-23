@@ -46,7 +46,7 @@ Ext.define('Uni.grid.commander.SortingPanel', {
             {
                 dock: 'left',
                 xtype: 'label',
-                text: 'Sort',
+                text: Uni.I18n.translate('general.sort','UNI','Sort'),
                 width: 128
             },
             {
