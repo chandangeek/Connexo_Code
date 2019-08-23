@@ -66,11 +66,11 @@ public abstract class AbstractFirmwareCheckTest {
     @Mock
     protected FirmwareManagementOptions firmwareManagementOptions;
     @Mock
-    protected FirmwareVersion uploadedFirmware, activeMeterFirmware, activeCommunicationFirmware;
+    protected FirmwareVersion uploadedFirmware, activeMeterFirmware, activeCommunicationFirmware, activeAuxiliaryFirmware;
     @Mock
     protected DataModel dataModel;
     @Mock
-    protected ActivatedFirmwareVersion activatedMeterFirmware, activatedCommunicationFirmware;
+    protected ActivatedFirmwareVersion activatedMeterFirmware, activatedCommunicationFirmware, activatedAuxiliaryFirmware;
 
     protected AbstractFirmwareCheckTest(FirmwareCheckManagementOption checkOption, Class<? extends FirmwareCheck> checkClass) {
         this.checkOption = checkOption;
@@ -85,18 +85,25 @@ public abstract class AbstractFirmwareCheckTest {
         when(activatedMeterFirmware.getFirmwareVersion()).thenReturn(activeMeterFirmware);
         when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION)).thenReturn(Optional.of(activatedCommunicationFirmware));
         when(activatedCommunicationFirmware.getFirmwareVersion()).thenReturn(activeCommunicationFirmware);
+        when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.AUXILIARY)).thenReturn(Optional.of(activatedAuxiliaryFirmware));
+        when(activatedAuxiliaryFirmware.getFirmwareVersion()).thenReturn(activeAuxiliaryFirmware);
         when(uploadedFirmware.getFirmwareType()).thenReturn(FirmwareType.METER);
         when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.empty());
         when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.empty());
+        when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.empty());
         when(uploadedFirmware.getRank()).thenReturn(10);
         when(activeMeterFirmware.getRank()).thenReturn(1);
         when(activeCommunicationFirmware.getRank()).thenReturn(2);
+        when(activeAuxiliaryFirmware.getRank()).thenReturn(3);
         when(uploadedFirmware.getDeviceType()).thenReturn(deviceType);
         when(uploadedFirmware.compareTo(any(FirmwareVersion.class))).thenAnswer(invocation -> FirmwareVersion.compare(uploadedFirmware, invocation.getArgumentAt(0, FirmwareVersion.class)));
         when(activeMeterFirmware.getDeviceType()).thenReturn(deviceType);
         when(activeMeterFirmware.compareTo(any(FirmwareVersion.class))).thenAnswer(invocation -> FirmwareVersion.compare(activeMeterFirmware, invocation.getArgumentAt(0, FirmwareVersion.class)));
         when(activeCommunicationFirmware.getDeviceType()).thenReturn(deviceType);
         when(activeCommunicationFirmware.compareTo(any(FirmwareVersion.class))).thenAnswer(invocation -> FirmwareVersion.compare(activeCommunicationFirmware, invocation.getArgumentAt(0, FirmwareVersion.class)));
+        when(activeAuxiliaryFirmware.getDeviceType()).thenReturn(deviceType);
+        when(activeAuxiliaryFirmware.compareTo(any(FirmwareVersion.class))).thenAnswer(invocation -> FirmwareVersion.compare(activeAuxiliaryFirmware, invocation.getArgumentAt(0, FirmwareVersion.class)));
+
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
         when(firmwareService.isFirmwareCheckActivated(deviceType, checkOption)).thenReturn(true);

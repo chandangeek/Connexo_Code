@@ -11,7 +11,7 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.common.tasks.TaskPriorityConstants;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-21 (11:30)
  */
-@ProviderType
+@ConsumerType
 public interface ComTaskEnablement extends HasId {
 
     int HIGHEST_PRIORITY = TaskPriorityConstants.HIGHEST_PRIORITY;

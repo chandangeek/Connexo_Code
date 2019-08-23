@@ -9,7 +9,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Partial version of a OutboundConnectionTask.
@@ -17,7 +17,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author sva
  * @since 21/01/13 - 15:40
  */
-@ProviderType
+@ConsumerType
 public interface PartialOutboundConnectionTask extends ServerPartialConnectionTask {
 
     /**

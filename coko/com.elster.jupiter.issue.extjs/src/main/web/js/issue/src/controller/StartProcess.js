@@ -45,6 +45,11 @@ Ext.define('Isu.controller.StartProcess', {
             issueModel = 'Isc.model.Issue';
             issueType = 'servicecallissue';
         }
+        else if (router.queryParams.issueType === "webservice")
+        {
+            issueModel = 'Iws.model.Issue';
+            issueType = 'webserviceissue';
+        }
 
         Ext.ModelManager.getModel(issueModel).load(issueId, {
             success: function (issue) {

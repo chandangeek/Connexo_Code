@@ -376,14 +376,19 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     updateComTasksComponents: function(deviceTypeId){
         var me = this;
+        var record = me.getRecord();
         var sendComtaskField = me.down("[name=calendarUploadComTask]");
         me.down('#fwc-campaign-send-connection-strategy-container').show();
         sendComtaskField.show();
         sendComtaskField.getStore().getProxy().setUrl(deviceTypeId);
-        sendComtaskField.getStore().load();
+        sendComtaskField.getStore().load(function(){
+            sendComtaskField.setValue(record.get('calendarUploadComTask') && record.get('calendarUploadComTask').id);
+        });
         var validationComTask = me.down("[name=validationComTask]");
         validationComTask.getStore().getProxy().setUrl(deviceTypeId);
-        validationComTask.getStore().load();
+        validationComTask.getStore().load(function(){
+             validationComTask.setValue(record.get('validationComTask') && record.get('validationComTask').id);
+        });
     },
 
     updateFirmwareType: function (deviceTypeId, callback) {
@@ -482,9 +487,25 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     loadRecord: function (record) {
         var me = this;
+        var calendarUploadComTask = record.get('calendarUploadComTask');
+        var validationComTask = record.get('validationComTask');
+        var calendarUploadConnectionStrategy = record.get('calendarUploadConnectionStrategy');
+        var validationConnectionStrategy = record.get('validationConnectionStrategy');
+
 
         me.callParent(arguments);
         me.down('property-form').loadRecord(record);
+
+        me.getForm().setValues({
+            calendarUploadComTask: calendarUploadComTask && calendarUploadComTask.id,
+            validationComTask: validationComTask && validationComTask.id,
+            calendarUploadConnectionStrategy: calendarUploadConnectionStrategy
+                ? calendarUploadConnectionStrategy.id
+                : me.defaultConnectionStrategy,
+            validationConnectionStrategy: validationConnectionStrategy
+                ? validationConnectionStrategy.id
+                : me.defaultConnectionStrategy
+        })
     },
 
     updateRecord: function () {
@@ -536,17 +557,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
                     periodNumber.setValue(validationTimeout.count);
                 }
-                var calendarUploadComTask = campaignRecord.get('calendarUploadComTask');
-                var validationComTask = campaignRecord.get('validationComTask');
-                var calendarUploadConnectionStrategy = campaignRecord.get('calendarUploadConnectionStrategy');
-                var validationConnectionStrategy = campaignRecord.get('validationConnectionStrategy');
 
-                me.getForm().setValues({
-                    calendarUploadComTask: calendarUploadComTask && calendarUploadComTask.id,
-                    validationComTask: validationComTask && validationComTask.id,
-                    calendarUploadConnectionStrategy: calendarUploadConnectionStrategy && calendarUploadConnectionStrategy.id ? calendarUploadConnectionStrategy.id : null,
-                    validationConnectionStrategy: validationConnectionStrategy && validationConnectionStrategy.id ? validationConnectionStrategy.id : null
-                });
                 me.down('#fwc-campaign-allowed-comtask').setDisabled(true);
                 me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
 

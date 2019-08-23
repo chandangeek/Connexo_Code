@@ -47,11 +47,13 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.firmware.rest.impl.campaign.StatusInfoFactory.getCampaignStatus;
 import static com.energyict.mdc.firmware.rest.impl.campaign.StatusInfoFactory.getDeviceStatus;
@@ -240,7 +242,7 @@ public class FirmwareCampaignInfoFactory {
     public List<FirmwareVersionInfo> getFirmwareCampaignVersionStateInfos(List<FirmwareCampaignVersionStateShapshot> firmwareCampaignVersionStateShapshots){
         List<FirmwareVersionInfo> firmwareCampaignVersionStateInfos = new ArrayList<>();
         firmwareCampaignVersionStateShapshots.forEach(fvs->firmwareCampaignVersionStateInfos.add(createFirmwareVersionInfo(fvs)));
-        return firmwareCampaignVersionStateInfos;
+        return firmwareCampaignVersionStateInfos.stream().sorted(Comparator.comparing(FirmwareVersionInfo::getRank).reversed()).collect(Collectors.toList());
     }
 
     private FirmwareVersionInfo createFirmwareVersionInfo(FirmwareCampaignVersionStateShapshot firmwareCampaignVersionStateShapshot){
@@ -252,6 +254,7 @@ public class FirmwareCampaignInfoFactory {
         firmwareVersionInfo.rank = firmwareCampaignVersionStateShapshot.getRank();
         firmwareVersionInfo.meterFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionStateShapshot.getMeterFirmwareDependency());
         firmwareVersionInfo.communicationFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionStateShapshot.getCommunicationFirmwareDependency());
+        firmwareVersionInfo.auxiliaryFirmwareDependency = new IdWithNameInfo(null , firmwareCampaignVersionStateShapshot.getAuxiliaryFirmwareDependency());
         return firmwareVersionInfo;
     }
 }

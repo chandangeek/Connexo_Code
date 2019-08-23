@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
 
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface SAPCustomPropertySets {
 
@@ -23,7 +25,7 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getSapDeviceId(String deviceName);
 
-    void addSapDeviceId(Device device, String sapDeviceId);
+    void setSapDeviceId(Device device, String sapDeviceId);
 
     Optional<Device> getDevice(String sapDeviceId);
 
@@ -54,13 +56,11 @@ public interface SAPCustomPropertySets {
 
     void setPod(Device device, String podId);
 
-    Map<Pair<Long, ReadingType>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval);
+    Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval);
 
-    boolean isProfileIdAlreadyExists(com.energyict.mdc.common.device.data.Channel channel, String profileId, Range<Instant> interval);
+    Optional<ChannelSpec> getChannelSpecForProfileId(ChannelSpec channelSpec, long deviceId, String profileId, Range<Instant> interval);
 
-    List<ReadingType> findReadingTypesForProfileId(String profileId);
-
-    boolean isRangesIntersected(List<Range<Instant>> ranges);
+    Set<ReadingType> findReadingTypesForProfileId(String profileId);
 
     Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Channel channel, Range<Instant> range);
 }

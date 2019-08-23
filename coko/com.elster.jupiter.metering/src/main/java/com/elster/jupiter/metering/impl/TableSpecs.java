@@ -508,6 +508,7 @@ public enum TableSpecs {
                     .add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
+            table.setJournalTableName("MTR_METERACTIVATIONJRNL").since(version(10, 7));
             table.primaryKey("PK_MTR_METERACTIVATION").on(idColumn).add();
             table.foreignKey("FK_MTR_METERACTUSAGEPOINT")
                     .references(UsagePoint.class)
@@ -533,7 +534,12 @@ public enum TableSpecs {
                     .map("meterRole")
                     .on(meterRoleIdColumn)
                     .add();
-            table.audit(MTR_MULTIPLIERVALUE.name())
+            table.audit("")
+                    .domainContext(AuditDomainContextType.USAGEPOINT_METROLOGY_CONFIGURATION.ordinal())
+                    .domainReferences("FK_MTR_METERACTUSAGEPOINT")
+                    .contextReferenceColumn("ID")
+                    .build();
+            table.audit("")
                     .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
                     .domainReferences("FK_MTR_METERACTMETER")
                     .build();
@@ -919,10 +925,6 @@ public enum TableSpecs {
                     .references(MultiplierType.class)
                     .map("type")
                     .add();
-            /*table.audit("")
-                    .domainContext(AuditDomainContextType.DEVICE_ATTRIBUTES.ordinal())
-                    .domainReferences("FK_MTR_MULTIPLIERVALUE_MA", "FK_MTR_METERACTMETER")
-                    .build();*/
         }
     },
     MTR_METER_CONFIG {

@@ -4,6 +4,8 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
@@ -20,17 +22,17 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceBulkCreateConf
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilitiesDeviceERPSmartMeterBulkCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrBlkCrteReqMsg;
 
 import javax.inject.Inject;
-import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.Objects;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEndPoint implements UtilitiesDeviceERPSmartMeterBulkCreateRequestCIn, ApplicationSpecific {
@@ -40,15 +42,18 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final SAPCustomPropertySets sapCustomPropertySets;
+    private final OrmService ormService;
 
     @Inject
     UtilitiesDeviceBulkCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                             Thesaurus thesaurus, Clock clock, SAPCustomPropertySets sapCustomPropertySets) {
+                                             Thesaurus thesaurus, Clock clock, SAPCustomPropertySets sapCustomPropertySets,
+                                             OrmService ormService) {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
+        this.ormService = ormService;
     }
 
     @Override
@@ -103,7 +108,7 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
                         createChildServiceCall(serviceCall, bodyMessage);
                     }
                 });
-        if (serviceCall.findChildren().stream().count() > 0) {
+        if (!serviceCall.findChildren().paged(0, 0).find().isEmpty()) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
@@ -112,12 +117,12 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
     }
 
     private boolean hasUtilDeviceRequestServiceCall(String id) {
-        return serviceCallCommands.findAvailableServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST)
-                .stream()
-                .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceCreateRequestDomainExtension.class))
-                .filter(Objects::nonNull)
-                .map(Optional::get)
-                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+        Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceCreateRequestCustomPropertySet.MODEL_NAME);
+        if (dataModel.isPresent()) {
+            return dataModel.get().stream(MasterUtilitiesDeviceCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
+        }
+        return false;
     }
 
     private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed) {
@@ -150,8 +155,8 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
 
     private boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
-                .findEndPointConfigurations().find().stream()
-                .filter(epc -> epc.getWebServiceName().equals(name))
+                .getEndPointConfigurationsForWebService(name)
+                .stream()
                 .filter(EndPointConfiguration::isActive)
                 .findAny().isPresent();
     }

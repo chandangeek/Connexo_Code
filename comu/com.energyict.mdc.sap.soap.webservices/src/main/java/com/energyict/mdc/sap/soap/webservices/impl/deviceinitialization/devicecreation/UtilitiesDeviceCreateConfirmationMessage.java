@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestCustomPropertySet;
@@ -49,8 +50,8 @@ public class UtilitiesDeviceCreateConfirmationMessage {
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), now));
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
-                confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat()));
-            } else if (hasAllChildState(children, DefaultState.SUCCESSFUL)) {
+                confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
+            } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
             } else {
                 confirmationMessage.setLog(createFailedLog());
@@ -64,7 +65,7 @@ public class UtilitiesDeviceCreateConfirmationMessage {
             confirmationMessage = objectFactory.createUtilsDvceERPSmrtMtrBlkCrteConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(message.getRequestID(), now));
 
-            confirmationMessage.setLog(createFailedLog(String.valueOf(messageSeed.getNumber()), messageSeed.getDefaultFormat()));
+            confirmationMessage.setLog(createFailedLog(String.valueOf(messageSeed.getNumber()), messageSeed.getDefaultFormat(null)));
             return this;
         }
 
@@ -72,7 +73,7 @@ public class UtilitiesDeviceCreateConfirmationMessage {
             return UtilitiesDeviceCreateConfirmationMessage.this;
         }
 
-        private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+        private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
             return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
         }
 
@@ -141,19 +142,19 @@ public class UtilitiesDeviceCreateConfirmationMessage {
 
         private Log createSuccessfulLog() {
             Log log = objectFactory.createLog();
-            log.setBusinessDocumentProcessingResultCode("3");
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.SUCCESSFUL.getCode());
             return log;
         }
 
         private Log createFailedLog() {
             Log log = objectFactory.createLog();
-            log.setBusinessDocumentProcessingResultCode("5");
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
             return log;
         }
 
         private Log createFailedLog(String code, String message) {
             Log log = objectFactory.createLog();
-            log.setBusinessDocumentProcessingResultCode("5");
+            log.setBusinessDocumentProcessingResultCode(ProcessingResultCode.FAILED.getCode());
             log.getItem().add(createLogItem(code, message));
             return log;
         }

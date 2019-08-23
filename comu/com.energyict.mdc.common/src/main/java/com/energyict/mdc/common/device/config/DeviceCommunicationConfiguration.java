@@ -14,7 +14,7 @@ import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +27,7 @@ import java.util.Set;
  * @since 2013-02-15 (10:27)
  */
 
-@ProviderType
+@ConsumerType
 public interface DeviceCommunicationConfiguration {
 
     void remove(PartialConnectionTask partialConnectionTask);

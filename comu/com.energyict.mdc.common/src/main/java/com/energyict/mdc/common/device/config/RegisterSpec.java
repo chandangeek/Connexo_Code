@@ -9,7 +9,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.masterdata.RegisterType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
 import java.time.Instant;
@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author Geert
  */
-@ProviderType
+@ConsumerType
 public interface RegisterSpec extends HasId {
 
     /**

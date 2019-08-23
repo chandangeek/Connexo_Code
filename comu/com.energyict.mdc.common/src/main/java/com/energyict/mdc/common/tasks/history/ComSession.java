@@ -14,7 +14,7 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
@@ -23,7 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-@ProviderType
+@ConsumerType
 public interface ComSession extends HasId, TaskExecutionSummary {
 
     void save();

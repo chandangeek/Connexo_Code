@@ -16,7 +16,7 @@ import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.upl.TypedProperties;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +35,7 @@ import java.util.Optional;
  * @author sva
  * @since 21/01/13 - 15:04
  */
-@ProviderType
+@ConsumerType
 public interface PartialConnectionTask extends HasName, HasId {
 
     /**

@@ -44,7 +44,7 @@ public interface IssueFilter {
 
     void setIssueReason(IssueReason issueReason);
 
-    void setPriority(Priority priority);
+    void setPriority(String priority);
 
     void addStatus(IssueStatus status);
 
@@ -64,6 +64,10 @@ public interface IssueFilter {
 
     List<EndDeviceGroup> getDeviceGroups();
 
+    boolean getShowTopology();
+
+    void setShowTopology(boolean showTopology);
+
     List<UsagePointGroup> getUsagePointGroups();
 
     List<Location> getLocations();
@@ -82,7 +86,7 @@ public interface IssueFilter {
 
     void addIssueType(IssueType issueType);
 
-    List<Priority> getPriorities();
+    String getPriorities();
 
     Long getStartCreateTime();
 

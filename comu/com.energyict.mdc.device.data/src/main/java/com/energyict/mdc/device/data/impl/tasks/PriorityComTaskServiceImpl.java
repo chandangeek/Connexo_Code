@@ -287,7 +287,6 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
         sqlBuilder.append(alias);
         sqlBuilder.append(".");
         sqlBuilder.append(PriorityComTaskExecutionFields.PRIORITY.fieldName());
-        LOGGER.info("[high-prio] executing query for PendingPrio tasks (with params ct.comServer=" + comServer.getId() + ", nextExecutionTimestamp=" + now.toEpochMilli()+ ") : " + sqlBuilder.getText());
         return sqlBuilder;
     }
 
@@ -321,10 +320,6 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
                         maximumNumberOfTaskForComPortPool.getComPortPoolId(),
                         maximumNumberOfTaskForComPortPool.getNumberOfTasks());
             }
-
-            if (totalRemainingJobs() == 0) {
-                throw new NoMoreHighPriorityTasksCanBePickedUpRuntimeException();
-            }
         }
 
         public int totalRemainingJobs() {
@@ -342,18 +337,21 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
             while (continueFetching(resultSet)) {
                 add(resultSet);
             }
+
+            if (!jobs.isEmpty() && totalRemainingJobs() == 0) {
+                throw new NoMoreHighPriorityTasksCanBePickedUpRuntimeException();
+            }
+
             return jobs;
         }
 
         private boolean continueFetching(ResultSet resultSet) throws SQLException {
             int i = 0;
             if (moreResultsAvailable(resultSet)) {
-                LOGGER.info("[high-prio] retrieving record #" + (++i) + " from DB");
                 int connectionTaskId = resultSet.getInt(CONNECTION_TASK_ID_RESULT_SET_INDEX);
                 if (currentConnectionTaskId == 0) {
                     // First HighPriorityComTaskExecution
                     currentConnectionTaskId = connectionTaskId;
-                    LOGGER.info("[high-prio] currentConnectionTaskId=" + currentConnectionTaskId);
                     return true;
                 } else {
                     /* Continue fetching as long as we are dealing with the
@@ -362,9 +360,7 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
                      * if we need more jobs. */
                     try {
                         boolean needMoreJobs = needMoreJobs();
-                        LOGGER.info("[high-prio] needMoreJobs=" + needMoreJobs);
                         boolean result = currentConnectionTaskId == connectionTaskId || needMoreJobs;
-                        LOGGER.info("[high-prio] record #" + i + " add to the result: " + result);
 
                         return result;
                     } finally {
@@ -386,18 +382,14 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
 
         private void add(ResultSet resultSet) throws SQLException {
             long comPortPoolId = resultSet.getLong(CONNECTION_TASK_COMPORT_POOL_RESULT_SET_INDEX);
-            LOGGER.info("[high-prio] comPortPoolId from DB=" + comPortPoolId);
             ScheduledConnectionTask connectionTask = findConnectionTask(resultSet.getInt(CONNECTION_TASK_ID_RESULT_SET_INDEX));
             addToGroup((ServerPriorityComTaskExecutionLink) construct(resultSet, connectionTask), connectionTask, comPortPoolId);
         }
 
         protected void addToGroup(ServerPriorityComTaskExecutionLink highPriorityComTaskExecution, ScheduledConnectionTask connectionTask, Long comPortPoolId) {
-            LOGGER.info("[high-prio] high prio id=" + highPriorityComTaskExecution.getId() + " connectionTask=" + connectionTask);
             HighPriorityComTaskExecutionGroup group = groups.get(connectionTask);
             if (group == null) {
-                LOGGER.info("[high-prio] job group doesn't exist yet");
                 if (needMoreJobsForPool(comPortPoolId)) {
-                    LOGGER.info("[high-prio] adding new group to connectionTask");
                     group = new HighPriorityComTaskExecutionGroup(connectionTask);
                     groups.put(connectionTask, group);
                     addHighPriorityComJob(group, comPortPoolId);
@@ -411,7 +403,6 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
 
         private boolean needMoreJobsForPool(long comPortPoolId) {
             Integer remainingNumberOfTaskForPool = remainingNumberOfTasksPerPool.get(comPortPoolId);
-            LOGGER.info("[high-prio] remaining tasks for pool " + comPortPoolId + ": " + remainingNumberOfTaskForPool);
             return remainingNumberOfTaskForPool != null && remainingNumberOfTaskForPool > 0;
         }
 

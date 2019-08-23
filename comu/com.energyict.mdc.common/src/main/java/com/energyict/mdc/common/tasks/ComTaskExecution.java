@@ -13,7 +13,7 @@ import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.List;
@@ -65,7 +65,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-09-21 (15:14)
  */
-@ProviderType
+@ConsumerType
 public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     /**
      * The Default amount of seconds a ComTask should wait before retrying.

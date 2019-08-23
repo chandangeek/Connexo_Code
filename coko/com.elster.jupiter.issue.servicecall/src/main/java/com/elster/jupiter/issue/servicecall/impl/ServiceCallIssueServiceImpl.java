@@ -37,6 +37,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.servicecall.RefernceToDelete;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
@@ -46,6 +49,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -62,7 +66,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
            service = { TranslationKeyProvider.class, MessageSeedProvider.class, ServiceCallIssueService.class, IssueProvider.class, IssueGroupTranslationProvider.class, IssueReasonTranslationProvider.class},
            property = "name=" + ServiceCallIssueService.COMPONENT_NAME,
            immediate = true)
-public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, TranslationKeyProvider, MessageSeedProvider, IssueProvider, IssueGroupTranslationProvider, IssueReasonTranslationProvider {
+public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, TranslationKeyProvider, MessageSeedProvider, IssueProvider,
+        IssueGroupTranslationProvider, IssueReasonTranslationProvider, RefernceToDelete {
 
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
@@ -71,6 +76,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
     private volatile MessageService messageService;
+    private volatile ServiceCallService serviceCallService;
 
     private volatile DataModel dataModel;
 
@@ -79,7 +85,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Inject
-    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService,
+    public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, ServiceCallService serviceCallService,
                                        EventService eventService, UpgradeService upgradeService, QueryService queryService,
                                        MessageService messageService) {
         setOrmService(ormService);
@@ -89,6 +95,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
         setUpgradeService(upgradeService);
         setQueryService(queryService);
         setMessageService(messageService);
+        setServiceCallService(serviceCallService);
         activate();
     }
 
@@ -104,6 +111,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
                 bind(ServiceCallIssueService.class).toInstance(ServiceCallIssueServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(ServiceCallService.class).toInstance(serviceCallService);
             }
         });
         upgradeService.register(
@@ -112,6 +120,12 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
                 Installer.class,
                 Collections.emptyMap()
                 );
+        serviceCallService.addDelRef(this);
+    }
+
+    @Deactivate
+    public final void deactivate() {
+        serviceCallService.removeDelRef(this);
     }
 
     @Override
@@ -184,6 +198,11 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     }
 
     @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
@@ -225,6 +244,13 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
         List<Class<?>> eagerClasses = determineMainApiClass(filter);
         eagerClasses.addAll(Arrays.asList(IssueStatus.class, User.class, IssueReason.class, IssueType.class));
         return DefaultFinder.of((Class<ServiceCallIssue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+    }
+
+    @Override
+    public void deleteRefernces(ServiceCall serviceCall) {
+        ServiceCallIssueFilter filter = new ServiceCallIssueFilter();
+        filter.addServiceCall(serviceCall);
+        findIssues(filter).find().forEach(Entity::delete);
     }
 
     private List<Class<?>> determineMainApiClass(ServiceCallIssueFilter filter) {

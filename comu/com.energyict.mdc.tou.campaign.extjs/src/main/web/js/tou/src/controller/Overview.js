@@ -17,7 +17,9 @@ Ext.define('Tou.controller.Overview', {
     stores: [
         'Tou.store.TouCampaigns',
         'Tou.store.DeviceTypes',
-        'Tou.store.DeviceGroups'
+        'Tou.store.DeviceGroups',
+        'Tou.store.ConnectionStrategy',
+        'Tou.store.ComTasks'
     ],
 
     refs: [{

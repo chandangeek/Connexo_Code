@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -11,7 +12,6 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -74,8 +74,8 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
                 String sapDeviceId = extension.getDeviceId();
 
                 try {
-                    sapCustomPropertySets.addSapDeviceId(device, sapDeviceId);
-                } catch (SAPWebServiceException ex) {
+                    sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+                } catch (LocalizedException ex) {
                     extension.setError(ex.getMessageSeed(),ex.getMessageArgs());
                     serviceCall.update(extension);
                     serviceCall.requestTransition(DefaultState.FAILED);
