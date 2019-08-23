@@ -8,9 +8,9 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import java.time.Instant;
 import java.util.List;

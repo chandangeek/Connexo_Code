@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 Ext.define('Isu.view.issues.IssueFilter', {
@@ -15,7 +15,11 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.IssueAssignees',
         'Isu.store.Devices',
         'Isu.store.DueDate',
-        'Isu.store.IssueReasons'
+        'Isu.store.IssueReasons',
+        'Isu.store.IssueUsagePoints',
+        'Isu.store.DeviceGroups',
+        'Isu.store.IssueReasons',
+        'Isu.store.Locations'
     ],
 
     initComponent: function () {
@@ -135,12 +139,119 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
+                    },
+                    change: {
+                        fn: me.onDeviceChange
                     }
                 }
+            },
+            {
+                type: 'combobox',
+                itemId: 'issue-deviceGroup-filter',
+                dataIndex: 'deviceGroup',
+                emptyText: Uni.I18n.translate('general.deviceGroup', 'ISU', 'Device group'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Isu.store.DeviceGroups',
+                multiSelect: true,
+            },
+            {
+                emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
+                type: 'combobox',
+                itemId: 'issue-usagePoints-filter',
+                dataIndex: 'usagePoint',
+                displayField: 'name',
+                valueField: 'name',
+                store: 'Isu.store.IssueUsagePoints',
+                queryMode: 'remote',
+                queryParam: 'like',
+                queryCaching: false,
+                minChars: 0,
+                loadStore: false,
+                setFilterValue: me.comboSetFilterValue,
+                getParamValue: me.comboGetParamValue,
+                forceSelection: false,
+                hidden: me.isOverviewFilter,
+                listeners: {
+                    expand: {
+                        fn: me.comboLimitNotification
+                    }
+                }
+            },
+            {
+                type: 'interval',
+                itemId: 'issue-creationDate-filter',
+                dataIndex: 'startInterval',
+                dataIndexFrom: 'startIntervalFrom',
+                dataIndexTo: 'startIntervalTo',
+                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
+                hidden: me.isOverviewFilter
+            },
+            {
+                type: 'numeric',
+                dataIndex: 'priority',
+                itemId: 'isu-priority-filter',
+                text: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority')
+            },
+            {
+                type: 'combobox',
+                itemId: 'issue-location-filter',
+                dataIndex: 'location',
+                emptyText: Uni.I18n.translate('general.location', 'ISU', 'Location'),
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Isu.store.Locations',
+                queryMode: 'remote',
+                queryParam: 'like',
+                loadStore: false,
+                queryCaching: false,
+                minChars: 0,
+                forceSelection: false,
+                matchFieldWidth: false,
+                getParamValue: me.comboGetParamValue,
+                width: 377,
+                triggerAction: 'last',
+                listeners: {
+                    beforequery: {
+                        fn: me.locationBeforeQuery
+                    }
+                }
+            },
+            {
+                type: 'checkbox',
+                dataIndex: 'showTopology',
+                layout: 'hbox',
+                defaults: {margin: '0 10 0 0'},
+                hidden: me.isOverviewFilter,
+                listeners: {
+                    afterrender: function (field) {
+                        if (Ext.isEmpty(this.up().down('combobox[itemId=issue-meter-filter]').getValue())) {
+                            this.up().down('checkbox[itemId=showTopology-filter]').setValue(false);
+                            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(true);
+                        } else {
+                            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(false);
+                        }
+
+                    }
+                },
+                options: [
+                    {
+                        display: Uni.I18n.translate('general.showTopology','ISU','Show Topology'),
+                        value: 'true',
+                        itemId: 'showTopology-filter'
+                    }
+                ]
             }
         ];
 
         me.callParent(arguments);
+    },
+
+    locationBeforeQuery: function (qe) {
+        if ( typeof qe.combo.lastQuery !== 'undefined' && qe.combo.lastQuery !== '' && qe.combo.getValue() === null ) {
+            delete qe.combo.lastQuery;
+            return false;
+        }
     },
 
     onBeforeLoad: function (store, options) {
@@ -245,6 +356,16 @@ Ext.define('Isu.view.issues.IssueFilter', {
     onAssigneeBlur: function (field) {
         if (field.getRawValue()) {
             field.setValue(field.lastSelection);
+        }
+    },
+    onDeviceChange: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value)) {
+            this.up().down('checkbox[itemId=showTopology-filter]').setValue(false);
+            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(true);
+        } else {
+            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(false);
         }
     }
 });

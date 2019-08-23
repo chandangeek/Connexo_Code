@@ -8,11 +8,11 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 
 import java.time.Clock;

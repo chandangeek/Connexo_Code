@@ -6,12 +6,12 @@ package com.energyict.mdc.masterdata.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
- * to add a {@link com.energyict.mdc.masterdata.MeasurementType} to a {@link LoadProfileType}
+ * to add a {@link MeasurementType} to a {@link LoadProfileType}
  * but that RegisterType was already added to the LoadProfileType before.
  *
  * @author Rudi Vankeirsbilck (rudi)

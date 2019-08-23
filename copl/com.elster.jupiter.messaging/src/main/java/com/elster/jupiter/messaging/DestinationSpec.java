@@ -136,4 +136,6 @@ public interface DestinationSpec extends HasName {
 
     boolean isExtraQueueCreationEnabled();
 
+    boolean isPrioritized();
+
 }

@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.DataLoggerReference;
 
@@ -39,7 +39,7 @@ public class ChannelHistoryInfosTest {
         long startDate = 1467496800000L;
         ReadingType channel1ReadingType = mock(ReadingType.class);
         Channel slaveChannel = mockSlaveChannel(channel1ReadingType);
-        com.energyict.mdc.device.data.Channel originChannel = mockMdcChannel(channelId);
+        com.energyict.mdc.common.device.data.Channel originChannel = mockMdcChannel(channelId);
 
         DataLoggerChannelUsage dataLoggerChannelUsage = mockDataLoggerChannelUsage(startDate, null, channel1ReadingType, slaveChannel, originChannel);
         List<ChannelHistoryInfo> channelHistory = ChannelHistoryInfos.from(Collections.singletonList(dataLoggerChannelUsage)).channelHistory;
@@ -56,7 +56,7 @@ public class ChannelHistoryInfosTest {
         long endDate = 1467596800000L;
         ReadingType channel1ReadingType = mock(ReadingType.class);
         Channel slaveChannel = mockSlaveChannel(channel1ReadingType);
-        com.energyict.mdc.device.data.Channel originChannel = mockMdcChannel(channelId);
+        com.energyict.mdc.common.device.data.Channel originChannel = mockMdcChannel(channelId);
 
         DataLoggerChannelUsage dataLoggerChannelUsage = mockDataLoggerChannelUsage(startDate, endDate, channel1ReadingType, slaveChannel, originChannel);
         List<ChannelHistoryInfo> channelHistory = ChannelHistoryInfos.from(Collections.singletonList(dataLoggerChannelUsage)).channelHistory;
@@ -77,9 +77,9 @@ public class ChannelHistoryInfosTest {
         long endDateFirstStartDateNew = 1467596800000L;
         ReadingType channel1ReadingType = mock(ReadingType.class);
         Channel slaveChannel = mockSlaveChannel(channel1ReadingType);
-        com.energyict.mdc.device.data.Channel originChannel1 = mockMdcChannel(channelId);
+        com.energyict.mdc.common.device.data.Channel originChannel1 = mockMdcChannel(channelId);
         long channelId2 = 123L;
-        com.energyict.mdc.device.data.Channel originChannel2 = mockMdcChannel(channelId2);
+        com.energyict.mdc.common.device.data.Channel originChannel2 = mockMdcChannel(channelId2);
 
         DataLoggerChannelUsage dataLoggerChannelUsage1 = mockDataLoggerChannelUsage(startDate, endDateFirstStartDateNew, channel1ReadingType, slaveChannel, originChannel1);
         DataLoggerChannelUsage dataLoggerChannelUsage2 = mockDataLoggerChannelUsage(endDateFirstStartDateNew, null, channel1ReadingType, slaveChannel, originChannel2);
@@ -103,9 +103,9 @@ public class ChannelHistoryInfosTest {
         long endDate2 = 1469596800000L;
         ReadingType channel1ReadingType = mock(ReadingType.class);
         Channel slaveChannel = mockSlaveChannel(channel1ReadingType);
-        com.energyict.mdc.device.data.Channel originChannel1 = mockMdcChannel(channelId);
+        com.energyict.mdc.common.device.data.Channel originChannel1 = mockMdcChannel(channelId);
         long channelId2 = 123L;
-        com.energyict.mdc.device.data.Channel originChannel2 = mockMdcChannel(channelId2);
+        com.energyict.mdc.common.device.data.Channel originChannel2 = mockMdcChannel(channelId2);
 
         DataLoggerChannelUsage dataLoggerChannelUsage1 = mockDataLoggerChannelUsage(startDate1, endDate1, channel1ReadingType, slaveChannel, originChannel1);
         DataLoggerChannelUsage dataLoggerChannelUsage2 = mockDataLoggerChannelUsage(startDate2, endDate2, channel1ReadingType, slaveChannel, originChannel2);
@@ -129,13 +129,13 @@ public class ChannelHistoryInfosTest {
         assertThat(channelHistory.get(3).endDate).isEqualTo(endDate1);
     }
 
-    private com.energyict.mdc.device.data.Channel mockMdcChannel(Long channelId) {
-        com.energyict.mdc.device.data.Channel originChannel = mock(com.energyict.mdc.device.data.Channel.class);
+    private com.energyict.mdc.common.device.data.Channel mockMdcChannel(Long channelId) {
+        com.energyict.mdc.common.device.data.Channel originChannel = mock(com.energyict.mdc.common.device.data.Channel.class);
         when(originChannel.getId()).thenReturn(channelId);
         return originChannel;
     }
 
-    private DataLoggerChannelUsage mockDataLoggerChannelUsage(Long startDate, Long endDate, ReadingType channel1ReadingType, Channel slaveChannel, com.energyict.mdc.device.data.Channel originChannel) {
+    private DataLoggerChannelUsage mockDataLoggerChannelUsage(Long startDate, Long endDate, ReadingType channel1ReadingType, Channel slaveChannel, com.energyict.mdc.common.device.data.Channel originChannel) {
         DataLoggerReference dataLoggerReference = getDataLoggerReference(originChannel, channel1ReadingType);
         DataLoggerChannelUsage dataLoggerChannelUsage = mock(DataLoggerChannelUsage.class);
         when(dataLoggerChannelUsage.getSlaveChannel()).thenReturn(slaveChannel);
@@ -154,7 +154,7 @@ public class ChannelHistoryInfosTest {
         return slaveChannel;
     }
 
-    private DataLoggerReference getDataLoggerReference(com.energyict.mdc.device.data.Channel originChannel, ReadingType channelReadingType) {
+    private DataLoggerReference getDataLoggerReference(com.energyict.mdc.common.device.data.Channel originChannel, ReadingType channelReadingType) {
         Device origin = mock(Device.class);
         when(originChannel.getReadingType()).thenReturn(channelReadingType);
         when(origin.getChannels()).thenReturn(Collections.singletonList(originChannel));

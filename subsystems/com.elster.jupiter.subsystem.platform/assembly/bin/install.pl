@@ -18,7 +18,7 @@ use Digest::MD5 qw(md5_hex);
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170622";
+my $INSTALL_VERSION="v20190702";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -58,7 +58,7 @@ my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
 my $TOMCAT_BASE="$CONNEXO_DIR/partners";
-my $TOMCAT_ZIP="tomcat-8.5.24.2";
+my $TOMCAT_ZIP="tomcat-9.0.22";
 my $CATALINA_BASE="$TOMCAT_BASE/$TOMCAT_DIR";
 my $CATALINA_HOME=$CATALINA_BASE;
 $ENV{"CATALINA_HOME"}=$CATALINA_HOME;
@@ -536,7 +536,7 @@ sub generate_rnd_str
 
 sub install_tomcat {
 	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
-		print "\n\nExtracting Apache Tomcat 8.5 ...\n";
+		print "\n\nExtracting Apache Tomcat 9.0 ...\n";
 		print "==========================================================================\n";
 
 		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
@@ -562,7 +562,7 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"user\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"manager\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
-        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 8.5 ","set DISPLAYNAME=");
+        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 9.0 ","set DISPLAYNAME=");
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
@@ -843,6 +843,7 @@ sub activate_sso {
             }
 
             if ("$INSTALL_FLOW" eq "yes") {
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->","<!-- to enable Connexo Flow SSO uncomment the Connexo authentication filters below -->");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!--filter>","<filter>");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
                 replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
@@ -860,6 +861,8 @@ sub activate_sso {
             }
 
             if ("$INSTALL_FACTS" eq "yes") {
+                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml",qq(<!ENTITY jsps SYSTEM "web-jsps.xml">),qq(<!ENTITY jsps SYSTEM "file:///$CATALINA_BASE/webapps/facts/WEB-INF/web-jsps.xml">));
+                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!-- to enable Connexo Facts SSO comment out the Connexo authentication filters below -->","<!-- to enable Connexo Facts SSO uncomment the Connexo authentication filters below -->");
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!--filter>","<filter>");
                 replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
 
@@ -975,7 +978,7 @@ sub start_tomcat {
 			if ("$ACTIVATE_SSO" eq "yes") {
                 system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
             } else {
-                system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
+                 system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
             }
 			unlink("$CONNEXO_DIR/datasource.xml");
 		}
@@ -1004,6 +1007,7 @@ sub start_tomcat {
             }
 
             print "\nDeploy MDC processes...\n";
+            mkdir "$TOMCAT_BASE/$TOMCAT_DIR/repositories";
             dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
             my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
             if(-e $mdcfile){

@@ -32,4 +32,9 @@ public class DefaultUsagePointDetailsInfo extends BaseUsagePointDetailsInfo {
     public UsagePointDetailBuilder getUsagePointDetailBuilder(UsagePoint usagePoint, Clock clock) {
         return usagePoint.newDefaultDetailBuilder(clock.instant());
     }
+
+    @Override
+    public boolean isEqual(UsagePoint usagePoint, Clock clock){
+        return true;
+    }
 }

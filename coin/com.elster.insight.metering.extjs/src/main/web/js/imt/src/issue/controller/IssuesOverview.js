@@ -26,7 +26,8 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
         'Isu.model.IssueReason',
         'Isu.model.Device',
         'Imt.datavalidation.model.Issue',
-        'Uni.component.sort.model.Sort'
+        'Uni.component.sort.model.Sort',
+        'Imt.usagepointgroups.model.UsagePointGroup'
     ],
 
     stores: [
@@ -40,7 +41,8 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
         'Isu.store.Devices',
         'Isu.store.IssueGrouping',
         'Isu.store.Groups',
-        'Isu.store.Clipboard'
+        'Isu.store.Clipboard',
+        'Imt.usagepointgroups.store.UsagePointGroups'
     ],
 
     constructor: function () {
@@ -79,12 +81,13 @@ Ext.define('Imt.issue.controller.IssuesOverview', {
                     ref: 'previewActionMenu',
                     selector: '#issue-view-preview issues-action-menu'
                 }
-            ]
+            ];
         me.callParent(arguments);
     },
 
     init: function () {
         var me = this;
+        extendedBy = 'imt';
         this.control({
             '#validation-issues-overview #issues-overview-action-menu': {
                 click: this.chooseAction

@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import com.google.common.collect.Range;
 import org.joda.time.DateMidnight;

@@ -17,24 +17,25 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.FirmwareManagementTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.TopologyTask;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -46,13 +47,14 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+
+//import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 
 @Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, MessageSeedProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
 public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
@@ -152,7 +154,10 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 3), V10_3SimpleUpgrader.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                Version.version(10, 3), V10_3SimpleUpgrader.class,
+                Version.version(10, 7), V10_7SimpleUpgrader.class
+        ));
     }
 
     @Override

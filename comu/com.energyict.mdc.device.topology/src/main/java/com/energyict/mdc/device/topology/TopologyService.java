@@ -4,23 +4,27 @@
 
 package com.energyict.mdc.device.topology;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceTypePurpose;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -280,9 +284,9 @@ public interface TopologyService {
      * @param slaveDataLoggerChannelMap mapping of data logger (mdc) channels to slave (mdc) channels
      * @param slaveDataLoggerRegisterMap mapping of data logger registers to slave registers
      * <p>
-     * The datalogger's {@link com.energyict.mdc.device.config.DeviceType} purpose must be REGULAR{@link com.energyict.mdc.device.config.DeviceTypePurpose} and its actual
+     * The datalogger's {@link DeviceType} purpose must be REGULAR{@link DeviceTypePurpose} and its actual
      * {@link DeviceConfiguration} must be set as datalogger enabled.
-     * The slave device's DeviceType must have the DATALOGGER_SLAVE {@link com.energyict.mdc.device.config.DeviceTypePurpose}
+     * The slave device's DeviceType must have the DATALOGGER_SLAVE {@link DeviceTypePurpose}
      * <p>
      * Technically the link is persisted as a {@link PhysicalGatewayReference} object.
      * This PhysicalGateWayReference holds a List of DataLoggerChannelUsage linking the slave (pulse) channel to the datalogger (pulse) channel
@@ -440,6 +444,8 @@ public interface TopologyService {
      * @return a Stream of physical gateway references
      */
     Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices);
+
+    List<Device> getSlaveDevices(Device device);
 
     interface G3CommunicationPathSegmentBuilder {
 

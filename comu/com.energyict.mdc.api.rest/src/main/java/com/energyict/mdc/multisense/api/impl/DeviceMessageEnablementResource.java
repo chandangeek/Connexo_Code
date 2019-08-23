@@ -10,14 +10,14 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

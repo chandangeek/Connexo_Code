@@ -4,15 +4,14 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
@@ -26,12 +25,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.time.Clock;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -151,6 +145,8 @@ public class BasicComCommandBehavior implements CanProvideDescriptionTitle {
             case UnexpectedError:
                 // Intentional fall-through
             case NotExecuted:
+                // Intentional fall-through
+            case Rescheduled:
                 // Intentional fall-through
             case TimeError:
                 // Intentional fall-through

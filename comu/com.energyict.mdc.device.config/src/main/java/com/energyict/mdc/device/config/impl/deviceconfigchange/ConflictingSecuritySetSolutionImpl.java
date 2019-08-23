@@ -8,9 +8,9 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
 import java.util.List;

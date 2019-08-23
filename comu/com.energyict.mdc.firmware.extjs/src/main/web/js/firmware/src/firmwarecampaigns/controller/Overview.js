@@ -19,7 +19,13 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         'Fwc.store.DeviceTypes',
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.store.Firmwares',
-        'Fwc.store.DeviceGroups'
+        'Fwc.store.DeviceGroups',
+        'Fwc.firmwarecampaigns.store.FirmwareVersionsList',
+        'Fwc.firmwarecampaigns.store.FirmvareVersionsOptions',
+        'Fwc.store.SupportedFirmwareTypes',
+        'Fwc.firmwarecampaigns.store.ConnectionStrategy',
+        'Fwc.firmwarecampaigns.store.ComTasksForValidate',
+        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
     ],
 
     refs: [
@@ -100,10 +106,13 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             form = this.getPreview().down('form'),
             store = this.getStore('Fwc.firmwarecampaigns.store.FirmwareCampaigns');
 
-        store.getProxy().url = '/api/fwc/campaigns/' + record.id;
-        record.set('status', {id: "CANCELLED", localizedValue: "Cancelled"});
-        record.save({
-            isNotEdit: true,
+        record.set('status', {"id" : "CANCELLED", "name" :"Cancelled"});
+        var data = record.getProxy().getWriter().getRecordData(record);
+
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/fwc/campaigns/' + record.getId() + '/cancel',
+            jsonData: data,
             success: function () {
                 form.loadRecord(record);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));

@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.lifecycle.config;
 
 import com.elster.jupiter.fsm.State;
+import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
 
 import aQute.bnd.annotation.ProviderType;
 

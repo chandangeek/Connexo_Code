@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019  by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.config.impl;
@@ -12,16 +12,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.IPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.IPBasedInboundComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 
 import com.google.inject.Provider;
 
@@ -33,7 +33,7 @@ import java.util.List;
 
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.engine.config.OnlineComServer} interface.
+ * Provides an implementation for the {@link OnlineComServer} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:36)
@@ -215,6 +215,11 @@ public final class OnlineComServerImpl extends ComServerImpl implements OnlineCo
     @Override
     public void setStoreTaskThreadPriority(int storeTaskThreadPriority) {
         this.storeTaskThreadPriority = storeTaskThreadPriority;
+    }
+
+    @Override
+    public boolean supportsExecutionOfHighPriorityComTasks() {
+        return true;
     }
 
     public static class OnlineComServerBuilderImpl extends AbstractComServerBuilder<OnlineComServerImpl, OnlineComServerBuilder> implements OnlineComServerBuilder<OnlineComServerImpl> {

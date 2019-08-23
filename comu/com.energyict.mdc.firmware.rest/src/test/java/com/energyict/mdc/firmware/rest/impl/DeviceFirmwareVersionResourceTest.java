@@ -4,19 +4,19 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareManagementDeviceUtilsImpl;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.tasks.ComTask;
 
 import com.jayway.jsonpath.JsonModel;
 

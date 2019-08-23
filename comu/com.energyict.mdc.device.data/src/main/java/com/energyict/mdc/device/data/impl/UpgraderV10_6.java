@@ -74,5 +74,4 @@ public class UpgraderV10_6 implements Upgrader {
         queue.activate();
         queue.subscribe(SubscriberTranslationKeys.ZONE_SUBSCRIBER, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
-
 }

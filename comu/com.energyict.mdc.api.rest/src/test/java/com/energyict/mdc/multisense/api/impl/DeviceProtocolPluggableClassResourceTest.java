@@ -6,12 +6,12 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.RequestSecurityLevel;
+import com.energyict.mdc.common.protocol.security.ResponseSecurityLevel;
+import com.energyict.mdc.common.protocol.security.SecuritySuite;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.upl.UPLConnectionFunction;
 

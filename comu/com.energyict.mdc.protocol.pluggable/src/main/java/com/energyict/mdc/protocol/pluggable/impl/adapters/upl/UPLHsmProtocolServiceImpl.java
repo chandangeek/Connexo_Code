@@ -438,4 +438,12 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService {
             public byte[] getInitVector() {return macResponse.getInitVector();}
         };
     }
+
+    public byte[] wrapServiceKey(byte[] preparedData, byte[] signature, String verifyKey){
+        try {
+            return actual.wrapServiceKey(preparedData, signature, verifyKey);
+        } catch (HsmBaseException e) {
+            throw new HsmException(e);
+        }
+    }
 }

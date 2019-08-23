@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 

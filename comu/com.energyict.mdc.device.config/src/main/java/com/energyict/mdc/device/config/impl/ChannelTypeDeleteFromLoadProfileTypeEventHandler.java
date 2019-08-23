@@ -9,10 +9,11 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 
 import org.osgi.service.component.annotations.Component;
@@ -21,7 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.List;
 
 /**
- * Handles events that are being sent when a {@link com.energyict.mdc.masterdata.MeasurementType} is being
+ * Handles events that are being sent when a {@link MeasurementType} is being
  * deleted from a {@link LoadProfileType}
  * and will veto the delete when the ChannelType is still used by:
  * <ul>

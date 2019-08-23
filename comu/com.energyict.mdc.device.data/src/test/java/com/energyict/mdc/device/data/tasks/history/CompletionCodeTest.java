@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data.tasks.history;
 
+import com.energyict.mdc.common.tasks.history.CompletionCode;
+
 import java.util.EnumSet;
 import java.util.Set;
 

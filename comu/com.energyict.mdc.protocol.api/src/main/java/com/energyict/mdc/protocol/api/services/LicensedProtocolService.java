@@ -5,8 +5,8 @@
 package com.energyict.mdc.protocol.api.services;
 
 import com.elster.jupiter.license.License;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.LicensedProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.List;
 

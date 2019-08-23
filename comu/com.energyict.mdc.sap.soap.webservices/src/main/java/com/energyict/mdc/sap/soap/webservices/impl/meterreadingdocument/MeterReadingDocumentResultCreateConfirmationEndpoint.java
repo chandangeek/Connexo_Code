@@ -3,14 +3,16 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MeterReadingDocumentERPResultCreateConfirmationEIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MeterReadingDocumentERPResultCreateConfirmationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.MtrRdngDocERPRsltCrteConfMsg;
 
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class MeterReadingDocumentResultCreateConfirmationEndpoint implements MeterReadingDocumentERPResultCreateConfirmationEIn {
+public class MeterReadingDocumentResultCreateConfirmationEndpoint extends AbstractInboundEndPoint implements MeterReadingDocumentERPResultCreateConfirmationCIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -20,13 +22,21 @@ public class MeterReadingDocumentResultCreateConfirmationEndpoint implements Met
     }
 
     @Override
-    public void meterReadingDocumentERPResultCreateConfirmationEIn(MtrRdngDocERPRsltCrteConfMsg request) {
-        Optional.ofNullable(request)
-                .ifPresent(requestMessage ->
-                        serviceCallCommands
-                                .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
-                                        .builder()
-                                        .from(requestMessage)
-                                        .build()));
+    public void meterReadingDocumentERPResultCreateConfirmationCIn(MtrRdngDocERPRsltCrteConfMsg request) {
+        runInTransactionWithOccurrence(() -> {
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage ->
+                            serviceCallCommands
+                                    .updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage
+                                            .builder()
+                                            .from(requestMessage)
+                                            .build()));
+            return null;
+        });
+    }
+
+    @Override
+    public String getApplication(){
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

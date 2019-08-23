@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
 
 import java.util.Optional;

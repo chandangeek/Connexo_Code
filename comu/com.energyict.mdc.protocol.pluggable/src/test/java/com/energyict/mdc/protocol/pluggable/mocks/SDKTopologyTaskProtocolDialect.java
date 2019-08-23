@@ -6,8 +6,8 @@ package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
 import java.util.Optional;
 

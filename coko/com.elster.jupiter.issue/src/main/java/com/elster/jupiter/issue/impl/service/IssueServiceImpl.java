@@ -11,7 +11,13 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
-import com.elster.jupiter.issue.impl.database.*;
+import com.elster.jupiter.issue.impl.database.DatabaseConst;
+import com.elster.jupiter.issue.impl.database.TableSpecs;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_5;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_6;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -57,14 +63,16 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
@@ -79,7 +87,6 @@ import com.google.inject.Scopes;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -133,7 +140,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile Thesaurus thesaurus;
     private Set<ComponentAndLayer> alreadyJoined = ConcurrentHashMap.newKeySet();
     private final Object thesaurusLock = new Object();
-    private static BundleContext bundleContext;
 
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
@@ -169,8 +175,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
-                            UpgradeService upgradeService, Clock clock, EventService eventService,
-                            BundleContext bundleContext) {
+                            UpgradeService upgradeService, Clock clock, EventService eventService) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -187,11 +192,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setClock(clock);
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
-        activate(bundleContext);
+        activate();
     }
 
     @Activate
-    public void activate(BundleContext bundleContext) {
+    public void activate() {
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
@@ -219,7 +224,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
         });
-        setBundleContext(bundleContext);
         issueCreationService = dataModel.getInstance(IssueCreationService.class);
         issueActionService = dataModel.getInstance(IssueActionService.class);
         issueAssignmentService = dataModel.getInstance(IssueAssignmentService.class);
@@ -227,16 +231,13 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 InstallIdentifier.identifier("Pulse", COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                        .put(Version.version(10, 2), UpgraderV10_2.class)
-                        .put(Version.version(10, 3), UpgraderV10_3.class)
-                        .put(Version.version(10, 4), UpgraderV10_4.class)
-                        .put(Version.version(10, 5), UpgraderV10_5.class)
-                        .put(Version.version(10, 6), UpgraderV10_6.class)
-                        .put(Version.version(10, 7), UpgraderV10_7.class)
-                        .build()
-        );
-
+                ImmutableMap.of(
+                        version(10, 2), UpgraderV10_2.class,
+                        version(10, 3), UpgraderV10_3.class,
+                        version(10, 4), UpgraderV10_4.class,
+                        version(10, 5), UpgraderV10_5.class,
+                        version(10, 6), UpgraderV10_6.class
+                ));
     }
 
     @Reference
@@ -255,14 +256,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    public void setBundleContext(BundleContext bundleContext){
-        this.bundleContext = bundleContext;
-    }
-
-    @Override
-    public Optional<BundleContext> getBundleContext(){
-        return Optional.of(bundleContext);
-    }
     private Thesaurus getThesaurus() {
         return thesaurus;
     }

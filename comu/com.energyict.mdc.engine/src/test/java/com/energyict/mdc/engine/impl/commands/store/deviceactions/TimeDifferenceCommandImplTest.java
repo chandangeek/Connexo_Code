@@ -6,13 +6,13 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 import org.joda.time.DateTime;

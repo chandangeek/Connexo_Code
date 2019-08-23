@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -77,7 +78,10 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_LINK_BEFORE_CREATION_DATE(72, "usagepoint.calendar.cannot.link.before.creation.date", "Can''t link calendar before creation of usage point date."),
     NO_USAGE_POINT_WITH_MRID(73, Keys.NO_USAGE_POINT_WITH_MRID, "No usage point with mrid {0}"),
     METROLOGY_CONTRACT_NOT_LINKED_TO_CHANNELS_CONTAINER(74, "MetrologyContractNotLinkedToChannelsContainer", "Metrology contract with id {0} is not linked to any channels container"),
-    NOTHING_TO_ESTIMATE(75, "nothing.is.estimated", "Estimation is not configured on this purpose of this usage point")
+    NOTHING_TO_ESTIMATE(75, "nothing.is.estimated", "Estimation is not configured on this purpose of this usage point"),
+    NO_SUCH_METER_ROLE(76, "NoSuchMeterRole", "No such meter role with key {0}"),
+    CANNOT_UNLINK_BEFORE_LINK_DATE(77,"InvalidDateOfUnlink", "The meter can''t be unlinked before the date of linking."),
+    METER_CANNOT_BE_UNLINKED(78, "meter.cannot.be.unlinked", "Meter unlinking error. Meter ''{0}'' is already unlinked from usage point ''{1}'' at {2}.")
     ;
 
     private final int number;

@@ -72,6 +72,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationTask;
 
@@ -92,6 +93,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -166,6 +168,12 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private PropertyValueConverter propertyValueConverter;
     @Mock
     private UsagePointStateChangeRequest usagePointStateChangeRequest;
+    @Mock
+    private UsagePointInfoFactory usagePointInfoFactory;
+    @Mock
+    private ResourceHelper resourceHelper;
+
+
 
     @Before
     public void setUp1() {
@@ -310,6 +318,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.extendedLocation = new LocationInfo();
         info.geoCoordinates = "";
         info.location = "";
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints").queryParam("validate", true).queryParam("step", 1).request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(202);
@@ -345,6 +354,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.location = "";
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints").queryParam("validate", true).queryParam("step", 2).request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(202);
@@ -356,6 +366,14 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         Response response = target("usagepoints").request().post(Entity.json(getBasicUsagePointInfo()));
         assertThat(response.getStatus()).isEqualTo(201);
     }
+
+    /*@Test
+    public void testUsagePointJson() {
+        when(calendarService.findCalendar(anyLong())).thenReturn(Optional.of(mockCalendar()));
+        String json = "{\"id\":0,\"mRID\":\"\",\"serviceCategory\":\"ELECTRICITY\",\"lifeCycle\":{\"id\":1,\"name\":\"Standard usage point life cycle\"},\"name\":\"adasdasd\",\"installationTime\":1560320880000,\"createTime\":null,\"lastTransitionTime\":null,\"isReadyForLinkingMC\":true,\"calendars\":null,\"extendedGeoCoordinates\":{\"spatialCoordinates\":null,\"coordinatesDisplay\":null},\"extendedLocation\":{\"locationValue\":\"\"},\"version\":0,\"isSdp\":true,\"isVirtual\":false,\"readRoute\":\"\",\"connectionState\":null,\"servicePriority\":\"\",\"serviceDeliveryRemark\":\"\",\"techInfo\":{},\"metrologyConfiguration\":null,\"effectiveMetrologyConfiguration\":null,\"meterRoles\":null,\"hasEffectiveMCs\":false,\"meterActivations\":null,\"transitionToPerform\":null,\"customPropertySets\":[]}";
+        Response response = target("usagepoints").request().post(Entity.json(json));
+        assertThat(response.getStatus()).isEqualTo(201);
+    }*/
 
     @Test
     public void testUpdateUsagePoint() {
@@ -378,6 +396,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.location = "";
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
@@ -421,6 +440,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
         info.customPropertySets = Collections.singletonList(casInfo);
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         ArgumentCaptor<CustomPropertySetValues> valueCaptor = ArgumentCaptor.forClass(CustomPropertySetValues.class);
         Response response = target("usagepoints/1").request().put(Entity.json(info));
@@ -461,6 +481,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
         info.customPropertySets = Collections.singletonList(casInfo);
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
@@ -505,6 +526,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.extendedGeoCoordinates = new CoordinatesInfo();
         info.extendedLocation = new LocationInfo();
         info.customPropertySets = Collections.singletonList(casInfo);
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
 
         Response response = target("usagepoints/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
@@ -579,6 +601,37 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         assertThat(response.getStatus()).isEqualTo(200);
         verify(effectiveMetrologyConfigurationOnUsagePoint, times(1)).close(now);
+    }
+
+    @Test
+    public void testUnlinkMeterRoleFromUsagePoint() {
+
+        Meter meter1 = mock(Meter.class);
+        when(meter1.getName()).thenReturn("meter1");
+        when(meteringService.findMeterByName("meter1")).thenReturn(Optional.of(meter1));
+
+        MeterRole meterRole = mock(MeterRole.class);
+        when(meterRole.getKey()).thenReturn("key1");
+        when(metrologyConfigurationService.findMeterRole("key1")).thenReturn(Optional.of(meterRole));
+
+        UsagePointMeterActivator linker = mock(UsagePointMeterActivator.class);
+        when(usagePoint.linkMeters()).thenReturn(linker);
+
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter1));
+
+        Interval interval = new Interval(new Date(1255659900000L), null);
+        when(meterActivation.getInterval()).thenReturn(interval);
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
+
+        Long timeStamp = 1555659900000L;
+
+        Response response = target("/usagepoints/"+USAGE_POINT_NAME+"/meterroles/key1/unlink/"+timeStamp).request().put(Entity.json(timeStamp));
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        verify(linker).clear(Instant.ofEpochMilli(timeStamp), meterRole);
+        verify(linker).complete();
     }
 
 
@@ -1043,6 +1096,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         calendarOnUsagePointInfo.immediately = true;
         calendarOnUsagePointInfo.usagePointId = 1L;
         usagePointInfo.calendars = Collections.singletonList(calendarOnUsagePointInfo);
+        usagePointInfo.serviceCategory = ServiceKind.ELECTRICITY.name();
         return usagePointInfo;
     }
 
@@ -1090,6 +1144,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.calendars = Collections.singletonList(calendarOnUsagePointInfo);
         info.lifeCycle = new UsagePointLifeCycleInfo();
         info.lifeCycle.name = "LifeCycleName";
+        info.serviceCategory = ServiceKind.ELECTRICITY.name();
         return info;
     }
 }

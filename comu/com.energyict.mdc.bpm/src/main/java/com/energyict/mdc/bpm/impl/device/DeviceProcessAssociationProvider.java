@@ -20,8 +20,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.google.common.collect.ImmutableList;

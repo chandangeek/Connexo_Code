@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
 
 /**
  * Provides functionality to manipulate the SecurityProperty in order to perform a valid DeviceConfigChange

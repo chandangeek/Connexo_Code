@@ -9,11 +9,11 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -31,8 +31,6 @@ import java.util.Optional;
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceInfo extends DeviceVersionInfo {
-    public long id;
-    public String mRID;
     public String serialNumber;
     public String manufacturer;
     public String modelNbr;

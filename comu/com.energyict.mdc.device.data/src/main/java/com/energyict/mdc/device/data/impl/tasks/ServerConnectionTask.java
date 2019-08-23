@@ -4,13 +4,14 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import java.util.Optional;
 
@@ -43,7 +44,7 @@ public interface ServerConnectionTask<CPPT extends ComPortPool, PCTT extends Par
 
     /**
      * Notifies this ConnectionTask that it is about to be deleted
-     * as part of the delete of the {@link com.energyict.mdc.device.data.Device}.
+     * as part of the delete of the {@link Device}.
      */
     void notifyDelete ();
 

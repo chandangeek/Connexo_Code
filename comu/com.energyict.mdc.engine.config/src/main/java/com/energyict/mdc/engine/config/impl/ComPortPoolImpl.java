@@ -11,24 +11,22 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.ports.ComPortType;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 
 /**
- * Serves as the root for all concrete {@link com.energyict.mdc.engine.config.ComPortPool} interfaces.
+ * Serves as the root for all concrete {@link ComPortPool} interfaces.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (08:47)
@@ -44,7 +42,8 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         ACTIVE("active"),
         DESCRIPTION("description"),
         OBSOLETEDATE("obsoleteDate"),
-        COMPORTTYPE("comPortType");
+        COMPORTTYPE("comPortType"),
+        PCTHIGHPRIOTASKS("pctHighPrioTasks");
         private final String name;
 
         Fields(String name) {
@@ -80,6 +79,7 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     private long version;
     private Instant createTime;
     private Instant modTime;
+    private long pctHighPrioTasks;
 
     @Inject
     protected ComPortPoolImpl(DataModel dataModel, Thesaurus thesaurus, EventService eventService) {
@@ -213,4 +213,10 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
     }
+
+    @Override
+    public long getPctHighPrioTasks() { return this.pctHighPrioTasks;}
+
+    @Override
+    public void setPctHighPrioTasks(long pctHighPrioTasks) { this.pctHighPrioTasks = pctHighPrioTasks;}
 }

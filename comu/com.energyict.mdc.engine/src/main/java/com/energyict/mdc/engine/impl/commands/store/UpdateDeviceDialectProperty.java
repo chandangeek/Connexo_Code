@@ -1,8 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
- * that will update a protocol dialect property of a {@link com.energyict.mdc.device.data.Device}
+ * that will update a protocol dialect property of a {@link Device}
  * from information that was collected during the device communication session.
  *
  * @author khe

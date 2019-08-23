@@ -8,7 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 
 public class ConnectionTypePropertyJoinType implements JoinType {
     private final ConnectionTypePluggableClass pluggableClass;

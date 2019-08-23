@@ -3,14 +3,17 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreateconfirmation.SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -18,23 +21,18 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Singleton;
-import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Singleton
 @Component(name = "com.energyict.mdc.sap.statuschangerequest.outbound.provider",
         service = {StatusChangeRequestCreateConfirmation.class, OutboundSoapEndPointProvider.class}, immediate = true,
         property = {"name=" + StatusChangeRequestCreateConfirmation.SAP_STATUS_CHANGE_REQUEST_CREATE_CONFIRMATION})
-public class StatusChangeRequestCreateConfirmationProvider implements StatusChangeRequestCreateConfirmation,
-        OutboundSoapEndPointProvider {
-
-    private final Map<String, SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut> ports =
-            new HashMap<>();
-
-    private volatile Thesaurus thesaurus;
+public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutboundEndPointProvider<SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut> implements StatusChangeRequestCreateConfirmation,
+        OutboundSoapEndPointProvider, ApplicationSpecific {
 
     public StatusChangeRequestCreateConfirmationProvider() {
         // for OSGI purposes
@@ -42,40 +40,73 @@ public class StatusChangeRequestCreateConfirmationProvider implements StatusChan
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
-            SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut port,
+            SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port,
             Map<String, Object> properties) {
-        Optional.ofNullable(properties)
-                .map(property -> property.get(WebServiceActivator.URL_PROPERTY))
-                .map(String.class::cast)
-                .ifPresent(url -> ports.put(url, port));
+        super.doAddEndpoint(port, properties);
     }
 
     public void removeSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
-            SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut port) {
-        ports.values().removeIf(entryPort -> port == entryPort);
+            SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port) {
+        super.doRemoveEndpoint(port);
     }
 
     @Reference
-    public void setThesaurus(WebServiceActivator webServiceActivator) {
-        this.thesaurus = webServiceActivator.getThesaurus();
+    public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
+        // No action, just for binding WebServiceActivator
     }
 
     @Override
     public Service get() {
-        return new SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOutService(
-                getService().getClassLoader().getResource(RESOURCE), new QName(NAMESPACE_URI, LOCAL_PART));
+        return new SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOutService();
     }
 
     @Override
     public Class getService() {
-        return SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut.class;
+        return SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut.class;
+    }
+
+    @Override
+    protected String getName() {
+        return StatusChangeRequestCreateConfirmation.SAP_STATUS_CHANGE_REQUEST_CREATE_CONFIRMATION;
     }
 
     @Override
     public void call(StatusChangeRequestCreateConfirmationMessage confirmationMessage) {
-        Optional.ofNullable(ports.get(confirmationMessage.getUrl()))
-                .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS))
-                .smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(
-                        confirmationMessage.getConfirmationMessage());
+        SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg message = confirmationMessage.getConfirmationMessage();
+        using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut")
+                .send(message);
+    }
+
+    @Override
+    public boolean call(StatusChangeRequestCreateConfirmationMessage confirmationMessage, ServiceCall parent) {
+        boolean retValue = true;
+        List<EndPointConfiguration> endpoints = getEndPointConfigurationsForWebService();
+        SmrtMtrUtilsConncnStsChgReqERPCrteConfMsg message = confirmationMessage.getConfirmationMessage();
+
+        Set<EndPointConfiguration> successEndpoints = using("smartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut")
+                .toEndpoints(endpoints)
+                .send(message).keySet();
+
+        endpoints.removeAll(successEndpoints);
+        if (!endpoints.isEmpty()) {
+            retValue = false;
+            parent.log(LogLevel.INFO, "Failed to send confirmation to the following endpoints: " + endpoints.stream()
+                    .map(EndPointConfiguration::getName)
+                    .collect(Collectors.joining(", ")));
+        }
+
+        if (!successEndpoints.isEmpty()) {
+            parent.log(LogLevel.INFO, "Sent confirmation to the following endpoints: " + successEndpoints.stream()
+                    .map(EndPointConfiguration::getName)
+                    .collect(Collectors.joining(", ")));
+        }else{
+            retValue = false;
+        }
+        return retValue;
+    }
+
+    @Override
+    public String getApplication() {
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

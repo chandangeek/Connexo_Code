@@ -23,6 +23,8 @@ import java.util.Optional;
 @ProviderType
 public interface RecurrentTask extends HasName, HasAuditInfo {
 
+    int DEFAULT_PRIORITY = 0;
+
     long getId();
 
     void updateNextExecution();
@@ -96,4 +98,11 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
 
     void setDestination(String destination);
 
+    void setSuspendUntil(Instant suspendUntilTime);
+
+    Instant getSuspendUntil();
+
+    int getPriority();
+
+    void setPriority(int priority);
 }

@@ -5,7 +5,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 
 import com.jayway.jsonpath.JsonModel;
 

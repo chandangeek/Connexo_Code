@@ -5,9 +5,9 @@
 package com.energyict.mdc.device.command;
 
 
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.device.command.impl.exceptions.ExceededCommandRule;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import aQute.bnd.annotation.ProviderType;
 

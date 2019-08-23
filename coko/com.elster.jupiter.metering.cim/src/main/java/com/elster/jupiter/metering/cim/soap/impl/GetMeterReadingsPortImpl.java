@@ -6,12 +6,12 @@ package com.elster.jupiter.metering.cim.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 
-import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadingsPort;
 import ch.iec.tc57._2011.getmeterreadingsmessage.GetMeterReadingsRequestType;
 import ch.iec.tc57._2011.getmeterreadingsmessage.MeterReadingsPayloadType;
-import ch.iec.tc57._2011.getmeterreadingsmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 
@@ -19,11 +19,9 @@ import javax.jws.WebParam;
 import javax.xml.ws.Holder;
 import java.time.Clock;
 
-class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
-    private final ObjectFactory objectFactory = new ObjectFactory();
+class GetMeterReadingsPortImpl extends AbstractInboundEndPoint implements GetMeterReadingsPort, ApplicationSpecific {
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
-    private final ch.iec.tc57._2011.meterreadings.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings.ObjectFactory();
     private final Clock clock;
 
     @Override
@@ -36,8 +34,12 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
             Holder<MeterReadingsPayloadType> payload,
             @WebParam(name = "Reply", targetNamespace = "http://iec.ch/TC57/2011/GetMeterReadingsMessage", mode = WebParam.Mode.OUT)
             Holder<ReplyType> reply
-    ) throws FaultMessage {
-        newHandler().getMeterReadings(header, request, payload, reply);
+    ) {
+        runInTransactionWithOccurrence(() -> {
+            newHandler().getMeterReadings(header, request, payload, reply);
+            return null;
+        });
+
     }
 
     GetMeterReadingsPortImpl(MeteringService meteringService, MeteringGroupsService meteringGroupsService, Clock clock) {
@@ -48,5 +50,10 @@ class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
 
     private GetMeterReadingsHandler newHandler() {
         return new GetMeterReadingsHandler(meteringService, meteringGroupsService);
+    }
+
+    @Override
+    public String getApplication() {
+        return WebServiceApplicationName.MULTISENSE_INSIGHT.getName();
     }
 }

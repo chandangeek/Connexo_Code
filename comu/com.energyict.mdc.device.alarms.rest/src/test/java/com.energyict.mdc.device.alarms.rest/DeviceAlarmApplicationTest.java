@@ -32,6 +32,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -46,13 +47,13 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.masterdata.LogBookType;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -94,6 +95,8 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     LogBookService logBookService;
     @Mock
     MeteringService meteringService;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
     @Mock
     IssueService issueService;
     @Mock
@@ -151,6 +154,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         deviceAlarmApplication.setDeviceAlarmService(deviceAlarmService);
         deviceAlarmApplication.setLogBookService(logBookService);
         deviceAlarmApplication.setMeteringService(meteringService);
+        deviceAlarmApplication.setMeteringGroupsService(meteringGroupsService);
         deviceAlarmApplication.setIssueService(issueService);
         deviceAlarmApplication.setUserService(userService);
         deviceAlarmApplication.setPropertyValueInfoService(propertyValueInfoService);

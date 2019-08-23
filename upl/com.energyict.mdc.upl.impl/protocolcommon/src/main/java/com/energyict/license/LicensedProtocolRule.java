@@ -331,25 +331,27 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     MK10_V2(286, "com.energyict.protocolimplv2.edmi.mk10.MK10", FamilyRule.EDMI),
     MK6_V2(287, "com.energyict.protocolimplv2.edmi.mk6.MK6"),
 
-/*
-    CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.tD.CryptoT210D"),
-*/
+//CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.T210D.CryptoT210D"),
 
-//    CRYPTO_T210D(288, "com.sagemcom.protocolimplv2.dlms.idis.T210D.CryptoT210D"),
     AM132 (289, "com.energyict.protocolimplv2.dlms.idis.am132.AM132"),
     CRYPTO_AM132(290, "com.energyict.protocolimplv2.dlms.idis.am132.CryptoAM132"),
     MINI_MAX(291, "com.elster.us.protocolimplv2.mercury.minimax.MiniMax"),
     A1860(293, "com.energyict.protocolimplv2.dlms.a1860.A1860"),
     CRYPTO_HS3300(294, "com.energyict.protocolimplv2.dlms.idis.hs3300.CryptoHS3300"),
     HONEYWELL_HS3300(295, "com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300"),
+
+    // Enexis non-crypto
     SAGEMCOM_T210(296, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210", FamilyRule.DSMR_NTA),
-    SAGEMCOM_XS210(297, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.XS210", FamilyRule.DSMR_NTA),
+    SAGEMCOM_XS210(297, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.XS210", FamilyRule.DSMR_NTA),//not to be used; the above protocol SAGEMCOM_T210 also offers support for XS210
     LANDYSGYR_E350(298, "com.energyict.protocolimplv2.nta.dsmr40.landisgyr.E350"),
     IBM_KAIFA(299, "com.energyict.protocolimplv2.nta.dsmr40.ibm.Kaifa"),
-    AM122 (300, "com.energyict.protocolimplv2.dlms.idis.am122.AM122"),
-    ISKRA_MX382(301, "com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382"),
-    DSMR40_MBUS_PROTOCOL_V2(302, "com.energyict.protocolimplv2.nta.dsmr40.common.Dsmr40MbusProtocol"),
 
+    AM122 (300, "com.energyict.protocolimplv2.dlms.idis.am122.AM122"),
+
+    //Enexis protocols
+    ISKRA_MX382(301, "com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382"),
+
+    DSMR40_MBUS_PROTOCOL_V2(302, "com.energyict.protocolimplv2.nta.dsmr40.common.Dsmr40MbusProtocol"), //not to be sold or licensed to customers
 
     CRYPTO_ISKRA_MX382(303, "com.energyict.protocolimplv2.nta.dsmr23.iskra.CryptoMx382", FamilyRule.DSMR_NTA),
     CRYPTO_WEB_RTU_KP(304, "com.energyict.protocolimplv2.nta.dsmr23.eict.CryptoWebRTUKP", FamilyRule.EICT_NTA),
@@ -368,7 +370,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     CRYPTO_LG_DSMR40_MBUS(312, "com.energyict.protocolimplv2.nta.dsmr40.landisgyr.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_ITRON_DMSR40_MBUS(313, "com.energyict.protocolimplv2.nta.dsmr40.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
-    CRYPTO_GENERIC_DSMR40_MBUS(314, "com.energyict.protocolimplv2.nta.dsmr40.common.CryptoMbusDevice", FamilyRule.EICT_NTA),
+    CRYPTO_GENERIC_DSMR40_MBUS(314, "com.energyict.protocolimplv2.nta.dsmr40.common.CryptoMbusDevice", FamilyRule.EICT_NTA),//not to be sold or licensed to customers
 
     CRYPTO_LG_DSMR42_MBUS(315, "com.energyict.protocolimplv2.nta.dsmr42.landysgir.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_ITRON_DMSR42_MBUS(316, "com.energyict.protocolimplv2.nta.dsmr42.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
@@ -377,9 +379,9 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     CRYPTO_ITRON_EMSR50_MBUS(319, "com.energyict.protocolimplv2.nta.esmr50.itron.CryptoMbusDevice", FamilyRule.DSMR_NTA),
     CRYPTO_ELSTER_EMSR50_MBUS(320, "com.energyict.protocolimplv2.nta.esmr50.elster.CryptoMbusDevice", FamilyRule.EICT_NTA),
-    CRYPTO_GENERIC_ESMR50_MBUS(321, "com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50MbusDevice", FamilyRule.EICT_NTA),
+    CRYPTO_GENERIC_ESMR50_MBUS(321, "com.energyict.protocolimplv2.nta.esmr50.common.CryptoESMR50MbusDevice", FamilyRule.EICT_NTA),//not to be sold or licensed to customers
 
-
+    HONEYWELL_AS300N(322, "com.energyict.protocolimplv2.dlms.hon.as300n.AS300N"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

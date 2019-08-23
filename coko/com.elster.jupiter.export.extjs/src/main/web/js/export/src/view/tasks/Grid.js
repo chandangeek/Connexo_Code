@@ -49,6 +49,14 @@ Ext.define('Dxp.view.tasks.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.suspended', 'DES', 'Suspended'),
+                dataIndex: 'suspendUntilExport',
+                renderer: function(value) {
+                    return value ? Uni.I18n.translate('general.suspended.yes', 'APR', 'Yes') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
+                },
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 menu: {

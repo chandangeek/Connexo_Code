@@ -5,14 +5,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DeviceVersionInfo {
 
+    public long id;
     public String name;
     public long version;
     public String mRID;
@@ -20,6 +21,7 @@ public class DeviceVersionInfo {
 
     public static DeviceVersionInfo from(Device device) {
         DeviceVersionInfo deviceVersionInfo = new DeviceVersionInfo();
+        deviceVersionInfo.id = device.getId();
         deviceVersionInfo.version = device.getVersion();
         deviceVersionInfo.name = device.getName();
         deviceVersionInfo.mRID = device.getmRID();

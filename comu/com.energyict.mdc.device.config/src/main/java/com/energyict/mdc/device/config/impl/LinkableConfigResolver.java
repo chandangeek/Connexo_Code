@@ -6,7 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 
 import java.util.List;
 

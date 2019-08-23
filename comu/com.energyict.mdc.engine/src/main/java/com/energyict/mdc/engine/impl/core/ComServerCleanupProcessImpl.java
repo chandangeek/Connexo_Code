@@ -5,8 +5,9 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.logging.ComServerLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -17,7 +18,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Does periodic cleanup of outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s<br/>
+ * Does periodic cleanup of outdated {@link ComTaskExecutionTrigger}s<br/>
  * All triggers who have a trigger timestamp older than one day in the past will be removed from the database,
  * as these triggers are no longer relevant.
  *

@@ -14,7 +14,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import java.util.Collection;

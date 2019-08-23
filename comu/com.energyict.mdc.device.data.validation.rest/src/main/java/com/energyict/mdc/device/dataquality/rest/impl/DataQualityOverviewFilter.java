@@ -10,7 +10,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.Validator;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;

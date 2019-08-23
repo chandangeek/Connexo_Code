@@ -5,8 +5,8 @@
 package com.elster.jupiter.audit.rest.impl;
 
 import com.elster.jupiter.audit.AuditService;
-import com.elster.jupiter.audit.rest.AuditInfoFactory;
 import com.elster.jupiter.audit.rest.AuditI18N;
+import com.elster.jupiter.audit.rest.AuditInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;

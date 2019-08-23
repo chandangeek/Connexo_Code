@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.inbound.g3.PushEventNotification;
 import com.energyict.mdc.protocol.inbound.general.DoubleIframeDiscover;
 import com.energyict.mdc.protocol.inbound.general.IframeDiscover;
 import com.energyict.mdc.protocol.inbound.general.RequestDiscover;
+import com.energyict.mdc.protocol.inbound.idis.AM122PushEventNotification;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotification;
 import com.energyict.mdc.protocol.inbound.idis.T210DPushEventNotification;
 import com.energyict.mdc.protocol.inbound.nfc.NFCDataPushNotification;
@@ -24,6 +25,7 @@ public enum InboundDeviceProtocolRule implements PluggableClassDefinition<Inboun
     DoubleIframeDiscover(DoubleIframeDiscover.class),
     RequestDiscover(RequestDiscover.class),
     ACE4000Inbound(ACE4000Inbound.class),
+    AM122PushEventNotification(AM122PushEventNotification.class),
     DataPushNotification(DataPushNotification.class),
     T210DPushEventNotification(T210DPushEventNotification.class),
     MK10InboundDeviceProtocol(MK10InboundDeviceProtocol.class),

@@ -6,10 +6,10 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 
 import javax.inject.Inject;

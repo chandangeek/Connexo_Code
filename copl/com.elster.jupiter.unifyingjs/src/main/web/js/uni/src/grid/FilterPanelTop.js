@@ -26,6 +26,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
         'Uni.grid.filtertop.ClosableCombobox',
         'Uni.grid.filtertop.DueDate',
         'Uni.grid.filtertop.Numeric',
+        'Uni.grid.filtertop.CustomNumeric',
         'Uni.grid.filtertop.ReadingQuality'
     ],
 
@@ -591,6 +592,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
                 return 'Uni.grid.filtertop.DueDate';
             case 'numeric':
                 return 'Uni.grid.filtertop.Numeric';
+            case 'customnumeric':
+                return 'Uni.grid.filtertop.CustomNumeric';
             case 'readingquality':
                 return 'Uni.grid.filtertop.ReadingQuality';
             default:

@@ -10,8 +10,8 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;

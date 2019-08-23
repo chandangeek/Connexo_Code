@@ -6,6 +6,8 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -27,6 +29,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -41,6 +44,9 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private String versionName;
     private Status status;
     private LogLevel logLevel;
+    private String destination;
+    private transient DestinationSpec destinationSpec;
+    private int priority;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
 //    @IsRegisteredHandler has been removed, as handlers who are not yet registered on the white board should not cause validation errors
@@ -48,6 +54,8 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
     private List<ServiceCallTypeCustomPropertySetUsage> customPropertySets = new ArrayList<>();
+    private String appKey;
+    private DefaultState retryState;
     @SuppressWarnings("unused")
     private Instant createTime;
     @SuppressWarnings("unused")
@@ -61,11 +69,13 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final IServiceCallService serviceCallService;
+    private final MessageService messageService;
 
     @Inject
-    public ServiceCallTypeImpl(DataModel dataModel, IServiceCallService serviceCallService, Thesaurus thesaurus) {
+    public ServiceCallTypeImpl(DataModel dataModel, IServiceCallService serviceCallService, MessageService messageService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
+        this.messageService = messageService;
         this.thesaurus = thesaurus;
         this.status = Status.ACTIVE;
     }
@@ -79,7 +89,10 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         version("version"),
         currentLifeCycleState("currentLifeCycleState"),
         customPropertySets("customPropertySets"),
-        handler("serviceCallHandler");
+        handler("serviceCallHandler"),
+        appKey("appKey"),
+        retryState("retryState"),
+        destination("destination");
 
         private final String javaFieldName;
 
@@ -173,6 +186,26 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     }
 
     @Override
+    public void setRetryState(DefaultState retryState) {
+        this.retryState = retryState;
+    }
+
+    @Override
+    public Optional<DefaultState> getRetryState() {
+        return Optional.ofNullable(retryState);
+    }
+
+    @Override
+    public void setApplication(String appKey) {
+        this.appKey = appKey;
+    }
+
+    @Override
+    public Optional<String> getApplication() {
+        return Optional.ofNullable(appKey);
+    }
+
+    @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet customPropertySet) {
         Objects.requireNonNull(customPropertySet);
         if (!customPropertySet.getCustomPropertySet().getDomainClass().isAssignableFrom(ServiceCall.class)) {
@@ -220,4 +253,31 @@ public class ServiceCallTypeImpl implements IServiceCallType {
         dataModel.mapper(IServiceCallType.class).remove(this);
     }
 
+    @Override
+    public DestinationSpec getDestination() {
+        if (destinationSpec == null) {
+            destinationSpec = messageService.getDestinationSpec(getDestinationName()).get();
+        }
+        return destinationSpec;
+    }
+
+    @Override
+    public String getDestinationName() {
+        return destination;
+    }
+
+    @Override
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
+    }
+
+    @Override
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 }

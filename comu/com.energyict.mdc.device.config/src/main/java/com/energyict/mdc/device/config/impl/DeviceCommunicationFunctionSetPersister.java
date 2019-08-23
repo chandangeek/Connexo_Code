@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceCommunicationFunction;
+import com.energyict.mdc.common.device.config.DeviceCommunicationFunction;
 
 import java.util.EnumSet;
 import java.util.Set;

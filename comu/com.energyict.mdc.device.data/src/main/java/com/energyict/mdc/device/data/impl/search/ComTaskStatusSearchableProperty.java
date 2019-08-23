@@ -16,11 +16,11 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.SearchHelperValueFactory;
 import com.energyict.mdc.device.data.impl.TaskStatusTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionFilterSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;

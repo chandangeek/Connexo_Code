@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.firmware;
 
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;

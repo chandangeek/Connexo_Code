@@ -23,8 +23,8 @@ public interface DevicesInFirmwareCampaignFilter {
     DevicesInFirmwareCampaignFilter withFirmwareCampaignId(Long firmwareCampaignId);
 
     /**
-     * Sets a List of {@link FirmwareManagementDeviceStatus} as criterion of the filter
-     * @param firmwareManagementDeviceStatusKeys: each FirmwareManagementDeviceStatus is uniquely defined by its key()
+     * Sets a List of {@link com.elster.jupiter.servicecall.DefaultState} as criterion of the filter
+     * @param firmwareManagementDeviceStatusKeys: each DefaultState is uniquely defined by its key()
      * @return the filter
      */
     DevicesInFirmwareCampaignFilter withStatus(List<String> firmwareManagementDeviceStatusKeys);

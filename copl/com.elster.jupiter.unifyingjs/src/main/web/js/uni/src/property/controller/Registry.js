@@ -27,7 +27,6 @@ Ext.define('Uni.property.controller.Registry', {
     singleton: true,
     requires: [
         'Uni.property.view.property.Text',
-        'Uni.property.view.property.MailTo',
         'Uni.property.view.property.Combobox',
         'Uni.property.view.property.DeviceGroupCombobox',
         'Uni.property.view.property.Textarea',
@@ -70,8 +69,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
         'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         'Uni.property.view.property.Recurrence',
-        'Uni.property.view.property.Task',
-        'Uni.property.view.property.MailTo'
+        'Uni.property.view.property.Task'
     ],
 
     /**
@@ -81,7 +79,6 @@ Ext.define('Uni.property.controller.Registry', {
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         ASSIGN: 'Uni.property.view.property.Assign',
-        MAILTO: 'Uni.property.view.property.MailTo',
         BOOLEAN: 'Uni.property.view.property.Boolean',
         BPM_PROCESS: 'Uni.property.view.property.StartAlarmProcess',
         CLOCK: 'Uni.property.view.property.DateTime',

@@ -21,11 +21,11 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 

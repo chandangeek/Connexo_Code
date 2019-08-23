@@ -64,11 +64,36 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
             }
             this.usagePointInfo = issue.getUsagePoint().isPresent() ? new UsagePointInfo(issue.getUsagePoint().get()) : null;
             this.title = issue.getTitle();
-            this.issueType = new IssueTypeInfo(issue.getReason().getIssueType());
+            this.issueType = new IssueTypeInfo(issue.getType());
             this.creationDate = issue.getCreateDateTime().toEpochMilli();
             this.modTime = issue.getModTime().toEpochMilli();
             this.version = issue.getVersion();
         }
     }
+
+    public String getDeviceName(){
+        return this.device.getName();
+    }
+
+    public String getUsageName() {
+        if(this.usagePointInfo != null)
+            return this.usagePointInfo.getInfo();
+        return "";
+    }
+    public int getPriorityTotal(){
+        return this.priority.urgency + this.priority.impact;
+    }
+
+    public long getDueDate(){
+        return this.dueDate;
+    }
+    public long getId(){
+        return this.id;
+    }
+
+    public long getCreatedDateTime(){
+        return this.creationDate;
+    }
+
 
 }

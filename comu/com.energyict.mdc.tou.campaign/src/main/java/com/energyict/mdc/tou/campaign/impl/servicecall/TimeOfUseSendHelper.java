@@ -9,16 +9,18 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignException;
 import com.energyict.mdc.tou.campaign.impl.MessageSeeds;
@@ -37,14 +39,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME;
 
 public class TimeOfUseSendHelper {
 
@@ -71,16 +73,17 @@ public class TimeOfUseSendHelper {
                         .getExtension(TimeOfUseCampaignDomainExtension.class)
                         .orElse(null);
         if (timeOfUseCampaignService.isWithVerification(timeOfUseCampaign)) {
-            if (!timeOfUseCampaignService.getActiveVerificationTask(device).isPresent()) {
-                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_DOESNT_CONTAIN_VERIFICATION_TASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG).format());
+            if (!timeOfUseCampaignService.isActiveVerificationTask(device, timeOfUseCampaign.getValidationComTaskId())) {
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format(timeOfUseCampaignService.getComTaskById(timeOfUseCampaign.getCalendarUploadComTaskId()).getName()));
                 if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                     serviceCall.requestTransition(DefaultState.REJECTED);
                 }
                 return;
             }
         }
-        Optional<ComTaskEnablement> comTaskEnablementOptional = timeOfUseCampaignService.getActiveTaskForCalendars(device);
+        Optional<ComTaskEnablement> comTaskEnablementOptional = timeOfUseCampaignService.getActiveTaskForCalendarsById(device, timeOfUseCampaign.getCalendarUploadComTaskId());
         if (comTaskEnablementOptional.isPresent()) {
+            ComTaskEnablement comTaskEnablement = comTaskEnablementOptional.get();
             SendCalendarInfo sendCalendarInfo = new SendCalendarInfo();
             sendCalendarInfo.allowedCalendarId = timeOfUseCampaign.getCalendar().getId();
             sendCalendarInfo.activationDate = timeOfUseCampaign.getActivationOption()
@@ -98,19 +101,30 @@ public class TimeOfUseSendHelper {
                     .orElseThrow(() -> new TimeOfUseCampaignException(thesaurus, MessageSeeds.NO_ALLOWED_CALENDAR_DEVICE_MESSAGE));
             DeviceMessage deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar, deviceMessageSpecificationService);
             device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
-            ComTaskExecution comTaskExecution = timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablementOptional.get());
-            if (comTaskExecution == null) {
-                comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablementOptional.get()).add();
-            }
-            if (comTaskExecution.getConnectionTask().isPresent()) {
-                scheduleCampaign(comTaskExecution, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
-                TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
-                extension.setDeviceMessage(deviceMessage);
-                serviceCall.update(extension);
-                if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
-                    serviceCall.requestTransition(DefaultState.PENDING);
+            ConnectionStrategy connectionStrategy;
+            ComTaskExecution cteFromEnablement;
+            if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
+                cteFromEnablement = timeOfUseCampaignService.findComTaskExecution(device, comTaskEnablement);
+                if (cteFromEnablement == null) {
+                    cteFromEnablement = device.newAdHocComTaskExecution(comTaskEnablement).add();
                 }
-
+                connectionStrategy = ((ScheduledConnectionTask) cteFromEnablement.getConnectionTask().get()).getConnectionStrategy();
+                if (cteFromEnablement.getConnectionTask().get().isActive() && (!timeOfUseCampaign.getCalendarUploadConnectionStrategy()
+                        .isPresent() || connectionStrategy == timeOfUseCampaign.getCalendarUploadConnectionStrategy().get())) {
+                    scheduleCampaign(cteFromEnablement, timeOfUseCampaign.getUploadPeriodStart(), timeOfUseCampaign.getUploadPeriodEnd());
+                    TimeOfUseItemDomainExtension extension = serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get();
+                    extension.setDeviceMessage(deviceMessage);
+                    serviceCall.update(extension);
+                    if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
+                        serviceCall.requestTransition(DefaultState.PENDING);
+                    }
+                } else {
+                    serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                            .format(timeOfUseCampaign.getCalendarUploadConnectionStrategy().get().name(), comTaskEnablement.getComTask().getName()));
+                    if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
+                        serviceCall.requestTransition(DefaultState.REJECTED);
+                    }
+                }
             } else {
                 serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.MISSING_CONNECTION_TASKS).format());
                 if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
@@ -118,7 +132,8 @@ public class TimeOfUseSendHelper {
                 }
             }
         } else {
-            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_DOESNT_CONTAIN_COMTASK_FOR_CALENDARS_OR_CONTAINS_ONLY_WRONG).format());
+            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_CALENDAR_IS_MISSING)
+                    .format(timeOfUseCampaignService.getComTaskById(timeOfUseCampaign.getCalendarUploadComTaskId()).getName()));
             if (serviceCall.canTransitionTo(DefaultState.REJECTED)) {
                 serviceCall.requestTransition(DefaultState.REJECTED);
             }

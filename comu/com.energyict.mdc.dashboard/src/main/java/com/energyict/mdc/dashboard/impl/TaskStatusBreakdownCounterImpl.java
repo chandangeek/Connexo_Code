@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -36,7 +36,7 @@ public class TaskStatusBreakdownCounterImpl<T> implements TaskStatusBreakdownCou
     }
 
     private void initializeCounters() {
-        for (TaskStatus taskStatus : EnumSet.of(TaskStatus.Waiting, TaskStatus.Failed, TaskStatus.Pending)) {
+        for (TaskStatus taskStatus : EnumSet.of(TaskStatus.Waiting, TaskStatus.Failed, TaskStatus.Pending, TaskStatus.PendingWithPriority, TaskStatus.WaitingWithPriority)) {
             this.counters.put(taskStatus, 0L);
         }
     }

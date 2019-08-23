@@ -66,7 +66,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
          for (OfflineDeviceMessage pendingMessage : masterMessages) {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
-            getProtocol().journal("Executing message " + pendingMessage.getSpecification().getName());
+            getProtocol().journal("ESMR50 Message executor processing " + pendingMessage.getSpecification().getName());
             try {
                 if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_LTE_APN_NAME)) {
                     collectedMessage = doSetLteApn(pendingMessage);

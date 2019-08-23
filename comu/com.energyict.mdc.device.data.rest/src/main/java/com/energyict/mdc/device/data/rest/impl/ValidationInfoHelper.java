@@ -7,9 +7,9 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.Reading;
+import com.energyict.mdc.common.device.data.Register;
 
 import javax.inject.Inject;
 import java.time.Clock;

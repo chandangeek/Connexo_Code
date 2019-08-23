@@ -53,7 +53,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 name: 'issueType',
                 fieldLabel: Uni.I18n.translate('general.title.issueType', 'ISU', 'Issue type'),
                 required: true,
-                store: 'Isu.store.IssueTypes',
+                store: 'Isu.store.CreationRuleIssueTypes',
                 queryMode: 'local',
                 displayField: 'name',
                 valueField: 'uid',
@@ -414,7 +414,23 @@ Ext.define('Isu.view.creationrules.EditForm', {
         typeCombo.resumeEvent('change');
         templateCombo.resumeEvent('change');
     },
+    validateIssueReason: function(record){
+        var me = this,
+            comboReason = me.down('#issueReason'),
+            reasonEditedValue = comboReason.getRawValue(),
+            reason = comboReason.store.find('name', reasonEditedValue);
 
+            if (reason === -1){
+                if ( reasonEditedValue.trim() === '') {
+                   comboReason.markInvalid(Uni.I18n.translate('issues.required.field', 'ISU', 'This field is required'));
+                   return false;
+                }else if (reasonEditedValue.length > 80){
+                    comboReason.markInvalid(Uni.I18n.translate('issues.maxLength', 'ISU', "This field's text length should be between 1 and 80 symbols"));
+                    return false;
+                }
+            }
+            return true;
+    },
     updateRecord: function () {
         var me = this,
             propertyForm = me.down('property-form'),

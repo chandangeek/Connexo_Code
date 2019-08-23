@@ -4,15 +4,16 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

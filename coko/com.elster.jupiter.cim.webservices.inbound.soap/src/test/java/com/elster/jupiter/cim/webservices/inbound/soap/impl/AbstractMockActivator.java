@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
-import com.elster.jupiter.cim.webservices.inbound.soap.task.ReadMeterChangeMessageHandlerFactory;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
@@ -36,6 +35,7 @@ import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.framework.BundleContext;
 
+import java.lang.reflect.Field;
 import java.time.Clock;
 import java.util.Optional;
 
@@ -124,10 +124,6 @@ public abstract class AbstractMockActivator {
         when(builder.extendedWith(any())).thenReturn(builder);
         when(builder.create()).thenReturn(serviceCall);
         when(serviceCallType.newServiceCall()).thenReturn(builder);
-        when(messageService.getDestinationSpec(ReadMeterChangeMessageHandlerFactory.DESTINATION))
-                .thenReturn(Optional.of(destinationSpec));
-        when(messageService.getQueueTableSpec(ReadMeterChangeMessageHandlerFactory.QUEUE_TABLE_SPEC_NAME))
-                .thenReturn(Optional.of(queueTableSpec));
         when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
     }
 
@@ -135,7 +131,7 @@ public abstract class AbstractMockActivator {
         activator = new CIMInboundSoapEndpointsActivator(mock(BundleContext.class), clock, threadPrincipalService,
                 transactionService, meteringService, nlsService, upgradeService, metrologyConfigurationService,
                 userService, usagePointLifeCycleService, customPropertySetService, endPointConfigurationService,
-                webServicesService, serviceCallService, messageService, jsonService, sendMeterReadingsProvider,
+                webServicesService, serviceCallService, messageService, jsonService,
                 replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService);
     }
 
@@ -145,5 +141,15 @@ public abstract class AbstractMockActivator {
 
     protected void mockWebServices(boolean isPublished) {
         when(webServicesService.isPublished(anyObject())).thenReturn(isPublished);
+    }
+
+    protected static void inject(Class<?> clazz, Object instance, String fieldName, Object value) {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -13,7 +13,6 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 
 import oracle.jdbc.aq.AQMessage;
 import org.osgi.framework.BundleContext;
@@ -183,7 +182,6 @@ public class ConsoleCommandsImpl {
                             subscriberImpl.unSubscribe();
                             subscriberImpl.subscribe();
                         }
-
                     });
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -194,7 +192,7 @@ public class ConsoleCommandsImpl {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(destinationName).orElseThrow(IllegalArgumentException::new);
         threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(destinationSpec::activate));
+            transactionService.run(destinationSpec::activate);
         } finally {
             threadPrincipalService.clear();
         }
@@ -212,29 +210,26 @@ public class ConsoleCommandsImpl {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(destination).orElseThrow(IllegalArgumentException::new);
         threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(() -> {
+            transactionService.run(() -> {
                 destinationSpec.message(message).send();
-            }));
+            });
         } finally {
             threadPrincipalService.clear();
         }
-
     }
 
     public void enqueueMultipleMessages(String destination, String message, int numberOfmessages) {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(destination).orElseThrow(IllegalArgumentException::new);
         threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(() -> {
+            transactionService.run(() -> {
                 for (int i = 0; i < numberOfmessages; i++) {
                     destinationSpec.message(message).send();
                 }
-            }));
+            });
         } finally {
             threadPrincipalService.clear();
         }
-
-
     }
 
     public void numberOfMessages(String destination) {

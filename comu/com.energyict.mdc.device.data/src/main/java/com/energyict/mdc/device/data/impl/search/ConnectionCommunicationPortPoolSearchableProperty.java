@@ -14,8 +14,8 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 
 import javax.inject.Inject;

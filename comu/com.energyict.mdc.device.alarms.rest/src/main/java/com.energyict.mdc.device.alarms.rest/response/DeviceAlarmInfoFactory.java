@@ -10,9 +10,9 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 
 import org.osgi.service.component.annotations.Component;

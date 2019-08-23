@@ -1,8 +1,9 @@
 package com.elster.jupiter.hsm.impl.config;
 
+import com.elster.jupiter.hsm.model.HsmBaseException;
+
 import com.atos.worldline.jss.configuration.DefaultRawConfiguration;
 import com.atos.worldline.jss.configuration.RawConfiguration;
-import com.atos.worldline.jss.configuration.RawConfigurationConverter;
 import com.atos.worldline.jss.configuration.RawFunctionTimeout;
 import com.atos.worldline.jss.configuration.RawHsm;
 import com.atos.worldline.jss.configuration.RawLabel;
@@ -21,15 +22,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 
 public class HsmJssConfigLoader {
 
-    public RawConfiguration load(File f){
+    public RawConfiguration load(File f) throws HsmBaseException {
         GsonBuilder gsbuilder = new GsonBuilder();
         gsbuilder.registerTypeAdapter(DefaultRawConfiguration.class, (InstanceCreator<DefaultRawConfiguration>) (a) -> DefaultRawConfiguration.builder().build());
         gsbuilder.registerTypeAdapter(RawHsm.class, (InstanceCreator<RawHsm>) (a) -> RawHsm.builder().build());
@@ -43,13 +42,9 @@ public class HsmJssConfigLoader {
         Gson gs = gsbuilder.create();
         try {
             return gs.fromJson(new FileReader(f), DefaultRawConfiguration.class);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new HsmBaseException(e);
         }
-    }
-
-    public RawConfiguration load(InputStream is){
-        return new RawConfigurationConverter().loadFromInputStream(is);
     }
 
     final class ImmutableListDeserializer implements JsonDeserializer<ImmutableList<?>> {

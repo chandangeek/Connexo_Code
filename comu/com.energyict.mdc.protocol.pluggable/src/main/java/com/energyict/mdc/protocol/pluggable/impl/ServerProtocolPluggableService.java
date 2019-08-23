@@ -6,6 +6,8 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 /**
@@ -18,7 +20,7 @@ public interface ServerProtocolPluggableService extends ProtocolPluggableService
 
     /**
      * Registers the {@link CustomPropertySet} of the existing
-     * {@link com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass} supported by the specified class name.
+     * {@link ConnectionTypePluggableClass} supported by the specified class name.
      *
      * @param javaClassName The fully qualified class name
      */
@@ -26,7 +28,7 @@ public interface ServerProtocolPluggableService extends ProtocolPluggableService
 
     /**
      * Registers the {@link CustomPropertySet}s of the existing
-     * {@link com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass}
+     * {@link DeviceProtocolPluggableClass}
      * supported by the specified class name.
      *
      * @param javaClassName The fully qualified class name

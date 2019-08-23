@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;

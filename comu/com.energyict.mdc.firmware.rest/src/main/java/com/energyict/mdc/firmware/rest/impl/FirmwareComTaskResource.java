@@ -8,10 +8,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.firmware.FirmwareService;
 
 import javax.annotation.security.RolesAllowed;

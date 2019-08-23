@@ -31,13 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.DUEDATE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.PRIORITYTOTAL;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.USER;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.WORKGROUP;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/topissues")
@@ -74,6 +68,8 @@ public class TopIssuesResource extends BaseResource {
                         add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.TASK.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.MANUAL.getName()).get());
                     }})));
             issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
                     isIssue(entry.getKey()))
@@ -104,8 +100,13 @@ public class TopIssuesResource extends BaseResource {
                         and(conditionStatus).
                         and(conditionUser.
                                 or(conditionNullUser.
-                                        and(conditionWG))), 1, 5, Order.ascending(PRIORITYTOTAL)
+                                        and(conditionWG))), 1, 7, Order
+                        .ascending(PRIORITYTOTAL)
                         .ascending(DUEDATE)
+                        .ascending(CREATIONDATE)
+                        .ascending(DEVICE)
+                        .ascending(USAGEPOINT)
+                        .ascending(ISSUEID)
                         .ascending(REASON));
         return new
 
@@ -116,7 +117,9 @@ public class TopIssuesResource extends BaseResource {
         return issueType.equals(IssueTypes.DATA_COLLECTION) ||
                 issueType.equals(IssueTypes.DATA_VALIDATION) ||
                 issueType.equals(IssueTypes.DEVICE_LIFECYCLE) ||
-                issueType.equals(IssueTypes.TASK);
+                issueType.equals(IssueTypes.TASK) ||
+                issueType.equals(IssueTypes.SERVICE_CALL_ISSUE) ||
+                issueType.equals(IssueTypes.MANUAL);
     }
 
 }

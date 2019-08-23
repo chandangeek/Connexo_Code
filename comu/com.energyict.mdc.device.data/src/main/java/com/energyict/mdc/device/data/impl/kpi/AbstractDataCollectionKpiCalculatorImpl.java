@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.impl.kpi;
 
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;

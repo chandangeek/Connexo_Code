@@ -58,7 +58,9 @@ public enum SimplePropertyType implements PropertyType {
     INTEGER(Integer.class),
     LIFECYCLETRANSITION(ListValueFactory.class),
     TASK(ListValueFactory.class),
-    RECURRENCE(HasIdAndName.class);
+    RECURRENCE(HasIdAndName.class),
+    SERVICE_CALL(HasIdAndName.class),
+    SERVICE_CALL_STATE(HasIdAndName.class);
 
 
     private Class typeClass;
