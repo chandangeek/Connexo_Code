@@ -103,7 +103,9 @@ public class MinimumLevelFirmwareCheckTest extends AbstractFirmwareCheckTest {
     @Test
     public void testFirmwareNotReadOut() {
         when(firmwareManagementDeviceUtils.isReadOutAfterLastFirmwareUpgrade()).thenReturn(false);
-
+        when(uploadedFirmware.getMeterFirmwareDependency()).thenReturn(Optional.of(meterFWDependency));
+        when(uploadedFirmware.getCommunicationFirmwareDependency()).thenReturn(Optional.of(commFWDependency));
+        when(uploadedFirmware.getAuxiliaryFirmwareDependency()).thenReturn(Optional.of(auxFWDependency));
         expectError("Firmware hasn't been read out after the last upload.");
     }
 

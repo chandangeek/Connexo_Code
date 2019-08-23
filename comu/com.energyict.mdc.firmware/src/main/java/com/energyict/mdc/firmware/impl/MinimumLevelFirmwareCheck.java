@@ -38,7 +38,9 @@ public class MinimumLevelFirmwareCheck implements FirmwareCheck {
     public void execute(FirmwareCheckManagementOptions options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
         if (options.isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)) {
-            if (firmwareVersion.getMeterFirmwareDependency().isPresent()) {
+            if (firmwareVersion.getMeterFirmwareDependency().isPresent()
+                    || firmwareVersion.getCommunicationFirmwareDependency().isPresent()
+                    || firmwareVersion.getAuxiliaryFirmwareDependency().isPresent()) {
                 if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                     throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
                 }
