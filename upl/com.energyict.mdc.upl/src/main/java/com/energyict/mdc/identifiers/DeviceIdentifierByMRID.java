@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.impl.identifiers;
+package com.energyict.mdc.identifiers;
 
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
@@ -13,37 +13,31 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Provides an implementation for the {@link DeviceIdentifier} interface
- * that uses a {@link com.energyict.mdc.upl.meterdata.Device}'s database identifier.
+ * Provides an implementation for the {@link com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier} interface
+ * that uses the unique MRID of the device
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-16 (15:10)
  */
 @XmlRootElement
-public final class DeviceIdentifierById implements DeviceIdentifier {
+public final class DeviceIdentifierByMRID implements DeviceIdentifier {
 
-    private long id;
+    private String mrid;
 
     /**
      * Constructor only to be used by JSON (de)marshalling or in unit tests
      */
-    public DeviceIdentifierById() {
+    public DeviceIdentifierByMRID() {
     }
 
-    public DeviceIdentifierById(long id) {
+    public DeviceIdentifierByMRID(String mrid) {
         this();
-        this.id = id;
-    }
-
-    // used for reflection
-    public DeviceIdentifierById(String id) {
-        super();
-        this.id = Long.parseLong(id);
+        this.mrid = mrid;
     }
 
     @Override
     public String toString() {
-        return "device having id " + this.id;
+        return "device having MRID " + this.mrid;
     }
 
     @Override
@@ -52,27 +46,29 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (this == other) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (other == null || getClass() != other.getClass()) {
+        if (!(o instanceof DeviceIdentifierByMRID)) {
             return false;
         }
 
-        DeviceIdentifierById that = (DeviceIdentifierById) other;
-        return id == that.id;
+        DeviceIdentifierByMRID that = (DeviceIdentifierByMRID) o;
+
+        return !(mrid != null ? !mrid.equals(that.mrid) : that.mrid != null);
+
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(this.id);
+        return mrid != null ? mrid.hashCode() : 0;
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "DatabaseId";
+            return "mRID";
         }
 
         @Override
@@ -80,13 +76,15 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
             return new HashSet<>(Collections.singletonList("databaseValue"));
         }
 
-
         @Override
         public Object getValue(String role) {
-            if ("databaseValue".equals(role)) {
-                return id;
-            } else {
-                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            switch (role) {
+                case "databaseValue": {
+                    return mrid;
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
             }
         }
     }
@@ -99,5 +97,4 @@ public final class DeviceIdentifierById implements DeviceIdentifier {
     public void setXmlType(String ignore) {
         // For xml unmarshalling purposes only
     }
-
 }

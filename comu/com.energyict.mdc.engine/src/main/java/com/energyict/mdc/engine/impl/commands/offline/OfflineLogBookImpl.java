@@ -32,6 +32,7 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     private LogBook logBook;
     private Device device;
     private IdentificationService identificationService;
+    private LogBookIdentifier logBookIdentifier;
 
     /**
      * The {@link OfflineLogBookSpec} for the LogBookType.
@@ -55,8 +56,6 @@ public class OfflineLogBookImpl implements OfflineLogBook {
      * The Date from where to start fetching data from the {@link com.energyict.mdc.upl.meterdata.LogBook}
      */
     private Date lastReading;
-
-    private LogBookIdentifier logBookIdentifier;
 
     public OfflineLogBookImpl() {
         super();
@@ -142,9 +141,8 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     //@XmlElement(type = LogBookIdentifierForAlreadyKnowLogBook.class)
     @XmlTransient
     public LogBookIdentifier getLogBookIdentifier() {
-        if (identificationService != null) {
+        if (logBookIdentifier == null && this.identificationService != null)
             logBookIdentifier = this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook, getDeviceIdentifier());
-        }
         return logBookIdentifier;
     }
 

@@ -4,18 +4,18 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByDeviceName;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByMRID;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByPropertyValue;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.DeviceIdentifierByConnectionTypeAndProperty;
+import com.energyict.mdc.identifiers.DeviceIdentifierByDeviceName;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierByMRID;
+import com.energyict.mdc.identifiers.DeviceIdentifierByPropertyValue;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.identifiers.*;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierFirstOnDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierByDeviceAndObisCode;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierFirstOnDevice;
+import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;

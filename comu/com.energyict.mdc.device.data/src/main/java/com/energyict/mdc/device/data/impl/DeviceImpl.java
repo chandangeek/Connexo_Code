@@ -214,6 +214,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -1569,13 +1570,26 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    @XmlElement(type = PassphraseAccessorImpl.class)
     public List<SecurityAccessor> getSecurityAccessors() {
         List<SecurityAccessor> securityAccessorsManagedCentrally = getSecurityAccessorsManagedCentrally();
-        List<SecurityAccessor> securityAccessors = new ArrayList<>(keyAccessors.size() + securityAccessorsManagedCentrally.size());
+        List<SecurityAccessor> securityAccessors = new ArrayList<>(this.keyAccessors.size() + securityAccessorsManagedCentrally.size());
         securityAccessors.addAll(this.keyAccessors);
         securityAccessors.addAll(securityAccessorsManagedCentrally);
         return securityAccessors;
+    }
+
+    @XmlElements( {
+            @XmlElement(type = PassphraseAccessorImpl.class),
+            @XmlElement(type = CertificateAccessorImpl.class),
+            @XmlElement(type = PlainTextSymmetricKeyAccessorImpl.class),
+            @XmlElement(type = HsmSymmetricKeyAccessorImpl.class),
+    })
+    public List<SecurityAccessor> getKeyAccessors() {
+        return this.keyAccessors;
+    }
+
+    public void setKeyAccessors(List<SecurityAccessor> keyAccessors) {
+        this.keyAccessors.addAll(keyAccessors);
     }
 
     @Override

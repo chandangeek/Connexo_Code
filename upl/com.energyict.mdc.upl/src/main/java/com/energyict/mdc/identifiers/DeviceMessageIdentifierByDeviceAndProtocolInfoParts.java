@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,7 +74,13 @@ public class DeviceMessageIdentifierByDeviceAndProtocolInfoParts implements Mess
         return messageProtocolInfoParts;
     }
 
-    @XmlAttribute
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }

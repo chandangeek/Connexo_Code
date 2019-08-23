@@ -44,7 +44,6 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
@@ -119,7 +118,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private Behavior behavior;
     private ComTaskExecType comTaskExecType;
 
-    protected long connectionFunctionDbValue;
+    protected long connectionFunctionId;
     private Optional<ConnectionFunction> connectionFunction = Optional.empty();
 
     private boolean obsolete;
@@ -313,12 +312,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     @Override
     @XmlTransient
     public Optional<ConnectionFunction> getConnectionFunction() {
-        if (!this.connectionFunction.isPresent() && this.connectionFunctionDbValue != 0) {
+        if (!this.connectionFunction.isPresent() && this.connectionFunctionId != 0) {
             Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = getDevice().getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
             List<ConnectionFunction> supportedConnectionFunctions = deviceProtocolPluggableClass.isPresent()
                     ? deviceProtocolPluggableClass.get().getConsumableConnectionFunctions()
                     : Collections.emptyList();
-            this.connectionFunction = supportedConnectionFunctions.stream().filter(cf -> cf.getId() == this.connectionFunctionDbValue).findFirst();
+            this.connectionFunction = supportedConnectionFunctions.stream().filter(cf -> cf.getId() == this.connectionFunctionId).findFirst();
         }
         return this.connectionFunction;
     }
@@ -380,7 +379,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     private void doSetConnectionFunction(ConnectionFunction connectionFunction) {
         this.connectionFunction = Optional.ofNullable(connectionFunction);
-        this.connectionFunctionDbValue = connectionFunction != null ? connectionFunction.getId() : 0;
+        this.connectionFunctionId = connectionFunction != null ? connectionFunction.getId() : 0;
     }
 
     void setDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask) {
@@ -427,7 +426,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComPort()
                     .getComServer(), this.getThesaurus(), MessageSeeds.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE);
         }
-        if (this.useDefaultConnectionTask || this.connectionFunctionDbValue != 0) {
+        if (this.useDefaultConnectionTask || this.connectionFunctionId != 0) {
             this.postEvent(EventType.COMTASKEXECUTION_VALIDATE_OBSOLETE);
         } else if (this.connectionTask.isPresent() && this.connectionTask.get().getExecutingComServer() != null) {
             throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(this, this.connectionTask.get()
@@ -1113,7 +1112,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public long getConnectionFunctionId() {
-        return connectionFunctionDbValue;
+        return connectionFunctionId;
     }
 
     @Override

@@ -66,7 +66,7 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         final DeviceMessageIdentifierById deviceMessageIdentifier = new DeviceMessageIdentifierById(deviceMessage1);
         when(this.deviceMessageService.findDeviceMessageByIdentifier(deviceMessageIdentifier)).thenReturn(Optional.of(this.deviceMessage1));
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage.getIdentifier()).thenReturn(deviceMessageIdentifier);
+        when(offlineDeviceMessage.getMessageIdentifier()).thenReturn(deviceMessageIdentifier);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier);
         collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
@@ -157,9 +157,9 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage1.getIdentifier()).thenReturn(deviceMessageIdentifier1);
+        when(offlineDeviceMessage1.getMessageIdentifier()).thenReturn(deviceMessageIdentifier1);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage2.getIdentifier()).thenReturn(deviceMessageIdentifier2);
+        when(offlineDeviceMessage2.getMessageIdentifier()).thenReturn(deviceMessageIdentifier2);
         when(offlineDeviceMessage2.getDeviceMessageStatus()).thenReturn(DeviceMessageStatus.SENT);
 
         DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2), this.deviceMessageService);

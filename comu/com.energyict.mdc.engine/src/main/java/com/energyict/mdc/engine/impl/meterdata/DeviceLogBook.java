@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
+import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;

@@ -331,7 +331,7 @@ public class DeviceCommandImplTest {
         when(messageIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
         when(offlineDeviceMessage.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        when(offlineDeviceMessage.getIdentifier()).thenReturn(messageIdentifier);
+        when(offlineDeviceMessage.getMessageIdentifier()).thenReturn(messageIdentifier);
         DeviceProtocolMessageAcknowledgement messageAcknowledgement = mock(DeviceProtocolMessageAcknowledgement.class);
         when(messageAcknowledgement.getMessageIdentifier()).thenReturn(messageIdentifier);
         when(messageAcknowledgement.getDeviceMessageStatus()).thenReturn(mock(DeviceMessageStatus.class));

@@ -39,7 +39,7 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
 
     @Override
     @XmlAttribute
-    public ObisCode getProfileObisCode() {
+    public ObisCode getLoadProfileObisCode() {
         return profileObisCode;
     }
 
@@ -74,7 +74,7 @@ public class FirstLoadProfileOnDevice implements LoadProfileIdentifier {
             if ("device".equals(role)) {
                 return getDeviceIdentifier();
             } else if ("obisCode".equals(role)) {
-                return getProfileObisCode();
+                return getLoadProfileObisCode();
             } else {
                 throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }

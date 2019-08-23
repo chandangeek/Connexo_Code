@@ -20,12 +20,17 @@ import java.util.Optional;
  * Created by bvn on 2/28/17.
  */
 public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAccessorImpl<SymmetricKeyWrapper> implements SymmetricKeyAccessor {
-    final DataModel dataModel;
-    final SecurityManagementService securityManagementService;
-    final Thesaurus thesaurus;
+
+    DataModel dataModel;
+    SecurityManagementService securityManagementService;
+    Thesaurus thesaurus;
 
     private RefAny actualSymmetricKeyWrapperReference;
     RefAny tempSymmetricKeyWrapperReference;
+
+    SymmetricKeyAccessorImpl() {
+        super();
+    }
 
     SymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
         super(securityManagementService);

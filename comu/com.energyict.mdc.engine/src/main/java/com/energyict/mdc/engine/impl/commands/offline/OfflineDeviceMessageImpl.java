@@ -5,6 +5,8 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierByDeviceAndProtocolInfoParts;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
@@ -19,6 +21,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,6 +54,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     private Instant creationDate;
     private Device device;
     private String preparedContext;
+    private MessageIdentifier messageIdentifier;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
@@ -112,9 +116,15 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
         return specification;
     }
 
+    @XmlElements( {
+            @XmlElement(type = DeviceMessageIdentifierById.class),
+            @XmlElement(type = DeviceMessageIdentifierByDeviceAndProtocolInfoParts.class),
+    })
     @Override
-    public MessageIdentifier getIdentifier() {
-        return this.identificationService.createMessageIdentifierForAlreadyKnownMessage(deviceMessage);
+    public MessageIdentifier getMessageIdentifier() {
+        if (messageIdentifier == null && this.identificationService != null)
+            messageIdentifier = this.identificationService.createMessageIdentifierForAlreadyKnownMessage(deviceMessage);
+        return messageIdentifier;
     }
 
     @Override

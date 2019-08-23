@@ -6,6 +6,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -42,6 +44,13 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
         this.deviceIdentifier = deviceIdentifier;
     }
 
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+    })
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
@@ -49,7 +58,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
     @Override
     @XmlAttribute
-    public ObisCode getProfileObisCode() {
+    public ObisCode getLoadProfileObisCode() {
         return profileObisCode;
     }
 
@@ -104,7 +113,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
                 case "device":
                     return getDeviceIdentifier();
                 case "obisCode":
-                    return getProfileObisCode();
+                    return getLoadProfileObisCode();
                 default:
                     throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
             }

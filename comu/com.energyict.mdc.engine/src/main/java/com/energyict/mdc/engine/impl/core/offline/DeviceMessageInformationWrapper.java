@@ -1,6 +1,6 @@
 package com.energyict.mdc.engine.impl.core.offline;
 
-import com.energyict.mdc.engine.impl.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

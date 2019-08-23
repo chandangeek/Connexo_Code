@@ -2,7 +2,7 @@ package com.energyict.mdc.upl;
 
 import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ProtocolLoggingSupport;
+import com.energyict.mdc.protocol.journal.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.security.DeviceSecuritySupport;
@@ -15,7 +15,6 @@ import com.energyict.mdc.upl.tasks.support.DeviceProtocolConnectionFunctionSuppo
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceStatusInformationSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAccessType;

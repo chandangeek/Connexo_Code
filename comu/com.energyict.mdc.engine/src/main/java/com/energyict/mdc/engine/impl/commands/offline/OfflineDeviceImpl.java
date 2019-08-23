@@ -15,13 +15,13 @@ import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.identifiers.*;;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.remote.MapXmlMarshallAdapter;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -46,6 +46,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
@@ -633,11 +634,17 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         return deviceProtocolCache;
     }
 
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+    })
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-        if (deviceIdentifier == null) {
-            deviceIdentifier = new DeviceIdentifierForAlreadyKnownDevice(getId(), getmRID());
-        }
+        if (deviceIdentifier == null && this.serviceProvider.identificationService() != null)
+            deviceIdentifier = this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(getId(), getmRID());
         return deviceIdentifier;
     }
 

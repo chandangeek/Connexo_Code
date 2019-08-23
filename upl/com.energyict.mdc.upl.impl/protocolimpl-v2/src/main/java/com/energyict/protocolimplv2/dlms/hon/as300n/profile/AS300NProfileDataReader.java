@@ -165,7 +165,7 @@ public class AS300NProfileDataReader {
             return;
         if (collectedLoadProfile.getCollectedIntervalData().isEmpty() ||
                 intervalWarningElapsed(collectedLoadProfile, loadProfileReader)) {
-            ObisCode profileObisCode = collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode();
+            ObisCode profileObisCode = collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode();
             collectedLoadProfile.setFailureInformation(ResultType.Other, issueFactory.createWarning(profileObisCode, "loadProfileXIssue", profileObisCode, "Received 0 LP intervals from the mirror device. This could mean that the Beacon DC was not able to read out new LP data from the actual device. Please check the logbook of the Beacon device for issues."));
         }
     }

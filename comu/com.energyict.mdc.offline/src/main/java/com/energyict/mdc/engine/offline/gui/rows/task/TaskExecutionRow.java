@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
 import com.energyict.mdc.engine.impl.core.offline.ComJobResult;
 import com.energyict.mdc.engine.impl.core.offline.ComJobState;
@@ -20,6 +19,7 @@ import com.energyict.mdc.engine.offline.gui.UiHelper;
 import com.energyict.mdc.engine.offline.gui.windows.ManualMeterReadingsDialog;
 import com.energyict.mdc.engine.offline.model.CustomCompletionCode;
 import com.energyict.mdc.engine.offline.model.ValueForObis;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.ManualMeterReadingsTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -106,7 +106,7 @@ public class TaskExecutionRow extends TaskCommonRow {
                     continue;
                 }
                 OfflineRegister offlineRegister = getOfflineRegister(valueForObis.getObisCode());
-                DeviceIdentifierById deviceIdentifierById = DeviceIdentifierById.from(offlineRegister.getDeviceId());
+                DeviceIdentifierById deviceIdentifierById = new DeviceIdentifierById(offlineRegister.getDeviceId());
                 if (!manualMeterReadingsMap.containsKey(deviceIdentifierById)) {
                     MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                     manualMeterReadingsMap.put(deviceIdentifierById, meterReading);

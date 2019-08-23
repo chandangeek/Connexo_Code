@@ -195,7 +195,13 @@ abstract class ComTaskImpl implements ComTask {
             @XmlElement(type = BasicCheckTaskImpl.class),
             @XmlElement(type = RegistersTaskImpl.class),
             @XmlElement(type = LoadProfilesTaskImpl.class),
-            @XmlElement(type = LogBooksTaskImpl.class)
+            @XmlElement(type = LogBooksTaskImpl.class),
+            @XmlElement(type = FirmwareManagementTaskImpl.class),
+            @XmlElement(type = MessagesTaskImpl.class),
+            @XmlElement(type = TopologyTaskImpl.class),
+            @XmlElement(type = StatusInformationTaskImpl.class),
+            @XmlElement(type = ClockTaskImpl.class),
+            @XmlElement(type = ManualMeterReadingsTaskImpl.class),
     })
     public List<ProtocolTask> getProtocolTasks() {
         return Collections.unmodifiableList(this.protocolTasks);

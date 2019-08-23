@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.users;
 
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.privileges.PrivilegeImpl;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

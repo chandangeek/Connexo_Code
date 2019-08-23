@@ -2,14 +2,13 @@ package com.energyict.mdc.engine.users;
 
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.privileges.PrivilegeImpl;
-import com.energyict.mdc.engine.impl.core.remote.MapXmlMarshallAdapter;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT

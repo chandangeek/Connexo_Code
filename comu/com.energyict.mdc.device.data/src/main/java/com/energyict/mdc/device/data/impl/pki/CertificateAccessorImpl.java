@@ -25,12 +25,17 @@ import java.util.Optional;
 // almost copy-pasted as com.elster.jupiter.pki.impl.accessors.CertificateAccessorImpl.
 // A refactoring towards usage of that class can be attempted
 public class CertificateAccessorImpl extends AbstractDeviceSecurityAccessorImpl<CertificateWrapper> implements CertificateAccessor {
-    private final DataModel dataModel;
-    private final SecurityManagementService securityManagementService;
-    private final Thesaurus thesaurus;
+
+    private DataModel dataModel;
+    private SecurityManagementService securityManagementService;
+    private Thesaurus thesaurus;
 
     private Reference<CertificateWrapper> actualCertificate = Reference.empty();
     private Reference<CertificateWrapper> tempCertificate = Reference.empty();
+
+    public CertificateAccessorImpl() {
+        super();
+    }
 
     @Inject
     public CertificateAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {

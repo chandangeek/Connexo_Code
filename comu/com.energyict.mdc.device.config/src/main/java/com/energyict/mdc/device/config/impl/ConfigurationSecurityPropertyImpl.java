@@ -67,7 +67,7 @@ public class ConfigurationSecurityPropertyImpl implements ConfigurationSecurityP
         this.name = name;
     }
 
-    protected void setKeyAccessorType(SecurityAccessorType securityAccessorType) {
+    public void setSecurityAccessorType(SecurityAccessorType securityAccessorType) {
         this.keyAccessorType.set(securityAccessorType);
     }
 

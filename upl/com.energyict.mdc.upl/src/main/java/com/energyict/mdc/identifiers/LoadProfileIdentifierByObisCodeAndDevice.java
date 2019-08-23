@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,25 +28,25 @@ import java.util.Set;
 @XmlRootElement
 public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIdentifier {
 
-    private final ObisCode profileObisCode;
+    private final ObisCode loadProfileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
     // For JSON serialization only
     @SuppressWarnings("unused")
     public LoadProfileIdentifierByObisCodeAndDevice() {
-        this.profileObisCode = null;
+        this.loadProfileObisCode = null;
         this.deviceIdentifier = null;
     }
 
     public LoadProfileIdentifierByObisCodeAndDevice(ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
-        this.profileObisCode = profileObisCode;
+        this.loadProfileObisCode = profileObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
 
     public LoadProfileIdentifierByObisCodeAndDevice(LoadProfile loadProfile, ObisCode obisCode) {
         this.deviceIdentifier = loadProfile.getDeviceIdentifier();
-        this.profileObisCode = obisCode;
+        this.loadProfileObisCode = obisCode;
     }
 
     @Override
@@ -56,21 +58,28 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
             return false;
         }
         LoadProfileIdentifierByObisCodeAndDevice that = (LoadProfileIdentifierByObisCodeAndDevice) o;
-        return Objects.equals(profileObisCode, that.profileObisCode)
+        return Objects.equals(loadProfileObisCode, that.loadProfileObisCode)
             && Objects.equals(deviceIdentifier, that.deviceIdentifier);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(profileObisCode, deviceIdentifier);
+        return Objects.hash(loadProfileObisCode, deviceIdentifier);
     }
 
     @Override
     @XmlAttribute
-    public ObisCode getProfileObisCode() {
-        return profileObisCode;
+    public ObisCode getLoadProfileObisCode() {
+        return loadProfileObisCode;
     }
 
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+    })
     @XmlAttribute
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
@@ -83,7 +92,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
 
     @Override
     public String toString() {
-        return "deviceIdentifier = " + deviceIdentifier + " and ObisCode = " + profileObisCode;
+        return "deviceIdentifier = " + deviceIdentifier + " and ObisCode = " + loadProfileObisCode;
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
@@ -104,7 +113,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
                     return getDeviceIdentifier();
                 }
                 case "obisCode": {
-                    return getProfileObisCode();
+                    return getLoadProfileObisCode();
                 }
                 default: {
                     throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());

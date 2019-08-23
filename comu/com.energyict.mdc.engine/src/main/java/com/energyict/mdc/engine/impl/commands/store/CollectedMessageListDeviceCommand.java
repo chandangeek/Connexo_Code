@@ -53,9 +53,9 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         for (OfflineDeviceMessage offlineDeviceMessage : allDeviceMessages) {
-            List<CollectedMessage> messagesToExecute = this.deviceProtocolMessageList.getCollectedMessages(offlineDeviceMessage.getIdentifier());
+            List<CollectedMessage> messagesToExecute = this.deviceProtocolMessageList.getCollectedMessages(offlineDeviceMessage.getMessageIdentifier());
             if (messagesToExecute.isEmpty()) {
-                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessage.getIdentifier(), offlineDeviceMessage.getDeviceMessageStatus(), null, CollectedMessageList.REASON_FOR_PENDING_STATE);
+                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessage.getMessageIdentifier(), offlineDeviceMessage.getDeviceMessageStatus(), null, CollectedMessageList.REASON_FOR_PENDING_STATE);
                 continue;
             }
 

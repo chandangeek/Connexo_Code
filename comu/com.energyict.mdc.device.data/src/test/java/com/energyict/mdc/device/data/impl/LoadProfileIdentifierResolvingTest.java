@@ -9,33 +9,28 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierFirstOnDevice;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierFirstOnDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.eict.eiweb.FirstLoadProfileOnDevice;
-import org.reflections.Reflections;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.reflections.Reflections;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the resolving of all different {@link LoadProfileIdentifier}s to actual load profiles.

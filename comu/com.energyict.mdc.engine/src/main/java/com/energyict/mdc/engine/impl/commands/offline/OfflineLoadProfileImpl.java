@@ -9,25 +9,22 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.core.remote.TemporalAmountXmlAdapter;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
-
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.temporal.TemporalAmount;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +43,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
     private TopologyService topologyService;
     private Map<Device, List<Device>> deviceTopologies;
     private IdentificationService identificationService;
+    private LoadProfileIdentifier loadProfileIdentifier;
 
     /**
      * The ObisCode of the load profile
@@ -308,12 +306,15 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         return null;
     }
 
+    @XmlElements( {
+            @XmlElement(type = LoadProfileIdentifierById.class),
+            @XmlElement(type = LoadProfileIdentifierByObisCodeAndDevice.class),
+    })
     @Override
     public LoadProfileIdentifier getLoadProfileIdentifier() {
-        if (identificationService != null) {
-            return this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, obisCode);
-        }
-        return null;
+        if (loadProfileIdentifier == null && this.identificationService != null)
+            loadProfileIdentifier = this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, obisCode);
+        return loadProfileIdentifier;
     }
 
     protected void setAllOfflineChannels(final List<OfflineLoadProfileChannel> allOfflineChannels) {

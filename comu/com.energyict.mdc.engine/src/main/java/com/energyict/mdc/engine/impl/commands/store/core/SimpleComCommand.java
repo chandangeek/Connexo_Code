@@ -352,7 +352,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                 if (collectedData instanceof CollectedLoadProfile) {
                     CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
 
-                    if (collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
+                    if (collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
 
                         //Only remove unwanted channels if the protocol generated more channel infos than the number of channels configured in EIServer
                         if (collectedLoadProfile.getChannelInfo().size() > loadProfileReader.getChannelInfos().size()) {
@@ -392,7 +392,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             if (collectedData instanceof CollectedLoadProfile) {
                 CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
                 for (LoadProfileReader loadProfileReader : loadProfileReaders) {
-                    if (collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
+                    if (collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
                         for (ChannelInfo collectedChannelInfo : collectedLoadProfile.getChannelInfo()) {
                             Optional<ChannelInfo> configuredChannelInfo = loadProfileReader.getChannelInfos()
                                     .stream()

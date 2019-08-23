@@ -44,7 +44,8 @@ class BasicCheckTaskImpl extends ProtocolTaskImpl implements BasicCheckTask, Per
     private TimeDuration maximumClockDifference;
 
     public BasicCheckTaskImpl() {
-
+        super();
+        setFlags(FLAGS);
     }
 
     @Inject

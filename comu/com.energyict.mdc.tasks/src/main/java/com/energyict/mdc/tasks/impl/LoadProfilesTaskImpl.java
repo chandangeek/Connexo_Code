@@ -64,8 +64,9 @@ class LoadProfilesTaskImpl extends ProtocolTaskImpl implements LoadProfilesTask,
         this.minClockDiffBeforeBadTime = this.postLoad(this.minClockDiffBeforeBadTime);
     }
 
-    LoadProfilesTaskImpl() {
+    public LoadProfilesTaskImpl() {
         super();
+        setFlags(FLAGS);
     }
 
     @Inject

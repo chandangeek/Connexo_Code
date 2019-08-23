@@ -58,7 +58,7 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                 } else {
                     optionalOfflineLoadProfile = allOfflineLoadProfiles
                             .stream()
-                            .filter(lp -> lp.getObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()))
+                            .filter(lp -> lp.getObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode()))
                             .findAny();
                 }
 
@@ -92,10 +92,10 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                                 //The received LP contains an unknown channel obiscode
                                 addIssue(
                                         getIssueService().newProblem(
-                                                collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                                                collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode(),
                                                 MessageSeeds.LOAD_PROFILE_CHANNEL_MISSING,
                                                 channelInfo.getChannelObisCode(),
-                                                collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()
+                                                collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode()
                                         ),
                                         CompletionCode.ConfigurationError
                                 );
@@ -106,9 +106,9 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                     //We received a load profile with an obiscode that is not configured in Connexo
                     addIssue(
                             getIssueService().newProblem(
-                                    collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                                    collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode(),
                                     MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
-                                    collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()
+                                    collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode()
                             ),
                             CompletionCode.ConfigurationError
                     );

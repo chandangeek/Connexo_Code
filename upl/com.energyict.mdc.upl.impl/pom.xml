@@ -48,6 +48,7 @@
 				<groupId>com.energyict</groupId>
 				<artifactId>mdc.upl</artifactId>
 				<version>${project.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<!-- Protocol api -->
             <dependency>

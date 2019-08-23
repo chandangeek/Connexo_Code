@@ -5,7 +5,7 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierByMRID;
+import com.energyict.mdc.identifiers.DeviceIdentifierByMRID;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;

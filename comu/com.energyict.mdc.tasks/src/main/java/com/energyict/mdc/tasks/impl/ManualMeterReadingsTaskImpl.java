@@ -43,6 +43,11 @@ class ManualMeterReadingsTaskImpl extends ProtocolTaskImpl implements RegistersT
 
     private List<RegisterGroupUsage> registerGroupUsages = new ArrayList<>();
 
+    public ManualMeterReadingsTaskImpl() {
+        super();
+        setFlags(FLAGS);
+    }
+
     @Inject
     ManualMeterReadingsTaskImpl(DataModel dataModel) {
         super(dataModel);

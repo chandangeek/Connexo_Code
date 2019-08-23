@@ -2,16 +2,17 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.data.impl.identifiers;
+package com.energyict.mdc.identifiers;
 
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-
 import com.energyict.obis.ObisCode;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
@@ -24,43 +25,39 @@ import java.util.Set;
 @XmlRootElement
 public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier {
 
-    private final LogBook logBook;
-    private final DeviceIdentifier deviceIdentifier;
+    private DeviceIdentifier deviceIdentifier;
     private ObisCode logBookObisCode;
 
     // For JSON serialization only or in unit tests
     public LogBookIdentifierForAlreadyKnowLogBook() {
-        this.logBook = null;
-        this.deviceIdentifier = null;
+        super();
     }
 
     public LogBookIdentifierForAlreadyKnowLogBook(LogBook logBook, DeviceIdentifier deviceIdentifier) {
-        this.logBook = logBook;
+        this();
         this.deviceIdentifier = deviceIdentifier;
+        this.logBookObisCode = logBook.getDeviceObisCode();
     }
 
-    @Override
-    public ObisCode getLogBookObisCode() {
-        logBookObisCode = logBook.getDeviceObisCode();
-        return logBookObisCode;
-    }
-
-    @Override
+    @XmlElements( {
+            @XmlElement(type = DeviceIdentifierById.class),
+            @XmlElement(type = DeviceIdentifierBySerialNumber.class),
+            @XmlElement(type = DeviceIdentifierByMRID.class),
+            @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class),
+            @XmlElement(type = DeviceIdentifierByDeviceName.class),
+    })
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 
-    @Override
-    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
-        return new Introspector();
+    @XmlAttribute
+    public ObisCode getLogBookObisCode() {
+        return logBookObisCode;
     }
 
     @Override
-    public String toString() {
-        return MessageFormat.format(
-                "logbook with name ''{0}'' on device with name ''{1}''",
-                logBook.getLogBookType().getName(),
-                logBook.getDevice().getName());
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new LogBookIdentifierForAlreadyKnowLogBook.Introspector();
     }
 
     @Override
@@ -71,34 +68,40 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        LogBookIdentifierForAlreadyKnowLogBook that = (LogBookIdentifierForAlreadyKnowLogBook) o;
-        return Objects.equals(logBook, that.logBook);
+        LogBookIdentifierByObisCodeAndDevice otherIdentifier = (LogBookIdentifierByObisCodeAndDevice) o;
+        return this.deviceIdentifier.equals(otherIdentifier.getDeviceIdentifier())
+                && logBookObisCode.equals(otherIdentifier.getLogBookObisCode());
     }
 
     @Override
     public int hashCode() {
-        return this.logBook.hashCode();
+        return Objects.hash(deviceIdentifier, logBookObisCode);
+    }
+
+    @Override
+    public String toString() {
+        return "Identifier for logbook with obiscode '" + logBookObisCode.toString() + "' on " + deviceIdentifier.toString();
     }
 
     private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
         @Override
         public String getTypeName() {
-            return "Actual";
+            return "DeviceIdentifierAndObisCode";
         }
 
         @Override
         public Set<String> getRoles() {
-            return new HashSet<>(Arrays.asList("actual", "databaseValue"));
+            return new HashSet<>(Arrays.asList("device", "obisCode"));
         }
 
         @Override
         public Object getValue(String role) {
             switch (role) {
-                case "actual": {
-                    return logBook;
+                case "device": {
+                    return getDeviceIdentifier();
                 }
-                case "databaseValue": {
-                    return logBook.getId();
+                case "obisCode": {
+                    return getLogBookObisCode();
                 }
                 default: {
                     throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
@@ -106,5 +109,4 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
             }
         }
     }
-
 }

@@ -46,6 +46,7 @@ class LogBooksTaskImpl extends ProtocolTaskImpl implements LogBooksTask {
 
     public LogBooksTaskImpl() {
         super();
+        setFlags(FLAGS);
     }
 
     @Inject

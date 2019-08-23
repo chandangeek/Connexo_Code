@@ -46,6 +46,7 @@ class RegistersTaskImpl extends ProtocolTaskImpl implements RegistersTask {
 
     public RegistersTaskImpl() {
         super();
+        setFlags(FLAGS);
     }
 
     @Inject

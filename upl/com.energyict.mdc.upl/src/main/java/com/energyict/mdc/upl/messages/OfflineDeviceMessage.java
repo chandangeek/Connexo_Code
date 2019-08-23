@@ -33,7 +33,7 @@ public interface OfflineDeviceMessage extends Offline {
      */
     DeviceMessageSpec getSpecification();
 
-    MessageIdentifier getIdentifier();
+    MessageIdentifier getMessageIdentifier();
 
     /**
      * Returns a freeform string that contains extra context information that was prepared by the protocol implementation.

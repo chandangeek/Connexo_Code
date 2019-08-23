@@ -47,6 +47,11 @@ class MessagesTaskImpl extends ProtocolTaskImpl implements MessagesTask {
     private List<MessagesTaskTypeUsage> deviceMessageUsages = new ArrayList<>();
     private MessageTaskType messageTaskType = MessageTaskType.NONE;
 
+    public MessagesTaskImpl() {
+        super();
+        setFlags(FLAGS);
+    }
+
     @Inject
     MessagesTaskImpl(DataModel dataModel) {
         super(dataModel);

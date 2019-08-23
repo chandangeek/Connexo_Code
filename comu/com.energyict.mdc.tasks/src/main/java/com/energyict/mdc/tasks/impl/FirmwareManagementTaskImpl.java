@@ -17,7 +17,12 @@ import javax.inject.Inject;
  */
 public class FirmwareManagementTaskImpl extends ProtocolTaskImpl implements FirmwareManagementTask {
 
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+
+    public FirmwareManagementTaskImpl() {
+        super();
+        setFlags(new DeviceOfflineFlags(DeviceOfflineFlags.PENDING_MESSAGES_FLAG, DeviceOfflineFlags.SENT_MESSAGES_FLAG));
+    }
 
     @Inject
     FirmwareManagementTaskImpl(DataModel dataModel, DeviceMessageSpecificationService deviceMessageSpecificationService) {

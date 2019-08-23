@@ -140,7 +140,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(reloadedComTaskExecution.usesSharedSchedule()).isTrue();
         assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
-        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionDbValue).isEqualTo(2);
+        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionId).isEqualTo(2);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         ComTaskExecution reloadedComTaskExecution = reloadComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
         assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
-        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionDbValue).isEqualTo(2);
+        assertThat(((ComTaskExecutionImpl) reloadedComTaskExecution).connectionFunctionId).isEqualTo(2);
     }
 
     @Test

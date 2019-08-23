@@ -515,7 +515,7 @@ public class TableBubbleSortDecorator extends TableSortDecorator implements Comp
             int viewIndex = theTable.convertColumnIndexToView(i);
             if (viewIndex >= 0) {
                 TableColumn tc = theTable.getColumnModel().getColumn(viewIndex);
-                //  Object ident = (tc==null) ? null : tc.getIdentifier();  // the identifier is better used for the untranslated column name
+                //  Object ident = (tc==null) ? null : tc.getMessageIdentifier();  // the identifier is better used for the untranslated column name
                 Object ident = (tc == null) ? null : tc.getHeaderValue();   // headervalue is what the user see - it's a translation of ...
                 if (ident != null) {
                     colName = ident.toString();

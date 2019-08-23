@@ -241,7 +241,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     }
 
     private CollectedMessage toInvalidCollectedMessage(OfflineDeviceMessage offlineMessage) {
-        DeviceProtocolMessage message = new DeviceProtocolMessage(offlineMessage.getIdentifier());
+        DeviceProtocolMessage message = new DeviceProtocolMessage(offlineMessage.getMessageIdentifier());
         message.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         message.setFailureInformation(
                 ResultType.ConfigurationMisMatch,

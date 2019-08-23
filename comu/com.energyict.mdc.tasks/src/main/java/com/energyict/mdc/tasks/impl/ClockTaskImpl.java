@@ -48,6 +48,11 @@ class ClockTaskImpl extends ProtocolTaskImpl implements ClockTask, PersistenceAw
     private TimeDuration maximumClockDiff;
     private TimeDuration maximumClockShift;
 
+    public ClockTaskImpl() {
+        super();
+        setFlags(FLAGS);
+    }
+
     @Inject
     ClockTaskImpl(DataModel dataModel) {
         super(dataModel);

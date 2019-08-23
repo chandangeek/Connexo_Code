@@ -27,6 +27,7 @@ Export-Package: com.energyict.mdc.upl,\
                 com.energyict.mdc.channel.ip.datagrams,\
                 com.energyict.mdc.ports,\
                 com.energyict.mdc.protocol,\
+                com.energyict.mdc.protocol.journal,\
                 com.energyict.cbo,\
                 com.energyict.cim,\
                 com.energyict.dialer.connection,\

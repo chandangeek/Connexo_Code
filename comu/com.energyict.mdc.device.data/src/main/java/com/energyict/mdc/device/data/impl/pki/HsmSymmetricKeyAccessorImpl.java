@@ -14,6 +14,10 @@ import com.google.inject.Inject;
 
 public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
+    public HsmSymmetricKeyAccessorImpl() {
+        super();
+    }
+
     @Inject
     public HsmSymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
         super(dataModel, securityManagementService, thesaurus);

@@ -13,6 +13,11 @@ import com.google.inject.Inject;
 
 public class PlainTextSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
+    public PlainTextSymmetricKeyAccessorImpl(){
+        super();
+
+    }
+
     @Inject
     public PlainTextSymmetricKeyAccessorImpl(DataModel dataModel, SecurityManagementService securityManagementService, Thesaurus thesaurus) {
         super(dataModel, securityManagementService, thesaurus);

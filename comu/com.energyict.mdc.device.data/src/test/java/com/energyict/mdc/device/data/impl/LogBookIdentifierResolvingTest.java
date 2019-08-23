@@ -9,9 +9,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierByDeviceAndObisCode;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
-import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
+import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
@@ -88,7 +88,7 @@ public class LogBookIdentifierResolvingTest extends PersistenceIntegrationTest {
         LogBookService spiedService = spy(logBookService);
         LogBook myLogBook = mock(LogBook.class);
         when(myLogBook.getDevice()).thenReturn(device);
-        Optional<LogBook> foundLogBook = spiedService.findByIdentifier(new LogBookIdentifierForAlreadyKnowLogBook(myLogBook, deviceIdentifier));
+        Optional<LogBook> foundLogBook = spiedService.findByIdentifier(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, myLogBook.getDeviceObisCode()));
         assertThat(foundLogBook).isPresent();
         assertThat(foundLogBook.get()).isEqualTo(myLogBook);
     }

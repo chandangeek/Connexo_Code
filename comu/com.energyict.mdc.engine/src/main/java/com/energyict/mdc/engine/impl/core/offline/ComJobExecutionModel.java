@@ -18,7 +18,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.impl.DeviceIdentifierById;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.core.ComJob;
@@ -27,6 +26,7 @@ import com.energyict.mdc.engine.impl.core.ComTaskExecutionGroup;
 import com.energyict.mdc.engine.impl.core.offline.adapters.MapDeviceIdentifierMeterReadingAdapter;
 import com.energyict.mdc.engine.impl.core.offline.identifiers.*;
 import com.energyict.mdc.engine.impl.core.remote.*;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ManualMeterReadingsTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -164,11 +164,11 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     }
 
     public void initializeModel(RemoteComServerDAOImpl remoteComServerDAO) {
-        DeviceIdentifier deviceIdentifierOfMaster = DeviceIdentifierById.from(getConnectionTask().getDevice().getId());
+        DeviceIdentifier deviceIdentifierOfMaster = new DeviceIdentifierById(getConnectionTask().getDevice().getId());
         OfflineDeviceForComTaskGroup offlineDeviceContext = new OfflineDeviceForComTaskGroup(getComTaskExecutions());
         this.offlineDevice = remoteComServerDAO.findOfflineDevice(deviceIdentifierOfMaster, offlineDeviceContext).get();
         this.securityPropertySets = remoteComServerDAO.findAllSecurityPropertySetsForDevice(deviceIdentifierOfMaster);
-        //initializeAllSecuritySetProperties(remoteComServerDAO, deviceIdentifierOfMaster);
+//        initializeAllSecuritySetProperties(remoteComServerDAO, deviceIdentifierOfMaster);
         initializeAllProtocolDialectProperties(remoteComServerDAO);
         initializeComTaskEnablements(remoteComServerDAO);
 //        initializeValidationRules(remoteComServerDAO);
@@ -230,7 +230,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         List<ComTaskExecution> comTaskExecutions = comJob.getComTaskExecutions();
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             long comTaskId = comTaskExecution.getComTask().getId();
-            DeviceIdentifierById deviceIdentifier = DeviceIdentifierById.from(comTaskExecution.getDevice().getId());
+            DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(comTaskExecution.getDevice().getId());
             ComTaskEnablement comTaskEnablement = remoteComServerDAO.findComTaskEnablementByDeviceAndComTask(deviceIdentifier, comTaskId);
             DeviceComTaskWrapper key = new DeviceComTaskWrapper(deviceIdentifier, comTaskId);
             getComTaskEnablementMap().put(key, comTaskEnablement);
@@ -733,7 +733,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     }
 
     private void checkIsMasterDeviceIdentifier(DeviceIdentifier deviceIdentifier) {
-        DeviceIdentifierById masterDeviceIdentifier = DeviceIdentifierById.from(getOfflineDevice().getId());
+        DeviceIdentifierById masterDeviceIdentifier = new DeviceIdentifierById(getOfflineDevice().getId());
         if (!deviceIdentifier.equals(masterDeviceIdentifier)) {
             throw new UnsupportedOperationException("Unsupported identifier '" + deviceIdentifier.toString() + "' of type " + deviceIdentifier.getXmlType() + ", DAO call cannot be executed offline.");
         }
