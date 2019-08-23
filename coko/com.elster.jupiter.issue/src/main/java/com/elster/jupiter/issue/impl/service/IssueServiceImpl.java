@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.impl.service;
@@ -9,9 +9,17 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.impl.ManualIssueBuilderImpl;
 import com.elster.jupiter.issue.impl.IssueFilterImpl;
 import com.elster.jupiter.issue.impl.IssueGroupFilterImpl;
-import com.elster.jupiter.issue.impl.database.*;
+import com.elster.jupiter.issue.impl.database.DatabaseConst;
+import com.elster.jupiter.issue.impl.database.TableSpecs;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_5;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_6;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_7;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -24,6 +32,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueDeviceFilter;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -41,12 +50,20 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.issue.share.service.*;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueAssignmentService;
+import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -54,7 +71,13 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataModel;
+import org.osgi.framework.BundleContext;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.TaskService;
@@ -70,6 +93,8 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -85,6 +110,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -92,6 +118,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -132,6 +159,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private final Object thesaurusLock = new Object();
     private static BundleContext bundleContext;
 
+
+
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
     private volatile KieResources resourceFactoryService;
@@ -148,6 +177,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private final List<IssueProvider> issueProviders = new ArrayList<>();
     private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
+    private volatile Optional<IssueDeviceFilter> issueDeviceFilterProvider = Optional.empty();
+
 
     public IssueServiceImpl() {
     }
@@ -166,8 +197,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
-                            UpgradeService upgradeService, Clock clock, EventService eventService,
-                            BundleContext bundleContext) {
+                            UpgradeService upgradeService, Clock clock, EventService eventService,  BundleContext bundleContext) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -224,16 +254,14 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 InstallIdentifier.identifier("Pulse", COMPONENT_NAME),
                 dataModel,
                 Installer.class,
-                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                        .put(Version.version(10, 2), UpgraderV10_2.class)
-                        .put(Version.version(10, 3), UpgraderV10_3.class)
-                        .put(Version.version(10, 4), UpgraderV10_4.class)
-                        .put(Version.version(10, 5), UpgraderV10_5.class)
-                        .put(Version.version(10, 6), UpgraderV10_6.class)
-                        .put(Version.version(10, 7), UpgraderV10_7.class)
-                        .build()
+                ImmutableMap.<Version, Class<? extends Upgrader >>builder()
+                        .put(version(10, 2), UpgraderV10_2.class)
+                        .put(version(10, 3), UpgraderV10_3.class)
+                        .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 5), UpgraderV10_5.class)
+                        .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 7), UpgraderV10_7.class).build()
         );
-
     }
 
     @Reference
@@ -251,11 +279,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
-
     public void setBundleContext(BundleContext bundleContext){
         this.bundleContext = bundleContext;
     }
-
     @Override
     public Optional<BundleContext> getBundleContext(){
         return Optional.of(bundleContext);
@@ -349,6 +375,15 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @SuppressWarnings("unused") // Called by OSGi framework when IssueReasonTranslationProvider component deactivates
     public void removeIssueReasonTranslationProvider(IssueReasonTranslationProvider obsolete) {
         // Don't bother unjoining the provider's thesaurus
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addIssueDeviceFilter(IssueDeviceFilter issueDeviceFilter) {
+        this.issueDeviceFilterProvider = Optional.of(issueDeviceFilter);
+    }
+
+    public void removeIssueDeviceFilter(IssueDeviceFilter issueDeviceFilter) {
+        this.issueDeviceFilterProvider = Optional.empty();
     }
 
     private void addTranslationProvider(String componentName, Layer layer) {
@@ -457,7 +492,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public ManualIssueBuilder newIssueBuilder() {
-        return null;
+        return new ManualIssueBuilderImpl((User)threadPrincipalService.getPrincipal(), dataModel);
     }
 
     @Override
@@ -765,6 +800,20 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return eagerClasses;
     }
 
+    private Condition getDeviceGroupSearchCondition(Collection<EndDeviceGroup> endDeviceGroups) {
+        return endDeviceGroups.stream()
+                .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), "device"))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
+    }
+
+    private Condition getUsagePointGroupSearchCondition(Collection<UsagePointGroup> usagePointGroups) {
+        return usagePointGroups.stream()
+                .map(usagePointGroup -> ListOperator.IN.contains(usagePointGroup.toSubQuery("id"), "usagePoint"))
+                .map(Condition.class::cast)
+                .reduce(Condition.FALSE, Condition::or);
+    }
+
     private Condition buildConditionFromFilter(IssueFilter filter) {
         Condition condition = Condition.TRUE;
         //filter by issue id
@@ -807,13 +856,32 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         //filter by device
         if (!filter.getDevices().isEmpty()) {
-            condition = condition.and(where("device").in(filter.getDevices()));
+            List<EndDevice> filterDevices = new ArrayList<>(filter.getDevices());
+            //add topology devices
+            if (filter.getShowTopology() && issueDeviceFilterProvider.isPresent()) {
+                filterDevices.addAll(issueDeviceFilterProvider.get().getShowTopologyCondition(filter.getDevices()));
+            }
+            condition = condition.and(where("device").in(filterDevices));
+        }
+        //filter by location
+        if (!filter.getLocations().isEmpty()) {
+            condition = condition.and(where("device.location").in(filter.getLocations()));
         }
 
-        //filter by usagepoint
-        if (!filter.getUsagePoints().isEmpty()) {
-            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
+        //filter by device group
+        if (!filter.getDeviceGroups().isEmpty()) {
+            condition = condition.and(getDeviceGroupSearchCondition(filter.getDeviceGroups()));
         }
+        //filter by usagepoint
+//        if (!filter.getUsagePoints().isEmpty()) {
+//            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
+//        }
+
+        //filter by usagepoint
+        if (!filter.getUsagePointGroups().isEmpty()) {
+            condition = condition.and(getUsagePointGroupSearchCondition(filter.getUsagePointGroups()));
+        }
+
         //filter by statuses
         if (!filter.getStatuses().isEmpty()) {
             condition = condition.and(where("status").in(filter.getStatuses()));
@@ -834,6 +902,38 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .and(where("dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
             }
             condition = condition.and(dueDateCondition);
+        }
+
+        //filter by createDate
+        if (filter.getStartCreateTime() != null && filter.getEndCreateTime() != null) {
+            Condition creationDate = Condition.FALSE;
+            creationDate = creationDate.or(where("createTime").isGreaterThan(filter.getStartCreateTime())
+                    .and(where("createTime").isLessThan(filter.getEndCreateTime())));
+            condition = condition.and(creationDate);
+        }
+
+        //filter by priority
+        if (!filter.getPriorities().isEmpty()){
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = null;
+            try {
+                node = mapper.readTree(filter.getPriorities());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if ( node.get("operator").asText().equals("<") ){
+                condition = condition.and(where("priorityTotal").isLessThan(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals(">")){
+                condition = condition.and(where("priorityTotal").isGreaterThan(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals("==")){
+                condition = condition.and(where("priorityTotal").isEqualTo(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals("BETWEEN")){
+                int first = node.get("criteria").get(0).asInt();
+                int second = node.get("criteria").get(1).asInt();
+                condition = condition.and(where("priorityTotal").isGreaterThan(first))
+                        .and(where("priorityTotal").isLessThan(second));
+            }
+
         }
         return condition;
     }
