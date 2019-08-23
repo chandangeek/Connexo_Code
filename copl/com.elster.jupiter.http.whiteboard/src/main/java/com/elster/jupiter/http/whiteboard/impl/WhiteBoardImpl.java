@@ -73,6 +73,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     private volatile HttpAuthenticationService httpAuthenticationService;
     private volatile Thesaurus thesaurus;
     private volatile BundleContext bundleContext;
+    private volatile SamlResponseService samlResponseService;
 
     private final Object registrationLock = new Object();
 
@@ -140,6 +141,11 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, getLayer());
+    }
+
+    @Reference
+    public void setSamlResponseService(SamlResponseService samlResponseService) {
+        this.samlResponseService = samlResponseService;
     }
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -222,6 +228,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 this.bind(queryService).to(QueryService.class);
                 this.bind(httpAuthenticationService).to(HttpAuthenticationService.class);
                 this.bind(bundleContext).to(BundleContext.class);
+                this.bind(samlResponseService).to(SamlResponseService.class);
                 this.bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
             }
         };

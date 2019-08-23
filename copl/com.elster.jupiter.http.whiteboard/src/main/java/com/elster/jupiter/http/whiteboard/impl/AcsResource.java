@@ -1,21 +1,26 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
-import aQute.bnd.build.Run;
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.ecp.RelayState;
-import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,11 +29,18 @@ public class AcsResource {
 
     private static final Logger LOGGER = Logger.getLogger(AcsResource.class.getName());
 
-    private volatile SamlResponseService samlResponseService;
+    @Inject
+    private HttpAuthenticationService authenticationService;
+
+    @Inject
+    private SamlResponseService samlResponseService;
+
+    @Inject
+    private UserService userService;
 
     @POST
     @Path("acs")
-    public Response handleSAMLResponse(@QueryParam("SAMLResponse") String samlResponse, @QueryParam(RelayState.DEFAULT_ELEMENT_LOCAL_NAME) String relayState) {
+    public Response handleSAMLResponse(@Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
 
         /*
             TODO: handle SAML Response
@@ -38,8 +50,8 @@ public class AcsResource {
                 4. Set JWT token to header
                 5. Redirect to RelayState
          */
-
-        org.opensaml.saml.saml2.core.Response response = samlResponseService.createSamlResponse(samlResponse);
+        String token = null;
+        org.opensaml.saml.saml2.core.Response response = samlResponseService.createSamlResponse(httpServletRequest.getParameter("SAMLResponse"));
 
         try {
             samlResponseService.validateSignature(response.getSignature(),SamlUtils.X509_CERTIFICATE);
@@ -51,20 +63,21 @@ public class AcsResource {
             String firstName = getSingleValue("User.FirstName", attributeValueMap);
             String lastName = getSingleValue("User.LastName", attributeValueMap);
 
+            Optional<User> user = userService.findUser(email);
+            if(user.isPresent()){
+                token = authenticationService.createToken(user.get(), "");
+
+            }
+
         } catch (SAMLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new RuntimeException(e);
         }
 
         return Response
-                .seeOther(URI.create(relayState))
-                .header(HttpHeaders.AUTHORIZATION, "token")
+                .seeOther(URI.create(httpServletRequest.getParameter("RelayState")))
+                .header(HttpHeaders.AUTHORIZATION, token)
                 .build();
-    }
-
-    @Reference
-    public void setSamlResponseService(SamlResponseService samlResponseService) {
-        this.samlResponseService = samlResponseService;
     }
 
     private String getSingleValue(String attributeName, Map<String, List<String>> attributeValues) {

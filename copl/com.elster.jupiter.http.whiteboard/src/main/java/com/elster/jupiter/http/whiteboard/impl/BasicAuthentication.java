@@ -18,6 +18,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.saml2.ecp.RelayState;
@@ -318,11 +319,15 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             2. Set RelayState
             3. Redirect user via browser to IDP with SAMLRequest and RelayState
         */
+        String authentication = request.getHeader("Authorization");
+
         if(!request.getRequestURL().toString().contains("/security/acs")){
-            Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response);
-            if(ssoAuthenticationRequestOptional.isPresent()){
-                String redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
-                response.sendRedirect(redirectUrl);
+            if(StringUtils.isEmpty(authentication)) {
+                Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response);
+                if (ssoAuthenticationRequestOptional.isPresent()) {
+                    String redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
+                    response.sendRedirect(redirectUrl);
+                }
             }
         }
 
@@ -336,7 +341,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             response.setDateHeader("Expires", 0); // Proxies
         }
 
-        String authentication = request.getHeader("Authorization");
+
         if (authentication != null && authentication.startsWith("Basic ")) {
             return doBasicAuthentication(request, response, authentication.split(" ")[1]);
         } else if (authentication != null && authentication.startsWith("Bearer ")) {
@@ -386,6 +391,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         }
     }
 
+    @Override
+    public String createToken(User user, String ipAddress) {
+        return securityToken.createToken(user, 0, ipAddress);
+    }
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
         SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
