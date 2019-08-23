@@ -193,12 +193,12 @@
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
-			<dependency>
+			<!--<dependency>
 				<groupId>com.elster.jupiter</groupId>
 				<artifactId>metering.cim</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
-			</dependency>
+			</dependency>-->
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
 				<artifactId>metering.groups</artifactId>
@@ -432,7 +432,7 @@
 				<module>com.elster.jupiter.kpi</module>
 				<module>com.elster.jupiter.metering</module>
 				<module>com.elster.jupiter.metering.bpm</module>
-				<module>com.elster.jupiter.metering.cim</module>
+				<!--<module>com.elster.jupiter.metering.cim</module>-->
 				<module>com.elster.jupiter.metering.groups</module>
 				<module>com.elster.jupiter.metering.imports</module>
 				<module>com.elster.jupiter.metering.rest</module>
@@ -475,7 +475,7 @@
 				<module>com.elster.jupiter.webservices.outbound.rest.demo</module>
 				<module>com.elster.jupiter.webservices.outbound.rest.issue.actions</module>
 				<module>com.elster.jupiter.webservices.outbound.client.demo</module>
-				<module>com.elster.jupiter.webservices.demo</module>
+				<!--<module>com.elster.jupiter.webservices.demo</module>-->
 			</modules>
 		</profile>
 	</profiles>

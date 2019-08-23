@@ -46,11 +46,11 @@
             <artifactId>gogo</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.cim</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.cps</artifactId>
@@ -76,11 +76,11 @@
             <artifactId>webservices.outbound.client.demo</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>webservices.demo</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>webservices.outbound.rest.issue.actions</artifactId>
