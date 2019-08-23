@@ -117,7 +117,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private String initializeThreadName() {
-        return "ComPort schedule for " + this.getComPort().getName();
+        long threadId = 0;
+        if (this.self != null) {
+            threadId = this.self.getId();
+        }
+        return "ComPort schedule for " + this.getComPort().getName() + "/" + threadId;
     }
 
     protected DeviceCommandExecutor getDeviceCommandExecutor() {
