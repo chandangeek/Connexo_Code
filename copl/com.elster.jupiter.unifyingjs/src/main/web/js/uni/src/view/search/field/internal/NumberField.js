@@ -9,6 +9,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
     width: '455',
     layout: 'fit',
     itemsDefaultConfig: {},
+    minValue: 0,
 
     getField: function() {
         return this.down('#filter-input');
@@ -57,7 +58,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
                 itemId: 'filter-input',
                 width: 180,
                 maxValue: Number.MAX_SAFE_INTEGER,
-                minValue: 0,
+                minValue: me.minValue,
                 maxLength: 15,
                 allowBlank: !me.isFilterField,
                 allowExponential: false,

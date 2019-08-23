@@ -14,6 +14,7 @@ public class FirmwareTypeFieldAdapter extends MapBasedXmlAdapter<FirmwareType> {
     public FirmwareTypeFieldAdapter() {
         register(FirmwareType.METER.getType(), FirmwareType.METER);
         register(FirmwareType.COMMUNICATION.getType(), FirmwareType.COMMUNICATION);
+        register(FirmwareType.AUXILIARY.getType(), FirmwareType.AUXILIARY);
         register(FirmwareType.CA_CONFIG_IMAGE.getType(), FirmwareType.CA_CONFIG_IMAGE);
     }
 }

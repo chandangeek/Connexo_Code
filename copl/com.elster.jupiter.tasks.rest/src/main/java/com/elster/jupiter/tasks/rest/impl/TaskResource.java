@@ -9,7 +9,6 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
@@ -17,17 +16,19 @@ import com.elster.jupiter.tasks.TaskFinder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.security.Privileges;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -54,18 +55,14 @@ import java.util.stream.Collectors;
 @Path("/task")
 public class TaskResource {
 
-    private final RestQueryService queryService;
     private final Thesaurus thesaurus;
-    private final TransactionService transactionService;
     private final TaskService taskService;
     private final TimeService timeService;
     private final Clock clock;
 
     @Inject
-    public TaskResource(TaskService taskService, RestQueryService queryService, Thesaurus thesaurus, TransactionService transactionService, TimeService timeService, Clock clock) {
-        this.queryService = queryService;
+    public TaskResource(TaskService taskService, Thesaurus thesaurus, TimeService timeService, Clock clock) {
         this.thesaurus = thesaurus;
-        this.transactionService = transactionService;
         this.taskService = taskService;
         this.timeService = timeService;
         this.clock = clock;
@@ -88,8 +85,10 @@ public class TaskResource {
             filterSpec.suspended.addAll(filter.getStringList("suspended"));
             filterSpec.nextExecutionFrom = filter.getInstant("nextRunFrom");
             filterSpec.nextExecutionTo = filter.getInstant("nextRunTo");
-            filterSpec.priorityFrom = filter.getInteger("priorityFrom");
-            filterSpec.priorityTo = filter.getInteger("priorityTo");
+            if (filter.hasProperty("priority")) {
+                applyFilterWithOperator(filter, "priority", filterSpec.priority);
+                validateNumberBetweenFilterOrThrowException(filterSpec.priority);
+            }
             filterSpec.sortingColumns = queryParams.getSortingColumns();
         }
         TaskFinder finder = taskService.getTaskFinder(filterSpec, queryParams.getStart().get(), queryParams.getLimit().get() + 1);
@@ -253,6 +252,7 @@ public class TaskResource {
         return taskInfo;
 
     }
+
     private Locale determineLocale(Principal principal) {
         Locale locale = Locale.getDefault();
         if (principal instanceof User) {
@@ -262,5 +262,31 @@ public class TaskResource {
             }
         }
         return locale;
+    }
+
+    private void applyFilterWithOperator(JsonQueryFilter filter, String propertyName, RecurrentTaskFilterSpecification.NumberBetweenFilter specField) {
+        Pair<RecurrentTaskFilterSpecification.Operator, JsonNode> operatorWithValues = filter.getProperty(propertyName, this::parseRelationalOperator);
+        RecurrentTaskFilterSpecification.Operator operator = operatorWithValues.getFirst();
+        JsonNode values = operatorWithValues.getLast();
+        operator.apply(values, specField);
+    }
+
+    private Pair<RecurrentTaskFilterSpecification.Operator, JsonNode> parseRelationalOperator(JsonNode jsonNode) {
+        JsonNode operatorNode = jsonNode.get("operator");
+        JsonNode criteriaNode = jsonNode.get("criteria");
+        if (operatorNode == null || !operatorNode.isTextual() || criteriaNode == null || criteriaNode.isNull()) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        String operatorName = operatorNode.asText();
+        RecurrentTaskFilterSpecification.Operator operator = RecurrentTaskFilterSpecification.Operator.findOperator(operatorName).orElseThrow(
+                () -> new WebApplicationException(Response.Status.BAD_REQUEST));
+
+        return Pair.of(operator, criteriaNode);
+    }
+
+    private void validateNumberBetweenFilterOrThrowException(RecurrentTaskFilterSpecification.NumberBetweenFilter numberBetweenFilter) {
+        if (numberBetweenFilter.operator == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
     }
 }

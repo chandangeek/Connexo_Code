@@ -40,6 +40,14 @@ public class NoDowngradeFirmwareCheckTest extends AbstractFirmwareCheckTest {
     }
 
     @Test
+    public void testAuxFWDowngrade() {
+        when(uploadedFirmware.getFirmwareType()).thenReturn(FirmwareType.AUXILIARY);
+        when(activeAuxiliaryFirmware.getRank()).thenReturn(100);
+
+        expectError("Target firmware version rank is lower than the current firmware rank.");
+    }
+
+    @Test
     public void testFirstUploadOfMeterFW() {
         when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.METER)).thenReturn(Optional.empty());
 
@@ -50,6 +58,14 @@ public class NoDowngradeFirmwareCheckTest extends AbstractFirmwareCheckTest {
     public void testFirstUploadOfCommFW() {
         when(uploadedFirmware.getFirmwareType()).thenReturn(FirmwareType.COMMUNICATION);
         when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION)).thenReturn(Optional.empty());
+
+        expectSuccess();
+    }
+
+    @Test
+    public void testFirstUploadOfAuxFW() {
+        when(uploadedFirmware.getFirmwareType()).thenReturn(FirmwareType.AUXILIARY);
+        when(firmwareService.getActiveFirmwareVersion(device, FirmwareType.AUXILIARY)).thenReturn(Optional.empty());
 
         expectSuccess();
     }

@@ -21,6 +21,7 @@ public class FirmwareVersionInfo {
     public int rank;
     public IdWithNameInfo meterFirmwareDependency;
     public IdWithNameInfo communicationFirmwareDependency;
+    public IdWithNameInfo auxiliaryFirmwareDependency;
 
     public int getRank(){
         return rank;
