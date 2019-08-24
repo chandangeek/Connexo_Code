@@ -4,18 +4,17 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 

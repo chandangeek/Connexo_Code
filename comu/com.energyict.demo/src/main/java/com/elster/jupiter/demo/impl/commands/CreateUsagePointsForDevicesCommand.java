@@ -25,9 +25,9 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.units.Unit;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;

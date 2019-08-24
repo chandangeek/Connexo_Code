@@ -15,7 +15,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 
 import org.osgi.service.component.annotations.Component;

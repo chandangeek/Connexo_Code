@@ -6,10 +6,10 @@ package com.energyict.mdc.masterdata.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
+     * situation that occurs when an attempt is made to delete a {@link MeasurementType}
      * while it is still used by the specified {@link LoadProfileType}s.
      *
      * @param thesaurus The Thesaurus

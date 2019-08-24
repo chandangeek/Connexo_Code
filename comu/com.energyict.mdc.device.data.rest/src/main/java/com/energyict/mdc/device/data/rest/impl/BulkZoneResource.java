@@ -21,7 +21,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.ZoneOnDeviceQueueMessage;

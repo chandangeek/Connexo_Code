@@ -9,12 +9,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
 
 /**
- * Serves as the root for all {@link com.energyict.mdc.engine.config.InboundComPort}s.
+ * Serves as the root for all {@link InboundComPort}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (17:00)

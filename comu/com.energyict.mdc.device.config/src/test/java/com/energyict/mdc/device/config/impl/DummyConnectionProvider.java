@@ -8,8 +8,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionType;
 
 /**
  * Insert your comments here.

@@ -15,8 +15,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Map;
 
-import static com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess.DEVICE_ID_BPM_PARAMETER_NAME;
-import static com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess.STATE_ID_BPM_PARAMETER_NAME;
+import static com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess.DEVICE_ID_BPM_PARAMETER_NAME;
+import static com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess.STATE_ID_BPM_PARAMETER_NAME;
 
 
 /**

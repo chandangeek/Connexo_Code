@@ -47,13 +47,13 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.masterdata.LogBookType;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;

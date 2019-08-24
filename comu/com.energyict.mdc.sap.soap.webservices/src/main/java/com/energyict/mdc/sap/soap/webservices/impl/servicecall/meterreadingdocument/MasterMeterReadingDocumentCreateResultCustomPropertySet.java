@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateResultCustomPropertySet",
@@ -141,12 +142,6 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .stringSpec()
-                        .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.RESULT_URL.javaName(), TranslationKeys.RESULT_URL)
-                        .describedAs(TranslationKeys.RESULT_URL)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                this.propertySpecService
                         .booleanSpec()
                         .named(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.BULK.javaName(), TranslationKeys.BULK)
                         .describedAs(TranslationKeys.BULK)
@@ -211,11 +206,11 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.CONFIRMATION_TIME.javaName())
                     .add();
-            table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.RESULT_URL.databaseName())
+            /*table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.RESULT_URL.databaseName())
                     .varChar()
-                    .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.RESULT_URL.javaName())
                     .notNull()
-                    .add();
+                    .upTo(version(10,7))
+                    .add();*/
             table.column(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.BULK.databaseName())
                     .bool()
                     .map(MasterMeterReadingDocumentCreateResultDomainExtension.FieldNames.BULK.javaName())

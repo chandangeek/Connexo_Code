@@ -107,7 +107,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     }
 
     @Override
-    public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
+    public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         Range<Instant> exportInterval = determineExportInterval(occurrence, item);
 
         warnIfExportPeriodCoversFuture(occurrence, exportInterval);
@@ -149,11 +149,11 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return Optional.empty();
     }
 
-    List<BaseReadingRecord> getReadings(IReadingTypeDataExportItem item, Range<Instant> exportInterval) {
+    List<BaseReadingRecord> getReadings(ReadingTypeDataExportItem item, Range<Instant> exportInterval) {
         return new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
     }
 
-    List<BaseReadingRecord> getReadingsUpdatedSince(IReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
+    List<BaseReadingRecord> getReadingsUpdatedSince(ReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
         return new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(exportInterval, item.getReadingType(), since));
     }
 
@@ -178,7 +178,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         }
     }
 
-    boolean isComplete(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
+    boolean isComplete(ReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
         Set<Instant> instants = new HashSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
         readings.stream()
                 .map(BaseReadingRecord::getTimeStamp)
@@ -186,7 +186,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return instants.isEmpty();
     }
 
-    void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy,
+    void handleValidatedDataOption(ReadingTypeDataExportItem item, DataExportStrategy strategy,
                                    List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         if (!readings.isEmpty()) {
             switch (strategy.getValidatedDataOption()) {
@@ -204,14 +204,14 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         }
     }
 
-    private void handleExcludeItem(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
+    private void handleExcludeItem(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         if (hasUnvalidatedReadings(item, readings) || hasSuspects(item, interval)) {
             logExportWindow(MessageSeeds.SUSPECT_WINDOW, interval, itemDescription);
             readings.clear();
         }
     }
 
-    abstract void handleExcludeObject(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription);
+    abstract void handleExcludeObject(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription);
 
     void logExportWindow(MessageSeeds messageSeeds, Range<Instant> interval, String itemDescription) {
         String fromDate = interval.hasLowerBound() ? timeFormatter.format(interval.lowerEndpoint()) : "";
@@ -222,22 +222,22 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         }
     }
 
-    private boolean hasSuspects(IReadingTypeDataExportItem item, Range<Instant> interval) {
+    private boolean hasSuspects(ReadingTypeDataExportItem item, Range<Instant> interval) {
         return getSuspects(item, interval).findAny().isPresent();
     }
 
-    boolean hasUnvalidatedReadings(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+    boolean hasUnvalidatedReadings(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
         Optional<Instant> lastChecked = validationService.getEvaluator().getLastChecked(item.getReadingContainer(), item.getReadingType());
         return !lastChecked.isPresent() || readings.stream().anyMatch(baseReadingRecord -> baseReadingRecord.getTimeStamp().isAfter(lastChecked.get()));
     }
 
-    private Stream<Instant> getSuspects(IReadingTypeDataExportItem item, Range<Instant> interval) {
+    private Stream<Instant> getSuspects(ReadingTypeDataExportItem item, Range<Instant> interval) {
         return item.getReadingContainer()
                 .getReadingQualities(getQualityCodeSystems(), QualityCodeIndex.SUSPECT, item.getReadingType(), interval).stream()
                 .map(ReadingQualityRecord::getReadingTimestamp);
     }
 
-    private void handleExcludeInterval(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings,
+    private void handleExcludeInterval(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings,
                                        Range<Instant> interval, String itemDescription) {
         Optional<Instant> lastChecked = validationService.getEvaluator().getLastChecked(item.getReadingContainer(), item.getReadingType());
 
@@ -264,7 +264,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         readings.removeIf(baseReadingRecord -> invalids.contains(baseReadingRecord.getTimeStamp()));
     }
 
-    private void logInvalids(IReadingTypeDataExportItem item, Set<Instant> instants, String itemDescription) {
+    private void logInvalids(ReadingTypeDataExportItem item, Set<Instant> instants, String itemDescription) {
         if (!item.getReadingType().isRegular()) {
             return;
         }
@@ -279,7 +279,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return MissingDataOption.EXCLUDE_INTERVAL != strategy.getMissingDataOption();
     }
 
-    private void logMissings(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings, String itemDescription) {
+    private void logMissings(ReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings, String itemDescription) {
         if (!item.getReadingType().isRegular()) {
             return;
         }
@@ -344,14 +344,14 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                 .orElse(Range.all());
     }
 
-    MeterReadingImpl asMeterReading(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+    MeterReadingImpl asMeterReading(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
         if (item.getReadingType().isRegular()) {
             return getMeterReadingWithIntervalBlock(item, readings);
         }
         return getMeterReadingWithReadings(item, readings);
     }
 
-    private MeterReadingImpl getMeterReadingWithReadings(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+    private MeterReadingImpl getMeterReadingWithReadings(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
         return readings.stream()
                 .map(ReadingRecord.class::cast)
                 .collect(
@@ -361,7 +361,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                 );
     }
 
-    private MeterReadingImpl getMeterReadingWithIntervalBlock(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+    private MeterReadingImpl getMeterReadingWithIntervalBlock(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(buildIntervalBlock(item, readings));
         return meterReading;
@@ -385,13 +385,13 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return reading(readingRecord, readingType);
     }
 
-    MeterReadingValidationData getValidationData(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> exportInterval) {
+    MeterReadingValidationData getValidationData(ReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> exportInterval) {
         Map<Instant, DataValidationStatus> statusMap = item.getReadingContainer().getChannelsContainers().stream()
                 .filter(channelsContainer -> channelsContainer.overlaps(exportInterval))
                 .map(channelsContainer -> channelsContainer.getChannel(item.getReadingType()))
                 .flatMap(Functions.asStream())
                 .flatMap(channel -> {
-                    Range<Instant> intervalOfInterest =  Ranges.copy(channel.getChannelsContainer().getRange().intersection(exportInterval)).asOpenClosed();
+                    Range<Instant> intervalOfInterest = Ranges.copy(channel.getChannelsContainer().getRange().intersection(exportInterval)).asOpenClosed();
                     List<BaseReadingRecord> readingsOfInterest = readings.stream()
                             .filter(reading -> intervalOfInterest.contains(reading.getTimeStamp()))
                             .collect(Collectors.toList());
@@ -406,7 +406,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     }
 
     @Override
-    public Optional<MeterReadingData> selectDataForUpdate(DataExportOccurrence occurrence, IReadingTypeDataExportItem item, Instant since) {
+    public Optional<MeterReadingData> selectDataForUpdate(DataExportOccurrence occurrence, ReadingTypeDataExportItem item, Instant since) {
         if (!isExportUpdates(occurrence)) {
             return Optional.empty();
         }

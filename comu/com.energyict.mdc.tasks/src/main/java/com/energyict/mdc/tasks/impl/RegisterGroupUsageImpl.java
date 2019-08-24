@@ -6,8 +6,8 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.RegistersTask;
 
 import java.time.Instant;
 

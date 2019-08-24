@@ -12,7 +12,7 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.LabelCategory;

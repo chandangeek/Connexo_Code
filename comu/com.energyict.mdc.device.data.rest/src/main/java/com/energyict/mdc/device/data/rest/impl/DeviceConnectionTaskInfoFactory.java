@@ -9,8 +9,13 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ComTaskCountInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionMethodInfo;
@@ -18,11 +23,6 @@ import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionStr
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.LatestStatusInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.rest.TaskStatusInfo;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
 import javax.inject.Inject;
 import java.time.Duration;

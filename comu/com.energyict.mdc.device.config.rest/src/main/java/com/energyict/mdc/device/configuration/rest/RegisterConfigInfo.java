@@ -7,11 +7,11 @@ package com.energyict.mdc.device.configuration.rest;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.common.device.config.TextualRegisterSpec;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
 
+import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -21,28 +23,29 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.TrackingCategory;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -90,9 +93,11 @@ import org.mockito.ArgumentCaptor;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -143,7 +148,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .plusSeconds(10), null, deviceMessageCategoryDeviceActions);
         DeviceMessage command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "15", "Jeff", created
                 .minusSeconds(5), created.plusSeconds(5), sent, deviceMessageCategoryClock);
-        when(device.getMessages()).thenReturn(Arrays.asList(command1, command2));
+        Finder finder = mock(Finder.class);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted(eq("RELEASEDATE"), eq(true))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Stream.of(command1, command2));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         when(serviceCallService.getServiceCall(14L)).thenReturn(Optional.empty());
         ServiceCall serviceCall = mock(ServiceCall.class);
@@ -198,7 +207,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "14", "Jeff", created, created
                 .plusSeconds(10), null, deviceMessageCategoryDeviceActions);
         when(command1.getTrackingId()).thenReturn("XXX"); // INVALID
-        when(device.getMessages()).thenReturn(Arrays.asList(command1));
+        Finder finder = mock(Finder.class);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted(eq("RELEASEDATE"), eq(true))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Stream.of(command1));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
@@ -240,7 +253,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .minusSeconds(10), null, deviceMessageCategoryDeviceActions);
         DeviceMessage command4 = mockCommand(device, 4L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "14", "Jeff", created, created
                 .minusSeconds(20), null, deviceMessageCategoryDeviceActions);
-        when(device.getMessages()).thenReturn(Arrays.asList(command1, command2, command3, command4));
+        Finder finder = mock(Finder.class);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted(eq("RELEASEDATE"), eq(true))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Stream.of(command1, command2, command3, command4));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
@@ -276,7 +293,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .plusSeconds(10), null, deviceMessageCategoryDeviceActions);
         DeviceMessage command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "set clock", null, DeviceMessageStatus.SENT, "15", "Jeff", created
                 .minusSeconds(5), null, sent, deviceMessageCategoryClock);
-        when(device.getMessages()).thenReturn(Arrays.asList(command1, command2));
+        Finder finder = mock(Finder.class);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted(eq("RELEASEDATE"), eq(true))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Stream.of(command1, command2));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
@@ -314,7 +335,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         Date now = new Date();
         DeviceMessageAttribute attribute3 = mockAttribute("Time", now, new DateAndTimeFactory(), Required);
         doReturn(Arrays.asList(attribute1, attribute2, attribute3)).when(command1).getAttributes();
-        when(device.getMessages()).thenReturn(Arrays.<DeviceMessage>asList(command1));
+        Finder finder = mock(Finder.class);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted(eq("RELEASEDATE"), eq(true))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Stream.of(command1));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
@@ -352,7 +377,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessageAttribute attribute3 = mockAttribute("Time", now, new DateAndTimeFactory(), Required);
 
         doReturn(Arrays.asList(attribute1, attribute2, attribute3)).when(command1).getAttributes();
-        when(device.getMessages()).thenReturn(Arrays.<DeviceMessage>asList(command1));
+        Finder finder = mock(Finder.class);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted(eq("RELEASEDATE"), eq(true))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Stream.of(command1));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
@@ -397,7 +426,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         int categoryId = 101;
         DeviceMessage command2 = mockCommand(device, 2L, DeviceMessageId.CLOCK_SET_TIME, "reset clock", null, DeviceMessageStatus.PENDING, "15", "Jeff", created
                 .minusSeconds(5), created.plusSeconds(5), null, deviceMessageCategoryClock);
-        when(device.getMessages()).thenReturn(Arrays.asList(command2));
+        Finder finder = mock(Finder.class);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.sorted(eq("RELEASEDATE"), eq(true))).thenReturn(finder);
+        when(finder.stream()).thenReturn(Stream.of(command2));
+        when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);

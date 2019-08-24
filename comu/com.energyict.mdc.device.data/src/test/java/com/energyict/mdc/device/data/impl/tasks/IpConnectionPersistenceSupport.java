@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
 
 import com.google.inject.Module;
 

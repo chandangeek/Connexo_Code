@@ -8,8 +8,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.Device;
 
 import javax.inject.Inject;
 import java.time.Instant;

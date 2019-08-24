@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 
 /**
  * Created by bvn on 10/24/14.

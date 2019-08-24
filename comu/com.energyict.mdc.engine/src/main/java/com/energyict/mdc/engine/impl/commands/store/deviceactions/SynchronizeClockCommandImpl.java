@@ -6,8 +6,10 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
@@ -17,7 +19,6 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -71,8 +72,8 @@ public class SynchronizeClockCommandImpl extends SimpleComCommand implements Syn
     }
 
     /**
-     * We check if the timeDifference is between the {@link com.energyict.mdc.tasks.ClockTask#getMinimumClockDifference()}
-     * and {@link com.energyict.mdc.tasks.ClockTask#getMaximumClockShift()}, and calculate the clockShift for this action
+     * We check if the timeDifference is between the {@link ClockTask#getMinimumClockDifference()}
+     * and {@link ClockTask#getMaximumClockShift()}, and calculate the clockShift for this action
      *
      * @param timeDifference the current TimeDifference
      * @return the calculated clockShift in MilliSeconds

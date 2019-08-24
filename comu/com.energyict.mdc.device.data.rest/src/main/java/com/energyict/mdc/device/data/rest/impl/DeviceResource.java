@@ -38,36 +38,36 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceTypePurpose;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceTypePurpose;
-import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import javax.annotation.security.RolesAllowed;
@@ -77,6 +77,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -114,14 +115,14 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE;
+import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME;
 
 @Path("/devices")
 public class DeviceResource {
@@ -466,7 +467,9 @@ public class DeviceResource {
                     .forEach(dataLoggerSlaveDeviceInfo -> currentMultiElementSlaves.stream().filter(slave -> slave.getId() == dataLoggerSlaveDeviceInfo.id).findAny()
                             .ifPresent(slaveToRemove -> multiElementDeviceService.removeSlave(slaveToRemove, Instant.ofEpochMilli(dataLoggerSlaveDeviceInfo.unlinkingTimeStamp))));
 
-            info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
+            info.dataLoggerSlaveDevices.stream()
+                    .filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate())
+                    .forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
         }
     }
 
@@ -599,7 +602,7 @@ public class DeviceResource {
 //        @Transactional
 //        @Path("/byMRID/{mrid}")
 //        @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//        @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+//        @RolesAllowed({Privileges.DeviceConfigConstants.VIEW_DEVICE, Privileges.DeviceConfigConstants.OPERATE_DEVICE_COMMUNICATION, Privileges.DeviceConfigConstants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.DeviceConfigConstants.ADMINISTRATE_DEVICE_DATA})
 //        public DeviceInfo findDeviceByMrid(@PathParam("mrid") String mrid, @Context SecurityContext securityContext) {
 //            Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
 //            return DeviceInfo.from(device); // this returns a device with all its info
@@ -733,8 +736,8 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response editDeviceCustomAttribute(@PathParam("name") String name, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
-        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         resourceHelper.setDeviceCustomPropertySetInfo(lockedDevice, cpsId, customPropertySetInfo);
         return Response.ok().build();
     }
@@ -745,8 +748,8 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS})
     public Response addDeviceCustomAttributeVersioned(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
-        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
@@ -772,8 +775,8 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS})
     public Response editDeviceCustomAttributeVersioned(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
-        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         resourceHelper.lockDeviceTypeOrThrowException(customPropertySetInfo.objectTypeId, customPropertySetInfo.objectTypeVersion);
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, name, customPropertySetInfo.version);
         Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
@@ -826,10 +829,10 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{name}/messagecategories")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getAllAvailableDeviceCategoriesIncludingMessageSpecsForCurrentUser(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<DeviceMessageCategoryInfo> infos = new ArrayList<>();
@@ -1016,15 +1019,24 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{name}/servicecallhistory")
-    public PagedInfoList getServiceCallHistoryFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
+    public PagedInfoList getServiceCallHistoryFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
-
-        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter);
+        Set<DefaultState> states = EnumSet.of(
+                DefaultState.CANCELLED,
+                DefaultState.FAILED,
+                DefaultState.REJECTED,
+                DefaultState.SUCCESSFUL,
+                DefaultState.PARTIAL_SUCCESS);
+        ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter, appKey);
         filter.targetObject = device;
+        if (filter.states.isEmpty()) {
+            filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
+        }
         serviceCallService.getServiceCallFinder(filter)
                 .from(queryParameters)
                 .stream()
+                .filter(serviceCall -> !serviceCall.getState().isOpen())
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
@@ -1051,10 +1063,10 @@ public class DeviceResource {
     @Path("/{name}/topology/communication")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(device);
@@ -1085,7 +1097,8 @@ public class DeviceResource {
 
     // Returns all data logger slaves and multi-element slaves for a device
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
-        return (device.getDeviceConfiguration().isDataloggerEnabled() || device.getDeviceConfiguration().isMultiElementEnabled() ? resourceHelper.getDataLoggerSlaves(device) : Collections.emptyList());
+        return (device.getDeviceConfiguration().isDataloggerEnabled() || device.getDeviceConfiguration()
+                .isMultiElementEnabled() ? resourceHelper.getDataLoggerSlaves(device) : Collections.emptyList());
     }
 
     @GET
@@ -1130,10 +1143,10 @@ public class DeviceResource {
     @Path("/{name}/timeofuse/send")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
+    @RolesAllowed({com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public Response sendCalendar(@PathParam("name") String name, SendCalendarInfo sendCalendarInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
@@ -1177,10 +1190,10 @@ public class DeviceResource {
     @GET
     @Path("/{name}/timeofuse/availablecalendars")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
+    @RolesAllowed({com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public Response getAvailableCalendars(@PathParam("name") String name) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         List<IdWithNameInfo> calendars = device.getDeviceConfiguration().getDeviceType().getAllowedCalendars().stream()
@@ -1195,10 +1208,10 @@ public class DeviceResource {
     @Path("/{name}/timeofuse/verify")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
+    @RolesAllowed({com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public Response verifyCalendar(@PathParam("name") String name) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         try {
@@ -1213,10 +1226,10 @@ public class DeviceResource {
     @Path("/{name}/timeofuse/clearpassive")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
+    @RolesAllowed({com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public Response clearPassiveCalendar(@PathParam("name") String name) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
@@ -1233,10 +1246,10 @@ public class DeviceResource {
     @Path("/{name}/timeofuse/activatepassive")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
-            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
+    @RolesAllowed({com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public Response activatePassiveCalendar(@PathParam("name") String name, @FormParam("activationDate") long activationDate) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
@@ -1333,7 +1346,9 @@ public class DeviceResource {
             Optional<PropertySpec> activityCalendarNamePropertySpec = deviceMessageSpec
                     .getPropertySpecs()
                     .stream()
-                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() == null) || propertySpec.getPossibleValues().getAllValues().isEmpty())))
+                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() == null) || propertySpec.getPossibleValues()
+                            .getAllValues()
+                            .isEmpty())))
                     .findAny();
 
             activityCalendarNamePropertySpec.ifPresent(propertySpec -> messageBuilder.addProperty(propertySpec.getName(), calendar.getName()));
@@ -1362,7 +1377,9 @@ public class DeviceResource {
             Optional<PropertySpec> activityCalendarTypePropertySpec = deviceMessageSpec
                     .getPropertySpecs()
                     .stream()
-                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() != null) && !propertySpec.getPossibleValues().getAllValues().isEmpty())))
+                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() != null) && !propertySpec.getPossibleValues()
+                            .getAllValues()
+                            .isEmpty())))
                     .findAny();
 
             activityCalendarTypePropertySpec.ifPresent(propertySpec -> messageBuilder.addProperty(propertySpec.getName(), sendCalendarInfo.type));

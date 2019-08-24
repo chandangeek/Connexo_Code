@@ -23,6 +23,7 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     communicationTopologyActions: 'devices.actions.communication.topology',
     communicationPlanningActions: 'devices.actions.communication.planning',
     communicationTasksActions: 'devices.actions.communication.tasks',
+    communicationTasksActionRunWithPriority: 'devices.actions.communication.runWithPriority',
     connectionMethodsActions: 'devices.actions.connection.methods',
     validationRuleSetsActions: 'devices.actions.validation.rulesets',
     estimationRuleSetsActions: 'devices.actions.estimation.rulesets',

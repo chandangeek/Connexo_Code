@@ -13,7 +13,9 @@ public enum MessageSeeds implements MessageSeed {
     PAYLOAD_EXPECTED(2, "PayloadExpected", "This method requires a payload"),
     FIELD_EXPECTED(3, "FieldIsRequired", "This field is required"),
     NO_SUCH_WEB_SERVICE(4, "NoSuchWebService", "No such web service was registered"),
-    NO_SUCH_GROUP(5, "NoSuchGroup", "No such role");
+    NO_SUCH_GROUP(5, "NoSuchGroup", "No such role"),
+    NO_SUCH_OCCURRENCE(6,"NoSuchOccurrence", "No such occurrence"),
+    INCORRECT_APPLICATION_NAME(7,"IncorrectApplicationName", "Incorrect application name");
 
     private final int number;
     private final String key;

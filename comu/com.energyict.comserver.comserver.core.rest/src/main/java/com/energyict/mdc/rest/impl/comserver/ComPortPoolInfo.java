@@ -6,7 +6,7 @@ package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -37,6 +37,8 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public TimeDurationInfo taskExecutionTimeout;
     public long version;
     public List<PropertyInfo> properties;
+    public long pctHighPrioTasks;
+    public long maxPriorityConnections;
 
     public ComPortPoolInfo() {
     }
@@ -50,6 +52,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         this.obsoleteFlag = comPortPool.isObsolete();
         this.comPortType = new ComPortTypeInfo(comPortPool.getComPortType());
         this.version = comPortPool.getVersion();
+        this.pctHighPrioTasks = comPortPool.getPctHighPrioTasks();
     }
 
     protected S writeTo(S target) {
@@ -60,6 +63,8 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         if (this.active != null) {
             target.setActive(this.active);
         }
+
+        target.setPctHighPrioTasks(this.pctHighPrioTasks);
         return target;
     }
 
@@ -69,7 +74,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
 
     protected S writeTo(S target, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils) {
         return this.writeTo(target);
-    };
+    }
 
     protected abstract S createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, MdcPropertyUtils mdcPropertyUtils);
 

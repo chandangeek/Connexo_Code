@@ -79,7 +79,7 @@ public class DemoEventHandler implements TopicHandler {
             //deviceid
             UtilitiesDeviceID utilitiesDeviceID = objectFactory.createUtilitiesDeviceID();
             String utilDevID = sapCustomPropertySets.getSapDeviceId(source.getEndDevice().getName())
-                    .orElseThrow(() -> new IllegalStateException("Device SAP id is not found.")).toPlainString();
+                    .orElseThrow(() -> new IllegalStateException("Device SAP id is not found."));
             utilitiesDeviceID.setValue(utilDevID);
             mtrEvt.setUtilitiesDeviceID(utilitiesDeviceID);
             //dateTime

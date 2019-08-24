@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
 import aQute.bnd.annotation.ProviderType;

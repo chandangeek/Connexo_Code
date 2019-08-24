@@ -68,22 +68,6 @@ public enum MessageSeeds implements MessageSeed {
     CUSTOMPROPERTYSET_VALUES_ON_REQUIRED_RANGE(2029, "CustomPropertySetValuesOnRequiredRange", "Custom property set {0} must have values on the required range {1}."),
     NO_ACTIVE_METROLOGY_CONFIGURATION_WITH_NAME(2030, "NoActiveMetrologyConfigWithName", "Metrology configuration with name ''{0}'' isn''t active."),
 
-    // meter readings
-    UNABLE_TO_GET_READINGS(3001, "UnableToGetReadings", "Unable to get readings."),
-    NO_PURPOSES_WITH_NAMES(3002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
-    INVALID_OR_EMPTY_TIME_PERIOD(3003, "InvalidOrEmptyTimePeriod",
-            "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
-    END_DEVICES_WITH_MRID_NOT_FOUND(3004, "DevicesWithMridNotFound", "Couldn''t find device(s) with MRID(s) ''{0}''.", Level.WARNING),
-    END_DEVICES_WITH_NAME_NOT_FOUND(3005, "DevicesWithNamesNotFound", "Couldn''t find device(s) with name(s) ''{0}''.", Level.WARNING),
-    END_DEVICES_NOT_FOUND(3006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
-    NO_END_DEVICES(3007, "NoDevices", "No devices have been found."),
-    NO_READING_TYPES(3008, "NoReadingTypes", "No reading types have been found."),
-    READING_TYPES_WITH_MRID_NOT_FOUND(3009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
-    READING_TYPES_WITH_NAME_NOT_FOUND(3010, "ReadingTypesWithNameNotFound", "Reading type(s) with name(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
-    READING_TYPES_NOT_FOUND_IN_THE_SYSTEM(3011, "ReadingTypesNotFoundInTheSystem", "Reading type(s) with MRID(s) ''{0}'' and name(s) ''{1}'' is(are) not found in the system.", Level.WARNING),
-    READING_TYPES_NOT_FOUND_ON_DEVICE(3012, "ReadingTypesNotFoundOnDevice", "Reading type(s) is(are) not found on device ''{0}'': ''{1}''.", Level.WARNING),
-
-
     // master data linkage
     UNABLE_TO_LINK_METER(4001, "UnableToLinkMeter", "Unable to link meter to usage point"),
     UNABLE_TO_UNLINK_METER(4002, "UnableToUnlinkMeter", "Unable to unlink meter from usage point"),
@@ -97,7 +81,6 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could''t find service call type {0} with version {1}"),
     NO_END_POINT_WITH_URL(5002, "NoEndPointConfiguredWithURL", "No end point configuration is found by URL ''{0}''."),
     NO_PUBLISHED_END_POINT_WITH_URL(5003, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
-    NO_HEAD_END_INTERFACE_FOUND(5004, "NoHeadEndInterfaceFound", "No head end interface found for device with MRID ''{0}''"),
     DIFFERENT_NUMBER_OF_METERS_AND_USAGE_POINTS(5005, "DifferentNumberOfMetersAndUsagePoints", "Number of meters should be equal to number of usage points. Currently: {0} and {1}"),
     ;
 

@@ -8,15 +8,16 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
+     * situation that occurs when an attempt is made to delete a {@link MeasurementType}
      * while it is still used by the specified {@link RegisterSpec}s.
      *
      * @param messageSeed The MessageSeed
@@ -46,7 +47,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
+     * situation that occurs when an attempt is made to delete a {@link MeasurementType}
      * while it is still used by the specified {@link ChannelSpec}s.
      *
      * @param messageSeed The MessageSeed
@@ -59,7 +60,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
 
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
-     * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
+     * situation that occurs when an attempt is made to delete a {@link MeasurementType}
      * while it is still used by the specified {@link DeviceType}s.
      *
      * @param thesaurus The Thesaurus
@@ -112,7 +113,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
      * situation that occurs when an attempt is made to delete a {@link DeviceType}
-     * while it has active {@link com.energyict.mdc.device.config.DeviceConfiguration}s.
+     * while it has active {@link DeviceConfiguration}s.
      *
      * @param messageSeed The MessageSeed
      * @param thesaurus The Thesaurus
@@ -125,7 +126,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
     /**
      * Creates a new CannotDeleteBecauseStillInUseException that models the exceptional
      * situation that occurs when an attempt is made to delete a {@link DeviceType}
-     * while it has active {@link com.energyict.mdc.device.config.DeviceConfiguration}s.
+     * while it has active {@link DeviceConfiguration}s.
      *
      * @param messageSeed The MessageSeed
      * @param thesaurus The Thesaurus

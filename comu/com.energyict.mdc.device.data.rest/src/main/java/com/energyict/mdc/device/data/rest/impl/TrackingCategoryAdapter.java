@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.protocol.api.TrackingCategory;
+import com.energyict.mdc.common.protocol.TrackingCategory;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 

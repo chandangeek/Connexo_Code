@@ -13,9 +13,9 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessorStatus;
-import com.energyict.mdc.device.data.SecurityAccessor;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.KeyAccessorStatus;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.pki.UnmanageableSecurityAccessorException;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;

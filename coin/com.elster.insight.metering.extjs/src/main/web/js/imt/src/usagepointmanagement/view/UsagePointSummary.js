@@ -24,7 +24,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSummary', {
             {
                 xtype: 'displayfieldwithicon',
                 itemId: 'up-summary-serviceCategory',
-                name: 'serviceCategory',
+                name: 'displayServiceCategory',
                 fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
                 renderer: function (value) {
                     return value;

@@ -8,7 +8,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClass;
 
 import javax.inject.Inject;
 import java.time.Instant;

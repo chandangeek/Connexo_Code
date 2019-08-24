@@ -27,7 +27,7 @@ class ConnectionTaskOverviewImpl implements ConnectionTaskOverview {
     private final DeviceTypeBreakdown deviceTypeBreakdown;
 
     ConnectionTaskOverviewImpl(ConnectionTaskBreakdowns breakdowns, ComSessionSuccessIndicatorOverview lastResultsOverview) {
-        this.overview = TaskStatusOverviewImpl.from(breakdowns.getStatusBreakdown());
+        this.overview = TaskStatusOverviewImpl.withoutPrio(breakdowns.getStatusBreakdown());
         this.lastResultsOverview = lastResultsOverview;
         this.comPortPoolBreakdown = ComPortPoolBreakdownImpl.from(breakdowns.getComPortPoolBreakdown());
         this.connectionTypeBreakdown = ConnectionTypeBreakdownImpl.from(breakdowns.getConnectionTypeBreakdown());

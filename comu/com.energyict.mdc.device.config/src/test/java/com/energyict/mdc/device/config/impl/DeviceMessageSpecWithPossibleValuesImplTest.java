@@ -13,11 +13,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
-import com.energyict.mdc.device.config.DeviceMessageFile;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 
 import java.util.Arrays;
 import java.util.Collections;

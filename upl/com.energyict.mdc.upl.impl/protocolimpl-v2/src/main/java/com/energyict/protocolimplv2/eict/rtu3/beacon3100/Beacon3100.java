@@ -60,6 +60,7 @@ import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSuppor
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.firmware.BeaconFirmwareSignatureCheck;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.profiles.BeaconProfileDataReader;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100SecurityProvider;
@@ -112,8 +113,11 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private BeaconCache beaconCache = null;
     private Beacon3100RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
+    private BeaconProfileDataReader beaconProfileDataReader;
     private Array neighbourTable = null;
     private Set<String> topologySegments = new LinkedHashSet<>();
+    private List<CollectedLoadProfileConfiguration> loadProfileConfigurations;
+
 
     public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -516,12 +520,19 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return Collections.emptyList(); //Not supported
+        return getBeaconProfileDataReader().fetchLoadProfileConfiguration(loadProfilesToRead);
+    }
+
+    private BeaconProfileDataReader getBeaconProfileDataReader() {
+        if (beaconProfileDataReader == null) {
+            beaconProfileDataReader = new BeaconProfileDataReader(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return beaconProfileDataReader;
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return Collections.emptyList(); //Not supported
+        return getBeaconProfileDataReader().getLoadProfileData(loadProfiles);
     }
 
     @Override
@@ -891,7 +902,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-02-08$";
+        return "$Date: 2019-08-08$";
     }
 
     @Override

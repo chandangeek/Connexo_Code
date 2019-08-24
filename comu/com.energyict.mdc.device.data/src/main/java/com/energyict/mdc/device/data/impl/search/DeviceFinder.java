@@ -13,10 +13,10 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
 
 import java.sql.Connection;

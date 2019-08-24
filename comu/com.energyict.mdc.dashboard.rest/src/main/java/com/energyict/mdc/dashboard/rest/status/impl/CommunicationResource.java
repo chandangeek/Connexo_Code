@@ -18,18 +18,19 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecificationMessage;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessage;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -151,6 +152,24 @@ public class CommunicationResource {
                         .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.name)
                         .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, info.name)
                         .supplier());
+        comTaskExecution.runNow();
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT @Transactional
+    @Path("/{comTaskExecId}/runprio")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response runCommunicationWithPriority(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
+        info.id = comTaskExecId;
+        ComTaskExecution comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> resourceHelper.getCurrentComTaskExecutionVersion(info.id))
+                        .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, info.name)
+                        .supplier());
+        PriorityComTaskExecutionLink priorityComTaskExecutionLink = resourceHelper.getLockedPriorityComTaskExecution(comTaskExecution);
         comTaskExecution.runNow();
         return Response.status(Response.Status.OK).build();
     }

@@ -5,8 +5,9 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -17,6 +18,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -26,6 +28,7 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
     private final static String FIRMWARE_VERSION_V2 = "NTA-Sim_V_2.0.0";
     private final static String IMAGE_IDENTIFIER = "NTA-Sim_V_2.0.0";
     private final static String LANDIS_GYR_ZMD_DEVICETYPE = "Landis+Gyr ZMD";
+    private final static String ACTARIS_SL7000_DEVICETYPE = "Actaris SL7000";
 
     private Set<ProtocolSupportedFirmwareOptions> supportedOptions = EnumSet.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE,
                                                                           ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
@@ -60,6 +63,9 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
             if (firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType).isEmpty()) {
                 FirmwareManagementOptions options = firmwareService.newFirmwareManagementOptions(deviceType);
+                if(deviceType.getName().equals(ACTARIS_SL7000_DEVICETYPE)){
+                    options.activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK, Collections.singleton(FirmwareStatus.FINAL));
+                }
                 options.setOptions(supportedOptions);
                 options.save();
             }
@@ -82,8 +88,4 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
         inputStream.read(bytes);
         return bytes;
     }
-
-
-
-
 }

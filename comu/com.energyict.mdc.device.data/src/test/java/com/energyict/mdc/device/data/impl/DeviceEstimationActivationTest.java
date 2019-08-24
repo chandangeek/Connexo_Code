@@ -10,9 +10,9 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceEstimation;
+import com.energyict.mdc.common.device.data.DeviceEstimationRuleSetActivation;
 
 import java.time.Instant;
 import java.util.List;

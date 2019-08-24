@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
@@ -13,16 +13,17 @@ import com.energyict.mdc.io.InboundCommunicationException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.upl.io.SocketService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.Clock;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

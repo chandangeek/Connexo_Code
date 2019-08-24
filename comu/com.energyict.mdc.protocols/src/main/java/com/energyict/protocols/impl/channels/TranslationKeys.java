@@ -5,7 +5,7 @@
 package com.energyict.protocols.impl.channels;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.common.protocol.ConnectionProvider;
 
 /**
  * Insert your comments here.

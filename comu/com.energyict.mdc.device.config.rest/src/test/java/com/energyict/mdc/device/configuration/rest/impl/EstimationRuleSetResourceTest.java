@@ -8,8 +8,8 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 
 import com.jayway.jsonpath.JsonModel;

@@ -5,10 +5,10 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import java.util.Optional;

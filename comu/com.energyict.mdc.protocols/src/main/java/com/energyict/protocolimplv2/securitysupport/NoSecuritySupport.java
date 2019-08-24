@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.securitysupport;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.common.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 

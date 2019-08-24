@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
 
 import javax.inject.Inject;

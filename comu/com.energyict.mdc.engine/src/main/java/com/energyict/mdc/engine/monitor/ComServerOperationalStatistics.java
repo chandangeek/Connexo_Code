@@ -5,7 +5,7 @@
 package com.energyict.mdc.engine.monitor;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.impl.monitor.ServerOperationalStatistics;
 
 import aQute.bnd.annotation.ProviderType;

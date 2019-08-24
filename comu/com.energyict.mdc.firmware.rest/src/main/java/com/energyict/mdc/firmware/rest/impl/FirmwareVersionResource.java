@@ -11,8 +11,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.collections.KPermutation;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -25,8 +25,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -60,7 +60,7 @@ public class FirmwareVersionResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public PagedInfoList getFilteredFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
         Finder<FirmwareVersion> firmwaresFinder = firmwareService.findAllFirmwareVersions(resourceHelper.getFirmwareFilter(filter, deviceType));
@@ -72,7 +72,7 @@ public class FirmwareVersionResource {
     @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response getFirmwareVersionById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id) {
         FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
         return Response.ok().entity(versionFactory.fullInfo(firmwareVersion)).build();
@@ -83,14 +83,15 @@ public class FirmwareVersionResource {
     @Path("/validate")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response validateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareVersionBuilder versionToValidate = getFirmwareVersionBuilder(deviceType, firmwareVersionInfo.firmwareVersion,
                 firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id, firmwareVersionInfo.imageIdentifier,
                 firmwareVersionInfo.meterFirmwareDependency == null ? null : ((Number) firmwareVersionInfo.meterFirmwareDependency.id).longValue(),
-                firmwareVersionInfo.communicationFirmwareDependency == null ? null : ((Number) firmwareVersionInfo.communicationFirmwareDependency.id).longValue());
+                firmwareVersionInfo.communicationFirmwareDependency == null ? null : ((Number) firmwareVersionInfo.communicationFirmwareDependency.id).longValue(),
+                firmwareVersionInfo.auxiliaryFirmwareDependency == null ? null : ((Number) firmwareVersionInfo.auxiliaryFirmwareDependency.id).longValue());
 
         if (firmwareVersionInfo.fileSize != null) {
             versionToValidate.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -103,7 +104,7 @@ public class FirmwareVersionResource {
     @Transactional
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response saveFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId,
                                         @FormDataParam("firmwareFile") InputStream fileInputStream,
                                         @FormDataParam("firmwareVersion") String firmwareVersion,
@@ -111,13 +112,14 @@ public class FirmwareVersionResource {
                                         @FormDataParam("firmwareStatus") String statusString,
                                         @FormDataParam("imageIdentifier") String imageIdentifier,
                                         @FormDataParam("meterFirmwareDependency") Long meterFWDependency,
-                                        @FormDataParam("communicationFirmwareDependency") Long comFWDependency) {
+                                        @FormDataParam("communicationFirmwareDependency") Long comFWDependency,
+                                        @FormDataParam("auxiliaryFirmwareDependency") Long auxFWDependency) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
         FirmwareType firmwareType = parseFirmwareTypeField(typeString).orElse(null);
         FirmwareStatus firmwareStatus = parseFirmwareStatusField(statusString).orElse(null);
 
         FirmwareVersionBuilder firmwareVersionBuilder = getFirmwareVersionBuilder(deviceType, firmwareVersion, firmwareStatus, firmwareType, imageIdentifier,
-                meterFWDependency, comFWDependency);
+                meterFWDependency, comFWDependency, auxFWDependency);
 
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
@@ -134,7 +136,7 @@ public class FirmwareVersionResource {
     @Path("/reorder")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response reorderFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, List<FirmwareVersionInfo> firmwareVersionInfoList) {
         if (firmwareVersionInfoList != null && !firmwareVersionInfoList.isEmpty()) {
             DeviceType deviceType = resourceHelper.findAndLockDeviceTypeOrThrowException(deviceTypeId);
@@ -154,7 +156,7 @@ public class FirmwareVersionResource {
     @Path("/{id}/validate")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response validateEditFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
         FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
@@ -176,6 +178,12 @@ public class FirmwareVersionResource {
                 .map(Number::longValue)
                 .map(resourceHelper::findFirmwareVersionByIdOrThrowException)
                 .orElse(null));
+        firmwareVersion.setAuxiliaryFirmwareDependency(Optional.ofNullable(firmwareVersionInfo.auxiliaryFirmwareDependency)
+                .map(idWithName -> idWithName.id) // nullable too
+                .map(Number.class::cast)
+                .map(Number::longValue)
+                .map(resourceHelper::findFirmwareVersionByIdOrThrowException)
+                .orElse(null));
 
         if (firmwareVersionInfo.fileSize != null) {
             firmwareVersion.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -189,7 +197,7 @@ public class FirmwareVersionResource {
     @Path("/{id}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response editFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId,
                                         @PathParam("id") long id,
                                         @FormDataParam("firmwareFile") InputStream fileInputStream,
@@ -198,7 +206,8 @@ public class FirmwareVersionResource {
                                         @FormDataParam("imageIdentifier") String imageId,
                                         @FormDataParam("version") @DefaultValue("0") long version,
                                         @FormDataParam("meterFirmwareDependency") Long meterFWDependency,
-                                        @FormDataParam("communicationFirmwareDependency") Long comFWDependency) {
+                                        @FormDataParam("communicationFirmwareDependency") Long comFWDependency,
+                                        @FormDataParam("auxiliaryFirmwareDependency") Long auxFWDependency) {
         DeviceType deviceType = resourceHelper.findAndLockDeviceTypeOrThrowException(deviceTypeId); // to prevent from changing order of firmwares during the operation
 
         FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(id, version, fwVersion);
@@ -208,6 +217,7 @@ public class FirmwareVersionResource {
         parseFirmwareStatusField(status).ifPresent(firmwareVersion::setFirmwareStatus);
         firmwareVersion.setMeterFirmwareDependency(meterFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(meterFWDependency));
         firmwareVersion.setCommunicationFirmwareDependency(comFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
+        firmwareVersion.setAuxiliaryFirmwareDependency(auxFWDependency == null ? null : resourceHelper.findFirmwareVersionByIdOrThrowException(auxFWDependency));
 
         byte[] firmwareFile = loadFirmwareFile(fileInputStream);
         resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
@@ -224,7 +234,7 @@ public class FirmwareVersionResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response updateStatusOfFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo info) {
         info.id = id;
         FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(info);
@@ -246,7 +256,7 @@ public class FirmwareVersionResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public Response deleteFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo info) {
         info.id = id;
         if (info.firmwareStatus.id == FirmwareStatus.DEPRECATED) {
@@ -314,7 +324,7 @@ public class FirmwareVersionResource {
     }
 
     private FirmwareVersionBuilder getFirmwareVersionBuilder(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType, String imageIdentifier,
-                                                             Long meterFWDependency, Long comFWDependency) {
+                                                             Long meterFWDependency, Long comFWDependency, Long auxFWDependency) {
         FirmwareVersionBuilder builder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType,
                 FirmwareType.CA_CONFIG_IMAGE.equals(firmwareType) ? firmwareVersion : imageIdentifier);
         if (meterFWDependency != null) {
@@ -322,6 +332,9 @@ public class FirmwareVersionResource {
         }
         if (comFWDependency != null) {
             builder.setCommunicationFirmwareDependency(resourceHelper.findFirmwareVersionByIdOrThrowException(comFWDependency));
+        }
+        if (auxFWDependency != null) {
+            builder.setAuxiliaryFirmwareDependency(resourceHelper.findFirmwareVersionByIdOrThrowException(auxFWDependency));
         }
         return builder;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.impl;
@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -30,7 +31,8 @@ public class IssueFilterImpl implements IssueFilter {
     private String issueId;
     private List<IssueStatus> statuses = new ArrayList<>();
     private List<IssueReason> reasons = new ArrayList<>();
-    private Set<EndDevice> devices = new HashSet<>();
+    private List<EndDevice> devices = new ArrayList<>();
+    private List<Location> locations = new ArrayList<>();
     private List<EndDeviceGroup> deviceGroups = new ArrayList<>();
     private List<UsagePoint> usagePoints = new ArrayList<>();
     private List<UsagePointGroup> usagePointGroup = new ArrayList<>();
@@ -38,11 +40,12 @@ public class IssueFilterImpl implements IssueFilter {
     private List<WorkGroup> workGroupAssignees = new ArrayList<>();
     private List<DueDateRange> dueDates = new ArrayList<>();
     private List<IssueType> issueTypes = new ArrayList<>();
-    private List<Priority> priorities = new ArrayList();
+    private String priorities = "";
     private boolean unassignedSelected = false;
     private boolean unassignedWorkGroupSelected = false;
     private Long startCreateTime;
     private Long endCreateTime;
+    private boolean showTopology = false;
 
 
     @Override
@@ -73,6 +76,13 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
+    public void addLocation(Location location) {
+        if (location != null) {
+            this.locations.add(location);
+        }
+    }
+
+    @Override
     public void addDeviceGroup(EndDeviceGroup deviceGroup) {
             this.deviceGroups.add(deviceGroup);
     }
@@ -80,6 +90,16 @@ public class IssueFilterImpl implements IssueFilter {
     @Override
     public List<EndDeviceGroup> getDeviceGroups() {
         return this.deviceGroups;
+    }
+
+    @Override
+    public void setShowTopology(boolean showTopology) {
+        this.showTopology = showTopology;
+    }
+
+    @Override
+    public boolean getShowTopology() {
+        return this.showTopology;
     }
 
     @Override
@@ -109,9 +129,9 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
-    public void setPriority(Priority priority) {
+    public void setPriority(String priority) {
         if (priority != null) {
-            this.priorities.add(priority);
+            this.priorities = priority;
         }
     }
 
@@ -158,6 +178,11 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
+    public List<Location> getLocations() {
+        return this.locations;
+    }
+
+    @Override
     public List<UsagePoint> getUsagePoints() {
         return this.usagePoints;
     }
@@ -178,8 +203,8 @@ public class IssueFilterImpl implements IssueFilter {
     }
 
     @Override
-    public List<Priority> getPriorities() {
-        return Collections.unmodifiableList(priorities);
+    public String getPriorities() {
+        return priorities;
     }
 
     @Override

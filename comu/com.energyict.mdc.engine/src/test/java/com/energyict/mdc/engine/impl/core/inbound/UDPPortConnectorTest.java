@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;

@@ -6,8 +6,8 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterType;
 
 import com.jayway.jsonpath.JsonModel;
 

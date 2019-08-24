@@ -7,12 +7,12 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 
 import com.jayway.jsonpath.JsonModel;
 

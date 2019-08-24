@@ -9,9 +9,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 
 import com.google.common.collect.ImmutableMap;
 

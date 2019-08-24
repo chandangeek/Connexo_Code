@@ -10,9 +10,9 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.TransitionBusinessProcess;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Version.version;

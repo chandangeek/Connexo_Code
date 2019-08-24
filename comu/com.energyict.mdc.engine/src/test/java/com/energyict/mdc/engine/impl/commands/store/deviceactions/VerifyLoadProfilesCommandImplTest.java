@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.engine.TestSerialNumberDeviceIdentifier;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 
 import com.energyict.obis.ObisCode;

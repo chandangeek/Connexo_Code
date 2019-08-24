@@ -4,24 +4,25 @@
 
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

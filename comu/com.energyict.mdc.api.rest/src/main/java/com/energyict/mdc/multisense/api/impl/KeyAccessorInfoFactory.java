@@ -9,8 +9,8 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.SecurityAccessor;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

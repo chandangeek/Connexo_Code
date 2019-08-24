@@ -25,6 +25,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -33,13 +34,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 @Path("/servicecalltypes")
 public class ServiceCallTypeResource {
+
+    private static final String ADMIN_APP_KEY = "SYS";
 
     private final ServiceCallService serviceCallService;
     private final ServiceCallTypeInfoFactory serviceCallTypeInfoFactory;
@@ -66,10 +68,11 @@ public class ServiceCallTypeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES, Privileges.Constants.VIEW_SERVICE_CALLS})
-    public PagedInfoList getAllServiceCallTypes(@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getAllServiceCallTypes(@BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
         List<ServiceCallTypeInfo> serviceCallTypeInfos = serviceCallService.getServiceCallTypes()
                 .from(queryParameters)
                 .stream()
+                .filter(type -> ADMIN_APP_KEY.equals(appKey) || !type.getApplication().isPresent() || appKey.equals(type.getApplication().get()))
                 .map(serviceCallTypeInfoFactory::from)
                 .collect(toList());
 
@@ -120,7 +123,7 @@ public class ServiceCallTypeResource {
                 .filter(scl -> Long.valueOf(info.serviceCallLifeCycle.id.toString()).equals(scl.getId()))
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_LIFE_CYCLE));
-        ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(info.name, info.versionName, serviceCallLifeCycle);
+        ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(info.name, info.versionName, serviceCallLifeCycle, info.reservedByApplication);
         builder.handler(info.handler);
         builder.logLevel(LogLevel.valueOf(info.logLevel.id));
         info.customPropertySets

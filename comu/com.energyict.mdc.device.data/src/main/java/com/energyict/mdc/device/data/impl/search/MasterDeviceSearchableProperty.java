@@ -17,7 +17,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
