@@ -130,7 +130,8 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
-        if (dataExportService.getAvailableSelectors().stream().filter(s -> s.getName().equals(DataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR)).findAny().isPresent()) {
+        if (dataExportService.getAvailableSelectors().stream()
+                .filter(s -> s.getName().equals(DataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR)).findAny().isPresent()) {
             builder.add(propertySpecService
                     .booleanSpec()
                     .named(EXPORTER)

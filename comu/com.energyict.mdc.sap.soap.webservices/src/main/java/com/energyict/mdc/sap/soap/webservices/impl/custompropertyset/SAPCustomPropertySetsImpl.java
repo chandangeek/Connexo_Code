@@ -199,7 +199,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         if (!getSapDeviceId(device).isPresent()) {
             setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getSerialNumber() );
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getSerialNumber());
         }
     }
 
@@ -223,11 +223,11 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
-    public Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Channel channel, Range<Instant> range) {
+    public Map<String, RangeSet<Instant>> getProfileId(Channel channel, Range<Instant> range) {
         return channel.getChannelsContainer().getMeter()
                 .map(Meter::getId)
                 .flatMap(deviceService::findDeviceByMeterId)
-                .map(device -> getLrnAndProfileId(device, channel, range))
+                .map(device -> getProfileId(device, channel, range))
                 .orElseGet(Collections::emptyMap);
     }
 
@@ -427,18 +427,18 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .orElseGet(Collections::emptyMap);
     }
 
-    private Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Device device, Channel channel, Range<Instant> range) {
-        Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileIdIntervals = new HashMap<>();
+    private Map<String, RangeSet<Instant>> getProfileId(Device device, Channel channel, Range<Instant> range) {
+        Map<String, RangeSet<Instant>> profileIdIntervals = new HashMap<>();
         if (channel.isRegular()) {
             Optional<Instant> any = anyPoint(range);
             if (any.isPresent()) {
                 Optional<ChannelSpec> spec = getChannelSpec(device, channel.getReadingTypes(), any.get());
                 if (spec.isPresent()) {
-                    return getLrnAndProfileId(device, spec.get(), range);
+                    return getProfileId(device, spec.get(), range);
                 }
             }
         }
-        return lrnAndProfileIdIntervals;
+        return profileIdIntervals;
     }
 
     private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
@@ -455,21 +455,21 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .flatMap(specs -> specs.stream().filter(spec -> readingTypes.contains(spec.getReadingType())).findAny());
     }
 
-    private Map<Pair<String, String>, RangeSet<Instant>> getLrnAndProfileId(Device device, ChannelSpec channelSpec, Range<Instant> range) {
+    private Map<String, RangeSet<Instant>> getProfileId(Device device, ChannelSpec channelSpec, Range<Instant> range) {
         Stream<DeviceChannelSAPInfoDomainExtension> extensions = getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceChannelSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(channelSpec))
                 .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.DEVICE_ID.javaName()).isEqualTo(device.getId()))
                 .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(range));
-        Map<Pair<String, String>, RangeSet<Instant>> map = new HashMap<>();
+        Map<String, RangeSet<Instant>> map = new HashMap<>();
         extensions.forEach(ext -> {
             if (ext.getLogicalRegisterNumber().isPresent() && ext.getProfileId().isPresent()) {
-                RangeSet<Instant> rangeSet = map.get(Pair.of(ext.getLogicalRegisterNumber().get(), ext.getProfileId().get()));
+                RangeSet<Instant> rangeSet = map.get(ext.getProfileId().get());
                 if (rangeSet == null) {
                     rangeSet = TreeRangeSet.create();
                 }
                 rangeSet.add(ext.getRange().intersection(range));
-                map.put(Pair.of(ext.getLogicalRegisterNumber().get(), ext.getProfileId().get()), rangeSet);
+                map.put(ext.getProfileId().get(), rangeSet);
             }
         });
         return map;
@@ -583,7 +583,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfile.getLoadProfileTypeObisCode()));
     }
 
-    private void lockRegisterSpecOrThrowException( RegisterSpec registerSpec) {
+    private void lockRegisterSpecOrThrowException(RegisterSpec registerSpec) {
         deviceConfigurationService.findAndLockRegisterSpecById(registerSpec.getId())
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_REGISTER_SPEC_FOUND, registerSpec.getObisCode()));
     }
@@ -611,9 +611,9 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
             throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
         }
 
-        if(!setValuesVersionFor(registerInfo,
-                register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)){
-            throw new SAPWebServiceException(thesaurus,MessageSeeds.REGISTER_ALREADY_HAS_LRN,
+        if (!setValuesVersionFor(registerInfo,
+                register.getRegisterSpec(), register.getDevice().getId(), register.getObisCode(), property, value, range)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.REGISTER_ALREADY_HAS_LRN,
                     register.getObisCode(), range.toString());
         }
 
@@ -626,9 +626,9 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
             throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
         }
 
-        if(!setValuesVersionFor(channelInfo,
-                channel.getChannelSpec(),channel.getDevice().getId(), channel.getObisCode(), property, value, range)){
-            throw new SAPWebServiceException(thesaurus,MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
+        if (!setValuesVersionFor(channelInfo,
+                channel.getChannelSpec(), channel.getDevice().getId(), channel.getObisCode(), property, value, range)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.CHANNEL_ALREADY_HAS_LRN,
                     channel.getObisCode(), range.toString());
         }
 
