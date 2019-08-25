@@ -318,29 +318,32 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         stream.forEach(e -> {
             Range range = e.getRange();
             Optional<Range<Instant>> cutRange = cutRange(range);
-            if (cutRange.isPresent() && isDeviceActive(e.getDeviceId())) {
-                Pair<Long, ChannelSpec> key = Pair.of(e.getDeviceId(), e.getChannelSpec());
-                List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
-                try {
-                    Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
-                    if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
-                        list.add(Pair.of(rangeIntersection, range));
+            if (cutRange.isPresent()) {
+                Optional<Device> device = deviceService.findDeviceById(e.getDeviceId());
+                if (device.isPresent()) {
+                    if (isDeviceActive(device.get())) {
+                        Pair<Long, ChannelSpec> key = Pair.of(e.getDeviceId(), e.getChannelSpec());
+                        List<Pair<Range<Instant>, Range<Instant>>> list = map.getOrDefault(key, new ArrayList<>());
+                        try {
+                            Range<Instant> rangeIntersection = cutRange.get().intersection(interval);
+                            if (Duration.between(rangeIntersection.lowerEndpoint(), rangeIntersection.upperEndpoint()).toDays() >= 1) {
+                                list.add(Pair.of(rangeIntersection, range));
+                            }
+                            map.put(key, list);
+                        } catch (IllegalArgumentException ex) {
+                            // no intersection with interval (should never occur)
+                        }
+                    } else {
+                        throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_IS_NOT_ACTIVE, device.get().getName());
                     }
-                    map.put(key, list);
-                } catch (IllegalArgumentException ex) {
-                    // no intersection with interval (should never occur)
                 }
             }
         });
         return map;
     }
 
-    private boolean isDeviceActive(long deviceId) {
-        Optional<Device> device = deviceService.findDeviceById(deviceId);
-        if (device.isPresent()) {
-            return device.get().getState().getName().equals(DefaultState.ACTIVE.getKey());
-        }
-        return false;
+    private boolean isDeviceActive(Device device) {
+        return device.getState().getName().equals(DefaultState.ACTIVE.getKey());
     }
 
     private Condition getOverlappedCondition(Range<Instant> range) {
