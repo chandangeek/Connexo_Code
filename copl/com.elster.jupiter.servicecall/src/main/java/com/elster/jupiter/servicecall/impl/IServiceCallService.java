@@ -4,11 +4,13 @@
 
 package com.elster.jupiter.servicecall.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.servicecall.RefernceToDelete;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.messaging.DestinationSpec;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,5 +26,7 @@ public interface IServiceCallService extends ServiceCallService {
     Optional<DestinationSpec> getServiceCallQueue(String destinationName);
 
     Thesaurus getThesaurus();
+
+    List<RefernceToDelete> getReferencesToDelete();
 
 }
