@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.engine.status;
 
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OfflineComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OfflineComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 
 import org.junit.Test;
 

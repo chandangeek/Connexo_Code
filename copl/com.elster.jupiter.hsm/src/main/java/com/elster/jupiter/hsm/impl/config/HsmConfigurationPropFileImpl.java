@@ -19,6 +19,9 @@ import java.util.*;
 
 public class HsmConfigurationPropFileImpl extends HsmAbstractConfiguration implements HsmConfiguration {
 
+    public static final ChainingMode DEFAULT_CHAINING_MODE = ChainingMode.CBC;
+    public static final PaddingAlgorithm DEFAULT_PADDING_ALGORITHM = PaddingAlgorithm.PKCS;
+
     private final File file;
     private final Properties properties;
     private final Map<String, String> importToHsmLabelMap = new HashMap<>();
@@ -66,10 +69,10 @@ public class HsmConfigurationPropFileImpl extends HsmAbstractConfiguration imple
     }
 
     @Override
-    public HsmLabelConfiguration get(String label) throws HsmBaseException {
+    public HsmLabelConfiguration get(String label)  {
         HsmLabelConfiguration hsmLabelConfiguration = labelToConfigMap.get(label);
         if (Objects.isNull(hsmLabelConfiguration)) {
-            throw new HsmBaseException("Asking configuration for a label that is missing, label:" + label);
+            return new HsmLabelConfiguration(label, DEFAULT_CHAINING_MODE, DEFAULT_PADDING_ALGORITHM);
         }
         return hsmLabelConfiguration;
     }

@@ -4,11 +4,11 @@
 
 package com.energyict.mdc.device.data.importers.impl.devices.decommission;
 
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionRecord;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.util.Arrays;
 import java.util.List;

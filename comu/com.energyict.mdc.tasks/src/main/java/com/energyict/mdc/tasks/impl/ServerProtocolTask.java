@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 
 /**
  * Adds behavior to a ProtocolTask that is private

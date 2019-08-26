@@ -15,23 +15,25 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.IPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.InboundCapable;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundCapable;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.IPBasedInboundComPort;
-import com.energyict.mdc.engine.config.InboundCapable;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundCapable;
-import com.energyict.mdc.engine.config.OutboundCapableComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -52,6 +54,7 @@ import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -61,14 +64,19 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.io.SocketService;
+
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -111,6 +119,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     private ComPortListenerFactory comPortListenerFactory;
     private ThreadFactory threadFactory;
     private ComServer comServer;
+    private HighPriorityTaskSchedulerImpl highPriorityTaskScheduler;
     private Collection<ScheduledComPort> scheduledComPorts = new ArrayList<>();
     private Collection<ComPortListener> comPortListeners = new ArrayList<>();
     private EventMechanism eventMechanism;
@@ -119,12 +128,14 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     private ComServerCleanupProcess cleanupProcess;
     private ComServerMonitor operationalMonitor;
     private LoggerHolder loggerHolder;
+    private Map<ComPort, List<Long>> comPortPoolsComPortBelongsToCache = new HashMap<>();
 
     RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
+        registerAsMBean();
         EventPublisher eventPublisher = new EventPublisherImpl(this);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
@@ -135,7 +146,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                         serviceProvider.engineConfigurationService(),
                         serviceProvider.identificationService(),
                         eventPublisher);
-        this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory), operationalMonitor.getEventApiStatistics());
         this.comServerDAO = comServerDAO;
         this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer);
@@ -150,8 +161,10 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
-        this.eventMechanism = new EventMechanism(embeddedWebServerFactory);
+        registerAsMBean();
+        this.eventMechanism = new EventMechanism(embeddedWebServerFactory, operationalMonitor.getEventApiStatistics());
         this.comServerDAO = comServerDAO;
+
         this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
@@ -166,6 +179,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
         this.comServerDAO = comServerDAO;
+        registerAsMBean();
         EventPublisher eventPublisher = new EventPublisherImpl(this);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
                 new WebSocketEventPublisherFactoryImpl(
@@ -176,7 +190,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                         serviceProvider.engineConfigurationService(),
                         serviceProvider.identificationService(),
                         eventPublisher);
-        this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        this.eventMechanism = new EventMechanism(eventPublisher, new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory), operationalMonitor.getEventApiStatistics());
         this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
         this.initializeTimeoutMonitor(comServer);
@@ -190,7 +204,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.serviceProvider = serviceProvider;
         this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
-        this.eventMechanism = new EventMechanism(embeddedWebServerFactory);
+        registerAsMBean();
+        this.eventMechanism = new EventMechanism(embeddedWebServerFactory, operationalMonitor.getEventApiStatistics());
         this.comServerDAO = comServerDAO;
         this.initialize(scheduledComPortFactory, comPortListenerFactory, threadFactory);
         this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
@@ -209,14 +224,14 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.scheduledComPortFactory = scheduledComPortFactory;
         this.comPortListenerFactory = comPortListenerFactory;
         this.threadFactory = threadFactory;
-        registerAsMBean();
+       // registerAsMBean();
     }
 
     protected EmbeddedWebServerFactory getEmbeddedWebServerFactory() {
         return this.eventMechanism.embeddedWebServerFactory;
     }
 
-    protected ComServerDAO getComServerDAO() {
+    public ComServerDAO getComServerDAO() {
         return comServerDAO;
     }
 
@@ -351,6 +366,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.startDeviceCommandExecutor();
         this.startOutboundComPorts();
         this.startInboundComPorts();
+        startHighPriorityTaskScheduler();
         this.timeOutMonitor.start();
         this.cleanupProcess.start();
         self = this.threadFactory.newThread(this);
@@ -383,6 +399,13 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
     private void startInboundComPorts() {
         this.comPortListeners.forEach(ComPortListener::start);
+    }
+
+    private void startHighPriorityTaskScheduler() {
+        if (comServer instanceof OutboundCapableComServer && ((OutboundCapableComServer) comServer).supportsExecutionOfHighPriorityComTasks()) {
+            highPriorityTaskScheduler = new HighPriorityTaskSchedulerImpl(this, (OutboundCapableComServer) comServer, serviceProvider, eventMechanism.getEventPublisher());
+            highPriorityTaskScheduler.start();
+        }
     }
 
     private void startEventMechanism() {
@@ -639,6 +662,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                     // ComServer is no longer active, shutdown
                     this.shutdown();
                 } else {
+                    comPortPoolsComPortBelongsToCache = new HashMap<>(); // Flush the cache
                     this.resetLoggerHolder(newVersion);
                     this.applyChanges((InboundCapable) newVersion);
                     this.applyChanges((OutboundCapable) newVersion);
@@ -1049,6 +1073,113 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         this.forceRefreshQueue.add(comPort);
     }
 
+
+    @Override
+    public boolean canExecuteTasksWithHighPriority() {
+        synchronized (scheduledComPorts) {
+            return !scheduledComPorts.isEmpty();
+        }
+    }
+
+    public Map<Long, Integer> getHighPriorityLoadPerComPortPool() {
+        synchronized (scheduledComPorts) {
+            Map<Long, Integer> highPriorityLoadPerComPortPool = new HashMap<>();
+            for (ScheduledComPort scheduledComPort : scheduledComPorts) {
+                Map<Long, Integer> loadPerPoolMap = scheduledComPort.getHighPriorityLoadPerComPortPool();
+                for (Map.Entry<Long, Integer> loadPerPool : loadPerPoolMap.entrySet()) {
+                    if (highPriorityLoadPerComPortPool.containsKey(loadPerPool.getKey())) {
+                        highPriorityLoadPerComPortPool.put(
+                                loadPerPool.getKey(),
+                                highPriorityLoadPerComPortPool.get(loadPerPool.getKey()) + loadPerPool.getValue()
+                        );
+                    } else {
+                        highPriorityLoadPerComPortPool.put(loadPerPool.getKey(), loadPerPool.getValue());
+                    }
+                }
+            }
+            return highPriorityLoadPerComPortPool;
+        }
+    }
+
+    @Override
+    public void executeWithHighPriority(HighPriorityComJob job) {
+        synchronized (scheduledComPorts) {
+            List<ScheduledComPort> interruptCandidates = findInterruptCandidates(scheduledComPorts, job.getConnectionTask().getComPortPool());
+            if (interruptCandidates.isEmpty()) {
+                throw new UnableToAcceptHighPriorityTasksException();
+            }
+            Collections.sort(interruptCandidates, new ScheduledComPortForInterruptionComparator(job));
+            interruptCandidates.get(0).executeWithHighPriority(job);
+        }
+    }
+
+    private ArrayList<ScheduledComPort> findInterruptCandidates(Collection<ScheduledComPort> scheduledComPorts, ComPortPool comPortPool) {
+        ArrayList<ScheduledComPort> candidates = new ArrayList<>(scheduledComPorts.size());
+        for (ScheduledComPort scheduledComPort : scheduledComPorts) {
+            if (getContainingComPortPools(scheduledComPort).contains(comPortPool.getId())) {
+                Integer highPriorityLoad = scheduledComPort.getHighPriorityLoadPerComPortPool().get(comPortPool.getId());
+                if (highPriorityLoad == null || highPriorityLoad < scheduledComPort.getThreadCount()) {
+                    candidates.add(scheduledComPort);
+                } // else the ScheduledComPort is already busy with the execution of a high priority task(s) - it doesn't make sense to interrupt a thread of such port
+            }
+        }
+        return candidates;
+    }
+
+    private List<Long> getContainingComPortPools(ScheduledComPort scheduledComPort) {
+        if (!comPortPoolsComPortBelongsToCache.containsKey(scheduledComPort.getComPort())) {
+            comPortPoolsComPortBelongsToCache.put(scheduledComPort.getComPort(), getComServerDAO().findContainingActiveComPortPoolsForComPort(scheduledComPort.getComPort()));
+        }
+        return comPortPoolsComPortBelongsToCache.get(scheduledComPort.getComPort());
+    }
+
+    private static class ScheduledComPortForInterruptionComparator implements Comparator<ScheduledComPort> {
+        private final HighPriorityComJob job;
+
+        private ScheduledComPortForInterruptionComparator(HighPriorityComJob job) {
+            super();
+            this.job = job;
+        }
+
+        @Override
+        public int compare(ScheduledComPort first, ScheduledComPort second) {
+            if (first.isExecutingOneOf(job.getComTaskExecutions())) {
+                // The second comport cannot be executing the same task because of the locking mechanism
+                return -1;
+            } else if (second.isExecutingOneOf(job.getComTaskExecutions())) {
+                return 1;
+            } else {
+                // Neither of the two comports are executing the very same ComTaskExecution
+                if (job.getConnectionTask().getNumberOfSimultaneousConnections() > 1) {
+                    /* The connection can be opened in parallel so we can connect from another comport.
+                     * Therefore, it does not really matter which of the two we pick.
+                     * Since we will be interrupting one of the two comports,
+                     * we will interrupt the one with the highest number of free threads. */
+                    return compareOnNumberOfFreeThreads(first, second);
+                } else {
+                    // Only one of the two tasks can be connected to the task
+                    if (first.isConnectedTo(job.getConnectionTask())) {
+                        return -1;
+                    } else if (second.isConnectedTo(job.getConnectionTask())) {
+                        return 1;
+                    }
+                    /* None of the two are connected so it does not really matter
+                     * which of the two we pick. Since we will be interrupting comports,
+                     * we will interrupt the one with the highest number of free threads. */
+                    return compareOnNumberOfFreeThreads(first, second);
+                }
+            }
+        }
+
+        private int compareOnNumberOfFreeThreads(ScheduledComPort first, ScheduledComPort second) {
+            return Integer.compare(getFreeThreadCount(second), getFreeThreadCount(first));  // We want the one with the highest free thread count
+        }
+
+        private int getFreeThreadCount(ScheduledComPort comPort) {
+            return comPort.getThreadCount() - comPort.getActiveThreadCount();
+        }
+    }
+
     public interface ServiceProvider extends ComServerDAOImpl.ServiceProvider {
 
         DeviceConfigurationService deviceConfigurationService();
@@ -1084,15 +1215,15 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         private final EmbeddedWebServer embeddedWebServer;
         private final EventPublisher eventPublisher;
 
-        private EventMechanism(EmbeddedWebServerFactory embeddedWebServerFactory) {
-            this(new EventPublisherImpl(RunningComServerImpl.this), embeddedWebServerFactory);
+        private EventMechanism(EmbeddedWebServerFactory embeddedWebServerFactory, EventAPIStatistics eventAPIStatistics) {
+            this(new EventPublisherImpl(RunningComServerImpl.this), embeddedWebServerFactory, eventAPIStatistics);
         }
 
-        private EventMechanism(EventPublisher eventPublisher, EmbeddedWebServerFactory embeddedWebServerFactory) {
+        private EventMechanism(EventPublisher eventPublisher, EmbeddedWebServerFactory embeddedWebServerFactory, EventAPIStatistics eventAPIStatistics) {
             super();
             this.eventPublisher = eventPublisher;
             this.embeddedWebServerFactory = embeddedWebServerFactory;
-            this.embeddedWebServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer);
+            this.embeddedWebServer = this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer, eventAPIStatistics);
         }
 
         private EmbeddedWebServerFactory getEmbeddedWebServerFactory() {
@@ -1104,15 +1235,15 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         }
 
         private void start() {
-            this.embeddedWebServer.start();
+            embeddedWebServer.start();
         }
 
         private void shutdown(boolean immediate) {
-            this.eventPublisher.shutdown();
+            eventPublisher.shutdown();
             if (immediate) {
-                this.embeddedWebServer.shutdownImmediate();
+                embeddedWebServer.shutdownImmediate();
             } else {
-                this.embeddedWebServer.shutdown();
+                embeddedWebServer.shutdown();
             }
         }
 
@@ -1129,15 +1260,15 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         }
 
         private ComServerLogger get() {
-            if (this.logger == null || this.logLevelChanged()) {
-                this.lastLogLevel = this.getServerLogLevel(this.comServer);
-                this.logger = this.newLogger(this.lastLogLevel);
+            if (logger == null || logLevelChanged()) {
+                lastLogLevel = getServerLogLevel(comServer);
+                logger = newLogger(lastLogLevel);
             }
-            return this.logger;
+            return logger;
         }
 
         private boolean logLevelChanged() {
-            return !this.lastLogLevel.equals(this.getServerLogLevel(this.comServer));
+            return !lastLogLevel.equals(getServerLogLevel(comServer));
         }
 
         private ComServerLogger newLogger(LogLevel logLevel) {
@@ -1149,9 +1280,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         }
 
         public void reset(ComServer newVersion) {
-            this.comServer = newVersion;
-            this.logger = null;
-            this.lastLogLevel = null;
+            comServer = newVersion;
+            logger = null;
+            lastLogLevel = null;
         }
 
     }

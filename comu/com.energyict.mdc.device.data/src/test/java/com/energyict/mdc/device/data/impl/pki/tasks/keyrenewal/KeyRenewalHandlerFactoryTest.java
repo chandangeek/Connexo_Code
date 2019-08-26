@@ -83,11 +83,12 @@ public class KeyRenewalHandlerFactoryTest {
         verify(bundleContext, times(1)).getProperty(KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY);
     }
 
-    @Test (expected = PropertyValueRequiredException.class)
+    @Test
     public void testNoKeyRenewalProcessDefinitionProperty() {
         when(bundleContext.getProperty(KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY)).thenReturn(null);
         keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         verify(bundleContext, times(1)).getProperty(KEY_RENEWAL_PROCESS_DEFINITION_PROPERTY);
+        assertThat(keyRenewalHandlerFactory.getKeyRenewalBpmProcessDefinitionId()).isNull();
     }
 
     @Test
@@ -96,11 +97,12 @@ public class KeyRenewalHandlerFactoryTest {
         verify(bundleContext, times(1)).getProperty(KEY_DAYS_TILL_EXPIRATION_PROPERTY);
     }
 
-    @Test (expected = PropertyValueRequiredException.class)
+    @Test
     public void testNoKeyRenewalDaysTillExpirationProperty() {
         when(bundleContext.getProperty(KEY_DAYS_TILL_EXPIRATION_PROPERTY)).thenReturn(null);
         keyRenewalHandlerFactory = new KeyRenewalHandlerFactory(bundleContext, taskService, ormService, bpmService, clock, nlsService, eventService);
         verify(bundleContext, times(1)).getProperty(KEY_DAYS_TILL_EXPIRATION_PROPERTY);
+        assertThat(keyRenewalHandlerFactory.getKeyRenewalExpitationDays()).isNull();
     }
 
     @Test

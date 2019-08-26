@@ -5,7 +5,7 @@
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 
 import org.fest.assertions.api.Assertions;
 

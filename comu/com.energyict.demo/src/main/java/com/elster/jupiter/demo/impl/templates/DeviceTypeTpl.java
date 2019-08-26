@@ -7,9 +7,9 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.Builder;
 import com.elster.jupiter.demo.impl.builders.DeviceTypeBuilder;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.util.Arrays;

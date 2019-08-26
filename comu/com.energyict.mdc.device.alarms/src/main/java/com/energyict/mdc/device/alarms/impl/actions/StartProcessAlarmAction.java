@@ -48,7 +48,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
     private final ThreadPrincipalService threadPrincipalService;
     private final BpmService bpmService;
 
-    private String reasonName;
+    private String reasonKey;
 
     @Inject
     public StartProcessAlarmAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService, BpmService bpmService) {
@@ -120,8 +120,8 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
     }
 
     @Override
-    public IssueAction setReasonName(String reasonName){
-        this.reasonName = reasonName;
+    public IssueAction setReasonKey(String reasonKey){
+        this.reasonKey = reasonKey;
         return this;
     }
 
@@ -153,7 +153,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
     }
 
     private Process[] getPossibleStatuses() {
-        if(reasonName != null) {
+        if(reasonKey != null) {
             //noinspection unchecked
             return bpmService.getActiveBpmProcessDefinitions()
                     .stream()
@@ -162,7 +162,7 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
                     .filter(s -> ((List<Object>) s.getProperties().get("alarmReasons"))
                             .stream()
                             .filter(HasIdAndName.class::isInstance)
-                            .anyMatch(v -> ((HasIdAndName) v).getId().toString().equals(reasonName)))
+                            .anyMatch(v -> ((HasIdAndName) v).getId().toString().equals(reasonKey)))
                     .map(Process::new).toArray(Process[]::new);
         }else{
             return bpmService.getActiveBpmProcessDefinitions()

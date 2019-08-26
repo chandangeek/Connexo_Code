@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,8 +23,8 @@ import static com.energyict.mdc.device.data.impl.tasks.report.AbstractBreakdownS
 import static com.energyict.mdc.device.data.impl.tasks.report.AbstractBreakdownSqlExecutor.TYPE_COLUMN_NUMBER;
 
 /**
- * Models the different aspects of {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s
- * and {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s that are used in reports
+ * Models the different aspects of {@link ConnectionTask}s
+ * and {@link ComTaskExecution}s that are used in reports
  * that count these tasks, breaking the counters down by different aspects.
  *
  * @author Rudi Vankeirsbilck (rudi)

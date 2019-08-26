@@ -11,18 +11,21 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import com.google.inject.Module;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device, DeviceSAPInfoDomainExtension> {
@@ -85,13 +88,26 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(
+        return Arrays.asList(
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .stringSpec()
                         .named(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), TranslationKeys.CPS_DEVICE_IDENTIFIER)
                         .describedAs(TranslationKeys.CPS_DEVICE_IDENTIFIER_DESCRIPTION)
                         .fromThesaurus(thesaurus)
-                        .finish());
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), TranslationKeys.CPS_DEVICE_LOCATION)
+                        .describedAs(TranslationKeys.CPS_DEVICE_LOCATION_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), TranslationKeys.CPS_POINT_OF_DELIVERY)
+                        .describedAs(TranslationKeys.CPS_POINT_OF_DELIVERY_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish()
+        );
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<Device, DeviceSAPInfoDomainExtension> {
@@ -136,11 +152,27 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            Column deviceIdColumn = table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.databaseName())
+            /*table.column("DEVICE_IDENTIFIER")
                     .number()
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName())
+                    .upTo(Version.version(10, 7))
+                    .add();*/
+            Column deviceIdColumnString = table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName())
+                    .since(Version.version(10, 7))
                     .add();
-            table.index(IDX).on(deviceIdColumn).add();
+            table.index(IDX).on(deviceIdColumnString).add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName())
+                    .since(Version.version(10, 7))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName())
+                    .since(Version.version(10, 7))
+                    .add();
         }
 
         @Override

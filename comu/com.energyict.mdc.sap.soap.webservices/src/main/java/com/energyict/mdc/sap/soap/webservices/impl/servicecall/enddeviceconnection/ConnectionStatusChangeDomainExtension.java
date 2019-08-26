@@ -22,7 +22,7 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
         DOMAIN("serviceCall", "service_call"),
         ID("id", "id"),
         CATEGORY_CODE("categoryCode", "category_code"),
-        CONFIRMATION_URL("confirmationURL", "confirmation_url"),
+        CONFIRMATION_URL("confirmationURL", "confirmation_url"), //up to 10.7
         REASON_CODE("reasonCode", "reason_code"),
         PROCESS_DATE("processDate", "process_date"),
 
@@ -51,8 +51,6 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
     private String id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String categoryCode;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String confirmationURL;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String reasonCode;
     private Instant processDate;
@@ -71,14 +69,6 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
 
     public void setCategoryCode(String categoryCode) {
         this.categoryCode = categoryCode;
-    }
-
-    public String getConfirmationURL() {
-        return confirmationURL;
-    }
-
-    public void setConfirmationURL(String confirmationURL) {
-        this.confirmationURL = confirmationURL;
     }
 
     public String getReasonCode() {
@@ -106,7 +96,6 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
         this.serviceCall.set(domainInstance);
         this.setId((String) propertyValues.getProperty(FieldNames.ID.javaName()));
         this.setCategoryCode((String) propertyValues.getProperty(FieldNames.CATEGORY_CODE.javaName()));
-        this.setConfirmationURL((String) propertyValues.getProperty(FieldNames.CONFIRMATION_URL.javaName()));
         this.setReasonCode((String) propertyValues.getProperty(FieldNames.REASON_CODE.javaName()));
         this.setProcessDate((Instant) propertyValues.getProperty(FieldNames.PROCESS_DATE.javaName()));
     }
@@ -115,7 +104,6 @@ public class ConnectionStatusChangeDomainExtension extends AbstractPersistentDom
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.ID.javaName(), this.getId());
         propertySetValues.setProperty(FieldNames.CATEGORY_CODE.javaName(), this.getCategoryCode());
-        propertySetValues.setProperty(FieldNames.CONFIRMATION_URL.javaName(), this.getConfirmationURL());
         propertySetValues.setProperty(FieldNames.REASON_CODE.javaName(), this.getReasonCode());
         propertySetValues.setProperty(FieldNames.PROCESS_DATE.javaName(), this.getProcessDate());
     }

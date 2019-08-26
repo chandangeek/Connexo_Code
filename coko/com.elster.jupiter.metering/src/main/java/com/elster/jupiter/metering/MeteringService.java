@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.metering;
@@ -96,6 +96,8 @@ public interface MeteringService {
     Finder<EndDevice> findEndDevices(Set<String> mRIDs, Set<String> deviceNames);
 
     Finder<Meter> findMeters(MeterFilter filter);
+
+    List<Meter> findMetersByLocation(Location location);
 
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
 

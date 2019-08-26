@@ -9,32 +9,53 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.HighPriorityComJob;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.OutboundCapableComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,7 +102,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     /**
      * Gets the {@link TypedProperties} that have been
-     * created against the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
+     * created against the {@link ConnectionTask}
      * that is currently used to connect the Device to the ComServer
      * via the specified {@link InboundComPort}.
      *
@@ -145,6 +166,35 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort);
 
     /**
+     * Finds and returns the {@link HighPriorityComJob}s that are ready
+     * to be executed by the specified {@link ComServer}.<br/>
+     * <b>Note:</b> The actual load of high priority tasks (~ the number of high priority tasks which are currently executed)
+     * mapped per {@link ComPortPool} is also provided. This information can be used to determine
+     * the maximum number of additional high priority tasks which can be picked up per {@link ComPortPool}.
+     *
+     * @param comServer The ComServer
+     * @param currentHighPriorityLoadPerComPortPool A map containing the number of the high priority tasks which are currently executed per ComPortPool
+     * @return The List of {@link ComJob}s that represent all the ComTaskExecutions that are ready to be executed
+     * @see OutboundCapableComServer#findExecutableHighPriorityComTasks(Map)
+     */
+    List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool);
+
+    /**
+     * Finds and returns the {@link HighPriorityComJob}s that are ready
+     * to be executed by the specified {@link ComServer} on the specified date.<br/>
+     * <b>Note:</b> The actual load of high priority tasks (~ the number of high priority tasks which are currently executed)
+     * mapped per {@link ComPortPool} is also provided. This information can be used to determine
+     * the maximum number of additional high priority tasks which can be picked up per {@link ComPortPool}.
+     *
+     * @param comServer The ComServer
+     * @param currentHighPriorityLoadPerComPortPool A map containing the number of the high priority tasks which are currently executed per ComPortPool
+     * @param date the date for when {@link HighPriorityComJob}s should be searched
+     * @return The List of {@link ComJob}s that represent all the ComTaskExecutions that are ready to be executed
+     * @see OutboundCapableComServer#findExecutableHighPriorityComTasks(Map, Date)
+     */
+    List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date);
+
+    /**
      * Finds and returns all the ComTaskExecutions that are ready
      * to be executed against the specified Device
      * on the specified InboundComPort.
@@ -160,7 +210,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort);
 
     /**
-     * Gets the {@link PropertyValueType} of the protocol property of the {@link com.energyict.mdc.device.data.Device}
+     * Gets the {@link PropertyValueType} of the protocol property of the {@link Device}
      * that is uniquely identified by the specified {@link DeviceIdentifier}.
      *
      * @param deviceIdentifier The DeviceIdentifier
@@ -221,6 +271,18 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort);
 
     /**
+     * Attempts to lock the specified {@link PriorityComTaskExecutionLink}
+     * and returns <code>true</code> if the lock succeeded.
+     * If the lock did not succeed, this is an indication
+     * that another component has already locked it,
+     * most likely for executing it.
+     *
+     * @param comTaskExecution The HighPriorityComTaskExecution
+     * @return A flag that indicates a successful locking of the HighPriorityComTaskExecution
+     */
+    boolean attemptLock(PriorityComTaskExecutionLink comTaskExecution, ComPort comPort);
+
+    /**
      * Unlocks the ComTaskExecution, basically undoing the effect
      * of the attemptLock method providing that was successful.
      *
@@ -251,6 +313,14 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @return the updated connectiontask
      */
     ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask);
+
+    /**
+     * Notifies that execution of the specified OutboundConnectionTask was interrupted
+     * and needs to be rescheduled.
+     *
+     * @param connectionTask The OutboundConnectionTask
+     */
+    ConnectionTask<?, ?> executionRescheduled(ConnectionTask connectionTask);
 
     /**
      * Notifies that execution of the specified ComTaskExecution has been started
@@ -374,7 +444,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier);
 
     /**
-     * Finds the <b>offline</b> version of the {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}
+     * Finds the <b>offline</b> version of the {@link DeviceMessage}
      * that is uniquely identified by the specified {@link com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier}.
      *
      * @param identifier The MessageIdentifier
@@ -494,6 +564,14 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     boolean areStillPending(Collection<Long> comTaskExecutionIds);
 
     /**
+     * Tests if all of the {@link PriorityComTaskExecutionLink}s are still {@link com.energyict.mdc.common.tasks.TaskStatus#Pending}.
+     *
+     * @param priorityComTaskExecutionLinkIds The collection of HighPriorityComTaskExecution identifiers
+     * @return A flag that indicates if all of the HighPriorityComTaskExecution are still pending
+     */
+    boolean areStillPendingWithHighPriority(Collection<Long> priorityComTaskExecutionLinkIds);
+
+    /**
      * Executes the given Transaction.
      *
      * @param transaction the transaction to execute
@@ -546,7 +624,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
 
     /**
-     * Request cleanup of all outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s<br/>
+     * Request cleanup of all outdated {@link ComTaskExecutionTrigger}s<br/>
      * More specific, all ComTaskExecutionTriggers who have a trigger date more than 1 day in the past will be removed from the database
      */
     void cleanupOutdatedComTaskExecutionTriggers();
@@ -555,4 +633,5 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     User getComServerUser();
 
+    List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort);
 }

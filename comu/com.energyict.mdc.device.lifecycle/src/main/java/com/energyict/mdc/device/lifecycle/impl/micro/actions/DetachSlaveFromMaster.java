@@ -7,9 +7,9 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
 
@@ -23,7 +23,7 @@ import java.util.List;
  * timestamp of the transition.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DETACH_SLAVE_FROM_MASTER}
+ * @see {@link MicroAction#DETACH_SLAVE_FROM_MASTER}
  * <p>
  * action bits: 512
  * @since 2015-05-06 (15:11)

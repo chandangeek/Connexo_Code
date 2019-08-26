@@ -30,10 +30,10 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
@@ -157,12 +157,12 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
             IssueCreationService.CreationRuleActionBuilder actionBuilder = builder.newCreationRuleAction();
             actionBuilder.setPhase(CreationRuleActionPhase.fromString("CREATE"));
             Condition condition = where("className").isEqualTo("com.energyict.mdc.device.alarms.impl.actions.AssignDeviceAlarmAction");
-            Optional<IssueActionType> actionType = Optional.ofNullable(issueService.getIssueActionService().getActionTypeQuery().select(condition).get(0));
+            Optional<IssueActionType> actionType = issueService.getIssueActionService().getActionTypeQuery().select(condition, 1, 1).stream().findAny();
             actionType.ifPresent(issueActionType -> {
                 actionBuilder.setActionType(issueActionType);
                 Optional<IssueAction> issueAction = issueActionType.createIssueAction();
                 if (issueAction.isPresent()) {
-                    issueAction.get().setReasonName(issueType.getName());
+                    issueAction.get().setReasonKey(reason);
                     for (PropertySpec propertySpec : issueAction.get().getPropertySpecs()) {
                         actionBuilder.addProperty(propertySpec.getName(), propertySpec
                                 .getValueFactory()

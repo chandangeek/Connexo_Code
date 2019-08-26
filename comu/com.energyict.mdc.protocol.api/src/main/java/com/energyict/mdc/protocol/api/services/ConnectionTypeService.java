@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.protocol.api.services;
 
+import com.energyict.mdc.common.protocol.ConnectionType;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.ConnectionType;
 
 import java.util.Collection;
 

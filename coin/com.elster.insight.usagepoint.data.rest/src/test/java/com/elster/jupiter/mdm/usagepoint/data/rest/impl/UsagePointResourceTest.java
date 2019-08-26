@@ -30,7 +30,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -73,6 +72,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationTask;
 
@@ -366,6 +366,14 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         Response response = target("usagepoints").request().post(Entity.json(getBasicUsagePointInfo()));
         assertThat(response.getStatus()).isEqualTo(201);
     }
+
+    /*@Test
+    public void testUsagePointJson() {
+        when(calendarService.findCalendar(anyLong())).thenReturn(Optional.of(mockCalendar()));
+        String json = "{\"id\":0,\"mRID\":\"\",\"serviceCategory\":\"ELECTRICITY\",\"lifeCycle\":{\"id\":1,\"name\":\"Standard usage point life cycle\"},\"name\":\"adasdasd\",\"installationTime\":1560320880000,\"createTime\":null,\"lastTransitionTime\":null,\"isReadyForLinkingMC\":true,\"calendars\":null,\"extendedGeoCoordinates\":{\"spatialCoordinates\":null,\"coordinatesDisplay\":null},\"extendedLocation\":{\"locationValue\":\"\"},\"version\":0,\"isSdp\":true,\"isVirtual\":false,\"readRoute\":\"\",\"connectionState\":null,\"servicePriority\":\"\",\"serviceDeliveryRemark\":\"\",\"techInfo\":{},\"metrologyConfiguration\":null,\"effectiveMetrologyConfiguration\":null,\"meterRoles\":null,\"hasEffectiveMCs\":false,\"meterActivations\":null,\"transitionToPerform\":null,\"customPropertySets\":[]}";
+        Response response = target("usagepoints").request().post(Entity.json(json));
+        assertThat(response.getStatus()).isEqualTo(201);
+    }*/
 
     @Test
     public void testUpdateUsagePoint() {

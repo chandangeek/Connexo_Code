@@ -8,6 +8,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
@@ -98,11 +99,12 @@ public final class OutboundSoapEndPoint implements ManagedEndpoint {
                 AuthorizationPolicy authorization = httpConduit.getAuthorization();
                 authorization.setUserName(endPointConfiguration.getUsername());
                 authorization.setPassword(endPointConfiguration.getPassword());
-//                authorization.setAuthorization("BASIC"); // not required
+//                authorization.setAuthorizationType("BASIC"); // not required
                 httpConduit.setAuthorization(authorization); // still required?
             }
-            Hashtable<String, String> dict = new Hashtable<>();
-            dict.put("url", endPointConfiguration.getUrl());
+            Hashtable<String, Object> dict = new Hashtable<>();
+            dict.put(AbstractOutboundEndPointProvider.ENDPOINT_CONFIGURATION_ID_PROPERTY, endPointConfiguration.getId());
+            dict.put(AbstractOutboundEndPointProvider.URL_PROPERTY, endPointConfiguration.getUrl());
             serviceRegistration = bundleContext.registerService(
                     endPointProvider.getService(),
                     port,

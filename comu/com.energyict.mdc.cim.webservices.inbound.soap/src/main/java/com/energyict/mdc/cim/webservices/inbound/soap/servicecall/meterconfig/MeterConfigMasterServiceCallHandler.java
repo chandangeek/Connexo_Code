@@ -12,7 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import org.osgi.service.component.annotations.Component;
@@ -32,6 +32,7 @@ import java.util.Optional;
 public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
     public static final String SERVICE_CALL_HANDLER_NAME = "MeterConfigMasterServiceCallHandler";
     public static final String VERSION = "v1.0";
+    public static final String APPLICATION = "MDC";
 
     private volatile DeviceService deviceService;
     private volatile EndPointConfigurationService endPointConfigurationService;
@@ -138,10 +139,10 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
 			MeterConfigDomainExtension extensionForChild = child.getExtensionFor(new MeterConfigCustomPropertySet())
 					.get();
 			OperationEnum operation = OperationEnum.getFromString(extensionForChild.getOperation());
-
+			
 			replyMeterConfigWebService.call(endPointConfiguration.get(), operation,
 					getSuccessfullyProcessedDevices(serviceCall), getUnsuccessfullyProcessedDevices(serviceCall),
-					extensionFor.getExpectedNumberOfCalls());
+					extensionFor.getExpectedNumberOfCalls(), extensionFor.getCorrelationId());
 		}
     }
 

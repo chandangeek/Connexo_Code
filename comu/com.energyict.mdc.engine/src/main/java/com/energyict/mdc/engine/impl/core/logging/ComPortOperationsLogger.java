@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core.logging;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 
@@ -59,7 +59,7 @@ public interface ComPortOperationsLogger {
     public void workFound (String comPortThreadName, int numberOfJobs);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} attempted to schedule
+     * Logs that the specified {@link ComPort} attempted to schedule
      * the execution of the {@link ComTaskExecution} but it was already scheduled.
      *
      * @param comPortThreadName The name of the ComPort thread that attempted to start the execution
@@ -70,7 +70,7 @@ public interface ComPortOperationsLogger {
     public void alreadyScheduled (String comPortThreadName, ComTaskExecution comTaskExecution);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort} attempted to schedule
+     * Logs that the specified {@link ComPort} attempted to schedule
      * the execution of the {@link ComTaskExecution} but the work queue was full.
      *
      * @param comPortThreadName The name of the ComPort thread that attempted to start the execution
@@ -80,7 +80,7 @@ public interface ComPortOperationsLogger {
     public void cannotSchedule (String comPortThreadName, ComTaskExecution comTaskExecution);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort}
+     * Logs that the specified {@link ComPort}
      * ran into an unexpected problem.
      *
      * @param comPortThreadName The name of the ComPort thread that ran into an unexpected problem
@@ -90,7 +90,7 @@ public interface ComPortOperationsLogger {
     public void unexpectedError(String comPortThreadName, Throwable unexpected);
 
     /**
-     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort}
+     * Logs that the specified {@link ComPort}
      * ran into the same unexpected problem and will therefore not log the stacktrace.
      *
      * @param comPortThreadName The name of the ComPort thread that ran into an unexpected problem

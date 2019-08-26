@@ -40,7 +40,13 @@ public class HsmLabelConfiguration {
         } catch (IndexOutOfBoundsException e1) {
             throw new HsmBaseException("Wrong label configuration format, label configuration configuredStringValue:" + configuredStringValue);
         }
+    }
 
+    public HsmLabelConfiguration(String label, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) {
+        this.label = label;
+        this.importFileLabel = label;
+        this.chainingMode = chainingMode;
+        this.paddingAlgorithm = paddingAlgorithm;
     }
 
     /**
@@ -48,25 +54,14 @@ public class HsmLabelConfiguration {
      * @throws HsmBaseException if not configured
      */
     public String getImportFileLabel() throws HsmBaseException {
-        return checkNullAndReturn(importFileLabel, "Asking for import importFileLabel but not configured");
+        if (importFileLabel == null) {
+            throw new HsmBaseException("Asking for import importFileLabel but not configured");
+        }
+        return importFileLabel;
     }
 
     public String getName() { return label;  }
 
-
-    private <T extends Object> T checkNullAndReturn(T obj, String msg) throws HsmBaseException {
-        if (obj == null) {
-            throw new HsmBaseException(msg);
-        }
-        return obj;
-    }
-
-    private String initString(String s) {
-        if (s != null  && !s.isEmpty()) {
-            return s.trim();
-        }
-        return null;
-    }
 
     public ChainingMode getChainingMode() {
         return chainingMode;
@@ -76,6 +71,12 @@ public class HsmLabelConfiguration {
         return paddingAlgorithm;
     }
 
+    private String initString(String s) {
+        if (s != null  && !s.isEmpty()) {
+            return s.trim();
+        }
+        return null;
+    }
 
     @Override
     public boolean equals(Object o) {

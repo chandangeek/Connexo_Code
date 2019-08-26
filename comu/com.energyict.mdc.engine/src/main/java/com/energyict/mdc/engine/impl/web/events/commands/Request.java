@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.web.events.commands;
 
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.events.EventRegistrationRequestInitiator;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
@@ -11,7 +12,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
 /**
  * Represents a request from an interested party to
  * register an interest in events that occur
- * in the {@link com.energyict.mdc.engine.config.ComServer}.
+ * in the {@link ComServer}.
  * Note that it is allowed to register multiple times and narrow down
  * the interests to limit the amount of events received.
  * Note also that the interest can be registered multiple

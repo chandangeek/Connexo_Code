@@ -13,12 +13,12 @@ import com.elster.jupiter.fsm.impl.TableSpecs;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Instant;
 import java.util.Collections;

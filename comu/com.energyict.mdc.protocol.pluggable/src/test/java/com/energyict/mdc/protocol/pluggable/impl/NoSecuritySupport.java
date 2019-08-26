@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.common.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;

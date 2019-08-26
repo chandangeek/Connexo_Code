@@ -8,15 +8,15 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.rest.impl.comserver.ComPortPoolInfo;
 import com.energyict.mdc.rest.impl.comserver.InboundComPortPoolInfo;
@@ -36,6 +36,8 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +46,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.assertj.core.data.MapEntry;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -56,7 +59,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 /**
  * When accessing a resource, I choose not to use UriBuilder, as you should be aware that changing the URI means changing the API!
  * Hard coding URLS here will be a "gently" reminder
@@ -244,7 +246,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         outboundComPortPoolInfo.taskExecutionTimeout = new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
 
         OutboundComPortPool outboundComPortPool = mock(OutboundComPortPool.class);
-        when(engineConfigurationService.newOutboundComPortPool(anyString(), any(ComPortType.class), any(TimeDuration.class))).thenReturn(outboundComPortPool);
+        when(engineConfigurationService.newOutboundComPortPool(anyString(), any(ComPortType.class), any(TimeDuration.class), anyLong())).thenReturn(outboundComPortPool);
 
         Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
 
@@ -261,14 +263,14 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         outboundComPortPoolInfo.taskExecutionTimeout = new TimeDurationInfo();
 
         OutboundComPortPool outboundComPortPool = mock(OutboundComPortPool.class);
-        when(engineConfigurationService.newOutboundComPortPool(anyString(), any(ComPortType.class), any(TimeDuration.class))).thenReturn(outboundComPortPool);
+        when(engineConfigurationService.newOutboundComPortPool(anyString(), any(ComPortType.class), any(TimeDuration.class), anyLong())).thenReturn(outboundComPortPool);
 
         Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
 
         final Response response = target("/comportpools/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         ArgumentCaptor<TimeDuration> timeDurationCaptor = ArgumentCaptor.forClass(TimeDuration.class);
-        verify(engineConfigurationService).newOutboundComPortPool(anyString(), any(ComPortType.class), timeDurationCaptor.capture());
+        verify(engineConfigurationService).newOutboundComPortPool(anyString(), any(ComPortType.class), timeDurationCaptor.capture(), anyLong());
         assertThat(timeDurationCaptor.getValue().getSeconds()).isEqualTo(3600 * 6);
     }
 
@@ -336,5 +338,91 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         when(this.engineConfigurationService.findAndLockComPortPoolByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.empty());
         final Response response = target("/comportpools/5").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    @Ignore
+    public void testCalculateMaxPriorityConnections() throws Exception {
+        long comPortPool_id = 16;
+        long comPort1_id = 166;
+        long comPort2_id= 167;
+
+        OutboundComPortPoolInfo outboundComPortPoolInfo = new OutboundComPortPoolInfo();
+        outboundComPortPoolInfo.id = comPortPool_id;
+        outboundComPortPoolInfo.active = true;
+        outboundComPortPoolInfo.name = "Updated";
+        outboundComPortPoolInfo.description = "description";
+        outboundComPortPoolInfo.taskExecutionTimeout = new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
+        outboundComPortPoolInfo.version = 1L;
+        outboundComPortPoolInfo.pctHighPrioTasks = 30L;
+
+        OutboundComPortInfo tcpOutboundComPortInfo1 = new TcpOutboundComPortInfo();
+        tcpOutboundComPortInfo1.id = comPort1_id;
+        tcpOutboundComPortInfo1.comPortType.id = ComPortType.TCP;
+
+        OutboundComPortInfo tcpOutboundComPortInfo2 = new TcpOutboundComPortInfo();
+        tcpOutboundComPortInfo2.id = comPort2_id;
+        tcpOutboundComPortInfo2.comPortType.id = ComPortType.TCP;
+        outboundComPortPoolInfo.outboundComPorts = new ArrayList<>(Arrays.asList(tcpOutboundComPortInfo1, tcpOutboundComPortInfo2));
+
+        OutboundComPortPool mockOutboundComPortPool = mock(OutboundComPortPool.class);
+        OutboundComPort mockTcpPort1 = mock(OutboundComPort.class);
+        when(mockTcpPort1.getId()).thenReturn(comPort1_id);
+        when(mockTcpPort1.getComPortType()).thenReturn(ComPortType.TCP);
+        when(mockTcpPort1.getNumberOfSimultaneousConnections()).thenReturn(1);
+        OutboundComPort mockTcpPort2 = mock(OutboundComPort.class);
+        when(mockTcpPort2.getId()).thenReturn(comPort2_id);
+        when(mockTcpPort2.getComPortType()).thenReturn(ComPortType.TCP);
+        when(mockTcpPort2.getNumberOfSimultaneousConnections()).thenReturn(1);
+
+        when(mockOutboundComPortPool.getComPorts()).thenReturn(Arrays.<OutboundComPort>asList(mockTcpPort1, mockTcpPort2));
+        when(mockOutboundComPortPool.getPctHighPrioTasks()).thenReturn(70L);
+        doReturn(Optional.of(mockOutboundComPortPool)).when(engineConfigurationService).findComPortPool(comPortPool_id);
+        doReturn(Optional.of(mockOutboundComPortPool)).when(engineConfigurationService).findAndLockComPortPoolByIdAndVersion(comPortPool_id, 1L);
+        doReturn(Optional.of(mockTcpPort2)).when(engineConfigurationService).findComPort(comPort2_id);
+        List<ComPortPool> comPortPools = new ArrayList<>();
+        comPortPools.add(mockOutboundComPortPool);
+        when(engineConfigurationService.findAllComPortPools()).thenReturn(comPortPools);
+
+        Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
+        target("/comportpools/" + comPortPool_id).request().put(json);
+
+        Response response = target("/comportpools/" + comPortPool_id + "/maxPriorityConnections").queryParam("pctHighPrioTasks",20L).request().get();
+        assertThat((InputStream) response.getEntity()).hasSameContentAs(new ByteArrayInputStream("1".getBytes("US-ASCII")));
+
+        response = target("/comportpools/" + comPortPool_id + "/maxPriorityConnections").queryParam("pctHighPrioTasks",60L).request().get();
+        assertThat((InputStream) response.getEntity()).hasSameContentAs(new ByteArrayInputStream("2".getBytes("US-ASCII")));
+
+
+        response = target("/comportpools/" + comPortPool_id + "/maxPriorityConnections").queryParam("pctHighPrioTasks",100L).request().get();
+        assertThat((InputStream) response.getEntity()).hasSameContentAs(new ByteArrayInputStream("2".getBytes("US-ASCII")));
+    }
+
+    @Test
+    public void testCalculateMaxPriorityConnectionsForComPortPoolWithoutPorts() throws Exception {
+        long comPortPool_id = 16;
+
+        OutboundComPortPoolInfo outboundComPortPoolInfo = new OutboundComPortPoolInfo();
+        outboundComPortPoolInfo.id = comPortPool_id;
+        outboundComPortPoolInfo.active = true;
+        outboundComPortPoolInfo.name = "Updated";
+        outboundComPortPoolInfo.description = "description";
+        outboundComPortPoolInfo.taskExecutionTimeout = new TimeDurationInfo(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
+        outboundComPortPoolInfo.version = 1L;
+        outboundComPortPoolInfo.pctHighPrioTasks = 30L;
+        OutboundComPortPool mockOutboundComPortPool = mock(OutboundComPortPool.class);
+
+        when(mockOutboundComPortPool.getPctHighPrioTasks()).thenReturn(70L);
+        doReturn(Optional.of(mockOutboundComPortPool)).when(engineConfigurationService).findComPortPool(comPortPool_id);
+        doReturn(Optional.of(mockOutboundComPortPool)).when(engineConfigurationService).findAndLockComPortPoolByIdAndVersion(comPortPool_id, 1L);
+        List<ComPortPool> comPortPools = new ArrayList<>();
+        comPortPools.add(mockOutboundComPortPool);
+        when(engineConfigurationService.findAllComPortPools()).thenReturn(comPortPools);
+
+        Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
+        target("/comportpools/" + comPortPool_id).request().put(json);
+
+        Response response = target("/comportpools/" + comPortPool_id + "/maxPriorityConnections").queryParam("pctHighPrioTasks",20L).request().get();
+        assertThat((InputStream) response.getEntity()).hasSameContentAs(new ByteArrayInputStream("0".getBytes("US-ASCII")));
     }
 }

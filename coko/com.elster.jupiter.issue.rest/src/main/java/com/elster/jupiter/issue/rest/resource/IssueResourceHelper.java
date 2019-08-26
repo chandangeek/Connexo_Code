@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.rest.resource;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AddIssueRequest;
@@ -31,7 +32,10 @@ import com.elster.jupiter.issue.share.entity.UsagePointGroupNotFoundException;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -44,12 +48,15 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -71,11 +78,12 @@ public class IssueResourceHelper {
     private final SecurityContext securityContext;
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupService;
+    private final LocationService locationService;
     private final UserService userService;
 
     @Inject
-    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService,MeteringGroupsService meteringGroupService, UserService userService,
-                               IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext) {
+    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, MeteringService meteringService, LocationService locationService, MeteringGroupsService meteringGroupService,
+                               UserService userService, IssueActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, @Context SecurityContext securityContext) {
         this.transactionService = transactionService;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
@@ -84,6 +92,7 @@ public class IssueResourceHelper {
         this.thesaurus = thesaurus;
         this.securityContext = securityContext;
         this.meteringService = meteringService;
+        this.locationService = locationService;
         this.meteringGroupService = meteringGroupService;
         this.userService = userService;
     }
@@ -177,6 +186,13 @@ public class IssueResourceHelper {
         if (jsonFilter.hasProperty(IssueRestModuleConst.METER)) {
             meteringService.findEndDeviceByName(jsonFilter.getString(IssueRestModuleConst.METER))
                     .ifPresent(filter::addDevice);
+            if(jsonFilter.hasProperty("showTopology")) {
+                filter.setShowTopology(jsonFilter.getBoolean("showTopology"));
+            }
+        }
+        if (jsonFilter.hasProperty(IssueRestModuleConst.LOCATION)) {
+            Long locationId = Long.valueOf(jsonFilter.getString(IssueRestModuleConst.LOCATION));
+            locationService.findLocationById(locationId).ifPresent(filter::addLocation);
         }
 
         if (jsonFilter.hasProperty(IssueRestModuleConst.DEVICE_GROUP)) {
@@ -215,6 +231,9 @@ public class IssueResourceHelper {
             }
         }
 
+        if (jsonFilter.hasProperty(IssueRestModuleConst.PRIORITY)){
+            filter.setPriority(jsonFilter.getComplexProperty(IssueRestModuleConst.PRIORITY));
+        }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().allMatch(s -> s == null)) {
             jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(id -> userService.getWorkGroup(Long.valueOf(id)).orElse(null))
@@ -240,7 +259,9 @@ public class IssueResourceHelper {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DATA_VALIDATION.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.TASK.getName()).orElse(null));
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.MANUAL.getName()).orElse(null));
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.WEB_SERVICE.getName()).orElse(null));
                 } else if (jsonFilter.getString(IssueRestModuleConst.APPLICATION).compareToIgnoreCase("INS") == 0) {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).orElse(null));
                 }

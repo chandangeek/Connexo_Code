@@ -4,8 +4,10 @@
 
 package com.energyict.mdc.engine.status;
 
+import com.energyict.mdc.common.comserver.ComServer;
+
 /**
- * Provides services to obtain status information of the {@link com.energyict.mdc.engine.config.ComServer}
+ * Provides services to obtain status information of the {@link ComServer}
  * that is configured to run in this instance of the MDC application.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -14,7 +16,7 @@ package com.energyict.mdc.engine.status;
 public interface StatusService {
 
     /**
-     * Gets the status of the {@link com.energyict.mdc.engine.config.ComServer}
+     * Gets the status of the {@link ComServer}
      * that is configured to run in this instance of the MDC application.
      * Note that this never returns <code>null</code>,
      * even when that ComServer is not running at all,

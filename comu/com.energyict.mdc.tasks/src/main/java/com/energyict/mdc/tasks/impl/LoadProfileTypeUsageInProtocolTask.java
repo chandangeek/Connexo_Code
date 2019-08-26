@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
 
 public interface LoadProfileTypeUsageInProtocolTask {
 

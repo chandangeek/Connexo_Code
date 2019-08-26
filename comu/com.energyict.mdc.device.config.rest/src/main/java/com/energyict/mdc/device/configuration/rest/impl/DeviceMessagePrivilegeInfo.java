@@ -6,7 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;

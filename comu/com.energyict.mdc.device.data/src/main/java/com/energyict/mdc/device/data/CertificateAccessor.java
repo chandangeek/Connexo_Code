@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 
 /**
  * Accessor for a CertificateWrapper.

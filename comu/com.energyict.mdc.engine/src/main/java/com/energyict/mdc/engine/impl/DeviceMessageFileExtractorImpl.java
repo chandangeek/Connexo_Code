@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.orm.UnderlyingIOException;
-import com.energyict.mdc.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -97,11 +98,11 @@ public class DeviceMessageFileExtractorImpl implements DeviceMessageFileExtracto
             this.charset = charset;
         }
 
-        public static String readFrom(com.energyict.mdc.protocol.api.DeviceMessageFile deviceMessageFile, String charSetName) {
+        public static String readFrom(com.energyict.mdc.common.protocol.DeviceMessageFile deviceMessageFile, String charSetName) {
             return readFrom(deviceMessageFile, Charset.forName(charSetName));
         }
 
-        public static String readFrom(com.energyict.mdc.protocol.api.DeviceMessageFile deviceMessageFile, Charset charSet) {
+        public static String readFrom(com.energyict.mdc.common.protocol.DeviceMessageFile deviceMessageFile, Charset charSet) {
             DeviceMessageFileStringContentConsumer consumer = new DeviceMessageFileStringContentConsumer(DEFAULT_BUFFER_SIZE, charSet);
             deviceMessageFile.readWith(consumer);
             return consumer.getContents();
@@ -149,7 +150,7 @@ public class DeviceMessageFileExtractorImpl implements DeviceMessageFileExtracto
             this.bufferSize = bufferSize;
         }
 
-        public static byte[] readFrom(com.energyict.mdc.protocol.api.DeviceMessageFile deviceMessageFile) {
+        public static byte[] readFrom(com.energyict.mdc.common.protocol.DeviceMessageFile deviceMessageFile) {
             DeviceMessageFileByteContentConsumer consumer = new DeviceMessageFileByteContentConsumer();
             deviceMessageFile.readWith(consumer);
             return consumer.getBytes();

@@ -71,4 +71,31 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
         }
     }
 
+    public String getDeviceName(){
+        if (this.device != null)
+            return this.device.getName();
+        return "";
+    }
+
+    public String getUsageName() {
+        if(this.usagePointInfo != null)
+            return this.usagePointInfo.getInfo();
+        return "";
+    }
+    public int getPriorityTotal(){
+        return this.priority.urgency + this.priority.impact;
+    }
+
+    public long getDueDate(){
+        return this.dueDate;
+    }
+    public long getId(){
+        return this.id;
+    }
+
+    public long getCreatedDateTime(){
+        return this.creationDate;
+    }
+
+
 }

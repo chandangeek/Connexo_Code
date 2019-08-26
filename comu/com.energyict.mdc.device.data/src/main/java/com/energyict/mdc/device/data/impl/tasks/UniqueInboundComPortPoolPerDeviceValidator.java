@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

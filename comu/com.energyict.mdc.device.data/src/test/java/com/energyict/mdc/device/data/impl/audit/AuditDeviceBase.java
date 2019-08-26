@@ -15,7 +15,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.Privilege;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
 import com.energyict.mdc.device.data.impl.audit.deviceAttributes.AuditTrailDeviceAttributesHandle;
 
@@ -60,20 +60,12 @@ public class AuditDeviceBase extends PersistenceIntegrationTest {
     @BeforeClass
     public static void setup() {
         try (TransactionContext context = getTransactionService().getContext()) {
-           // deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
-          //  deviceProtocolPluggableClass.save();
-
             AuditService auditService = inMemoryPersistence.getAuditService();
             ((AuditServiceImpl) auditService).addAuditTrailDecoderHandle(getAuditTrailDecoderHandle());
             context.commit();
         }
     }
 
-  /*  @Before
-    public void setUp() throws Exception {
-       // createSimpleDeviceWithName(DEVICE_NAME);
-    }
-*/
     protected void createDeviceWithName(String name) {
         try (TransactionContext context = getTransactionService().getContext()) {
             Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, inMemoryPersistence.getClock().instant());
