@@ -56,6 +56,10 @@ public interface SAPCustomPropertySets {
 
     void setPod(Device device, String podId);
 
+    /**
+     * This method returns map containing as key <Device id, Channel spec> info and as value list of ranges where LRN is defined and overlaps interval.
+     * Every item in the list of ranges is pair, where first part is range intersected with interval and the second part is full LRN range in CAS.
+     */
     Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval);
 
     Optional<ChannelSpec> getChannelSpecForProfileId(ChannelSpec channelSpec, long deviceId, String profileId, Range<Instant> interval);
