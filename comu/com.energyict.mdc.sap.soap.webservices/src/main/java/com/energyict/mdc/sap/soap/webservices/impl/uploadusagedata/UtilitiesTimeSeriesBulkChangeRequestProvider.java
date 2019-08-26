@@ -194,8 +194,8 @@ public class UtilitiesTimeSeriesBulkChangeRequestProvider extends AbstractUtilit
                 .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
-                .flatMap(channelAndRange -> getTimeSlicedLrnAndProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter, readingType.getFullAliasName()).entrySet().stream())
-                .map(lrnAndProfileIdAndRange -> createRequestItem(lrnAndProfileIdAndRange.getKey().getLast(), lrnAndProfileIdAndRange.getValue(), meterReading, interval, unit, now, item.isCustomSelector()))
+                .flatMap(channelAndRange -> getTimeSlicedProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter, readingType.getFullAliasName()).entrySet().stream())
+                .map(profileIdAndRange -> createRequestItem(profileIdAndRange.getKey(), profileIdAndRange.getValue(), meterReading, interval, unit, now, item.isCustomSelector()))
                 .forEach(msg.getUtilitiesTimeSeriesERPItemChangeRequestMessage()::add);
     }
 
