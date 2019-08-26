@@ -42,13 +42,14 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.Constants;
+import com.energyict.mdc.common.device.data.KeyAccessorStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
@@ -57,12 +58,14 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertyS
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.audit.AuditTranslationKeys;
 import com.energyict.mdc.device.data.impl.cps.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.PriorityComTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.impl.tasks.report.CommunicationTaskReportServiceImpl;
@@ -73,7 +76,7 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -162,6 +165,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
     private ServerCommunicationTaskService communicationTaskService;
+    private PriorityComTaskService priorityComTaskService;
     private CommunicationTaskReportService communicationTaskReportService;
     private ServerDeviceService deviceService;
     private RegisterService registerService;
@@ -208,7 +212,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setCustomPropertySetService(customPropertySetService);
         setProtocolPluggableService(protocolPluggableService);
         setEngineConfigurationService(engineConfigurationService);
-        this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setDeviceConfigurationService(deviceConfigurationService);
         setMeteringService(meteringService);
         setValidationService(validationService);
@@ -439,6 +443,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Override
+    public PriorityComTaskService priorityComTaskService() {
+        return priorityComTaskService;
+    }
+
+    @Override
     public CommunicationTaskReportService communicationTaskReportService() {
         return communicationTaskReportService;
     }
@@ -580,6 +589,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(ServerConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(ConnectionTaskReportService.class).toInstance(connectionTaskReportService);
+                bind(PriorityComTaskService.class).toInstance(priorityComTaskService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(ServerCommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(CommunicationTaskReportService.class).toInstance(communicationTaskReportService);
@@ -639,33 +649,35 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     private void createRealServices() {
-        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
-        this.connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
-        this.communicationTaskService = new CommunicationTaskServiceImpl(this);
-        this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
-        this.deviceService = new DeviceServiceImpl(this, meteringService, queryService, thesaurus, clock);
-        this.registerService = new RegisterServiceImpl(this);
-        this.loadProfileService = new LoadProfileServiceImpl(this);
-        this.logBookService = new LogBookServiceImpl(this);
-        this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
-        this.batchService = new BatchServiceImpl(this);
-        this.deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
-        this.crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
+        connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
+        connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
+        priorityComTaskService = new PriorityComTaskServiceImpl(this, engineConfigurationService, connectionTaskService);
+        communicationTaskService = new CommunicationTaskServiceImpl(this, priorityComTaskService);
+        communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
+        deviceService = new DeviceServiceImpl(this, meteringService, queryService, thesaurus, clock);
+        registerService = new RegisterServiceImpl(this);
+        loadProfileService = new LoadProfileServiceImpl(this);
+        logBookService = new LogBookServiceImpl(this);
+        dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
+        batchService = new BatchServiceImpl(this);
+        deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
+        crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
-        this.registerConnectionTaskService(bundleContext);
-        this.registerConnectionTaskReportService(bundleContext);
-        this.registerCommunicationTaskService(bundleContext);
-        this.registerCommunicationTaskReportService(bundleContext);
-        this.registerDeviceService(bundleContext);
-        this.registerRegisterService(bundleContext);
-        this.registerLoadProfileService(bundleContext);
-        this.registerLogBookService(bundleContext);
-        this.registerDataCollectionKpiService(bundleContext);
-        this.registerBatchService(bundleContext);
-        this.registerDeviceMessageService(bundleContext);
-        this.registerCrlRequestTaskPropertiesService(bundleContext);
+        registerConnectionTaskService(bundleContext);
+        registerConnectionTaskReportService(bundleContext);
+        registerPriorityComTaskService(bundleContext);
+        registerCommunicationTaskService(bundleContext);
+        registerCommunicationTaskReportService(bundleContext);
+        registerDeviceService(bundleContext);
+        registerRegisterService(bundleContext);
+        registerLoadProfileService(bundleContext);
+        registerLogBookService(bundleContext);
+        registerDataCollectionKpiService(bundleContext);
+        registerBatchService(bundleContext);
+        registerDeviceMessageService(bundleContext);
+        registerCrlRequestTaskPropertiesService(bundleContext);
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {
@@ -675,6 +687,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
 
     private void registerConnectionTaskReportService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(ConnectionTaskReportService.class, this.connectionTaskReportService, null));
+    }
+
+    private void registerPriorityComTaskService(BundleContext bundleContext) {
+        serviceRegistrations.add(bundleContext.registerService(PriorityComTaskService.class, priorityComTaskService, null));
     }
 
     private void registerCommunicationTaskService(BundleContext bundleContext) {
@@ -748,6 +764,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         keys.addAll(Arrays.asList(CustomPropertySetsTranslationKeys.values()));
         keys.addAll(Arrays.asList(KeyAccessorStatus.values()));
         keys.addAll(Arrays.asList(CustomPropertyTranslationKeys.values()));
+        keys.addAll(Arrays.asList(AuditTranslationKeys.values()));
         return keys;
     }
 

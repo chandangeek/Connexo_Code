@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.engine.impl.events.logging;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;

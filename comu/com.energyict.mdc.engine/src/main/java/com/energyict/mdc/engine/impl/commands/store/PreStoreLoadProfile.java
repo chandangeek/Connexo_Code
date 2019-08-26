@@ -12,7 +12,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.masterdata.LoadProfileIntervals;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -190,7 +190,12 @@ public class PreStoreLoadProfile {
 
         private Optional<IntervalReading> findInValidInterval(IntervalBlock intervalBlock, String readingTypeMRID, ZoneId zone) {
             Optional<TimeDuration> timeDuration = mdcReadingTypeUtilService.getReadingTypeInterval(readingTypeMRID);
-            final boolean validInterval = timeDuration.isPresent() && Stream.of(LoadProfileIntervals.values())
+
+            if (!timeDuration.isPresent()){
+                return Optional.empty();
+            }
+
+            final boolean validInterval = Stream.of(LoadProfileIntervals.values())
                     .filter(interval -> interval.getTimeDuration().getSeconds() == timeDuration.get().getSeconds())
                     .findAny()
                     .isPresent();

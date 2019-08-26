@@ -7,12 +7,13 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.masterdata.LogBookType;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.masterdata.LogBookType;
 
 import java.time.Instant;
 import java.util.Optional;

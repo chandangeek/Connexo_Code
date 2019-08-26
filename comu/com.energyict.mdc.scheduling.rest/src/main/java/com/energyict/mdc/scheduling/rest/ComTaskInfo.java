@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.scheduling.rest;
 
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

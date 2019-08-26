@@ -6,8 +6,8 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.pluggable.PluggableClass;
 
 import com.google.common.base.Joiner;
 

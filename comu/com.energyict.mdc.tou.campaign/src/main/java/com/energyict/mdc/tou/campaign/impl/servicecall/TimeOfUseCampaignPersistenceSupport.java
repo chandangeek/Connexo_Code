@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import com.google.inject.AbstractModule;

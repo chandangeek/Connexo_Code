@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.calendar.rest.CalendarInfo;
-import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
 
 public class AllowedCalendarInfo {
 

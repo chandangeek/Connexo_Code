@@ -10,10 +10,10 @@ import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveCalendar;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.PassiveCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
 import com.google.common.collect.Range;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Integration test for the {@link com.energyict.mdc.device.data.Device.CalendarSupport} component.
+ * Integration test for the {@link Device.CalendarSupport} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-06-27 (09:44)

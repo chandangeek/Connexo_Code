@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -126,7 +127,7 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.propertySpecService
-                        .stringSpec()
+                        .specForValuesOf(new InstantFactory())
                         .named(CommandServiceCallDomainExtension.FieldNames.RELEASE_DATE.javaName(), CustomPropertySetsTranslationKeys.RELEASE_DATE)
                         .describedAs(CustomPropertySetsTranslationKeys.RELEASE_DATE)
                         .fromThesaurus(thesaurus)

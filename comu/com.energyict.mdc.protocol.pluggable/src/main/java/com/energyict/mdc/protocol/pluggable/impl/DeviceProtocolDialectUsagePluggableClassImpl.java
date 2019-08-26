@@ -5,11 +5,11 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.pluggable.PluggableClassType;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectUsagePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.pluggable.PluggableClassType;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 
 import java.time.Instant;
 import java.util.List;

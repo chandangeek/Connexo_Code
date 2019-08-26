@@ -8,11 +8,11 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.scheduling.SchedulingStatus;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-import com.energyict.mdc.tasks.ComTask;
 
 import org.joda.time.DateTimeConstants;
 

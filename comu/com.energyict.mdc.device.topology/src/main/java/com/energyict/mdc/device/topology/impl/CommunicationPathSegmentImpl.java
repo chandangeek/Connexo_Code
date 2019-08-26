@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ImplField;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.CommunicationPathSegment;
 
 import com.google.common.collect.ImmutableMap;

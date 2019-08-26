@@ -10,8 +10,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.ConflictingSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.ConflictingSolution;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
 
 import javax.validation.constraints.NotNull;
 

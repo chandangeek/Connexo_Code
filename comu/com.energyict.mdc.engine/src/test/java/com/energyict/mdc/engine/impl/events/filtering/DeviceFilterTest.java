@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.events.filtering;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.events.ComTaskExecutionEvent;
 import com.energyict.mdc.engine.events.DeviceRelatedEvent;

@@ -168,7 +168,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 itemId: 'locationEdit',
                 width: 490,
                 displayResetButton: true,
-                findLocationsUrl: '/api/jsr/search/com.energyict.mdc.device.data.Device/locationsearchcriteria/location',
+                findLocationsUrl: '/api/jsr/search/com.energyict.mdc.common.device.data.Device/locationsearchcriteria/location',
                 locationDetailsUrl: '/api/ddr/devices/locations'
             },
             {

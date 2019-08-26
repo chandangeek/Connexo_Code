@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.common.device.config.ConflictingSolution;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+
 /**
  * Defines a solution for mapping a conflicting SecuritySet.
  * A solution will be either to

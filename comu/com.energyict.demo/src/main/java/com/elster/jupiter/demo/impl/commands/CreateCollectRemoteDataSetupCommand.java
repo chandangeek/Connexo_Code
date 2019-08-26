@@ -42,13 +42,13 @@ import com.elster.jupiter.demo.impl.templates.UsagePointGroupTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
 
 import com.google.common.collect.ImmutableMap;
 

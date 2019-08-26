@@ -5,8 +5,8 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import java.util.Arrays;
 

@@ -6,14 +6,14 @@ package com.energyict.mdc.engine.impl.core.events;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;

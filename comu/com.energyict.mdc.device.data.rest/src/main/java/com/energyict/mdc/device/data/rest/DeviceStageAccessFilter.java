@@ -6,9 +6,8 @@ package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;

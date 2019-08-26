@@ -5,8 +5,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 
 import java.util.Arrays;
 import java.util.List;

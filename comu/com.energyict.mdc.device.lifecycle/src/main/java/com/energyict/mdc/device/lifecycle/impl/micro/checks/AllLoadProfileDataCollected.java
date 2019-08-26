@@ -9,11 +9,11 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.streams.Predicates;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultTransition;
+import com.energyict.mdc.common.device.lifecycle.config.MicroCategory;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
-import com.energyict.mdc.device.lifecycle.config.MicroCategory;
 
 import javax.inject.Inject;
 import java.time.Instant;

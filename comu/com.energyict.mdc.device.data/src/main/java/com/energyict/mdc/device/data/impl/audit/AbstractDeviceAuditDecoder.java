@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Operator;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 

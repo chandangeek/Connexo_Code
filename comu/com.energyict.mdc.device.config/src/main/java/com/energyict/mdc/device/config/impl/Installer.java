@@ -12,9 +12,10 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.EventType;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.inject.Inject;
@@ -69,14 +70,14 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                         DeviceConfigurationService.COMPONENTNAME,
                         Privileges.RESOURCE_MASTER_DATA.getKey(),
                         Privileges.RESOURCE_MASTER_DATA_DESCRIPTION.getKey(),
-                        Arrays.asList(Privileges.Constants.ADMINISTRATE_MASTER_DATA,
-                                Privileges.Constants.VIEW_MASTER_DATA)),
+                        Arrays.asList(DeviceConfigConstants.ADMINISTRATE_MASTER_DATA,
+                                DeviceConfigConstants.VIEW_MASTER_DATA)),
                 userService.createModuleResourceWithPrivileges(
                         DeviceConfigurationService.COMPONENTNAME,
                         Privileges.RESOURCE_DEVICE_TYPES.getKey(),
                         Privileges.RESOURCE_DEVICE_TYPES_DESCRIPTION.getKey(),
-                        Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
-                                Privileges.Constants.VIEW_DEVICE_TYPE)),
+                        Arrays.asList(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE,
+                                DeviceConfigConstants.VIEW_DEVICE_TYPE)),
                 userService.createModuleResourceWithPrivileges(
                         DeviceConfigurationService.COMPONENTNAME,
                         Privileges.RESOURCE_DEVICE_COMMANDS.getKey(),

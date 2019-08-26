@@ -4,13 +4,13 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.common.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.common.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigChangeAction;
 import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 import java.util.List;
 import java.util.Optional;

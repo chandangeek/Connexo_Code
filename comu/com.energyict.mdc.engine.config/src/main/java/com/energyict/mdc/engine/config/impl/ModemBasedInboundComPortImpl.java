@@ -18,10 +18,11 @@ import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -35,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.engine.config.ModemBasedInboundComPort} interface.
+ * Provides an implementation for the {@link ModemBasedInboundComPort} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)

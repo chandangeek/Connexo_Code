@@ -4,8 +4,9 @@
 
 package com.energyict.mdc.engine.impl.events.connection;
 
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.json.JSONException;
 import org.json.JSONWriter;

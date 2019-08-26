@@ -6,10 +6,10 @@ package com.elster.jupiter.demo.impl.lifecycle.device.microchecks;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultTransition;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheck;
 import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
-import com.energyict.mdc.device.lifecycle.config.DefaultTransition;
 
 import javax.inject.Inject;
 import java.time.Instant;

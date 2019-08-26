@@ -6,9 +6,9 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceEstimation;
+import com.energyict.mdc.common.device.data.DeviceEstimationRuleSetActivation;
 
 import com.jayway.jsonpath.JsonModel;
 

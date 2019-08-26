@@ -19,9 +19,9 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.data.Device;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,7 +33,6 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +41,6 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {

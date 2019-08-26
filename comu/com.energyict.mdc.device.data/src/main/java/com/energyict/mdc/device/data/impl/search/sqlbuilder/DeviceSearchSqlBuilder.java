@@ -7,13 +7,12 @@ package com.energyict.mdc.device.data.impl.search.sqlbuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.conditions.Comparison;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.device.data.impl.search.JoinClauseBuilder;
 import com.energyict.mdc.device.data.impl.search.SearchableDeviceProperty;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;

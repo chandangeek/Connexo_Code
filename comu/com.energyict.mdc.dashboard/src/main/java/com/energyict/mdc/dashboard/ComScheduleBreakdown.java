@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard;
 
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;
 

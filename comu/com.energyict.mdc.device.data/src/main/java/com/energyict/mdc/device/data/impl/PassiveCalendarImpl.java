@@ -6,9 +6,9 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.data.PassiveCalendar;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.data.PassiveCalendar;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 
 import java.time.Instant;
 import java.util.Optional;

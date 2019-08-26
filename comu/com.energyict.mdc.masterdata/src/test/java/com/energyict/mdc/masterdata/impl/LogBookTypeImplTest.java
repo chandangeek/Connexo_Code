@@ -6,9 +6,10 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.obis.ObisCode;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
+import com.energyict.obis.ObisCode;
 
 import java.util.Optional;
 

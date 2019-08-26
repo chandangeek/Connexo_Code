@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
 import com.energyict.mdc.engine.impl.monitor.ServerQueryAPIStatistics;
@@ -18,7 +18,7 @@ import java.util.concurrent.ThreadFactory;
 
 /**
  * Extends the {@link RunningComServerImpl} and specializes on
- * {@link com.energyict.mdc.engine.config.OnlineComServer}s.
+ * {@link OnlineComServer}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-08 (15:54)

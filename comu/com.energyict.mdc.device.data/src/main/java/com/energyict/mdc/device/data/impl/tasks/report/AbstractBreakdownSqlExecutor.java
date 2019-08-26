@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,7 +33,7 @@ import java.util.Optional;
  * The first part includes a tests against the current state of the related device.
  * This part will bind the current system time in millis.
  * The second part is optional an contains the conditions of the device group.
- * The last part produces the {@link com.energyict.mdc.device.data.tasks.TaskStatus}
+ * The last part produces the {@link TaskStatus}
  * SQL clauses and will bind the current system time in seconds.
  * The current system time is extracted from the clock that is
  * provided by the DataModel at construction time.

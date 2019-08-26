@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 
 /**
  * Provides functionality to handle certain DataSources (DS) when a Device changes his DeviceConfiguration

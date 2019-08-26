@@ -8,9 +8,9 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 
 import javax.validation.constraints.NotNull;
 
@@ -23,10 +23,10 @@ public class DuplicateChannelTypeException extends LocalizedException {
     /**
      * Creates a DuplicateChannelTypeException  that models the
      * exceptional situation that occurs when an attempt is made to create
-     * a {@link com.energyict.mdc.device.config.ChannelSpec} for a
-     * {@link LoadProfileSpec} with a {@link com.energyict.mdc.masterdata.MeasurementType} while the
+     * a {@link ChannelSpec} for a
+     * {@link LoadProfileSpec} with a {@link MeasurementType} while the
      * {@link LoadProfileSpec} already contains a {@link ChannelSpec}
-     * with that {@link com.energyict.mdc.masterdata.MeasurementType}
+     * with that {@link MeasurementType}
      *
      * @param channelSpec     the ChannelSpec which already exists with the ChannelType
      * @param measurementType the duplicate ChannelType

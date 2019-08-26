@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionMessageJournalEntry;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 
 import java.text.MessageFormat;
@@ -14,8 +16,8 @@ import java.util.logging.LogRecord;
 
 /**
  * Provides an implementation for the Handler class
- * that creates {@link com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry ComSessionJournalEntries}
- * or {@link com.energyict.mdc.device.data.tasks.history.ComTaskExecutionMessageJournalEntry ComTaskExecutionMessageJournalEntries}
+ * that creates {@link ComSessionJournalEntry ComSessionJournalEntries}
+ * or {@link ComTaskExecutionMessageJournalEntry ComTaskExecutionMessageJournalEntries}
  * each time bytes have been read or written to a {@link ComPortRelatedComChannel}.
  *
  * @author Rudi Vankeirsbilck (rudi)

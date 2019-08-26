@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 import com.energyict.mdc.favorites.DeviceLabel;
 

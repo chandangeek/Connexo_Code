@@ -5,9 +5,9 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.util.Optional;
 import java.util.Set;

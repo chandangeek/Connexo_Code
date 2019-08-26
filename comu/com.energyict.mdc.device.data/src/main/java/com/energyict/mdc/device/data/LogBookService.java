@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
 import aQute.bnd.annotation.ProviderType;

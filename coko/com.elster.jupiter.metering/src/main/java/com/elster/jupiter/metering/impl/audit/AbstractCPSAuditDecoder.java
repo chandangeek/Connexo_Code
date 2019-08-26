@@ -19,6 +19,7 @@ import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
+import com.elster.jupiter.util.HasName;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -112,6 +113,9 @@ public abstract class AbstractCPSAuditDecoder extends AbstractUsagePointAuditDec
         }
         else  if (propertySpec.getValueFactory() instanceof BooleanFactory) {
             return value.getProperty(propertyName);
+        }
+        else  if (value.getProperty(propertyName) instanceof HasName) {
+           return ((HasName)(value.getProperty(propertyName))).getName();
         }
         return Optional.ofNullable(value.getProperty(propertyName))
                 .map(Object::toString)

@@ -1603,6 +1603,13 @@ public final class DeviceMessageConstants {
     public static final String SET_LOCKOUT_DURATION_DEFAULT_TRANSLATION = "Lockout Duration";
     public static final String executionMinutesForEachHour = "ConfigurationChangeDeviceMessage.executionMinutesForEachHour";
     public static final String executionMinutesForEachHourDefaultTranslation = "Execution minutes for each hour of the day";
+    public static final String daysOfMonthSchedule = "DeviceActionMessage.SetModemSchedule.DaysOfMonth";
+    public static final String daysOfMonthScheduleDefaultTranslation = "Days of month when the modem will be reset";
+    public static final String daysOfWeekSchedule = "DeviceActionMessage.SetModemSchedule.DaysOfWeek";
+    public static final String daysOfWeekScheduleDefaultTranslation = "Days of week when the modem will be reset";
+    public static final String enableModemResetSchedule = "DeviceActionMessage.SetModemSchedule.EnableModemResetScheduler";
+    public static final String enableModemResetScheduleDefaultTranslation = "Enable modem reset scheduler";
+    ;
 
     // Hide constructor for class with only public constants
     private DeviceMessageConstants() {

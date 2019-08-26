@@ -6,19 +6,22 @@ package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectUsagePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.RequestSecurityLevel;
+import com.energyict.mdc.common.protocol.security.ResponseSecurityLevel;
+import com.energyict.mdc.common.protocol.security.SecuritySuite;
 import com.energyict.mdc.protocol.LicensedProtocol;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -31,7 +34,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Provides services that relate to {@link com.energyict.mdc.pluggable.PluggableClass}es
+ * Provides services that relate to {@link PluggableClass}es
  * that relate to device protocols.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -168,7 +171,7 @@ public interface ProtocolPluggableService {
      * <ul>
      * <li>There is only one InboundDeviceProtocolPluggableClass with the same name</li>
      * <li>The java class exists and can be loaded from the classpath</li>
-     * <li>The java class effectively implements the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol} interface</li>
+     * <li>The java class effectively implements the {@link InboundDeviceProtocol} interface</li>
      * </ul>
      *
      * @param name          The name of the PluggableClass
@@ -185,7 +188,7 @@ public interface ProtocolPluggableService {
      * <ul>
      * <li>There is only one InboundDeviceProtocolPluggableClass with the same name</li>
      * <li>The java class exists and can be loaded from the classpath</li>
-     * <li>The java class effectively implements the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol} interface</li>
+     * <li>The java class effectively implements the {@link InboundDeviceProtocol} interface</li>
      * <li>All of the java class' required property specs have a value</li>
      * <li>All of the specified properties are compatible with the java class' property specs</li>
      * </ul>
@@ -196,7 +199,7 @@ public interface ProtocolPluggableService {
      * @return The PluggableClass that is not yet saved
      * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
-     * @see com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol#getPropertySpecs()
+     * @see InboundDeviceProtocol#getPropertySpecs()
      */
     InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName, TypedProperties properties);
 
@@ -223,7 +226,7 @@ public interface ProtocolPluggableService {
      * <ul>
      * <li>There is only one ConnectionTypePluggableClass with the same name</li>
      * <li>The java class exists and can be loaded from the classpath</li>
-     * <li>The java class effectively implements the {@link com.energyict.mdc.protocol.api.ConnectionType} interface</li>
+     * <li>The java class effectively implements the {@link ConnectionType} interface</li>
      * </ul>
      *
      * @param name          The name of the PluggableClass
@@ -240,7 +243,7 @@ public interface ProtocolPluggableService {
      * <ul>
      * <li>There is only one ConnectionTypePluggableClass with the same name</li>
      * <li>The java class exists and can be loaded from the classpath</li>
-     * <li>The java class effectively implements the {@link com.energyict.mdc.protocol.api.ConnectionType} interface</li>
+     * <li>The java class effectively implements the {@link ConnectionType} interface</li>
      * <li>All of the java class' required property specs have a value</li>
      * <li>All of the specified properties are compatible with the java class' property specs</li>
      * </ul>
@@ -251,7 +254,7 @@ public interface ProtocolPluggableService {
      * @return The PluggableClass that is not yet saved
      * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
-     * @see com.energyict.mdc.protocol.api.ConnectionType#getPropertySpecs()
+     * @see ConnectionType#getPropertySpecs()
      */
     ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties);
 

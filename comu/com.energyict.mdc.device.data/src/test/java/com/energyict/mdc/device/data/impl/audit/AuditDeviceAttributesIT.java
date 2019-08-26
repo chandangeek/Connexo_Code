@@ -10,7 +10,7 @@ import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrail;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -81,7 +81,8 @@ public class AuditDeviceAttributesIT extends AuditDeviceBase {
         assertThat(auditTrailValue.getPkContext1()).isEqualTo(0);
 
         List<AuditLogChange> auditLogChanges = auditTrail.get().getLogs();
-        assertThat(auditLogChanges).hasSize(to.size());
+        int auditLogChangesSize = auditLogChanges.size();
+        assertThat(auditLogChangesSize).isGreaterThanOrEqualTo(to.size());
         to.forEach((key, value) -> {
             Optional<AuditLogChange> auditLogChange = auditLogChanges.stream()
                     .filter(log -> log.getName().compareToIgnoreCase(key.getName()) == 0)

@@ -6,13 +6,13 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 

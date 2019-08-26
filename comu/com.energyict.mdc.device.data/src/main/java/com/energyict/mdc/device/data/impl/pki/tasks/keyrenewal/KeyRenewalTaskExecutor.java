@@ -27,10 +27,10 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.SymmetricKeyAccessor;
 
 import org.json.JSONArray;
@@ -62,6 +62,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
     private final Logger logger;
 
     private static final String KEY_RENEWAL_PROCESS_NAME = "Key renewal";
+    private static final Integer KEY_RENEWAL_EXPIRATION_DAYS = Integer.MAX_VALUE;
     private static final String ACTIVE_STATUS = "1";
 
     KeyRenewalTaskExecutor(OrmService ormService,
@@ -74,8 +75,8 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         this.bpmService = bpmService;
         this.eventService = eventService;
         this.clock = clock;
-        this.keyRenewalBpmProcessDefinitionId = keyRenewalBpmProcessDefinitionId;
-        this.keyRenewalExpitationDays = keyRenewalExpitationDays;
+        this.keyRenewalBpmProcessDefinitionId = Optional.ofNullable(keyRenewalBpmProcessDefinitionId).orElse(KEY_RENEWAL_PROCESS_NAME);
+        this.keyRenewalExpitationDays = Optional.ofNullable(keyRenewalExpitationDays).orElse(KEY_RENEWAL_EXPIRATION_DAYS);
         keyRenewalBpmProcessCount = 0;
         logger = Logger.getAnonymousLogger();
     }
@@ -190,7 +191,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         }
         boolean processDefinition = processDefinitionInfos.get().processes
                 .stream()
-                .anyMatch(processDefinitionInfo -> processDefinitionInfo.name.equalsIgnoreCase(KEY_RENEWAL_PROCESS_NAME));
+                .anyMatch(processDefinitionInfo -> processDefinitionInfo.name.equalsIgnoreCase(keyRenewalBpmProcessDefinitionId));
         if (!processDefinition) {
             String errorMsg = "No process definition found";
             postFailEvent(eventService, taskOccurrence, errorMsg);
@@ -200,7 +201,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         List<ProcessInstanceInfo> processInstanceInfos = bpmService.getRunningProcesses(null, filter)
                 .processes
                 .stream()
-                .filter(p -> p.name.equalsIgnoreCase(KEY_RENEWAL_PROCESS_NAME) && p.status.equalsIgnoreCase(ACTIVE_STATUS))
+                .filter(p -> p.name.equalsIgnoreCase(keyRenewalBpmProcessDefinitionId) && p.status.equalsIgnoreCase(ACTIVE_STATUS))
                 .collect(Collectors.toList());
         if (processInstanceInfos.isEmpty()) {
             logger.log(Level.INFO, "No running processes found");
@@ -242,7 +243,7 @@ public class KeyRenewalTaskExecutor implements TaskExecutor {
         List<BpmProcessDefinition> bpmProcessDefinitions = bpmService.getAllBpmProcessDefinitions();
         Optional<BpmProcessDefinition> definition = bpmProcessDefinitions
                 .stream()
-                .filter(p -> p.getProcessName().equalsIgnoreCase(KEY_RENEWAL_PROCESS_NAME))
+                .filter(p -> p.getProcessName().equalsIgnoreCase(keyRenewalBpmProcessDefinitionId))
                 .findAny();
 
         if (definition.isPresent()) {

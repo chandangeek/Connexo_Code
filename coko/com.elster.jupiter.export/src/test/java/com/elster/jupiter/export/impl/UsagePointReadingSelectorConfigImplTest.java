@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -112,13 +113,13 @@ public class UsagePointReadingSelectorConfigImplTest {
         when(effectiveMC.getChannelsContainer(billingContract)).thenReturn(Optional.of(billingChannelsContainer));
 
         // Business method
-        Set<IReadingTypeDataExportItem> activeItems = selectorConfig.getActiveItems(dataExportOccurrence);
+        Set<ReadingTypeDataExportItem> activeItems = selectorConfig.getActiveItems(dataExportOccurrence);
 
         // Asserts
         assertThat(activeItems).hasSize(4);
-        Set<ReadingType> itemReadingTypes = activeItems.stream().map(IReadingTypeDataExportItem::getReadingType).collect(Collectors.toSet());
+        Set<ReadingType> itemReadingTypes = activeItems.stream().map(ReadingTypeDataExportItem::getReadingType).collect(Collectors.toSet());
         assertThat(itemReadingTypes).contains(rt15minAPlus, rt15minAMinus, rtDailyAPlus, rt15minAMinus);
-        List<IdentifiedObject> identifiedObjects = activeItems.stream().map(IReadingTypeDataExportItem::getDomainObject).distinct().collect(Collectors.toList());
+        List<IdentifiedObject> identifiedObjects = activeItems.stream().map(ReadingTypeDataExportItem::getDomainObject).distinct().collect(Collectors.toList());
         assertThat(identifiedObjects).hasSize(1);
         assertThat(identifiedObjects.get(0)).isEqualTo(usagePoint);
     }
@@ -152,12 +153,12 @@ public class UsagePointReadingSelectorConfigImplTest {
         when(usagePointGroup.getMembers(EXPORT_INTERVAL)).thenReturn(Arrays.asList(usagePointMembership1, usagePointMembership2));
 
         // Business method
-        Set<IReadingTypeDataExportItem> activeItems = selectorConfig.getActiveItems(dataExportOccurrence);
+        Set<ReadingTypeDataExportItem> activeItems = selectorConfig.getActiveItems(dataExportOccurrence);
 
         // Asserts
         assertThat(activeItems).hasSize(4);
 
-        List<IReadingTypeDataExportItem> exportItems = activeItems.stream()
+        List<ReadingTypeDataExportItem> exportItems = activeItems.stream()
                 .sorted(Comparator.comparing(item -> item.getReadingType().getMRID()))
                 .collect(Collectors.toList());
         assertThat(exportItems.get(0).getReadingType()).isEqualTo(rt15minAPlus);

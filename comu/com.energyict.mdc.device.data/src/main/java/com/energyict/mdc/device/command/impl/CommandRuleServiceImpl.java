@@ -20,6 +20,9 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.concurrent.DelayedRegistrationHandler;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.CommandRuleService;
@@ -30,10 +33,7 @@ import com.energyict.mdc.device.command.impl.exceptions.InvalidCommandRuleStatsE
 import com.energyict.mdc.device.command.impl.exceptions.LimitsWouldExceedForCommandException;
 import com.energyict.mdc.device.command.security.Privileges;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;

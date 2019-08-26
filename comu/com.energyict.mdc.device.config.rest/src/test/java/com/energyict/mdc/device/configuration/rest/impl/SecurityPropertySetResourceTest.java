@@ -15,15 +15,18 @@ import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.common.protocol.security.RequestSecurityLevel;
+import com.energyict.mdc.common.protocol.security.ResponseSecurityLevel;
+import com.energyict.mdc.common.protocol.security.SecuritySuite;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 
 import com.google.common.collect.ImmutableSet;
@@ -671,7 +674,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         return mock;
     }
 
-    private class SecurityPropertySetBuilder implements com.energyict.mdc.device.config.SecurityPropertySetBuilder {
+    private class SecurityPropertySetBuilder implements com.energyict.mdc.common.device.config.SecurityPropertySetBuilder {
 
         private int authenticationLevel;
         private int encryptionLevel;
@@ -680,47 +683,42 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         private int responseSecurityLevel;
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder authenticationLevel(int level) {
+        public com.energyict.mdc.common.device.config.SecurityPropertySetBuilder authenticationLevel(int level) {
             authenticationLevel = level;
             return this;
         }
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder encryptionLevel(int level) {
+        public com.energyict.mdc.common.device.config.SecurityPropertySetBuilder encryptionLevel(int level) {
             encryptionLevel = level;
             return this;
         }
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder client(Object client) {
+        public com.energyict.mdc.common.device.config.SecurityPropertySetBuilder client(Object client) {
             return this;
         }
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder securitySuite(int suite) {
+        public com.energyict.mdc.common.device.config.SecurityPropertySetBuilder securitySuite(int suite) {
             securitySuite = suite;
             return this;
         }
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder requestSecurityLevel(int level) {
+        public com.energyict.mdc.common.device.config.SecurityPropertySetBuilder requestSecurityLevel(int level) {
             requestSecurityLevel = level;
             return this;
         }
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder responseSecurityLevel(int level) {
+        public com.energyict.mdc.common.device.config.SecurityPropertySetBuilder responseSecurityLevel(int level) {
             responseSecurityLevel = level;
             return this;
         }
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor) {
-            return this;
-        }
-
-        @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder additionalPropertyIfApplicable(PropertyInfo info) {
+        public com.energyict.mdc.common.device.config.SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, SecurityAccessorType keyAccessor) {
             return this;
         }
 

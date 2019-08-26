@@ -13,7 +13,7 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.ValidationVersionStatus;
-import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
+import com.energyict.mdc.common.device.data.ChannelValidationRuleOverriddenProperties;
 
 import javax.inject.Inject;
 import java.util.Collections;

@@ -9,13 +9,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.device.command.CommandInRule;
 import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRulePendingUpdate;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasUniqueCommands;
 import com.energyict.mdc.device.command.impl.constraintvalidators.HasValidLimits;
 import com.energyict.mdc.device.command.impl.constraintvalidators.UniqueName;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import com.google.inject.Inject;
 

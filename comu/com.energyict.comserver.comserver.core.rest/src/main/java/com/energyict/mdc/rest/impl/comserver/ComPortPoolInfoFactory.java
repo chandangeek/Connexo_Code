@@ -5,10 +5,10 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.inject.Inject;

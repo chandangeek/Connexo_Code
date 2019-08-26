@@ -6,16 +6,17 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyException;
 import com.energyict.mdc.upl.TypedProperties;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

@@ -6,8 +6,8 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.tasks.LogBooksTask;
 
 import java.time.Instant;
 
