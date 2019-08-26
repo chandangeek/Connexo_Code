@@ -40,7 +40,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      * The purpose of this blockingQueue is that the scheduler will block if no space is left on the queue.
      * From the moment a worker takes a task from the queue, the scheduler will produce more work (if available)
      */
-    private BlockingQueue<ScheduledJobImpl> jobQueue;
+    private volatile BlockingQueue<ScheduledJobImpl> jobQueue;
     private int threadPoolSize;
 
     MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
@@ -53,12 +53,15 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     protected void setComPort(OutboundComPort comPort) {
         if (comPort != getComPort()) {
-            if (this.jobScheduler != null) {
-                this.jobScheduler.shutdown();
+            if (jobScheduler != null) {
+                jobScheduler.shutdown();
             }
             super.setComPort(comPort);
-            this.jobQueue = new ArrayBlockingQueue<>(threadPoolSize = comPort.getNumberOfSimultaneousConnections());
-            if (this.jobScheduler != null) {
+            if (comPort.getNumberOfSimultaneousConnections() != threadPoolSize) {
+                threadPoolSize = comPort.getNumberOfSimultaneousConnections();
+                jobQueue = new ArrayBlockingQueue<>(threadPoolSize);
+            }
+            if (jobScheduler != null) {
                 createJobScheduler();
             }
         }

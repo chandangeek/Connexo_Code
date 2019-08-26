@@ -31,6 +31,8 @@ public interface QueryStream<T> extends Stream<T> {
      */
     QueryStream<T> filter(Condition condition);
 
+    <R extends T> QueryStream<R> filter(Class<? extends R> newApi);
+
     /*
      * sort the result
      */

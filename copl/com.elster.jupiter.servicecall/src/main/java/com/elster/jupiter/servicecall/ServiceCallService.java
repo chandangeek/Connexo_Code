@@ -190,4 +190,8 @@ public interface ServiceCallService {
     Set<DefaultState> nonFinalStates();
 
     List<DestinationSpec> getCompatibleQueues4();
+
+    void addDelRef(RefernceToDelete delRef);
+
+    void removeDelRef(RefernceToDelete delRef);
 }

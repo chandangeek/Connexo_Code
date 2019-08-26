@@ -32,8 +32,8 @@ public class IssueActionInfoFactory {
 
     }
 
-    public IssueActionTypeInfo asInfo(Issue issue, IssueActionType actionType, String reasonName) {
-        IssueAction action = actionType.createIssueAction().get().setReasonName(reasonName);
+    public IssueActionTypeInfo asInfo(Issue issue, IssueActionType actionType, String reasonKey) {
+        IssueAction action = actionType.createIssueAction().get().setReasonKey(reasonKey);
         return createInfo(issue, actionType, action);
     }
 
@@ -41,8 +41,8 @@ public class IssueActionInfoFactory {
         return asInfo(null, actionType);
     }
 
-    public IssueActionTypeInfo asInfo(IssueActionType actionType, String reasonName) {
-        return asInfo(null, actionType, reasonName);
+    public IssueActionTypeInfo asInfo(IssueActionType actionType, String reasonKey) {
+        return asInfo(null, actionType, reasonKey);
     }
 
     private IssueActionTypeInfo createInfo(Issue issue, IssueActionType actionType, IssueAction action){

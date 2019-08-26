@@ -1,6 +1,8 @@
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
@@ -15,15 +17,16 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 
 import javax.inject.Inject;
 import java.time.Clock;
-import java.util.Objects;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
@@ -33,15 +36,18 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
     private final Clock clock;
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final Thesaurus thesaurus;
+    private final OrmService ormService;
 
     @Inject
     AbstractRegisterCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
-                                          Clock clock, SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus) {
+                                          Clock clock, SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus,
+                                          OrmService ormService) {
         this.serviceCallCommands = serviceCallCommands;
         this.endPointConfigurationService = endPointConfigurationService;
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.thesaurus = thesaurus;
+        this.ormService = ormService;
     }
 
     @Override
@@ -69,8 +75,8 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
 
     boolean isAnyActiveEndpoint(String name) {
         return endPointConfigurationService
-                .findEndPointConfigurations().find().stream()
-                .filter(epc -> epc.getWebServiceName().equals(name))
+                .getEndPointConfigurationsForWebService(name)
+                .stream()
                 .filter(EndPointConfiguration::isActive)
                 .findAny().isPresent();
     }
@@ -93,7 +99,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
                     }
                 });
 
-        if (serviceCall.findChildren().stream().count() > 0) {
+        if (!serviceCall.findChildren().paged(0, 0).find().isEmpty()) {
             serviceCall.requestTransition(DefaultState.PENDING);
         } else {
             serviceCall.requestTransition(DefaultState.REJECTED);
@@ -112,7 +118,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
         ServiceCall serviceCall = serviceCallBuilder.create();
 
-        message.getUtilitiesDeviceRegisterMessage()
+        message.getUtilitiesDeviceRegisterMessages()
                 .forEach(bodyMessage -> {
                     if (bodyMessage.isValid()) {
                         createSecondChildServiceCall(serviceCall, bodyMessage, message.getDeviceId());
@@ -126,14 +132,14 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         UtilitiesDeviceRegisterCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceRegisterCreateRequestDomainExtension();
         childDomainExtension.setDeviceId(deviceId);
         childDomainExtension.setLrn(bodyMessage.getLrn());
-        childDomainExtension.setObis(bodyMessage.getOBIS());
+        childDomainExtension.setObis(bodyMessage.getObis());
         childDomainExtension.setInterval(bodyMessage.getInterval());
         childDomainExtension.setStartDate(bodyMessage.getStartDate());
         childDomainExtension.setEndDate(bodyMessage.getEndDate());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
-        sapCustomPropertySets.getDevice(bodyMessage.getOBIS()).ifPresent(serviceCallBuilder::targetObject);
+        sapCustomPropertySets.getDevice(deviceId).ifPresent(serviceCallBuilder::targetObject);
         serviceCallBuilder.create();
     }
 
@@ -158,11 +164,11 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
     }
 
     private boolean hasUtilDeviceRegisterRequestServiceCall(String id) {
-        return serviceCallCommands.findAvailableServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_REGISTER_CREATE_REQUEST)
-                .stream()
-                .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class))
-                .filter(Objects::nonNull)
-                .map(Optional::get)
-                .anyMatch(domainExtension -> domainExtension.getRequestID().equals(id));
+        Optional<DataModel> dataModel = ormService.getDataModel(MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet.MODEL_NAME);
+        if (dataModel.isPresent()) {
+            return dataModel.get().stream(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.class)
+                    .anyMatch(where(MasterUtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REQUEST_ID.javaName()).isEqualTo(id));
+        }
+        return false;
     }
 }

@@ -86,9 +86,7 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
             msg.getSmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationMessage()
                     .forEach(message -> {
                         PodMessage podMsg = new PodMessage(message);
-                        if (podMsg.isValid()) {
-                            podMessages.add(podMsg);
-                        }
+                        podMessages.add(podMsg);
                     });
         }
 
@@ -130,7 +128,7 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
         private String getPodId(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             return Optional.ofNullable(msg.getUtilitiesMeasurementTask())
                     .map(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsMsmtTsk::getUtilitiesPointOfDeliveryAssignment)
-                    .map(pod -> pod.get(0))
+                    .flatMap(pod -> pod.stream().findFirst())
                     .map(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsPtDeliv::getUtilitiesPointOfDeliveryPartyID)
                     .map(UtilitiesPointOfDeliveryPartyID::getValue)
                     .orElse(null);

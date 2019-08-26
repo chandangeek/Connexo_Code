@@ -320,10 +320,6 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
                         maximumNumberOfTaskForComPortPool.getComPortPoolId(),
                         maximumNumberOfTaskForComPortPool.getNumberOfTasks());
             }
-
-            if (totalRemainingJobs() == 0) {
-                throw new NoMoreHighPriorityTasksCanBePickedUpRuntimeException();
-            }
         }
 
         public int totalRemainingJobs() {
@@ -341,6 +337,11 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
             while (continueFetching(resultSet)) {
                 add(resultSet);
             }
+
+            if (!jobs.isEmpty() && totalRemainingJobs() == 0) {
+                throw new NoMoreHighPriorityTasksCanBePickedUpRuntimeException();
+            }
+
             return jobs;
         }
 
