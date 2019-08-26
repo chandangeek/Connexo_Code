@@ -11,6 +11,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -113,8 +114,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
         StateTransitionChangeEvent event = (StateTransitionChangeEvent) localEvent.getSource();
         if (event.getSourceType().contains("Device")) {
             this.handle(event);
-        }
-        else {
+        } else {
             this.logger.fine(() -> "Ignoring event for id '" + event.getSourceId() + "' because it does not relate to a device but to an obejct of type " + event.getSourceType());
         }
     }
@@ -131,8 +131,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
                             .getFiniteStateMachine()
                             .getId(), endDevice.getFiniteStateMachine().get().getId()))
                     .ifPresent(d -> this.handle(event, (ServerEndDevice) d));
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             this.logger.fine(() -> "Unable to parse end device id '" + deviceId + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
         }
     }
@@ -141,25 +140,28 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
         Instant effectiveTimestamp = this.effectiveTimestampFrom(event);
         State newState = event.getNewState();
 
-        this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, newState, endDevice);
+        this.checkEffectiveTimestampIsAfterLastStateChange(effectiveTimestamp, newState, endDevice);
         endDevice.changeState(newState, effectiveTimestamp);
     }
 
-    private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, State state, ServerEndDevice endDevice) {
+    private void checkEffectiveTimestampIsAfterLastStateChange(Instant effectiveTimestamp, State state, ServerEndDevice endDevice) {
         Optional<Instant> lastStateChangeTimestamp = this.getLastStateChangeTimestamp(endDevice);
 
-        if(lastStateChangeTimestamp.isPresent()) {
-            if (lastStateChangeTimestamp.isPresent() && !effectiveTimestamp.isAfter(lastStateChangeTimestamp.get())) {
-                throw new StateTransitionChangeEventException.UnableToChangeDeviceStateDueToTimeNotAfterLastStateChangeException(thesaurus, getStateName(state), endDevice.getName(),
-                        getFormattedInstant(getLongDateFormatForCurrentUser(), effectiveTimestamp),
-                        getFormattedInstant(getLongDateFormatForCurrentUser(), lastStateChangeTimestamp.get()));
-            }
+        if (lastStateChangeTimestamp.isPresent() && !effectiveTimestamp.isAfter(lastStateChangeTimestamp.get())) {
+            throw new StateTransitionChangeEventException.UnableToChangeDeviceStateDueToTimeNotAfterLastStateChangeException(thesaurus, getStateName(state), endDevice.getName(),
+                    getFormattedInstant(getLongDateFormatForCurrentUser(), effectiveTimestamp),
+                    getFormattedInstant(getLongDateFormatForCurrentUser(), lastStateChangeTimestamp.get()));
         }
     }
 
     private Optional<Instant> getLastStateChangeTimestamp(ServerEndDevice endDevice) {
-        List<StateTimeSlice> stateTimeSlices = endDevice.getStateTimeline().get().getSlices();
-        return this.lastSlice(stateTimeSlices).map(lastSlice -> lastSlice.getPeriod().lowerEndpoint());
+        Optional<StateTimeline> stateTimeline = endDevice.getStateTimeline();
+        if (stateTimeline.isPresent()) {
+            List<StateTimeSlice> stateTimeSlices = stateTimeline.get().getSlices();
+            return this.lastSlice(stateTimeSlices).map(lastSlice -> lastSlice.getPeriod().lowerEndpoint());
+        } else {
+            return Optional.empty();
+        }
     }
 
     private Optional<StateTimeSlice> lastSlice(List<StateTimeSlice> stateTimeSlices) {
@@ -174,12 +176,12 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(ent->thesaurus.getFormat(ent).format())
+                .map(ent -> thesaurus.getFormat(ent).format())
                 .orElseGet(state::getName);
     }
 
-    private String getFormattedInstant(DateTimeFormatter formatter, Instant time){
-        return formatter.format(LocalDateTime.ofInstant(time, ZoneId.systemDefault()));
+    private String getFormattedInstant(DateTimeFormatter formatter, Instant time) {
+        return formatter.format(LocalDateTime.ofInstant(time, clock.getZone()));
     }
 
     private DateTimeFormatter getLongDateFormatForCurrentUser() {
