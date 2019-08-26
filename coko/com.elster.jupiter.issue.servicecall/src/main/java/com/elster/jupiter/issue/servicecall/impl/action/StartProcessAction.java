@@ -132,8 +132,19 @@ public class StartProcessAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicable(String reasonName){
-        return super.isApplicable(reasonName) && bpmService.getActiveBpmProcessDefinitions().stream()
-                .anyMatch(this::getBpmProcessDefinitionFilter);
+        return bpmService.getActiveBpmProcessDefinitions()
+                .stream()
+                .filter(bpmProcessDefinition -> bpmProcessDefinition.getAssociation().equals(ASSOCIATION))
+                .map(BpmProcessDefinition::getProperties)
+                .map(properties -> properties.get(PROPERTY_NAME))
+                .filter(List.class::isInstance)
+                .map(List.class::cast)
+                .flatMap(List::stream)
+                .filter(HasIdAndName.class::isInstance)
+                .map(HasIdAndName.class::cast)
+                .map(HasIdAndName::getId)
+                .map(Object::toString)
+                .anyMatch(reason -> reason.equals(reasonName));
     }
 
 
