@@ -766,7 +766,6 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$data[0].task.version")).isEqualTo(41);
         assertThat(jsonModel.<String>get("$data[0].task.dataSelector.displayName")).isEqualTo("DataSelectorFactor");
         assertThat(jsonModel.<String>get("$data[0].task.dataSelector.name")).isEqualTo("DataSelectorFactor");
-        assertThat(jsonModel.<String>get("$data[0].task.dataSelector.selectorType")).isEqualTo("CUSTOM");
     }
 
     @Test
