@@ -367,6 +367,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             return new CompletionOptionsImpl(serviceCall);
         } catch (RuntimeException e) {
             serviceCall.log("Encountered an exception when trying to create/schedule the device command(s)", e);
+            serviceCall.log(LogLevel.SEVERE, e.getMessage());
             serviceCall.requestTransition(DefaultState.FAILED);
             throw e;
         }
