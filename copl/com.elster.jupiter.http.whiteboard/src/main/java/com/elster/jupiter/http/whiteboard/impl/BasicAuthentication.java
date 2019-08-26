@@ -18,9 +18,11 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
 import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
+import org.opensaml.core.config.Initializer;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.wiring.BundleWiring;
@@ -34,6 +36,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -43,10 +46,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -321,13 +321,24 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         */
         String authentication = request.getHeader("Authorization");
 
-        if(!request.getRequestURL().toString().contains("/security/acs")){
-            if(StringUtils.isEmpty(authentication)) {
-                Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response);
-                if (ssoAuthenticationRequestOptional.isPresent()) {
-                    String redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
-                    response.sendRedirect(redirectUrl);
+
+        //String responseAuthetication = response.getHeader(HttpHeaders.AUTHORIZATION);
+        String responseAuthetication = request.getParameter("Token");
+        Optional<Cookie> tokenCookie1 = getTokenCookie(request);
+        if (!tokenCookie1.isPresent()) {
+            if (!request.getRequestURL().toString().contains("/security/acs")) {
+                if (StringUtils.isEmpty(authentication) && StringUtils.isEmpty(responseAuthetication)) {
+                    Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response);
+                    if (ssoAuthenticationRequestOptional.isPresent()) {
+                        String redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
+                        response.sendRedirect(redirectUrl);
+                    }
                 }
+            }
+        }
+        if (StringUtils.isEmpty(authentication)) {
+            if (!StringUtils.isEmpty(responseAuthetication)) {
+                authentication = responseAuthetication;
             }
         }
 
@@ -423,7 +434,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 return deny(request, response);
             }
         }
-
+        response.addCookie(createTokenCookie(token, "/"));
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
         SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
@@ -540,7 +551,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         stringBuilder.append(SamlUtils.SAML_IDP_ENDPOINT);
         stringBuilder.append("?");
         stringBuilder.append("SAMLRequest=");
-        stringBuilder.append(ssoAuthnRequest);
+        stringBuilder.append(URLEncoder.encode(ssoAuthnRequest, "UTF-8").trim());
         stringBuilder.append("&");
         stringBuilder.append(RelayState.DEFAULT_ELEMENT_LOCAL_NAME);
         stringBuilder.append("=");

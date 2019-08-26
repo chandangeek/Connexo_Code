@@ -6,16 +6,16 @@ import com.elster.jupiter.users.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.ecp.RelayState;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +40,7 @@ public class AcsResource {
 
     @POST
     @Path("acs")
-    public Response handleSAMLResponse(@Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) {
+    public void handleSAMLResponse(@Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) throws IOException, ServletException {
 
         /*
             TODO: handle SAML Response
@@ -63,7 +63,7 @@ public class AcsResource {
             String firstName = getSingleValue("User.FirstName", attributeValueMap);
             String lastName = getSingleValue("User.LastName", attributeValueMap);
 
-            Optional<User> user = userService.findUser(email);
+            Optional<User> user = userService.findUser("root");
             if(user.isPresent()){
                 token = authenticationService.createToken(user.get(), "");
 
@@ -74,13 +74,21 @@ public class AcsResource {
             throw new RuntimeException(e);
         }
 
-        return Response
-                .seeOther(URI.create(httpServletRequest.getParameter("RelayState")))
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .build();
+        //httpServletResponse.setHeader(HttpHeaders.AUTHORIZATION, "Bearer "+token);
+        //httpServletRequest.getRequestDispatcher(URI.create(httpServletRequest.getParameter("RelayState")).toString()).forward(httpServletRequest, httpServletResponse);
+        httpServletResponse.sendRedirect(createRedirectURL(URI.create(httpServletRequest.getParameter("RelayState")).toString(),"Bearer "+token));
     }
 
     private String getSingleValue(String attributeName, Map<String, List<String>> attributeValues) {
         return attributeValues.getOrDefault(attributeName, Collections.emptyList()).stream().findFirst().orElse(StringUtils.EMPTY);
+    }
+
+    private String createRedirectURL(String redirectUrl, String token){
+        StringBuilder sb = new StringBuilder();
+        sb.append(redirectUrl);
+        sb.append("?");
+        sb.append("Token=");
+        sb.append(token);
+        return sb.toString();
     }
 }
