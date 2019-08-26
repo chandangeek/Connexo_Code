@@ -28,14 +28,12 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -188,13 +186,13 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         return lrn;
     }
 
-    Map<Pair<String, String>, RangeSet<Instant>> getTimeSlicedLrnAndProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter, String readingTypeName) {
-        Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileId = sapCustomPropertySets.getLrnAndProfileId(channel, range);
-        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.intersects(range)).isPresent()) {
+    Map<String, RangeSet<Instant>> getTimeSlicedProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter, String readingTypeName) {
+        Map<String, RangeSet<Instant>> profileId = sapCustomPropertySets.getProfileId(channel, range);
+        if (!profileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.intersects(range)).isPresent()) {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL,
                     readingTypeName,
                     meter.getName());
         }
-        return lrnAndProfileId;
+        return profileId;
     }
 }
