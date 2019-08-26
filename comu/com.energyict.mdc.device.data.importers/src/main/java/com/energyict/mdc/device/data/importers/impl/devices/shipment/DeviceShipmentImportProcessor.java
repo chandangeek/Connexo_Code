@@ -5,10 +5,10 @@
 package com.energyict.mdc.device.data.importers.impl.devices.shipment;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.NoLifeCycleActiveAt;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;

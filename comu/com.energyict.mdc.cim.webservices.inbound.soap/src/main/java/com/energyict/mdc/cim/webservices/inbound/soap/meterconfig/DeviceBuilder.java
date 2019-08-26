@@ -4,31 +4,29 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
-import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
-import javax.inject.Inject;
+import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -64,7 +62,7 @@ public class DeviceBuilder {
     }
 
     public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
-        DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(), 
+        DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(),
 	meter.getDeviceType());
         return () -> {
             if (!getExistingDevices(meter.getDeviceName(), meter.getSerialNumber()).isEmpty()) {

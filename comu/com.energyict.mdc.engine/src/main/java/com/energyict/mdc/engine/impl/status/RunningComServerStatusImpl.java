@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.status;
 
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Provides an implementation for the {@link ComServerStatus}
- * of an actual running {@link com.energyict.mdc.engine.config.ComServer}.
+ * of an actual running {@link ComServer}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (13:08)

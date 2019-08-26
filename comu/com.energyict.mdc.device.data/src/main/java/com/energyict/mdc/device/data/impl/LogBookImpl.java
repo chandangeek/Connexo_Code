@@ -10,11 +10,12 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.device.data.impl.configchange.ServerLogBookForConfigChange;
-import com.energyict.mdc.masterdata.LogBookType;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 

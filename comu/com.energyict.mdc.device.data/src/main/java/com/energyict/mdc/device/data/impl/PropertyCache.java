@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
+import com.energyict.mdc.common.pluggable.PluggableClassUsageProperty;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;

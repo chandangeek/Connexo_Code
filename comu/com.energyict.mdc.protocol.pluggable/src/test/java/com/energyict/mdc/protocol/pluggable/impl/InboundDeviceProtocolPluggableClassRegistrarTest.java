@@ -6,28 +6,32 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link InboundDeviceProtocolPluggableClassRegistrar} component.

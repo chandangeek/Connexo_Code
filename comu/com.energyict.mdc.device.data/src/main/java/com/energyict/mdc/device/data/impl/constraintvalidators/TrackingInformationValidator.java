@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
+import com.energyict.mdc.common.protocol.TrackingCategory;
 import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
-import com.energyict.mdc.protocol.api.TrackingCategory;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

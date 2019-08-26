@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointException;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageSeeds;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
 
 import aQute.bnd.annotation.ConsumerType;
@@ -25,13 +25,11 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.WebServiceException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.ConnectException;
@@ -40,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,7 +65,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     private volatile Thesaurus thesaurus;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile WebServicesService webServicesService;
-    private volatile TransactionService transactionService;
+    private volatile EventService eventService;
 
     private Map<Long, EP> endpoints = new ConcurrentHashMap<>();
 
@@ -123,6 +122,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         return properties == null ? null : (Long) properties.get(ENDPOINT_CONFIGURATION_ID_PROPERTY);
     }
 
+    protected List<EndPointConfiguration> getEndPointConfigurationsForWebService(){
+        return endPointConfigurationService.getEndPointConfigurationsForWebService(getName());
+    }
+
     private final class RequestSenderImpl implements RequestSender {
         private final String methodName;
         private Collection<EndPointConfiguration> endPointConfigurations;
@@ -155,14 +158,16 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                 EP endpoint = endpoints.get(endPointConfiguration.getId());
                 if (endpoint == null) {
                     long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
-                    webServicesService.failOccurrence(id, thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
-                    // TODO send event for issue here, in a different transaction
+                    String message = thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
+                    WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
+                    eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
                 }
                 return endpoint;
             } else {
                 long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
-                webServicesService.failOccurrence(id, thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName()));
-                // TODO send event for issue here, in a different transaction
+                String message = thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
+                WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
+                eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
                 return null;
             }
         }
@@ -236,28 +241,27 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                             throw new RuntimeException(e);
                         } catch (InvocationTargetException e) {
                             Throwable cause = e.getTargetException();
-                            webServicesService.failOccurrence(id, cause instanceof Exception ? (Exception) cause : new Exception(cause));
+                            WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, cause instanceof Exception ? (Exception) cause : new Exception(cause));
                             if (cause instanceof WebServiceException) { // SOAP endpoint
-                                WebServiceException wse = (WebServiceException) cause;
-                                String message = wse.getLocalizedMessage();
-                                cause = wse.getCause();
-                                if (cause != null) {
-                                    message = cause.getLocalizedMessage();
-                                    if (cause instanceof HTTPException) {
-                                        HTTPException httpe = (HTTPException) cause;
-                                        httpe.getResponseCode();
-                                        // TODO send event for issue here, in a different transaction
-                                    } else if (cause instanceof SocketTimeoutException || cause instanceof ConnectException) {
-                                        // TODO send event for issue here, in a different transaction
+                                cause = cause.getCause();
+                                if (cause instanceof HTTPException) {
+                                    HTTPException httpe = (HTTPException) cause;
+                                    if (httpe.getResponseCode() == 401) {
+                                        eventService.postEvent(EventType.OUTBOUND_AUTH_FAILURE.topic(), occurrence);
+                                        return null;
                                     }
+                                } else if (cause instanceof SocketTimeoutException || cause instanceof ConnectException) {
+                                    eventService.postEvent(EventType.OUTBOUND_NO_ACKNOWLEDGEMENT.topic(), occurrence);
+                                    return null;
                                 }
                             } else if (cause instanceof NotAuthorizedException) { // REST endpoint
-                                // TODO send event for issue here, in a different transaction
+                                eventService.postEvent(EventType.OUTBOUND_AUTH_FAILURE.topic(), occurrence);
+                                return null;
                             } else if (cause instanceof MessageBodyProviderNotFoundException) { // REST endpoint
-                                // TODO send event for issue here, in a different transaction
-                            } else {
-                                epcAndEP.getKey().log(e.getLocalizedMessage(), e);
+                                eventService.postEvent(EventType.OUTBOUND_NO_ACKNOWLEDGEMENT.topic(), occurrence);
+                                return null;
                             }
+                            eventService.postEvent(EventType.OUTBOUND_BAD_ACKNOWLEDGEMENT.topic(), occurrence);
                             return null;
                         }
                     })

@@ -24,8 +24,8 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.Ca
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InvalidLastCheckedException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
@@ -224,7 +224,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         responseMessage.setReply(replyTypeFactory.okReplyType());
 
         // set payload
-        if (device != null) {
+        if(device != null) {
             MeterConfigPayloadType meterConfigPayload = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
             meterConfigPayload.setMeterConfig(Verb.REPLY.equals(verb) ? meterConfigFactory.asGetMeterConfig(device) : meterConfigFactory.asMeterConfig(device));
             responseMessage.setPayload(meterConfigPayload);

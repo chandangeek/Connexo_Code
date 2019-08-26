@@ -34,6 +34,8 @@ public interface ReadingDataSelectorConfig extends DataSelectorConfig {
 
     Updater startUpdate();
 
+    Set<ReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
+
     interface Updater extends DataSelectorConfig.Updater {
 
         Updater addReadingType(ReadingType readingType);

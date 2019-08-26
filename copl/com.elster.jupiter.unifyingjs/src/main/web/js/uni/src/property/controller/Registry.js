@@ -72,7 +72,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.Task',
 		'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
         'Uni.property.view.property.ServiceCallIssueType',
-        'Uni.property.view.property.ServiceCallIssueState'
+        'Uni.property.view.property.ServiceCallIssueState',
+        'Uni.property.view.property.webservices.WebServiceIssue',
     ],
 
     /**
@@ -142,7 +143,8 @@ Ext.define('Uni.property.controller.Registry', {
         WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference',
         ENDDEVICEGROUPLIST: 'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
         SERVICE_CALL: 'Uni.property.view.property.ServiceCallIssueType',
-        SERVICE_CALL_STATE: 'Uni.property.view.property.ServiceCallIssueState'
+        SERVICE_CALL_STATE: 'Uni.property.view.property.ServiceCallIssueState',
+        ENDPOINT_CONFIGURATION_LIST: 'Uni.property.view.property.webservices.WebServiceIssue',
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
@@ -158,7 +160,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.RelativePeriodsWithCount',
         'Uni.property.store.ReadingTypes',
         'Uni.property.store.PropertyDeviceLifecycleTransition',
-        'Uni.property.store.PropertyEndDeviceGroups'
+        'Uni.property.store.PropertyEndDeviceGroups',
+        'Uni.property.store.PropertyWebServices',
     ],
 
     /**

@@ -12,14 +12,13 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ComTaskExecutionServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.DeviceMessageServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.SubParentGetMeterReadingsDomainExtension;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -55,6 +54,7 @@ public class FutureComTaskExecutionHandler implements TaskExecutor {
                         device = deviceOptional.get();
                     } else {
                         serviceCall.log(LogLevel.SEVERE, "Unable to get device for mrid " + deviceMrid);
+                        serviceCall.requestTransition(DefaultState.ONGOING);
                         serviceCall.requestTransition(DefaultState.FAILED);
                         return;
                     }
@@ -69,6 +69,7 @@ public class FutureComTaskExecutionHandler implements TaskExecutor {
                         comTaskExecutionOptional.get().runNow();
                     } else {
                         serviceCall.log(LogLevel.SEVERE, "The communication task required for the read-out not found on the device");
+                        serviceCall.requestTransition(DefaultState.ONGOING);
                         serviceCall.requestTransition(DefaultState.FAILED);
                     }
                 }

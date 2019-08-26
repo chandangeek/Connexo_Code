@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 
 import java.util.Comparator;
 

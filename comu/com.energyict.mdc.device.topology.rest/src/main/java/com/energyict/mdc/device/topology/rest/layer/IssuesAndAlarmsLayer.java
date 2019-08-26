@@ -2,12 +2,20 @@ package com.energyict.mdc.device.topology.rest.layer;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.rest.GraphLayer;
 import com.energyict.mdc.device.topology.rest.GraphLayerType;
 import com.energyict.mdc.device.topology.rest.info.DeviceNodeInfo;
@@ -15,12 +23,6 @@ import com.energyict.mdc.device.topology.rest.info.NodeInfo;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -109,25 +111,30 @@ public class IssuesAndAlarmsLayer  extends AbstractGraphLayer<Device> {
         this.ormService = ormService;
     }
 
-    private void countIssuesAndAlarms(DeviceNodeInfo info) {
-        Device device = info.getDevice();
-        EndDevice meter = device.getCurrentMeterActivation().get().getMeter().get();
+    private void countIssues(Optional<Meter> meter) {
         IssueStatus openStatus = issueService.findStatus(IssueStatus.OPEN).get();
-
         IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
         filter.addStatus(openStatus);
-        filter.addDevice(meter);
+        meter.ifPresent(filter::addDevice);
         setIssues(countIssues(issueDataCollectionService.findIssues(filter)));
+    }
 
+    private void countAlarms(Optional<Meter> meter) {
+        IssueStatus openStatus = issueService.findStatus(IssueStatus.OPEN).get();
         DeviceAlarmFilter alarmFilter = new DeviceAlarmFilter();
-        alarmFilter.setDevice(meter);
+        meter.ifPresent(alarmFilter::setDevice);
         alarmFilter.setStatus(openStatus);
         setAlarms(countAlarms(deviceAlarmService.findAlarms(alarmFilter)));
     }
 
     @Override
     public Map<String, Object> getProperties(NodeInfo<Device> info) {
-        countIssuesAndAlarms(((DeviceNodeInfo) info));
+        if (info instanceof DeviceNodeInfo) {
+            Optional<Meter> meter = Optional.ofNullable(((DeviceNodeInfo) info).getDevice())
+                    .flatMap(Device::getCurrentMeterActivation).flatMap(MeterActivation::getMeter);
+            countIssues(meter);
+            countAlarms(meter);
+        }
         return propertyMap();
     }
 

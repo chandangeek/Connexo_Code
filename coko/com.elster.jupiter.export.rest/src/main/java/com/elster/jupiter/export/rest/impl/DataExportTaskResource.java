@@ -18,6 +18,7 @@ import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.export.security.Privileges;
@@ -349,7 +350,7 @@ public class DataExportTaskResource {
                     if (info.standardDataSelector.validatedDataOption.equals(ValidatedDataOption.EXCLUDE_OBJECT)) {
                         throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
                     }
-                    DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings()
+                    DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings(info.dataSelector.name)
                             .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                             .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
                             .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
@@ -461,8 +462,7 @@ public class DataExportTaskResource {
             if (info.destinations.isEmpty()) {
                 throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
             }
-            String selectorString = task.getDataSelectorFactory().getName();
-            SelectorType selectorType = SelectorType.forSelector(selectorString);
+            SelectorType selectorType = task.getDataSelectorFactory().getSelectorType();
             task.getStandardDataSelectorConfig()
                     .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST))
                     .apply(new StandardDataSelectorUpdater(selectorType, info));

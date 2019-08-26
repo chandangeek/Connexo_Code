@@ -6,11 +6,11 @@ package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.PreparedStatementProvider;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

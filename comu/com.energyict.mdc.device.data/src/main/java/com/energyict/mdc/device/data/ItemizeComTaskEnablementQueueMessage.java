@@ -4,8 +4,10 @@
 
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+
 /**
- * Defines a QueueMessage containing the id of the {@link com.energyict.mdc.device.config.ComTaskEnablement}
+ * Defines a QueueMessage containing the id of the {@link ComTaskEnablement}
  *
  * @author sva
  * @since 2016-01-25 - 11:51

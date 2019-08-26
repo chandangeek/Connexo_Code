@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.common.pluggable.PluggableClass;
 
 import com.google.common.collect.Range;
 

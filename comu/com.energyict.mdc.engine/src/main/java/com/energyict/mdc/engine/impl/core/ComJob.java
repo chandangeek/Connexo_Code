@@ -4,16 +4,17 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
 import java.util.List;
 
 /**
  * A ComJob is a wrapper for a {@link ComTaskExecution} that is ready to be executed.
  * They will be returned by the {@link DeviceService}
- * when looking for work that can be executed on a {@link com.energyict.mdc.engine.config.ComPort}.
+ * when looking for work that can be executed on a {@link ComPort}.
  * When the ComPort supports simultaneous connections but the available
  * ScheduledComTasks are linked to an {@link ScheduledConnectionTask}
  * that does not support simultaneous connections, a ComJob is actually a group

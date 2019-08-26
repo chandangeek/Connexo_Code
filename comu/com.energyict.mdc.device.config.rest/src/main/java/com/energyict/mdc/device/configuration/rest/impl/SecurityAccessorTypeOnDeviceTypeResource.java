@@ -10,8 +10,8 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -52,7 +52,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceTypeSecurityAccessors(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<SecurityAccessorTypeInfo> infos = deviceType.getSecurityAccessorTypes().stream()
@@ -73,7 +73,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     @Path("/unassigned")
     public PagedInfoList getSecurityAccessorsUnassignedToDeviceType(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -93,7 +93,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     @Path("/{securityAccessorId}")
     public SecurityAccessorTypeInfo getDeviceTypeSecurityAccessor(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
@@ -111,7 +111,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response addSecurityAccessorTypesToDeviceType(@PathParam("deviceTypeId") long id, SecurityAccessorsForDeviceTypeInfo info) {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.version, info.name);
         SecurityAccessorType[] securityAccessorTypes = info.securityAccessors.stream()
@@ -128,7 +128,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Path("/{securityAccessorId}")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response removeSecurityAccessorTypeFromDeviceType(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, SecurityAccessorsForDeviceTypeInfo info) {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.version, info.name);
         SecurityAccessorType keyFunctionType = deviceType.getSecurityAccessorTypes().stream()
@@ -153,7 +153,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @Transactional
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     @Path("/{securityAccessorId}/defaultkey")
     public Response setDefaultKeySecurityAccessorTypeValue(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId, ServiceKeyDefultValueInfo info) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);

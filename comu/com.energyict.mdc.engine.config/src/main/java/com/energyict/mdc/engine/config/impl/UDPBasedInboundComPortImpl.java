@@ -7,8 +7,8 @@ package com.energyict.mdc.engine.config.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.engine.config.UDPBasedInboundComPort} interface.
+ * Provides an implementation for the {@link UDPBasedInboundComPort} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)

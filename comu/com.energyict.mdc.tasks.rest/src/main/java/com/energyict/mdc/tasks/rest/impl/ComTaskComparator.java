@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.tasks.rest.impl;
 
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import java.util.Comparator;
 

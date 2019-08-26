@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.engine.events;
 
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
 
 /**
  * Supports client applications to initiate the event registration mechanism.

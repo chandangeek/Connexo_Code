@@ -7,8 +7,8 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 
 import com.google.inject.Module;
 

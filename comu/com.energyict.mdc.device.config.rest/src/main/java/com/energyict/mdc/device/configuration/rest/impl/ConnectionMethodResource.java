@@ -11,14 +11,14 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -76,7 +76,7 @@ public class ConnectionMethodResource {
 
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public PagedInfoList getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                               @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                               @BeanParam JsonQueryParameters queryParameters,
@@ -105,7 +105,7 @@ public class ConnectionMethodResource {
     @GET @Transactional
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE, DeviceConfigConstants.VIEW_DEVICE_TYPE})
     public ConnectionMethodInfo getConnectionMethods(@PathParam("connectionMethodId") long connectionMethodId,
                                                         @Context UriInfo uriInfo) {
         PartialConnectionTask partialConnectionTask = resourceHelper.findPartialConnectionTaskByIdOrThrowException(connectionMethodId);
@@ -114,7 +114,7 @@ public class ConnectionMethodResource {
 
     @DELETE @Transactional
     @Path("/{connectionMethodId}")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response deleteConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
                                             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -129,7 +129,7 @@ public class ConnectionMethodResource {
     @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response createConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @Context UriInfo uriInfo,
@@ -148,7 +148,7 @@ public class ConnectionMethodResource {
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateConnectionMethod(@PathParam("deviceTypeId") long deviceTypeId,
                                            @PathParam("deviceConfigurationId") long deviceConfigurationId,
                                            @PathParam("connectionMethodId") long connectionMethodId,

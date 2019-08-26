@@ -9,6 +9,7 @@ import com.elster.jupiter.dualcontrol.Privileges;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
@@ -18,18 +19,22 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class GroupInfoFactory {
     private final ThreadPrincipalService principalService;
+    private UserService userService;
 
     @Inject
-    public GroupInfoFactory(ThreadPrincipalService principalService) {
+    public GroupInfoFactory(ThreadPrincipalService principalService, UserService userService) {
         this.principalService = principalService;
+        this.userService = userService;
     }
 
     public GroupInfo from(NlsService nlsService, Group group) {
@@ -50,8 +55,16 @@ public class GroupInfoFactory {
             int result = p1.applicationName.compareTo(p2.applicationName);
             return result != 0 ? result : p1.name.compareTo(p2.name);
         });
-        groupInfo.canEdit = groupInfo.name.equals(UserService.DEFAULT_ADMIN_ROLE) ? groupInfo.canEdit = false : groupInfo.privileges.stream().allMatch(privilegeInfo -> privilegeInfo.canGrant);
 
+        List<String> privilegesList = new ArrayList<>();
+        group.getPrivileges()
+                .values()
+                .stream()
+                .forEach(privileges -> {
+                            privilegesList.addAll(privileges.stream().map(Privilege::getName).collect(Collectors.toList()));
+                });
+
+        groupInfo.canEdit = (privilegesList.containsAll(Arrays.asList(userService.userAdminPrivileges())) && privilegesList.size() == userService.userAdminPrivileges().length) ? groupInfo.canEdit = false : groupInfo.privileges.stream().allMatch(privilegeInfo -> privilegeInfo.canGrant);
         groupInfo.currentUserCanGrant = canCurrentUserGrantRole(group);
 
         return groupInfo;

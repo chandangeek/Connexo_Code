@@ -30,6 +30,7 @@ import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
@@ -178,6 +179,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         when(this.dataSelectorFactory.getName()).thenReturn("DataSelectorFactor");
         when(this.dataSelectorFactory.getDisplayName()).thenReturn("DataSelectorFactor");
+        when(this.dataSelectorFactory.getSelectorType()).thenReturn(SelectorType.CUSTOM);
         when(dataExportService.getDataSelectorFactory(anyString())).thenReturn(Optional.of(this.dataSelectorFactory));
         when(exportTask.getDataSelectorFactory()).thenReturn(this.dataSelectorFactory);
         when(exportTask.getDataFormatterFactory()).thenReturn(this.dataFormatterFactory);
@@ -309,7 +311,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(builder).setApplication(applicationNameCaptor.capture());
         assertThat(applicationNameCaptor.getValue()).isEqualTo("MultiSense");
 
-        verify(builder).selectingMeterReadings();
+        verify(builder).selectingMeterReadings("Device readings data selector");
 
         verify(exportTask).addFileDestination("", "file", "txt");
         verify(exportTask).addEmailDestination("user1@elster.com;user2@elster.com", "daily report", "attachment", "csv");
@@ -366,7 +368,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(builder).setApplication(applicationNameCaptor.capture());
         assertThat(applicationNameCaptor.getValue()).isEqualTo("MultiSense");
 
-        verify(builder).selectingMeterReadings();
+        verify(builder).selectingMeterReadings("Device readings data selector");
 
         verify(exportTask).addWebServiceDestination(create, change);
         verify(exportTask).addSftpDestination("sftpserver", 21, "sftpuser", "sftppassword", "", "sftpfile", "sftptxt");
@@ -627,7 +629,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        verify(builder).selectingMeterReadings();
+        verify(builder).selectingMeterReadings(null);
         DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = (DataExportTaskBuilder.MeterReadingSelectorBuilder) this.builder;
         verify(selectorBuilder).fromExportPeriod(exportPeriod);
         verify(selectorBuilder).fromUpdatePeriod(updatePeriod);
@@ -765,7 +767,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$data[0].task.version")).isEqualTo(41);
         assertThat(jsonModel.<String>get("$data[0].task.dataSelector.displayName")).isEqualTo("DataSelectorFactor");
         assertThat(jsonModel.<String>get("$data[0].task.dataSelector.name")).isEqualTo("DataSelectorFactor");
-        assertThat(jsonModel.<String>get("$data[0].task.dataSelector.selectorType")).isEqualTo("CUSTOM");
+        assertThat(jsonModel.<String>get("$data[0].task.dataSelector.selectorType")).isEqualTo(SelectorType.CUSTOM.name());
     }
 
     @Test

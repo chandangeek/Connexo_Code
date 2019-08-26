@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.lifecycle;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 
 import aQute.bnd.annotation.ProviderType;
 

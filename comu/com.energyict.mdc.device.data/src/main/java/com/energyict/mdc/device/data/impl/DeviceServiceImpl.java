@@ -33,16 +33,29 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.PassiveCalendar;
+import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
@@ -50,10 +63,6 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
-import com.energyict.mdc.device.data.PassiveCalendar;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeExecutor;
@@ -62,22 +71,14 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.pki.AbstractDeviceSecurityAccessorImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
+
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
@@ -316,6 +317,11 @@ class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version) {
         return getDeviceMapper().lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<Device> findAndLockDeviceById(long id) {
+        return Optional.ofNullable(getDeviceMapper().lock(id));
     }
 
     @Override

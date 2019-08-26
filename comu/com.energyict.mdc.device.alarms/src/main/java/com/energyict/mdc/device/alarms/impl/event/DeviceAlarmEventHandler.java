@@ -5,15 +5,15 @@
 package com.energyict.mdc.device.alarms.impl.event;
 
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmEvent;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.inject.Injector;
@@ -68,7 +68,7 @@ public class DeviceAlarmEventHandler implements MessageHandler {
         try {
             event.init(map);
             event.wrap(map, description, getDeviceFromEventMap(map));
-        } catch (UnableToCreateEventException e) {
+        } catch (UnableToCreateIssueException e) {
             LOGGER.warning(e.getLocalizedMessage());
             return Optional.empty();
         }

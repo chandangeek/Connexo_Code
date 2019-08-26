@@ -5,7 +5,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ScheduledJob;
@@ -20,7 +21,7 @@ import java.util.TimeZone;
 /**
  * Models a {@link DeviceCommand} that reschedules a {@link ScheduledJob}
  * because the current timestamp is not within the {@link com.energyict.mdc.common.ComWindow}
- * of the related {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
+ * of the related {@link ConnectionTask}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-23 (15:32)

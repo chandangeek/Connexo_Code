@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 class DefaultItemExporter implements ItemExporter {
 
     private final ReadingDataFormatter dataFormatter;
-    private final List<IReadingTypeDataExportItem> exportItems = new ArrayList<>();
+    private final List<ReadingTypeDataExportItem> exportItems = new ArrayList<>();
 
     public DefaultItemExporter(DataFormatter dataFormatter) {
         if (dataFormatter instanceof ReadingDataFormatter) {
@@ -66,7 +66,7 @@ class DefaultItemExporter implements ItemExporter {
 
     @Override
     public List<FormattedExportData> exportItem(DataExportOccurrence occurrence, MeterReadingData meterReadingData) {
-        IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) meterReadingData.getItem();
+        ReadingTypeDataExportItem item = meterReadingData.getItem();
         dataFormatter.startItem(item);
         item.setLastRun(occurrence.getTriggerTime());
         item.setLastExportedDate(occurrence.getTriggerTime());
@@ -78,6 +78,6 @@ class DefaultItemExporter implements ItemExporter {
 
     @Override
     public void done() {
-        exportItems.forEach(IReadingTypeDataExportItem::update);
+        exportItems.forEach(ReadingTypeDataExportItem::update);
     }
 }

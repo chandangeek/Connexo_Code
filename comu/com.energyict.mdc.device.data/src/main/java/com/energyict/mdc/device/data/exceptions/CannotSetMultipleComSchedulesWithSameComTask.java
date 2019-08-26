@@ -6,9 +6,9 @@ package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 
 /**
  * Models the exceptional behavior that occurs when you try to add a ComSchedule to

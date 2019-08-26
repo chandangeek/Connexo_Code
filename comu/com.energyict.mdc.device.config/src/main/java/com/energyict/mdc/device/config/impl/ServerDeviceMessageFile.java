@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceMessageFile;
+import com.energyict.mdc.common.device.config.DeviceMessageFile;
 
 import java.time.Instant;
 

@@ -7,6 +7,11 @@ package com.energyict.mdc.device.config.exceptions;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.config.RegisterSpec;
 
 public class CannotAddToActiveDeviceConfigurationException extends LocalizedException {
 
@@ -16,8 +21,8 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
 
     /**
      * Creates a new CannotAddToActiveDeviceConfigurationException that models the exceptional
-     * situation that occurs when an attempt is made to add a {@link com.energyict.mdc.device.config.LoadProfileSpec}
-     * to an <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     * situation that occurs when an attempt is made to add a {@link LoadProfileSpec}
+     * to an <i>active</i> {@link DeviceConfiguration}
      *
      * @param thesaurus The Thesaurus
      * @return The CannotAddToActiveDeviceConfigurationException
@@ -28,8 +33,8 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
 
     /**
      * Creates a new CannotAddToActiveDeviceConfigurationException that models the exceptional
-     * situation that occurs when an attempt is made to add a {@link com.energyict.mdc.device.config.ChannelSpec}
-     * to an <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     * situation that occurs when an attempt is made to add a {@link ChannelSpec}
+     * to an <i>active</i> {@link DeviceConfiguration}
      *
      * @param thesaurus The Thesaurus
      * @return The CannotAddToActiveDeviceConfigurationException
@@ -40,8 +45,8 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
 
     /**
      * Creates a new CannotAddToActiveDeviceConfigurationException that models the exceptional
-     * situation that occurs when an attempt is made to add a {@link com.energyict.mdc.device.config.LogBookSpec}
-     * to an <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     * situation that occurs when an attempt is made to add a {@link LogBookSpec}
+     * to an <i>active</i> {@link DeviceConfiguration}
      *
      * @param thesaurus The Thesaurus
      * @return The CannotAddToActiveDeviceConfigurationException
@@ -52,8 +57,8 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
 
     /**
      * Creates a new CannotAddToActiveDeviceConfigurationException that models the exceptional
-     * situation that occurs when an attempt is made to add a {@link com.energyict.mdc.device.config.RegisterSpec}
-     * to an <i>active</i> {@link com.energyict.mdc.device.config.DeviceConfiguration}
+     * situation that occurs when an attempt is made to add a {@link RegisterSpec}
+     * to an <i>active</i> {@link DeviceConfiguration}
      *
      * @param thesaurus The Thesaurus
      * @return The CannotAddToActiveDeviceConfigurationException

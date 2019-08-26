@@ -4,8 +4,11 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.users.User;
@@ -40,15 +43,18 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
     private InboundEndPointConfiguration endPointConfiguration;
     private final WebServicesService webServicesService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final EventService eventService;
 
     @Inject
     public AuthorizationInInterceptor(UserService userService,
                                       WebServicesService webServicesService,
-                                      ThreadPrincipalService threadPrincipalService) {
+                                      ThreadPrincipalService threadPrincipalService,
+                                      EventService eventService) {
         super(Phase.PRE_INVOKE);
         this.userService = userService;
         this.webServicesService = webServicesService;
         this.threadPrincipalService = threadPrincipalService;
+        this.eventService = eventService;
     }
 
     public void handleMessage(Message message) throws Fault {
@@ -91,14 +97,14 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
     }
 
     private void fail(Message request, String message, String detailedMessage, int statusCode) {
-        webServicesService.failOccurrence(MessageUtils.getOccurrenceId(request), detailedMessage);
-        // TODO: create issue
+        WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(MessageUtils.getOccurrenceId(request), detailedMessage);
+        eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
         doFail(message, statusCode);
     }
 
     private void fail(Message request, String message, String detailedMessage, Exception e, int statusCode) {
-        webServicesService.failOccurrence(MessageUtils.getOccurrenceId(request), new Exception(detailedMessage, e));
-        // TODO: create issue
+        WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(MessageUtils.getOccurrenceId(request), new Exception(detailedMessage, e));
+        eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
         doFail(message, statusCode);
     }
 

@@ -105,6 +105,7 @@ public class CreationRuleResource extends BaseResource {
                         add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.TASK.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.WEB_SERVICE.getName()).get());
                     }})));
         }
 
@@ -267,9 +268,9 @@ public class CreationRuleResource extends BaseResource {
     @Path("/validateaction")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response validateAction(@QueryParam("reason_name") String reasonName, CreationRuleActionInfo info) {
+    public Response validateAction(@QueryParam("reason_name") String reasonKey, CreationRuleActionInfo info) {
         CreationRuleActionBuilder actionBuilder = getIssueCreationService().newCreationRule().newCreationRuleAction();
-        setAction(info, actionBuilder, reasonName);
+        setAction(info, actionBuilder, reasonKey);
         CreationRuleAction ruleAction = actionBuilder.complete();
         ruleAction.validate();
         return Response.ok(actionFactory.asInfo(ruleAction)).build();
@@ -320,7 +321,7 @@ public class CreationRuleResource extends BaseResource {
         rule.actions.forEach((info) -> setAction(info, builder.newCreationRuleAction(), null));
     }
 
-    private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder, String reasonName) {
+    private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder, String reasonKey) {
         if (actionInfo.phase != null) {
             actionBuilder.setPhase(CreationRuleActionPhase.fromString(actionInfo.phase.uuid));
         }
@@ -328,7 +329,7 @@ public class CreationRuleResource extends BaseResource {
             Optional<IssueActionType> actionType = getIssueActionService().findActionType(actionInfo.type.id);
             if (actionType.isPresent() && actionType.get().createIssueAction().isPresent() && actionInfo.properties != null) {
                 actionBuilder.setActionType(actionType.get());
-                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonName(reasonName).getPropertySpecs()) {
+                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonKey(reasonKey).getPropertySpecs()) {
                     Object value = propertyValueInfoService.findPropertyValue(propertySpec, actionInfo.properties);
                     if (value != null) {
                         actionBuilder.addProperty(propertySpec.getName(), value);

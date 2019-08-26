@@ -6,9 +6,9 @@ package com.energyict.protocols.mdc.services.impl;
 
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.ProtocolFamily;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 
 import com.energyict.license.FamilyRule;

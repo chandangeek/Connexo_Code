@@ -127,12 +127,6 @@ public class ConnectionStatusChangeCustomPropertySet implements CustomPropertySe
                         .finish(),
                 propertySpecService
                         .stringSpec()
-                        .named(ConnectionStatusChangeDomainExtension.FieldNames.CONFIRMATION_URL.javaName(), TranslationKeys.CONFIRMATION_URL)
-                        .describedAs(TranslationKeys.CONFIRMATION_URL)
-                        .fromThesaurus(thesaurus)
-                        .finish(),
-                propertySpecService
-                        .stringSpec()
                         .named(ConnectionStatusChangeDomainExtension.FieldNames.REASON_CODE.javaName(), TranslationKeys.REASON_CODE)
                         .describedAs(TranslationKeys.REASON_CODE)
                         .fromThesaurus(thesaurus)

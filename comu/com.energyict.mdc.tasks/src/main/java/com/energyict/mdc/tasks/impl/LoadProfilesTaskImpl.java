@@ -7,8 +7,8 @@ package com.energyict.mdc.tasks.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.MASTER_LOAD_PROFI
 import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
- * Implementation for a {@link com.energyict.mdc.tasks.LoadProfilesTask}
+ * Implementation for a {@link LoadProfilesTask}
  *
  * @author gna
  * @since 26/04/12 - 10:26

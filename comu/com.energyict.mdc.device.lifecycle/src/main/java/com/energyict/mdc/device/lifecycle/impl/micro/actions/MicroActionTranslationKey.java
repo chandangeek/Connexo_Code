@@ -5,14 +5,14 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 
 import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Contains translation keys for the {@link com.energyict.mdc.device.lifecycle.config.MicroAction}s.
+ * Contains translation keys for the {@link MicroAction}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-22 (11:11)

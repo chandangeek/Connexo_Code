@@ -66,7 +66,7 @@ public class DeviceCertificateInfo {
         if (matcher.matches()) {
             return matcher.group(1);
         } else {
-            throw new ZipFieldParserException(thesaurus, MessageSeeds.COULD_NOT_EXTRACT_SECURITY_ACCESSOR_TYPE, entry.getName());
+            return "UNKNOWN"; // this could be a SubCA certificate or client certificate, will just ignore it
         }
     }
 }

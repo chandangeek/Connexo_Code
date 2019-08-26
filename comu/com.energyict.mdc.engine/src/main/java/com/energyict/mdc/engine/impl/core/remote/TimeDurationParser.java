@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * Parses a JSONObject that was returned by a remote query to a {@link com.energyict.mdc.engine.config.ComPort}.
+ * Parses a JSONObject that was returned by a remote query to a {@link ComPort}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-04-11 (09:52)

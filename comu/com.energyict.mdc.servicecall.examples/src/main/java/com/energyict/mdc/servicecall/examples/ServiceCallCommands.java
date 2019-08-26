@@ -21,10 +21,10 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.TrackingCategory;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

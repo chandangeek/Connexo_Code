@@ -5,8 +5,8 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 
 import javax.annotation.security.RolesAllowed;
@@ -31,7 +31,7 @@ public class LoadProfileTypeResource {
 
     @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
+    @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_MASTER_DATA, DeviceConfigConstants.VIEW_MASTER_DATA})
     public LoadProfileTypeInfos getLoadProfileTypePropertyContext(@Context UriInfo uriInfo) {
         LoadProfileTypeInfos loadProfileTypeInfos = new LoadProfileTypeInfos();
         for (LoadProfileType loadProfileType : this.masterDataService.findAllLoadProfileTypes()) {

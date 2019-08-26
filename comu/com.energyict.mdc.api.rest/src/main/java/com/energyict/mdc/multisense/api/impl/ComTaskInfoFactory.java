@@ -8,9 +8,9 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

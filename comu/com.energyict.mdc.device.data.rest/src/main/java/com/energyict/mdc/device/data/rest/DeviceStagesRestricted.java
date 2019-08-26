@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.metering.EndDeviceStage;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.ws.rs.HttpMethod;
 import java.lang.annotation.Retention;

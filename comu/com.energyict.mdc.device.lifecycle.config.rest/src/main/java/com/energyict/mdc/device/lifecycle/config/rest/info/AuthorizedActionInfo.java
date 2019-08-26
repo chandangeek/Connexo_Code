@@ -5,8 +5,8 @@ package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

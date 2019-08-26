@@ -4,10 +4,10 @@
 
 package com.elster.jupiter.demo.impl.builders;
 
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;

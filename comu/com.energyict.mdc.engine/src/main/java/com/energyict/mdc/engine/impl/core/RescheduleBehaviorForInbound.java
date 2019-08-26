@@ -4,14 +4,15 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -83,5 +84,10 @@ public class RescheduleBehaviorForInbound extends AbstractRescheduleBehavior imp
                 }
             }
         }
+    }
+
+    @Override
+    protected Instant calculateNextRescheduleExecutionTimestamp() {
+        return clock.instant();
     }
 }

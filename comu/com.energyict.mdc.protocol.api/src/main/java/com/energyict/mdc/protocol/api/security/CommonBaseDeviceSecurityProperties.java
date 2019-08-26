@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.protocol.security.SecurityPropertySpecProvider;
 import com.energyict.mdc.upl.meterdata.Device;
 
 import javax.validation.constraints.NotNull;

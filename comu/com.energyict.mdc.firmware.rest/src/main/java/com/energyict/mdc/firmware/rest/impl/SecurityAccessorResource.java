@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.pki.security.Privileges;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.device.config.DeviceConfigConstants;
 import com.energyict.mdc.firmware.rest.SecurityAccessorInfo;
 import com.energyict.mdc.firmware.rest.SecurityAccessorInfoFactory;
 
@@ -38,7 +39,7 @@ public class SecurityAccessorResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     @Path("/availablesecurityaccessors")
     public Response getSecurityAccessorsWithFileOperations(@PathParam("deviceTypeId") long deviceTypeId) {
@@ -53,7 +54,7 @@ public class SecurityAccessorResource {
     @GET
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     public Response getSecurityAccessorInfo(@PathParam("deviceTypeId") long deviceTypeId) {
         return resourceHelper.findSecurityAccessorForSignatureValidation(deviceTypeId)
@@ -63,7 +64,7 @@ public class SecurityAccessorResource {
     @DELETE
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     public Response deleteSecurityAccessor(@PathParam("deviceTypeId") long deviceTypeId) {
         resourceHelper.deleteSecurityAccessorForSignatureValidation(deviceTypeId);
@@ -73,7 +74,7 @@ public class SecurityAccessorResource {
     @PUT
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,
+    @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE,
             Privileges.Constants.VIEW_SECURITY_ACCESSORS, Privileges.Constants.EDIT_SECURITY_ACCESSORS})
     @Path("/addsecurityaccessor/{securityAccessorId}")
     public Response addSecurityAccessor(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("securityAccessorId") long securityAccessorId) {

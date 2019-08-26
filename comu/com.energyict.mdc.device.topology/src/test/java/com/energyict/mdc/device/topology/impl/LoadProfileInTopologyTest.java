@@ -14,19 +14,20 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.Unit;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Test aspects of {@link com.energyict.mdc.device.data.LoadProfile}s that rely on the device topology.
+ * Test aspects of {@link LoadProfile}s that rely on the device topology.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-09 (15:09)

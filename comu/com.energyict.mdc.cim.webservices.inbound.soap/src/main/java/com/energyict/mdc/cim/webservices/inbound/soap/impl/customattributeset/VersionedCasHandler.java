@@ -7,7 +7,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.FaultSituationHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import com.google.common.collect.Range;

@@ -5,14 +5,12 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.util.ArrayList;

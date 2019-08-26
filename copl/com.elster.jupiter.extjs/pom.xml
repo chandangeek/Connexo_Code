@@ -35,7 +35,7 @@
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <configuration>
-                    <filesets>
+                    <filesets combine.children="append">
                         <fileset>
                             <directory>src/main/web/js/ext/packages</directory>
                             <includes>

@@ -6,10 +6,10 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
-import com.energyict.mdc.masterdata.MeasurementType;
 
 import java.time.Instant;
 

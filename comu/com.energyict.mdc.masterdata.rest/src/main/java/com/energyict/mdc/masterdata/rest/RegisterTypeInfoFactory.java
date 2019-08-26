@@ -6,8 +6,8 @@ package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 
 import javax.inject.Inject;
 

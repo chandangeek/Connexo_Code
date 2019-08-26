@@ -75,6 +75,6 @@ public class ConnectionStatusChangeCustomPropertySetTest extends AbstractCustomP
                 withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS));
         cps.setPropertySpecService(propertySpecService);
 
-        assertThat(cps.getPropertySpecs()).hasSize(5);
+        assertThat(cps.getPropertySpecs()).hasSize(4);
     }
 }

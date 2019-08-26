@@ -6,11 +6,11 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

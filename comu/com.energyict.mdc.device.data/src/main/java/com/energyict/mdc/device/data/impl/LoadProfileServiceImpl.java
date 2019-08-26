@@ -5,8 +5,8 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.util.streams.Currying;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;

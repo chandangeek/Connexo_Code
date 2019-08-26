@@ -7,7 +7,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;

@@ -5,11 +5,11 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
 
 import java.util.ArrayList;

@@ -4,12 +4,11 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.io.InboundCommunicationException;
-import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.SocketService;
 
 import java.util.concurrent.ThreadFactory;

@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import aQute.bnd.annotation.ProviderType;
 

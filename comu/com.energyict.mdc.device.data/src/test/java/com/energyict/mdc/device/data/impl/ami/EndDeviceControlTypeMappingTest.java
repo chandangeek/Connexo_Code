@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.ami;
 
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 
 import java.util.List;
 
