@@ -25,4 +25,8 @@ public interface DataSelectorFactory extends HasDynamicProperties, HasName {
     boolean isDefault();
 
     List<String> targetApplications();
+
+    default SelectorType getSelectorType() {
+        return SelectorType.forSelector(getName());
+    }
 }
