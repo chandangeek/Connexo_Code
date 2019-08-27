@@ -49,6 +49,7 @@ public class UpgraderV10_7 implements Upgrader {
         updateOpenIssueType();
         updateHistoricalIssueType();
         this.upgradeAllIssues();
+        this.createActionTypesIfNotPresent();
     }
 
     private void createActionTypesIfNotPresent() {
