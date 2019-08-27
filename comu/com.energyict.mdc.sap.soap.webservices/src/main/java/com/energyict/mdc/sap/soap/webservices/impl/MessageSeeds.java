@@ -76,8 +76,9 @@ public enum MessageSeeds implements MessageSeed {
     LRN_IS_NOT_UNIQUE(7004, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [{1},{2})."),
     PROPERTY_IS_NOT_SET(7005, "PropertyNotSet", "Property ''{0}'' isn''t set."),
     LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL(7006, "LrnAndProfileIdNotFoundForChannel", "LRN and Profile id aren''t found for reading type ''{0}'' of device ''{1}'' in the export time window."),
-    ENDPOINT_NOT_FOUND(7007, "EndpointNotFound", "Couldn''t find active endpoint for webservice ''{0}''"),
-    ERROR_PROCESSING_MTA_REQUEST(7008, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
+    ENDPOINT_NOT_FOUND(7007, "EndpointNotFound", "Couldn''t find active endpoint for webservice ''{0}''."),
+    DEVICE_IS_NOT_ACTIVE(7008, "deviceIsNotActive", "Device ''{0}'' isn''t in active state."),
+    ERROR_PROCESSING_MTA_REQUEST(7009, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
 
     //Micro checks
     AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "No LRN has been set on the device.");
