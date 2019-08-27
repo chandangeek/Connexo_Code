@@ -93,5 +93,7 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
 
-    void setSuspendTask(Instant suspendTask);
+    void setSuspendUntilTime(Instant suspendTask);
+
+    Instant getSuspendUntilTime();
 }

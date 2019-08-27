@@ -42,6 +42,7 @@ public class EstimationTaskInfo {
     public int logLevel = Level.WARNING.intValue();
     public List<TaskInfo> nextRecurrentTasks;
     public List<TaskInfo> previousRecurrentTasks;
+    public Instant suspendUntilTime;
 
     public EstimationTaskInfo() {
     }
@@ -82,6 +83,7 @@ public class EstimationTaskInfo {
         deviceGroup =  estimationTask.getEndDeviceGroup().map(MeterGroupInfo::new).orElse(null);
         usagePointGroup = estimationTask.getUsagePointGroup().map(upg -> new IdWithDisplayValueInfo<>(upg.getId(), upg.getName())).orElse(null);
         metrologyPurpose = estimationTask.getMetrologyPurpose().map(mp -> new IdWithDisplayValueInfo<>(mp.getId(), mp.getName())).orElse(null);
+        suspendUntilTime = estimationTask.getSuspendUntilTime();
         estimationTask.getPeriod().ifPresent(period -> this.period = RelativePeriodInfo.withCategories(period));
 
         Instant nextExecution = estimationTask.getNextExecution();
