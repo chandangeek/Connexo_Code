@@ -416,7 +416,12 @@ final class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
-    public void setSuspendTask(Instant suspendTask) {
+    public void setSuspendUntilTime(Instant suspendTask) {
         recurrentTask.get().setSuspendUntil(suspendTask);
+    }
+
+    @Override
+    public Instant getSuspendUntilTime() {
+        return  recurrentTask.get().getSuspendUntil();
     }
 }

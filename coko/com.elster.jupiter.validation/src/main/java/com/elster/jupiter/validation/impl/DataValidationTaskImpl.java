@@ -438,12 +438,12 @@ final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public void setSuspendUntil(Instant suspendUntilTime) {
+    public void setSuspendUntilTime(Instant suspendUntilTime) {
         recurrentTask.get().setSuspendUntil(suspendUntilTime);
     }
 
     @Override
-    public Instant getSuspendUntil() {
+    public Instant getSuspendUntilTime() {
         return recurrentTask.get().getSuspendUntil();
     }
 }
