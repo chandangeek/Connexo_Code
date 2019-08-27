@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -68,7 +69,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     private volatile EventService eventService;
 
     private Map<Long, EP> endpoints = new ConcurrentHashMap<>();
-
     /**
      * Must be overridden or re-implemented as a reference addition method in any subclass to inject endpoints; addition should be delegated to this method.
      * @param endpoint An endpoint injected with the help of multiple/dynamic {@link Reference}.
@@ -128,6 +128,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     private final class RequestSenderImpl implements RequestSender {
         private final String methodName;
+        private String payload;
         private Collection<EndPointConfiguration> endPointConfigurations;
 
         private RequestSenderImpl(String methodName) {
@@ -151,20 +152,23 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             return this;
         }
 
+
+
+
         private EP getEndpoint(EndPointConfiguration endPointConfiguration) {
             // TODO use here publish that throws exceptions to distinguish authorization error & unavailability
             if (endPointConfiguration.isActive()) {
                 publish(endPointConfiguration);
                 EP endpoint = endpoints.get(endPointConfiguration.getId());
                 if (endpoint == null) {
-                    long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                    long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
                     String message = thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
                     WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
                     eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
                 }
                 return endpoint;
             } else {
-                long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
                 String message = thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
                 WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
                 eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
@@ -173,14 +177,17 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         private Map<EndPointConfiguration, EP> getEndpoints() {
+            System.out.println("GET ENDPOINTS!!!!!!!!");
             if (endPointConfigurations == null) {
                 endPointConfigurations = endPointConfigurationService.getEndPointConfigurationsForWebService(getName()).stream()
                         .filter(EndPointConfiguration::isActive)
                         .collect(Collectors.toSet());
                 if (endPointConfigurations.isEmpty()) {
+                    System.out.println("ENDPOINT CONFIGURATIONs IS EMPTY!!!!!");
                     throw new EndPointException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS, getName());
                 }
             }
+            System.out.println("RETURN ENDPOINTS !!!!!"+endPointConfigurations);
             return endPointConfigurations.stream()
                     .map(epc -> Pair.of(epc, getEndpoint(epc)))
                     .filter(Pair::hasLast)
@@ -189,6 +196,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
         @Override
         public Map<EndPointConfiguration, ?> sendRawXml(String message) {
+            System.out.println("CALL sendRawXml!!!");
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
                     .filter(meth -> meth.getParameterCount() == 1)
@@ -203,8 +211,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                 JAXBContext jaxbContext = JAXBContext.newInstance(type);
                 Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
                 JAXBElement<?> root = jaxbUnmarshaller.unmarshal(msg.getSOAPBody().extractContentAsDocument(), type);
+                System.out.println("Call doSend!!!!");
                 return doSend(method, root.getValue());
             } catch (JAXBException | SOAPException | IOException e) {
+                System.out.println("Call get EndPoints in catch!!!!");
                 getEndpoints().keySet().forEach(endPointConfiguration -> {
                     long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), message).getId();
                     webServicesService.failOccurrence(id,
@@ -213,6 +223,12 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                 });
                 return Collections.emptyMap();
             }
+        }
+
+        @Override
+        public RequestSender withPayloadForFailedOccurrences(String payload) {
+            this.payload = payload;
+            return this;
         }
 
         @Override
@@ -228,19 +244,23 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         private Map<EndPointConfiguration, ?> doSend(Method method, Object request) {
+            //Set tmpSEt = getEndpoints().entrySet();
             return getEndpoints().entrySet().stream()
                     .map(epcAndEP -> {
                         Object port = epcAndEP.getValue();
+                        System.out.println("START OCCURRENCE!!!");
                         long id = webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName()).getId();
                         try {
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
                             Object response = method.invoke(port, request);
+                            System.out.println("PASS OCCURRENCE!!!");
                             webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);
                         } catch (IllegalAccessException | IllegalArgumentException e) {
                             throw new RuntimeException(e);
                         } catch (InvocationTargetException e) {
                             Throwable cause = e.getTargetException();
+                            System.out.println("FAIL OCCURRENCE!!!");
                             WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, cause instanceof Exception ? (Exception) cause : new Exception(cause));
                             if (cause instanceof WebServiceException) { // SOAP endpoint
                                 cause = cause.getCause();

@@ -59,5 +59,7 @@ public interface OutboundEndPointProvider extends EndPointProvider {
          * @throws RuntimeException In case the request should have been sent to all endpoint configurations, but no suitable one is found.
          */
         Map<EndPointConfiguration, ?> sendRawXml(String message);
+
+        RequestSender withPayloadForFailedOccurrences(String payload);
     }
 }
