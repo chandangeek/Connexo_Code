@@ -73,6 +73,11 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>webservices.demo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>webservices.outbound.rest.issue.actions</artifactId>
             <version>${project.version}</version>
         </dependency>
