@@ -40,12 +40,12 @@ Ext.define('Apr.view.taskmanagement.Setup', {
                           {
                             property: 'nextRun',
                             itemId: 'taskmanagement-sort-menu-nextrun',
-                            direction: Uni.component.sort.model.Sort.DESC
+                            direction: Uni.component.sort.model.Sort.ASC
                           },
                           {
                             property: 'queue',
                             itemId: 'taskmanagement-sort-menu-queue',
-                            direction: Uni.component.sort.model.Sort.DESC
+                            direction: Uni.component.sort.model.Sort.ASC
                           },
                           {
                             property: 'priority',

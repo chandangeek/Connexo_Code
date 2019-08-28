@@ -31,12 +31,12 @@ Ext.define('Apr.view.taskoverview.Setup', {
                       {
                         property: 'nextRun',
                         itemId: 'taskoverview-sort-menu-nextrun',
-                        direction: Uni.component.sort.model.Sort.DESC
+                        direction: Uni.component.sort.model.Sort.ASC
                       },
                       {
                         property: 'queue',
                         itemId: 'taskoverview-sort-menu-queue',
-                        direction: Uni.component.sort.model.Sort.DESC
+                        direction: Uni.component.sort.model.Sort.ASC
                       },
                       {
                         property: 'priority',
