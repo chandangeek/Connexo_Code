@@ -86,7 +86,7 @@ public class SearchApplication extends Application implements MessageSeedProvide
     }
 
     @Reference
-    public void setService(ThreadPrincipalService threadPrincipalService) {
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
 

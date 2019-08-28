@@ -13,16 +13,14 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.search.SearchBuilder;
-import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
-import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.search.*;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
 import com.jayway.jsonpath.JsonModel;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
@@ -30,23 +28,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DynamicSearchResourceTest extends SearchApplicationTest {
 
