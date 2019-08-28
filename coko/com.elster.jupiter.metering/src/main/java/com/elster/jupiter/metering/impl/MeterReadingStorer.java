@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -211,11 +212,15 @@ public class MeterReadingStorer {
     }
 
     private void store(Reading reading) {
+        boolean stored = false;
         for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+            logger.log(Level.INFO, "Check if  "  + reading.getReadingTypeCode() +  " with reading date " + reading.getTimeStamp() + " included in " + channelsContainer.getInterval().toClosedRange());
             if (channelsContainer.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
+                stored = true;
                 store(reading, channelsContainer);
             }
         }
+        logger.log(Level.INFO, "Reading " + reading.getReadingTypeCode() + " with value/text " + reading.getValue() + "/" + reading.getText() +  " stored: " + stored);
     }
 
     private void store(Reading reading, ChannelsContainer channelsContainer) {
