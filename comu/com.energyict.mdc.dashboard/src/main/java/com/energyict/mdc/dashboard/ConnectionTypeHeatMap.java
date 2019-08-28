@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dashboard;
 
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
 

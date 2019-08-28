@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core.factories;
 
-import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundComPortExecutor;

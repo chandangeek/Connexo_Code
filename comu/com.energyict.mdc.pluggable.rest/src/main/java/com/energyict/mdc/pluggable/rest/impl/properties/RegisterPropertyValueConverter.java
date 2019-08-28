@@ -6,7 +6,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.pluggable.rest.impl.RegisterInfo;
 
 /**

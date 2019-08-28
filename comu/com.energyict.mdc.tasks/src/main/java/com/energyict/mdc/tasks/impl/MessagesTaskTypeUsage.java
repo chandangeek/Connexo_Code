@@ -5,7 +5,7 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 
 public interface MessagesTaskTypeUsage extends HasId {
 

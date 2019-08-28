@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.common.device.data.Register;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;

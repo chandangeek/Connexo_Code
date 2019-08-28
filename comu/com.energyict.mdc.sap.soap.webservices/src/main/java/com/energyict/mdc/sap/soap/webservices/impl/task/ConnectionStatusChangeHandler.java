@@ -7,6 +7,7 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -15,7 +16,10 @@ import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateConfirmationMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,13 +30,15 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final ServiceCallService serviceCallService;
     private final TransactionService transactionService;
+    private final Clock clock;
 
     public ConnectionStatusChangeHandler(JsonService jsonService, SAPCustomPropertySets sapCustomPropertySets,
-                                         ServiceCallService serviceCallService, TransactionService transactionService) {
+                                         ServiceCallService serviceCallService, TransactionService transactionService, Clock clock) {
         this.jsonService = jsonService;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.serviceCallService = serviceCallService;
         this.transactionService = transactionService;
+        this.clock = clock;
     }
 
     @Override
@@ -52,7 +58,7 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
-    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 
@@ -70,9 +76,9 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
     private void resultTransition(ServiceCall parent) {
         List<ServiceCall> childs = findAllChilds(parent);
         if (isLastChild(childs)) {
-            if (hasAllChildState(childs, DefaultState.SUCCESSFUL)) {
+            if (hasAllChildrenInState(childs, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.SUCCESSFUL);
-            } else if (hasAllChildState(childs, DefaultState.CANCELLED)) {
+            } else if (hasAllChildrenInState(childs, DefaultState.CANCELLED)) {
                 sendResponseMessage(parent, DefaultState.CANCELLED);
             } else if (hasAnyChildState(childs, DefaultState.SUCCESSFUL)) {
                 sendResponseMessage(parent, DefaultState.PARTIAL_SUCCESS);
@@ -84,14 +90,27 @@ public class ConnectionStatusChangeHandler implements MessageHandler {
 
     private void sendResponseMessage(ServiceCall parent, DefaultState finalState) {
         try (TransactionContext context = transactionService.getContext()) {
-            parent.requestTransition(DefaultState.ONGOING);
-            parent.requestTransition(finalState);
+            if (parent.canTransitionTo(DefaultState.ONGOING)) {
+                parent.requestTransition(DefaultState.ONGOING);
+            }
+
+            ConnectionStatusChangeDomainExtension extension = parent.getExtensionFor(new ConnectionStatusChangeCustomPropertySet()).get();
+            parent.log(LogLevel.INFO, "Sending confirmation for disconnection order number: " + extension.getId());
+
+            StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
+                    .builder(sapCustomPropertySets)
+                    .from(parent, findAllChilds(parent), clock.instant())
+                    .build();
+
+            WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> {
+                        if (sender.call(responseMessage, parent)) {
+                            parent.requestTransition(finalState);
+                        } else {
+                            parent.requestTransition(DefaultState.FAILED);
+                        }
+                    }
+            );
             context.commit();
         }
-        StatusChangeRequestCreateConfirmationMessage responseMessage = StatusChangeRequestCreateConfirmationMessage
-                .builder(sapCustomPropertySets)
-                .from(parent, findAllChilds(parent))
-                .build();
-        WebServiceActivator.STATUS_CHANGE_REQUEST_CREATE_CONFIRMATIONS.forEach(sender -> sender.call(responseMessage));
     }
 }

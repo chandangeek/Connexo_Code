@@ -14,18 +14,18 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.device.data.DeviceMessageQueryFilter;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -186,7 +187,9 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
     @Override
     public Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> allFilterConditions = new ArrayList<>();
-        if (!deviceMessageQueryFilter.getDeviceGroups().isEmpty()) {
+        if (deviceMessageQueryFilter.getDevice().isPresent()) {
+            allFilterConditions.add(getDeviceSearchCondition(deviceMessageQueryFilter.getDevice().get()));
+        } else if (!deviceMessageQueryFilter.getDeviceGroups().isEmpty()) {
             allFilterConditions.add(getDeviceGroupSearchCondition(deviceMessageQueryFilter.getDeviceGroups()));
         }
         if (!deviceMessageQueryFilter.getMessageCategories().isEmpty()) {
@@ -264,10 +267,9 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
 
     private List<Condition> getAllMessageCategorySearchConditions(DeviceMessageQueryFilter deviceMessageQueryFilter) {
         List<Condition> deviceMessageConditions = new ArrayList<>();
-        for (DeviceMessageCategory deviceMessageCategory : deviceMessageQueryFilter.getMessageCategories()) {
-            List<Long> deviceMessageDbIds = getMessageCategorySearchCondition(deviceMessageQueryFilter, deviceMessageCategory);
-            deviceMessageConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).in(deviceMessageDbIds));
-        }
+        deviceMessageConditions.add(Where.where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).in(
+                deviceMessageQueryFilter.getMessageCategories().stream()
+                        .flatMap(dmc -> getMessageCategorySearchCondition(deviceMessageQueryFilter, dmc).stream()).collect(Collectors.toList())));
         return deviceMessageConditions;
     }
 
@@ -298,6 +300,10 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
                 .map(endDeviceGroup -> ListOperator.IN.contains(endDeviceGroup.toSubQuery("id"), DeviceMessageImpl.Fields.DEVICE.fieldName()))
                 .map(Condition.class::cast)
                 .reduce(Condition.FALSE, Condition::or);
+    }
+
+    private Condition getDeviceSearchCondition(Device device) {
+        return where(DeviceMessageImpl.Fields.DEVICE.fieldName()).isEqualTo(device);
     }
 
     @Override

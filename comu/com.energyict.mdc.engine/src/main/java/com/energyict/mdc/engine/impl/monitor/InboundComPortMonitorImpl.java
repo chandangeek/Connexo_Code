@@ -5,7 +5,7 @@
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
 

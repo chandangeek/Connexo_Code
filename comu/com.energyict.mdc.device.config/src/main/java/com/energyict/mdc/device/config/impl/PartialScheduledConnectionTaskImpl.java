@@ -14,13 +14,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeleteEventType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
@@ -33,7 +34,7 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Provides an implementation for an {@link com.energyict.mdc.device.config.PartialScheduledConnectionTask}
+ * Provides an implementation for an {@link PartialScheduledConnectionTask}
  *
  * @author sva
  * @since 22/01/13 - 17:27
@@ -140,11 +141,6 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
 
     @Override
     public void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask) {
-        this.initiator.set(partialConnectionInitiationTask);
-    }
-
-    @Override
-    public void setInitiationTask(PartialConnectionInitiationTaskImpl partialConnectionInitiationTask) {
         this.initiator.set(partialConnectionInitiationTask);
     }
 

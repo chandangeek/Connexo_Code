@@ -4,6 +4,10 @@
 
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
@@ -12,9 +16,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Models the constraints that the {@link com.energyict.mdc.device.config.SecurityPropertySet}
- * of a {@link com.energyict.mdc.device.config.ComTaskEnablement} must be from the same
- * {@link com.energyict.mdc.device.config.DeviceConfiguration}.
+ * Models the constraints that the {@link SecurityPropertySet}
+ * of a {@link ComTaskEnablement} must be from the same
+ * {@link DeviceConfiguration}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-22 (14:52)

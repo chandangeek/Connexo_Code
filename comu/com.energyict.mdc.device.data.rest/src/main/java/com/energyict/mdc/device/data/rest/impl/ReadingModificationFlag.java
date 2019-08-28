@@ -9,7 +9,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Reading;
+import com.energyict.mdc.common.device.data.Reading;
 
 import java.util.Arrays;
 import java.util.Collection;

@@ -5,10 +5,10 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
 import java.time.Clock;

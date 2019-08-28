@@ -4,38 +4,63 @@
 package com.energyict.mdc.sap.soap.webservices;
 
 import com.elster.jupiter.metering.Channel;
-import com.energyict.mdc.device.data.Device;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface SAPCustomPropertySets {
 
-    Optional<BigDecimal> getSapDeviceId(Device device);
+    Optional<String> getSapDeviceId(Device device);
 
-    Optional<BigDecimal> getSapDeviceId(String deviceName);
+    Optional<String> getSapDeviceId(String deviceName);
 
-    Optional<Device> getDevice(BigDecimal sapDeviceId);
+    void setSapDeviceId(Device device, String sapDeviceId);
 
-    /**
-     * It's not guaranteed what happens if the range is not fully contained in the channel lifetime.
-     */
-    Map<BigDecimal, RangeSet<Instant>> getLrn(Channel channel, Range<Instant> range);
+    Optional<Device> getDevice(String sapDeviceId);
 
     /**
      * It's not guaranteed what happens if the range is not fully contained in the channel lifetime.
      */
-    Map<BigDecimal, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Channel channel, Range<Instant> range);
+    Map<String, RangeSet<Instant>> getLrn(Channel channel, Range<Instant> range);
 
     /**
      * It's not guaranteed what happens if the range is not fully contained in the channel lifetime.
      */
-    Map<BigDecimal, RangeSet<Instant>> getLrn(com.energyict.mdc.device.data.Register register, Range<Instant> range);
+    Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Channel channel, Range<Instant> range);
 
-    Optional<Channel> getChannel(BigDecimal lrn, Instant when);
+    /**
+     * It's not guaranteed what happens if the range is not fully contained in the channel lifetime.
+     */
+    Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Register register, Range<Instant> range);
+
+    void setLrn(Register register, String lrn, Instant startDateTime, Instant endDateTime);
+
+    void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime);
+
+    boolean isAnyLrnPresent(long deviceId);
+
+    Optional<Channel> getChannel(String lrn, Instant when);
+
+    void setLocation(Device device, String locationId);
+
+    void setPod(Device device, String podId);
+
+    Map<Pair<Long, ChannelSpec>, List<Pair<Range<Instant>, Range<Instant>>>> getChannelInfos(String lrn, Range<Instant> interval);
+
+    Optional<ChannelSpec> getChannelSpecForProfileId(ChannelSpec channelSpec, long deviceId, String profileId, Range<Instant> interval);
+
+    Set<ReadingType> findReadingTypesForProfileId(String profileId);
+
+    Map<String, RangeSet<Instant>> getProfileId(Channel channel, Range<Instant> range);
 }

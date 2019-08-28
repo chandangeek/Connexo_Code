@@ -4,13 +4,15 @@
 
 package com.energyict.mdc.dashboard;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import aQute.bnd.annotation.ProviderType;
 
 /**
- * Models the overview of the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}s
- * or {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s
+ * Models the overview of the {@link ConnectionTask}s
+ * or {@link ComTaskExecution}s
  * that are configured and scheduled in the system.
  *
  * @author Rudi Vankeirsbilck (rudi)

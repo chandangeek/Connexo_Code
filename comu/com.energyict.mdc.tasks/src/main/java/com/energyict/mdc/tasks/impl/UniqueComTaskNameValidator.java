@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.tasks.impl;
 
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;

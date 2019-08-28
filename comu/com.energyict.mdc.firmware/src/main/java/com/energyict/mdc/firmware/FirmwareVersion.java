@@ -4,9 +4,7 @@
 
 package com.energyict.mdc.firmware;
 
-import aQute.bnd.annotation.ProviderType;
-
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
 import aQute.bnd.annotation.ProviderType;
@@ -74,6 +72,10 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
     Optional<FirmwareVersion> getCommunicationFirmwareDependency();
 
     void setCommunicationFirmwareDependency(FirmwareVersion communicationFirmwareDependency);
+
+    Optional<FirmwareVersion> getAuxiliaryFirmwareDependency();
+
+    void setAuxiliaryFirmwareDependency(FirmwareVersion auxiliaryFirmwareDependency);
 
     default int compareTo(FirmwareVersion o) {
         return compare(this, o);

@@ -9,14 +9,14 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.engine.config.ComPortPoolProperty;
+import com.energyict.mdc.common.comserver.ComPortPoolProperty;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.UnmodifiableTypedProperties;
 
 import javax.inject.Inject;
@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.engine.config.InboundComPortPool} interface.
+ * Provides an implementation for the {@link InboundComPortPool} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-26 (10:21)

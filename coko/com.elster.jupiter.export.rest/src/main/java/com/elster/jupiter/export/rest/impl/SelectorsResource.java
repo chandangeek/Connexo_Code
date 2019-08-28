@@ -6,6 +6,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
+import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -59,7 +60,7 @@ public class SelectorsResource {
                                 factory.getName(),
                                 factory.getDisplayName(),
                                 propertyValueInfoService.getPropertyInfos(factory.getPropertySpecs()),
-                                SelectorType.forSelector(factory.getName())
+                                factory.getSelectorType()
                         )
                 )
                 .collect(Collectors.toList());

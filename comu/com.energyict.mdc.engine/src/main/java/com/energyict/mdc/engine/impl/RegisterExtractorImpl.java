@@ -1,11 +1,12 @@
 package com.energyict.mdc.engine.impl;
 
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.Reading;
-import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.common.device.config.RegisterSpec;
+import com.energyict.mdc.common.device.data.Reading;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;

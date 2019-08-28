@@ -18,7 +18,9 @@ public enum SNMPAttributes implements DLMSClassAttributes {
     NOTIFICATION_TYPE(7, 0x30),
     NOTIFICATION_USER(8, 0x38),
     NOTIFICATION_HOST(9, 0x40),
-    NOTIFICATION_PORT(10, 0x48);
+    NOTIFICATION_PORT(10, 0x48),
+    MAX_LOGIN_ATTEMPTS(11, 0x50),
+    LOCKOUT_DURATION(12, 0x58);
 
     private int attributeNumber;
     private int shortName;

@@ -131,8 +131,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public <T> PropertySpecBuilderWizard.NlsOptions<T> referenceSpec(Class<T> apiClass) {
-        ReferenceValueFactory<T> valueFactory = new ReferenceValueFactory<T>(this.ormService, beanService).init(apiClass);
-        return this.specForValuesOf(valueFactory);
+        return this.specForValuesOf(referenceValueFactory(apiClass));
+    }
+
+    @Override
+    public <T> ValueFactory<T> referenceValueFactory(Class<T> apiClass) {
+        return new ReferenceValueFactory<T>(this.ormService, beanService).init(apiClass);
     }
 
     @Override

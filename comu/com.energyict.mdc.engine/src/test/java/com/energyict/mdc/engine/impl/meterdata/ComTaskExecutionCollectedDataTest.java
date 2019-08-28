@@ -5,13 +5,13 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
-import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.util.ArrayList;
 import java.util.Arrays;

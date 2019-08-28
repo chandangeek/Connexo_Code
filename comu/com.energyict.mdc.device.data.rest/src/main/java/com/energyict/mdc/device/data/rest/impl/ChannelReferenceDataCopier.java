@@ -10,11 +10,11 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeComparator;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.LoadProfileReading;
 import com.energyict.mdc.common.rest.IntervalInfo;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 
 import com.google.common.collect.Range;

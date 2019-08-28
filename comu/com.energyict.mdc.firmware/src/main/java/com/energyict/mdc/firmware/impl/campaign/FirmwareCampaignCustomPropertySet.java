@@ -13,7 +13,7 @@ import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.TranslationKeys;
 
@@ -121,6 +121,26 @@ public class FirmwareCampaignCustomPropertySet implements CustomPropertySet<Serv
                 propertySpecService
                         .timeDurationSpec()
                         .named(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_TIMEOUT.javaName(), TranslationKeys.VALIDATION_TIMEOUT)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .longSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(), TranslationKeys.FIRMWARE_UPLOAD_COMTASK_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(), TranslationKeys.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .longSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName(), TranslationKeys.VALIDATION_COMTASK_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                propertySpecService
+                        .stringSpec()
+                        .named(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), TranslationKeys.VALIDATION_CONNECTIONSTRATEGY)
                         .fromThesaurus(thesaurus)
                         .finish()
         );

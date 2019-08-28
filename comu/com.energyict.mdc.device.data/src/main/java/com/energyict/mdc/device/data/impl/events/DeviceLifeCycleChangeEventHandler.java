@@ -10,10 +10,11 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.energyict.mdc.common.device.config.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 
@@ -28,7 +29,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Responds to {@link DeviceLifeCycleChangeEvent}s and will
  * check that there are no devices that are currently using
  * a {@link State} that no longer exists in the new
- * {@link com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle}.
+ * {@link DeviceLifeCycle}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-18 (11:49)

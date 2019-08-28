@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.mocks;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 
 /**
  * Used for testing {@link DeviceProtocolPluggableClass}.

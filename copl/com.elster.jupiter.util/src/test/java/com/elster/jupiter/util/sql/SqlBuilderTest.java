@@ -4,17 +4,21 @@
 
 package com.elster.jupiter.util.sql;
 
+import com.elster.jupiter.util.HasId;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLData;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLData;
-import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -200,5 +204,29 @@ public class SqlBuilderTest {
         verify(preparedStatement).setInt(2, 400);
     }
 
+    @Test
+    public void testINClause() {
+        SqlBuilder builder = new SqlBuilder("select * from table where id");
+        List<? extends HasId> ids = Arrays.asList(new HasId() {
+            @Override
+            public long getId() {
+                return 1;
+            }
+        }, new HasId() {
+            @Override
+            public long getId() {
+                return 2;
+            }
+        }, new HasId() {
+            @Override
+            public long getId() {
+                return 3;
+            }
+        });
+
+        builder.addInClauseForIdList(ids);
+
+        assertThat("select * from table where id IN (1,2,3)".equals(builder.getText())).isTrue();
+    }
 
 }

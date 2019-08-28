@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.impl.service;
@@ -32,6 +32,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueDeviceFilter;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -58,6 +59,8 @@ import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -72,6 +75,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -88,6 +92,8 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -102,6 +108,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -165,6 +172,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private final List<IssueProvider> issueProviders = new ArrayList<>();
     private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
+    private volatile Optional<IssueDeviceFilter> issueDeviceFilterProvider = Optional.empty();
+
 
     public IssueServiceImpl() {
     }
@@ -354,6 +363,15 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @SuppressWarnings("unused") // Called by OSGi framework when IssueReasonTranslationProvider component deactivates
     public void removeIssueReasonTranslationProvider(IssueReasonTranslationProvider obsolete) {
         // Don't bother unjoining the provider's thesaurus
+    }
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    public void addIssueDeviceFilter(IssueDeviceFilter issueDeviceFilter) {
+        this.issueDeviceFilterProvider = Optional.of(issueDeviceFilter);
+    }
+
+    public void removeIssueDeviceFilter(IssueDeviceFilter issueDeviceFilter) {
+        this.issueDeviceFilterProvider = Optional.empty();
     }
 
     private void addTranslationProvider(String componentName, Layer layer) {
@@ -826,16 +844,26 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         }
         //filter by device
         if (!filter.getDevices().isEmpty()) {
-            condition = condition.and(where("device").in(filter.getDevices()));
+            List<EndDevice> filterDevices = new ArrayList<>(filter.getDevices());
+            //add topology devices
+            if (filter.getShowTopology() && issueDeviceFilterProvider.isPresent()) {
+                filterDevices.addAll(issueDeviceFilterProvider.get().getShowTopologyCondition(filter.getDevices()));
+            }
+            condition = condition.and(where("device").in(filterDevices));
         }
+        //filter by location
+        if (!filter.getLocations().isEmpty()) {
+            condition = condition.and(where("device.location").in(filter.getLocations()));
+        }
+
         //filter by device group
         if (!filter.getDeviceGroups().isEmpty()) {
             condition = condition.and(getDeviceGroupSearchCondition(filter.getDeviceGroups()));
         }
         //filter by usagepoint
-        if (!filter.getUsagePoints().isEmpty()) {
-            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
-        }
+//        if (!filter.getUsagePoints().isEmpty()) {
+//            condition = condition.and(where("usagePoint").in(filter.getUsagePoints()));
+//        }
 
         //filter by usagepoint
         if (!filter.getUsagePointGroups().isEmpty()) {
@@ -862,6 +890,38 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .and(where("dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
             }
             condition = condition.and(dueDateCondition);
+        }
+
+        //filter by createDate
+        if (filter.getStartCreateTime() != null && filter.getEndCreateTime() != null) {
+            Condition creationDate = Condition.FALSE;
+            creationDate = creationDate.or(where("createTime").isGreaterThan(filter.getStartCreateTime())
+                    .and(where("createTime").isLessThan(filter.getEndCreateTime())));
+            condition = condition.and(creationDate);
+        }
+
+        //filter by priority
+        if (!filter.getPriorities().isEmpty()){
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = null;
+            try {
+                node = mapper.readTree(filter.getPriorities());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if ( node.get("operator").asText().equals("<") ){
+                condition = condition.and(where("priorityTotal").isLessThan(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals(">")){
+                condition = condition.and(where("priorityTotal").isGreaterThan(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals("==")){
+                condition = condition.and(where("priorityTotal").isEqualTo(node.get("criteria").asInt()));
+            }else if(node.get("operator").asText().equals("BETWEEN")){
+                int first = node.get("criteria").get(0).asInt();
+                int second = node.get("criteria").get(1).asInt();
+                condition = condition.and(where("priorityTotal").isGreaterThan(first))
+                        .and(where("priorityTotal").isLessThan(second));
+            }
+
         }
         return condition;
     }

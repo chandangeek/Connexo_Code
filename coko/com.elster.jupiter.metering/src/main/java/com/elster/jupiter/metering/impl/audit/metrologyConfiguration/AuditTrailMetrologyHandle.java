@@ -9,6 +9,7 @@ import com.elster.jupiter.audit.AuditDomainContextType;
 import com.elster.jupiter.audit.AuditTrailDecoderHandle;
 import com.elster.jupiter.audit.AuditTrailReference;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -58,7 +59,7 @@ public class AuditTrailMetrologyHandle implements AuditTrailDecoderHandle {
 
     @Override
     public List<String> getPrivileges() {
-        return Arrays.asList("privilege.view.metrologyConfiguration", "privilege.administer.metrologyConfiguration");
+        return Arrays.asList(Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION);
     }
 
     @Override

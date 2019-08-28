@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.tasks.impl;
 
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -19,13 +21,13 @@ public class LoadProfileTaskValidator implements ConstraintValidator<ValidLoadPr
         if (value.isMarkIntervalsAsBadTime()) {
             if (!value.getMinClockDiffBeforeBadTime().isPresent()) {
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+ TaskServiceKeys.CAN_NOT_BE_EMPTY +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
                 valid = false;
             }
             else {
                 if (value.getMinClockDiffBeforeBadTime().get().getCount() <= 0) {
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.TIMEDURATION_MUST_BE_POSITIVE +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
+                    context.buildConstraintViolationWithTemplate("{"+ TaskServiceKeys.TIMEDURATION_MUST_BE_POSITIVE +"}").addPropertyNode(LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()).addConstraintViolation();
                     valid = false;
                 }
             }

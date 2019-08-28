@@ -7,11 +7,11 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMap;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 
 import javax.inject.Inject;
 import java.util.ArrayList;

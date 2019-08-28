@@ -4,13 +4,13 @@
 
 package com.elster.jupiter.issue.share;
 
-import java.util.Optional;
-
-import aQute.bnd.annotation.ConsumerType;
-
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+
+import aQute.bnd.annotation.ConsumerType;
+
+import java.util.Optional;
 
 @ConsumerType
 public interface IssueProvider {
@@ -20,5 +20,4 @@ public interface IssueProvider {
     Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue);
 
     Optional<? extends Issue> findIssue(long id);
-    
 }

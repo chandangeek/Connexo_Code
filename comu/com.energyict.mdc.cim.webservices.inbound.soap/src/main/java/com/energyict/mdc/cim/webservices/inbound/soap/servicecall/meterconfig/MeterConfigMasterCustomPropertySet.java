@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -145,6 +146,12 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                         .named(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName(), TranslationKeys.CALL_BACK_URL)
                         .describedAs(TranslationKeys.CALL_BACK_URL)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.javaName(), TranslationKeys.CORRELATION_ID)
+                        .describedAs(TranslationKeys.CORRELATION_ID)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -212,6 +219,12 @@ public class MeterConfigMasterCustomPropertySet implements CustomPropertySet<Ser
                     .varChar()
                     .map(MeterConfigMasterDomainExtension.FieldNames.CALLBACK_URL.javaName())
                     .notNull()
+                    .add();
+            table.column(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.databaseName())
+                    .varChar()
+                    .since(Version.version(10,7))
+                    .map(MeterConfigMasterDomainExtension.FieldNames.CORRELATION_ID.javaName())
+                    .notNull(false)
                     .add();
         }
 

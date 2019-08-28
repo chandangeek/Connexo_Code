@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
@@ -19,7 +20,6 @@ import com.energyict.mdc.device.data.impl.ami.commands.LoadControlInitiateComman
 import com.energyict.mdc.device.data.impl.ami.commands.LoadControlTerminateCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +108,7 @@ public enum EndDeviceControlTypeMapping {
             return Optional.of(new GenerateCSRCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
         }
     },
-    IMPORT_CERTIFICATE("0.12.21.105", Arrays.asList(DeviceMessageId.SECURITY_IMPORT_CERTIFICATE, DeviceMessageId.IMPORT_CLIENT_END_DEVICE_CERTIFICATE, DeviceMessageId.IMPORT_SERVER_END_DEVICE_CERTIFICATE)) {
+    IMPORT_CERTIFICATE("0.12.21.105", Arrays.asList(DeviceMessageId.IMPORT_SERVER_END_DEVICE_CERTIFICATE)) {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
             return Optional.of(new ImportCertificateCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));

@@ -7,11 +7,12 @@ package com.energyict.protocolimplv2.ace4000;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
+
 import com.google.inject.Module;
 
 import java.util.Collections;

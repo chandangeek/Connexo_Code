@@ -5,6 +5,9 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeConnectionTaskItem;
 
 import java.util.ArrayList;
@@ -14,8 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-
-import static com.elster.jupiter.util.streams.Predicates.not;
 
 /**
  * This engine will check every DeviceConfiguration and it will determine the actions that need to take place if one wants to change

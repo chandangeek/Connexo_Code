@@ -6,10 +6,11 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
+
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import java.util.List;

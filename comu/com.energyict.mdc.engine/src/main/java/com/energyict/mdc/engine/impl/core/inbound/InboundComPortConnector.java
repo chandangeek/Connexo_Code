@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 
 public interface InboundComPortConnector extends AutoCloseable {
@@ -15,7 +16,7 @@ public interface InboundComPortConnector extends AutoCloseable {
      * wrap all the connection related exceptions into an InboundCommunicationException.<br/>
      * Never return a null, but always try to use a descent ComChannel (see VoidComChannel for dummy implementations)<br/>
      * If for some reason you should configure a timeOut on your accept, then it is advised to the set the
-     * timeOut equal to the {@link com.energyict.mdc.engine.config.ComServer#getChangesInterPollDelay()}
+     * timeOut equal to the {@link ComServer#getChangesInterPollDelay()}
      *
      * @return a ComChannel based on the received call.
      */

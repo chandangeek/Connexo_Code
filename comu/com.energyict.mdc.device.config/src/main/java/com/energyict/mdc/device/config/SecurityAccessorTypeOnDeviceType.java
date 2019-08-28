@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.pki.SecurityAccessorType;
+import com.energyict.mdc.common.device.config.DeviceType;
 
 import aQute.bnd.annotation.ProviderType;
 

@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.masterdata.impl;
 
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
 import javax.inject.Inject;

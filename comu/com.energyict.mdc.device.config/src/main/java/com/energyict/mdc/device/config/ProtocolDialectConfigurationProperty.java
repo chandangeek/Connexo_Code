@@ -4,6 +4,8 @@
 
 package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+
 import aQute.bnd.annotation.ProviderType;
 
 /**

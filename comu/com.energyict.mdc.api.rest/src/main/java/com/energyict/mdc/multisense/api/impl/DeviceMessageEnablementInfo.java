@@ -5,7 +5,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.common.device.config.DeviceMessageUserAction;
 
 import java.util.Set;
 

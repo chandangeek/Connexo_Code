@@ -6,7 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

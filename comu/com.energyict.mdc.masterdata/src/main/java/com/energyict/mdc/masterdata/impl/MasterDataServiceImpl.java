@@ -25,19 +25,18 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.obis.ObisCode;
-
 import com.energyict.mdc.common.Constants;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.ChannelType;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.MeasurementType;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
+import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -163,6 +162,11 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
     }
 
     @Override
+    public Optional<RegisterType> findAndLockRegisterTypeById(long id) {
+        return Optional.ofNullable(this.getDataModel().mapper(RegisterType.class).lock( id));
+    }
+
+    @Override
     public Optional<ChannelType> findChannelTypeById(long id) {
         return this.getDataModel().mapper(ChannelType.class).getUnique("id", id);
     }
@@ -210,6 +214,11 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
     @Override
     public Optional<LoadProfileType> findAndLockLoadProfileTypeByIdAndVersion(long id, long version) {
         return this.getDataModel().mapper(LoadProfileType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<LoadProfileType> findAndLockLoadProfileTypeById(long id) {
+        return Optional.ofNullable(this.getDataModel().mapper(LoadProfileType.class).lock(id));
     }
 
     @Override

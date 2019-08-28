@@ -66,6 +66,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle.config</artifactId>
         </dependency>
         <dependency>
@@ -273,11 +277,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.topology</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.common</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

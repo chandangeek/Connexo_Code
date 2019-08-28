@@ -7,7 +7,7 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 public class CampaignForComTaskExecutionExceptions {
 

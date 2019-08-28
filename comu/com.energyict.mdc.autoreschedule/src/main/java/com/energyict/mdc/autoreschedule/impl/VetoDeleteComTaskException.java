@@ -6,7 +6,7 @@ package com.energyict.mdc.autoreschedule.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTask;
 
 /**
  * Insert your comments here.

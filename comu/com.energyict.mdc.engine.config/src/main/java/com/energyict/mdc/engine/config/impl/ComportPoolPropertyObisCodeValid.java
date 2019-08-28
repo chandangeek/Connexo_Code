@@ -1,12 +1,9 @@
 package com.energyict.mdc.engine.config.impl;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.obis.ObisCode;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Optional;
 
 public class ComportPoolPropertyObisCodeValid implements ConstraintValidator<ObisCodePropertyIsValid, ComPortPoolPropertyImpl> {
     @Override

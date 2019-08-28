@@ -14,11 +14,38 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ComTaskExecutionTrigger;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.ServerComTaskExecution;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.TaskPriorityConstants;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TopologyTask;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
@@ -28,41 +55,15 @@ import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.TaskStatusTranslationKeys;
 import com.energyict.mdc.device.data.impl.UpdateEventType;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksMustBeEnabledByDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ManuallyScheduledNextExecSpecRequired;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SaveScheduled;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SharedScheduleComScheduleRequired;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import javax.inject.Inject;
@@ -74,6 +75,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 @ManuallyScheduledNextExecSpecRequired(groups = {SaveScheduled.class})
@@ -89,6 +91,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR
     }
 
+    private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionImpl.class.getName());
     private final Clock clock;
 
     private final CommunicationTaskService communicationTaskService;
@@ -231,15 +234,23 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public boolean isExecuting() {
-        return this.comPort.isPresent()
-                || (this.connectionTask.isPresent() && this.connectionTask.getOptional().isPresent()
-                && (this.connectionTask.get().getExecutingComServer() != null)
-                && ((this.getNextExecutionTimestamp() != null
-                && this.getNextExecutionTimestamp().isBefore(this.clock.instant()))
-                || (this.getNextExecutionTimestamp() == null
-                && this.isIgnoreNextExecutionSpecsForInbound()
-                && this.connectionTask.get() instanceof InboundConnectionTask))
-        );
+        return comPort.isPresent()
+                ||
+                (connectionTask.isPresent() && connectionTask.getOptional().isPresent()
+                    && (connectionTask.get().getExecutingComServer() != null)
+                    && comTaskStartedAfterConnectionStarted()
+                    && ((getNextExecutionTimestamp() != null
+                        && getNextExecutionTimestamp().isBefore(clock.instant())
+                        && connectionTask.get().getLastCommunicationStart().isAfter(getNextExecutionTimestamp()))
+                        || (getNextExecutionTimestamp() == null && isIgnoreNextExecutionSpecsForInbound()
+                            && connectionTask.get() instanceof InboundConnectionTask))
+                );
+    }
+
+    private boolean comTaskStartedAfterConnectionStarted() {
+        return getLastExecutionStartTimestamp() != null
+                && getConnectionTask().get().getLastCommunicationStart() != null
+                && getConnectionTask().get().getLastCommunicationStart().isBefore(getLastExecutionStartTimestamp());
     }
 
     @Override
@@ -738,6 +749,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    public boolean shouldExecuteWithPriority() {
+        return communicationTaskService.shouldExecuteWithPriority(this);
+    }
+
+    @Override
     public ComTaskExecutionUpdater getUpdater() {
         return new ComTaskExecutionUpdaterImpl(this);
     }
@@ -788,15 +804,25 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void executionCompleted() {
-        this.markSuccessfullyCompleted();
-        this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
+        markSuccessfullyCompleted();
+        Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
+        doReschedule(rescheduleDate);
+        LOGGER.info("[comtaskexec] executionCompleted for " + getDevice().getName() + "; reschedule for " + rescheduleDate);
         updateForScheduling(true);
         getBehavior().comTaskCompleted();
+        this.postEvent(EventType.COMTASKEXECUTION_COMPLETION);
     }
 
     @Override
     public void executionRescheduled(Instant rescheduleDate) {
-        this.doReschedule(rescheduleDate);
+        currentRetryCount++;    // increment the current number of retries
+        if (currentRetryCount < getMaxNumberOfTries()) {
+            LOGGER.info("[comtaskexec] executionRescheduled for " + getDevice().getName() +
+                    "; currentRetryCount=" + currentRetryCount + "; reschedule for " + rescheduleDate);
+            doReschedule(rescheduleDate);
+        } else {
+            doExecutionFailed();
+        }
         updateForScheduling(true);
     }
 
@@ -826,7 +852,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     protected void doExecutionAttemptFailed() {
         this.lastExecutionFailed = true;
-        this.doReschedule(calculateNextExecutionTimestampAfterFailure());
+        Instant rescheduleDate = calculateNextExecutionTimestampAfterFailure();
+        LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+        this.doReschedule(rescheduleDate);
     }
 
     private Instant calculateNextExecutionTimestampAfterFailure() {
@@ -881,13 +909,16 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return comTaskDefinedRescheduleDelay;
     }
 
-    protected void doExecutionFailed() {
+    void doExecutionFailed() {
         this.lastExecutionFailed = true;
         this.resetCurrentRetryCount();
         if (isAdHoc()) {
+            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
             this.doReschedule(null, null);
         } else {
-            this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
+            Instant rescheduleDate = calculateNextExecutionTimestamp(clock.instant());
+            LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; rescheduled for " + rescheduleDate);
+            this.doReschedule(rescheduleDate);
         }
     }
 
@@ -927,6 +958,18 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     public void connectionTaskRemoved() {
         this.setConnectionTask(null);
         this.update();
+    }
+
+    @Override
+    public void injectConnectionTask(OutboundConnectionTask connectionTask) {
+        if (!this.connectionTask.isPresent()) {
+            if (connectionTask.getId() != connectionTaskId) {
+                String msg = "The injected " + OutboundConnectionTask.class.getSimpleName() + " is not the task that is configured on this " + ComTaskExecution.class.getSimpleName()
+                        + ". Expected " + connectionTaskId + " but got " + connectionTask.getId();
+                throw new IllegalArgumentException(msg);
+            }
+            this.connectionTask.set(connectionTask);
+        }
     }
 
     @Override
@@ -1140,7 +1183,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
          * Tests if this ComTaskExecution is scheduled manually,
          * i.e. it has a scheduling frequency causing it to be
          * executed frequently but not at a frequency defined by a
-         * {@link com.energyict.mdc.scheduling.model.ComSchedule}
+         * {@link ComSchedule}
          * but by a one shot setting provided by the user.
          *
          * @return A flag that indicates if this ComTaskExecution is scheduled manually

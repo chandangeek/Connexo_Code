@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
 
 /**
  * @author Stijn Vanhoorelbeke

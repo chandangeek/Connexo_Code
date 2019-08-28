@@ -3,14 +3,16 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection;
 
+import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterconnectionstatuschangerequestcreate.SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg;
 
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class StatusChangeRequestCreateEndpoint implements SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn {
+public class StatusChangeRequestCreateEndpoint extends AbstractInboundEndPoint implements SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestCIn, ApplicationSpecific {
 
     private final ServiceCallCommands serviceCallCommands;
 
@@ -20,9 +22,17 @@ public class StatusChangeRequestCreateEndpoint implements SmartMeterUtilitiesCon
     }
 
     @Override
-    public void smartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestEIn(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg request) {
-        Optional.ofNullable(request)
-                .ifPresent(requestMessage -> serviceCallCommands.createServiceCallAndTransition(
-                        StatusChangeRequestCreateMessage.builder().from(requestMessage).build()));
+    public void smartMeterUtilitiesConnectionStatusChangeRequestERPCreateRequestCIn(SmrtMtrUtilsConncnStsChgReqERPCrteReqMsg request) {
+        runInTransactionWithOccurrence(() -> {
+            Optional.ofNullable(request)
+                    .ifPresent(requestMessage -> serviceCallCommands.createServiceCallAndTransition(
+                            StatusChangeRequestCreateMessage.builder().from(requestMessage).build()));
+            return null;
+        });
+    }
+
+    @Override
+    public String getApplication(){
+        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
     }
 }

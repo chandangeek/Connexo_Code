@@ -5,7 +5,7 @@
 package com.elster.jupiter.demo.impl.templates;
 
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 //TODO write device templates
 public class DeviceTpl implements Template<Device, DeviceBuilder>{

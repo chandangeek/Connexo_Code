@@ -9,6 +9,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.common.protocol.security.SecurityPropertySpecProvider;
 import com.energyict.mdc.upl.meterdata.Device;
 
 import java.util.Collections;

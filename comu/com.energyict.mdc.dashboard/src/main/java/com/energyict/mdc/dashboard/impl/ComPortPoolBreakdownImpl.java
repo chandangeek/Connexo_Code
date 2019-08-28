@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.Map;
 

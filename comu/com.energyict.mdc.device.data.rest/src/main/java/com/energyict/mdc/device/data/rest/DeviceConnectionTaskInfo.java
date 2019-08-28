@@ -6,8 +6,8 @@ package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.energyict.mdc.common.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
 import com.energyict.mdc.device.data.rest.impl.ConnectionTaskVersionInfo;
-import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;

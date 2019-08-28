@@ -1,6 +1,6 @@
 package com.energyict.mdc.processes.keyrenewal.api.impl;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import javax.ws.rs.core.Response;
 import java.util.Optional;

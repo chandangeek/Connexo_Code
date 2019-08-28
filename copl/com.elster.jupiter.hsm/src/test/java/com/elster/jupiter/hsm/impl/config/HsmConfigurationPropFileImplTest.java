@@ -100,13 +100,22 @@ public class HsmConfigurationPropFileImplTest {
     public void testNotConfiguredLabel() throws HsmBaseException {
         System.out.println("loaded:" + this.testFilePath);
         hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
-        expectedException.expect(HsmBaseException.class);
-        String label = "NOT_CONFIGURED_LABEL";
-        expectedException.expectMessage("Asking configuration for a label that is missing, label:" + label);
-        hsmConfigurationPropFile.get(label);
+        String labelName = "NOT_CONFIGURED_LABEL";
+        HsmLabelConfiguration label = hsmConfigurationPropFile.get(labelName);
+        assertEquals(labelName, label.getName());
+        assertEquals(ChainingMode.CBC, label.getChainingMode());
+        assertEquals(PaddingAlgorithm.PKCS, label.getPaddingAlgorithm());
     }
 
-
+    @Test
+    public void testConfiguredLabel() throws HsmBaseException {
+        hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
+        String labelName = "IMP-SM-KEK";
+        HsmLabelConfiguration label = hsmConfigurationPropFile.get(labelName);
+        assertEquals(labelName, label.getName());
+        assertEquals(ChainingMode.CBC, label.getChainingMode());
+        assertEquals(PaddingAlgorithm.EME_PKCS1_V1_5, label.getPaddingAlgorithm());
+    }
 
     @Test
     public void testGetAll() throws HsmBaseException {
@@ -117,14 +126,6 @@ public class HsmConfigurationPropFileImplTest {
         assertEquals(label, labels.iterator().next());
         assertEquals(ChainingMode.CBC, label.getChainingMode());
         assertEquals(PaddingAlgorithm.EME_PKCS1_V1_5, label.getPaddingAlgorithm());
-    }
-
-    @Test
-    public void testGetDefaultChainingAndPadding() throws HsmBaseException {
-        hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
-        String label = "NOT_CONFIGURED_LABEL";
-        assertEquals(ChainingMode.CBC, hsmConfigurationPropFile.getChainingMode(label));
-        assertEquals(PaddingAlgorithm.EME_PKCS1_V1_5, hsmConfigurationPropFile.getPaddingAlgorithm(label));
     }
 
 }
