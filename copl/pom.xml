@@ -770,18 +770,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
-				<artifactId>soap.currency.converter</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.elster.jupiter</groupId>
-				<artifactId>soap.currency.converter.client</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.elster.jupiter</groupId>
 				<artifactId>soap.whiteboard.cxf</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
