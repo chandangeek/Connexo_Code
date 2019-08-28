@@ -322,6 +322,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         columns: 1,
                         vertical: true,
                         fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
+                        required: true,
                         items: [
                             {
                                 beforeSubTpl: '<span style="font-style:italic;color: grey;padding: 0 5px 5px 0;">' + Uni.I18n.translate('general.upload.fw.target.firm.status', 'FWC', 'Check if the uploaded firmware has this status') + '</span>',

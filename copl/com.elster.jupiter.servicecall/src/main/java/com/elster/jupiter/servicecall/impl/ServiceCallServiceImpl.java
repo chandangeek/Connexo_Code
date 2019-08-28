@@ -24,7 +24,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.RefernceToDelete;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -63,7 +62,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -102,7 +100,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private volatile UpgradeService upgradeService;
     private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
     private volatile Clock clock;
-    private List<RefernceToDelete> delRefs = new ArrayList<>();
 
     // OSGi
     public ServiceCallServiceImpl() {
@@ -320,21 +317,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public Thesaurus getThesaurus() {
         return thesaurus;
-    }
-
-    @Override
-    public void addDelRef(RefernceToDelete delRef) {
-        delRefs.add(delRef);
-    }
-
-    @Override
-    public void removeDelRef(RefernceToDelete delRef) {
-        delRefs.remove(delRef);
-    }
-
-    @Override
-    public List<RefernceToDelete> getReferencesToDelete() {
-        return delRefs;
     }
 
     @Override
