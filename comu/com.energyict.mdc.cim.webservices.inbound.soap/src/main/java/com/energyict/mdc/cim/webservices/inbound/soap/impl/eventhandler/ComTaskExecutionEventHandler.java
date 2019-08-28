@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 
@@ -159,7 +160,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                     serviceCall.requestTransition(DefaultState.ONGOING);
                     serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
                             deviceMessage.getSpecification()
-                                    .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                                    .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate().atZone(ZoneId.systemDefault())));
                     serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
