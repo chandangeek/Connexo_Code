@@ -127,8 +127,8 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                               if (targetFirmwareCheck && targetFirmwareCheck.activated){
                                                   var targetFirmwareOptionTemplate = [];
                                                   var targetFirmwareOptionsValues = {
-                                                      'FINAL' : Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of the target firmware'),
-                                                      'TEST' :  Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of the target firmware')
+                                                      'FINAL' : Uni.I18n.translate('general.targetFirmwareFinalOption', 'FWC', 'Final status of target firmware'),
+                                                      'TEST' :  Uni.I18n.translate('general.targetFirmwareTestOption', 'FWC', 'Test status of target firmware')
                                                   };
                                                   targetFirmwareCheck['statuses'].sort();
                                                   targetFirmwareCheck['statuses'].forEach(function(item){
