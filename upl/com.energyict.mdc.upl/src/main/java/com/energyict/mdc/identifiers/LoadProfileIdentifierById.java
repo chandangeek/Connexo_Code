@@ -26,21 +26,21 @@ import java.util.Set;
 public class LoadProfileIdentifierById implements LoadProfileIdentifier {
 
     private final long loadProfileId;
-    private final ObisCode profileObisCode;
+    private final ObisCode loadProfileObisCode;
     private final DeviceIdentifier deviceIdentifier;
 
     // For JSON serialization only
     @SuppressWarnings("unused")
     public LoadProfileIdentifierById() {
         this.loadProfileId = 0;
-        this.profileObisCode = null;
+        this.loadProfileObisCode = null;
         this.deviceIdentifier = null;
     }
 
     public LoadProfileIdentifierById(long loadProfileId, ObisCode profileObisCode, DeviceIdentifier deviceIdentifier) {
         super();
         this.loadProfileId = loadProfileId;
-        this.profileObisCode = profileObisCode;
+        this.loadProfileObisCode = profileObisCode;
         this.deviceIdentifier = deviceIdentifier;
     }
 
@@ -59,7 +59,7 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     @Override
     @XmlAttribute
     public ObisCode getLoadProfileObisCode() {
-        return profileObisCode;
+        return loadProfileObisCode;
     }
 
     @XmlAttribute

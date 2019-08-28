@@ -5,19 +5,7 @@
 package com.elster.jupiter.properties.impl;
 
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.Base64StringFactory;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.DurationValueFactory;
-import com.elster.jupiter.properties.LongFactory;
-import com.elster.jupiter.properties.PropertySpecBuilderWizard;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.RelativePeriodFactory;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.TemporalAmountValueFactory;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
-import com.elster.jupiter.properties.TimeZoneFactory;
-import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.*;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;

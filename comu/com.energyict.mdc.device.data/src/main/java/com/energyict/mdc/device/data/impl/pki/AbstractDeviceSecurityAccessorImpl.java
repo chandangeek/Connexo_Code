@@ -9,14 +9,20 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.pki.impl.accessors.SecurityAccessorTypeImpl;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.KeyAccessorStatus;
 
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +37,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     private Reference<Device> deviceReference = Reference.empty();
     private boolean swapped;
     private boolean serviceKey;
+    private List<PropertySpec> propertySpecs;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -66,8 +73,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
         SYMM_KEY_WRAPPER_TEMP("tempSymmetricKeyWrapperReference"),
         PASSPHRASE_WRAPPER_ACTUAL("actualPassphraseWrapperReference"),
         PASSPHRASE_WRAPPER_TEMP("tempPassphraseWrapperReference"),
-        SERVICEKEY("serviceKey")
-        ;
+        SERVICEKEY("serviceKey");
 
         private final String fieldName;
 
@@ -96,13 +102,26 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public Device getDevice() {
         return deviceReference.get();
     }
 
+    @XmlElements( {
+            @XmlElement(type = BasicPropertySpec.class),
+            @XmlElement(type = KeyAccessorPropertySpecWithPossibleValues.class),
+            @XmlElement(type = UPLToConnexoPropertySpecAdapter.class),
+    })
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return securityManagementService.getPropertySpecs(getKeyAccessorTypeReference());
+        if (securityManagementService != null)
+            propertySpecs = securityManagementService.getPropertySpecs(getKeyAccessorTypeReference());
+        return propertySpecs;
+    }
+
+    public void setPropertySpecs(List<PropertySpec> propertySpecs) {
+        this.propertySpecs = propertySpecs;
     }
 
     @Override
@@ -133,6 +152,8 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public KeyAccessorStatus getStatus() {
         if (!getActualPassphraseWrapperReference().isPresent() || getActualPassphraseWrapperReference().get().getProperties().containsValue(null) || getActualPassphraseWrapperReference().get().getProperties().size()!=getPropertySpecs().size()) {
             return KeyAccessorStatus.INCOMPLETE;

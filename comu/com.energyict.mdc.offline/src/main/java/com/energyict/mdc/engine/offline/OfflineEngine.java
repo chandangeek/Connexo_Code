@@ -479,11 +479,6 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         }
 
         @Override
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
-            return mdcReadingTypeUtilService;
-        }
-
-        @Override
         public IssueService issueService() {
             return issueService;
         }
@@ -561,6 +556,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         @Override
         public TopologyService topologyService() {
             return topologyService;
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return mdcReadingTypeUtilService;
         }
 
         @Override

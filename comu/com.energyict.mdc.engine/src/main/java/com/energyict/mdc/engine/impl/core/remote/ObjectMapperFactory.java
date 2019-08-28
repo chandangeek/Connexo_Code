@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core.remote;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +24,7 @@ public final class ObjectMapperFactory {
         ObjectMapper mapper = new ObjectMapper().registerModule(new Jdk8Module()).registerModule(new JavaTimeModule());
         AnnotationIntrospector introspector = new JaxbAnnotationIntrospector(mapper.getTypeFactory());
         mapper.setAnnotationIntrospector(introspector);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,true);
         return mapper;
     }

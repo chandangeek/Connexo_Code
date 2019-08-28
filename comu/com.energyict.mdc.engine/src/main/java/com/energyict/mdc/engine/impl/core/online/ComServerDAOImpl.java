@@ -42,11 +42,13 @@ import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.offline.*;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataFactory;
+import com.energyict.mdc.engine.impl.commands.store.PreStoreLoadProfile;
 import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.security.Privileges;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -895,15 +897,22 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile) {
-        this.executeTransaction(() -> {
-            findLoadProfile(loadProfileIdentifier).ifPresent(lp -> {
-                List<IntervalBlock> intervalBlocks = MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile);
-                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addAllIntervalBlocks(intervalBlocks);
-                lp.getDevice().store(meterReading);
-            });
-            return null;
-        });
+        PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.serviceProvider.mdcReadingTypeUtilService(), this);
+        if (collectedLoadProfile.getChannelInfo().stream().noneMatch(channelInfo -> channelInfo.getReadingTypeMRID() == null || channelInfo.getReadingTypeMRID().isEmpty())) {
+            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+            if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
+                this.executeTransaction(() -> {
+                    findLoadProfile(loadProfileIdentifier).ifPresent(lp -> {
+                        List<IntervalBlock> intervalBlocks = MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile);
+                        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                        meterReading.addAllIntervalBlocks(preStoredLoadProfile.getIntervalBlocks());
+                        lp.getDevice().store(meterReading);
+                        updateLoadProfile(lp, preStoredLoadProfile.getLastReading()).apply(lp.getDevice());
+                    });
+                    return null;
+                });
+            }
+        }
     }
 
     @Override
@@ -1749,6 +1758,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         DeviceMessageService deviceMessageService();
 
         TopologyService topologyService();
+
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
         EngineService engineService();
 

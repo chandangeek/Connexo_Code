@@ -32,6 +32,7 @@ import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -288,6 +289,11 @@ public final class MobileComServerLauncher implements ProtocolDeploymentListener
         @Override
         public TopologyService topologyService() {
             return serviceProvider.topologyService();
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return serviceProvider.mdcReadingTypeUtilService();
         }
 
         @Override

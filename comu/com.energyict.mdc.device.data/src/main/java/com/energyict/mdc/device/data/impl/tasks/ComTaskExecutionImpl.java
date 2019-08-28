@@ -36,10 +36,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.impl.ComScheduleImpl;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.*;
 import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -162,6 +164,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
     }
 
+    @JsonIgnore
     @XmlTransient
     public Behavior getBehavior() {
         if (this.behavior == null) {
@@ -207,12 +210,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isAdHoc() {
         return this.getBehavior().isAdHoc();
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isFirmware() {
         if (this.getBehavior() != null) {
@@ -233,6 +238,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public ComPort getExecutingComPort() {
         return comPort.orNull();
@@ -263,7 +269,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
-    @XmlTransient
+    @XmlAttribute
     public TaskStatus getStatus() {
         if (this.now() != null) {
             taskStatus = ServerComTaskStatus.getApplicableStatusFor(this, this.now());
@@ -271,10 +277,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return taskStatus;
     }
 
+    public void setStatus(TaskStatus status){
+        this.taskStatus = status;
+    }
+
     @Override
     @XmlAttribute
     public String getStatusDisplayName() {
-        if (getStatus() != null) {
+        if (getStatus() != null && getThesaurus() != null) {
             statusDisplayName = TaskStatusTranslationKeys.translationFor(getStatus(), getThesaurus());
         }
         return statusDisplayName;
@@ -310,6 +320,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public Optional<ConnectionFunction> getConnectionFunction() {
         if (!this.connectionFunction.isPresent() && this.connectionFunctionId != 0) {
@@ -448,6 +459,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public Optional<ConnectionTask<?, ?>> getConnectionTask() {
         return this.connectionTask.getOptional();
@@ -785,12 +797,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public ComTaskExecutionUpdater getUpdater() {
         return new ComTaskExecutionUpdaterImpl(this);
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public List<ProtocolTask> getProtocolTasks() {
         return Collections.unmodifiableList(this.getComTask().getProtocolTasks());
@@ -981,6 +995,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public List<ComTaskExecutionTrigger> getComTaskExecutionTriggers() {
         return comTaskExecutionTriggers;
@@ -1116,6 +1131,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public List<ComTask> getComTasks() {
         return Collections.singletonList(getComTask());
@@ -1137,54 +1153,66 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
-    @XmlTransient
+    @XmlElement(type = ComScheduleImpl.class)
     public Optional<ComSchedule> getComSchedule() {
         return this.comSchedule.getOptional();
     }
 
+    public void setComSchedule(ComSchedule comSchedule) {
+        this.comSchedule.set(comSchedule);
+    }
+
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isConfiguredToCollectRegisterData() {
         return isConfiguredToCollectDataOfClass(RegistersTask.class);
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isConfiguredToCollectLoadProfileData() {
         return isConfiguredToCollectDataOfClass(LoadProfilesTask.class);
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isConfiguredToRunBasicChecks() {
         return isConfiguredToCollectDataOfClass(BasicCheckTask.class);
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isConfiguredToCheckClock() {
         return isConfiguredToCollectDataOfClass(ClockTask.class);
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isConfiguredToCollectEvents() {
         return isConfiguredToCollectDataOfClass(LogBooksTask.class);
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isConfiguredToSendMessages() {
         return isConfiguredToCollectDataOfClass(MessagesTask.class);
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isConfiguredToReadStatusInformation() {
         return isConfiguredToCollectDataOfClass(StatusInformationTask.class);
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public boolean isConfiguredToUpdateTopology() {
         return isConfiguredToCollectDataOfClass(TopologyTask.class);
@@ -1620,6 +1648,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.comTaskExecution = comTaskExecution;
         }
 
+        @JsonIgnore
+        @XmlTransient
         public ComTaskExecutionImpl getComTaskExecution() {
             return this.comTaskExecution;
         }

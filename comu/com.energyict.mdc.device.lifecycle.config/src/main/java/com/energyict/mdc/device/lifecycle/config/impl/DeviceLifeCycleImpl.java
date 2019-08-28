@@ -27,11 +27,14 @@ import com.energyict.mdc.device.lifecycle.config.EventType;
 import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumFutureEffectiveTimeShiftInRange;
 import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumPastEffectiveTimeShiftInRange;
 import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -48,6 +51,7 @@ import java.util.stream.Collectors;
 @Unique(message = "{" + MessageSeeds.Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
 @MaximumFutureEffectiveTimeShiftInRange(message = "{" + MessageSeeds.Keys.MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", groups = { Save.Create.class, Save.Update.class })
 @MaximumPastEffectiveTimeShiftInRange(message = "{" + MessageSeeds.Keys.MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE + "}", groups = { Save.Create.class, Save.Update.class })
+@XmlRootElement
 public class DeviceLifeCycleImpl implements DeviceLifeCycle {
 
     public enum Fields {
@@ -135,6 +139,8 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public boolean isObsolete() {
         return this.obsoleteTimestamp != null;
     }

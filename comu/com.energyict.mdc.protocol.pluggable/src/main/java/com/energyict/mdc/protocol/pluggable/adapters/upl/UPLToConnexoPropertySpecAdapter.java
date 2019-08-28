@@ -14,14 +14,15 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
  * Think carefully before you use this class since the PropertySpec that you are
  * adapting is likely one that was produced by this very same bundle.
  * In case the PropertySpec is an instance of {@link ConnexoToUPLPropertSpecAdapter}
- * then please cast it and return the actual UPL PropertySpec instead of adapting an adapter.
+ * then please cast it and return the uplPropertySpec UPL PropertySpec instead of adapting an adapter.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @see ConnexoToUPLPropertSpecAdapter#getConnexoPropertySpec()
  * @since 2016-12-12 (13:27)
  */
 public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
-    private final com.energyict.mdc.upl.properties.PropertySpec actual;
+
+    private com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec;
 
     public static PropertySpec adaptTo(com.energyict.mdc.upl.properties.PropertySpec actual) {
         if (actual instanceof ConnexoToUPLPropertSpecAdapter) {
@@ -31,56 +32,63 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
         }
     }
 
+    private UPLToConnexoPropertySpecAdapter() {
+    }
+
     private UPLToConnexoPropertySpecAdapter(com.energyict.mdc.upl.properties.PropertySpec actual) {
-        this.actual = actual;
+        this.uplPropertySpec = actual;
     }
 
     public com.energyict.mdc.upl.properties.PropertySpec getUplPropertySpec() {
-        return actual;
+        return uplPropertySpec;
+    }
+
+    public void setUplPropertySpec(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec) {
+        this.uplPropertySpec = uplPropertySpec;
     }
 
     @Override
     public String getName() {
-        if (actual != null) {
-            return this.actual.getName();
+        if (uplPropertySpec != null) {
+            return this.uplPropertySpec.getName();
         }
         return null;
     }
 
     @Override
     public String getDisplayName() {
-        return this.actual.getDisplayName();
+        return this.uplPropertySpec.getDisplayName();
     }
 
     @Override
     public String getDescription() {
-        return this.actual.getDescription();
+        return this.uplPropertySpec.getDescription();
     }
 
     @Override
     public ValueFactory getValueFactory() {
-        return UPLToConnexoValueFactoryAdapter.adaptTo(this.actual.getValueFactory());
+        return UPLToConnexoValueFactoryAdapter.adaptTo(this.uplPropertySpec.getValueFactory());
     }
 
     @Override
     public boolean isRequired() {
-        return this.actual.isRequired();
+        return this.uplPropertySpec.isRequired();
     }
 
     @Override
     public boolean isReference() {
-        return ValueType.fromUPLClassName(this.actual.getValueFactory().getValueTypeName()).isReference();
+        return ValueType.fromUPLClassName(this.uplPropertySpec.getValueFactory().getValueTypeName()).isReference();
     }
 
     @Override
     public boolean supportsMultiValues() {
-        return this.actual.supportsMultiValues();
+        return this.uplPropertySpec.supportsMultiValues();
     }
 
     @Override
     public boolean validateValue(Object value) throws InvalidValueException {
         try {
-            return this.actual.validateValue(value);
+            return this.uplPropertySpec.validateValue(value);
         } catch (MissingPropertyException e) {
             throw new ValueRequiredException(this.getName());
         } catch (PropertyValidationException e) {
@@ -93,32 +101,32 @@ public class UPLToConnexoPropertySpecAdapter implements PropertySpec {
         try {
             return this.validateValue(value);
         } catch (ValueRequiredException e) {
-            // Let's hope the actual property spec did not check required first and did not validate the value at all
+            // Let's hope the uplPropertySpec property spec did not check required first and did not validate the value at all
             return true;
         }
     }
 
     @Override
     public PropertySpecPossibleValues getPossibleValues() {
-        com.energyict.mdc.upl.properties.PropertySpecPossibleValues possibleValues = this.actual.getPossibleValues();
+        com.energyict.mdc.upl.properties.PropertySpecPossibleValues possibleValues = this.uplPropertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
         } else {
-            return UPLToConnexoPropertySpecPossibleValuesAdapter.adaptTo(this.actual.getPossibleValues());
+            return UPLToConnexoPropertySpecPossibleValuesAdapter.adaptTo(this.uplPropertySpec.getPossibleValues());
         }
     }
 
     @Override
     public int hashCode() {
-        return actual != null ? actual.hashCode() : 0;
+        return uplPropertySpec != null ? uplPropertySpec.hashCode() : 0;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof UPLToConnexoPropertySpecAdapter) {
-            return actual.equals(((UPLToConnexoPropertySpecAdapter) obj).actual);
+            return uplPropertySpec.equals(((UPLToConnexoPropertySpecAdapter) obj).uplPropertySpec);
         } else {
-            return actual.equals(obj);
+            return uplPropertySpec.equals(obj);
         }
     }
 }

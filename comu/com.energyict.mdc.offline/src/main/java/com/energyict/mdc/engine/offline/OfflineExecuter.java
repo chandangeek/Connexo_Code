@@ -33,6 +33,7 @@ import com.energyict.mdc.engine.offline.core.exception.SyncException;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
 import com.energyict.mdc.engine.offline.persist.BusinessDataPersister;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -608,6 +609,11 @@ public class OfflineExecuter implements OfflineActionExecuter {
         @Override
         public TopologyService topologyService() {
             return serviceProvider.topologyService();
+        }
+
+        @Override
+        public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
+            return serviceProvider.mdcReadingTypeUtilService();
         }
 
         @Override

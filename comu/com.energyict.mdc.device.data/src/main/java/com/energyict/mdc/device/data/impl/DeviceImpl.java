@@ -12,55 +12,26 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateTimeSlice;
-import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.fsm.*;
+import com.elster.jupiter.fsm.impl.StageImpl;
+import com.elster.jupiter.fsm.impl.StateImpl;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.JournaledChannelReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.LifecycleDates;
-import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterConfiguration;
-import com.elster.jupiter.metering.MeterHasUnsatisfiedRequirements;
-import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointHasMeterOnThisRole;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.config.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.impl.UsagePointImpl;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.Zone;
 import com.elster.jupiter.metering.zone.ZoneType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.JournalEntry;
-import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
@@ -85,94 +56,17 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LockService;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
-import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileJournalReading;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.PassiveCalendar;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
-import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.CannotSetMultipleComSchedulesWithSameComTask;
-import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
-import com.energyict.mdc.device.data.exceptions.NoLifeCycleActiveAt;
-import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
-import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
-import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
-import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
+import com.energyict.mdc.device.data.exceptions.*;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
-import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
-import com.energyict.mdc.device.data.impl.pki.CentrallyManagedDeviceSecurityAccessor;
-import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
-import com.energyict.mdc.device.data.impl.pki.HsmSymmetricKeyAccessorImpl;
-import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
-import com.energyict.mdc.device.data.impl.pki.PlainTextSymmetricKeyAccessorImpl;
-import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
-import com.energyict.mdc.device.data.impl.pki.UnmanageableSecurityAccessorException;
-import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
-import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForMultiplierChange;
-import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
-import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForSimpleUpdate;
-import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForConfigurationChange;
-import com.energyict.mdc.device.data.impl.sync.SynchNewDeviceWithKore;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.impl.constraintvalidators.*;
+import com.energyict.mdc.device.data.impl.pki.*;
+import com.energyict.mdc.device.data.impl.sync.*;
+import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -184,21 +78,11 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.FirmwareManagementTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.tasks.*;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-
 import com.energyict.obis.ObisCode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -206,46 +90,21 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.validation.Constraint;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import javax.validation.Payload;
-import javax.validation.Valid;
+import javax.validation.*;
 import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.Period;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.TimeZone;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -779,9 +638,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         forEstimation().findAllOverriddenProperties().forEach(ChannelEstimationRuleOverriddenProperties::delete);
     }
 
+    private Meter meterVal;
+
     @Override
     public Meter getMeter() {
-        return this.meter.get();
+        if (this.meter.isPresent())
+            meterVal = this.meter.get();
+        return meterVal;
+    }
+
+    public void setMeter(Meter meterVal) {
+        this.meter.set(meterVal);
     }
 
     public Reference<Meter> getMeterReference() {
@@ -911,14 +778,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
+    @XmlAttribute
+    private BigDecimal multiplier;
+
     @Override
     public BigDecimal getMultiplier() {
-        return this.koreHelper.getMultiplier().orElse(BigDecimal.ONE);
+        if (this.koreHelper != null)
+         this.multiplier =  this.koreHelper.getMultiplier().orElse(BigDecimal.ONE);
+        return multiplier;
     }
 
     @Override
     public void setMultiplier(BigDecimal multiplier) {
-        this.setMultiplier(multiplier, null);
+        if (clock != null) {
+            this.setMultiplier(multiplier, null);
+        } else {
+            validateMultiplierValue(multiplier);
+            this.multiplier = multiplier;
+        }
     }
 
     @Override
@@ -926,9 +803,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.koreHelper.getMultiplierAt(multiplierEffectiveTimeStamp);
     }
 
+    @XmlAttribute
+    private Instant multiplierEffectiveTimeStamp;
+
     @Override
     public Instant getMultiplierEffectiveTimeStamp() {
-        return this.koreHelper.getMultiplierEffectiveTimeStamp();
+        if (this.koreHelper != null)
+            multiplierEffectiveTimeStamp = this.koreHelper.getMultiplierEffectiveTimeStamp();
+        return multiplierEffectiveTimeStamp;
     }
 
     @Override
@@ -1131,9 +1013,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.deactivate(this.clock.instant());
     }
 
+    @XmlAttribute
+    private Optional<MeterActivation> currentMeterActivation;
+
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
-        return this.koreHelper.getCurrentMeterActivation();
+        if (this.koreHelper != null)
+            currentMeterActivation = this.koreHelper.getCurrentMeterActivation();
+        return currentMeterActivation;
     }
 
     @Override
@@ -1293,9 +1180,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.dataModel.getInstance(DeviceEstimationImpl.class).init(this, this.estimationActive, this.estimationRuleSetActivations);
     }
 
+    @XmlElement(type = UsagePointImpl.class)
+    private Optional<UsagePoint> usagePoint;
+
     @Override
     public Optional<UsagePoint> getUsagePoint() {
-        return koreHelper.getUsagePoint();
+        if (koreHelper != null)
+            usagePoint = koreHelper.getUsagePoint();
+        return usagePoint;
     }
 
     @Override
@@ -1327,14 +1219,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return getListMeterAspect(this::getOpenIssuesForMeter);
     }
 
+    @XmlElement(type = StateImpl.class)
+    private State state;
+
     @Override
     public State getState() {
-        return this.getState(this.clock.instant()).get();
+        if (clock != null)
+            state = this.getState(this.clock.instant()).get();
+        return state;
     }
+
+    @XmlElement(type = StageImpl.class)
+    private Stage stage;
 
     @Override
     public Stage getStage() {
-        return this.getState(this.clock.instant()).get().getStage().orElseThrow(() -> new IllegalStateException("Device state does not have a stage"));
+        if (clock != null)
+            stage = this.getState(this.clock.instant()).get().getStage().orElseThrow(() -> new IllegalStateException("Device state does not have a stage"));
+        return stage;
     }
 
     @Override
@@ -1361,24 +1263,32 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return createTime;
     }
 
+    private StateTimeline stateTimeline;
+
     @Override
     public StateTimeline getStateTimeline() {
-        return this.getOptionalMeterAspect(EndDevice::getStateTimeline).get();
+        Optional<StateTimeline> optStateTimeline = this.getOptionalMeterAspect(EndDevice::getStateTimeline);
+        if (optStateTimeline.isPresent())
+            stateTimeline = optStateTimeline.get();
+        return stateTimeline;
     }
 
+    @JsonIgnore
+    @XmlTransient
     @Override
     public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
         // Merge the StateTimeline with the list of change events from my DeviceType.
+        List<DeviceLifeCycleChangeEvent> deviceLifeChangeEvents = new ArrayList<>();
         Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
         Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
-        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
+
         boolean notReady;
         do {
             DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
-            changeEvents.add(newEvent);
+            deviceLifeChangeEvents.add(newEvent);
             notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
         } while (notReady);
-        return changeEvents;
+        return deviceLifeChangeEvents;
     }
 
     @Override
@@ -1788,6 +1698,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.deviceConfiguration.set(deviceConfiguration);
     }
 
+    @JsonIgnore
+    @XmlTransient
     public TimeZone getTimeZone() {
         return TimeZone.getTimeZone(getZone());
     }
@@ -1806,8 +1718,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (this.zoneId == null) {
             if (!Checks.is(timeZoneId).empty() && ZoneId.getAvailableZoneIds().contains(this.timeZoneId)) {
                 this.zoneId = ZoneId.of(timeZoneId);
-            } else {
-                return clock.getZone();
+            } else if (clock != null) {
+                this.zoneId = clock.getZone();
             }
         }
         return this.zoneId;
@@ -2959,7 +2871,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     void removeReadingTypeObisCodeUsage(ReadingType readingType) {
-        for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext(); ) {
+        for (Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext(); ) {
             ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = iterator.next();
             if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
                 iterator.remove();
@@ -3052,7 +2964,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
     }
 
-    @Target({java.lang.annotation.ElementType.TYPE, ElementType.FIELD})
+    @Target({ElementType.TYPE, ElementType.FIELD})
     @Retention(RUNTIME)
     @Documented
     @Constraint(validatedBy = {ShipmentDateValidator.class})

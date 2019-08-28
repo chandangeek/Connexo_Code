@@ -1,8 +1,7 @@
 classpath: target/classes
 -dsannotations: *
 Include-Resource: README.HTML
-Private-Package: com.elster.jupiter.metering.impl,\
-	com.elster.jupiter.metering.impl.aggregation,\
+Private-Package: com.elster.jupiter.metering.impl.aggregation,\
 	com.elster.jupiter.metering.impl.audit.*,\
 	com.elster.jupiter.metering.impl.config,\
 	com.elster.jupiter.metering.impl.search,\
@@ -11,6 +10,7 @@ Private-Package: com.elster.jupiter.metering.impl,\
     com.elster.jupiter.metering.impl.slp
 
 Export-Package: com.elster.jupiter.metering,\
+    com.elster.jupiter.metering.impl,\
 	com.elster.jupiter.metering.aggregation,\
 	com.elster.jupiter.metering.config,\
 	com.elster.jupiter.metering.readings,\

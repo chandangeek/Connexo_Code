@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
@@ -16,6 +19,7 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.protocol.MeterProtocolEvent;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +37,10 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
     private LogBookIdentifier logBookIdentifier;
 
     private List<MeterProtocolEvent> meterEvents;
+
+    public DeviceLogBook() {
+        super();
+    }
 
     public DeviceLogBook(final LogBookIdentifier logBookIdentifier) {
         super();
@@ -58,7 +66,6 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
     }
 
     @Override
-    @XmlElement(type = LogBookIdentifierForAlreadyKnowLogBook.class)
     public LogBookIdentifier getLogBookIdentifier() {
         return logBookIdentifier;
     }

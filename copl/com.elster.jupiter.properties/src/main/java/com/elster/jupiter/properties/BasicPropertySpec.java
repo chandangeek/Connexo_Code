@@ -4,6 +4,11 @@
 
 package com.elster.jupiter.properties;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Optional;
@@ -17,6 +22,10 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     private boolean multiValued;
     private ValueFactory valueFactory;
     private PropertySpecPossibleValues possibleValues;
+
+    public BasicPropertySpec() {
+        super();
+    }
 
     public BasicPropertySpec(ValueFactory valueFactory) {
         super();
@@ -78,11 +87,15 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
         }
     }
 
+    @JsonIgnore
+    @XmlTransient
     @Override
     public boolean isReference() {
         return this.getValueFactory().isReference();
     }
 
+    @JsonIgnore
+    @XmlTransient
     @Override
     public ValueFactory getValueFactory() {
         return valueFactory;
