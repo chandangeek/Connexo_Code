@@ -327,7 +327,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         onDemandReadServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
         onDemandReadServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         onDemandReadServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
-        onDemandReadServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
+        onDemandReadServiceCallDomainExtension.setTriggerDate(triggerDate);
 
         ServiceCallType serviceCallType = serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
@@ -466,7 +466,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         communicationTestServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
         communicationTestServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         communicationTestServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
-        communicationTestServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
+        communicationTestServiceCallDomainExtension.setTriggerDate(triggerDate);
 
         ServiceCallType serviceCallType = serviceCallService.findServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION)
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
