@@ -11,6 +11,7 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
@@ -29,6 +30,8 @@ public class SearchApplicationTest extends FelixRestApplicationJerseyTest {
     protected RestQueryService restQueryService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
+    @Mock
+    User user;
 
     @Override
     protected Application getApplication() {

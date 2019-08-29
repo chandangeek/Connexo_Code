@@ -44,6 +44,7 @@ public class DynamicSearchResource extends BaseResource {
     private final SearchCriterionInfoFactory searchCriterionInfoFactory;
     private final InfoFactoryService infoFactoryService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final SearchCriteriaService searchCriteriaService;
 
     @Inject
     public DynamicSearchResource(SearchService searchService, SearchLocationService searchLocationService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, InfoFactoryService infoFactoryService,
@@ -52,6 +53,7 @@ public class DynamicSearchResource extends BaseResource {
                                  SearchCriteriaService searchCriteriaService,
                                  TransactionService transactionService) {
         super(restQueryService, searchCriteriaService, transactionService);
+        this.searchCriteriaService = searchCriteriaService;
         this.searchService = searchService;
         this.searchLocationService = searchLocationService;
         this.exceptionFactory = exceptionFactory;
@@ -275,7 +277,8 @@ public class DynamicSearchResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/saveSearchCriteria")
     public Response getSearchCriteria() {
-        List<SearchCriteria> searchCriteriaList = getSearchCriteriaService().getCreationRuleQuery().select(Where.where("userName").isEqualTo(threadPrincipalService.getPrincipal().getName()));
+        Query<SearchCriteria> searchCriteriaQuery = searchCriteriaService.getCreationRuleQuery();
+        List<SearchCriteria> searchCriteriaList = searchCriteriaQuery.select(Where.where("userName").isEqualTo(threadPrincipalService.getPrincipal().getName()));
         Map<String, Object> jsonResponse = new HashMap<>();
         jsonResponse.put("numberOfSearchResults", searchCriteriaList);
         return Response.ok().entity(jsonResponse).build();
