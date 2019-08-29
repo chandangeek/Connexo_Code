@@ -15,19 +15,13 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.search.*;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.jayway.jsonpath.JsonModel;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
@@ -38,6 +32,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
 
+import static com.elster.jupiter.search.SearchCriteriaService.SearchCriteriaBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -48,6 +43,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
     private SearchDomain devicesDomain;
     private SearchBuilder searchBuilder;
     private Finder finder;
+    private SearchCriteriaBuilder searchCriteriaBuilder;
 
     @Override
     @Before
@@ -329,6 +325,26 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(model.<net.minidev.json.JSONArray>get("$.numberOfSearchResults").size()).isEqualTo(0);
+    }
+
+    @Test
+    public void testPostSearchCriteria() throws IOException {
+        searchCriteriaBuilder = mock(SearchCriteriaBuilder.class);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when( searchCriteriaService.newSearchCriteria()).thenReturn(searchCriteriaBuilder);
+        when(threadPrincipalService.getPrincipal().getName()).thenReturn("root");
+        Form input = new Form();
+        //input.param("name", "device_type");
+        input.param("domain", "device");
+        input.param("filter", "[{\"initialConfig\":{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"},\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+        Response response = target("/search/saveCriteria/device_type")
+                .request("application/json").accept("application/json").post(entity);
+        JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(model.<String>get("$.status")).isEqualTo("Save");
+
     }
 
 

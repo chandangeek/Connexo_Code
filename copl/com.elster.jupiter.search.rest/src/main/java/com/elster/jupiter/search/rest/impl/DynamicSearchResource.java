@@ -253,7 +253,7 @@ public class DynamicSearchResource extends BaseResource {
         Map<String, Object> jsonResponse = new HashMap<>();
         String status = "";
         try (TransactionContext transactionContext = getTransactionService().getContext()) {
-            SearchCriteriaBuilder searchCriteriaBuilder = getSearchCriteriaService().newSearchCriteria();
+            SearchCriteriaBuilder searchCriteriaBuilder = searchCriteriaService.newSearchCriteria();
             searchCriteriaBuilder.setUserName(threadPrincipalService.getPrincipal().getName());
             searchCriteriaBuilder.setCriteria(filter);
             searchCriteriaBuilder.setName(name);
