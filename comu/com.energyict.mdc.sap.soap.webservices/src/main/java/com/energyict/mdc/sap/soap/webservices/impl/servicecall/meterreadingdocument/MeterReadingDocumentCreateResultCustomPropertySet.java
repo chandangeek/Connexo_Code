@@ -168,8 +168,8 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                         .finish(),
                 this.propertySpecService
                         .bigDecimalSpec()
-                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CHANNEL_ID.javaName(), TranslationKeys.CHANNEL_ID)
-                        .describedAs(TranslationKeys.CHANNEL_ID)
+                        .named(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CHANNEL_ID.javaName(), TranslationKeys.CHANNEL_REGISTER_ID)
+                        .describedAs(TranslationKeys.CHANNEL_REGISTER_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
