@@ -295,7 +295,145 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
      */
     public static final int VALVE_ALARM_MBUS = 64;
 
-    public static final int MAX_NUMBER_OF_GENERIC_EVENTS = 64;
+    public static final int TAMPER_CLEARED = 65;
+
+    public static final int SAG_PHASE_A = 80;
+
+    public static final int SAG_PHASE_B = 81;
+
+    public static final int SAG_PHASE_C = 82;
+
+    public static final int SAG_PHASE_A_B = 83;
+
+    public static final int SAG_PHASE_B_C = 84;
+
+    public static final int SAG_PHASE_A_C = 85;
+
+    public static final int SAG_PHASE_A_B_C = 86;
+
+    public static final int SAG_EVENT_CLEARED = 87;
+
+    public static final int ACCESS_READ = 88;
+
+    public static final int ACCESS_WRITE = 89;
+
+    public static final int PROCEDURE_INVOKED = 90;
+
+    public static final int TABLE_WRITTEN = 91;
+
+    public static final int COMM_TERMINATED_NORMAL = 92;
+
+    public static final int COMM_TERMINATED_ABNORMAL = 93;
+
+    public static final int RESET_LIST_POINTER = 94;
+
+    public static final int UPDATE_LIST_POINTER = 95;
+
+    public static final int HISTORY_LOG_CLEARED = 96;
+
+    public static final int HISTORY_LOG_POINTER = 97;
+
+    public static final int EVENT_LOG_POINTER = 98;
+
+    public static final int SELF_READ = 99;
+
+    public static final int DAYLIGHT_SAVING_TIME_ON = 100;
+
+    public static final int DAYLIGHT_SAVING_TIME_OFF = 101;
+
+    public static final int SEASON_CHANGE = 102;
+
+    public static final int RATE_CHANGE = 103;
+
+    public static final int SPECIAL_SCHEDULE = 104;
+
+    public static final int TIER_SWITCH = 105;
+
+    public static final int PENDING_TABLE_ACTIVATION = 106;
+
+    public static final int PENDING_TALE_CLEAR = 107;
+
+    public static final int METERING_MODE_START = 108;
+
+    public static final int METERING_MODE_STOP = 109;
+
+    public static final int TEST_MODE_START = 110;
+
+    public static final int TEST_MODE_STOP = 111;
+
+    public static final int METER_SHOP_START = 112;
+
+    public static final int METER_SHOP_STOP = 113;
+
+    public static final int CONFIGURATION_ERROR = 114;
+
+    public static final int SELF_CHECK_ERROR = 115;
+
+    public static final int RAM_FAILURE = 116;
+
+    public static final int ROM_FAILURE = 117;
+
+    public static final int NON_VOLATILE_MEMORY_FAILURE = 118;
+
+    public static final int CLOCK_ERROR = 119;
+
+    public static final int LOW_LOSS_POTENTIAL = 120;
+
+    public static final int DEMAND_OVERLOAD = 121;
+
+    public static final int POWER_FAILURE = 122;
+
+    public static final int REVERSE_ROTATION = 123;
+
+    public static final int ENTER_TIER = 124;
+
+    public static final int EXIT_TIER = 125;
+
+    public static final int TERMINAL_COVER_TEMPER = 126;
+
+    public static final int MAIN_COVER_TEMPER = 127;
+
+    public static final int EXTERNAL_EVENT = 128;
+
+    public static final int PHASE_A_OFF = 129;
+
+    public static final int PHASE_A_ON = 130;
+
+    public static final int PHASE_B_OFF = 131;
+
+    public static final int PHASE_B_ON = 132;
+
+    public static final int PHASE_C_OFF = 133;
+
+    public static final int PHASE_C_ON = 134;
+
+    public static final int RWP = 135;
+
+    public static final int DEVICE_PROGRAMMED = 136;
+
+    public static final int REMOTE_FLASH_FAILURE = 137;
+
+    public static final int SERVICE_VOLTAGE_TEST = 138;
+
+    public static final int LOW_CURRENT_TEST = 139;
+
+    public static final int POWER_FACTOR  = 140;
+
+    public static final int SECOND_HARMONIC_CURRENT_TEST  = 141;
+
+    public static final int TOTAL_HARMONIC_CURRENT  = 142;
+
+    public static final int TOTAL_HARMONIC_VOLTAGE  = 143;
+
+    public static final int VOLTAGE_IMBALANCE  = 144;
+
+    public static final int CURRENT_IMBALANCE  = 145;
+
+    public static final int TOTAL_DEMAND_DISTORTION  = 146;
+
+    public static final int HIGH_VOLTAGE_TEST  = 147;
+
+    public static final int REVERSE_POWER_TEST  = 148;
 
     /**
      * Start of Beacon3100 custom codes

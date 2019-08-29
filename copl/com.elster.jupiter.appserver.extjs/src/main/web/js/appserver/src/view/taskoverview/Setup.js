@@ -26,21 +26,19 @@ Ext.define('Apr.view.taskoverview.Setup', {
                 {
                     store: 'Apr.store.Tasks',
                     xtype: 'uni-grid-commander-sortingpanel',
+                    itemId: 'taskoverview-sortingpanel',
                     menu: 'taskoverview-sort-menu',
                     items: [
                       {
                         property: 'nextRun',
-                        itemId: 'taskoverview-sort-menu-nextrun',
-                        direction: Uni.component.sort.model.Sort.DESC
+                        direction: Uni.component.sort.model.Sort.ASC
                       },
                       {
                         property: 'queue',
-                        itemId: 'taskoverview-sort-menu-queue',
-                        direction: Uni.component.sort.model.Sort.DESC
+                        direction: Uni.component.sort.model.Sort.ASC
                       },
                       {
                         property: 'priority',
-                        itemId: 'taskoverview-sort-menu-priority',
                         direction: Uni.component.sort.model.Sort.DESC
                       }
                     ]
