@@ -6,6 +6,10 @@ package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -13,6 +17,7 @@ import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineLogBookSpec;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.Date;
@@ -138,8 +143,12 @@ public class OfflineLogBookImpl implements OfflineLogBook {
     }
 
     @Override
-    //@XmlElement(type = LogBookIdentifierForAlreadyKnowLogBook.class)
-    @XmlTransient
+    @XmlElements( {
+            @XmlElement(type = LogBookIdentifierById.class),
+            @XmlElement(type = LogBookIdentifierByObisCodeAndDevice.class),
+            @XmlElement(type = LogBookIdentifierByDeviceAndObisCode.class),
+            @XmlElement(type = LogBookIdentifierForAlreadyKnowLogBook.class),
+    })
     public LogBookIdentifier getLogBookIdentifier() {
         if (logBookIdentifier == null && this.identificationService != null)
             logBookIdentifier = this.identificationService.createLogbookIdentifierForAlreadyKnownLogbook(logBook, getDeviceIdentifier());

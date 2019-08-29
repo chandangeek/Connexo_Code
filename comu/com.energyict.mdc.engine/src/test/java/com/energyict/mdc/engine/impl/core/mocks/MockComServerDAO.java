@@ -440,6 +440,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, final long comTaskExecutionId) {
+        // Not updating logbook last reading in mock mode
+    }
+
+    @Override
     public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
     }
 

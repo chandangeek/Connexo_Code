@@ -7,6 +7,8 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -40,10 +42,13 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLo
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
-        if (localLogBook.isPresent()) {
-            updateMeterDataStorer(localLogBook.get());
+        if (comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier()) != null) {
+            comServerDAO.storeLogBookData(deviceLogBook.getLogBookIdentifier(), deviceLogBook);
+            if (!isAwareOfPushedEvents()) {
+                comServerDAO.updateLogBookLastReadingFromTask(deviceLogBook.getLogBookIdentifier(), getComTaskExecution().getId());
+            } else if(isOutboundConnection()){ //do not update for inbound, EISERVERSG-4265
+                comServerDAO.updateLogBookLastReadingFromTask(deviceLogBook.getLogBookIdentifier(), getComTaskExecution().getId());
+            }
         } else {
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
@@ -54,12 +59,46 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLo
         }
     }
 
-    private void updateMeterDataStorer(final Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook> localLogBook) {
-        if (!localLogBook.getLast().getEndDeviceEvents().isEmpty()) {
-            this.meterDataStoreCommand.addEventReadings(localLogBook.getFirst(), localLogBook.getLast().getEndDeviceEvents());
-            this.meterDataStoreCommand.addLastLogBookUpdater(this.deviceLogBook.getLogBookIdentifier(), localLogBook.getLast().getLastLogbook());
-        }
+    private boolean isAwareOfPushedEvents() {
+        return deviceLogBook.isAwareOfPushedEvents();
     }
+
+    private boolean isOutboundConnection() {
+        try{
+            Optional<ConnectionTask<?, ?>> connectionTask = getComTaskExecution().getConnectionTask();
+            if (connectionTask.isPresent()) {
+                if (connectionTask.get() instanceof InboundConnectionTask) {
+                    return false;
+                }
+            }
+        } catch (Exception ex){
+            return true;
+        }
+        return true;
+    }
+
+//    @Override
+//    public void doExecute(ComServerDAO comServerDAO) {
+//        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), comServerDAO);
+//        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
+//        if (localLogBook.isPresent()) {
+//            updateMeterDataStorer(localLogBook.get());
+//        } else {
+//            this.addIssue(
+//                    CompletionCode.ConfigurationWarning,
+//                    this.getIssueService().newWarning(
+//                            this,
+//                            MessageSeeds.UNKNOWN_DEVICE_LOG_BOOK,
+//                            this.deviceLogBook.getLogBookIdentifier()));
+//        }
+//    }
+//
+//    private void updateMeterDataStorer(final Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook> localLogBook) {
+//        if (!localLogBook.getLast().getEndDeviceEvents().isEmpty()) {
+//            this.meterDataStoreCommand.addEventReadings(localLogBook.getFirst(), localLogBook.getLast().getEndDeviceEvents());
+//            this.meterDataStoreCommand.addLastLogBookUpdater(this.deviceLogBook.getLogBookIdentifier(), localLogBook.getLast().getLastLogbook());
+//        }
+//    }
 
     @Override
     protected void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {

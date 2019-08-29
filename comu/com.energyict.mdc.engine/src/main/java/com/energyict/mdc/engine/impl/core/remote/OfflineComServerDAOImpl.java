@@ -221,6 +221,8 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
 
     @Override
     public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
+        comJobExecutionModel.setResult(ComJobResult.Success);
+        comJobExecutionModel.setConnectionTaskSuccess(true);
         return connectionTask;
     }
 
@@ -348,7 +350,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     @Override
     public void executionCompleted (ComTaskExecution comTaskExecution) {
         comJobExecutionModel.setResult(ComJobResult.Success);
-        comJobExecutionModel.setConnectionTaskSuccess(true);
+        comJobExecutionModel.addSuccessfulComTaskExecution(comTaskExecution, false);
     }
 
     @Override
@@ -436,6 +438,10 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     @Override
     public void updateLogBookLastReading(LogBookIdentifier logBookIdentifier, Date lastExecutionStartTimestamp) {
         getComJobExecutionModel().updateLogBookLastReading(logBookIdentifier, lastExecutionStartTimestamp);
+    }
+
+    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, final long comTaskExecutionId) {
+        getComJobExecutionModel().updateLogBookLastReading(logBookIdentifier, new Date(getComJobExecutionModel().getComTaskExecutionStartTimes().get(comTaskExecutionId)));
     }
 
     @Override

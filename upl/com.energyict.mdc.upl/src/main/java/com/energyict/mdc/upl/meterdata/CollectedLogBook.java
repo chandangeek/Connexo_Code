@@ -33,6 +33,12 @@ public interface CollectedLogBook extends CollectedData {
     List<MeterProtocolEvent> getCollectedMeterEvents();
 
     /**
+     * @return true when the protocol is pushing events on inbound connection
+     */
+    @XmlAttribute
+    public boolean isAwareOfPushedEvents();
+
+    /**
      * Gets the object that uniquely identify the requested LogBook.
      *
      * @return the {@link LogBookIdentifier logBookIdentifier}

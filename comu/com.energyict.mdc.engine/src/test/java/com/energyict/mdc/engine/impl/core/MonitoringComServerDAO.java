@@ -423,6 +423,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, final long comTaskExecutionId) {
+        // Not updating logbook last reading in monitoring mode
+    }
+
+    @Override
     public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
         // Not updating device ip address in monitoring mode
     }
@@ -843,6 +848,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
+        }
+
+        public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, final long comTaskExecutionId) {
+            // No implementation required
         }
 
         @Override

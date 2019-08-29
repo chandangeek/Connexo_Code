@@ -6,8 +6,6 @@ package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.EndDeviceEvent;
-import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,7 +15,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.energyict.mdc.common.NotFoundException;
@@ -27,9 +26,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.SecurityAccessor;
-import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -41,8 +38,8 @@ import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.offline.*;
-import com.energyict.mdc.engine.impl.commands.store.MeterDataFactory;
 import com.energyict.mdc.engine.impl.commands.store.PreStoreLoadProfile;
+import com.energyict.mdc.engine.impl.commands.store.PreStoreLogBook;
 import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.security.Privileges;
@@ -903,7 +900,6 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
                 this.executeTransaction(() -> {
                     findLoadProfile(loadProfileIdentifier).ifPresent(lp -> {
-                        List<IntervalBlock> intervalBlocks = MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile);
                         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                         meterReading.addAllIntervalBlocks(preStoredLoadProfile.getIntervalBlocks());
                         lp.getDevice().store(meterReading);
@@ -926,26 +922,39 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeLogBookData(final LogBookIdentifier logBookIdentifier, final CollectedLogBook collectedLogBook) {
+        PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), this);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(collectedLogBook);
+        if (localLogBook.isPresent() && !localLogBook.get().getLast().getEndDeviceEvents().isEmpty()) {
+            this.executeTransaction(() -> {
+                findLogBook(logBookIdentifier).ifPresent(lb -> {
+                    MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                    meterReading.addAllEndDeviceEvents(localLogBook.get().getLast().getEndDeviceEvents());
+                    lb.getDevice().store(meterReading);
+                });
+                return null;
+            });
+        }
+    }
+
+    @Override
+    public void updateLogBookLastReading(final LogBookIdentifier logBookIdentifier, final Date lastExecutionStartTimestamp) {
         this.executeTransaction(() -> {
             findLogBook(logBookIdentifier).ifPresent(lb -> {
-                List<EndDeviceEvent> events = MeterDataFactory.createEndDeviceEventsFor(collectedLogBook, lb.getId());
-                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addAllEndDeviceEvents(events);
-                lb.getDevice().store(meterReading);
+                updateLogBook(lb, lastExecutionStartTimestamp.toInstant()).apply(lb.getDevice());
             });
             return null;
         });
     }
 
     @Override
-    public void updateLogBookLastReading(final LogBookIdentifier logBookIdentifier, final Date lastExecutionStartTimestamp) {
-        this.executeTransaction(() -> {
+    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, final long comTaskExecutionId) {
+        getCommunicationTaskService().findComTaskExecution(comTaskExecutionId).ifPresent(cte -> {
+            this.executeTransaction(() -> {
                 findLogBook(logBookIdentifier).ifPresent(lb -> {
-                    LogBook.LogBookUpdater updater = lb.getDevice().getLogBookUpdaterFor(lb);
-                    updater.setLastLogBookIfLater(lastExecutionStartTimestamp.toInstant());
-                    updater.update();
+                    updateLogBook(lb, cte.getLastExecutionStartTimestamp()).apply(lb.getDevice());
                 });
-            return null;
+                return null;
+            });
         });
     }
 

@@ -705,6 +705,21 @@ public enum QueryMethod {
             }
         }
     },
+    UpdateLogBookLastReadingFromTask {
+        @Override
+        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
+            try {
+                ObjectParser<LogBookIdentifier> logBookIdentifierObjectParser = new ObjectParser<>();
+                JSONObject jsonObject = new JSONObject(parameters);
+                LogBookIdentifier logBookIdentifier = logBookIdentifierObjectParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.LOGBOOK_IDENTIFIER);
+                Long comTaskExecutionId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
+                serviceProvider.comServerDAO().updateLogBookLastReadingFromTask(logBookIdentifier, comTaskExecutionId);
+                return null;
+            } catch (JSONException e) {
+                throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
+            }
+        }
+    },
     UpdateDataSourceReadings{
         @Override
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {

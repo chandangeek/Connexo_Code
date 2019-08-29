@@ -417,6 +417,15 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
  public void updateLogBookLastReading(LogBookIdentifier logBookIdentifier, Date lastExecutionStartTimestamp);
 
     /**
+     * Updates the last reading date of a {@link LogBook} which is uniquely identified by
+     * the given {@link LogBookIdentifier} with the start time from the com task execution identified by its id
+     * @param logBookIdentifier
+     * @param comTaskExecutionId
+     */
+    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, long comTaskExecutionId);
+
+
+    /**
      * Stores the given list of Reading readings on the Meter.
      *
      * @param deviceIdentifier the identifier of the Device

@@ -103,7 +103,7 @@ public class PreStoreLogBook {
         return result;
     }
 
-    class LocalLogBook {
+    public class LocalLogBook {
 
         private final List<EndDeviceEvent> endDeviceEvents;
         private final Instant lastLogbook;

@@ -588,6 +588,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateLogBookLastReadingFromTask(final LogBookIdentifier logBookIdentifier, final long comTaskExecutionId) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.LOGBOOK_IDENTIFIER, logBookIdentifier);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecutionId);
+        post(QueryMethod.UpdateLogBookLastReadingFromTask, queryParameters);
+    }
+
+    @Override
     public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier) {
         return null;
     }
