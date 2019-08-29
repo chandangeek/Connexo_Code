@@ -55,6 +55,7 @@ import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.masterdata.MasterDataService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
@@ -136,13 +137,14 @@ public class ServiceCallCommands {
     private final Clock clock;
     private final BundleContext bundleContext;
     private final MasterDataService masterDataService;
+    private final CommunicationTaskService communicationTaskService;
 
     @Inject
     public ServiceCallCommands(DeviceService deviceService, JsonService jsonService,
                                MeterConfigParser meterConfigParser, MeterConfigFaultMessageFactory meterConfigFaultMessageFactory,
                                ServiceCallService serviceCallService, EndDeviceEventsBuilder endDeviceEventsBuilder,
                                Thesaurus thesaurus, MeterReadingFaultMessageFactory faultMessageFactory, Clock clock,
-                               BundleContext bundleContext, MasterDataService masterDataService) {
+                               BundleContext bundleContext, MasterDataService masterDataService, CommunicationTaskService communicationTaskService) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
@@ -154,7 +156,7 @@ public class ServiceCallCommands {
         this.clock = clock;
         this.bundleContext = bundleContext;
         this.masterDataService = masterDataService;
-
+        this.communicationTaskService = communicationTaskService;
     }
 
     @TransactionRequired
@@ -422,7 +424,8 @@ public class ServiceCallCommands {
                         childServiceCall.requestTransition(DefaultState.PENDING);
                         childServiceCall.requestTransition(DefaultState.ONGOING);
                         childServiceCall.requestTransition(DefaultState.WAITING);
-                        deviceMessagesComTaskExecution.runNow();
+                        // avoid OptimisticLockException
+                        communicationTaskService.findComTaskExecution(deviceMessagesComTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
                     }
                 } else { // use schedule
                     childServiceCall.requestTransition(DefaultState.PENDING);
@@ -527,7 +530,8 @@ public class ServiceCallCommands {
         childServiceCall.requestTransition(DefaultState.ONGOING);
         childServiceCall.requestTransition(DefaultState.WAITING);
         if (runNow) {
-            comTaskExecution.runNow();
+            // avoid OptimisticLockException
+            communicationTaskService.findComTaskExecution(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
         }
     }
 
@@ -563,7 +567,7 @@ public class ServiceCallCommands {
 
     private Device findDeviceForEndDevice(com.elster.jupiter.metering.Meter meter) {
         long deviceId = Long.parseLong(meter.getAmrId());
-        return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
+        return deviceService.findAndLockDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
     private void initiateReading(ServiceCall serviceCall) {

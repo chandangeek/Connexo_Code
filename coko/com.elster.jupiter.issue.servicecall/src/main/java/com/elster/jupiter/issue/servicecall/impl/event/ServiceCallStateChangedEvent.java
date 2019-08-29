@@ -10,7 +10,7 @@ import com.elster.jupiter.issue.servicecall.ServiceCallIssueService;
 import com.elster.jupiter.issue.servicecall.impl.MessageSeeds;
 import com.elster.jupiter.issue.servicecall.impl.entity.ServiceCallIssueImpl;
 import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.UnableToCreateEventException;
+import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -51,9 +51,9 @@ public class ServiceCallStateChangedEvent implements IssueEvent {
     public void init(Map<?, ?> map){
         Object id  = map.get("serviceCallId");
         serviceCall = Optional.ofNullable(id).map(Number.class::cast).map(Number::longValue).flatMap(serviceCallService::getServiceCall)
-                .orElseThrow(() -> new UnableToCreateEventException(thesaurus, MessageSeeds.UNABLE_TO_CREATE_EVENT, map.toString()));
+                .orElseThrow(() -> new UnableToCreateIssueException(thesaurus, MessageSeeds.UNABLE_TO_CREATE_EVENT, map.toString()));
         newState = Optional.ofNullable(map.get("newState")).map(String.class::cast).map(DefaultState::valueOf)
-                .orElseThrow(() -> new UnableToCreateEventException(thesaurus, MessageSeeds.UNABLE_TO_CREATE_EVENT, map.toString()));
+                .orElseThrow(() -> new UnableToCreateIssueException(thesaurus, MessageSeeds.UNABLE_TO_CREATE_EVENT, map.toString()));
     }
 
     @Override

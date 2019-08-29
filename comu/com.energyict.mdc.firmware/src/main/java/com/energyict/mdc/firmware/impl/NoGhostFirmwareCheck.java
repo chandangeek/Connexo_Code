@@ -38,13 +38,13 @@ public class NoGhostFirmwareCheck implements FirmwareCheck {
 
     @Override
     public void execute(FirmwareCheckManagementOptions options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
-        if (hasGhostMeterOrCommunicationFirmware(deviceUtils.getDevice())) {
+        if (hasGhostMeterOrCommunicationOrAuxiliaryFirmware(deviceUtils.getDevice())) {
             throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_HAS_GHOST_FIRMWARE);
         }
     }
 
-    boolean hasGhostMeterOrCommunicationFirmware(Device device) {
-        List<FirmwareType> checkedTypes = Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION);
+    boolean hasGhostMeterOrCommunicationOrAuxiliaryFirmware(Device device) {
+        List<FirmwareType> checkedTypes = Arrays.asList(FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.AUXILIARY);
         return dataModel.stream(ActivatedFirmwareVersion.class)
                 .join(FirmwareVersion.class)
                 .filter(Where.where(ActivatedFirmwareVersionImpl.Fields.DEVICE.fieldName()).isEqualTo(device))

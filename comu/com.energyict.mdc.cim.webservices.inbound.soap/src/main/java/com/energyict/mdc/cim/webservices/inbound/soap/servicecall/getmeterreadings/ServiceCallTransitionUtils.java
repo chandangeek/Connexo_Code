@@ -29,7 +29,7 @@ public class ServiceCallTransitionUtils {
                 }
             } else if (hasAllChildrenStates(children, DefaultState.CANCELLED)) {
                 transitToStateAfterOngoing(serviceCall, DefaultState.CANCELLED);
-            } else if (hasAllChildrenStates(children, DefaultState.PARTIAL_SUCCESS)
+            } else if (hasAnyChildState(children, DefaultState.PARTIAL_SUCCESS)
                     || hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
                 if (initiateReading) {
                     transitToStateAfterOngoing(serviceCall, DefaultState.PAUSED);

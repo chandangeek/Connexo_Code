@@ -24,6 +24,7 @@ import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -443,6 +444,8 @@ public interface TopologyService {
      * @return a Stream of physical gateway references
      */
     Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices);
+
+    List<Device> getSlaveDevices(Device device);
 
     interface G3CommunicationPathSegmentBuilder {
 

@@ -119,19 +119,29 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add priority between conditions
-        if ((filter.priorityFrom != null) || (filter.priorityTo != null)) {
+        if ((filter.priority != null) && (filter.priority.operator != null)) {
             builder.append(isFirstCondition ? " where ( " : " and ( ");
             isFirstCondition = false;
-            if (filter.priorityFrom != null) {
-                builder.append(" PRIORITY >= ");
-                builder.addInt(filter.priorityFrom);
-            }
-            if ((filter.priorityFrom != null) && (filter.priorityTo != null)) {
-                builder.append(" and ");
-            }
-            if (filter.priorityTo != null) {
-                builder.append(" PRIORITY <= ");
-                builder.addInt(filter.priorityTo);
+            switch (filter.priority.operator) {
+                case EQUAL:
+                    builder.append(" PRIORITY = ");
+                    builder.addLong(filter.priority.lowerBound);
+                    break;
+                case LESS_THAN:
+                    builder.append(" PRIORITY < ");
+                    builder.addLong(filter.priority.upperBound);
+                    break;
+                case GREATER_THAN:
+                    builder.append(" PRIORITY > ");
+                    builder.addLong(filter.priority.lowerBound);
+                    break;
+                case BETWEEN:
+                    // range should be open for consistency of the FE component behavior
+                    builder.append(" PRIORITY BETWEEN ");
+                    builder.addLong(filter.priority.lowerBound + 1);
+                    builder.append(" AND ");
+                    builder.addLong(filter.priority.upperBound - 1);
+                    break;
             }
             builder.append(") ");
         }
@@ -188,10 +198,9 @@ public class RecurrentTaskFinder implements TaskFinder {
             List<String> suspended = new ArrayList();
             suspended.addAll(filter.suspended);
             for (int i = 0; i < suspended.size(); i++) {
-                if("y".equalsIgnoreCase(suspended.get(i))){
+                if ("y".equalsIgnoreCase(suspended.get(i))) {
                     builder.append("(SUSPENDUNTIL IS NOT NULL)");
-                }
-                else if("n".equalsIgnoreCase(suspended.get(i))){
+                } else if ("n".equalsIgnoreCase(suspended.get(i))) {
                     builder.append("(SUSPENDUNTIL IS NULL)");
                 }
 

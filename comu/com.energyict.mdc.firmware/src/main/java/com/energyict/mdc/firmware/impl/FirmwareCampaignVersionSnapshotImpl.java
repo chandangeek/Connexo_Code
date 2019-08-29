@@ -29,7 +29,8 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
         IMAGEIDENTIFIER("imageIdentifier"),
         RANK("rank"),
         METER_FW_DEP("meterFirmwareDependency"),
-        COM_FW_DEP("communicationFirmwareDependency");
+        COM_FW_DEP("communicationFirmwareDependency"),
+        AUX_FW_DEP("auxiliaryFirmwareDependency");
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -50,6 +51,7 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
     private int rank;
     private String meterFirmwareDependency;
     private String communicationFirmwareDependency;
+    private String auxiliaryFirmwareDependency;
     private final DataModel dataModel;
 
     @Inject
@@ -66,6 +68,7 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
         this.rank = firmwareVersion.getRank();
         this.meterFirmwareDependency = firmwareVersion.getMeterFirmwareDependency().map(FirmwareVersion::getFirmwareVersion).orElse(null);
         this.communicationFirmwareDependency = firmwareVersion.getCommunicationFirmwareDependency().map(FirmwareVersion::getFirmwareVersion).orElse(null);
+        this.auxiliaryFirmwareDependency = firmwareVersion.getAuxiliaryFirmwareDependency().map(FirmwareVersion::getFirmwareVersion).orElse(null);
         return this;
     }
 
@@ -119,5 +122,9 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
 
     public String getCommunicationFirmwareDependency() {
         return communicationFirmwareDependency;
+    }
+
+    public String getAuxiliaryFirmwareDependency() {
+        return auxiliaryFirmwareDependency;
     }
 }

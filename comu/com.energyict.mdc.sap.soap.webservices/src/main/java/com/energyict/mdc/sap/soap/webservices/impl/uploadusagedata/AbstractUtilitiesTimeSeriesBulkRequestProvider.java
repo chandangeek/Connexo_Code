@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
@@ -23,19 +22,15 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.RangeSets;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -116,9 +111,6 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
     public Optional<ServiceCall> call(EndPointConfiguration endPointConfiguration, Stream<? extends ExportData> data) {
         String uuid = UUID.randomUUID().toString();
         try {
-            Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
-                    .filter(timeout -> !timeout.isEmpty())
-                    .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
             MSG message = createMessage(data, uuid);
             Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
                     .toEndpoints(endPointConfiguration)
@@ -127,6 +119,9 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
             if (!processedEndpoints.contains(endPointConfiguration)) {
                 throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
             }
+            Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
+                    .filter(timeout -> !timeout.isEmpty())
+                    .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
             return serviceCall;
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
@@ -178,23 +173,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         return a.isAfter(b) ? a : b;
     }
 
-    Map<String, RangeSet<Instant>> getTimeSlicedLRN(Channel channel, Range<Instant> range, IdentifiedObject meter) {
-        Map<String, RangeSet<Instant>> lrn = sapCustomPropertySets.getLrn(channel, range);
-        if (!lrn.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_NOT_FOUND_FOR_CHANNEL,
-                    channel.getMainReadingType().getFullAliasName(),
-                    meter.getName());
-        }
-        return lrn;
-    }
-
-    Map<Pair<String, String>, RangeSet<Instant>> getTimeSlicedLrnAndProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter, String readingTypeName) {
-        Map<Pair<String, String>, RangeSet<Instant>> lrnAndProfileId = sapCustomPropertySets.getLrnAndProfileId(channel, range);
-        if (!lrnAndProfileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL,
-                    readingTypeName,
-                    meter.getName());
-        }
-        return lrnAndProfileId;
+    Map<String, RangeSet<Instant>> getTimeSlicedProfileId(Channel channel, Range<Instant> range) {
+        return sapCustomPropertySets.getProfileId(channel, range);
     }
 }

@@ -116,6 +116,9 @@ public class DeviceFirmwareVersionInfoFactory {
         if (device.getDeviceProtocolPluggableClass().isPresent() && device.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
             firmwareTypes.add(FirmwareType.COMMUNICATION);
         }
+        if (device.getDeviceProtocolPluggableClass().isPresent() && device.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsAuxiliaryFirmwareVersion()) {
+            firmwareTypes.add(FirmwareType.AUXILIARY);
+        }
         if (device.getDeviceProtocolPluggableClass().isPresent() && device.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCaConfigImageVersion()) {
             firmwareTypes.add(FirmwareType.CA_CONFIG_IMAGE);
         }

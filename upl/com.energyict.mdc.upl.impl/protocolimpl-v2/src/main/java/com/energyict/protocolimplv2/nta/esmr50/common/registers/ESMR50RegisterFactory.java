@@ -46,7 +46,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     protected static final ObisCode MODEM_FIRMWARE_SIGNATURE_OBISCODE = ObisCode.fromString("1.2.0.2.8.255");
     protected static final ObisCode ACTIVE_FIRMWARE_SIGNATURE_OBISCODE = ObisCode.fromString("1.0.0.2.8.255");
 
-    protected static final ObisCode AUXILIARY_FIRMWARE_VERSION = ObisCode.fromString("1.4.0.2.0.255");
+    public static final ObisCode AUXILIARY_FIRMWARE_VERSION = ObisCode.fromString("1.4.0.2.0.255");
     //Security
     protected static final ObisCode SECURITY_SETUP_OBISCODE = ObisCode.fromString("0.0.43.0.0.255");
     //Power

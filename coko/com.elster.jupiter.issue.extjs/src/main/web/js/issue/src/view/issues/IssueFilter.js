@@ -16,6 +16,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
         'Isu.store.Devices',
         'Isu.store.DueDate',
         'Isu.store.IssueReasons',
+        'Isu.store.IssueUsagePoints',
         'Isu.store.DeviceGroups',
         'Isu.store.IssueReasons',
         'Isu.store.Locations'
@@ -138,6 +139,9 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
+                    },
+                    change: {
+                        fn: me.onDeviceChange
                     }
                 }
             },
@@ -150,6 +154,44 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 valueField: 'id',
                 store: 'Isu.store.DeviceGroups',
                 multiSelect: true,
+            },
+            {
+                emptyText: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage points'),
+                type: 'combobox',
+                itemId: 'issue-usagePoints-filter',
+                dataIndex: 'usagePoint',
+                displayField: 'name',
+                valueField: 'name',
+                store: 'Isu.store.IssueUsagePoints',
+                queryMode: 'remote',
+                queryParam: 'like',
+                queryCaching: false,
+                minChars: 0,
+                loadStore: false,
+                setFilterValue: me.comboSetFilterValue,
+                getParamValue: me.comboGetParamValue,
+                forceSelection: false,
+                hidden: me.isOverviewFilter,
+                listeners: {
+                    expand: {
+                        fn: me.comboLimitNotification
+                    }
+                }
+            },
+            {
+                type: 'interval',
+                itemId: 'issue-creationDate-filter',
+                dataIndex: 'startInterval',
+                dataIndexFrom: 'startIntervalFrom',
+                dataIndexTo: 'startIntervalTo',
+                text: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
+                hidden: me.isOverviewFilter
+            },
+            {
+                type: 'numeric',
+                dataIndex: 'priority',
+                itemId: 'isu-priority-filter',
+                text: Uni.I18n.translate('general.title.priority', 'ISU', 'Priority')
             },
             {
                 type: 'combobox',
@@ -174,6 +216,31 @@ Ext.define('Isu.view.issues.IssueFilter', {
                         fn: me.locationBeforeQuery
                     }
                 }
+            },
+            {
+                type: 'checkbox',
+                dataIndex: 'showTopology',
+                layout: 'hbox',
+                defaults: {margin: '0 10 0 0'},
+                hidden: me.isOverviewFilter,
+                listeners: {
+                    afterrender: function (field) {
+                        if (Ext.isEmpty(this.up().down('combobox[itemId=issue-meter-filter]').getValue())) {
+                            this.up().down('checkbox[itemId=showTopology-filter]').setValue(false);
+                            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(true);
+                        } else {
+                            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(false);
+                        }
+
+                    }
+                },
+                options: [
+                    {
+                        display: Uni.I18n.translate('general.showTopology','ISU','Show Topology'),
+                        value: 'true',
+                        itemId: 'showTopology-filter'
+                    }
+                ]
             }
         ];
 
@@ -289,6 +356,16 @@ Ext.define('Isu.view.issues.IssueFilter', {
     onAssigneeBlur: function (field) {
         if (field.getRawValue()) {
             field.setValue(field.lastSelection);
+        }
+    },
+    onDeviceChange: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value)) {
+            this.up().down('checkbox[itemId=showTopology-filter]').setValue(false);
+            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(true);
+        } else {
+            this.up().down('checkbox[itemId=showTopology-filter]').setDisabled(false);
         }
     }
 });

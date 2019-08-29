@@ -6,7 +6,7 @@ package com.energyict.mdc.common.scheduling;
 
 import com.elster.jupiter.time.TemporalExpression;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models the specifications that will allow a component
@@ -18,7 +18,7 @@ import aQute.bnd.annotation.ProviderType;
  * @see NextExecutionCalculator
  * @since 2012-04-11 (17:51)
  */
-@ProviderType
+@ConsumerType
 public interface NextExecutionSpecs extends NextExecutionCalculator {
 
     /**

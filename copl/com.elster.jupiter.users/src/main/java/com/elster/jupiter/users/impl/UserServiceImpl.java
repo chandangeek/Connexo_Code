@@ -841,6 +841,15 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 .findFirst();
     }
 
+    @Override
+    public String[] userAdminPrivileges() {
+        return new String[]{
+                //users
+                com.elster.jupiter.users.security.Privileges.Constants.ADMINISTRATE_USER_ROLE,
+                com.elster.jupiter.users.security.Privileges.Constants.VIEW_USER_ROLE,
+        };
+    }
+
     void createDefaultPrivilegeCategory() {
         createPrivilegeCategory(DEFAULT_CATEGORY_NAME);
     }

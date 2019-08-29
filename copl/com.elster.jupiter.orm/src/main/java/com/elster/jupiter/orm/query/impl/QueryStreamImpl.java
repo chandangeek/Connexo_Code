@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 
 public class QueryStreamImpl<T> implements QueryStream<T> {
 
-    private final DataMapperImpl<T> dataMapper;
+    private DataMapperImpl<T> dataMapper;
     private final List<Class<?>> eagers = new ArrayList<>();
     private Condition condition = Condition.TRUE;
     private Optional<Consumer<T>> peeker = Optional.empty();
@@ -278,6 +278,12 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
     }
 
     @Override
+    public <R extends T> QueryStream<R> filter(Class<? extends R> newApi) {
+        dataMapper = (DataMapperImpl) dataMapper.subMapper(newApi);
+        return (QueryStream) this;
+    }
+
+    @Override
     public QueryStream<T> sorted(Order order, Order... extra) {
         this.orders = new Order[extra.length + 1];
         this.orders[0] = order;
@@ -294,10 +300,11 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
 
     private List<T> doSelect() {
         List<T> result;
+        QueryExecutorImpl<T> queryExecutor = dataMapper.query(eagers.toArray(new Class<?>[eagers.size()]));
         if (limit == 0) {
-            result = dataMapper.query(eagers.toArray(new Class<?>[eagers.size()])).select(condition, orders);
+            result = queryExecutor.select(condition, orders);
         } else {
-            result = dataMapper.query(eagers.toArray(new Class<?>[eagers.size()])).select(condition, orders, true, new String[0], (int) (skip + 1), (int) (skip + limit));
+            result = queryExecutor.select(condition, orders, true, new String[0], (int) (skip + 1), (int) (skip + limit));
         }
         return result;
     }

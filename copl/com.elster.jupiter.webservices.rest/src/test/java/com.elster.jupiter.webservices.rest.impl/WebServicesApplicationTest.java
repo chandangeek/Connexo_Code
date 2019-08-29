@@ -7,6 +7,8 @@ package com.elster.jupiter.webservices.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -17,6 +19,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesDataModelServiceImpl;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
@@ -58,6 +61,15 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     Privilege privilege;
 
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
+        when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
+        when(nlsService.getThesaurus(WebServicesApplication.COMPONENT_NAME, Layer.REST))
+                .thenReturn(NlsModule.SimpleThesaurus.from(new WebServicesApplication().getKeys()));
+        when(nlsService.getThesaurus(WebServicesService.COMPONENT_NAME, Layer.DOMAIN))
+                .thenReturn(NlsModule.SimpleThesaurus.from(new WebServicesDataModelServiceImpl().getKeys()));
+    }
 
     @Override
     protected Application getApplication() {

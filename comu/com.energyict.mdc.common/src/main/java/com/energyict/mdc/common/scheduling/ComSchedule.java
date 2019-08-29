@@ -10,7 +10,7 @@ import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.Calendar;
@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-@ProviderType
+@ConsumerType
 public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration {
 
     void setName(String name);

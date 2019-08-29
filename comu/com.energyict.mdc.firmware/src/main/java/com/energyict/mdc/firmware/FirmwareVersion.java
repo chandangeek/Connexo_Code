@@ -73,6 +73,10 @@ public interface FirmwareVersion extends BaseFirmwareVersion {
 
     void setCommunicationFirmwareDependency(FirmwareVersion communicationFirmwareDependency);
 
+    Optional<FirmwareVersion> getAuxiliaryFirmwareDependency();
+
+    void setAuxiliaryFirmwareDependency(FirmwareVersion auxiliaryFirmwareDependency);
+
     default int compareTo(FirmwareVersion o) {
         return compare(this, o);
     }

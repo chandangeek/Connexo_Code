@@ -63,7 +63,7 @@ public class ActionResource extends BaseAlarmResource {
                 .filter(issueActionType -> issueActionType.getIssueType() != null)
                 .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
                 .filter(issueActionType -> isStartProcessApplicable(issueReason, issueActionType))
-                .map(i-> actionInfoFactory.asInfo(i, issueReason.isPresent() ? issueReason.get().getName() : null))
+                .map(i-> actionInfoFactory.asInfo(i, reasonParam))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
     }

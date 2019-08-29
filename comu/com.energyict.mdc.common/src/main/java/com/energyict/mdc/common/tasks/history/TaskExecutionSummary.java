@@ -6,7 +6,7 @@ package com.energyict.mdc.common.tasks.history;
 
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Models an overview of the different {@link ComTaskExecution tasks}
@@ -21,7 +21,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-05-30 (08:35)
  */
-@ProviderType
+@ConsumerType
 public interface TaskExecutionSummary {
 
     /**

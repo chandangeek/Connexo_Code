@@ -10,9 +10,9 @@ import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
-@ProviderType
+@ConsumerType
 public interface PartialConnectionTaskBuilder<S, T extends ComPortPool, U extends PartialConnectionTask> {
 
     S pluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);

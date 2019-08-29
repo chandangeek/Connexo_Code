@@ -8,7 +8,7 @@ import com.energyict.mdc.common.pluggable.PluggableClassUsageProperty;
 import com.energyict.mdc.common.protocol.ConnectionProperty;
 import com.energyict.mdc.common.protocol.ConnectionType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Holds the value of a property of a {@link ConnectionType}.
@@ -26,7 +26,7 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-11 (15:09)
  */
-@ProviderType
+@ConsumerType
 public interface ConnectionTaskProperty extends ConnectionProperty, PluggableClassUsageProperty<ConnectionType> {
 
     ConnectionTask getConnectionTask();

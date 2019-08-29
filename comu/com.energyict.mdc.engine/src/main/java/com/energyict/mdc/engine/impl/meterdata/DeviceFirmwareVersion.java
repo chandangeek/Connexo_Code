@@ -27,6 +27,8 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
     private Optional<String> activeMeterFirmwareVersion = Optional.empty();
     private Optional<String> passiveCaConfigImageVersion = Optional.empty();
     private Optional<String> activeCaConfigImageVersion = Optional.empty();
+    private Optional<String> passiveAuxiliaryFirmwareVersion = Optional.empty();
+    private Optional<String> activeAuxiliaryFirmwareVersion = Optional.empty();
     private ComTaskExecution comTaskExecution;
 
     public DeviceFirmwareVersion(DeviceIdentifier deviceIdentifier) {
@@ -112,5 +114,25 @@ public class DeviceFirmwareVersion extends CollectedDeviceData implements Collec
     @Override
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
         return configuration.isConfiguredToReadStatusInformation();
+    }
+
+    @Override
+    public Optional<String> getActiveAuxiliaryFirmwareVersion() {
+        return activeAuxiliaryFirmwareVersion;
+    }
+
+    @Override
+    public void setActiveAuxiliaryFirmwareVersion(String activeAuxiliaryFirmwareVersion) {
+        this.activeAuxiliaryFirmwareVersion = Optional.of(activeAuxiliaryFirmwareVersion);
+    }
+
+    @Override
+    public Optional<String> getPassiveAuxiliaryFirmwareVersion() {
+        return passiveAuxiliaryFirmwareVersion;
+    }
+
+    @Override
+    public void setPassiveAuxiliaryFirmwareVersion(String passiveAuxiliaryFirmwareVersion) {
+        this.passiveAuxiliaryFirmwareVersion = Optional.of(passiveAuxiliaryFirmwareVersion);
     }
 }
