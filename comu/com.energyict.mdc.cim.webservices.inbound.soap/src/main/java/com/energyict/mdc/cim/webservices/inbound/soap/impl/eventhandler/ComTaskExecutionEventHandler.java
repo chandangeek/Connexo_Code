@@ -21,7 +21,6 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.osgi.service.component.annotations.Component;
@@ -92,7 +91,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         if (comTaskName != null && comTaskName.equals(domainExtension.getCommunicationTask())) {
             Instant triggerDate = domainExtension.getTriggerDate();
             serviceCall.log(LogLevel.SEVERE, String.format("Communication task execution '%s'(trigger date: %s) is failed",
-                    comTaskName, triggerDate));
+                    comTaskName, triggerDate.atZone(ZoneId.systemDefault())));
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
@@ -118,7 +117,7 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         if (clock.instant().isAfter(triggerDate) && comTaskName != null
                 && comTaskName.equals(domainExtension.getCommunicationTask())) {
             serviceCall.log(LogLevel.FINE, String.format("Communication task execution '%s'(trigger date: %s) is completed",
-                    comTaskName, triggerDate));
+                    comTaskName, triggerDate.atZone(ZoneId.systemDefault())));
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         }
@@ -143,7 +142,8 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                         serviceCall.requestTransition(DefaultState.ONGOING);
                         serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
                                 deviceMessage.getSpecification()
-                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
+                                        .atZone(ZoneId.systemDefault())));
                         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                     }
                     break;
@@ -152,7 +152,8 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                         serviceCall.requestTransition(DefaultState.ONGOING);
                         serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is canceled",
                                 deviceMessage.getSpecification()
-                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()));
+                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
+                                        .atZone(ZoneId.systemDefault())));
                         serviceCall.requestTransition(DefaultState.CANCELLED);
                     }
                     break;
@@ -160,7 +161,8 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                     serviceCall.requestTransition(DefaultState.ONGOING);
                     serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
                             deviceMessage.getSpecification()
-                                    .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate().atZone(ZoneId.systemDefault())));
+                                    .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
+                                    .atZone(ZoneId.systemDefault())));
                     serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
