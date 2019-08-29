@@ -60,8 +60,9 @@ public enum TranslationKeys implements TranslationKey {
     INTERVAL("interval","Interval length"),
     CONNECTION_STATUS_CHANGE_MESSAGE_HANDLER(ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER,
             ConnectionStatusChangeMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
-    PROFILE_ID("profileID", "Profile ID"),
-    EXPORTER("exporter", "Use custom exporter"),
+    PROFILE_ID("profileId", "Profile id"),
+    EXPORTER("exporter", "Exporter"),
+    EXPORTER_DESCRIPTION("exporterDescription", "Specifies the type of exporter to be used to select and export readings"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),

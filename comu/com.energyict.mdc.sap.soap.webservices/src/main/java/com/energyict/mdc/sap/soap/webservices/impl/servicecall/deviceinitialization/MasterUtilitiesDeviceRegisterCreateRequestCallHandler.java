@@ -103,7 +103,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
 
         //check device active and send registered notification
         try {
-            List<String> deviceIds = createActiveAndAnyLrnListDeviceIds(children);
+            List<String> deviceIds = findIdsOfActiveDevicesWithLRN(children);
             if (!deviceIds.isEmpty()) {
                 if (extension.isBulk()) {
                     WebServiceActivator.UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION.forEach(sender -> sender.call(deviceIds));
@@ -111,10 +111,12 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
                     WebServiceActivator.UTILITIES_DEVICE_REGISTERED_NOTIFICATION.forEach(sender -> sender.call(deviceIds.get(0)));
                 }
             }
-        }catch(Exception ex){}
+        }catch(Exception ex){
+            //If we could not send registered notification due to any exception, we should continue to process service call
+        }
     }
 
-    private List<String> createActiveAndAnyLrnListDeviceIds(List<ServiceCall> children) {
+    private List<String> findIdsOfActiveDevicesWithLRN(List<ServiceCall> children) {
         List<String> deviceIds = new ArrayList<>();
         children.forEach(child -> {
             SubMasterUtilitiesDeviceRegisterCreateRequestDomainExtension extension = child.getExtensionFor(new SubMasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet()).get();
@@ -134,7 +136,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
         if (isLastChild(children)) {
             if (parent.getState().equals(DefaultState.PENDING) && parent.canTransitionTo(DefaultState.ONGOING)) {
                 parent.requestTransition(DefaultState.ONGOING);
-            } else if (hasAllChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
+            } else if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
             } else if (hasAnyChildState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
                 parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
@@ -148,7 +150,7 @@ public class MasterUtilitiesDeviceRegisterCreateRequestCallHandler implements Se
         return serviceCalls.stream().noneMatch(sc -> sc.getState().isOpen());
     }
 
-    private boolean hasAllChildState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
+    private boolean hasAllChildrenInState(List<ServiceCall> serviceCalls, DefaultState defaultState) {
         return serviceCalls.stream().allMatch(sc -> sc.getState().equals(defaultState));
     }
 

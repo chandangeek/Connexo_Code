@@ -11,12 +11,14 @@ Ext.define('Isu.controller.IssuesOverview', {
 
     models: [
         'Isu.model.IssuesFilter',
+        'Isu.model.IssueUsagePoints',
         'Isu.model.IssueAssignee',
         'Isu.model.IssueWorkgroupAssignee',
         'Isu.model.IssueReason',
         'Isu.model.Device',
-        'Isu.model.Location',
+        'Isu.model.IssueUsagePoints',
         'Uni.component.sort.model.Sort',
+        'Isu.model.Location',
         'Isu.model.DeviceGroup'
     ],
 
@@ -27,6 +29,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         'Isu.store.IssueAssignees',
         'Isu.store.IssueWorkgroupAssignees',
         'Isu.store.IssueReasons',
+        'Isu.store.IssueUsagePoints',
         'Isu.store.Devices',
         'Isu.store.Locations',
         'Isu.store.IssueGrouping',

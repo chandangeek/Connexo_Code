@@ -9,7 +9,11 @@ Ext.define('Apr.view.taskoverview.Setup', {
 
     requires: [
         'Uni.util.FormEmptyMessage',
-        'Apr.view.taskoverview.ActionMenu'
+        'Apr.view.taskoverview.ActionMenu',
+        'Uni.grid.commander.SortingPanel',
+        'Uni.component.sort.model.Sort',
+        'Apr.view.taskoverview.SortMenu',
+        'Apr.store.Tasks'
     ],
     content: [
         {
@@ -18,6 +22,26 @@ Ext.define('Apr.view.taskoverview.Setup', {
             items: [
                 {
                     xtype: 'taskFilter'
+                },
+                {
+                    store: 'Apr.store.Tasks',
+                    xtype: 'uni-grid-commander-sortingpanel',
+                    itemId: 'taskoverview-sortingpanel',
+                    menu: 'taskoverview-sort-menu',
+                    items: [
+                      {
+                        property: 'nextRun',
+                        direction: Uni.component.sort.model.Sort.ASC
+                      },
+                      {
+                        property: 'queue',
+                        direction: Uni.component.sort.model.Sort.ASC
+                      },
+                      {
+                        property: 'priority',
+                        direction: Uni.component.sort.model.Sort.DESC
+                      }
+                    ]
                 },
                 {
                     xtype: 'preview-container',

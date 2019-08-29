@@ -65,12 +65,8 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and cte.onhold = 0 and ((cte.comport is not null) or " +
-                    " ((exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
-                    " and busytask.lastCommunicationStart > cte.nextexecutiontimestamp)) " +
-                    " and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <= ");
-            sqlBuilder.addLong(this.asSeconds(now));
-            sqlBuilder.append("))");
+            sqlBuilder.append("and cte.onhold = 0 and ");
+            isExecuting(sqlBuilder, now);
         }
 
         @Override
@@ -78,7 +74,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append("cte.onhold = 0 and ((cte.comport is not null) or ((cte.thereisabusytask is not null) and cte.nextexecutiontimestamp <=");
             // Merge feature/CXO-2099: add cte.onhold = 0 to above line
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append("))");
         }
     },
@@ -108,9 +104,10 @@ public enum ServerComTaskStatus {
             sqlBuilder.append(isNotPriorityTask() +
                     "and cte.onhold = 0 and ((cte.comport is null) and " +
                     " (not exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
+                    " and busytask.lastcommunicationstart <= cte.lastexecutiontimestamp " +
                     " and busytask.lastCommunicationStart > cte.nextexecutiontimestamp)) " +
                     " and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append(")");
         }
 
@@ -119,7 +116,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append("cte.onhold = 0 and cte.comport is null and cte.thereisabusytask is null and cte.nextexecutiontimestamp <=");
             // Merge feature/CXO-2099: add cte.onhold = 0 to above line
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
         }
     },
 
@@ -147,9 +144,10 @@ public enum ServerComTaskStatus {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and hp.comtaskexecution = cte.id and cte.onhold = 0 and ((cte.comport is null) and " +
                     " (not exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
+                    " and busytask.lastcommunicationstart <= cte.lastexecutiontimestamp " +
                     " and busytask.lastCommunicationStart > cte.nextexecutiontimestamp)) " +
                     " and cte.nextExecutionTimestamp is not null and cte.nextexecutiontimestamp <=");
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append(")");
         }
 
@@ -158,7 +156,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append("cte.onhold = 0 and cte.comport is null and comtaskexecution = cte.id and cte.thereisabusytask is null and cte.nextexecutiontimestamp <=");
             // Merge feature/CXO-2099: add cte.onhold = 0 to above line
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
         }
     },
 
@@ -198,7 +196,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("and cte.lastSuccessfulCompletion is null ");
             sqlBuilder.append("and cte.lastExecutionTimestamp is not null ");
             sqlBuilder.append("and (cte.nextexecutiontimestamp IS NULL OR (cte.nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append("))");
         }
     },
@@ -234,7 +232,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("cte.onhold = 0 ");
             sqlBuilder.append(ServerComTaskStatus.isNotPriorityTask());
             sqlBuilder.append("and cte.nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append("and cte.comport is null ");
             sqlBuilder.append("and cte.currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
         }
@@ -271,7 +269,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("cte.onhold = 0 ");
             sqlBuilder.append("and comtaskexecution = cte.id ");
             sqlBuilder.append("and cte.nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append("and cte.comport is null ");
             sqlBuilder.append("and cte.currentretrycount > 0");  // currentRetryCount is only incremented when task fails. It is reset to 0 when the maxTries is reached
         }
@@ -308,7 +306,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append("cte.onhold = 0 ");
             sqlBuilder.append("and cte.nextExecutionTimestamp >");
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append("and cte.lastSuccessfulCompletion is not null ");
             sqlBuilder.append("and cte.LASTEXECUTIONTIMESTAMP > lastSuccessfulCompletion ");
             sqlBuilder.append("and cte.lastExecutionFailed = 1 ");
@@ -352,7 +350,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("and cte.currentretrycount = 0 ");
             sqlBuilder.append("and (cte.lastExecutionTimestamp is null or cte.lastSuccessfulCompletion is not null) ");
             sqlBuilder.append("and (cte.nextexecutiontimestamp IS NULL OR (cte.nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append("))");
         }
     },
@@ -389,7 +387,7 @@ public enum ServerComTaskStatus {
             sqlBuilder.append("and cte.currentretrycount = 0 ");
             sqlBuilder.append("and (cte.lastExecutionTimestamp is null or cte.lastSuccessfulCompletion is not null) ");
             sqlBuilder.append("and (cte.nextexecutiontimestamp IS NULL OR (cte.nextexecutiontimestamp >");
-            sqlBuilder.addLong(this.asSeconds(now));
+            sqlBuilder.addLong(asSeconds(now));
             sqlBuilder.append("))");
         }
     },
@@ -421,7 +419,7 @@ public enum ServerComTaskStatus {
         }
     };
 
-    protected long asSeconds(Instant date) {
+    private static long asSeconds(Instant date) {
         if (date == null) {
             return 0;
         }
@@ -508,6 +506,24 @@ public enum ServerComTaskStatus {
 
     private static String isNotPriorityTask() {
         return " and (not exists (select * from DDC_HIPRIOCOMTASKEXEC where comtaskexecution is not null and comtaskexecution = cte.id )) ";
+    }
+
+    private static void isExecuting(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+        sqlBuilder.append("(cte.comport is not null or ");
+        isConnectionExecuting(sqlBuilder, now);
+        sqlBuilder.append(")");
+    }
+
+    private static void isConnectionExecuting(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
+        sqlBuilder.append(
+                " exists (select * from busytask where busytask.comserver is not null and busytask.connectiontask = cte.connectiontask " +
+                        " AND busytask.lastcommunicationstart IS NOT NULL " +
+                        " AND busytask.lastcommunicationstart <= cte.lastexecutiontimestamp " +
+                        " AND (cte.ignorenextexecspecs = 1 " +
+                        " OR (cte.nextexecutiontimestamp IS NOT NULL " +
+                        " AND cte.nextexecutiontimestamp <= ");
+        sqlBuilder.addLong(asSeconds(now));
+        sqlBuilder.append(" AND busytask.lastcommunicationstart > cte.nextexecutiontimestamp)))");
     }
 
 }

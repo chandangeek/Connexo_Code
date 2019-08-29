@@ -10,10 +10,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.text.MessageFormat;
 import java.time.Instant;
 
 public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
@@ -76,6 +78,10 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorMessage;
+
+    public ServiceCall getServiceCall() {
+        return serviceCall.get();
+    }
 
     public String getObis() {
         return obis;
@@ -141,9 +147,9 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.errorMessage = errorMessage;
     }
 
-    public void setError(MessageSeeds messageSeed, Object... args) {
-        setErrorCode(messageSeed.code());
-        setErrorMessage(messageSeed.getDefaultFormat(args));
+    public void setError(MessageSeed messageSeed, Object... args) {
+        setErrorCode(String.valueOf(messageSeed.getNumber()));
+        setErrorMessage(MessageFormat.format(messageSeed.getDefaultFormat(), args));
     }
 
     @Override

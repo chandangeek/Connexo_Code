@@ -17,6 +17,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
@@ -60,7 +61,6 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -125,9 +125,12 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(Privileges.values()));
-        return translationKeys;
+        return Stream.of(
+                Privileges.values(),
+                LogLevel.values(),
+                WebServiceCallOccurrenceStatus.values())
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -131,6 +131,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.use;
@@ -146,6 +147,7 @@ import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOC
  */
 public class ComServerDAOImpl implements ComServerDAO {
 
+    private static final Logger LOGGER = Logger.getLogger(ComServerDAOImpl.class.getName());
     private final ServiceProvider serviceProvider;
     private final User comServerUser;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
@@ -749,20 +751,27 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (comTaskExecutionsWhichAreExecuting.isEmpty()) {
                 // There are no ComTaskExec locked for this com port,
                 // so we might be in the case where only the connection task is locked
-
                 lockedConnectionTasks.addAll(getLockedByComServer(comPort.getComServer()));
             } else {
                 for (ComTaskExecution comTaskExecution : comTaskExecutionsWhichAreExecuting) {
                     if (comTaskExecution.getConnectionTask().isPresent()) {
                         lockedConnectionTasks.add(comTaskExecution.getConnectionTask().get());
-                        getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
+                        try {
+                            getCommunicationTaskService().unlockComTaskExecution(comTaskExecution);
+                        } catch (Throwable t) {
+                            LOGGER.severe("Could not unlock comTask due to: " + t.getMessage());
+                        }
                     }
                 }
             }
 
             // unlock the connection tasks (after all affected ComTaskExecs are unlocked)
             for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
-                unlock(lockedConnectionTask);
+                try {
+                    unlock(lockedConnectionTask);
+                } catch (Throwable t) {
+                    LOGGER.severe("Could not unlock connectionTask due to: " + t.getMessage());
+                }
             }
             return null;
         });
@@ -1278,6 +1287,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider.firmwareService(), serviceProvider.clock());
             firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
             firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
+            firmwareStorage.updateAuxiliaryFirmwareVersion(collectedFirmwareVersions.getActiveAuxiliaryFirmwareVersion(), device);
             firmwareStorage.updateCaConfigImageVersion(collectedFirmwareVersions.getActiveCaConfigImageVersion(), device);
         });
     }
