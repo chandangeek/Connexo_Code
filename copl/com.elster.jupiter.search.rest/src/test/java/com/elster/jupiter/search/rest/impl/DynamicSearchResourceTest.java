@@ -6,7 +6,6 @@ package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -14,34 +13,40 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.search.*;
-import com.elster.jupiter.users.User;
+import com.elster.jupiter.search.SearchBuilder;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
+
 import com.jayway.jsonpath.JsonModel;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
+
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DynamicSearchResourceTest extends SearchApplicationTest {
 
@@ -56,9 +61,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         SearchDomain devicesDomain = mockDeviceSearchDomain();
 
         SearchDomain deviceTypeDomain = mock(SearchDomain.class);
-        Query<SearchCriteria> searchCriteriaQuery= mock(Query.class);
         when(deviceTypeDomain.getId()).thenReturn("com.deviceTypes");
-        when(this.searchCriteriaService.getCreationRuleQuery()).thenReturn(searchCriteriaQuery);
         when(this.searchService.getDomains()).thenReturn(Arrays.asList(devicesDomain, deviceTypeDomain));
         when(searchService.findDomain("com.deviceTypes")).thenReturn(Optional.of(deviceTypeDomain));
     }
@@ -305,32 +308,6 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<String>get("$.searchResults[2].name")).isEqualTo("SPE01000003");
 
     }
-
-    @Test
-    public void testGetSearchCriteria() throws IOException {
-        Query<SearchCriteria> searchCriteriaQuery = mock(Query.class);
-        when(searchCriteriaService.getCreationRuleQuery()).thenReturn(searchCriteriaQuery);
-        when(threadPrincipalService.getPrincipal()).thenReturn(user);
-        Response response = target("/search/saveSearchCriteria")
-                                    .request("application/json").accept("application/json").get();
-        JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test
-    public void testGetSearchCriteriaWithNonExisting() throws IOException {
-        Query<SearchCriteria> searchCriteriaQuery = mock(Query.class);
-        when(searchCriteriaService.getCreationRuleQuery()).thenReturn(searchCriteriaQuery);
-        when(threadPrincipalService.getPrincipal()).thenReturn(user);
-        when(threadPrincipalService.getPrincipal().getName()).thenReturn("Dummy");
-        Response response = target("/search/saveSearchCriteria")
-                .request("application/json").accept("application/json").get();
-        JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(model.<net.minidev.json.JSONArray>get("$.numberOfSearchResults").size()).isEqualTo(0);
-    }
-
 
     interface DeviceType extends HasId, HasName { }
     interface DeviceConfig extends HasId, HasName {  }

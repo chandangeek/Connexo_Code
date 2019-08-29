@@ -26,7 +26,7 @@ Ext.define('Uni.store.search.SaveLoad', {
     }],
     proxy: {
         type: 'rest',
-        url: '../../api/jsr/search/saveSearchCriteria',
+        url: '../../api/jsr/search/searchCriteria',
         pageParam: false,
         startParam: false,
         limitParam: false,
