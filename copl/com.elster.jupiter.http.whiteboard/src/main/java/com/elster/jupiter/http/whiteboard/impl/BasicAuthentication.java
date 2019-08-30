@@ -18,11 +18,8 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
-import net.shibboleth.utilities.java.support.component.ComponentInitializationException;
-import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
-import org.opensaml.core.config.Initializer;
 import org.opensaml.saml.saml2.ecp.RelayState;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.wiring.BundleWiring;
@@ -36,7 +33,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -46,7 +42,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -69,7 +68,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             "/apps/sky/",
             "/apps/uni/",
             "/apps/ext/",
-            "/api/apps/apps/security/acs",
             "/api/apps/security/acs"
     };
 
@@ -85,6 +83,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             "/api/",
             "/public/api/"
     };
+
+    private static final String SSO_ENABLED_PROPERTY = "sso.enabled";
+    private static final String SSO_IDP_ENDPOINT_PROPERTY = "sso.idp.endpoint";
+    private static final String SSO_X509_CERTIFICATE_PROPERTY = "sso.x509.certificate";
+    private static final String SSO_ACS_ENDPOINT_PROPERTY = "sso.acs.endpoint";
 
     private final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
 
@@ -106,6 +109,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> host;
     private Optional<Integer> port;
     private Optional<String> scheme;
+    private boolean ssoEnabled;
+    private Optional<String> idpEndpoint;
+    private Optional<String> acsEndpoint;
+    private Optional<String> x509Certificate;
 
     @Inject
     BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService) throws
@@ -214,6 +221,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         } finally {
             thread.setContextClassLoader(loader);
         }
+        ssoEnabled = Boolean.parseBoolean(context.getProperty(SSO_ENABLED_PROPERTY));
+        idpEndpoint = getOptionalStringProperty(SSO_IDP_ENDPOINT_PROPERTY, context);
+        acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
+        x509Certificate = getOptionalStringProperty(SSO_X509_CERTIFICATE_PROPERTY, context);
     }
 
     public void createNewTokenKey(String... args) {
@@ -311,37 +322,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        /*
-
-        TODO : Add handling of initial SSO authentication request
-            Steps :
-            1. Create SAML Request
-            2. Set RelayState
-            3. Redirect user via browser to IDP with SAMLRequest and RelayState
-        */
-        String authentication = request.getHeader("Authorization");
-
-
-        //String responseAuthetication = response.getHeader(HttpHeaders.AUTHORIZATION);
-        String responseAuthetication = request.getParameter("Token");
-        Optional<Cookie> tokenCookie1 = getTokenCookie(request);
-        if (!tokenCookie1.isPresent()) {
-            if (!request.getRequestURL().toString().contains("/security/acs")) {
-                if (StringUtils.isEmpty(authentication) && StringUtils.isEmpty(responseAuthetication)) {
-                    Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response);
-                    if (ssoAuthenticationRequestOptional.isPresent()) {
-                        String redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
-                        response.sendRedirect(redirectUrl);
-                    }
-                }
-            }
-        }
-        if (StringUtils.isEmpty(authentication)) {
-            if (!StringUtils.isEmpty(responseAuthetication)) {
-                authentication = responseAuthetication;
-            }
-        }
-
         // Set no caching for specific resources regardless of the authentication type
         if (isCachedResource(request.getRequestURL().toString())) {
             response.setHeader("Cache-Control", "max-age=86400");
@@ -352,7 +332,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             response.setDateHeader("Expires", 0); // Proxies
         }
 
-
+        String authentication = request.getHeader("Authorization");
         if (authentication != null && authentication.startsWith("Basic ")) {
             return doBasicAuthentication(request, response, authentication.split(" ")[1]);
         } else if (authentication != null && authentication.startsWith("Bearer ")) {
@@ -364,6 +344,9 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             } else if (unsecureAllowed(request.getRequestURI())) {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
+            } else if (ssoEnabled) {
+                ssoAuthentication(request, response);
+                return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
                 response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
                 response.setHeader("Location", getLoginUrl(request));
@@ -374,6 +357,14 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 // rather than redirecting to login
                 return deny(request, response);
             }
+        }
+    }
+
+    private void ssoAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get());
+        if (ssoAuthenticationRequestOptional.isPresent()) {
+            String redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
+            response.sendRedirect(redirectUrl);
         }
     }
 
@@ -407,6 +398,20 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return securityToken.createToken(user, 0, ipAddress);
     }
 
+    @Override
+    public String getSsoX509Certificate() {
+        return x509Certificate.get();
+    }
+
+    @Override
+    public Cookie createTokenCookie(String cookieValue, String cookiePath) {
+        Cookie cookie = new Cookie(TOKEN_COOKIE_NAME, cookieValue);
+        cookie.setPath(cookiePath);
+        cookie.setMaxAge(securityToken.getCookieMaxAge());
+        cookie.setHttpOnly(true);
+        return cookie;
+    }
+
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
         SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
                 .getRemoteAddr());
@@ -434,7 +439,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 return deny(request, response);
             }
         }
-        response.addCookie(createTokenCookie(token, "/"));
+
         // Since the cookie value can be updated without updating the authorization header, it should be used here instead of the header
         // The check before ensures the header is also valid syntactically, but it may be expires if only the cookie was updated (Facts, Flow)
         SecurityTokenImpl.TokenValidation tokenValidation = securityToken.verifyToken(token, userService, request.getRemoteAddr());
@@ -462,7 +467,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         BasicAuthenticationCredentials credentials;
         try {
             credentials = new BasicAuthenticationCredentials(authentication);
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return new LocalEventUserSource("");
         }
         return new LocalEventUserSource(credentials.getUserName());
@@ -534,21 +539,13 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return Optional.empty();
     }
 
-    private Cookie createTokenCookie(String cookieValue, String cookiePath) {
-        Cookie cookie = new Cookie(TOKEN_COOKIE_NAME, cookieValue);
-        cookie.setPath(cookiePath);
-        cookie.setMaxAge(securityToken.getCookieMaxAge());
-        cookie.setHttpOnly(true);
-        return cookie;
-    }
-
     private void postWhiteboardEvent(String topic, Object user) {
-            eventService.postEvent(topic, user);
+        eventService.postEvent(topic, user);
     }
 
     private String getSamlRequestUrl(String ssoAuthnRequest, String requestUrl) throws UnsupportedEncodingException {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(SamlUtils.SAML_IDP_ENDPOINT);
+        stringBuilder.append(idpEndpoint.get());
         stringBuilder.append("?");
         stringBuilder.append("SAMLRequest=");
         stringBuilder.append(URLEncoder.encode(ssoAuthnRequest, "UTF-8").trim());

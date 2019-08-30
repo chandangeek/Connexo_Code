@@ -7,6 +7,7 @@ package com.elster.jupiter.http.whiteboard;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.users.User;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,5 +25,9 @@ public interface HttpAuthenticationService {
     void logout(HttpServletRequest request, HttpServletResponse response);
 
     String createToken(User user, String ipAddress);
+
+    String getSsoX509Certificate();
+
+    Cookie createTokenCookie(String cookieValue, String cookiePath);
 
 }

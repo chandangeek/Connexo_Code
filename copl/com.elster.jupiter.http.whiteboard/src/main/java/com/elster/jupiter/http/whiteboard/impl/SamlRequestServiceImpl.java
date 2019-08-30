@@ -26,7 +26,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -91,12 +90,11 @@ public class SamlRequestServiceImpl implements SamlRequestService {
     }
 
     @Override
-    public Optional<String> createSSOAuthenticationRequest(HttpServletRequest request, HttpServletResponse response) {
+    public Optional<String> createSSOAuthenticationRequest(HttpServletRequest request, HttpServletResponse response, String acsEndpoint) {
         try {
-            AuthnRequest authnRequest = this.createAuthnRequest(SamlUtils.SAML_ACS_ENDPOINT, UUID.randomUUID().toString(), DateTime.now(), request.getRequestURL().toString());
+            AuthnRequest authnRequest = this.createAuthnRequest(acsEndpoint, UUID.randomUUID().toString(), DateTime.now(), request.getRequestURL().toString());
             String convertedAuthnRequest = this.convertXmlObjectToString(authnRequest);
             return Optional.of(Base64.encodeBase64String(CompressionUtils.deflate(SamlUtils.getBytesWithCatch(convertedAuthnRequest, SamlUtils.ERROR_PROBLEM_DEFLATE_AND_ENCODE_REQUEST_TO_BASE64))));
-            //return Optional.of(Base64.encodeBase64String(SamlUtils.getBytesWithCatch(convertedAuthnRequest, SamlUtils.ERROR_PROBLEM_DEFLATE_AND_ENCODE_REQUEST_TO_BASE64)));
 
         } catch (SAMLException e) {
             LOGGER.log(Level.SEVERE,"Error while trying to create SAML Request" , e);
