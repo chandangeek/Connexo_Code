@@ -34,7 +34,7 @@ Ext.define('Wss.view.HistoryTopFilter', {
                 text: Uni.I18n.translate('importService.history.finished', 'WSS', 'Finished between')
             },
             {
-                type: Boolean(me.endpoint) ? 'noui' : 'combobox',
+                type: Boolean(me.endpoint) ? undefined : 'combobox',
                 dataIndex: 'webServiceEndPoint',
                 itemId: 'history-topfilter-webServiceEndPoint',
                 emptyText: Uni.I18n.translate('general.webServiceEndpoint', 'WSS', 'Web service endpoint'),

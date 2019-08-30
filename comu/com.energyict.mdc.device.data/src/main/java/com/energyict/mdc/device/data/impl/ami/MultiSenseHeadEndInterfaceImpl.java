@@ -327,7 +327,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         onDemandReadServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
         onDemandReadServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         onDemandReadServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
-        onDemandReadServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
+        onDemandReadServiceCallDomainExtension.setTriggerDate(triggerDate);
 
         ServiceCallType serviceCallType = serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
@@ -353,22 +353,42 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
         Device multiSenseDevice = findDeviceForEndDevice(endDeviceCommand.getEndDevice());
-        ServiceCall serviceCall = getServiceCallCommands().createOperationServiceCall(Optional.ofNullable(parentServiceCall), multiSenseDevice, endDeviceCommand.getEndDeviceControlType(), releaseDate);
+        ServiceCall serviceCall = getServiceCallCommands().createOperationServiceCall(Optional.ofNullable(parentServiceCall),
+                multiSenseDevice, endDeviceCommand.getEndDeviceControlType(), releaseDate);
         serviceCall.requestTransition(DefaultState.PENDING);
         serviceCall.requestTransition(DefaultState.ONGOING);
         serviceCall.log(LogLevel.INFO, "Handling command " + endDeviceCommand.getEndDeviceControlType());
 
         try {
+            checkComTaskEnablement(endDeviceCommand);
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
-            scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
+            scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
             serviceCall.requestTransition(DefaultState.WAITING);
             return new CompletionOptionsImpl(serviceCall);
         } catch (RuntimeException e) {
             serviceCall.log("Encountered an exception when trying to create/schedule the device command(s)", e);
+            serviceCall.log(LogLevel.SEVERE, e.getLocalizedMessage());
             serviceCall.requestTransition(DefaultState.FAILED);
             throw e;
+        }
+    }
+
+    private void checkComTaskEnablement(EndDeviceCommand endDeviceCommand) throws NoSuchElementException {
+        EndDevice endDevice = endDeviceCommand.getEndDevice();
+            if (endDevice != null) {
+            Device device = findDeviceForEndDevice(endDevice);
+
+            // just to check negative case when there is no ManualSystemTask of type MessagesTask
+            boolean noCommandComTaskEnablement = device.getDeviceConfiguration()
+                    .getComTaskEnablements().stream()
+                    .filter(cte -> cte.getComTask().isManualSystemTask())
+                    .noneMatch(cte -> cte.getComTask().getProtocolTasks().stream()
+                            .anyMatch(task -> task instanceof MessagesTask));
+            if (noCommandComTaskEnablement) {
+                throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
+            }
         }
     }
 
@@ -465,7 +485,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         communicationTestServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
         communicationTestServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         communicationTestServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
-        communicationTestServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
+        communicationTestServiceCallDomainExtension.setTriggerDate(triggerDate);
 
         ServiceCallType serviceCallType = serviceCallService.findServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION)
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)

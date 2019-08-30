@@ -1309,10 +1309,6 @@ public class BpmResource {
                         .supplier());
 
         Map<String, Object> expectedParams = getOutputContent(taskContentInfos, -1, id, auth);
-        if (taskContentInfos.extraProperties != null) {
-            taskContentInfos.extraProperties.stream()
-                    .forEach(ep -> expectedParams.put(ep.propertyName, ep.propertyValue));
-        }
         List<Errors> err = new ArrayList<>();
         TaskContentInfos taskContents = getProcessContent(id,deploymentId, auth);
         taskContentInfos.properties.stream()

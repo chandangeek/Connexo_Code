@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.task;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -35,6 +36,7 @@ public class CheckConfirmationTimeoutHandler implements TaskExecutor {
                     MasterMeterReadingDocumentCreateResultDomainExtension extension = serviceCall.getExtension(MasterMeterReadingDocumentCreateResultDomainExtension.class)
                             .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
                     if (extension.getConfirmationTime() != null && extension.getConfirmationTime().isBefore(clock.instant())) {
+                        serviceCall.log(LogLevel.SEVERE, "No confirmation request received within the configured timeout");
                         serviceCall.requestTransition(DefaultState.ONGOING);
                         serviceCall.requestTransition(DefaultState.FAILED);
                     }

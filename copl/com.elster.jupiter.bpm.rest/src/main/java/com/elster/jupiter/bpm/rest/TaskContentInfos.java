@@ -28,7 +28,6 @@ public class TaskContentInfos {
     public String processName;
     public String processVersion;
     public List<BusinessObject> bulkBusinessObjects = new ArrayList<>();
-    public List<ExtraProperty> extraProperties;
 
     public TaskContentInfos() {
     }
