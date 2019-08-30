@@ -22,6 +22,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
@@ -40,9 +41,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> extends AbstractOutboundEndPointProvider<EP> implements DataExportWebService, OutboundSoapEndPointProvider {
-    public static final String ACTL_STATUS = "ACTL";
-    public static final String INVL_STATUS = "INVL";
-
     private volatile PropertySpecService propertySpecService;
     private volatile DataExportServiceCallType dataExportServiceCallType;
     private volatile Thesaurus thesaurus;
@@ -112,17 +110,20 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         String uuid = UUID.randomUUID().toString();
         try {
             MSG message = createMessage(data, uuid);
-            Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
-                    .toEndpoints(endPointConfiguration)
-                    .send(message)
-                    .keySet();
-            if (!processedEndpoints.contains(endPointConfiguration)) {
-                throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
+            if (message != null) {
+                Set<EndPointConfiguration> processedEndpoints = using(getMessageSenderMethod())
+                        .toEndpoints(endPointConfiguration)
+                        .send(message)
+                        .keySet();
+                if (!processedEndpoints.contains(endPointConfiguration)) {
+                    throw SAPWebServiceException.endpointsNotProcessed(thesaurus, endPointConfiguration);
+                }
+                Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
+                        .filter(timeout -> !timeout.isEmpty())
+                        .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
+                return serviceCall;
             }
-            Optional<ServiceCall> serviceCall = getTimeout(endPointConfiguration)
-                    .filter(timeout -> !timeout.isEmpty())
-                    .map(timeout -> dataExportServiceCallType.startServiceCallAsync(uuid, timeout.getMilliSeconds()));
-            return serviceCall;
+            return Optional.empty();
         } catch (Exception ex) {
             endPointConfiguration.log(ex.getLocalizedMessage(), ex);
             throw ex;
@@ -175,5 +176,16 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
 
     Map<String, RangeSet<Instant>> getTimeSlicedProfileId(Channel channel, Range<Instant> range) {
         return sapCustomPropertySets.getProfileId(channel, range);
+    }
+
+    static String asString(ValidationResult validationResult) {
+        switch (validationResult) {
+            case ACTUAL:
+                return "ACTL";
+            case INVALID:
+                return "INVL";
+            default:
+                return "0";
+        }
     }
 }

@@ -152,6 +152,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final String EXPORT_TASK_START_ON_DATE = "sap.soap.measurementtaskassignment.start.on";
     public static final String EXPORT_TASK_EXPORT_WINDOW = "sap.soap.measurementtaskassignment.export.window";
     public static final String EXPORT_TASK_UPDATE_WINDOW = "sap.soap.measurementtaskassignment.update.window";
+    public static final String EXPORT_TASK_NEW_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.new.data.endpoint";
+    public static final String EXPORT_TASK_UPDATED_DATA_ENDPOINT = "sap.soap.measurementtaskassignment.updated.data.endpoint";
 
     private static final String DEFAULT_EXPORT_WINDOW = "Yesterday";
     private static final String DEFAULT_UPDATE_WINDOW = "Previous month";
@@ -162,6 +164,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static Instant exportTaskStartOnDate;
     private static RelativePeriod exportTaskExportWindow;
     private static RelativePeriod exportTaskUpdateWindow;
+    private static String exportTaskNewDataEndpointName;
+    private static String exportTaskUpdatedDataEndpointName;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -218,6 +222,14 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public static RelativePeriod getExportTaskUpdateWindow() {
         return exportTaskUpdateWindow;
+    }
+
+    public static Optional<String> getExportTaskNewDataEndpointName() {
+        return Optional.ofNullable(exportTaskNewDataEndpointName);
+    }
+
+    public static Optional<String> getExportTaskUpdatedDataEndpointName() {
+        return Optional.ofNullable(exportTaskUpdatedDataEndpointName);
     }
 
     public WebServiceActivator() {
@@ -335,6 +347,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .orElse(DEFAULT_EXPORT_WINDOW));
         exportTaskUpdateWindow = findRelativePeriodOrThrowException(Optional.ofNullable(getPropertyValue(bundleContext, EXPORT_TASK_UPDATE_WINDOW))
                 .orElse(DEFAULT_UPDATE_WINDOW));
+        exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
+        exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
     }
 
     private RelativePeriod findRelativePeriodOrThrowException(String name) {

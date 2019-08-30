@@ -75,9 +75,10 @@ public enum MessageSeeds implements MessageSeed {
     TIME_PERIODS_INTERSECT(7003, "TimePeriodsIntersect", "Measurement task assignment time periods intersect."),
     LRN_IS_NOT_UNIQUE(7004, "LRNIsNotUnique", "LRN ''{0}'' isn''t unique within time period [{1},{2})."),
     PROPERTY_IS_NOT_SET(7005, "PropertyNotSet", "Property ''{0}'' isn''t set."),
-    ENDPOINT_NOT_FOUND(7006, "EndpointNotFound", "Couldn''t find active endpoint for webservice ''{0}''."),
-    DEVICE_IS_NOT_ACTIVE(7007, "deviceIsNotActive", "Device ''{0}'' isn''t in active state."),
-    ERROR_PROCESSING_MTA_REQUEST(7008, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
+    ENDPOINTS_NOT_FOUND(7006, "EndpointsNotFound", "Couldn''t find active endpoints for webservices: ''{0}''."),
+    ENDPOINT_BY_NAME_NOT_FOUND(7007, "EndpointByNameNotFound", "Couldn''t find active endpoint with name ''{0}''."),
+    DEVICE_IS_NOT_ACTIVE(7008, "deviceIsNotActive", "Device ''{0}'' isn''t in active state."),
+    ERROR_PROCESSING_MTA_REQUEST(7009, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
 
     //Micro checks
     AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "No LRN has been set on the device.");
