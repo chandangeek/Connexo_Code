@@ -153,6 +153,9 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
             return this;
         }
 
+
+
+
         private EP getEndpoint(EndPointConfiguration endPointConfiguration) {
             // TODO use here publish that throws exceptions to distinguish authorization error & unavailability
             if (endPointConfiguration.isActive()) {
@@ -191,9 +194,11 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         .filter(EndPointConfiguration::isActive)
                         .collect(Collectors.toSet());
                 if (endPointConfigurations.isEmpty()) {
+                    System.out.println("ENDPOINT CONFIGURATIONs IS EMPTY!!!!!");
                     throw new EndPointException(thesaurus, MessageSeeds.NO_WEB_SERVICE_ENDPOINTS, getName());
                 }
             }
+            System.out.println("RETURN ENDPOINTS !!!!!"+endPointConfigurations);
             return endPointConfigurations.stream()
                     .map(epc -> Pair.of(epc, getEndpoint(epc)))
                     .filter(Pair::hasLast)
@@ -219,8 +224,10 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                 JAXBContext jaxbContext = JAXBContext.newInstance(type);
                 Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
                 JAXBElement<?> root = jaxbUnmarshaller.unmarshal(msg.getSOAPBody().extractContentAsDocument(), type);
+                System.out.println("Call doSend!!!!");
                 return doSend(method, root.getValue());
             } catch (JAXBException | SOAPException | IOException e) {
+                System.out.println("Call get EndPoints in catch!!!!");
                 getEndpoints().keySet().forEach(endPointConfiguration -> {
                     long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), message).getId();
                     webServicesService.failOccurrence(id,
@@ -238,6 +245,12 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         @Override
+        public RequestSender withPayloadForFailedOccurrences(String payload) {
+            this.payload = payload;
+            return this;
+        }
+
+        @Override
         public Map<EndPointConfiguration, ?> send(Object request) {
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
@@ -250,19 +263,23 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         private Map<EndPointConfiguration, ?> doSend(Method method, Object request) {
+            //Set tmpSEt = getEndpoints().entrySet();
             return getEndpoints().entrySet().stream()
                     .map(epcAndEP -> {
                         Object port = epcAndEP.getValue();
+                        System.out.println("START OCCURRENCE!!!");
                         long id = webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName()).getId();
                         try {
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
                             Object response = method.invoke(port, request);
+                            System.out.println("PASS OCCURRENCE!!!");
                             webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);
                         } catch (IllegalAccessException | IllegalArgumentException e) {
                             throw new RuntimeException(e);
                         } catch (InvocationTargetException e) {
                             Throwable cause = e.getTargetException();
+                            System.out.println("FAIL OCCURRENCE!!!");
                             WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, cause instanceof Exception ? (Exception) cause : new Exception(cause));
                             if (cause instanceof WebServiceException) { // SOAP endpoint
                                 cause = cause.getCause();
