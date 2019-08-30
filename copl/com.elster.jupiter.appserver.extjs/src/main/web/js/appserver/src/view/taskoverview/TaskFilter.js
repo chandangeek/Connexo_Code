@@ -46,6 +46,7 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
                 multiSelect: true,
                 displayField: 'queue',
                 valueField: 'queue',
+                itemId: 'task-queue',
                 store: 'Apr.store.Queues'
             },
             {
