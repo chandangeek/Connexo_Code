@@ -236,7 +236,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                         .forEach(MeterActivationImpl::detachUsagePoint);
                 /* Post event after unlink actually performed */
                 if (eventSource.isPresent()){
-                    eventService.postEvent(EventType.METER_UNLINKED.topic(), eventSource.get());
+                    try{
+                        eventService.postEvent(EventType.METER_UNLINKED.topic(), eventSource.get());
+                    } catch (StateTransitionChangeEventException e) {
+                        throw new UsagePointMeterActivationException.StateTransitionException(metrologyConfigurationService.getThesaurus(),
+                                e.getMessageSeed(), e.getMessageArgs());
+                    }
                 }
             }
         });
@@ -292,8 +297,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations())
                         .forEach(m -> getMeterTimeLine(m, this.meterTimeLines));
                 getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, activateVisitor);
-
-                eventService.postEvent(EventType.METER_LINKED.topic(), new MeterTransitionWrapperImpl(meter, activationStart) );
+                try{
+                    eventService.postEvent(EventType.METER_LINKED.topic(), new MeterTransitionWrapperImpl(meter, activationStart) );
+                } catch (StateTransitionChangeEventException e) {
+                    throw new UsagePointMeterActivationException.StateTransitionException(metrologyConfigurationService.getThesaurus(),
+                            e.getMessageSeed(), e.getMessageArgs());
+                }
                 notifyInterestedComponents();
                 refreshMeterActivations();
             }
@@ -341,8 +350,13 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         this.usagePoint.touch();
         refreshMeterActivations();
 
-        unlinkedList.forEach(eventSource -> eventService.postEvent(EventType.METER_UNLINKED.topic(), eventSource));
-        linkedList.forEach(eventSource -> eventService.postEvent(EventType.METER_LINKED.topic(), eventSource));
+        try{
+            unlinkedList.forEach(eventSource -> eventService.postEvent(EventType.METER_UNLINKED.topic(), eventSource));
+            linkedList.forEach(eventSource -> eventService.postEvent(EventType.METER_LINKED.topic(), eventSource));
+        } catch (StateTransitionChangeEventException e) {
+            throw new UsagePointMeterActivationException.StateTransitionException(metrologyConfigurationService.getThesaurus(),
+                    e.getMessageSeed(), e.getMessageArgs());
+        }
 
         notifyInterestedComponents();
     }

@@ -135,14 +135,14 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
 
         List<String> selectors = dataExportService.getAvailableSelectors()
                 .stream()
-                .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS)).map(s -> s.getName())
+                .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS)).map(s -> s.getDisplayName())
                 .collect(Collectors.toList());
 
         if (selectors.size() > 1) {
             Optional<String> defaultValue = dataExportService.getAvailableSelectors()
                     .stream()
                     .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS))
-                    .filter(s -> s.isDefault()).map(s -> s.getName()).findFirst();
+                    .filter(s -> s.isDefault()).map(s -> s.getDisplayName()).findFirst();
             builder.add(propertySpecService
                     .specForValuesOf(new StringFactory())
                     .named(EXPORTER)

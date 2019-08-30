@@ -10,11 +10,13 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataSelectorConfig;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.export.impl.StandardDataSelectorFactory;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -275,7 +277,8 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setNextExecution(WebServiceActivator.getExportTaskStartOnDate());
 
-        DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings(selectorName)
+        String name = dataExportService.getAvailableSelectors().stream().filter(s -> s.getDisplayName().equals(selectorName)).findAny().get().getName();
+        DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings(name)
                 .fromExportPeriod(WebServiceActivator.getExportTaskExportWindow())
                 .fromUpdatePeriod(WebServiceActivator.getExportTaskUpdateWindow())
                 .fromEndDeviceGroup(endDeviceGroup)

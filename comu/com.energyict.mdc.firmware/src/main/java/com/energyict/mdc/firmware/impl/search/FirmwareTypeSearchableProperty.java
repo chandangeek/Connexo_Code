@@ -16,6 +16,7 @@ import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareType;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -107,26 +108,39 @@ public class FirmwareTypeSearchableProperty implements SearchableProperty {
                 .stream()
                 .filter(constriction -> constriction.getConstrainingProperty().hasName(this.deviceTypeProperty.getName()))
                 .forEach(constriction -> {
-                    if (constriction.getConstrainingValues()
+                    List<FirmwareType> firmwareTypes = new ArrayList<>();
+                    List<Object> constrainingValues = constriction.getConstrainingValues();
+
+                    firmwareTypes.add(FirmwareType.METER);
+                    if (constrainingValues
+                        .stream()
+                        .map(DeviceType.class::cast)
+                        .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
+                                    .map(deviceProtocolPluggableClass -> (deviceProtocolPluggableClass.getDeviceProtocol() != null)
+                                            && deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion())
+                                    .orElse(false))) {
+                        firmwareTypes.add(FirmwareType.COMMUNICATION);
+                    }
+                    if(constrainingValues
                             .stream()
                             .map(DeviceType.class::cast)
                             .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
-                                                              .map(deviceProtocolPluggableClass -> (deviceProtocolPluggableClass.getDeviceProtocol() != null)
-                                                                   && deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion()
-                                                                   && deviceProtocolPluggableClass.getDeviceProtocol().supportsAuxiliaryFirmwareVersion())
-                                                              .orElse(false))) {
-                        this.firmwareTypes = new FirmwareType[]{FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.AUXILIARY, FirmwareType.CA_CONFIG_IMAGE};
-                    } else if (constriction.getConstrainingValues()
-                                .stream()
-                                .map(DeviceType.class::cast)
-                                .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
-                                                                  .map(deviceProtocolPluggableClass -> (deviceProtocolPluggableClass.getDeviceProtocol() != null)
-                                                                       && deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion())
-                                                                  .orElse(false))) {
-                        this.firmwareTypes = new FirmwareType[]{FirmwareType.METER, FirmwareType.COMMUNICATION, FirmwareType.CA_CONFIG_IMAGE};
-                    } else {
-                        this.firmwareTypes = new FirmwareType[]{FirmwareType.METER};
+                                    .map(deviceProtocolPluggableClass -> (deviceProtocolPluggableClass.getDeviceProtocol() != null)
+                                            && deviceProtocolPluggableClass.getDeviceProtocol().supportsCaConfigImageVersion())
+                                    .orElse(false))) {
+                        firmwareTypes.add(FirmwareType.CA_CONFIG_IMAGE);
                     }
+                    if(constrainingValues
+                            .stream()
+                            .map(DeviceType.class::cast)
+                            .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
+                                    .map(deviceProtocolPluggableClass -> (deviceProtocolPluggableClass.getDeviceProtocol() != null)
+                                            && deviceProtocolPluggableClass.getDeviceProtocol().supportsAuxiliaryFirmwareVersion())
+                                    .orElse(false))) {
+                        firmwareTypes.add(FirmwareType.AUXILIARY);
+                    }
+
+                    this.firmwareTypes = firmwareTypes.toArray(new FirmwareType[]{});
                 });
     }
 }

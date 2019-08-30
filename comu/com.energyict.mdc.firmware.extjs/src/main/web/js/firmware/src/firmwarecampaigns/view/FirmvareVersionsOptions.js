@@ -33,6 +33,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 layout: 'hbox',
                 flex: 1,
                 width: 1000,
+                required: true,
                 fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
                 items: [
                     {
