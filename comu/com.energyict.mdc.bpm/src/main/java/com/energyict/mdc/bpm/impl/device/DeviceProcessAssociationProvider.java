@@ -8,6 +8,7 @@ import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,7 +21,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 

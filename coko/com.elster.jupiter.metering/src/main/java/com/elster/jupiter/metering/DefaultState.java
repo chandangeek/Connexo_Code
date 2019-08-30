@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2019  by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.common.device.lifecycle.config;
+package com.elster.jupiter.metering;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.TranslationKey;
@@ -13,14 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-/**
- * Models the {@link com.elster.jupiter.fsm.State}s
- * that are part of the default {@link DeviceLifeCycle}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-03-12 (10:37)
- */
 public enum DefaultState implements TranslationKey {
 
     IN_STOCK("dlc.default.inStock", "In stock"),

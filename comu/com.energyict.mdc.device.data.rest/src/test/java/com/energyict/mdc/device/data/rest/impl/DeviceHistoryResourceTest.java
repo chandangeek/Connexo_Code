@@ -13,7 +13,7 @@ import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent.Type;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 
 import com.jayway.jsonpath.JsonModel;

@@ -14,7 +14,7 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.history.ComCommandJournalEntry;
