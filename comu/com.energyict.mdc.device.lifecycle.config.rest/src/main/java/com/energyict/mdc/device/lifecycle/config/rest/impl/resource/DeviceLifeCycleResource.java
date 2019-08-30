@@ -6,6 +6,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
@@ -154,6 +155,8 @@ public class DeviceLifeCycleResource {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.lockDeviceLifeCycleOrThrowException(info);
         DeviceLifeCycleUpdater deviceLifeCycleUpdater = deviceLifeCycle.startUpdate();
         deviceLifeCycleUpdater.setName(info.name).complete().save();
+        FiniteStateMachineUpdater finiteStateMachine = deviceLifeCycle.getFiniteStateMachine().startUpdate();
+        finiteStateMachine.setName(info.name).complete();
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 

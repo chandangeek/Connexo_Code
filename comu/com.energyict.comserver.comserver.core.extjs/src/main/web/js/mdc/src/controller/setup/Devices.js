@@ -90,7 +90,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 click: this.communicationDeactivateAll
             },
             'deviceSetup #deviceSetupPanel #refresh-btn': {
-                click: this.doRefresh
+                click: this.onRefreshAction
             }
         });
     },
@@ -403,6 +403,12 @@ Ext.define('Mdc.controller.setup.Devices', {
         this.refreshConnections();
         this.refreshCommunications();
         this.refreshWhatsGoingOn();
+    },
+
+    onRefreshAction: function () {  // CXO-10446
+        var me = this,
+            router = this.getController('Uni.controller.history.Router');
+        me.showDeviceDetailsView(router.arguments.deviceId);
     },
 
     refreshWhatsGoingOn: function(){

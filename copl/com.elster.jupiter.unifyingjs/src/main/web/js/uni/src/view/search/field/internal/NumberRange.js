@@ -22,6 +22,7 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
     itemsDefaultConfig: {
         allowBlank: false
     },
+    minValue: 0,
 
     setValue: function(value) {
         this.items.each(function(item, index) {
@@ -85,6 +86,7 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
                 itemId: 'from',
                 validateOnChange: me.validateOnChange,
                 itemsDefaultConfig: me.itemsDefaultConfig,
+                minValue: me.minValue,
                 listeners: {
                     change: function (field, newValue) {
                         var toFieldMinValue = me.isFilterField ? newValue + 1 : newValue;
@@ -98,6 +100,7 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
                 itemId: 'to',
                 validateOnChange: me.validateOnChange,
                 itemsDefaultConfig: me.itemsDefaultConfig,
+                minValue: me.minValue,
                 listeners: {
                     change: function (field, newValue) {
                         var fromFieldMaxValue = me.isFilterField ? newValue - 1 : newValue;

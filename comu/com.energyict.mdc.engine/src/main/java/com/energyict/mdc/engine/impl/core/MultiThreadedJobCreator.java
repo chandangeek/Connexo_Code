@@ -192,9 +192,7 @@ public class MultiThreadedJobCreator implements Runnable, MultiThreadedScheduled
         if (scheduledJob.getConnectionTask().getNumberOfSimultaneousConnections() > 1) {
             scheduleParallelJob(scheduledJob);
         } else {
-            MultiThreadedScheduledJobExecutor newExecutor =
-                    new MultiThreadedScheduledJobExecutorImpl(scheduledJob, transactionExecutor, communicationLogLevel, deviceCommandExecutor, threadPrincipalService, comServerUser, this);
-            executors.put(newExecutor, executor.submit(newExecutor));
+            scheduleSingleJob(scheduledJob);
         }
     }
 
