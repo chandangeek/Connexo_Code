@@ -32,6 +32,7 @@ import com.energyict.mdc.tasks.ManualMeterReadingsTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -848,7 +849,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         }
     }
 
-    @XmlAttribute
+    @XmlElement(type = ComTaskExecutionImpl.class)
     public List<ComTaskExecution> getSuccessFullComTaskExecutions() {
         if (successFullComTaskExecutions == null) {
             successFullComTaskExecutions = new ArrayList<>();
@@ -906,7 +907,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         this.comSessionBuilder = comSessionBuilder;
     }
 
-    @XmlElement
+    @XmlAttribute
     public DeviceProtocolCacheXmlWrapper getDeviceCache() {
         return deviceCache;
     }
@@ -915,6 +916,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
     public void setDeviceCache(DeviceProtocolCacheXmlWrapper deviceCache) {
         this.deviceCache = deviceCache;
     }
+
 
     @XmlAttribute
     @XmlJavaTypeAdapter(MapXmlMarshallAdapter.class)

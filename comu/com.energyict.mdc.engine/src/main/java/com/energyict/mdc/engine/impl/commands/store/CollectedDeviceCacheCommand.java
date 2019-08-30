@@ -46,7 +46,7 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl<CollectedDevi
         if (collectedDeviceCache != null && collectedDeviceCache.contentChanged()) {
             DeviceIdentifier deviceIdentifier = this.deviceCache.getDeviceIdentifier();
             try {
-                comServerDAO.createOrUpdateDeviceCache(new DeviceProtocolCacheXmlWrapper(deviceIdentifier, collectedDeviceCache));
+                comServerDAO.createOrUpdateDeviceCache(deviceIdentifier, new DeviceProtocolCacheXmlWrapper(collectedDeviceCache));
             } catch (IllegalArgumentException e) {
                 //Device could not be found
                 this.addIssue(CompletionCode.ConfigurationWarning,

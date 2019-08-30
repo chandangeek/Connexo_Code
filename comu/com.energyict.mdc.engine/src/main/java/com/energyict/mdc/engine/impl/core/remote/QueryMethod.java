@@ -6,11 +6,9 @@ package com.energyict.mdc.engine.impl.core.remote;
 
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -647,11 +645,11 @@ public enum QueryMethod {
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
             try {
                 JSONObject jsonObject = new JSONObject(parameters);
-                ObjectParser<DeviceIdentifier> parser = new ObjectParser<>();
-                DeviceIdentifier deviceIdentifier = parser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER);
+                ObjectParser<DeviceIdentifier> deviceIdentifierParser = new ObjectParser<>();
+                DeviceIdentifier deviceIdentifier = deviceIdentifierParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER);
                 DeviceProtocolCacheParser deviceProtocolCacheParser = new DeviceProtocolCacheParser();
                 DeviceProtocolCache deviceProtocolCache = deviceProtocolCacheParser.parse(jsonObject, RemoteComServerQueryJSonPropertyNames.DEVICE_CACHE);
-                serviceProvider.comServerDAO().createOrUpdateDeviceCache(new DeviceProtocolCacheXmlWrapper(deviceIdentifier, deviceProtocolCache));
+                serviceProvider.comServerDAO().createOrUpdateDeviceCache(deviceIdentifier, new DeviceProtocolCacheXmlWrapper(deviceProtocolCache));
                 return null;
             } catch (JSONException e) {
                 throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);

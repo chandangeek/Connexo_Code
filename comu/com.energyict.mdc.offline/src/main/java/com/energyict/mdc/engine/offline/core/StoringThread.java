@@ -15,13 +15,13 @@ import com.energyict.mdc.engine.impl.core.remote.ComSessionBuilderXmlWrapper;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.offline.OfflineExecuter;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -192,10 +192,11 @@ public class StoringThread extends Thread {
     }
 
     private void storeCollectedData(ComJobExecutionModel model) {
-//        if (model.getDeviceCache() != null) {
-//            DeviceProtocolCacheXmlWrapper cache = model.getDeviceCache();
-//            getRemoteComServerDAO().createOrUpdateDeviceCache(cache);
-//        }
+        if (model.getDeviceCache() != null) {
+            DeviceProtocolCacheXmlWrapper cache = model.getDeviceCache();
+            DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(model.getDevice().getId());
+            getRemoteComServerDAO().createOrUpdateDeviceCache(deviceIdentifier, cache);
+        }
 
         for (Map.Entry<DeviceIdentifier, DeviceIdentifier> entry : model.getDeviceGatewayMap().entrySet()) {
             getRemoteComServerDAO().updateGateway(entry.getKey(), entry.getValue());

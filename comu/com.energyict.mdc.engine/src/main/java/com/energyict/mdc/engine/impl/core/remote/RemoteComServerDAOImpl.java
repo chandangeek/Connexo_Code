@@ -546,10 +546,10 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void createOrUpdateDeviceCache(DeviceProtocolCacheXmlWrapper cache) {
+    public void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache) {
         Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, cache.getDeviceIdentifier());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_CACHE, cache.getDeviceProtocolCache());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_CACHE, cache);
         post(QueryMethod.CreateOrUpdateDeviceCache, queryParameters);
     }
 

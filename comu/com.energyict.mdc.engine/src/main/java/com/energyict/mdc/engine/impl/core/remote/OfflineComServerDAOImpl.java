@@ -28,6 +28,7 @@ import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.*;
@@ -416,7 +417,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void createOrUpdateDeviceCache(DeviceProtocolCacheXmlWrapper cache) {
+    public void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache) {
         getComJobExecutionModel().setDeviceCache(cache);
     }
 

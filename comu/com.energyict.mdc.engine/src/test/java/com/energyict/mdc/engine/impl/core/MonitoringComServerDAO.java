@@ -403,7 +403,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void createOrUpdateDeviceCache(DeviceProtocolCacheXmlWrapper cache) {
+    public void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache) {
     }
 
     @Override
@@ -843,7 +843,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void createOrUpdateDeviceCache(DeviceProtocolCacheXmlWrapper cache) {
+        public void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache) {
         }
 
         @Override

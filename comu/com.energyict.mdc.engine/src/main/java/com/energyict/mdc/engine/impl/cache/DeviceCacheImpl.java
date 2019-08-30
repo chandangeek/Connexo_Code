@@ -13,8 +13,12 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,6 +29,7 @@ import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+@XmlRootElement
 public final class DeviceCacheImpl implements DeviceCache {
 
     private static final int DEFLATION_BUFFER_SIZE = 4096;
@@ -67,12 +72,14 @@ public final class DeviceCacheImpl implements DeviceCache {
     }
 
     @Override
+    @XmlAttribute
     public long getDeviceId() {
         return this.device.get().getId();
     }
 
     @Override
-    public DeviceProtocolCache getSimpleCacheObject() {
+    @XmlAttribute
+    public DeviceProtocolCache getCacheObject() {
         return unMarshal(getDeflatedContent(this.simpleCache));
     }
 
@@ -144,5 +151,14 @@ public final class DeviceCacheImpl implements DeviceCache {
         int result = Arrays.hashCode(simpleCache);
         result = (int) (31 * result + device.get().getId());
         return result;
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

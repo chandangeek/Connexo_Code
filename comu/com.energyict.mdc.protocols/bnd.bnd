@@ -1,7 +1,8 @@
 -classpath: target/classes
 -dsannotations: *
 
-Export-Package: com.energyict.protocols.naming,\
+Export-Package: com.energyict.dlms,\
+               com.energyict.protocols.naming,\
                com.energyict.protocolimplv2.security
 Import-Package: !test.wsdl.import2.types,\
     !org.apache.bsf,\

@@ -880,16 +880,18 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void createOrUpdateDeviceCache(DeviceProtocolCacheXmlWrapper cache) {
-        DeviceIdentifier deviceIdentifier = cache.getDeviceIdentifier();
-        Optional<DeviceCache> deviceCache = serviceProvider.engineService().findDeviceCacheByDeviceIdentifier(deviceIdentifier);
-        if (deviceCache.isPresent()) {
-            DeviceCache actualDeviceCache = deviceCache.get();
-            actualDeviceCache.setCacheObject(cache.getDeviceProtocolCache());
-            actualDeviceCache.update();
-        } else {
-            serviceProvider.engineService().newDeviceCache(deviceIdentifier, cache.getDeviceProtocolCache());
-        }
+    public void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache) {
+        this.executeTransaction(() -> {
+            Optional<DeviceCache> deviceCache = serviceProvider.engineService().findDeviceCacheByDeviceIdentifier(deviceIdentifier);
+            if (deviceCache.isPresent()) {
+                DeviceCache actualDeviceCache = deviceCache.get();
+                actualDeviceCache.setCacheObject(cache.getDeviceProtocolCache());
+                actualDeviceCache.update();
+            } else {
+                serviceProvider.engineService().newDeviceCache(deviceIdentifier, cache.getDeviceProtocolCache());
+            }
+            return null;
+        });
     }
 
     @Override

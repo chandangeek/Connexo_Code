@@ -4,6 +4,7 @@ import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.identifiers.DeviceIdentifierForAlreadyKnownDevice;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -11,6 +12,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * Wraps a {@link DeviceProtocolCache} for the purpose of
@@ -24,24 +26,15 @@ import javax.xml.bind.annotation.XmlRootElement;
         property = "type")
 public class DeviceProtocolCacheXmlWrapper {
 
-    private DeviceIdentifier deviceIdentifier;
-    private DeviceProtocolCache deviceProtocolCache;
+    public DeviceProtocolCache deviceProtocolCache;
 
     public DeviceProtocolCacheXmlWrapper() {
         super();
     }
 
-    public DeviceProtocolCacheXmlWrapper(DeviceIdentifier deviceIdentifier, DeviceProtocolCache deviceProtocolCache) {
+    public DeviceProtocolCacheXmlWrapper(DeviceProtocolCache deviceProtocolCache) {
         this();
-        this.deviceIdentifier = deviceIdentifier;
         this.deviceProtocolCache = deviceProtocolCache;
-    }
-
-    @XmlElements(
-            {@XmlElement(type = DeviceIdentifierById.class), @XmlElement(type = DeviceIdentifierBySerialNumber.class), @XmlElement(type = DeviceIdentifierForAlreadyKnownDevice.class)}
-    )
-    public DeviceIdentifier getDeviceIdentifier() {
-        return deviceIdentifier;
     }
 
     @XmlElement

@@ -265,7 +265,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private void setDeviceCache(ServiceProvider serviceProvider) {
         Optional<DeviceCache> deviceProtocolCache = serviceProvider.findProtocolCacheByDevice(device);
         if (deviceProtocolCache.isPresent()) {
-            Serializable cacheObject = deviceProtocolCache.get().getSimpleCacheObject();
+            Serializable cacheObject = deviceProtocolCache.get().getCacheObject();
             if (cacheObject != null) {
                 this.deviceProtocolCache = (DeviceProtocolCache) cacheObject;
                 this.deviceProtocolCache.setContentChanged(false); // Cache is loaded from DB, so make sure it is marked clean, i.e. not dirty or changed

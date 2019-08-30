@@ -386,9 +386,10 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * that already exists for the {@link Device}
      * with the specified identifier.
      *
+     * @param deviceIdentifier
      * @param cache The DeviceProtocolCache
      */
-    void createOrUpdateDeviceCache(DeviceProtocolCacheXmlWrapper cache);
+    void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache);
 
  /**
   * Stores the collected {@link ProfileData} in the {@link LoadProfile}
