@@ -120,5 +120,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     Instant getSuspendUntil();
 
+    void setSuspendUntil(Instant suspendUntil);
+
     Optional<ReadingDataSelectorConfigImpl> getReadingDataSelectorConfig();
 }

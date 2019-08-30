@@ -330,14 +330,9 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void delete() {
-        deletIssues();
         deleteQueuedTransitions();
         deleteCustomPropertySetsRecursive();
         this.dataModel.remove(this);
-    }
-
-    private void deletIssues() {
-        serviceCallService.getReferencesToDelete().forEach(delRef -> delRef.deleteRefernces(this));
     }
 
     void deleteCustomPropertySetsRecursive() {

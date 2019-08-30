@@ -12,7 +12,10 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
@@ -29,7 +32,10 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirma
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfUtilsDvce;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.PartyInternalID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.ProductInternalID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilitiesDeviceERPSmartMeterCreateRequestCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce;
 
@@ -48,17 +54,20 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
     private final SAPCustomPropertySets sapCustomPropertySets;
     private final EndPointConfigurationService endPointConfigurationService;
     private final Thesaurus thesaurus;
+    private final DeviceConfigurationService deviceConfigurationService;
 
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     @Inject
     UtilitiesDeviceCreateRequestEndpoint(DeviceService deviceService, Clock clock, SAPCustomPropertySets sapCustomPropertySets,
-                                         EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus) {
+                                         EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus,
+                                         DeviceConfigurationService deviceConfigurationService) {
         this.deviceService = deviceService;
         this.clock = clock;
         this.sapCustomPropertySets = sapCustomPropertySets;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     @Override
@@ -77,31 +86,54 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
 
     private void handleMessage(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
         if (isValid(msg)) {
+            Device device;
             String serialId = getSerialId(msg);
+            String sapDeviceId = getDeviceId(msg);
             List<Device> devices = deviceService.findDevicesBySerialNumber(serialId);
-            if (!devices.isEmpty()) {
-                if (devices.size() == 1) {
-                    Device device = devices.get(0);
-                    String sapDeviceId = getDeviceId(msg);
 
-                    try{
-                        sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
-                    } catch (LocalizedException ex) {
-                        sendProcessError(msg, ex.getMessageSeed(), ex.getMessageArgs());
+            try {
+                if (!devices.isEmpty()) {
+                    if (devices.size() == 1) {
+                        device = devices.get(0);
+                    } else {
+                        sendProcessError(msg, MessageSeeds.SEVERAL_DEVICES, serialId);
                         return;
                     }
-
-                    UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = createConfirmationMessage(getRequestId(msg), sapDeviceId);
-                    sendMessage(confirmMsg);
                 } else {
-                    sendProcessError(msg, MessageSeeds.SEVERAL_DEVICES, serialId);
+                    device = createDevice(msg);
                 }
-            } else {
-                sendProcessError(msg, MessageSeeds.NO_DEVICE_FOUND_BY_SERIAL_ID, serialId);
+                sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+            } catch (LocalizedException ex) {
+                sendProcessError(msg, ex.getMessageSeed(), ex.getMessageArgs());
+                return;
             }
+
+            UtilsDvceERPSmrtMtrCrteConfMsg confirmMsg = createConfirmationMessage(getRequestId(msg), sapDeviceId);
+            sendMessage(confirmMsg);
         } else {
             sendProcessError(msg, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
+    }
+
+    private Device createDevice(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
+        DeviceConfiguration deviceConfig = findDeviceConfiguration(getDeviceType(msg));
+        DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfig,
+                getSerialId(msg), getShipmentDate(msg));
+        deviceBuilder.withSerialNumber(getSerialId(msg));
+        deviceBuilder.withManufacturer(getManufacturer(msg));
+        deviceBuilder.withModelNumber(getModelNmber(msg));
+        return deviceBuilder.create();
+    }
+
+    private DeviceConfiguration findDeviceConfiguration(String deviceTypeName) {
+        DeviceConfiguration deviceConfiguration =
+                deviceConfigurationService.findDeviceTypeByName(deviceTypeName)
+                        .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE_FOUND, deviceTypeName))
+                        .getConfigurations()
+                        .stream()
+                        .filter(config -> config.isDefault())
+                        .findAny().orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION, deviceTypeName));
+        return deviceConfiguration;
     }
 
     private void sendProcessError(UtilsDvceERPSmrtMtrCrteReqMsg msg, MessageSeed messageSeed, Object... args) {
@@ -194,7 +226,8 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
     }
 
     private boolean isValid(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        return getRequestId(msg) != null && getSerialId(msg) != null && getDeviceId(msg) != null;
+        return getRequestId(msg) != null && getSerialId(msg) != null && getDeviceId(msg) != null &&
+                getDeviceType(msg) != null && getShipmentDate(msg) != null;
     }
 
     private String getDeviceId(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
@@ -217,6 +250,37 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
                 .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageHeader::getID)
                 .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageID::getValue)
                 .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private String getDeviceType(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
+        return Optional.ofNullable(msg.getUtilitiesDevice())
+                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getMaterialID)
+                .map(ProductInternalID::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private String getManufacturer(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
+        return Optional.ofNullable(msg.getUtilitiesDevice())
+                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getIndividualMaterialManufacturerInformation)
+                .map(UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getPartyInternalID)
+                .map(PartyInternalID::getValue)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private String getModelNmber(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
+        return Optional.ofNullable(msg.getUtilitiesDevice())
+                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getIndividualMaterialManufacturerInformation)
+                .map(UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getSerialID)
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
+    }
+
+    private Instant getShipmentDate(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
+        return Optional.ofNullable(msg.getUtilitiesDevice())
+                .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getStartDate)
                 .orElse(null);
     }
 
