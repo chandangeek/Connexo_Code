@@ -13,6 +13,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.DisconnectControlLo
 import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.MbusControlLog;
 import com.energyict.protocolimplv2.nta.dsmr23.eventhandling.PowerFailureLog;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.Dsmr23LogBookFactory;
+import com.energyict.protocolimplv2.nta.esmr50.common.events.ESMR50CommunicationSessionLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ public class Dsmr40LogBookFactory extends Dsmr23LogBookFactory {
     public void initializeSupportedLogBooks() {
         super.initializeSupportedLogBooks();
         supportedLogBooks.add(VOLTAGE_QUALITY_LOG);
+        supportedLogBooks.add(COMMUNICATION_EVENT_LOG);
     }
 
     @Override
@@ -62,6 +64,9 @@ public class Dsmr40LogBookFactory extends Dsmr23LogBookFactory {
         } else if (logBookObisCode.equals(VOLTAGE_QUALITY_LOG)) {
             getProtocol().journal("Parsing as MBus voltage quality log");
             meterEvents = new VoltageQualityEventLog(dataContainer).getMeterEvents();
+        } else if (logBookObisCode.equals(COMMUNICATION_EVENT_LOG)) {
+            getProtocol().journal("Parsing as communication sessions event log");
+            meterEvents = new ESMR50CommunicationSessionLog(dataContainer).getMeterEvents();
         } else {
             getProtocol().journal("Logbook " + logBookObisCode + " not supported by protocol");
             return new ArrayList<>();
