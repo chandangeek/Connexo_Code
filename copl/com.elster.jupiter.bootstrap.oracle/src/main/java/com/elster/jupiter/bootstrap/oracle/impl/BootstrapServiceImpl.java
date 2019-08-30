@@ -6,6 +6,7 @@ package com.elster.jupiter.bootstrap.oracle.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.bootstrap.DataSourceSetupException;
+import com.elster.jupiter.bootstrap.InvalidPasswordException;
 import com.elster.jupiter.bootstrap.PropertyNotFoundException;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
@@ -214,7 +215,7 @@ public final class BootstrapServiceImpl implements BootstrapService {
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException |
                     InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
                     | BadPaddingException e) {
-                throw new PropertyNotFoundException(JDBC_PASSWORD);
+                throw new InvalidPasswordException();
             }
         }
         return decryptedPassword;
