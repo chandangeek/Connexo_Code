@@ -18,6 +18,7 @@ import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.export.security.Privileges;
@@ -450,6 +451,7 @@ public class DataExportTaskResource {
         task.setLogLevel(info.logLevel);
         task.setScheduleExpression(getScheduleExpression(info));
         task.setNextExecution(info.nextRun);
+        task.setSuspendUntil(info.suspendUntilExport);
 
         if (info.standardDataSelector != null) {
             if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
@@ -461,8 +463,7 @@ public class DataExportTaskResource {
             if (info.destinations.isEmpty()) {
                 throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
             }
-            String selectorString = task.getDataSelectorFactory().getName();
-            SelectorType selectorType = SelectorType.forSelector(selectorString);
+            SelectorType selectorType = task.getDataSelectorFactory().getSelectorType();
             task.getStandardDataSelectorConfig()
                     .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST))
                     .apply(new StandardDataSelectorUpdater(selectorType, info));

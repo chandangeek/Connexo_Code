@@ -21,7 +21,7 @@ public enum InboundServices {
             ("SAP PointOfDeliveryAssignedNotification_C_In"),
     SAP_POINT_OF_DELIVERY_BULK_ASSIGNED_NOTIFICATION_C_IN
             ("SAP PointOfDeliveryBulkAssignedNotification_C_In"),
-    SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST("SapMeasurementTaskAssignmentChangeRequest"),
+    SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST("SAP UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In"),
     ;
 
     private String name;
