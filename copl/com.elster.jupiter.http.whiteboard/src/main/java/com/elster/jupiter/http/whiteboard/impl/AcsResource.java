@@ -63,10 +63,8 @@ public class AcsResource {
         if (!StringUtils.isEmpty(token)) {
             Cookie cookie = authenticationService.createTokenCookie(token, "/");
             httpServletResponse.addCookie(cookie);
-            httpServletResponse.sendRedirect(URI.create(httpServletRequest.getParameter("RelayState")).toString());
-        } else {
-            httpServletResponse.setStatus(HttpStatus.SC_FORBIDDEN);
         }
 
+        httpServletResponse.sendRedirect(URI.create(httpServletRequest.getParameter("RelayState")).toString());
     }
 }
