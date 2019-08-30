@@ -42,6 +42,7 @@ Ext.define('Apr.view.taskmanagement.TaskFilter', {
                 multiSelect: true,
                 displayField: 'queue',
                 valueField: 'queue',
+                itemId: 'task-queue',
                 store: me.queuesStore
             },
             {

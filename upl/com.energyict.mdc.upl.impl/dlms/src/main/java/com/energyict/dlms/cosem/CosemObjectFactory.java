@@ -133,6 +133,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new GenericRead(protocolLink, getObjectReference(obisCode, classId), snAttr);
     }
 
+    public TableRead getTableRead(ObisCode obisCode) throws NotInObjectListException {
+        return new TableRead(protocolLink, getObjectReference(obisCode));
+    }
+
     public SMTPSetup getSMTPSetup(ObisCode obisCode) throws NotInObjectListException {
         return new SMTPSetup(protocolLink, getObjectReference(obisCode));
     }

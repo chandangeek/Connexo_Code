@@ -100,8 +100,11 @@ public class DataValidationTaskInfoFactory {
                 info.recurrence = fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
+
         info.lastRun = dataValidationTask.getLastRun().orElse(null);
+        info.suspendUntilTime = dataValidationTask.getSuspendUntilTime();
         info.version = dataValidationTask.getVersion();
+
         return info;
     }
 

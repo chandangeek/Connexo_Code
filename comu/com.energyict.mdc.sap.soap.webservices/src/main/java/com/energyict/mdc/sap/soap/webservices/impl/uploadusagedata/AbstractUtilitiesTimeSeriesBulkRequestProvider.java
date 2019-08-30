@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
@@ -23,9 +22,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.RangeSets;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 import com.google.common.collect.Range;
@@ -176,23 +173,7 @@ public abstract class AbstractUtilitiesTimeSeriesBulkRequestProvider<EP, MSG> ex
         return a.isAfter(b) ? a : b;
     }
 
-    Map<String, RangeSet<Instant>> getTimeSlicedLRN(Channel channel, Range<Instant> range, IdentifiedObject meter) {
-        Map<String, RangeSet<Instant>> lrn = sapCustomPropertySets.getLrn(channel, range);
-        if (!lrn.values().stream().reduce(RangeSets::union).filter(rs -> rs.encloses(range)).isPresent()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_NOT_FOUND_FOR_CHANNEL,
-                    channel.getMainReadingType().getFullAliasName(),
-                    meter.getName());
-        }
-        return lrn;
-    }
-
-    Map<String, RangeSet<Instant>> getTimeSlicedProfileId(Channel channel, Range<Instant> range, IdentifiedObject meter, String readingTypeName) {
-        Map<String, RangeSet<Instant>> profileId = sapCustomPropertySets.getProfileId(channel, range);
-        if (!profileId.values().stream().reduce(RangeSets::union).filter(rs -> rs.intersects(range)).isPresent()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.LRN_AND_PROFILE_ID_NOT_FOUND_FOR_CHANNEL,
-                    readingTypeName,
-                    meter.getName());
-        }
-        return profileId;
+    Map<String, RangeSet<Instant>> getTimeSlicedProfileId(Channel channel, Range<Instant> range) {
+        return sapCustomPropertySets.getProfileId(channel, range);
     }
 }

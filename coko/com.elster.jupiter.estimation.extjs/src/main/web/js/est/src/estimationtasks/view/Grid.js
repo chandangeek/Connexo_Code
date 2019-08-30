@@ -39,6 +39,14 @@ Ext.define('Est.estimationtasks.view.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('estimationtasks.general.suspended', 'EST', 'Suspended'),
+                dataIndex: 'suspendUntilTime',
+                renderer: function(value) {
+                    return value ? Uni.I18n.translate('general.suspended.yes', 'APR', 'Yes') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
+                },
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 menu: {

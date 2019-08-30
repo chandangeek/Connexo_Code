@@ -8,6 +8,7 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedMessageListEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
@@ -18,6 +19,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.tasks.CompletionCode;
 
 import java.util.List;
 import java.util.Optional;
@@ -110,11 +112,20 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     }
 
     private void executeMessage(ComServerDAO comServerDAO, CollectedMessage collectedMessage) {
-        comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(),
-                collectedMessage.getNewDeviceMessageStatus(),
-                collectedMessage.getSentDate(),
-                collectedMessage.getDeviceProtocolInformation());
-        ((CollectedDeviceData) collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
+        try {
+            comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(),
+                    collectedMessage.getNewDeviceMessageStatus(),
+                    collectedMessage.getSentDate(),
+                    collectedMessage.getDeviceProtocolInformation());
+            ((CollectedDeviceData) collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
+        } catch (Throwable t) {
+            comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(),
+                    DeviceMessageStatus.FAILED,
+                    collectedMessage.getSentDate(),
+                    collectedMessage.getDeviceProtocolInformation());
+            addIssueToExecutionLogger(CompletionCode.UnexpectedError,
+                    getIssueService().newProblem(this, MessageSeeds.COLLECTED_DATA_ISSUE, collectedMessage.getMessageIdentifier(), t.getLocalizedMessage()));
+        }
     }
 
 }
