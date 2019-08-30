@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.uploadusagedata;
 
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportWebService;
 import com.elster.jupiter.export.ExportData;
@@ -192,7 +191,6 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                 .orElse(Duration.ZERO);
         String unit = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
         MeterReading meterReading = item.getMeterReading();
-        IdentifiedObject meter = item.getItem().getDomainObject();
 
         final Range<Instant> allReadingsRange = item.isCustomSelector() ? item.getExportInterval() : getRange(meterReading);
         Map<String, RangeSet<Instant>> profileRanges = item.getItem().getReadingContainer().getChannelsContainers().stream()
@@ -202,7 +200,7 @@ public class UtilitiesTimeSeriesBulkCreateRequestProvider extends AbstractUtilit
                 .map(ccAndRange -> ccAndRange.getFirst().getChannel(readingType)
                         .map(channel -> Pair.of(channel, ccAndRange.getLast())))
                 .flatMap(Functions.asStream())
-                .flatMap(channelAndRange -> getTimeSlicedProfileId(channelAndRange.getFirst(), channelAndRange.getLast(), meter, readingType.getFullAliasName()).entrySet().stream())
+                .flatMap(channelAndRange -> getTimeSlicedProfileId(channelAndRange.getFirst(), channelAndRange.getLast()).entrySet().stream())
                 .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue(), RangeSets::union));
 
         if (item.isCustomSelector()) {
