@@ -51,7 +51,11 @@ public class Dsmr40LogBookFactory extends Dsmr23LogBookFactory {
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_EVENT_LOG)) {
             int channel = this.getProtocol().getPhysicalAddressFromSerialNumber(logBookReader.getMeterSerialNumber());
             getProtocol().journal("Parsing as MBus event log on channel "+channel);
-            meterEvents = new MbusEventLog(dataContainer, channel).getMeterEvents();
+            MbusEventLog mbusEventLog = new MbusEventLog(dataContainer, channel);
+            meterEvents = mbusEventLog.getMeterEvents();
+            if (mbusEventLog.getIgnoredEvents() > 0 ) {
+                getProtocol().journal("WARNING: There are " + mbusEventLog.getIgnoredEvents() + " ignored events on MBus event log on channel " + channel);
+            }
         } else if (logBookObisCode.equalsIgnoreBChannel(MBUS_CONTROL_LOG)) {
             getProtocol().journal("Parsing as MBus control log");
             meterEvents = new MbusControlLog(dataContainer).getMeterEvents();
