@@ -838,7 +838,15 @@ Ext.define('Uni.service.Search', {
                             contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.updateSearch', 'UNI', 'Search criteria updated'));
                     },
                     failure: function (response) {
-                        alert("fail");
+
+                            var errorText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                            var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                                code = '';
+                            if (response  && response.responseText && response.responseText.errorCode) {
+                                code = response.responseText.errorCode;
+                            }
+                            contRef.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
+
                     }
                 });
             }
@@ -860,7 +868,14 @@ Ext.define('Uni.service.Search', {
                 contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));
             },
             failure: function (response) {
-                alert("fail");
+                var errorText = Uni.I18n.translate('appServers.remove.operation.failed', 'APR', 'Remove operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                    code = '';
+                if (response  && response.responseText && response.responseText.errorCode) {
+                    code = response.responseText.errorCode;
+                }
+                contRef.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
+
             }
         });
         return flag;
