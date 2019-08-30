@@ -291,9 +291,10 @@ public enum TableSpecs {
             table.setJournalTableName(CREATION_RULE_EXCL_GROUP_JOURNAL_TABLE_NAME).since(Version.version(10, 7));
             table.addAuditColumns();
             table.foreignKey("FK_CRGP_CREATIONRULE").on(creationRule).references(TableSpecs.ISU_CREATIONRULE.name())
-                    .reverseMap("excludedGroupMappings").composition().map("creationRule").add();
+                    .reverseMap("excludedGroupMappings").composition().map("creationRule").onDelete(DeleteRule.CASCADE)
+                    .add();
             table.foreignKey("FK_CRGP_ENDDEVICEGROUP").on(endDeviceGroup).references(EndDeviceGroup.class)
-                    .map("endDeviceGroup").add();
+                    .map("endDeviceGroup").onDelete(DeleteRule.CASCADE).add();
             table.primaryKey("PK_CREATIONRULEEXCLGROUP").on(creationRule, endDeviceGroup).add();
         }
     },
