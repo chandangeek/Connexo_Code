@@ -605,7 +605,12 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device) {
-        return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device);
+        return getFirmwareManagementDeviceUtilsFor(device, false);
+    }
+
+    @Override
+    public FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device, boolean oneMassagePerFirmwareType) {
+        return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device, oneMassagePerFirmwareType);
     }
 
     @Override
