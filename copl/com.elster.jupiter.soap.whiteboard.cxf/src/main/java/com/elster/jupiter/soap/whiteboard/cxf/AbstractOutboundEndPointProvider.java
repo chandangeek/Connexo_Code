@@ -238,12 +238,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         @Override
-        public RequestSender withPayloadForFailedOccurrences(String payload) {
-            this.payload = payload;
-            return this;
-        }
-
-        @Override
         public Map<EndPointConfiguration, ?> send(Object request) {
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
