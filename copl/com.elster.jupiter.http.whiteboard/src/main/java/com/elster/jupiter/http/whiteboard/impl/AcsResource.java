@@ -41,7 +41,8 @@ public class AcsResource {
     public void handleSAMLResponse(@Context HttpServletRequest httpServletRequest, @Context HttpServletResponse httpServletResponse) throws IOException, ServletException {
 
         String token = null;
-        org.opensaml.saml.saml2.core.Response response = samlResponseService.createSamlResponse(httpServletRequest.getParameter("SAMLResponse"));
+        String samlResponse = httpServletRequest.getParameter("SAMLResponse");
+        org.opensaml.saml.saml2.core.Response response = samlResponseService.createSamlResponse(samlResponse);
 
         try {
 

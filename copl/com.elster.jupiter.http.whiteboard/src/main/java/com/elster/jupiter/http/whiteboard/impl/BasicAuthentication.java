@@ -18,6 +18,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.config.InitializationException;
 import org.opensaml.core.config.InitializationService;
 import org.opensaml.saml.saml2.ecp.RelayState;
@@ -63,7 +64,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private static final String LOGIN_URI = "/apps/login/index.html";
     // Resources used by the login page so access is required before authenticating
     private static final String[] RESOURCES_NOT_SECURED = {
-            "/apps/login/",
             // Anything below will only be used in development.
             "/apps/sky/",
             "/apps/uni/",
@@ -88,6 +88,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private static final String SSO_IDP_ENDPOINT_PROPERTY = "sso.idp.endpoint";
     private static final String SSO_X509_CERTIFICATE_PROPERTY = "sso.x509.certificate";
     private static final String SSO_ACS_ENDPOINT_PROPERTY = "sso.acs.endpoint";
+    private static final String SSO_ADMIN_USER_PROPERTY = "sso.admin.user";
 
     private final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
 
@@ -113,6 +114,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> idpEndpoint;
     private Optional<String> acsEndpoint;
     private Optional<String> x509Certificate;
+    private String ssoAdminUser;
 
     @Inject
     BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService) throws
@@ -196,6 +198,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         tokenRefreshMaxCount = getIntParameter(TOKEN_REFRESH_MAX_COUNT, context, 100);
         tokenExpTime = getIntParameter(TOKEN_EXPIRATION_TIME, context, 300);
         installDir = context.getProperty("install.dir");
+        ssoAdminUser = context.getProperty(SSO_ADMIN_USER_PROPERTY);
+        ssoEnabled = Boolean.parseBoolean(context.getProperty(SSO_ENABLED_PROPERTY));
+        idpEndpoint = getOptionalStringProperty(SSO_IDP_ENDPOINT_PROPERTY, context);
+        acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
+        x509Certificate = getOptionalStringProperty(SSO_X509_CERTIFICATE_PROPERTY, context);
+
         upgradeService.register(InstallIdentifier.identifier("Pulse", "HTP"), dataModel, Installer.class, ImmutableMap.of(version(10, 4), UpgraderV10_4_1.class, version(10, 4, 1), UpgraderV10_4_2.class));
         initSecurityTokenImpl();
 
@@ -221,10 +229,6 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         } finally {
             thread.setContextClassLoader(loader);
         }
-        ssoEnabled = Boolean.parseBoolean(context.getProperty(SSO_ENABLED_PROPERTY));
-        idpEndpoint = getOptionalStringProperty(SSO_IDP_ENDPOINT_PROPERTY, context);
-        acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
-        x509Certificate = getOptionalStringProperty(SSO_X509_CERTIFICATE_PROPERTY, context);
     }
 
     public void createNewTokenKey(String... args) {
@@ -319,6 +323,14 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return installDir;
     }
 
+    public String getSsoAdminUser(){
+        return ssoAdminUser;
+    }
+
+    public boolean isSsoEnabled(){
+        return ssoEnabled;
+    }
+
     @Override
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
@@ -363,7 +375,12 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private void ssoAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Optional<String> ssoAuthenticationRequestOptional = samlRequestService.createSSOAuthenticationRequest(request, response, acsEndpoint.get());
         if (ssoAuthenticationRequestOptional.isPresent()) {
-            String redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
+            String redirectUrl;
+            if(StringUtils.isEmpty(request.getParameter("page"))){
+                redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getRequestURL().toString());
+            }else{
+                redirectUrl = getSamlRequestUrl(ssoAuthenticationRequestOptional.get(), request.getParameter("page"));
+            }
             response.sendRedirect(redirectUrl);
         }
     }
@@ -513,6 +530,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean unsecureAllowed(String uri) {
+        if(!ssoEnabled && uri.startsWith("/apps/login/")) return true;
         return Stream.of(RESOURCES_NOT_SECURED)
                 .filter(uri::startsWith)
                 .findAny().isPresent();

@@ -16,6 +16,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
@@ -23,6 +25,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
@@ -78,6 +81,8 @@ class Installer implements FullInstaller {
                 this::createAdditionalEventTypes,
                 logger
         );
+
+        createDefaultAdminUser(logger);
     }
 
     private void createKeys() {
@@ -177,6 +182,23 @@ class Installer implements FullInstaller {
                                 .or(whereCorrelationId().isEqualTo(WhiteboardEvent.TOKEN_RENEWAL.topic()))
                                 .or(whereCorrelationId().isEqualTo(WhiteboardEvent.TOKEN_EXPIRED.topic()))
                 );
+    }
+
+    private void createDefaultAdminUser(Logger logger) {
+        if (basicAuthentication.isSsoEnabled()) {
+            try {
+                String adminUserName = basicAuthentication.getSsoAdminUser();
+                if (adminUserName == null) throw new RuntimeException("Unable to find admin user in property files");
+                User user = userService.createUser(adminUserName, "Admin user to manage users.");
+                user.update();
+                Group group = userService.findGroup(UserService.DEFAULT_ADMIN_ROLE).orElseThrow(() -> new IllegalStateException("Couldn't find Default Admin role"));
+                group.update();
+                user.join(group);
+            } catch (RuntimeException e) {
+                logger.log(Level.SEVERE, "Failed to create a Default Admin user.", e);
+                throw e;
+            }
+        }
     }
 
 }
