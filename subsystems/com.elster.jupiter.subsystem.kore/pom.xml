@@ -180,11 +180,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.bpm</artifactId>
         </dependency>
-        <!-- NOT included as this is more for POC of the soap whiteboard
-               <dependency>
-                   <groupId>com.elster.jupiter</groupId>
-                   <artifactId>metering.cim</artifactId>
-               </dependency>-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>

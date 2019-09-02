@@ -53,6 +53,7 @@ Ext.define('Uni.grid.filtertop.Numeric', {
 
         me.down('#criteria-toolbar').insert(0, {
             xtype: 'button',
+            itemId: 'criteria-toolbar-apply',
             ui: 'action',
             action: 'apply',
             text: Uni.I18n.translate('general.apply', 'UNI', 'Apply')

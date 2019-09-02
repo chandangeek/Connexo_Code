@@ -11,20 +11,15 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.energyict.mdc.common.device.config.DeviceConfiguration;
-import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.DeviceHelper;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
-import java.util.List;
 
 @Component(name = UtilitiesDeviceCreateRequestCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + UtilitiesDeviceCreateRequestCallHandler.NAME, immediate = true)
@@ -38,6 +33,8 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
     private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile Thesaurus thesaurus;
+
+    private DeviceHelper deviceHelper;
 
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
@@ -85,56 +82,23 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
     }
 
     private void processServiceCall(ServiceCall serviceCall) {
-        Device device;
         UtilitiesDeviceCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceCreateRequestCustomPropertySet()).get();
-        String serialId = extension.getSerialId();
-        String sapDeviceId = extension.getDeviceId();
-        List<Device> devices = deviceService.findDevicesBySerialNumber(serialId);
+
         try {
-            if (!devices.isEmpty()) {
-                if (devices.size() == 1) {
-                    device = devices.get(0);
-                } else {
-                    extension.setError(MessageSeeds.SEVERAL_DEVICES, serialId);
-                    serviceCall.update(extension);
-                    serviceCall.requestTransition(DefaultState.FAILED);
-                    return;
-                }
-            } else {
-                device = createDevice(extension);
-            }
-
-            sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
-
+            getDeviceHelper().processDeviceCreate(extension.getDeviceId(), extension.getSerialId(), extension.getDeviceType(), extension.getShipmentDate(), extension.getManufacturer(), extension.getModelNumber());
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-
         } catch (LocalizedException ex) {
             extension.setError(ex.getMessageSeed(), ex.getMessageArgs());
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
-            return;
         }
-
     }
 
-    private Device createDevice(UtilitiesDeviceCreateRequestDomainExtension extension) {
-        DeviceConfiguration deviceConfig = findDeviceConfiguration(extension.getDeviceType());
-        DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfig,
-                extension.getSerialId(), extension.getShipmentDate());
-        deviceBuilder.withSerialNumber(extension.getSerialId());
-        deviceBuilder.withManufacturer(extension.getManufacturer());
-        deviceBuilder.withModelNumber(extension.getModelNumber());
-        return deviceBuilder.create();
+    private DeviceHelper getDeviceHelper() {
+        if (deviceHelper == null) {
+            deviceHelper = new DeviceHelper(thesaurus, deviceService, deviceConfigurationService, sapCustomPropertySets);
+        }
+        return deviceHelper;
     }
 
-    private DeviceConfiguration findDeviceConfiguration(String deviceType) {
-        DeviceConfiguration deviceConfiguration =
-                deviceConfigurationService.findDeviceTypeByName(deviceType)
-                        .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE_FOUND, deviceType))
-                        .getConfigurations()
-                        .stream()
-                        .filter(config -> config.isDefault())
-                        .findAny().orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION, deviceType));
-        return deviceConfiguration;
-    }
 }

@@ -51,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -157,7 +158,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(firmwareMessage);
 
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock.getArguments()[0])
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock.getArguments()[0], false)
+        );
+        when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class), eq(true))).thenAnswer(
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock.getArguments()[0], true)
         );
         when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).thenReturn(true);
     }

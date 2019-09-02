@@ -12,14 +12,17 @@ Ext.define('Apr.view.taskoverview.SortMenu', {
     items: [
         {
             text: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
+            itemId: 'taskoverview-sort-menu-nextrun',
             name: 'nextRun'
         },
         {
             text: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
+            itemId: 'taskoverview-sort-menu-queue',
             name: 'queue'
         },
         {
             text: Uni.I18n.translate('general.priority', 'APR', 'Priority'),
+            itemId: 'taskoverview-sort-menu-priority',
             name: 'priority'
         }
     ]
