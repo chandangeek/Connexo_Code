@@ -294,6 +294,8 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
      * Indicates that a valve alarm has been registered.
      */
     public static final int VALVE_ALARM_MBUS = 64;
+
+    public static final int TAMPER_CLEARED = 65;
     /**
      * Indicates that a short voltage sag occurred on L1 phase
      */
@@ -306,8 +308,6 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
      * Indicates that a short voltage sag occurred on L2 phase
      */
     public static final int SHORT_VOLTAGE_SAG_L3 = 79;
-
-    public static final int TAMPER_CLEARED = 65;
 
     public static final int SAG_PHASE_A = 80;
 
@@ -813,7 +813,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     // !!! Keep this one in sync with the above !!!
     // total number of events - 1 (first event starts at 0)
     //Left at 64, custom Beacon events must be remapped
-    public static final int MAX_NUMBER_OF_EVENTS = 64;
+    public static final int MAX_NUMBER_OF_EVENTS = 203;
 
     private final Date time;
     private final int eiCode;
