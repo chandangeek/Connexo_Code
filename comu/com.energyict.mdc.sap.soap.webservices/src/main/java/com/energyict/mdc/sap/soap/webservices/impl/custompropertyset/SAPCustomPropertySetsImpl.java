@@ -114,7 +114,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Activate
     public void activate() {
-        customPropertySetService.addCustomPropertySet(deviceInfo = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus));
+        customPropertySetService.addCustomPropertySet(deviceInfo = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, this));
         customPropertySetService.addCustomPropertySet(channelInfo = new DeviceChannelSAPInfoCustomPropertySet(propertySpecService, thesaurus));
         customPropertySetService.addCustomPropertySet(registerInfo = new DeviceRegisterSAPInfoCustomPropertySet(propertySpecService, thesaurus));
     }

@@ -12,17 +12,12 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.device.config.DeviceConfiguration;
-import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceBuilder;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.DeviceHelper;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.Log;
@@ -43,31 +38,25 @@ import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoint implements UtilitiesDeviceERPSmartMeterCreateRequestCIn, ApplicationSpecific {
 
-    private final DeviceService deviceService;
     private final Clock clock;
-    private final SAPCustomPropertySets sapCustomPropertySets;
     private final EndPointConfigurationService endPointConfigurationService;
     private final Thesaurus thesaurus;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceHelper deviceHelper;
 
     private final ObjectFactory objectFactory = new ObjectFactory();
 
     @Inject
-    UtilitiesDeviceCreateRequestEndpoint(DeviceService deviceService, Clock clock, SAPCustomPropertySets sapCustomPropertySets,
-                                         EndPointConfigurationService endPointConfigurationService, Thesaurus thesaurus,
-                                         DeviceConfigurationService deviceConfigurationService) {
-        this.deviceService = deviceService;
+    UtilitiesDeviceCreateRequestEndpoint(Clock clock, EndPointConfigurationService endPointConfigurationService,
+                                         Thesaurus thesaurus, DeviceHelper deviceHelper) {
         this.clock = clock;
-        this.sapCustomPropertySets = sapCustomPropertySets;
         this.endPointConfigurationService = endPointConfigurationService;
         this.thesaurus = thesaurus;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceHelper = deviceHelper;
     }
 
     @Override
@@ -86,23 +75,10 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
 
     private void handleMessage(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
         if (isValid(msg)) {
-            Device device;
-            String serialId = getSerialId(msg);
             String sapDeviceId = getDeviceId(msg);
-            List<Device> devices = deviceService.findDevicesBySerialNumber(serialId);
-
             try {
-                if (!devices.isEmpty()) {
-                    if (devices.size() == 1) {
-                        device = devices.get(0);
-                    } else {
-                        sendProcessError(msg, MessageSeeds.SEVERAL_DEVICES, serialId);
-                        return;
-                    }
-                } else {
-                    device = createDevice(msg);
-                }
-                sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+                deviceHelper.processDeviceCreate(sapDeviceId, getSerialId(msg), getDeviceType(msg),
+                        getShipmentDate(msg), getManufacturer(msg), getModelNumber(msg));
             } catch (LocalizedException ex) {
                 sendProcessError(msg, ex.getMessageSeed(), ex.getMessageArgs());
                 return;
@@ -113,27 +89,6 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
         } else {
             sendProcessError(msg, MessageSeeds.INVALID_MESSAGE_FORMAT);
         }
-    }
-
-    private Device createDevice(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
-        DeviceConfiguration deviceConfig = findDeviceConfiguration(getDeviceType(msg));
-        DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfig,
-                getSerialId(msg), getShipmentDate(msg));
-        deviceBuilder.withSerialNumber(getSerialId(msg));
-        deviceBuilder.withManufacturer(getManufacturer(msg));
-        deviceBuilder.withModelNumber(getModelNmber(msg));
-        return deviceBuilder.create();
-    }
-
-    private DeviceConfiguration findDeviceConfiguration(String deviceTypeName) {
-        DeviceConfiguration deviceConfiguration =
-                deviceConfigurationService.findDeviceTypeByName(deviceTypeName)
-                        .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE_FOUND, deviceTypeName))
-                        .getConfigurations()
-                        .stream()
-                        .filter(config -> config.isDefault())
-                        .findAny().orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEFAULT_DEVICE_CONFIGURATION, deviceTypeName));
-        return deviceConfiguration;
     }
 
     private void sendProcessError(UtilsDvceERPSmrtMtrCrteReqMsg msg, MessageSeed messageSeed, Object... args) {
@@ -270,7 +225,7 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
                 .orElse(null);
     }
 
-    private String getModelNmber(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
+    private String getModelNumber(UtilsDvceERPSmrtMtrCrteReqMsg msg) {
         return Optional.ofNullable(msg.getUtilitiesDevice())
                 .map(UtilsDvceERPSmrtMtrCrteReqUtilsDvce::getIndividualMaterialManufacturerInformation)
                 .map(UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getSerialID)
