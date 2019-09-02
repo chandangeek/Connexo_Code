@@ -629,7 +629,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 }
             }
             
-            detailsForm.loadRecord(rec);
+            detailsForm && detailsForm.loadRecord(rec);
 
         }, me, {
             single: true
@@ -667,7 +667,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 }
             }
 
-            detailsForm.loadRecord(rec);
+            detailsForm && detailsForm.loadRecord(rec);
 
         }, me, {
             single: true

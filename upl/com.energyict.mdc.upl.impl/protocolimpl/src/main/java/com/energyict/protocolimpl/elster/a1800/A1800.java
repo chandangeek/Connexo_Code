@@ -120,7 +120,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
+        return "$Date: 2019-08-28$";
     }
 
 	@Override

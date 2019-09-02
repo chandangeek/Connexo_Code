@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -14,7 +15,6 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
@@ -67,7 +67,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 if (register.isPresent()) {
                     try {
                         sapCustomPropertySets.setLrn(register.get(), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
-                    } catch (SAPWebServiceException ex) {
+                    } catch (LocalizedException ex) {
                         failServiceCall(extension, ex.getMessageSeed(), ex.getMessageArgs());
                         return;
                     }
@@ -81,7 +81,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                     if (channels.size() == 1) {
                         try {
                             sapCustomPropertySets.setLrn(channels.get(0), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
-                        } catch (SAPWebServiceException ex) {
+                        } catch (LocalizedException ex) {
                             failServiceCall(extension, ex.getMessageSeed(), ex.getMessageArgs());
                             return;
                         }

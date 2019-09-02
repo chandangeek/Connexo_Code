@@ -370,10 +370,13 @@ Ext.define('Dxp.controller.Tasks', {
                             exportPeriod.setVisible(true);
                             readingTypes.setVisible(true);
                             eventTypes.setVisible(false);
-                            dataValidation.setVisible(true);
                             if (record.getDataSelector().get('name') && record.getDataSelector().get('name') === 'Custom Data Selector') {
                                 missingData.setVisible(false);
-                            } else missingData.setVisible(true);
+                                dataValidation.setVisible(false);
+                            } else {
+                                dataValidation.setVisible(true);
+                                missingData.setVisible(true);
+                            } 
                             updatedData.setVisible(true);
                             continuousDataPreview.setVisible(true);
                             if (record.getData().exportUpdate === 'false') {
@@ -527,8 +530,11 @@ Ext.define('Dxp.controller.Tasks', {
                         }
                         if (record.getTask().getDataSelector().get('name') && record.getTask().getDataSelector().get('name') === 'Custom Data Selector') {
                             previewForm.down('#data-selector-export-complete').hide();
-                        } else previewForm.down('#data-selector-export-complete').show();
-                        previewForm.down('#data-selector-validated-data').show();
+                            previewForm.down('#data-selector-validated-data').hide();
+                        } else {
+                            previewForm.down('#data-selector-export-complete').show();
+                            previewForm.down('#data-selector-validated-data').show();
+                        }
                         //dataValidation.show();
                         //missingData.show();
                         //updatedData.show();
@@ -1390,10 +1396,13 @@ Ext.define('Dxp.controller.Tasks', {
                     continuousData.show();
                     readingTypes.show();
                     eventTypes.hide();
-                    dataValidation.show();
                     if (record.getDataSelector().get('name') && record.getDataSelector().get('name') === 'Custom Data Selector') {
                         missingData.hide();
-                    } else missingData.show();
+                        dataValidation.hide();
+                    } else {
+                        missingData.show();
+                        dataValidation.show();
+                    }
                     updatedData.show();
                     if (record.getData().standardDataSelector.exportUpdate === false) {
                         updatedValuesData.hide();
@@ -1786,16 +1795,17 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#eventTypesFieldContainer').setVisible(false);
         page.down('#export-periods-container').setVisible(true);
         page.down('#data-selector-properties').setVisible(false);
-        page.down('#data-selector-validated-data').setVisible(true);
         page.down('#updated-data-container').setVisible(true);
         page.down('#skip-window-up-complete-data-radiofield').setVisible(false);
         page.down('#skip-window-up-validated-data-radiofield').setVisible(false);
         if (dataSelectorName && dataSelectorName === 'Custom Data Selector') {
             page.down('#continuous-data-container').setVisible(false);
             page.down('#data-selector-export-complete').setVisible(false);
+            page.down('#data-selector-validated-data').setVisible(false);
         } else {
             page.down('#data-selector-export-complete').setVisible(true);
             page.down('#continuous-data-container').setVisible(true);
+            page.down('#data-selector-validated-data').setVisible(true);
         } 
 
         me.updatedDataEnableDisable();

@@ -91,5 +91,9 @@ public interface DataValidationTask extends HasAuditInfo {
     List<RecurrentTask> getPrevRecurrentTasks();
 
     void setNextRecurrentTasks(List<RecurrentTask> nextRecurrentTasks);
+
+    void setSuspendUntilTime(Instant suspendUntilTime);
+
+    Instant getSuspendUntilTime();
 }
 
