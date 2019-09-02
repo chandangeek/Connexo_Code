@@ -294,6 +294,18 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
      * Indicates that a valve alarm has been registered.
      */
     public static final int VALVE_ALARM_MBUS = 64;
+    /**
+     * Indicates that a short voltage sag occurred on L1 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L1 = 77;
+    /**
+     * Indicates that a short voltage sag occurred on L2 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L2 = 78;
+    /**
+     * Indicates that a short voltage sag occurred on L2 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L3 = 79;
 
     public static final int TAMPER_CLEARED = 65;
 
