@@ -69,6 +69,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     private volatile EventService eventService;
 
     private Map<Long, EP> endpoints = new ConcurrentHashMap<>();
+
     /**
      * Must be overridden or re-implemented as a reference addition method in any subclass to inject endpoints; addition should be delegated to this method.
      * @param endpoint An endpoint injected with the help of multiple/dynamic {@link Reference}.
@@ -185,7 +186,6 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
         private Map<EndPointConfiguration, EP> getEndpoints() {
-
             if (endPointConfigurations == null) {
                 endPointConfigurations = endPointConfigurationService.getEndPointConfigurationsForWebService(getName()).stream()
                         .filter(EndPointConfiguration::isActive)
