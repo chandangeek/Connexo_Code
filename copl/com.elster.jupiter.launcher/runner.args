@@ -108,7 +108,6 @@ mvn:com.elster.jupiter/parties/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/cbo/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/metering.groups/1.0.0-SNAPSHOT
-mvn:com.elster.jupiter/metering.cim/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/validation/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/validators/1.0.0-SNAPSHOT
 mvn:com.elster.jupiter/http.whiteboard/1.0.0-SNAPSHOT

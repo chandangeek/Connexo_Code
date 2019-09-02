@@ -22,8 +22,6 @@ public interface DataExportService {
     String COMPONENTNAME = "DES";
 
     String STANDARD_READINGTYPE_DATA_SELECTOR = "Standard Data Selector";
-    String CUSTOM_READINGTYPE_DATA_SELECTOR = "Custom Data Selector";
-    String CUSTOM_READINGTYPE_DATA_SELECTOR_KEY_NAME = "customDataSelector";
     String STANDARD_USAGE_POINT_DATA_SELECTOR = "Standard Usage Point Data Selector";
     String STANDARD_EVENT_DATA_SELECTOR = "Standard Event Data Selector";
 

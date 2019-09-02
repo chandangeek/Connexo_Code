@@ -1428,15 +1428,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (when.isAfter(modTime)) {
             return Optional.of(this); // current device, for sure
         }
-        if (when.isBefore(createTime)) {
+        if (when.isBefore(this.getLifecycleDates().getReceivedDate().orElse(createTime))) {
             return Optional.empty(); // there was no device
         }
-//        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
-//                .at(when)
-//                .find(ImmutableMap.of("id", this.getId()));
-//        return journalEntries.stream()
-//                .findFirst()
-//                .map(JournalEntry::get);
         return Optional.of(getFirstJournalEntryAfter(when)); // crutch for the case of gaps in journal table
     }
 
