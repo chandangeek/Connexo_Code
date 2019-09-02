@@ -171,10 +171,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     @Override
     protected void deactivateWakeUp() throws IOException {
-        AXDRDateTime axdrDateTime = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000
-        OctetString time = new OctetString(axdrDateTime.getBEREncodedByteArray(), 0);
+        AXDRDateTime axdrDateTimeStart = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000 00:00
+        AXDRDateTime axdrDateTimeEnd = convertUnixToDateTime(String.valueOf(946684900), getProtocol().getTimeZone());  //Jan 1st, 2000 00:01
+        OctetString startTime = new OctetString(axdrDateTimeStart.getBEREncodedByteArray(), 0);
+        OctetString endTime = new OctetString(axdrDateTimeEnd.getBEREncodedByteArray(), 0);
         getProtocol().journal("Closing SMS wake-up window");
-        getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(time, time);   //Closed window, no SMSes are allowed
+        getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(startTime, endTime);   //Closed window, no SMSes are allowed
     }
 
     protected void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
