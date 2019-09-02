@@ -837,7 +837,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     // !!! Keep this one in sync with the above !!!
     // total number of events - 1 (first event starts at 0)
     //Left at 64, custom Beacon events must be remapped
-    public static final int MAX_NUMBER_OF_EVENTS = 203;
+    public static final int MAX_NUMBER_OF_EVENTS = 204;
 
     private final Date time;
     private final int eiCode;
