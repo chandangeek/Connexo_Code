@@ -126,6 +126,8 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
             startProcessRecord.set('versionDB', me.processRecord.versionDB);
             startProcessRecord.set('processName', me.processRecord.name);
             startProcessRecord.set('processVersion', me.processRecord.version);
+            //TODO: below unnecessary field, need to remove it
+            startProcessRecord.set('extraProperties', []); 
 
             startProcessRecord.save({
                 success: function () {
