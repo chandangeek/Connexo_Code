@@ -414,4 +414,14 @@ final class EstimationTaskImpl implements IEstimationTask {
                 .map(recurrentTask -> recurrentTask.getPrevRecurrentTasks())
                 .orElse(Collections.emptyList());
     }
+
+    @Override
+    public void setSuspendUntilTime(Instant suspendTask) {
+        recurrentTask.get().setSuspendUntil(suspendTask);
+    }
+
+    @Override
+    public Instant getSuspendUntilTime() {
+        return  recurrentTask.get().getSuspendUntil();
+    }
 }

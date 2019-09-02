@@ -166,11 +166,11 @@ Ext.define('Uni.grid.commander.SortingPanel', {
         me.store.load();
     },
 
-    addSort: function (property) {
+    addSort: function (property, directionSort) {
         var me = this;
         var property = me.sortStore.add({
             property: property,
-            direction: Uni.component.sort.model.Sort.DESC,
+            direction: directionSort,
         });
         me.store.load();
     },
@@ -179,7 +179,18 @@ Ext.define('Uni.grid.commander.SortingPanel', {
         if (!item) {
             return false;
         }
+        directionSort = this.getInitDirection(item);
+        this.addSort(item.name, directionSort);
+    },
 
-        this.addSort(item.name);
-    }
+    getInitDirection: function (item) {
+        var proxySort = this.sortStore.getProxy();
+        var direction = Uni.component.sort.model.Sort.ASC
+        proxySort.data.forEach(function(itemProxy) {
+            if (itemProxy.property === item.name) {
+                direction = itemProxy.direction;
+            };
+        });
+        return direction;
+     }
 });

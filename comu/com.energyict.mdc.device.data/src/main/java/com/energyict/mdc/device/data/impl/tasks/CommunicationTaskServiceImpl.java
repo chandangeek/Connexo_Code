@@ -58,6 +58,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -747,7 +749,14 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                 }
                 count++;
             }
-            sqlBuilder.append(") order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask");
+            sqlBuilder.append(") ");
+            long msSinceMidnight = LocalTime.now(ZoneId.systemDefault()).toSecondOfDay() * 1000;
+            sqlBuilder.append(" and NVL(ct.comwindowstart, 0) <= ");
+            sqlBuilder.addLong(msSinceMidnight);
+            sqlBuilder.append(" and (NVL(ct.comwindowend, 99999000) > "); // max possible value of milisecondsSinceMidnight is 86399000
+            sqlBuilder.addLong(msSinceMidnight);
+            sqlBuilder.append(" or ct.comwindowend = 0) ");
+            sqlBuilder.append(" order by cte.nextexecutiontimestamp, cte.priority, cte.connectiontask");
             return mapper.fetcher(sqlBuilder);
         } else {
             return new NoComTaskExecutions();
