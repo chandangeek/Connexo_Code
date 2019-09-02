@@ -133,26 +133,40 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         getProtocol().journal("Setting configuration object " + OBISCODE_CONFIGURATION_OBJECT+" bit "+bit+" to "+state);
 
         Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
-        Structure value;
+        Structure existingStructure;
         BitString flags;
         try {
-            value = (Structure) config.getValueAttr();
+            existingStructure = (Structure) config.getValueAttr();
+            int flagsIndex = getConfigurationObjectFlagsIndex();
+
             try {
-                AbstractDataType dataType = value.getDataType(0);
-                flags = (BitString) dataType;
-            } catch (IndexOutOfBoundsException e) {
-                throw new ProtocolException("Couldn't write configuration. Expected structure value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to have 2 elements.");
+                flags = (BitString) existingStructure.getDataType(flagsIndex);
+                flags.set(bit, state);
             } catch (ClassCastException e) {
-                throw new ProtocolException("Couldn't write configuration. Expected second element of structure to be of type 'Bitstring', but was of type '" + value.getDataType(1).getClass().getSimpleName() + "'.");
+                throw new ProtocolException("Couldn't write configuration. Expected element "+flagsIndex+
+                        " of structure to be of type 'BitString', but was of type '" + existingStructure.getDataType(flagsIndex).getClass().getSimpleName() + "'.");
             }
 
-            flags.set(bit, state);
-            config.setValueAttr(value);
+            existingStructure.setDataType(flagsIndex, flags);
+
+            config.setValueAttr(existingStructure);
         } catch (Exception e) {
             getProtocol().journal(Level.SEVERE, "Couldn't write configuration: " +e.getLocalizedMessage());
             throw new ProtocolException(e, "Couldn't write configuration.");
         }
 
+    }
+
+    /**
+     * DSMR 4.x:
+            Value ::= structure {
+                GPRS_operation_mode enum
+                Flags bitstring (16)
+            }
+
+     */
+    protected int getConfigurationObjectFlagsIndex(){
+        return 1;
     }
 
     protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
