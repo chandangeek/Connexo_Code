@@ -29,6 +29,7 @@ import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
+import ch.iec.tc57._2011.meterconfig.Zones;
 import com.elster.connexo._2017.schema.customattributes.Attribute;
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import org.osgi.service.component.annotations.Component;
@@ -157,6 +158,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         SimpleEndDeviceFunction simpleEndDeviceFunction = new SimpleEndDeviceFunction();
         simpleEndDeviceFunction.setMRID(deviceConfigRef);
         simpleEndDeviceFunction.setConfigID(deviceConfigName);
+        simpleEndDeviceFunction.setZones(new Zones());
         return simpleEndDeviceFunction;
     }
 
