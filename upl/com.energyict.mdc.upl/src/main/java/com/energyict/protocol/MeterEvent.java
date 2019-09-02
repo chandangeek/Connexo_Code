@@ -297,6 +297,30 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int TAMPER_CLEARED = 65;
     /**
+     * Technical maintenance of the meter (Comlog Code 1)
+     */
+    public static final int METROLOGICAL_MAINTENANCE = 71;
+    /**
+     * Technical maintenance of the grid (Comlog Code 2)
+     */
+    public static final int TECHNICAL_MAINTENANCE = 72;
+    /**
+     * Retrieving of meter readings E (Comlog Code 3)
+     */
+    public static final int RETREIVE_METER_READINGS_E = 73;
+    /**
+     * Retrieving of meter readings G (Comlog Code 4)
+     */
+    public static final int RETREIVE_METER_READINGS_G = 74;
+    /**
+     * Retrieving of interval data E (Comlog Code 5)
+     */
+    public static final int RETREIVE_INTERVAL_DATA_E = 75;
+    /**
+     * Retrieving of interval data E (Comlog Code 5)
+     */
+    public static final int RETREIVE_INTERVAL_DATA_G = 76;
+    /**
      * Indicates that a short voltage sag occurred on L1 phase
      */
     public static final int SHORT_VOLTAGE_SAG_L1 = 77;
