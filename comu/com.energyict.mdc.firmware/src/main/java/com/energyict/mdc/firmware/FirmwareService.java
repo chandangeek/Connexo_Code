@@ -106,6 +106,7 @@ public interface FirmwareService {
      * @return the utility class
      */
     FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device);
+    FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device, boolean oneMassagePerFirmwareType);
 
     DeviceFirmwareHistory getFirmwareHistory(Device device);
 
