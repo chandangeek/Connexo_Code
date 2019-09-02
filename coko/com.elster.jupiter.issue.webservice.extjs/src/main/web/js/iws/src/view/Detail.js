@@ -63,17 +63,11 @@ Ext.define('Iws.view.Detail', {
                     }
                  ]
             },
-            {   xtype: 'panel',
-                itemId: 'webservice-issue-log-grid',
-                ui: 'medium',
+            {
+                xtype: 'webservice-issue-log-grid',
+                itemId: 'webservice-issue-detail-log',
                 title: Uni.I18n.translate('general.title.webServiceLogs', 'IWS', 'Web service occurence log'),
-                items:[
-                    {
-                        xtype: 'webservice-issue-log-grid',
-                        itemId: 'webservice-issue-detail-log',
-                        router: me.router
-                    }
-                ]
+                router: me.router
             },
             {
                 xtype: 'panel',

@@ -357,6 +357,7 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map("campaign")
+                    .onDelete(CASCADE)
                     .add();
             table.foreignKey("FK_FWC_DEVICE_TO_DEVICE")
                     .on(device)
@@ -389,6 +390,7 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map("campaign")
+                    .onDelete(CASCADE)
                     .composition()
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_STATUS").on(campaign).add();
