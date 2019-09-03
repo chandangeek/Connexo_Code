@@ -830,7 +830,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     protected TimeZone getClocksTimeZone() {
-        return TimeZone.getTimeZone(this.clock.getZone());
+        return TimeZone.getTimeZone("UTC");
     }
 
     @Override

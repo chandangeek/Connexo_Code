@@ -30,5 +30,6 @@ public class UpgraderV10_6 implements Upgrader {
                         " from " + TableSpecs.FWC_FIRMWAREVERSION.name() + ") calc" +
                         " on (fwv.ID = calc.ID)" +
                         " when matched then update set fwv." + FirmwareVersionImpl.Fields.RANK.name() + " = calc.rank");
+        execute(dataModel,"UPDATE FWC_FIRMWAREVERSION SET TYPE = CASE WHEN TYPE=0 THEN 1 WHEN TYPE=1 THEN 0 WHEN TYPE=2 THEN 2 END");
     }
 }

@@ -29,6 +29,7 @@ import com.energyict.protocol.exceptions.ConnectionSetupException;
 import java.time.Clock;
 import java.util.Calendar;
 import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * Provides code reuse opportunities for component that
@@ -98,7 +99,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         if (comWindow == null) {
             return true;
         } else {
-            Calendar now = Calendar.getInstance();
+            Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             now.setTimeInMillis(getServiceProvider().clock().millis());
             return comWindow.includes(now);
         }
