@@ -941,13 +941,11 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 }
             } // for - registers
 
-            protocol.journal("Finished adding attributes to read for ESMR5, asking parents to do for: "+registersForSuper.toString());
             ComposedCosemObject sRegisterList = super.constructComposedObjectFromRegisterList(registersForSuper, supportsBulkRequest);
             if (sRegisterList != null) {
                 dlmsAttributes.addAll(Arrays.asList(sRegisterList.getDlmsAttributesList()));
             }
 
-            protocol.journal("Composed registers: "+this.getComposedRegisterMap().toString());
             return new ComposedCosemObject(protocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
         }
         return null;

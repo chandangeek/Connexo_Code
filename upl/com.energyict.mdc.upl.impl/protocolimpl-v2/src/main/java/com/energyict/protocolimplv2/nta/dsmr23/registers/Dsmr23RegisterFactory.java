@@ -356,7 +356,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else {
-                            protocol.journal( "Register with ObisCode " + rObisCode + " is not supported.");
+                            protocol.journal(Level.WARNING, "Register with ObisCode " + rObisCode + " is not supported by the protocol and will not be ignored.");
                         }
                     }
                 }
