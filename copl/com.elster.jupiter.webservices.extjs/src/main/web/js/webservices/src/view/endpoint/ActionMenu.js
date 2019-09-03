@@ -8,7 +8,7 @@ Ext.define('Wss.view.endpoint.ActionMenu', {
 
     initComponent: function() {
         var me = this;
-        var direction = me.endpoint.get('direction');
+        var direction = me.endpoint && me.endpoint.get && me.endpoint.get('direction');
         this.items = [
             (direction && direction.id === "OUTBOUND" && me.record.get('statusId') !== "ONGOING" && me.record.get('payload') !== "") && {
                 itemId: 'endpoint-occurrence-retry',
