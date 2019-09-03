@@ -21,21 +21,26 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
 
   initComponent: function () {
     var me = this;
+    me.side = [];
 
-    me.side = [
-      {
-          xtype: 'panel',
-          ui: 'medium',
-          items: [
-              {
-                  xtype: 'webservices-menu-log',
-                  itemId: 'webservices-menu-log',
-                  router: me.router,
-                  record: me.endpoint
-              }
-          ]
-      }
-    ];
+    if (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices')){
+
+        me.side = [
+          {
+              xtype: 'panel',
+              ui: 'medium',
+              items: [
+                  {
+                      xtype: 'webservices-menu-log',
+                      itemId: 'webservices-menu-log',
+                      router: me.router,
+                      record: me.endpoint
+                  }
+              ]
+          }
+        ];
+
+    }
 
     me.content = {
         ui: 'large',
@@ -44,6 +49,7 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
           {
               xtype: 'uni-button-action',
               itemId: 'webservicePreviewMenuButton',
+              hidden: false,
               menu: {
                 itemId: 'webservices-endpoint-action-menu-id',
                 xtype: 'webservices-endpoint-action-menu',

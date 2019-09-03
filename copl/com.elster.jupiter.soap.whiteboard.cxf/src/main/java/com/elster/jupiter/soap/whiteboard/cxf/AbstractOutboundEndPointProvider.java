@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -128,6 +129,8 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
     private final class RequestSenderImpl implements RequestSender {
         private final String methodName;
+        private Boolean isItRetry = false;
+        private String payload;
         private Collection<EndPointConfiguration> endPointConfigurations;
 
         private RequestSenderImpl(String methodName) {
@@ -157,14 +160,24 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                 publish(endPointConfiguration);
                 EP endpoint = endpoints.get(endPointConfiguration.getId());
                 if (endpoint == null) {
-                    long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                    long id;
+                    if (isItRetry){
+                        id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
+                    } else {
+                        id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                    }
                     String message = thesaurus.getSimpleFormat(MessageSeeds.NO_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
                     WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
                     eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
                 }
                 return endpoint;
             } else {
-                long id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                long id;
+                if (isItRetry){
+                    id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName(), payload).getId();
+                } else {
+                    id = webServicesService.startOccurrence(endPointConfiguration, methodName, getApplicationName()).getId();
+                }
                 String message = thesaurus.getSimpleFormat(MessageSeeds.INACTIVE_WEB_SERVICE_ENDPOINT).format(endPointConfiguration.getName());
                 WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, message);
                 eventService.postEvent(EventType.OUTBOUND_ENDPOINT_NOT_AVAILABLE.topic(), occurrence);
@@ -189,6 +202,9 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
 
         @Override
         public Map<EndPointConfiguration, ?> sendRawXml(String message) {
+            if (isItRetry) {
+                payload = message;
+            }
             Method method = Arrays.stream(getService().getMethods())
                     .filter(meth -> meth.getName().equals(methodName))
                     .filter(meth -> meth.getParameterCount() == 1)
@@ -213,6 +229,12 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                 });
                 return Collections.emptyMap();
             }
+        }
+
+        @Override
+        public RequestSender isItRetry(Boolean isItRetry) {
+            this.isItRetry = isItRetry;
+            return this;
         }
 
         @Override

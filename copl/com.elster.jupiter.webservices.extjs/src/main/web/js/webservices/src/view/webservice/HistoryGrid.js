@@ -21,7 +21,9 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 flex: 1,
                 renderer: function (value, metaData, record) {
                     var basename = me.adminView ? 'administration' : 'workspace';
-                    var route = basename + '/webserviceendpoints/view/history/occurrence';
+                    var curOccurrenceRoute = (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices') ?
+                        '/webserviceendpoints/view/history/occurrence' : '/webservicehistory/view/occurrence');
+                    var route = basename + curOccurrenceRoute;
                     var date = value ? Uni.DateTime.formatDateTimeShort(value) : '-';
 
                     var url = me.router.getRoute(route).buildUrl({

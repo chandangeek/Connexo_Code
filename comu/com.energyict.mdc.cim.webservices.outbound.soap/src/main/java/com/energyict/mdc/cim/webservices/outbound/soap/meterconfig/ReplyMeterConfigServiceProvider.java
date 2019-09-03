@@ -134,7 +134,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     @Override
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
-            MeterConfigEventMessageType message = createResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED, null);
+            MeterConfigEventMessageType message = createInfoResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED, null);
             using("changedMeterConfig")
                     .toEndpoints(endPointConfiguration)
                     .send(message);
@@ -151,15 +151,15 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         switch (operation) {
             case CREATE:
                 method = "createdMeterConfig";
-                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
+                message = createStatusResponseMessage(failedDevices, expectedNumberOfCalls, HeaderType.Verb.CREATED, correlationId);
                 break;
             case UPDATE:
                 method = "changedMeterConfig";
-                message = createResponseMessage(createMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
+                message = createStatusResponseMessage(failedDevices, expectedNumberOfCalls, HeaderType.Verb.CHANGED, correlationId);
                 break;
             case GET:
                 method = "replyMeterConfig";
-                message = createResponseMessage(getMeterConfig(successfulDevices), failedDevices, expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
+                message = createInfoResponseMessage(getMeterConfig(successfulDevices), HeaderType.Verb.REPLY, correlationId);
                 break;
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
@@ -188,9 +188,8 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     private MeterConfig createMeterConfig(List<Device> devices) {
         MeterConfig meterConfig = meterConfigFactory.asMeterConfig(devices);
-        getMeterConfigExtendedDataFactories().forEach(meterConfigExtendedDataFactory -> {
-            meterConfigExtendedDataFactory.extendData(devices, meterConfig);
-        });
+        getMeterConfigExtendedDataFactories()
+                .forEach(meterConfigExtendedDataFactory -> meterConfigExtendedDataFactory.extendData(devices, meterConfig));
         return meterConfig;
     }
 
@@ -198,37 +197,29 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return meterConfigFactory.asGetMeterConfig(devices);
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb, String correlationId) {
-        MeterConfigEventMessageType meterConfigEventMessageType = new MeterConfigEventMessageType();
+    private MeterConfigEventMessageType createInfoResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb, String correlationId) {
+        MeterConfigEventMessageType meterConfigEventMessageType = meterConfigMessageObjectFactory.createMeterConfigEventMessageType();
 
         // set header
-        HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setNoun(NOUN);
-        header.setVerb(verb);
-        header.setCorrelationID(correlationId);
-
-        meterConfigEventMessageType.setHeader(header);
-
-        // set reply
-        ReplyType replyType = cimMessageObjectFactory.createReplyType();
-        replyType.setResult(ReplyType.Result.OK);
-        meterConfigEventMessageType.setReply(replyType);
+        addHeader(meterConfigEventMessageType, verb, correlationId);
 
         // set payload
         MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
-        meterConfigEventMessageType.setPayload(payloadType);
         payloadType.setMeterConfig(meterConfig);
         meterConfigEventMessageType.setPayload(payloadType);
 
         return meterConfigEventMessageType;
     }
 
-    private MeterConfigEventMessageType createResponseMessage(MeterConfig meterConfig, List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
-        MeterConfigEventMessageType meterConfigEventMessageType = createResponseMessage(meterConfig, verb, correlationId);
+    private MeterConfigEventMessageType createStatusResponseMessage(List<FailedMeterOperation> failedDevices, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
+        MeterConfigEventMessageType meterConfigEventMessageType = meterConfigMessageObjectFactory.createMeterConfigEventMessageType();
+
+        // set header
+        addHeader(meterConfigEventMessageType, verb, correlationId);
 
         // set reply
         ReplyType replyType = cimMessageObjectFactory.createReplyType();
-        if (expectedNumberOfCalls == meterConfig.getMeter().size()) {
+        if (failedDevices.isEmpty()) {
             replyType.setResult(ReplyType.Result.OK);
         } else if (expectedNumberOfCalls == failedDevices.size()) {
             replyType.setResult(ReplyType.Result.FAILED);
@@ -254,6 +245,14 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         meterConfigEventMessageType.setReply(replyType);
 
         return meterConfigEventMessageType;
+    }
+
+    private void addHeader(MeterConfigEventMessageType message, HeaderType.Verb verb, String correlationId) {
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setNoun(NOUN);
+        header.setVerb(verb);
+        header.setCorrelationID(correlationId);
+        message.setHeader(header);
     }
 
     @Override

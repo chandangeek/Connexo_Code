@@ -10,11 +10,13 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataSelectorConfig;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.export.impl.StandardDataSelectorFactory;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -100,7 +102,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
     private volatile TimeService timeService;
     private volatile Thesaurus thesaurus;
 
-    public void process(MeasurementTaskAssignmentChangeRequestMessage message, boolean custom) {
+    public void process(MeasurementTaskAssignmentChangeRequestMessage message, String selectorName) {
         String profileId = message.getProfileId();
         // parse role infos (lrn, time periods)
         Map<String, RangeSet<Instant>> lrns = new HashMap<>();
@@ -142,7 +144,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 if (exportTask.isPresent()) {
                     updateExportTask(exportTask.get(), readingTypes, true);
                 } else {
-                    createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, custom);
+                    createExportTask((EnumeratedEndDeviceGroup) endDeviceGroup.get(), readingTypes, selectorName);
                 }
             }
         } else {
@@ -266,7 +268,7 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         endDeviceGroup.update();
     }
 
-    private void createExportTask(EnumeratedEndDeviceGroup endDeviceGroup, Set<ReadingType> readingTypes, boolean custom) {
+    private void createExportTask(EnumeratedEndDeviceGroup endDeviceGroup, Set<ReadingType> readingTypes, String selectorName) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME))
                 .setLogLevel(Level.WARNING.intValue())
@@ -275,11 +277,8 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setNextExecution(WebServiceActivator.getExportTaskStartOnDate());
 
-        String selector = dataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
-        if (custom) {
-            selector = dataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR;
-        }
-        DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings(selector)
+        String name = dataExportService.getAvailableSelectors().stream().filter(s -> s.getDisplayName().equals(selectorName)).findAny().get().getName();
+        DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings(name)
                 .fromExportPeriod(WebServiceActivator.getExportTaskExportWindow())
                 .fromUpdatePeriod(WebServiceActivator.getExportTaskUpdateWindow())
                 .fromEndDeviceGroup(endDeviceGroup)

@@ -316,12 +316,14 @@ Ext.define('Uni.grid.filtertop.Interval', {
                                     {
                                         xtype: 'button',
                                         ui: 'action',
+                                        itemId: 'interval-apply',
                                         action: 'apply',
                                         text: Uni.I18n.translate('general.apply', 'UNI', 'Apply'),
                                         disabled: me.fromAndToValueRequired ? (me.defaultFromDate && me.defaultToDate ? false : true) : false
                                     },
                                     {
                                         xtype: 'button',
+                                        itemId: 'interval-clear',
                                         action: 'clear',
                                         text: Uni.I18n.translate('general.clear', 'UNI', 'Clear')
                                     }

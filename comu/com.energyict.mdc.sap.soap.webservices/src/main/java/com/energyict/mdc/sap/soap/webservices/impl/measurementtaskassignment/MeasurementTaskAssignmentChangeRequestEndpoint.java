@@ -4,9 +4,12 @@
 package com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment;
 
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
@@ -82,8 +85,8 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
         }
 
         try {
-            boolean custom = (Boolean) getEndPointConfiguration().getPropertiesWithValue().get(EXPORTER.getKey());
-            measurementTaskAssignmentChangeProcessor.process(message, custom);
+            Optional<String> selectorName = Optional.ofNullable((String) getEndPointConfiguration().getPropertiesWithValue().get(EXPORTER.getKey()));
+            measurementTaskAssignmentChangeProcessor.process(message, selectorName.isPresent() ? selectorName.get() : DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR);
             // send successful response
             MeasurementTaskAssignmentChangeConfirmationMessage confirmationMessage =
                     MeasurementTaskAssignmentChangeConfirmationMessage.builder(clock.instant(), message.getId())
@@ -130,14 +133,25 @@ public class MeasurementTaskAssignmentChangeRequestEndpoint extends AbstractInbo
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
 
-        if (dataExportService.getAvailableSelectors().stream().filter(s -> s.getName().equals(DataExportService.CUSTOM_READINGTYPE_DATA_SELECTOR)).findAny().isPresent()) {
+        List<String> selectors = dataExportService.getAvailableSelectors()
+                .stream()
+                .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS)).map(s -> s.getDisplayName())
+                .collect(Collectors.toList());
+
+        if (selectors.size() > 1) {
+            Optional<String> defaultValue = dataExportService.getAvailableSelectors()
+                    .stream()
+                    .filter(s -> s.getSelectorType().equals(SelectorType.DEFAULT_READINGS))
+                    .filter(s -> s.isDefault()).map(s -> s.getDisplayName()).findFirst();
             builder.add(propertySpecService
-                    .booleanSpec()
+                    .specForValuesOf(new StringFactory())
                     .named(EXPORTER)
                     .describedAs(EXPORTER_DESCRIPTION)
                     .fromThesaurus(thesaurus)
                     .markRequired()
-                    .markEditable()
+                    .addValues(selectors)
+                    .setDefaultValue(defaultValue.isPresent() ? defaultValue.get() : null)
+                    .markExhaustive(PropertySelectionMode.COMBOBOX)
                     .finish());
         }
         return builder.build();

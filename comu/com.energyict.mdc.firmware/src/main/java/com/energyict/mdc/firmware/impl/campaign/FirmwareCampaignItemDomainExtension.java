@@ -30,7 +30,6 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
@@ -317,7 +316,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         if (connectionTask.isPresent() && connectionTask.get() instanceof ScheduledConnectionTask) {
             ComWindow connectionTaskComWindow = ((ScheduledConnectionTask) connectionTask.get()).getCommunicationWindow();
             if (connectionTaskComWindow != null) {
-                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(this.clock.getZone()));
+                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                 connectionTaskComWindow.getStart().copyTo(calendar);
                 FirmwareCampaign firmwareCampaign = getFirmwareCampaign();
                 ComWindow comWindow = firmwareCampaign.getComWindow();

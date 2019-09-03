@@ -8,6 +8,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -94,7 +95,7 @@ public class ComWindow {
 
     private PartialTime secondsFromMidnight (Calendar calendar) {
         long millisBeforeTruncate = calendar.getTimeInMillis();
-        Calendar forTruncationPurposesOnly = Calendar.getInstance();
+        Calendar forTruncationPurposesOnly = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         forTruncationPurposesOnly.setTimeInMillis(millisBeforeTruncate);
         new TimeDuration(1, TimeDuration.TimeUnit.DAYS).truncate(forTruncationPurposesOnly);
         long millisAfterTruncate = forTruncationPurposesOnly.getTimeInMillis();
