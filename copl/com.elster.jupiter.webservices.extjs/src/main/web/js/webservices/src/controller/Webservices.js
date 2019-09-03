@@ -112,29 +112,38 @@ Ext.define('Wss.controller.Webservices', {
         });
     },
 
-    showWebserviceHistoryOccurrence: function (endpointId, occurenceId) {
+    showWebserviceHistoryOccurrence: function (occurenceId, endpoint) {
         var me = this;
-        var store = me.getStore('Wss.store.endpoint.Occurrence');
-        var logStore = me.getStore('Wss.store.endpoint.OccurrenceLog');
 
+        var logStore = me.getStore('Wss.store.endpoint.OccurrenceLog');
         logStore.getProxy().setUrl(occurenceId);
 
-        me.getModel('Wss.model.Endpoint').load(endpointId, {
-            success: function (endpoint) {
-                me.getModel('Wss.model.endpoint.Occurrence').load(occurenceId, {
-                    success: function (occurrence) {
-                        var view = Ext.widget('webservice-history-occurence', {
-                            router: me.getController('Uni.controller.history.Router'),
-                            endpoint: endpoint,
-                            occurrence: occurrence
-                        });
+        me.getModel('Wss.model.endpoint.Occurrence').load(occurenceId, {
+              success: function (occurrence) {
+                   var view = Ext.widget('webservice-history-occurence', {
+                       router: me.getController('Uni.controller.history.Router'),
+                       endpoint: endpoint,
+                       occurrence: occurrence
+                   });
 
-                        me.getApplication().fireEvent('changecontentevent', view);
-                        me.getApplication().fireEvent('endpointload', endpoint.get('name'));
-                    }
-                });
-            }
+                   me.getApplication().fireEvent('changecontentevent', view);
+              }
         });
+    },
+
+    showWebserviceEndPoint: function (endpointId, occurenceId) {
+        var me = this;
+
+        if ((Uni.Auth.hasPrivilege('privilege.administrate.webservices')) || (Uni.Auth.hasPrivilege('privilege.view.webservices'))){
+            me.getModel('Wss.model.Endpoint').load(endpointId, {
+                success: function (endpoint) {
+                    me.showWebserviceHistoryOccurrence(occurenceId, endpoint);
+                    me.getApplication().fireEvent('endpointload', endpoint.get('name'));
+                }
+            });
+        }else{
+            me.showWebserviceHistoryOccurrence(occurenceId);
+        }
     },
 
     showAddWebserviceEndPoint: function () {
@@ -460,6 +469,8 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view;
+
+        if (!(Uni.Auth.hasPrivilege('privilege.administrate.webservices')) && !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices'))) return;
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {
