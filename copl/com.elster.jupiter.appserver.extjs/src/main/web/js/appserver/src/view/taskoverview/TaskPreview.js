@@ -15,7 +15,6 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
             {
                 xtype: 'uni-button-action',
                 itemId: 'task-button-action',
-                privileges: Apr.privileges.AppServer.administrateTaskOverview,
                 menu: {
                     xtype: 'task-overview-action-menu'
                 }
