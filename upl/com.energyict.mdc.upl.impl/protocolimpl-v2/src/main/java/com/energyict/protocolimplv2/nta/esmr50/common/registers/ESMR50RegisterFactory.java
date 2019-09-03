@@ -963,7 +963,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     }
 
     @Override
-    protected RegisterValue handleComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
+    protected RegisterValue readComposedRegister(ComposedCosemObject registerComposedCosemObject, OfflineRegister register) throws IOException {
         if (register.getObisCode().equalsIgnoreBChannel(MBUS_DIAGNOSTIC)){
             ScalerUnit su = new ScalerUnit(Unit.get(70)); // dbm = 70;
             try {
@@ -1005,7 +1005,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             }
 
         } else {
-            return super.handleComposedRegister(registerComposedCosemObject, register);
+            return super.readComposedRegister(registerComposedCosemObject, register);
         }
 
         return new RegisterValue(register);
