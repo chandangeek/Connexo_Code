@@ -269,10 +269,10 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
             collectFirmwareVersionAuxiliary(result);
         }
 
-        // NTA-related protocols don't support CA version, this is for tesitng purposes only
+        // NTA-related protocols don't support CA version, this is for testing purposes only
         // TODO: 19.03.2018 for testing purposes
         try {
-            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(FIRMWARE_VERSION_METER_CORE).getValueAttr();
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString("1.0.0.2.8.255")).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveCaConfigImageVersion(fwVersion);
         } catch (IOException e) {
@@ -339,7 +339,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
     @Override
     public boolean supportsAuxiliaryFirmwareVersion() {
-        // added support for testing surposes with the simulator
+        // added support for testing purposes with the simulator
         return true;
     }
 }

@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -75,7 +76,8 @@ public class ComTaskExecutionEventHandlerTest {
         when(event.getSource()).thenReturn(devMessageComTaskExecution);
         comTaskExecutionEventHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
-        verify(serviceCall).log(LogLevel.FINE, "Device message 'stub_task'(id: 0, release date: 1970-01-01T00:01:51Z) is confirmed");
+        verify(serviceCall).log(LogLevel.FINE, String.format("Device message 'stub_task'(id: 0, release date: %s) is confirmed",
+                domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
         verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
     }
 
@@ -84,8 +86,8 @@ public class ComTaskExecutionEventHandlerTest {
         when(event.getSource()).thenReturn(loadProfileComTaskExecution);
         comTaskExecutionEventHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
-        verify(serviceCall).log(LogLevel.FINE, "Communication task execution 'stub_task'(trigger date: 1970-01-01T00:01:51Z) is completed");
-        verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
+        verify(serviceCall).log(LogLevel.FINE, String.format("Communication task execution 'stub_task'(trigger date: %s) is completed",
+                domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
     }
 
     @Test
@@ -94,7 +96,8 @@ public class ComTaskExecutionEventHandlerTest {
         when(event.getSource()).thenReturn(loadProfileComTaskExecution);
         comTaskExecutionEventHandler.onEvent(event);
         verify(serviceCall, never()).requestTransition(DefaultState.ONGOING);
-        verify(serviceCall, never()).log(LogLevel.FINE, "Communication task execution 'stub_task'(trigger date: 1970-01-01T00:01:51Z) is completed");
+        verify(serviceCall, never()).log(LogLevel.FINE, String.format("Communication task execution 'stub_task'(trigger date: %s) is completed",
+                domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
         verify(serviceCall, never()).requestTransition(DefaultState.SUCCESSFUL);
     }
 
@@ -104,7 +107,9 @@ public class ComTaskExecutionEventHandlerTest {
         when(event.getSource()).thenReturn(devMessageComTaskExecution);
         comTaskExecutionEventHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
-        verify(serviceCall).log(LogLevel.SEVERE, "Device message 'stub_task'(id: 0, release date: 1970-01-01T00:01:51Z) wasn't confirmed");
+        verify(serviceCall).log(LogLevel.SEVERE,
+                String.format("Device message 'stub_task'(id: 0, release date: %s) wasn't confirmed",
+                        domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
 
@@ -114,7 +119,8 @@ public class ComTaskExecutionEventHandlerTest {
         when(event.getSource()).thenReturn(devMessageComTaskExecution);
         comTaskExecutionEventHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
-        verify(serviceCall).log(LogLevel.FINE, "Device message 'stub_task'(id: 0, release date: 1970-01-01T00:01:51Z) is canceled");
+        verify(serviceCall).log(LogLevel.FINE, String.format("Device message 'stub_task'(id: 0, release date: %s) is canceled",
+                domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
         verify(serviceCall).requestTransition(DefaultState.CANCELLED);
     }
 
@@ -125,7 +131,8 @@ public class ComTaskExecutionEventHandlerTest {
         when(event.getSource()).thenReturn(devMessageComTaskExecution);
         comTaskExecutionEventHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
-        verify(serviceCall).log(LogLevel.SEVERE, "Communication task execution 'stub_task'(trigger date: 1970-01-01T00:01:51Z) is failed");
+        verify(serviceCall).log(LogLevel.SEVERE, String.format("Communication task execution 'stub_task'(trigger date: %s) is failed",
+                domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
 
@@ -135,7 +142,8 @@ public class ComTaskExecutionEventHandlerTest {
         when(event.getSource()).thenReturn(loadProfileComTaskExecution);
         comTaskExecutionEventHandler.onEvent(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
-        verify(serviceCall).log(LogLevel.SEVERE, "Communication task execution 'stub_task'(trigger date: 1970-01-01T00:01:51Z) is failed");
+        verify(serviceCall).log(LogLevel.SEVERE, String.format("Communication task execution 'stub_task'(trigger date: %s) is failed",
+                domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
         verify(serviceCall).requestTransition(DefaultState.FAILED);
     }
 

@@ -108,4 +108,10 @@ public class UsagePointMeterActivationException extends com.elster.jupiter.meter
             super(thesaurus, PrivateMessageSeeds.METER_ACTIVATION_OVERLAP, meterName, date);
         }
     }
+
+    public static class StateTransitionException extends UsagePointMeterActivationException {
+        public StateTransitionException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+            super(thesaurus, messageSeed, args);
+        }
+    }
 }

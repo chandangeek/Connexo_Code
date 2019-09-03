@@ -57,7 +57,7 @@ Ext.define('Uni.grid.commander.SortingPanel', {
                     {
                         xtype: 'button',
                         itemId: 'button-add-sort',
-                        text: 'Add sort',
+                        text: Uni.I18n.translate('general.addSorting','UNI','Add sort'),
                         menu: me.menu
                     },
                     {

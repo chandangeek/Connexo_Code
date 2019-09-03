@@ -502,6 +502,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     public void setPriority(int priority) {
         this.priority = priority;
     }
+
     @Override
     public void setSuspendUntil(Instant suspendUntilTime) {
         this.nextExecution = this.suspendUntilTime = suspendUntilTime;

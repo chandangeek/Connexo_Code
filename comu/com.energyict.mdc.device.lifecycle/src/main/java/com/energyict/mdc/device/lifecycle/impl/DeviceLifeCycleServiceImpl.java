@@ -36,7 +36,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
+import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;

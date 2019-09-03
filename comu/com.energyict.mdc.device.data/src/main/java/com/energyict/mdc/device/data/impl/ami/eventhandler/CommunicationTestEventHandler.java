@@ -59,9 +59,7 @@ public class CommunicationTestEventHandler implements MessageHandler {
         long completedTasks = extension.getCompletedTasks().longValue();
         long expectedTasks = extension.getExpectedTasks().longValue();
 
-        Instant triggerDate = Instant.ofEpochMilli(extension.getTriggerDate().longValue());
-
-        if (Instant.ofEpochMilli(Long.valueOf(messageProperties.get("timestamp").toString())).isAfter(triggerDate)) {
+        if (Instant.ofEpochMilli(Long.valueOf(messageProperties.get("timestamp").toString())).isAfter(extension.getTriggerDate())) {
             if ("com/energyict/mdc/connectiontask/COMPLETION".equals(messageProperties.get("event.topics"))) {
                 if (messageProperties.get("failedTaskIDs").equals("") && messageProperties.get("skippedTaskIDs").equals("")) {
                     extension.setSuccessfulTasks(new BigDecimal(++successfulTasks));

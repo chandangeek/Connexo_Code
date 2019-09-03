@@ -445,10 +445,9 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     private Optional<ChannelSpec> getChannelSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {
-        return device.getHistory(when)
-                .map(Device::getDeviceConfiguration)
-                .map(DeviceConfiguration::getChannelSpecs)
-                .flatMap(specs -> specs.stream().filter(spec -> readingTypes.contains(spec.getReadingType())).findAny());
+        Device historyDevice = device.getHistory(when).orElse(device);
+        return historyDevice.getDeviceConfiguration().getChannelSpecs().stream()
+                .filter(spec -> readingTypes.contains(spec.getReadingType())).findAny();
     }
 
     private Optional<RegisterSpec> getRegisterSpec(Device device, List<? extends ReadingType> readingTypes, Instant when) {

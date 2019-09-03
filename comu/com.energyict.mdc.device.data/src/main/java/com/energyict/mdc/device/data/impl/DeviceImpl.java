@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -84,7 +85,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
@@ -1428,15 +1428,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (when.isAfter(modTime)) {
             return Optional.of(this); // current device, for sure
         }
-        if (when.isBefore(createTime)) {
+        if (when.isBefore(this.getLifecycleDates().getReceivedDate().orElse(createTime))) {
             return Optional.empty(); // there was no device
         }
-//        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
-//                .at(when)
-//                .find(ImmutableMap.of("id", this.getId()));
-//        return journalEntries.stream()
-//                .findFirst()
-//                .map(JournalEntry::get);
         return Optional.of(getFirstJournalEntryAfter(when)); // crutch for the case of gaps in journal table
     }
 

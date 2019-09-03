@@ -63,17 +63,11 @@ Ext.define('Isc.view.Detail', {
                     }
                  ]
             },
-            {   xtype: 'panel',
-                itemId: 'servicecall-issue-log-grid',
-                ui: 'medium',
+            {
+                xtype: 'servicecall-issue-log-grid',
+                itemId: 'servicecall-issue-detail-log',
                 title: Uni.I18n.translate('general.title.serviceCallLogs', 'ISC', 'Most recent service call log'),
-                items:[
-                    {
-                        xtype: 'servicecall-issue-log-grid',
-                        itemId: 'servicecall-issue-detail-log',
-                        router: me.router
-                    }
-                ]
+                router: me.router
             },
             {
                 xtype: 'panel',

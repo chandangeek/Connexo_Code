@@ -145,6 +145,10 @@ public class UtilitiesDeviceBulkCreateRequestEndpoint extends AbstractInboundEnd
         UtilitiesDeviceCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceCreateRequestDomainExtension();
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
+        childDomainExtension.setDeviceType(message.getDeviceType());
+        childDomainExtension.setShipmentDate(message.getShipmentDate());
+        childDomainExtension.setManufacturer(message.getManufacturer());
+        childDomainExtension.setModelNumber(message.getModelNumber());
 
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
