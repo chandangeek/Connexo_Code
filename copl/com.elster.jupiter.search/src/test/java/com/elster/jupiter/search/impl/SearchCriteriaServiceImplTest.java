@@ -1,23 +1,16 @@
 package com.elster.jupiter.search.impl;
 
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchCriteria;
-import com.elster.jupiter.search.SearchCriteriaService;
-import com.elster.jupiter.upgrade.UpgradeService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.util.Optional;
-
-import static com.elster.jupiter.search.SearchCriteriaService.*;
+import static com.elster.jupiter.search.SearchCriteriaService.COMPONENT_NAME;
+import static com.elster.jupiter.search.SearchCriteriaService.SearchCriteriaBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 

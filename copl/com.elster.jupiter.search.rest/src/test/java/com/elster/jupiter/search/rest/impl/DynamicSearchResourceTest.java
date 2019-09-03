@@ -344,6 +344,26 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(model.<String>get("$.status")).isEqualTo("Save");
+    }
+
+    @Test
+    public void testDeleteSearchCriteria() throws IOException {
+        searchCriteriaBuilder = mock(SearchCriteriaBuilder.class);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when( searchCriteriaService.newSearchCriteria()).thenReturn(searchCriteriaBuilder);
+        when(threadPrincipalService.getPrincipal().getName()).thenReturn("root");
+        Form input = new Form();
+        //input.param("name", "device_type");
+        input.param("domain", "device");
+        input.param("filter", "[{\"initialConfig\":{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"},\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+        target("/search/saveCriteria/device_type")
+                .request("application/json").accept("application/json").post(entity);
+
+        Response response1 = target("/search/searchCriteria/device_type")
+                .request("application/json").accept("application/json").delete();
+
+        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
     }
 

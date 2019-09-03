@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.toList;
  * Created by bvn on 6/1/15.
  */
 @Path("/search")
-public class DynamicSearchResource extends BaseResource {
+public class DynamicSearchResource {
 
     private final SearchService searchService;
     private final SearchLocationService searchLocationService;
@@ -45,20 +45,21 @@ public class DynamicSearchResource extends BaseResource {
     private final InfoFactoryService infoFactoryService;
     private final ThreadPrincipalService threadPrincipalService;
     private final SearchCriteriaService searchCriteriaService;
+    private final TransactionService transactionService;
+
 
     @Inject
     public DynamicSearchResource(SearchService searchService, SearchLocationService searchLocationService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, InfoFactoryService infoFactoryService,
                                  ThreadPrincipalService threadPrincipalService,
-                                 RestQueryService restQueryService,
                                  SearchCriteriaService searchCriteriaService,
                                  TransactionService transactionService) {
-        super(restQueryService, searchCriteriaService, transactionService);
         this.searchCriteriaService = searchCriteriaService;
         this.searchService = searchService;
         this.searchLocationService = searchLocationService;
         this.exceptionFactory = exceptionFactory;
         this.threadPrincipalService = threadPrincipalService;
         this.searchCriterionInfoFactory = searchCriterionInfoFactory;
+        this.transactionService = transactionService;
 
         this.infoFactoryService = infoFactoryService;
     }
@@ -250,9 +251,9 @@ public class DynamicSearchResource extends BaseResource {
     public Response saveSearchCriteria(@NotNull @PathParam("name") String name,
                                               @NotNull @FormParam("filter") String filter,
                                               @NotNull @FormParam("domain") String domainId) {
-        Map<String, Object> jsonResponse = new HashMap<>();
+        Map<Object, Object> jsonResponse = new HashMap<>();
         String status = "";
-        try (TransactionContext transactionContext = getTransactionService().getContext()) {
+        try (TransactionContext transactionContext = transactionService.getContext()) {
             SearchCriteriaBuilder searchCriteriaBuilder = searchCriteriaService.newSearchCriteria();
             searchCriteriaBuilder.setUserName(threadPrincipalService.getPrincipal().getName());
             searchCriteriaBuilder.setCriteria(filter);
@@ -289,8 +290,8 @@ public class DynamicSearchResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/searchCriteria/{name}")
     public Response deleteSearchCriteria(@PathParam("name") String name) {
-        try (TransactionContext transactionContext = getTransactionService().getContext()) {
-            SearchCriteriaBuilder searchCriteriaBuilder = getSearchCriteriaService().newSearchCriteria();
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            SearchCriteriaBuilder searchCriteriaBuilder = searchCriteriaService.newSearchCriteria();
             searchCriteriaBuilder.setUserName(threadPrincipalService.getPrincipal().getName());
             searchCriteriaBuilder.setName(name);
             searchCriteriaBuilder.delete();
@@ -300,7 +301,7 @@ public class DynamicSearchResource extends BaseResource {
     }
 
     private boolean checkForSearchUpdate(String name) {
-        Query<SearchCriteria> searchCriteriaQuery = getSearchCriteriaService().getCreationRuleQuery();
+        Query<SearchCriteria> searchCriteriaQuery = searchCriteriaService.getCreationRuleQuery();
         long size = searchCriteriaQuery.select(Where.where("userName").isEqualTo(threadPrincipalService.getPrincipal().getName())
                 .and(Where.where("name").isEqualTo(name))).size();
         return size > 0;
