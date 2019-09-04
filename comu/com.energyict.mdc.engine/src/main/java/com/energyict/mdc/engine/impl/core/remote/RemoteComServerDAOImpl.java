@@ -539,7 +539,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     public ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSESSION_BUILDER, builder);
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSESSION_STOP_DATE, stopDate);
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSESSION_STOP_DATE, Date.from(stopDate));
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSESSION_SUCCESS_INDICATOR, successIndicator);
         post(QueryMethod.CreateAndUpdateComSession, queryParameters);
         return null;

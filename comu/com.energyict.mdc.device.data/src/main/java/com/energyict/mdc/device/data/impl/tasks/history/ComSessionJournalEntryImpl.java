@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.engine.config.ComServer;
 
 import javax.inject.Inject;
+import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -36,6 +37,7 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
     private Instant modDate;
 
     public ComSessionJournalEntryImpl() {
+        super(ComSessionJournalEntry.class);
     }
 
     @Inject
@@ -46,7 +48,13 @@ public class ComSessionJournalEntryImpl extends PersistentIdObject<ComSessionJou
     @Override
     @XmlTransient
     public ComSession getComSession () {
-        return comSession.get();
+        if (comSession.isPresent())
+            return comSession.get();
+        return null;
+    }
+
+    public void setComSession (ComSession comSession) {
+        this.comSession.set(comSession);
     }
 
     @Override

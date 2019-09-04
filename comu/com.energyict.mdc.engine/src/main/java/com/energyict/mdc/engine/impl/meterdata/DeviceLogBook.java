@@ -109,13 +109,4 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
         }
         this.meterEvents = meterEvents;
     }
-
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getSimpleName();
-    }
-
-    public void setXmlType(String ignore) {
-        // For xml unmarshalling purposes only
-    }
 }

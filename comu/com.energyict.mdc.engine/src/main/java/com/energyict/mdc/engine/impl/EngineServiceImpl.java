@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -29,6 +30,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -124,6 +126,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile LogBookService logBookService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceService deviceService;
+    private volatile DataVaultService dataVaultService;
     private volatile RegisterService registerService;
     private volatile LoadProfileService loadProfileService;
     private volatile TopologyService topologyService;
@@ -154,7 +157,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService, RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, DataVaultService dataVaultService, TopologyService topologyService, RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
@@ -174,6 +177,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setThreadPrincipalService(threadPrincipalService);
         setIssueService(issueService);
         setDeviceService(deviceService);
+        setDataVaultService(dataVaultService);
         setTopologyService(topologyService);
         setRegisterService(registerService);
         setLoadProfileService(loadProfileService);
@@ -280,6 +284,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setDataVaultService(DataVaultService deviceVaultService) {
+        this.dataVaultService = deviceVaultService;
     }
 
     @Reference
@@ -446,6 +455,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
                 bind(StatusService.class).toInstance(statusService);
                 bind(ManagementBeanFactory.class).toInstance(managementBeanFactory);
                 bind(UserService.class).toInstance(userService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
             }
         };
     }
@@ -825,6 +835,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public DeviceService deviceService() {
             return deviceService;
+        }
+
+        @Override
+        public DataModel dataModel() {
+            return dataModel;
         }
 
         @Override

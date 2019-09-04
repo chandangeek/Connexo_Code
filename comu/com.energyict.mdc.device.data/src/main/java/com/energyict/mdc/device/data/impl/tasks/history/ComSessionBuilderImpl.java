@@ -4,14 +4,15 @@
 
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.elster.jupiter.util.LongCounter;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
@@ -20,8 +21,10 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.lang.reflect.Proxy;
 import java.time.Duration;
 import java.time.Instant;
@@ -30,14 +33,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@XmlRootElement
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")
 public class ComSessionBuilderImpl implements ComSessionBuilder {
-    private class UnderConstruction implements ComSessionBuilder {
+    public class UnderConstruction implements ComSessionBuilder {
 
         private LongCounter sentBytes = Counters.newStrictLongCounter();
         private LongCounter receivedBytes = Counters.newStrictLongCounter();
         private LongCounter sentPackets = Counters.newStrictLongCounter();
         private LongCounter receivedPackets = Counters.newStrictLongCounter();
 
+        @XmlElement(type = ComSessionImpl.class)
         private ComSessionImpl comSession;
 
         private final Counter successfulTasks = Counters.newLenientNonNegativeCounter();
@@ -63,6 +72,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
+        @XmlElement(type = ScheduledConnectionTaskImpl.class)
         public void setConnectionTask(ConnectionTask connectionTask) {
             this.comSession.setConnectionTask(connectionTask);
         }
@@ -175,6 +185,10 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             completeComSession.setNumberOfBytesSent(sentBytes.getValue());
             completeComSession.setNumberOfPacketsReceived(receivedPackets.getValue());
             completeComSession.setNumberOfPacketsSent(sentPackets.getValue());
+            for (ComSessionJournalEntry journalEntry : comSession.getJournalEntries()) {
+                if (journalEntry.getComSession() == null)
+                    journalEntry.setComSession(comSession);
+            }
             for (ComTaskExecutionSessionBuilderImpl comTaskExecutionSessionBuilder : comTaskExecutions) {
                 ComTaskExecutionSessionImpl comTaskExecutionSession = comTaskExecutionSessionBuilder.addTo(completeComSession);
                 comTaskExecutionSession.setNumberOfBytesReceived(comTaskExecutionSessionBuilder.getReceivedBytes());
@@ -249,6 +263,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
+        @XmlElement(type = ComSessionJournalEntryImpl.class)
         public List<ComSessionJournalEntry> getJournalEntries() {
             return comSession.getJournalEntries();
         }
@@ -285,16 +300,21 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
+        @XmlElement(type = ComTaskExecutionSessionBuilderImpl.class)
         public List<? extends ComTaskExecutionSessionBuilder> getComTaskExecutionSessionBuilders() {
             return comTaskExecutions;
         }
 
-        private UnderConstruction(){
+        public UnderConstruction(){
             comSession = new ComSessionImpl();
         }
 
         private UnderConstruction(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
             comSession = ComSessionImpl.from(dataModel, connectionTask, comPortPool, comPort, startTime);
+        }
+
+        public void injectServices (DataModel dataModel, ConnectionTaskService connectionTaskService, Thesaurus thesaurus) {
+            comSession.injectServices(dataModel, connectionTaskService, thesaurus);
         }
     }
 
@@ -302,6 +322,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         throw new IllegalStateException("endSession() has already been called on this builder.");
     });
 
+    @XmlElement(type = UnderConstruction.class)
     private ComSessionBuilder state;
 
     public ComSessionBuilderImpl() {
@@ -310,6 +331,10 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
 
     public ComSessionBuilderImpl(DataModel dataModel, ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
         state = new UnderConstruction(dataModel, connectionTask, comPortPool, comPort, startTime);
+    }
+
+    public void injectServices (DataModel dataModel, ConnectionTaskService connectionTaskService, Thesaurus thesaurus) {
+        state.injectServices(dataModel, connectionTaskService, thesaurus);
     }
 
     @Override
@@ -322,6 +347,36 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     public void setConnectionTask(ConnectionTask connectionTask) {
         state.setConnectionTask(connectionTask);
     }
+
+//    @Override
+//    public ComPortPool getComPortPool() {
+//        return state.getComPortPool();
+//    }
+//
+//    @Override
+//    public void setComPortPool(ComPortPool comPortPool) {
+//        state.setComPortPool(comPortPool);
+//    }
+//
+//    @Override
+//    public ComPort getComPort() {
+//        return state.getComPort();
+//    }
+//
+//    @Override
+//    public void setComPort(ComPort comPort) {
+//        state.setComPort(comPort);
+//    }
+//
+//    @Override
+//    public Instant getStartTime() {
+//        return state.getStartTime();
+//    }
+//
+//    @Override
+//    public void setStartTime(Instant startTime) {
+//        state.setStartTime(startTime);
+//    }
 
     @Override
     @XmlElement(type = ComTaskExecutionSessionBuilderImpl.class)
@@ -499,5 +554,12 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         return state.getJournalEntries();
     }
 
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getName();
+    }
 
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
 }

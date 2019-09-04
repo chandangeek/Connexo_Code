@@ -25,7 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuilder {
+public class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuilder {
     private LongCounter sentBytes = Counters.newStrictLongCounter();
     private LongCounter receivedBytes = Counters.newStrictLongCounter();
     private LongCounter sentPackets = Counters.newStrictLongCounter();
@@ -40,6 +40,7 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
     private List<JournalEntryBuilder> journalEntryBuilders = new ArrayList<>();
 
     public ComTaskExecutionSessionBuilderImpl() {
+        super();
     }
 
     ComTaskExecutionSessionBuilderImpl(ComSessionBuilder parentBuilder, ComTaskExecution comTaskExecution, ComTask comTask, Instant startDate) {
@@ -165,8 +166,12 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
         return this;
     }
 
+    public ComTaskExecutionSession.SuccessIndicator getSuccessIndicator() {
+        return successIndicator;
+    }
+
     @Override
-    public void updateSuccessIndicator(ComTaskExecutionSession.SuccessIndicator successIndicator) {
+    public void setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator successIndicator) {
         this.successIndicator = successIndicator;
     }
 

@@ -549,6 +549,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         }
 
         @Override
+        public DataModel dataModel() {
+            return dataModel;
+        }
+
+        @Override
         public DeviceService deviceService() {
             return deviceService;
         }

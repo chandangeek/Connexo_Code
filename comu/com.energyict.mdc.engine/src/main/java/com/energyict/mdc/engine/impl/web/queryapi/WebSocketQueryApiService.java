@@ -255,7 +255,7 @@ public class WebSocketQueryApiService {
 
 
     private InputStream getComServerPropertiesStream() throws FileNotFoundException {
-        return new FileInputStream("./conf/comserver.properties");
+        return new FileInputStream("conf/comserver.properties");
     }
 
     private class ServiceProvider implements QueryMethod.ServiceProvider {

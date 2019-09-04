@@ -68,7 +68,7 @@ public enum QueryMethod {
             Long comServerId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMSERVER);
             Optional<ComServer> comServer = serviceProvider.engineConfigurationService().findComServer(comServerId);
             if (comServer.isPresent()) {
-                Instant modificationDate = this.getModificationDate(parameters);
+                Instant modificationDate = this.getInstant(parameters, RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE);
                 if (comServer.get().getModTime().isAfter(modificationDate)) {
                     return comServer.get();
                 }
@@ -629,10 +629,10 @@ public enum QueryMethod {
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
             try {
                 JSONObject jsonObject = new JSONObject(parameters);
-                ObjectParser<ComSessionBuilder> parser = new ObjectParser<>();
-                ComSessionBuilder builder = parser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.COMSESSION_BUILDER);
-                Instant stopDate =  (Instant) jsonObject.get(RemoteComServerQueryJSonPropertyNames.COMSESSION_STOP_DATE);
-                ComSession.SuccessIndicator successIndicator =  (ComSession.SuccessIndicator) jsonObject.get(RemoteComServerQueryJSonPropertyNames.COMSESSION_SUCCESS_INDICATOR);
+                ObjectParser<ComSessionBuilder> builderParser = new ObjectParser<>();
+                ComSessionBuilder builder = builderParser.parseObject(jsonObject, RemoteComServerQueryJSonPropertyNames.COMSESSION_BUILDER);
+                Instant stopDate = getInstant(parameters, RemoteComServerQueryJSonPropertyNames.COMSESSION_STOP_DATE);
+                ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.valueOf(jsonObject.getString(RemoteComServerQueryJSonPropertyNames.COMSESSION_SUCCESS_INDICATOR));
                 serviceProvider.comServerDAO().createComSession(builder, stopDate, successIndicator);
                 return null;
             } catch (JSONException e) {
@@ -889,9 +889,8 @@ public enum QueryMethod {
         return serviceProvider.transactionService().execute(transaction);
     }
 
-    protected Instant getModificationDate(Map<String, Object> parameters) {
-        Long utcMillis = (Long) parameters.get(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE);
-        return Instant.ofEpochMilli(utcMillis);
+    protected Instant getInstant(Map<String, Object> parameters, String jsonPropertyName) {
+        return getDate(parameters.get(jsonPropertyName)).toInstant();
     }
 
     private boolean nameMatches(String name) {

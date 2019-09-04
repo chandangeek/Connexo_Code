@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.tasks.history;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -17,6 +18,7 @@ import com.energyict.mdc.tasks.ComTask;
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.EnumSet;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 @ProviderType
+@XmlRootElement
 public interface ComSession extends HasId, TaskExecutionSummary {
 
     void save();
@@ -41,6 +44,10 @@ public interface ComSession extends HasId, TaskExecutionSummary {
             return values()[ordinal];
         }
     }
+
+    public DataModel getDataModel();
+
+    public void setDataModel(DataModel dataModel);
 
     ConnectionTask getConnectionTask();
 

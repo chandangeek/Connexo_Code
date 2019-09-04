@@ -127,7 +127,7 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
         verify(createComSessionDeviceCommand).addIssue(any(CompletionCode.class), any(Issue.class), any(ComTaskExecution.class));
         verify(comSessionBuilder).incrementFailedTasks(1);
         verify(comSessionBuilder).incrementSuccessFulTasks(-1);
-        verify(comTaskExecutionSessionBuilder).updateSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure);
+        verify(comTaskExecutionSessionBuilder).setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure);
     }
 
     private InboundDataProcessMeterDataStoreCommandImpl getTestInstance() {

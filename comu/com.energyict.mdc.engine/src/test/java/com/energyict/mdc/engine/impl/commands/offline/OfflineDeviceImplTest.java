@@ -752,8 +752,8 @@ public class OfflineDeviceImplTest {
         when(securityAccessorType2.getName()).thenReturn("KeyAccessorType_2");
         when(securityProperty1.getName()).thenReturn("SecurityProperty1");
         when(securityProperty2.getName()).thenReturn("SecurityProperty2");
-        when(securityProperty1.getKeyAccessorType()).thenReturn(securityAccessorType1);
-        when(securityProperty2.getKeyAccessorType()).thenReturn(securityAccessorType2);
+        when(securityProperty1.getSecurityAccessorType()).thenReturn(securityAccessorType1);
+        when(securityProperty2.getSecurityAccessorType()).thenReturn(securityAccessorType2);
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getName()).thenReturn("MySecuritySet");

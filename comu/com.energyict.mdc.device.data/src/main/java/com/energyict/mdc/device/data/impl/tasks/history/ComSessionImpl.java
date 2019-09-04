@@ -19,6 +19,8 @@ import com.energyict.mdc.device.data.impl.ComSessionSuccessIndicatorTranslationK
 import com.energyict.mdc.device.data.impl.CompletionCodeTranslationKeys;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComSession;
+import com.energyict.mdc.device.data.impl.tasks.OutboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -32,12 +34,17 @@ import com.energyict.mdc.device.data.tasks.history.TaskExecutionSummary;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.impl.OutboundComPortImpl;
+import com.energyict.mdc.engine.config.impl.OutboundComPortPoolImpl;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -101,21 +108,36 @@ public class ComSessionImpl implements ComSession {
     private Reference<ComPort> comPort = ValueReference.absent();
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
 
+    @XmlAttribute
     private Instant startDate;
+    @XmlAttribute
     private Instant stopDate;
-    private long totalMillis;
-    private long connectMillis;
-    private long talkMillis;
-    private long storeMillis;
-    private long numberOfBytesSent;
-    private long numberOfBytesReceived;
-    private long numberOfPacketsSent;
-    private long numberOfPacketsReceived;
 
+    private long totalMillis;
+
+    private long connectMillis;
+
+    private long talkMillis;
+
+    private long storeMillis;
+
+    @XmlAttribute
+    private long numberOfBytesSent;
+    @XmlAttribute
+    private long numberOfBytesReceived;
+    @XmlAttribute
+    private long numberOfPacketsSent;
+    @XmlAttribute
+    private long numberOfPacketsReceived;
+    @XmlAttribute
     private boolean status;
+    @XmlAttribute
     private ComSession.SuccessIndicator successIndicator;
+
     private int taskSuccessCount;
+
     private int taskFailureCount;
+
     private int taskNotExecutedCount;
 
     private List<ComSessionJournalEntry> journalEntries = new ArrayList<>();
@@ -133,6 +155,22 @@ public class ComSessionImpl implements ComSession {
         this.thesaurus = thesaurus;
     }
 
+    public void injectServices (DataModel dataModel, ConnectionTaskService connectionTaskService, Thesaurus thesaurus) {
+        this.dataModel = dataModel;
+        this.connectionTaskService = connectionTaskService;
+        this.thesaurus = thesaurus;
+    }
+
+    @JsonIgnore
+    @XmlTransient
+    public DataModel getDataModel() {
+        return dataModel;
+    }
+
+    public void setDataModel(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
     @Override
     @XmlAttribute
     public long getId() {
@@ -140,6 +178,7 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    @XmlElement(type = ScheduledConnectionTaskImpl.class)
     public ConnectionTask getConnectionTask() {
         return connectionTask.get();
     }
@@ -150,16 +189,28 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    @XmlElement(type = OutboundComPortImpl.class)
     public ComPort getComPort() {
         return comPort.get();
     }
 
+    public void setComPort(ComPort comPort) {
+        this.comPort.set(comPort);
+    }
+
     @Override
+    @XmlElement(type = OutboundComPortPoolImpl.class)
     public ComPortPool getComPortPool() {
         return comPortPool.get();
     }
 
+    public void setComPortPool(ComPortPool comPortPool) {
+        this.comPortPool.set(comPortPool);
+    }
+
     @Override
+    @JsonIgnore
+    @XmlTransient
     public ComStatistics getStatistics() {
         return new ComStatisticsImpl(this.numberOfBytesSent, this.numberOfBytesReceived, this.numberOfPacketsSent, this.numberOfPacketsReceived);
     }
@@ -181,6 +232,7 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    @XmlElement(type = ComSessionJournalEntryImpl.class)
     public List<ComSessionJournalEntry> getJournalEntries() {
         return this.journalEntries;
     }
@@ -263,6 +315,7 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    @XmlElement(type = ComTaskExecutionSessionImpl.class)
     public List<ComTaskExecutionSession> getComTaskExecutionSessions() {
         return Collections.unmodifiableList(comTaskExecutionSessions);
     }
@@ -283,21 +336,25 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    @XmlAttribute
     public Duration getTotalDuration() {
         return Duration.ofMillis(totalMillis);
     }
 
     @Override
+    @XmlAttribute
     public Duration getConnectDuration() {
         return Duration.ofMillis(connectMillis);
     }
 
     @Override
+    @XmlAttribute
     public Duration getTalkDuration() {
         return Duration.ofMillis(talkMillis);
     }
 
     @Override
+    @XmlAttribute
     public Duration getStoreDuration() {
         return Duration.ofMillis(storeMillis);
     }
@@ -313,28 +370,47 @@ public class ComSessionImpl implements ComSession {
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public String getSuccessIndicatorDisplayName() {
         return ComSessionSuccessIndicatorTranslationKeys.translationFor(this.successIndicator, this.thesaurus);
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public TaskExecutionSummary getTaskExecutionSummary() {
         return this;
     }
 
     @Override
+    @XmlAttribute
     public int getNumberOfSuccessFulTasks() {
         return this.taskSuccessCount;
     }
 
+    public void setNumberOfSuccessFulTasks(int numberOfSuccessFulTasks) {
+        this.taskSuccessCount = numberOfSuccessFulTasks;
+    }
+
     @Override
+    @XmlAttribute
     public int getNumberOfFailedTasks() {
         return this.taskFailureCount;
     }
 
+    public void setNumberOfFailedTasks(int numberOfFailedTasks) {
+        this.taskFailureCount = numberOfFailedTasks;
+    }
+
     @Override
+    @XmlAttribute
     public int getNumberOfPlannedButNotExecutedTasks() {
         return this.taskNotExecutedCount;
+    }
+
+    public void setNumberOfPlannedButNotExecutedTasks(int numberOfPlannedButNotExecutedTasks) {
+        this.taskNotExecutedCount = numberOfPlannedButNotExecutedTasks;
     }
 
     void setTalkDuration(Duration duration) {
@@ -363,6 +439,11 @@ public class ComSessionImpl implements ComSession {
 
     void setFailedTasks(int failedTasks) {
         this.taskFailureCount = failedTasks;
+    }
+
+
+    void setTotalDuration(Duration totalDuration) {
+        totalMillis = totalDuration.toMillis();
     }
 
     void setConnectDuration(Duration duration) {

@@ -46,7 +46,7 @@ public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreC
                     createComSessionDeviceCommand.getComSessionBuilder().incrementSuccessFulTasks(-1);
                     createComSessionDeviceCommand.getComSessionBuilder()
                             .findFor(executionContext.getComTaskExecution())
-                            .ifPresent(comTaskExecutionSessionBuilder -> comTaskExecutionSessionBuilder.updateSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure));
+                            .ifPresent(comTaskExecutionSessionBuilder -> comTaskExecutionSessionBuilder.setSuccessIndicator(ComTaskExecutionSession.SuccessIndicator.Failure));
                 });
     }
 

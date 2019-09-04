@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.offline.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -309,6 +310,11 @@ public final class MobileComServerLauncher implements ProtocolDeploymentListener
         @Override
         public CommunicationTaskService communicationTaskService() {
             return serviceProvider.communicationTaskService();
+        }
+
+        @Override
+        public DataModel dataModel() {
+            return serviceProvider.dataModel();
         }
 
         @Override

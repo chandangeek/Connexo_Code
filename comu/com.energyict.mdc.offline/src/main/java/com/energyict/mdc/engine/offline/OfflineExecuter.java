@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.offline;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -629,6 +630,11 @@ public class OfflineExecuter implements OfflineActionExecuter {
         @Override
         public CommunicationTaskService communicationTaskService() {
             return serviceProvider.communicationTaskService();
+        }
+
+        @Override
+        public DataModel dataModel() {
+            return serviceProvider.dataModel();
         }
 
         @Override

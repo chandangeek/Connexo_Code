@@ -19,10 +19,6 @@ import java.util.List;
  * and the respective collected {@link com.energyict.protocol.MeterEvent}s starting from
  * the {@link LogBook#getLastReading()}.
  */
-@JsonTypeInfo(
-            use = JsonTypeInfo.Id.CLASS,
-            include = JsonTypeInfo.As.PROPERTY,
-            property = "type")
 public interface CollectedLogBook extends CollectedData {
 
     /**
@@ -55,11 +51,5 @@ public interface CollectedLogBook extends CollectedData {
     void setCollectedMeterEvents(List<MeterProtocolEvent> meterEvents);
 
     void addCollectedMeterEvents(List<MeterProtocolEvent> meterEvents);
-
-    // The element below is only used during JSON xml (un)marshalling.
-    @XmlElement(name = "type")
-    String getXmlType();
-
-    void setXmlType(String ignore);
 
 }

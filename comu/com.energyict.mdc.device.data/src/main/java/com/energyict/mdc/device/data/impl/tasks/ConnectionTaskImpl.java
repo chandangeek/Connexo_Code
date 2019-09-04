@@ -343,6 +343,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.notifyUpdated();
     }
 
+    protected void update(DataModel dataModel, String... fieldNames) {
+        dataModel.update(this, fieldNames);
+        this.notifyUpdated();
+    }
+
     protected void update(String... fieldNames) {
         this.dataModel.update(this, fieldNames);
         this.notifyUpdated();
@@ -592,7 +597,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     private void setLastSessionAndUpdate(ComSession session) {
         this.setLastSession(session);
-        this.update(ConnectionTaskFields.LAST_SESSION.fieldName(),
+        this.update(session.getDataModel(), ConnectionTaskFields.LAST_SESSION.fieldName(),
                 ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
                 ConnectionTaskFields.LAST_SESSION_STATUS.fieldName(),
                 ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName());
