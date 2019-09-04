@@ -31,6 +31,7 @@ Ext.define('Mdc.view.setup.autoclosureexclusions.AutoclosureExclusionsSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+							itemId: 'no-items-found-panel',
                             title: Uni.I18n.translate('autoclosureExclusions.overview.emptyMsg', 'MDC', 'No creation rules found'),
                             reasons: [
                                 Uni.I18n.translate('autoclosureExclusions.overview.emptyReason', 'MDC', 'No end device groups containing this device have been excluded from autoclosure for any issue creation rule'),
