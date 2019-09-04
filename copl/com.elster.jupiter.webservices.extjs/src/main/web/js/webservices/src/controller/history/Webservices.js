@@ -25,7 +25,7 @@ Ext.define('Wss.controller.history.Webservices', {
         var namespace = Uni.util.Application.getAppNamespace();
         var webserviceendpoints = {
             title: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
-            privileges: ['privilege.view.webservices', 'privilege.administrate.webservices'],
+            privileges: ['privilege.viewHistory.webservices', 'privilege.view.webservices', 'privilege.administrate.webservices'],
             route: 'webserviceendpoints',
             controller: 'Wss.controller.Webservices',
             action: 'showWebservicesOverview',
@@ -39,7 +39,7 @@ Ext.define('Wss.controller.history.Webservices', {
                 },
                 view: {
                     route: '{endpointId}',
-                    privileges: ['privilege.view.webservices','privilege.administrate.webservices'],
+                    privileges: ['privilege.view.webservices','privilege.administrate.webservices','privilege.viewHistory.webservices'],
                     title: Uni.I18n.translate('webservices.webserviceEndpointOverview', 'WSS', 'Web service endpoint overview'),
                     controller: 'Wss.controller.Webservices',
                     action: 'showEndpointOverview',
@@ -70,7 +70,7 @@ Ext.define('Wss.controller.history.Webservices', {
                                     route: '{occurenceId}',
                                     title: Uni.I18n.translate('general.log', 'WSS', 'Log'),
                                     controller: 'Wss.controller.Webservices',
-                                    action: 'showWebserviceHistoryOccurrence',
+                                    action: 'showWebserviceEndPoint',
                                 }
                             },
                         },
@@ -95,11 +95,26 @@ Ext.define('Wss.controller.history.Webservices', {
 
         var webservicehistory = {
             title: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service endpoint history'),
-            privileges: ['privilege.view.webservices', 'privilege.administrate.webservices'],
+            privileges: ['privilege.view.webservices', 'privilege.viewHistory.webservices', 'privilege.administrate.webservices'],
             route: 'webservicehistory',
             controller: 'Wss.controller.Webservices',
             action: 'showWebservicesHistoryOverview',
-        };
+            items: {
+                view: {
+                    route: '{endpointId}',
+                    privileges: ['privilege.viewHistory.webservices'],
+                            items: {
+                                occurrence: {
+                                    privileges: ['privilege.viewHistory.webservices', 'privilege.administrate.webservices', 'privilege.view.webservices'],
+                                    route: '{occurenceId}',
+                                    title: Uni.I18n.translate('general.log', 'WSS', 'Log'),
+                                    controller: 'Wss.controller.Webservices',
+                                    action:  'showWebserviceEndPoint',
+                                }
+                            },
+                    }
+                }
+            }
 
         var items = {
             webserviceendpoints: webserviceendpoints,
