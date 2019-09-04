@@ -453,6 +453,7 @@ Ext.define('Apr.controller.TaskManagement', {
             });
                 window.close();
                 me.getApplication().fireEvent('acknowledge', 'Task queue and priority changed.');
+                me.getTaskPreview().down('form').loadRecord(record);
             },
         });
    },

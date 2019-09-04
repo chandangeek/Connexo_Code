@@ -162,6 +162,7 @@ Ext.define('Apr.controller.TaskOverview', {
             });
                 window.close();
                 me.getApplication().fireEvent('acknowledge', 'Task queue and priority changed.');
+                me.getTaskPreview().down('form').loadRecord(record);
             },
         });
     },
