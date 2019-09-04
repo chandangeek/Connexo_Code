@@ -27,6 +27,10 @@ public interface WebServiceCallOccurrenceFinderBuilder {
 
     WebServiceCallOccurrenceFinderBuilder onlyOutbound();
 
+    WebServiceCallOccurrenceFinderBuilder withDomain(Set<String> domains);
+
+    WebServiceCallOccurrenceFinderBuilder withDomainAndValues(Set<String> domains, Set<String> values);
+
     Finder<WebServiceCallOccurrence> build();
 
 }

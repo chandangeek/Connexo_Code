@@ -91,6 +91,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
             throws FaultMessage {
         return runInTransactionWithOccurrence(() -> {
             String meterName = null;
+
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
@@ -98,6 +99,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
+                    meterConfig.getMeter().stream().forEach(meter -> {
+                        createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
+                    });
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
@@ -109,8 +113,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
                             OperationEnum.CREATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
-
+                    createRelatedObject("DeviceX", "name", meterName);
                     Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
+
                     return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException e) {

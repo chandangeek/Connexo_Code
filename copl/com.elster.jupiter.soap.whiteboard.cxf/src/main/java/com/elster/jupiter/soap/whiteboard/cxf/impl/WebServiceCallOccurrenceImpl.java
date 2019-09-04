@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
@@ -36,6 +37,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     private WebServiceCallOccurrenceStatus status;
     private String applicationName;
     private String payload;
+    private long relatedObjectId;
 
     public enum Fields {
         ID("id"),
@@ -45,7 +47,8 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         ENDPOINT_CONFIGURATION("endPointConfiguration"),
         STATUS("status"),
         APPLICATION_NAME("applicationName"),
-        PAYLOAD("payload");
+        PAYLOAD("payload"),
+        RELATED_OBJECT_ID("relatedObjectId");
 
         private final String javaFieldName;
 
@@ -155,6 +158,9 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     @Override
+    public void setRelatedObjectId(long relatedObjectId) {this.relatedObjectId = relatedObjectId;}
+
+    @Override
     public void log(LogLevel logLevel, String message) {
         getEndPointConfiguration().log(logLevel, message, this);
     }
@@ -198,6 +204,25 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
             }
         }
     }
+
+    @Override
+    public void createRelatedObject(String domain, String key, String value){
+        String[] fieldName = {"typeDomain", "key", "value"};
+        String[] values = {domain, key, value};
+        Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
+                .getUnique(fieldName, values);
+        if(!relatedObjectType.isPresent()){
+            relatedObjectType = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectType.class));
+            relatedObjectType.get().init(domain,key,value);
+            relatedObjectType.get().save();
+        }
+
+        WebServiceCallRelatedObjectImpl relatedObject = dataModel.getInstance(WebServiceCallRelatedObjectImpl.class);
+        relatedObject.init(this, relatedObjectType.get());
+        relatedObject.save();
+    }
+
+
 
     @Override
     public Finder<EndPointLog> getLogs() {

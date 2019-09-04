@@ -154,6 +154,23 @@ public abstract class BaseResource {
             }
         }
 
+        if (filter.hasProperty("domain")) {
+            if (filter.hasProperty("values")) {
+                finderBuilder.withDomainAndValues(filter.getStringList("domain")
+                        .stream()
+                        .collect(Collectors.toSet()),
+                        filter.getStringList("values")
+                        .stream()
+                        .collect(Collectors.toSet()));
+            }else{
+                finderBuilder.withDomain(filter.getStringList("domain")
+                        .stream()
+                        .collect(Collectors.toSet()));
+            }
+
+        }
+
+
         List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
 
         return epocList;

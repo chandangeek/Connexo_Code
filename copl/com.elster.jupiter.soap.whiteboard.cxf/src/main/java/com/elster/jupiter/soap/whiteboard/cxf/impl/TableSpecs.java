@@ -14,6 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
 import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -141,6 +142,64 @@ public enum TableSpecs {
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
+    WS_OCC_RELATED_OBJECTS_TYPES {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<WebServiceCallRelatedObjectType> table = dataModel.addTable(this.name(), WebServiceCallRelatedObjectType.class);
+            table.map(WebServiceCallRelatedObjectType.class);
+            table.since(version(10, 7));
+
+            Column idColumn = table.addAutoIdColumn();
+
+            table.column("TYPE_DOMAIN")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallRelatedObjectType.Fields.TYPE_DOMAIN.fieldName())
+                    .add();
+
+            table.column("TYPE_KEY")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallRelatedObjectType.Fields.TYPE_KEY.fieldName())
+                    .add();
+            table.column("TYPE_VALUE")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallRelatedObjectType.Fields.TYPE_VALUE.fieldName())
+                    .add();
+
+            table.primaryKey("PK_WS_RELATED_OBJECTS_TYPE").on(idColumn).add();
+            //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
+        }
+    },
+    WS_OCC_RELATED_OBJECTS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<WebServiceCallRelatedObject> table = dataModel.addTable(this.name(), WebServiceCallRelatedObject.class);
+            table.map(WebServiceCallRelatedObjectImpl.class);
+            table.since(version(10, 7));
+
+            Column idColumn = table.addAutoIdColumn();
+
+            Column occurrence = table.column("OCCURRENCEID").number().add();
+            table.foreignKey("FK_WS_RO_OCCURRENCE")
+                    .references(WS_CALL_OCCURRENCE.name())
+                    .on(occurrence)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(WebServiceCallRelatedObjectImpl.Fields.OCCURRENCE.fieldName())
+                    .add();
+
+
+            Column type = table.column("TYPEID").number().add();
+            table.foreignKey("FK_WS_RO_TYPE")
+                    .references(WS_OCC_RELATED_OBJECTS_TYPES.name())
+                    .on(type)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(WebServiceCallRelatedObjectImpl.Fields.TYPE.fieldName())
+                    .add();
+
+            table.primaryKey("PK_WS_RELATED_OBJECTS").on(idColumn).add();
+            //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
+        }
+    },
+
     WS_ENDPOINT_LOG {
         @Override
         void addTo(DataModel dataModel) {

@@ -142,6 +142,10 @@ public abstract class AbstractInboundEndPoint {
         webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).log(message, exception);
     }
 
+    protected void createRelatedObject(String domain, String type, String value){
+        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).createRelatedObject(domain, type, value);
+    }
+
     private String getApplicationName() {
         return this instanceof ApplicationSpecific ?
                 ((ApplicationSpecific) this).getApplication() :

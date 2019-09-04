@@ -129,9 +129,21 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     private final class RequestSenderImpl implements RequestSender {
         private final String methodName;
         private Collection<EndPointConfiguration> endPointConfigurations;
+        private String domain;
+        private String type;
+        private List<String> values;
+
 
         private RequestSenderImpl(String methodName) {
             this.methodName = methodName;
+        }
+
+
+        public RequestSenderImpl withRelatedObject(String domain, String type , List values){
+            this.domain = domain;
+            this.type = type;
+            this.values = values;
+            return this;
         }
 
         @Override
@@ -234,6 +246,8 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         long id = webServicesService.startOccurrence(epcAndEP.getKey(), methodName, getApplicationName()).getId();
                         try {
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
+                            WebServiceCallOccurrence wsCo= webServicesService.getOngoingOccurrence(id);
+                            values.stream().forEach(value -> wsCo.createRelatedObject(domain, type, value));
                             Object response = method.invoke(port, request);
                             webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);

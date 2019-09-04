@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.Range;
@@ -48,6 +49,51 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
                 .getUnique("id", id);
         return epOcc;
     }
+
+    @Override
+    public Optional<WebServiceCallRelatedObject> getRelatedObjectById(long id){
+        Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
+                .getUnique("id",id);
+        return relatedObject;
+    }
+
+    @Override
+    public Optional<WebServiceCallRelatedObject> getRelatedObjectByType(long id){
+        Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
+                .getUnique("type",id);
+        return relatedObject;
+    }
+
+    @Override
+    public Optional<WebServiceCallRelatedObject> getRelatedObjectByOccurrence(long id){
+        Optional<WebServiceCallRelatedObject> relatedObject = dataModel.mapper(WebServiceCallRelatedObject.class)
+                .getUnique("WebServiceCallOccurrenceId",id);
+        return relatedObject;
+    }
+
+    @Override
+    public Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeById(long id){
+        Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
+                .getUnique("id", id);
+        return relatedObjectType;
+    }
+
+    @Override
+    public Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByKeyAndValue(String key, String value){
+        Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
+                .getUnique("key", key, "value", value);
+        return relatedObjectType;
+    }
+
+    @Override
+    public Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByDomainKeyAndValue(String domain, String key, String value){
+        String[] fieldName = {"typeDomain", "key", "value"};
+        String[] values = {domain, key, value};
+        Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
+                .getUnique(fieldName, values);
+        return relatedObjectType;
+    }
+
 
     @Override
     public OccurrenceLogFinderBuilder getOccurrenceLogFinderBuilder(){

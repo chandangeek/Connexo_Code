@@ -9,6 +9,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 
@@ -23,10 +24,14 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCallOccurrenceFinderBuilder {
     private DataModel dataModel;
     private Condition condition;
+    private Condition subCondition;
+    private Condition innerSubCondition;
 
     WebServiceCallOccurrenceFinderBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
         this.condition = Condition.TRUE;
+        this.subCondition = Condition.TRUE;
+        this.innerSubCondition = Condition.TRUE;
     }
 
     @Override
@@ -84,6 +89,26 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     public WebServiceCallOccurrenceFinderBuilder onlyOutbound() {
         this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(OutboundEndPointConfiguration.class)
                 .asSubquery(Condition.TRUE, "id"), "endPointConfiguration"));
+        return this;
+    }
+
+    @Override
+    public WebServiceCallOccurrenceFinderBuilder withDomain(Set<String> domains){
+        if (!domains.isEmpty()) {
+            this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedObject.class)
+                    .asSubquery(this.subCondition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedObjectType.class)
+                            .asSubquery(this.innerSubCondition.and(where("typeDomain").in(ImmutableList.copyOf(domains))), "id"), "type")), "occurrence"), "id"));
+        }
+        return this;
+    }
+
+    @Override
+    public WebServiceCallOccurrenceFinderBuilder withDomainAndValues(Set<String> domains, Set<String> values){
+        if (!domains.isEmpty()) {
+            this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedObject.class)
+                    .asSubquery(this.subCondition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedObjectType.class)
+                            .asSubquery(this.innerSubCondition.and(where("typeDomain").in(ImmutableList.copyOf(domains))).and(where("value").in(ImmutableList.copyOf(values))), "id"), "type")), "occurrence"), "id"));
+        }
         return this;
     }
 
