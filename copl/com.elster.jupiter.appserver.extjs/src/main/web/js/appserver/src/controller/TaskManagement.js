@@ -190,9 +190,19 @@ Ext.define('Apr.controller.TaskManagement', {
         menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
         menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
         menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
-        menu.down('#set-queue-priority').setVisible((menu.record.get('extraQueueCreationEnabled') || menu.record.get('queuePrioritized')));
+        menu.down('#set-queue-priority').setVisible(this.canAdminTaskOverview(menu));
         menu.reorderItems();
         Ext.resumeLayouts(true);
+    },
+
+    canAdminTaskOverview: function (menu) {
+        var application = menu.record.get('application').name,
+            privilege = false;
+        if (application === "MultiSense") {
+            privilege = Uni.Auth.checkPrivileges(Mdc.privileges.TaskManagement.administrateTaskOverview)
+               && (menu.record.get('extraQueueCreationEnabled') || menu.record.get('queuePrioritized'));
+        };
+        return privilege;
     },
 
     /* add task section */
