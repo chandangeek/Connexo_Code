@@ -68,7 +68,7 @@ public class ActionResource extends BaseResource {
         List<IssueActionTypeInfo> ruleActionTypes = query.select(condition).stream()
                 .filter(at -> at.createIssueAction().isPresent() && !createdActionTypeIds.contains(at.getId()))
                 .map(at -> actionInfoFactory.asInfo(at, reasonParam))
-                .filter(item -> !((item.name).equals("Email") && phaseParam.equals("OVERDUE")))
+                .filter(item -> (!((item.name).equals("Email") && (phaseParam.equals("OVERDUE") || issueTypeParam.equals("usagepointdatavalidation")))))
                 .sorted(Comparator.comparing(a -> a.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("ruleActionTypes", ruleActionTypes, params);
