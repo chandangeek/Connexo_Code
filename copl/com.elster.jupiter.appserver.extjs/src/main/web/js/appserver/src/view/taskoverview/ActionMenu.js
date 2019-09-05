@@ -10,7 +10,7 @@ Ext.define('Apr.view.taskoverview.ActionMenu', {
             {
                 itemId: 'set-queue-priority',
                 text: Uni.I18n.translate('general.menu.setQueueAndPriority', 'APR', 'Set queue and priority'),
-                privileges: Usr.privileges.Users.admin,
+                privileges: Apr.privileges.AppServer.administrateTaskOverview,
                 action: 'setQueueAndPriority',
                 section: this.SECTION_EDIT
             }
