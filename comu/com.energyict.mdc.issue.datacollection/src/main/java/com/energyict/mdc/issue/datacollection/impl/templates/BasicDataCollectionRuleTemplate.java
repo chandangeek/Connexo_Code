@@ -229,14 +229,6 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 .addValues(deviceConfigurationService.getDeviceLifeCycleInDeviceTypeInfoPossibleValues())
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
-//        builder.add(propertySpecService
-//                .specForValuesOf(new EventTypeValueFactory(eventTypes))
-//                .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
-//                .fromThesaurus(this.getThesaurus())
-//                .markRequired()
-//                .addValues(eventTypes.getEventTypes())
-//                .markExhaustive(PropertySelectionMode.COMBOBOX)
-//                .finish());
         builder.add(propertySpecService
                 .specForValuesOf(new CustomEventTypeValueFactory(eventTypes))
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
