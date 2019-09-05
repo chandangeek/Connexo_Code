@@ -275,8 +275,7 @@ public class EmbeddedJettyServerTest {
 
             // Asserts
             assertThat(this.embeddedJettyServer.getStatus()).isNotEqualTo(ServerProcessStatus.STARTED);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace(System.err);
             fail("Failed to start server on port " + PORT_NUMBER + " so testing that starting a second because the port is already in use does not make sense.");
         }
