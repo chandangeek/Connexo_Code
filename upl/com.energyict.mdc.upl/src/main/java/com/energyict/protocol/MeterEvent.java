@@ -535,6 +535,16 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int SIGNAL_QUALITY_LOW = 198;
 
+    public static final int METER_ALARM_END = 199;
+
+    public static final int REVERSE_POWER = 200;
+
+    public static final int INPUT_EVENT = 201;
+
+    public static final int CHANGE_IMPULSE = 202;
+
+    public static final int PLUS_A_STORED = 203;
+
     /**
      * Start of Beacon3100 custom codes
      * Range from 100000 to 100129

@@ -7,7 +7,7 @@ import com.energyict.protocol.IntervalStateBits;
  * Date: 28.10.2010
  * Time: 13:37:31
  */
-public class utils {
+public class Utils {
 
     public static final int SYSSTATE_RESTART = 0x0001;
 
@@ -79,10 +79,10 @@ public class utils {
     public static String[] splitLine(String iecDataLine) {
 
         String[] result = iecDataLine.split("[)]");
-
+        //COMMUNICATION-3089 - meter sometimes sends 0xFF in between the brackets, "(" is not always the first character for that reason.
         for (int i = 0; i < result.length; i++) {
-            if (result[i].startsWith("(")) {
-                result[i] = result[i].substring(1);
+            if (result[i].contains("(")) {
+                result[i] = result[i].substring(result[i].indexOf("(")+1);
             }
         }
 
