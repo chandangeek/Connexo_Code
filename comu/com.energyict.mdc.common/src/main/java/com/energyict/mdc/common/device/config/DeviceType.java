@@ -410,4 +410,11 @@ public interface DeviceType extends HasId, HasName {
      */
     @Deprecated
     void save();
+
+
+    /**
+     * Returns a list of all known security accessor linked to this device type.
+     * @return
+     */
+    List<SecurityAccessorTypeOnDeviceType> getSecurityAccessors();
 }

@@ -65,11 +65,6 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
 
     private final DataModel dataModel;
 
-    @Inject
-    SecurityAccessorTypeOnDeviceTypeImpl(DataModel dataModel) {
-        this.dataModel = dataModel;
-    }
-
     SecurityAccessorTypeOnDeviceTypeImpl init(DeviceType deviceType, SecurityAccessorType securityAccessorType) {
         this.deviceType.set(deviceType);
         this.securityAccessorType.set(securityAccessorType);
