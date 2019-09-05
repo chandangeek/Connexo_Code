@@ -140,7 +140,7 @@ public class MailIssueAction extends AbstractIssueAction {
     public Properties getMailProperties() {
         Properties props = new Properties();
         BundleContext bundleContext = issueService.getBundleContext().get();
-        user = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
+        user = bundleContext.getProperty(MAIL_USER_PROPERTY);
         password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
         fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
         smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
