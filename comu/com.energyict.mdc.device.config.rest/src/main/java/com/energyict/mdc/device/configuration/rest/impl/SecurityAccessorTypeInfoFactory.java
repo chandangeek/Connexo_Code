@@ -13,7 +13,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.upl.TypedProperties;
