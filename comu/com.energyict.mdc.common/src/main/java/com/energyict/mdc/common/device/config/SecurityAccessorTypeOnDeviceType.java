@@ -17,10 +17,17 @@ import java.util.Optional;
 public interface SecurityAccessorTypeOnDeviceType {
     DeviceType getDeviceType();
     SecurityAccessorType getSecurityAccessorType();
-    Optional<String> getDefaultKey();
-    void setDefaultKey(String defaultKey);
     Optional<DeviceMessageId> getKeyRenewalDeviceMessageId();
     Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification();
 
     List<? extends SecurityAccessorTypeKeyRenewal> getKeyRenewalAttributes();
+
+    void resetKeyRenewal();
+    KeyRenewalBuilder newKeyRenewalBuilder(DeviceMessageId deviceMessageId);
+
+    @ProviderType
+    interface KeyRenewalBuilder {
+        KeyRenewalBuilder addProperty(String key, Object value);
+        SecurityAccessorTypeOnDeviceType add();
+    }
 }

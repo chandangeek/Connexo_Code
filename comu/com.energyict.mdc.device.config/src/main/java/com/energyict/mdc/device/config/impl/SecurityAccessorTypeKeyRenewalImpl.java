@@ -17,8 +17,6 @@ import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeKeyRenewal;
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.common.protocol.DeviceMessageId;
-import com.energyict.mdc.device.config.exceptions.IllegalDeviceMessageIdException;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
