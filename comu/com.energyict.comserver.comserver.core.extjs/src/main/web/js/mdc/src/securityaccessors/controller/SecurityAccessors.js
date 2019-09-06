@@ -407,9 +407,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             previewPropertiesForm = me.getPreviewPropertiesForm(),
             previewPropertiesHeader = me.getPreviewPropertiesHeader(),
             previewNoProperties = me.getPreviewNoProperties(),
-            processRecord = function (record) {
+            processRecord = function (record, defaultKeyValue) {
                 me.selectedRecord = record;
-                me.getPreviewForm().doLoadRecord(record);
+                me.getPreviewForm().doLoadRecord(record, defaultKeyValue, me.deviceTypeId);
                 if (!Ext.isEmpty(recordParam.get('keyRenewalCommandSpecification'))) {
                     me.getPreviewForm().down('#previewPropertiesCommandName').setValue(recordParam.get('keyRenewalCommandSpecification').name);
                     previewPropertiesHeader.update('<h3>' + Uni.I18n.translate('securityAccessors.overview.attr', 'MDC', 'Attributes of {0}', recordParam.get('keyRenewalCommandSpecification').name) + '</h3>');
