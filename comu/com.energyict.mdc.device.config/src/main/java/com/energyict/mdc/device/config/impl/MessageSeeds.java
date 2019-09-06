@@ -186,7 +186,7 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_ACCESSOR_TYPE_IS_NOT_HSM(15032, "securityAccessorTypeIsNotHSM", "The security accessor type ''{0}'' is not HSM"),
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(15033, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),
     SECURITY_ACCESSOR_WRAPPER_IN_USE(15034, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "Security accessor is defined as wrapper for another security accessor"),
-    SECURITY_ACCESSOR_ERROR(15035, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),;
+    SECURITY_ACCESSOR_ERROR(15035, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),
     SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND(15026, Keys.SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND, "Found multiple security accessor type with name: {0}");
 
     private final int number;
