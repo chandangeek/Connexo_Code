@@ -9,8 +9,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.HsmKey;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.energyict.mdc.device.data.SecurityAccessor;
+import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+
 import com.google.inject.Inject;
 
 import java.util.Optional;
