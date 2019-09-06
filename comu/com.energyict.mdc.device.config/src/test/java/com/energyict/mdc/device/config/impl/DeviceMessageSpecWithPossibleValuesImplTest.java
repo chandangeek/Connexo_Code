@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -157,6 +158,7 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
         assertThat(possibleValues.getDefault()).isNull();
     }
 
+    @Ignore
     @Test
     public void oneKeyAccessorTypeSpecWithPossibleValues() {
         DeviceSecurityAccessorType deviceSecurityAccessorType1 = mock(DeviceSecurityAccessorType.class);
