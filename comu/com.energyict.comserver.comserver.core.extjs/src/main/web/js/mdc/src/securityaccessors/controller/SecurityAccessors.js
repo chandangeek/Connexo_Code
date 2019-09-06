@@ -11,7 +11,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         'Uni.view.window.Confirmation',
         'Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow',
         'Mdc.securityaccessors.view.SecurityAcessorsSetDefaultKeyValue',
-        'Mdc.securityaccessors.view.AddSecurityAccessorToDeviceType'
         'Mdc.securityaccessors.view.AddSecurityAccessorToDeviceType',
         'Mdc.securityaccessors.view.EditSecurityAccessorKeyRenewal'
     ],
