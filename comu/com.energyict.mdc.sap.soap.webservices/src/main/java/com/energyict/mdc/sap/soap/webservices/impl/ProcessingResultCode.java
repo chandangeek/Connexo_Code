@@ -4,10 +4,11 @@
 package com.energyict.mdc.sap.soap.webservices.impl;
 
 public enum ProcessingResultCode {
-
+    RECEIVED("1"),
+    IN_PROCESS("2"),
     SUCCESSFUL("3"),
-    FAILED("5"),
-    ;
+    PARTIALLY_SUCCESSFUL("4"),
+    FAILED("5");
 
     private final String code;
 

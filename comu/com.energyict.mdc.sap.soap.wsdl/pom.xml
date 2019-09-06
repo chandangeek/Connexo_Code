@@ -330,7 +330,7 @@
                     </execution>
                     <!--[SAP] Outbound web service to send events to SAP -->
                     <execution>
-                        <id>OutboundWebServiceToSendEventsToSAP</id>
+                        <id>UtilitiesSmartMeterEventERPBulkCreateRequest</id>
                         <goals>
                             <goal>wsimport</goal>
                         </goals>
@@ -343,6 +343,23 @@
                             <wsdlLocation>/wsdl/sap/UtilitiesSmartMeterEventERPBulkCreateRequest_C_Out.wsdl</wsdlLocation>
                             <packageName>
                                 com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>UtilitiesSmartMeterEventERPBulkCreateConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesSmartMeterEventERPBulkCreateConfirmation_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesSmartMeterEventERPBulkCreateConfirmation_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreateconfirmation
                             </packageName>
                         </configuration>
                     </execution>

@@ -65,6 +65,7 @@ public class DemoEventHandler implements TopicHandler {
             UtilsSmrtMtrEvtERPBulkCrteReqMsg reqMsg = objectFactory.createUtilsSmrtMtrEvtERPBulkCrteReqMsg();
             reqMsg.setMessageHeader(objectFactory.createBusinessDocumentMessageHeader());
             reqMsg.getMessageHeader().setCreationDateTime(createTime);
+            reqMsg.getMessageHeader().setUUID(createUUID());
             reqMsg.getUtilitiesSmartMeterEventERPCreateRequestMessage().add(objectFactory.createUtilsSmrtMtrEvtERPCrteReqMsg());
             //innerRequestMessage
             UtilsSmrtMtrEvtERPCrteReqMsg msg = reqMsg.getUtilitiesSmartMeterEventERPCreateRequestMessage().get(0);
@@ -103,6 +104,12 @@ public class DemoEventHandler implements TopicHandler {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
         }
+    }
+
+    private com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UUID createUUID() {
+        com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UUID uuid = objectFactory.createUUID();
+        uuid.setValue(UUID.randomUUID().toString().toUpperCase());
+        return uuid;
     }
 
     private UtilsSmrtMtrEvtERPCrteReqPrpty createRequestProperty(String propertyCode, String value) {
