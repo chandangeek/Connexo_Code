@@ -40,6 +40,11 @@ Ext.define('Fwc.model.Firmware', {
             name: 'communicationFirmwareDependency',
             useNull: true,
             persist: false
+        },
+        {
+            name: 'auxiliaryFirmwareDependency',
+            useNull: true,
+            persist: false
         }
     ],
 
@@ -81,6 +86,14 @@ Ext.define('Fwc.model.Firmware', {
             associationKey: 'communicationFirmwareDependency',
             getterName: 'getCommunicationFirmwareDependency',
             setterName: 'setCommunicationFirmwareDependency',
+        },
+        {
+            type: 'hasOne',
+            model: 'Fwc.model.FirmwareAuxiliaryDependency',
+            name: 'auxiliaryFirmwareDependency',
+            associationKey: 'auxiliaryFirmwareDependency',
+            getterName: 'getAuxiliaryFirmwareDependency',
+            setterName: 'setAuxiliaryFirmwareDependency',
         }
     ],
 

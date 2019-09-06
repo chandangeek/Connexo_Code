@@ -33,6 +33,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 layout: 'hbox',
                 flex: 1,
                 width: 1000,
+                required: true,
                 fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
                 items: [
                     {
@@ -185,9 +186,9 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
                 items: [
                     {
                         itemId: 'masterFirmwareCheck',
-                        boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck', 'FWC', 'Master has the latest firmware (both meter and communication)') + '</b>',
+                        boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck', 'FWC', 'Master has the latest firmware (meter, communication and auxiliary)') + '</b>',
                         inputValue: 'COMMON',
-                        afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck.comment', 'FWC', 'The latest firmeware on the master is chosen only within versions with the selected status') + '</span>',
+                        afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck.comment', 'FWC', 'The latest firmware on the master is chosen only within versions with the selected status') + '</span>',
                     }
                 ]
             },

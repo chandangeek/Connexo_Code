@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
+import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
 import org.osgi.service.component.annotations.Activate;

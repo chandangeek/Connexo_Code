@@ -8,7 +8,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
+import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;

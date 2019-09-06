@@ -32,7 +32,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigImpl implements ReadingDataSelectorConfig {
+public abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigImpl implements ReadingDataSelectorConfig {
 
     private MissingDataOption exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
@@ -59,7 +59,7 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
     }
 
     @Override
-    public List<? extends ReadingTypeDataExportItem> getExportItems() {
+    public List<ReadingTypeDataExportItem> getExportItems() {
         return Collections.unmodifiableList(exportItems);
     }
 

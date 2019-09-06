@@ -15,8 +15,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
-import java.util.Optional;
+import java.text.MessageFormat;
+import java.time.Instant;
 
 public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
@@ -26,6 +26,10 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         // provided
         DEVICE_ID("deviceId", "DEVICE_ID"),
         SERIAL_ID("serialId", "SERIAL_ID"),
+        DEVICE_TYPE("deviceType", "DEVICE_TYPE"),
+        SHIPMENT_DATE("shipmentDate", "SHIPMENT_DATE"),
+        MANUFACTURER("manufacturer", "MANUFACTURER"),
+        MODEL_NUMBER("modelNumber", "MODEL_NUMBER"),
 
         //returned
         ERROR_CODE("errorCode", "ERROR_CODE"),
@@ -59,6 +63,18 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String serialId;
 
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String deviceType;
+
+    private Instant shipmentDate;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String manufacturer;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String modelNumber;
+
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorCode;
 
@@ -81,6 +97,38 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         this.deviceId = deviceId;
     }
 
+    public String getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
+    }
+
+    public Instant getShipmentDate() {
+        return shipmentDate;
+    }
+
+    public void setShipmentDate(Instant shipmentDate) {
+        this.shipmentDate = shipmentDate;
+    }
+
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public String getModelNumber() {
+        return modelNumber;
+    }
+
+    public void setModelNumber(String modelNumber) {
+        this.modelNumber = modelNumber;
+    }
+
     public String getErrorCode() {
         return errorCode;
     }
@@ -97,9 +145,9 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         this.errorMessage = errorMessage;
     }
 
-    public void setError(MessageSeed messageSeed, Object... args ){
+    public void setError(MessageSeed messageSeed, Object... args) {
         setErrorCode(String.valueOf(messageSeed.getNumber()));
-        setErrorMessage(((MessageSeeds)messageSeed).getDefaultFormat(args));
+        setErrorMessage(MessageFormat.format(messageSeed.getDefaultFormat(), args));
     }
 
     @Override
@@ -107,6 +155,10 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         this.serviceCall.set(serviceCall);
         this.setDeviceId((String) propertyValues.getProperty(FieldNames.DEVICE_ID.javaName()));
         this.setSerialId((String) propertyValues.getProperty(FieldNames.SERIAL_ID.javaName()));
+        this.setDeviceType((String) propertyValues.getProperty(FieldNames.DEVICE_TYPE.javaName()));
+        this.setShipmentDate((Instant) propertyValues.getProperty(FieldNames.SHIPMENT_DATE.javaName()));
+        this.setManufacturer((String) propertyValues.getProperty(FieldNames.MANUFACTURER.javaName()));
+        this.setModelNumber((String) propertyValues.getProperty(FieldNames.MODEL_NUMBER.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
@@ -115,6 +167,10 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
         propertySetValues.setProperty(FieldNames.SERIAL_ID.javaName(), this.getSerialId());
+        propertySetValues.setProperty(FieldNames.DEVICE_TYPE.javaName(), this.getDeviceType());
+        propertySetValues.setProperty(FieldNames.SHIPMENT_DATE.javaName(), this.getShipmentDate());
+        propertySetValues.setProperty(FieldNames.MANUFACTURER.javaName(), this.getManufacturer());
+        propertySetValues.setProperty(FieldNames.MODEL_NUMBER.javaName(), this.getModelNumber());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }

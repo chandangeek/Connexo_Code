@@ -35,7 +35,7 @@ public class MeasurementTaskAssignmentChangeConfirmationMessage {
             confirmationMessage.setMessageHeader(createHeader(now, id));
         }
 
-        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder from() {
+        public MeasurementTaskAssignmentChangeConfirmationMessage.Builder create() {
             confirmationMessage.setLog(createLog());
             return this;
         }

@@ -90,7 +90,7 @@ public class MBusClient extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public void installSlave(int primaryAddress) throws IOException {
-        methodInvoke(MbusClientMethods.SLAVE_INSTALL.forVersion(getUsedVersion()), new Integer8(primaryAddress));
+        methodInvoke(MbusClientMethods.SLAVE_INSTALL.forVersion(getUsedVersion()), new Unsigned8(primaryAddress));
     }
 
     /**
@@ -99,7 +99,7 @@ public class MBusClient extends AbstractCosemObject {
      * @throws java.io.IOException
      */
     public void deinstallSlave() throws IOException {
-        methodInvoke(MbusClientMethods.SLAVE_DEINSTALL.forVersion(getUsedVersion()), new Integer8(0));
+        methodInvoke(MbusClientMethods.SLAVE_DEINSTALL.forVersion(getUsedVersion()), new Unsigned8(0));
     }
 
     /**

@@ -4,12 +4,14 @@ package com.energyict.protocolimplv2.nta.abstractnta;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -22,11 +24,14 @@ import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.ESMR50RegisterFactory;
+import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusConfigurationObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -35,7 +40,6 @@ import java.util.List;
  * Modified: 22.11.2018
  * Copied original class from 8.11 project and adapted to v2 versions of protocols.
  * New base class is AbstractDlmsProtocol.
- *
  */
 public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
@@ -48,6 +52,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     public static final ObisCode FIRMWARE_VERSION_COMMS_MODULE = ObisCode.fromString("1.1.0.2.0.255");
 
     public static final ObisCode MBUS_DEVICE_CONFIGURATION = ObisCode.fromString("0.x.24.2.2.255");
+    public static final int FW_VERSION_FIELD_LENGTH = 80;
 
     public AbstractSmartNtaProtocol(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -137,7 +142,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
      * @throws java.io.IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
-            return getMeterInfo().getFirmwareVersion();
+        return getMeterInfo().getFirmwareVersion();
     }
 
     /**
@@ -199,7 +204,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     /**
      * Return a B-Field corrected ObisCode.
      *
-     * @param obisCode     the ObisCode to correct
+     * @param obisCode the ObisCode to correct
      * @param serialNumber the serialNumber of the device for which this ObisCode must be corrected
      * @return the corrected ObisCode
      */
@@ -213,7 +218,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         }
 
         //correct the mW values for 1.128.x.8.x.255
-        if ( (address == 0) && isElectricityMilliWatts(obisCode) ) {
+        if ((address == 0) && isElectricityMilliWatts(obisCode)) {
             return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) 0);
         }
 
@@ -228,10 +233,11 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
     /**
      * Some meter have custom obis-codes mapped to mW instead of kW
+     *
      * @param obisCode
      * @return
      */
-    public boolean isElectricityMilliWatts(ObisCode obisCode){
+    public boolean isElectricityMilliWatts(ObisCode obisCode) {
         return Dsmr23RegisterFactory.isElectricityMilliWatts(obisCode);
     }
 
@@ -343,6 +349,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
     /**
      * Getter for the default obis code of the communication module
+     *
      * @return
      */
     public ObisCode getFirmwareVersionMeterCoreObisCode() {
@@ -352,6 +359,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     /**
      * Getter for the default obis code for the communication module
      * Individual protocols can ovveride (i.e. EMSR)
+     *
      * @return
      */
     public ObisCode getFirmwareVersionCommsModuleObisCode() {
@@ -367,10 +375,20 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         return getPhysicalAddressCorrectedObisCode(MBUS_DEVICE_CONFIGURATION, serialNumber);
     }
 
+
+    /**
+     * Getter for the default obis code for the auxiliary module (only ESMR supports this)
+     *
+     * @return
+     */
+    private ObisCode getFirmwareVersionAuxiliaryModuleObisCode() {
+        return ESMR50RegisterFactory.AUXILIARY_FIRMWARE_VERSION;
+    }
+
     public void collectFirmwareVersionMeterCore(CollectedFirmwareVersion result) {
         ObisCode coreFirmwareVersion = getFirmwareVersionMeterCoreObisCode();
         try {
-            journal("Collecting active meter core firmware version from " +coreFirmwareVersion);
+            journal("Collecting active meter core firmware version from " + coreFirmwareVersion);
             AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(coreFirmwareVersion).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveMeterFirmwareVersion(fwVersion);
@@ -384,17 +402,33 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     }
 
 
-    public void collectFirmwareVersionCommunicationModule(CollectedFirmwareVersion result){
+    public void collectFirmwareVersionCommunicationModule(CollectedFirmwareVersion result) {
         ObisCode communicationModuleFirmwareVersion = getFirmwareVersionCommsModuleObisCode();
         try {
-            journal("Collecting active communication module firmware version from "+communicationModuleFirmwareVersion);
+            journal("Collecting active communication module firmware version from " + communicationModuleFirmwareVersion);
             AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(communicationModuleFirmwareVersion).getValueAttr();
             String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
             result.setActiveCommunicationFirmwareVersion(fwVersion);
-            journal("Active communication module firmware version is "+fwVersion);
+            journal("Active communication module firmware version is " + fwVersion);
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
                 Issue problem = this.getIssueFactory().createProblem(communicationModuleFirmwareVersion, "issue.protocol.readingOfFirmwareFailed", e.toString());
+                result.setFailureInformation(ResultType.InCompatible, problem);
+            }
+        }
+    }
+
+    public void collectFirmwareVersionAuxiliary(CollectedFirmwareVersion result) {
+        ObisCode auxiliaryModuleFirmwareVersion = getFirmwareVersionAuxiliaryModuleObisCode();
+        try {
+            journal("Collecting auxiliary module firmware version from " + auxiliaryModuleFirmwareVersion);
+            AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getData(auxiliaryModuleFirmwareVersion).getValueAttr();
+            String fwVersion = valueAttr.isOctetString() ? valueAttr.getOctetString().stringValue() : valueAttr.toBigDecimal().toString();
+            result.setActiveAuxiliaryFirmwareVersion(fwVersion);
+            journal("Auxiliary module firmware version is " + fwVersion);
+        } catch (IOException e) {
+            if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                Issue problem = this.getIssueFactory().createProblem(auxiliaryModuleFirmwareVersion, "issue.protocol.readingOfFirmwareFailed", e.toString());
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }
         }
@@ -407,29 +441,24 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
 
         ObisCode mbusDeviceConfigurationObisCode = getMbusDeviceConfigurationObisCode(serialNumber);
         try {
-            journal("Collecting M-Bus firmware information from " +mbusDeviceConfigurationObisCode);
+            journal("Collecting M-Bus firmware information from " + mbusDeviceConfigurationObisCode);
             AbstractDataType valueAttr = getDlmsSession().getCosemObjectFactory().getExtendedRegister(mbusDeviceConfigurationObisCode).getValueAttr();
 
-            String fwVersion = valueAttr.getOctetString().stringValue();
-            //default set everything
-            result.setActiveMeterFirmwareVersion(fwVersion);
-            journal("MBus: Configuration " + fwVersion);
-            /*
-            String with concatenation of 5 (variable length) information fields:
-                   0 [Model/version]
-                   1 [Hardware version number]
-                   2 [Metrology (firmware) version number]
-                   3 [Other software version number]
-                   4 [Meter Configuration]
-             */
-            String[] versions = fwVersion.split("\r\n");
-            if (versions.length>2){
-                result.setActiveMeterFirmwareVersion(versions[2]);
-                journal("Active meter core firmware version is " + versions[2]);
-            }
-            if (versions.length>3){
-                result.setActiveCommunicationFirmwareVersion(versions[3]);
-                journal("Communication(other) firmware version is " + versions[3]);
+            MBusConfigurationObject configurationObject = new MBusConfigurationObject(valueAttr);
+            if (configurationObject.isDecoded()){
+                journal("Collected firmware configuration: " + configurationObject.getContent());
+
+                result.setActiveCommunicationFirmwareVersion(configurationObject.getAdditionalFirmware());
+                journal("Setting communication fw: "+configurationObject.getAdditionalFirmware());
+
+                result.setActiveMeterFirmwareVersion(configurationObject.getOperationalFirmware());
+                journal("Setting meter operational fw: "+configurationObject.getOperationalFirmware());
+
+                journal("Setting auxiliary fw: "+configurationObject.getAdditionalFirmware());
+                result.setActiveAuxiliaryFirmwareVersion(configurationObject.getAdditionalFirmware());
+
+            } else {
+                journal(Level.WARNING, configurationObject.getErrorMessage());
             }
 
         } catch (IOException e) {
@@ -443,24 +472,27 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     }
 
 
-
     @Override
-    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber){
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
 
         //check for slaves first
-        if (serialNumber!=null){
-            if (!getSerialNumber().equals(serialNumber))
+        if (serialNumber != null) {
+            if (!getSerialNumber().equals(serialNumber)) {
                 return collectSlaveFirmwareVersions(serialNumber);
+            }
         }
 
         // return the master
-
         CollectedFirmwareVersion result = this.getCollectedDataFactory().createFirmwareVersionsCollectedData(
-                                                                        new DeviceIdentifierById(this.offlineDevice.getId()));
+                new DeviceIdentifierById(this.offlineDevice.getId()));
 
         collectFirmwareVersionMeterCore(result);
 
         collectFirmwareVersionCommunicationModule(result);
+
+        if (supportsAuxiliaryFirmwareVersion()) {
+            collectFirmwareVersionAuxiliary(result);
+        }
 
         return result;
     }
@@ -471,5 +503,9 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
         return true;
     }
 
-
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        // only ESMR5 meters support this
+        return false;
+    }
 }

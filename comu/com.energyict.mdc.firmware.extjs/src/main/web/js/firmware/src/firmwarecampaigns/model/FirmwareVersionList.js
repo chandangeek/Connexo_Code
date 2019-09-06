@@ -42,6 +42,11 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareVersionList', {
             persist: false
         },
         {
+            name: 'auxiliaryFirmwareDependency',
+            useNull: true,
+            persist: false
+        },
+        {
             name: 'firmwareType',
             type: 'string'
         },

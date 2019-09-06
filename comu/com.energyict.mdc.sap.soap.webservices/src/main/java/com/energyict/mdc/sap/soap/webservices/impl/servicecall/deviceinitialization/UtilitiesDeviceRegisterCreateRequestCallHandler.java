@@ -3,17 +3,18 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
@@ -66,13 +67,13 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                 if (register.isPresent()) {
                     try {
                         sapCustomPropertySets.setLrn(register.get(), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
-                    } catch (SAPWebServiceException ex) {
-                        failServiceCall(serviceCall, extension, (MessageSeeds)ex.getMessageSeed(), ex.getMessageArgs());
+                    } catch (LocalizedException ex) {
+                        failServiceCall(extension, ex.getMessageSeed(), ex.getMessageArgs());
                         return;
                     }
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                 } else {
-                    failServiceCall(serviceCall, extension, MessageSeeds.REGISTER_NOT_FOUND, obis);
+                    failServiceCall(extension, MessageSeeds.REGISTER_NOT_FOUND, obis);
                 }
             } else {
                 List<Channel> channels = findChannelOnDevice(device.get(), obis, interval);
@@ -80,20 +81,20 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
                     if (channels.size() == 1) {
                         try {
                             sapCustomPropertySets.setLrn(channels.get(0), extension.getLrn(), extension.getStartDate(), extension.getEndDate());
-                        } catch (SAPWebServiceException ex) {
-                            failServiceCall(serviceCall, extension, (MessageSeeds)ex.getMessageSeed(), ex.getMessageArgs());
+                        } catch (LocalizedException ex) {
+                            failServiceCall(extension, ex.getMessageSeed(), ex.getMessageArgs());
                             return;
                         }
                         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                     } else {
-                        failServiceCall(serviceCall, extension, MessageSeeds.SEVERAL_CHANNELS, obis);
+                        failServiceCall(extension, MessageSeeds.SEVERAL_CHANNELS, obis);
                     }
                 } else {
-                    failServiceCall(serviceCall, extension, MessageSeeds.CHANNEL_NOT_FOUND, obis, interval);
+                    failServiceCall(extension, MessageSeeds.CHANNEL_NOT_FOUND, obis, interval);
                 }
             }
         } else {
-            failServiceCall(serviceCall, extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
+            failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
         }
 
     }
@@ -104,7 +105,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler implements ServiceC
         serviceCall.update(extension);
     }
 
-    private void failServiceCall(ServiceCall serviceCall, UtilitiesDeviceRegisterCreateRequestDomainExtension extension, MessageSeeds messageSeed, Object... args){
+    private void failServiceCall(UtilitiesDeviceRegisterCreateRequestDomainExtension extension, MessageSeed messageSeed, Object... args){
+        ServiceCall serviceCall = extension.getServiceCall();
+
         extension.setError(messageSeed, args);
         serviceCall.update(extension);
         serviceCall.requestTransition(DefaultState.FAILED);
