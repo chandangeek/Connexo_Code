@@ -168,7 +168,7 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
                                 });
                     }).toArray(SecurityAccessorType[]::new);
             for (SecurityAccessorType securityAccessorType: securityAccessorTypes) {
-                result.addDeviceSecurityAccessor(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
+                result.addDeviceSecurityAccessorType(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
             }
         }
 
