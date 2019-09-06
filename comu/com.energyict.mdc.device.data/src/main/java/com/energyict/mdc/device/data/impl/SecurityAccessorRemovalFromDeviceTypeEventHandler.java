@@ -14,9 +14,9 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
-import com.energyict.mdc.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.pki.AbstractDeviceSecurityAccessorImpl;
 

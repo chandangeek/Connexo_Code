@@ -103,7 +103,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
                         .duration(key.getTimeDuration())
                         .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                         .add());
-        deviceConfiguration.getDeviceType().addSecurityAccessorTypes(securityAccessorType);
+        deviceConfiguration.getDeviceType().addDeviceSecurityAccessor(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
         return securityAccessorType;
     }
 

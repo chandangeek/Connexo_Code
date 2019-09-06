@@ -16,6 +16,7 @@ import java.util.Optional;
 @ProviderType
 public interface SecurityAccessorTypeOnDeviceType {
     DeviceType getDeviceType();
+    DeviceSecurityAccessorType getDeviceSecurityAccessorType();
     SecurityAccessorType getSecurityAccessorType();
     Optional<DeviceMessageId> getKeyRenewalDeviceMessageId();
     Optional<DeviceMessageSpec> getKeyRenewalDeviceMessageSpecification();

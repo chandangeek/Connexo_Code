@@ -253,25 +253,33 @@ public interface DeviceType extends HasId, HasName {
 
     void update();
 
+
+    /**
+     * @return a list of all known security accessor types linked to this device type.
+     * Use getDeviceSecurityAccessor() instead
+     */
+    @Deprecated
+    List<SecurityAccessorType> getSecurityAccessorTypes();
+
     /**
      * Returns a list of all known security accessor types linked to this device type.
      * @return
      */
-    List<SecurityAccessorType> getSecurityAccessorTypes();
+    List<DeviceSecurityAccessorType> getDeviceSecurityAccessor();
 
     /**
      * Adds given security accessor types to this device type if not linked already.
      * @param securityAccessorTypes
      * @return {@code true} if device type is updated with new links to security accessor types, {@code false} otherwise.
      */
-    boolean addSecurityAccessorTypes(SecurityAccessorType... securityAccessorTypes);
+    boolean addDeviceSecurityAccessor(DeviceSecurityAccessorType... deviceSecurityAccessorTypes);
 
     /**
      * Removes the SecurityAccessorType from the DeviceType.
      * @param securityAccessorType
      * @return {@code true} if a link to security accessor type is removed from device type, {@code false} otherwise.
      */
-    boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType);
+    boolean removeDeviceSecurityAccessor(DeviceSecurityAccessorType securityAccessorType);
 
     Optional<String> getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
