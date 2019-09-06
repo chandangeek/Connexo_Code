@@ -396,15 +396,20 @@ Ext.define('Mdc.widget.ScheduleField', {
                         [12, 12]
                     ]);
                 break;
-            case 'days':
-                me.valueField.getStore().loadData([
-                        [1, 1]
-                    ]);
+            case 'days': {
+                var arrOf31Values = [];
+                for(i=1;i<32;i++){
+                    arrOf31Values.push([i,i]);
+                }
+                me.valueField.getStore().loadData(arrOf31Values);
                 break;
+            }
             case 'weeks':
-                me.valueField.getStore().loadData([
-                        [1, 1]
-                    ]);
+                var arrOf52Values = [];
+                for(i=1;i<53;i++){
+                    arrOf52Values.push([i,i]);
+                }
+                me.valueField.getStore().loadData(arrOf52Values);
                 break;
             case 'months':
                 me.valueField.getStore().loadData([
