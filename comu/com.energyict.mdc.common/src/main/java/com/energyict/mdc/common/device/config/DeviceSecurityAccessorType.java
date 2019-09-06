@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class DeviceSecurityAccessorType {
 
-    private final Optional<SecurityAccessorType> wrappingSecurityAccessor;
+    private Optional<SecurityAccessorType> wrappingSecurityAccessor;
     private final SecurityAccessorType securityAccessor;
 
 
