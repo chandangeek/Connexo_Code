@@ -187,13 +187,17 @@ class Installer implements FullInstaller {
     private void createDefaultAdminUser(Logger logger) {
         if (basicAuthentication.isSsoEnabled()) {
             try {
-                String adminUserName = basicAuthentication.getSsoAdminUser();
-                if (adminUserName == null) throw new RuntimeException("Unable to find admin user in property files");
-                User user = userService.createUser(adminUserName, "Admin user to manage users.");
-                user.update();
-                Group group = userService.findGroup(UserService.DEFAULT_ADMIN_ROLE).orElseThrow(() -> new IllegalStateException("Couldn't find Default Admin role"));
-                group.update();
-                user.join(group);
+                Optional<String> ssoAdminUserOptional = basicAuthentication.getSsoAdminUser();
+                if(ssoAdminUserOptional.isPresent()) {
+                    String ssoAdminUser = ssoAdminUserOptional.get();
+                    Optional<User> userOptional = userService.findUser(ssoAdminUser);
+                    if(userOptional.isPresent()) throw new IllegalStateException("The user already exist in the system");
+                    User user = userService.createUser(ssoAdminUserOptional.get(), "Admin user to manage users.");
+                    user.update();
+                    Group group = userService.findGroup(UserService.DEFAULT_ADMIN_ROLE).orElseThrow(() -> new IllegalStateException("Couldn't find Default Admin role"));
+                    group.update();
+                    user.join(group);
+                }
             } catch (RuntimeException e) {
                 logger.log(Level.SEVERE, "Failed to create a Default Admin user.", e);
                 throw e;

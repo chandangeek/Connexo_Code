@@ -28,4 +28,8 @@ public interface SamlResponseService {
     Assertion getCheckedAssertion(Response response) throws SAMLException;
 
     String generateTokenForUser(User user) throws JOSEException;
+
+    void checkStatusCode(Response response) throws SAMLException;
+
+    void checkConditions(Assertion assertion) throws SAMLException;
 }

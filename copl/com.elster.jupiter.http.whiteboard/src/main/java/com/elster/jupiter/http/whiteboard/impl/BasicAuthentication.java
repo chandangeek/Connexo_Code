@@ -89,6 +89,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private static final String SSO_X509_CERTIFICATE_PROPERTY = "sso.x509.certificate";
     private static final String SSO_ACS_ENDPOINT_PROPERTY = "sso.acs.endpoint";
     private static final String SSO_ADMIN_USER_PROPERTY = "sso.admin.user";
+    public static final String LOGIN_URL = "/apps/login/";
 
     private final String TOKEN_COOKIE_NAME = "X-CONNEXO-TOKEN";
 
@@ -114,10 +115,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     private Optional<String> idpEndpoint;
     private Optional<String> acsEndpoint;
     private Optional<String> x509Certificate;
-    private String ssoAdminUser;
+    private Optional<String> ssoAdminUser;
 
     @Inject
-    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService) throws
+    BasicAuthentication(UserService userService, OrmService ormService, DataVaultService dataVaultService, UpgradeService upgradeService, BpmService bpmService, BundleContext context) throws
             InvalidKeySpecException,
             NoSuchAlgorithmException {
         setUserService(userService);
@@ -125,7 +126,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         setDataVaultService(dataVaultService);
         setUpgradeService(upgradeService);
         setBpmService(bpmService);
-        activate(null);
+        activate(context);
     }
 
     public BasicAuthentication() {
@@ -198,7 +199,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         tokenRefreshMaxCount = getIntParameter(TOKEN_REFRESH_MAX_COUNT, context, 100);
         tokenExpTime = getIntParameter(TOKEN_EXPIRATION_TIME, context, 300);
         installDir = context.getProperty("install.dir");
-        ssoAdminUser = context.getProperty(SSO_ADMIN_USER_PROPERTY);
+        ssoAdminUser = getOptionalStringProperty(SSO_ADMIN_USER_PROPERTY, context);
         ssoEnabled = Boolean.parseBoolean(context.getProperty(SSO_ENABLED_PROPERTY));
         idpEndpoint = getOptionalStringProperty(SSO_IDP_ENDPOINT_PROPERTY, context);
         acsEndpoint = getOptionalStringProperty(SSO_ACS_ENDPOINT_PROPERTY, context);
@@ -219,9 +220,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         scheme = getOptionalStringProperty("com.elster.jupiter.url.rewrite.scheme", context);
 
         Thread thread = Thread.currentThread();
+        ClassLoader loader = thread.getContextClassLoader();
         thread.setContextClassLoader(InitializationService.class.getClassLoader());
-        BundleWiring bundleWiring = context.getBundle().adapt(BundleWiring.class);
-        ClassLoader loader = bundleWiring.getClassLoader();
         try {
             SamlUtils.initializeOpenSAML();
         } catch (InitializationException e) {
@@ -323,7 +323,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return installDir;
     }
 
-    public String getSsoAdminUser(){
+    public Optional<String> getSsoAdminUser(){
         return ssoAdminUser;
     }
 
@@ -335,6 +335,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // Set no caching for specific resources regardless of the authentication type
+        String samlResponse = request.getParameter("SAMLResponse");
         if (isCachedResource(request.getRequestURL().toString())) {
             response.setHeader("Cache-Control", "max-age=86400");
         } else {
@@ -357,6 +358,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
             } else if (ssoEnabled) {
+                if(isNotAllowedForSsoAuthentication(request)) return ssoDeny(request, response);
                 ssoAuthentication(request, response);
                 return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
@@ -370,6 +372,11 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 return deny(request, response);
             }
         }
+    }
+
+    private boolean isNotAllowedForSsoAuthentication(HttpServletRequest request){
+        return request.getRequestURI().startsWith(LOGIN_URL) &&
+                (StringUtils.isEmpty(request.getParameter("page")) || request.getParameterMap().containsKey("logout"));
     }
 
     private void ssoAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -514,6 +521,16 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         return false;
     }
 
+    private boolean ssoDeny(HttpServletRequest request, HttpServletResponse response){
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        Optional<Cookie> tokenCookie = getTokenCookie(request);
+        if (tokenCookie.isPresent()) {
+            removeCookie(response, tokenCookie.get().getName());
+        }
+        invalidateSession(request);
+        return false;
+    }
+
     private void removeCookie(HttpServletResponse response, String cookieName) {
         Cookie cookie = new Cookie(cookieName, null);
         cookie.setPath("/");
@@ -530,7 +547,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
     }
 
     private boolean unsecureAllowed(String uri) {
-        if(!ssoEnabled && uri.startsWith("/apps/login/")) return true;
+        if(!ssoEnabled && uri.startsWith(LOGIN_URL)) return true;
         return Stream.of(RESOURCES_NOT_SECURED)
                 .filter(uri::startsWith)
                 .findAny().isPresent();

@@ -141,14 +141,16 @@ public class SamlResponseServiceImpl implements SamlResponseService {
         return cf.generateCertificate(new ByteArrayInputStream(stringBuilder.toString().getBytes()));
     }
 
-    private void checkStatusCode(Response response) throws SAMLException {
+    @Override
+    public void checkStatusCode(Response response) throws SAMLException {
         String statusCode = response.getStatus().getStatusCode().getValue();
         if (!StringUtils.equals(statusCode, StatusCode.SUCCESS)) {
             throw new SAMLException(SamlUtils.ERROR_STATUS_CODE_NOT_SUCCESS);
         }
     }
 
-    private void checkConditions(Assertion assertion) throws SAMLException {
+    @Override
+    public void checkConditions(Assertion assertion) throws SAMLException {
         Conditions conditions = assertion.getConditions();
         Date now = DateTime.now().toDate();
         Date conditionNotBefore = conditions.getNotBefore().minusSeconds(SamlUtils.BACKLASH_FOR_MESSAGE_IN_SECONDS).toDate();
