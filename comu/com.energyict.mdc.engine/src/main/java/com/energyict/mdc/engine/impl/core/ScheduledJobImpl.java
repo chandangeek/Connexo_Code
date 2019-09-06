@@ -22,6 +22,7 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.connection.EstablishConnectionEvent;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocol.exceptions.ConnectionSetupException;
@@ -84,13 +85,20 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     private ComWindow getComWindow() {
         ComWindow comWindowToUse = this.getConnectionTask().getCommunicationWindow();
-        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware).findFirst();
+
+        Optional<ComTaskExecution> touComTaskExecution = getComTaskExecutions().stream()
+                .filter(comTaskExecution -> getServiceProvider().touService().getCampaignOn(comTaskExecution).isPresent())
+                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == getServiceProvider().touService().getCampaignOn(comTaskExecution).get().getCalendarUploadComTaskId())
+                .findFirst();
+        if (touComTaskExecution.isPresent()) {
+            comWindowToUse = getServiceProvider().touService().getCampaignOn(touComTaskExecution.get()).get().getComWindow();
+        }
+        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware)
+                .filter(comTaskExecution -> getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution).isPresent())
+                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution).get().getFirmwareUploadComTaskId())
+                .findFirst();
         if (firmwareComTaskExecution.isPresent()) {
-            ComTaskExecution comTaskExecution = firmwareComTaskExecution.get();
-            Optional<FirmwareCampaign> firmwareCampaign = getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution);
-            if (firmwareCampaign.isPresent()) {
-                comWindowToUse = firmwareCampaign.get().getComWindow();
-            }
+            comWindowToUse =  getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(firmwareComTaskExecution.get()).get().getComWindow();
         }
         return comWindowToUse;
     }
@@ -112,7 +120,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         if (getExecutionContext() != null) {
             this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(this.getComTaskExecutions().size());
             this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
-            this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService()));
+            this.getExecutionContext().getStoreCommand().add(new RescheduleToNextComWindow(this, getServiceProvider().firmwareService(), getServiceProvider().touService()));
             this.completeOutsideComWindow();
         } else {
             this.releaseToken();

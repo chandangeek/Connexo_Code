@@ -18,6 +18,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
@@ -333,5 +334,13 @@ public class TimeOfUseCampaignDomainExtension extends AbstractPersistentDomainEx
     @Override
     public void validateDelete() {
         // nothing to validate
+    }
+
+    @Override
+    public ComWindow getComWindow() {
+        int SECONDS_IN_DAY = 86400;
+        return new ComWindow((((Number) (this.getUploadPeriodStart().getEpochSecond() % SECONDS_IN_DAY)).intValue()),
+                (((Number) (this.getUploadPeriodEnd().getEpochSecond() % SECONDS_IN_DAY)).intValue()));
+
     }
 }
