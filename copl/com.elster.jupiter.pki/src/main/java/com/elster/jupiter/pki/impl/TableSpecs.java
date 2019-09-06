@@ -309,7 +309,7 @@ public enum TableSpecs {
             table.column("ISWRAPPER")
                     .type("char(1)").conversion(CHAR2BOOLEAN).installValue("'N'")
                     .map(SecurityAccessorTypeImpl.Fields.ISWRAPPER.fieldName())
-                    .since(version(10,4,8))
+                    .since(version(10, 7))
                     .add();
             Column keytypeid = table.column("KEYTYPEID")
                     .number()

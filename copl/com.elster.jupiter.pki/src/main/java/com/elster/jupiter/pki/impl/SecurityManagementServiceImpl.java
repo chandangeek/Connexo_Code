@@ -77,7 +77,7 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_6SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4_8SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
@@ -88,7 +88,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.osgi.service.component.annotations.Activate;
@@ -336,7 +335,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         upgraders.put(version(10, 4, 2), V10_4_2SimpleUpgrader.class);
         upgraders.put(version(10, 4, 3), V10_4_3SimpleUpgrader.class);
         upgraders.put(version(10, 4, 4), V10_4_6SimpleUpgrader.class);
-        upgraders.put(version(10, 4, 8), V10_4_8SimpleUpgrader.class);
+        upgraders.put(version(10, 7), V10_7SimpleUpgrader.class);
 
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME),
