@@ -94,6 +94,10 @@ Ext.define('Wss.controller.Webservices', {
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
+    showEndpointHistoryOverview: function () {
+        crossroads.parse("/error/notvisible");
+    },
+
     showWebserviceHistory: function (endpointId) {
         var me = this;
         var store = me.getStore('Wss.store.endpoint.Occurrence');
@@ -134,7 +138,7 @@ Ext.define('Wss.controller.Webservices', {
     showWebserviceEndPoint: function (endpointId, occurenceId) {
         var me = this;
 
-        if ((Uni.Auth.hasPrivilege('privilege.administrate.webservices')) || (Uni.Auth.hasPrivilege('privilege.view.webservices'))){
+        if ((Uni.Auth.hasPrivilege('privilege.administrate.webservices')) || (Uni.Auth.hasPrivilege('privilege.view.webservices')) || (Uni.Auth.hasPrivilege('privilege.retry.webservices'))){
             me.getModel('Wss.model.Endpoint').load(endpointId, {
                 success: function (endpoint) {
                     me.showWebserviceHistoryOccurrence(occurenceId, endpoint);
@@ -469,8 +473,6 @@ Ext.define('Wss.controller.Webservices', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             view;
-
-        if (!(Uni.Auth.hasPrivilege('privilege.administrate.webservices')) && !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices'))) return;
 
         me.getModel('Wss.model.Endpoint').load(endpointId, {
             success: function (record) {

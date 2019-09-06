@@ -264,7 +264,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 allowBlank: false,
                 forceSelection: true,
                 emptyText: Uni.I18n.translate(
-                    'general.validationComTask.empty',
+                    'general.comTask.empty',
                     'FWC',
                     'Select communication task ...'
                 ),

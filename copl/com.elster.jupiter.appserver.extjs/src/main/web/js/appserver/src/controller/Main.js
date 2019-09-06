@@ -59,7 +59,7 @@ Ext.define('Apr.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.taskOverview', 'APR', 'Task overview'),
                         href: '#/administration/taskoverview',
-                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.ViewTaskOverview'),
+                        hidden: Uni.Auth.hasNoPrivilege('privilege.view.ViewTaskOverview') && Uni.Auth.hasNoPrivilege('privilege.edit.AdministrateTaskOverview'),
                         route: 'taskoverview'
                     },
                     {

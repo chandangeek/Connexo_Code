@@ -70,6 +70,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
+
 public class MeterReadingsBuilder {
 
     private final MeteringService meteringService;
@@ -90,6 +92,7 @@ public class MeterReadingsBuilder {
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
     private Map<String, RangeSet<Instant>> readingTypesMRIDsTimeRangeMap;
+    private int registerUpperBoundShift;
 
     @Inject
     public MeterReadingsBuilder(MeteringService meteringService,
@@ -168,6 +171,11 @@ public class MeterReadingsBuilder {
 
     public MeterReadingsBuilder withReadingTypesMRIDsTimeRangeMap(Map<String, RangeSet<Instant>> readingTypesMRIDsTimeRangeMap) {
         this.readingTypesMRIDsTimeRangeMap = readingTypesMRIDsTimeRangeMap;
+        return this;
+    }
+
+    public MeterReadingsBuilder withRegisterUpperBoundShift(int registerUpperBoundShift) {
+        this.registerUpperBoundShift = registerUpperBoundShift;
         return this;
     }
 
@@ -319,7 +327,7 @@ public class MeterReadingsBuilder {
         return new ArrayList<>(readingsWithQualities.values());
     }
 
-    private static List<ReadingWithQualities> getReadingsWithQualities(CimChannel channel, RangeSet<Instant> timePeriods) {
+    private List<ReadingWithQualities> getReadingsWithQualities(CimChannel channel, RangeSet<Instant> timePeriods) {
         Map<Instant, ReadingWithQualities> readingsWithQualities = getReadingRecords(channel, timePeriods)
                 .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, ReadingWithQualities::from, (a, b) -> a, TreeMap::new));
         Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamps = channel.findReadingQualities()
@@ -341,11 +349,24 @@ public class MeterReadingsBuilder {
         return getReadingRecords(records, timePeriods);
     }
 
-    private static Stream<BaseReadingRecord> getReadingRecords(CimChannel channel, RangeSet<Instant> timePeriods) {
-        Collection<? extends BaseReadingRecord> records = (channel.isRegular() ?
-                channel.getIntervalReadings(timePeriods.span()) :
-                channel.getRegisterReadings(timePeriods.span()));
+    private Stream<BaseReadingRecord> getReadingRecords(CimChannel channel, RangeSet<Instant> timePeriods) {
+        Collection<? extends BaseReadingRecord> records;
+        if (channel.isRegular()) {
+            records = channel.getIntervalReadings(timePeriods.span());
+        } else {
+            Range<Instant> registerUppedBoundRange = getRegisterUppedBoundRange(timePeriods);
+            records = channel.getRegisterReadings(registerUppedBoundRange);
+            timePeriods = TreeRangeSet.create(timePeriods);
+            timePeriods.add(registerUppedBoundRange);
+        }
         return getReadingRecords(records, timePeriods);
+    }
+
+    private Range<Instant> getRegisterUppedBoundRange(RangeSet<Instant> timePeriods) {
+        Range<Instant> timeRange = timePeriods.span();
+        Instant newUpperBound = timeRange.upperEndpoint().plus(registerUpperBoundShift, MINUTES);
+        Range<Instant> upperBoundUpdate = Range.openClosed(timeRange.upperEndpoint(), newUpperBound);
+        return timeRange.span(upperBoundUpdate);
     }
 
     private static Stream<BaseReadingRecord> getReadingRecords(Collection<? extends BaseReadingRecord> baseReadingRecords, RangeSet<Instant> timePeriods) {
