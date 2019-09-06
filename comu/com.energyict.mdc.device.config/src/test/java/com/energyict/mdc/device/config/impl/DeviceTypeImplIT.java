@@ -18,7 +18,7 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityAccessorType;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.DeviceUsageType;
 import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
