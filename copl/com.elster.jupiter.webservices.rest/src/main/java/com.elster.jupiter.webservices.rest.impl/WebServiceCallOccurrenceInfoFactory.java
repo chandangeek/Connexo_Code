@@ -6,6 +6,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 public class WebServiceCallOccurrenceInfoFactory {
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
@@ -28,11 +36,27 @@ public class WebServiceCallOccurrenceInfoFactory {
         endPointOccurrence.getApplicationName().ifPresent(applicationName -> info.applicationName = applicationName);
 
         if (withPayload) {
-            endPointOccurrence.getPayload().ifPresent(payload -> info.payload = payload);
+            endPointOccurrence.getPayload().ifPresent(payload -> info.payload = prettyFormatXML(payload,4));
         }
         if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null) {
             info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
         }
         return info;
+    }
+
+    private String prettyFormatXML(String input, int indent) {
+        try {
+            Source xmlInput = new StreamSource(new StringReader(input));
+            StreamResult xmlOutput = new StreamResult(new StringWriter());
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            transformerFactory.setAttribute("indent-number", indent);
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.transform(xmlInput, xmlOutput);
+            return xmlOutput.getWriter().toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

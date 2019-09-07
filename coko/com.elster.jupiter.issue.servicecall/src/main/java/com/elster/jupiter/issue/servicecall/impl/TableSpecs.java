@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 
@@ -54,6 +55,7 @@ public enum TableSpecs {
                 .add();
             table.foreignKey("ISC_ISSUE_OPEN_FK_TO_SC")
                     .on(serviceCallColRef)
+                    .onDelete(DeleteRule.CASCADE)
                     .references(ServiceCall.class)
                     .map(ServiceCallIssueImpl.Fields.SERVICECALL.fieldName())
                     .add();
@@ -91,6 +93,7 @@ public enum TableSpecs {
                 .add();
             table.foreignKey("ISC_ISSUE_HIST_FK_TO_SC")
                     .on(serviceCallColRef)
+                    .onDelete(DeleteRule.CASCADE)
                     .references(ServiceCall.class)
                     .map(ServiceCallIssueImpl.Fields.SERVICECALL.fieldName())
                     .add();
@@ -127,6 +130,7 @@ public enum TableSpecs {
                 .add();
             table.foreignKey("ISC_ISSUE_FK_TO_SERVICECALL")
                     .on(serviceCallColRef)
+                    .onDelete(DeleteRule.CASCADE)
                     .references(ServiceCall.class)
                     .map(ServiceCallIssueImpl.Fields.SERVICECALL.fieldName())
                     .add();

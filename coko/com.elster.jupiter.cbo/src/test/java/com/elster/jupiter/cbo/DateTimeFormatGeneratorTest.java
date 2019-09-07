@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.common;
+package com.elster.jupiter.cbo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

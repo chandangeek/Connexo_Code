@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -11,7 +12,6 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodnotification.SmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationCIn;
@@ -57,7 +57,7 @@ public class PointOfDeliveryAssignedNotificationEndpoint extends AbstractInbound
             if (device.isPresent()) {
                 try {
                     sapCustomPropertySets.setPod(device.get(), podMsg.podId);
-                } catch (SAPWebServiceException ex) {
+                } catch (LocalizedException ex) {
                     log(LogLevel.WARNING, thesaurus.getFormat(ex.getMessageSeed()).format(ex.getMessageArgs()));
                 }
             } else {

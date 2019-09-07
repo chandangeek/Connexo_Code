@@ -9,9 +9,13 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Clock;
@@ -26,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -61,6 +66,12 @@ public class StateTransitionChangeEventTopicHandlerTest {
     private Query<EndDevice> endDeviceQuery;
     @Mock
     private FiniteStateMachine finiteStateMachine;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private UserService userService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void initializeMocks() {
@@ -75,6 +86,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(this.endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(this.endDevice.getFiniteStateMachine()).thenReturn(Optional.of(finiteStateMachine));
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        when(endDevice.getStateTimeline()).thenReturn(Optional.ofNullable(stateTimeline));
         when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
         when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(endDevice));
     }
@@ -130,7 +143,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
     }
 
     private StateTransitionChangeEventTopicHandler getTestInstance() {
-        return new StateTransitionChangeEventTopicHandler(this.clock, this.stateMachineService, this.meteringService);
+        return new StateTransitionChangeEventTopicHandler(this.clock, this.stateMachineService, this.meteringService,
+                this.threadPrincipalService, this.nlsService, this.userService);
     }
 
 }
