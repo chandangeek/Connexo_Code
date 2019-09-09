@@ -163,7 +163,7 @@ Ext.define('Uni.view.search.Overview', {
                                             bodyPadding: 10,
                                             margin :0,
                                             getInnerTpl : function (displayField) {
-                                                return '<a class="icon-cancel-circle2" style="float:right;cursor:default; display:inline-block; font-size:16px; margin-top:2px"></a>{' + displayField + '}';
+                                                return '<a id="Remove-Icon" class="icon-cancel-circle2" style="float:right;cursor:default; display:inline-block; font-size:16px; margin-top:2px"></a>{' + displayField + '}';
                                             },
                                             listeners: {
                                                 el: {

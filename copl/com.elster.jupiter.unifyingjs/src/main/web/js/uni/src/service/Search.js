@@ -744,6 +744,7 @@ Ext.define('Uni.service.Search', {
             items: [{
                 xtype: 'combobox',
                 id: 'saveEntered',
+                itemId:'Save-Entered',
                 emptyText: Uni.I18n.translate('general.typeName', 'UNI', 'Type a name'),
                 fieldLabel: Uni.I18n.translate('general.nameCombo', 'UNI', 'Name'),
                 required: true,
@@ -783,7 +784,10 @@ Ext.define('Uni.service.Search', {
         combo.selectedValue = combo.getValue();
 
         if(combo.nameValue !== undefined && combo.nameValue === 'delete'){
-            Ext.create('Uni.view.window.Confirmation').show({
+            var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                itemId: 'removeSearchConfirmationWindow'
+            });
+            confirmationWindow.show({
                 title: Ext.String.format(Uni.I18n.translate('importService.remove.title', 'UNI', 'Remove \'{0}\'?'), combo.selectedValue),
                 msg: Uni.I18n.translate('importService.remove.message', 'UNI', 'This search criteria will no longer be available.'),
                 fn: function (state) {
