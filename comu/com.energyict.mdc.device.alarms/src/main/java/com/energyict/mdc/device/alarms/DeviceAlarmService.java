@@ -31,8 +31,6 @@ public interface DeviceAlarmService {
 
     Optional<? extends DeviceAlarm> findAlarm(long id);
 
-    Optional<BundleContext> getBundleContext();
-
     Optional<? extends  DeviceAlarm> findAndLockDeviceAlarmByIdAndVersion(long id, long version);
 
     Optional<OpenDeviceAlarm> findOpenAlarm(long id);

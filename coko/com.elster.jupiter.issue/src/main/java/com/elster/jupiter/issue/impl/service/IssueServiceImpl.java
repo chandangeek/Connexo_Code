@@ -282,7 +282,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     public void setBundleContext(BundleContext bundleContext){
         this.bundleContext = bundleContext;
     }
-    @Override
+
     public Optional<BundleContext> getBundleContext(){
         return Optional.of(bundleContext);
     }
