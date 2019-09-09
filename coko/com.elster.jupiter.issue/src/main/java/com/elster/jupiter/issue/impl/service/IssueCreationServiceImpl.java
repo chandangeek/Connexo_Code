@@ -13,7 +13,9 @@ import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
+import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.FiltrableByComTask;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -34,6 +36,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -182,6 +185,13 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         }
 
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
+            if (isIssueCreationRestrictedByComTask(firedRule, event)) {
+                final String deviceName = event.getEndDevice().map(dev -> dev.getName()).orElse("");
+                LOG.info("Issue creation rule \'" + firedRule.getName()
+                        + "\' is restricted by the comunication task(s) of the event, for device \'" + deviceName
+                        + "\'");
+                return;
+            }
             CreationRuleTemplate template = firedRule.getTemplate();
             Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
             if (existingIssue.isPresent()) {
@@ -252,6 +262,19 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             throw new LocalizedFieldValidationException(MessageSeeds.ISSUE_CREATION_RULE_PARAMETER_ABSENT, "Log on same alarm indicator");
         }
         return Integer.parseInt(values.get(0)) == 1;
+    }
+    
+    private boolean isIssueCreationRestrictedByComTask(CreationRule rule, IssueEvent event) {
+        if (event instanceof FiltrableByComTask) {
+            if (rule.getTemplate() instanceof AllowsComTaskFiltering) {
+                List<HasId> comTasks = (List<HasId>) ((AllowsComTaskFiltering) rule.getTemplate())
+                        .getExcludedComTasks(rule.getProperties());
+                if (comTasks != null && !comTasks.isEmpty()) {
+                    return ((FiltrableByComTask) event).matchesByComTask(comTasks);
+                }
+            }
+        }
+        return false;
     }
 
     @Override
