@@ -13,7 +13,9 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -142,7 +144,7 @@ public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertyS
                         .describedAs(OnDemandReadServiceCallDomainExtension.FieldNames.COMPLETED_TASKS.javaName())
                         .finish(),
                 this.propertySpecService
-                        .bigDecimalSpec()
+                        .specForValuesOf(new InstantFactory())
                         .named(OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE.javaName(), OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE
                                 .javaName())
                         .describedAs(OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE.javaName())
@@ -212,6 +214,7 @@ public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertyS
             table
                     .column(OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE.databaseName())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE.javaName())
                     .notNull()
                     .add();

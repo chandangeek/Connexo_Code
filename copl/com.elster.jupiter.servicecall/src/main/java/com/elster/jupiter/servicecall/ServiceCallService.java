@@ -191,7 +191,4 @@ public interface ServiceCallService {
 
     List<DestinationSpec> getCompatibleQueues4();
 
-    void addDelRef(RefernceToDelete delRef);
-
-    void removeDelRef(RefernceToDelete delRef);
 }

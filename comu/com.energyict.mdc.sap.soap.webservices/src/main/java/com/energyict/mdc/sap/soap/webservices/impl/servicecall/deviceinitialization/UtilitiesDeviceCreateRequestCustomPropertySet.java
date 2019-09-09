@@ -9,7 +9,9 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -99,6 +101,27 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_TYPE.javaName(), TranslationKeys.DEVICE_TYPE)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.SHIPMENT_DATE.javaName(), TranslationKeys.SHIPMENT_DATE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER.javaName(), TranslationKeys.MANUFACTURER)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MODEL_NUMBER.javaName(), TranslationKeys.MODEL_NUMBER)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
@@ -160,6 +183,25 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.SERIAL_ID.javaName())
                     .notNull()
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_TYPE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.DEVICE_TYPE.javaName())
+                    .notNull()
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.SHIPMENT_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.SHIPMENT_DATE.javaName())
+                    .notNull()
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER.javaName())
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MODEL_NUMBER.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MODEL_NUMBER.javaName())
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

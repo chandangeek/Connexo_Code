@@ -133,26 +133,40 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         getProtocol().journal("Setting configuration object " + OBISCODE_CONFIGURATION_OBJECT+" bit "+bit+" to "+state);
 
         Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
-        Structure value;
+        Structure existingStructure;
         BitString flags;
         try {
-            value = (Structure) config.getValueAttr();
+            existingStructure = (Structure) config.getValueAttr();
+            int flagsIndex = getConfigurationObjectFlagsIndex();
+
             try {
-                AbstractDataType dataType = value.getDataType(0);
-                flags = (BitString) dataType;
-            } catch (IndexOutOfBoundsException e) {
-                throw new ProtocolException("Couldn't write configuration. Expected structure value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to have 2 elements.");
+                flags = (BitString) existingStructure.getDataType(flagsIndex);
+                flags.set(bit, state);
             } catch (ClassCastException e) {
-                throw new ProtocolException("Couldn't write configuration. Expected second element of structure to be of type 'Bitstring', but was of type '" + value.getDataType(1).getClass().getSimpleName() + "'.");
+                throw new ProtocolException("Couldn't write configuration. Expected element "+flagsIndex+
+                        " of structure to be of type 'BitString', but was of type '" + existingStructure.getDataType(flagsIndex).getClass().getSimpleName() + "'.");
             }
 
-            flags.set(bit, state);
-            config.setValueAttr(value);
+            existingStructure.setDataType(flagsIndex, flags);
+
+            config.setValueAttr(existingStructure);
         } catch (Exception e) {
             getProtocol().journal(Level.SEVERE, "Couldn't write configuration: " +e.getLocalizedMessage());
             throw new ProtocolException(e, "Couldn't write configuration.");
         }
 
+    }
+
+    /**
+     * DSMR 4.x:
+            Value ::= structure {
+                GPRS_operation_mode enum
+                Flags bitstring (16)
+            }
+
+     */
+    protected int getConfigurationObjectFlagsIndex(){
+        return 1;
     }
 
     protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -171,10 +185,12 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     @Override
     protected void deactivateWakeUp() throws IOException {
-        AXDRDateTime axdrDateTime = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000
-        OctetString time = new OctetString(axdrDateTime.getBEREncodedByteArray(), 0);
+        AXDRDateTime axdrDateTimeStart = convertUnixToDateTime(String.valueOf(946684800), getProtocol().getTimeZone());  //Jan 1st, 2000 00:00
+        AXDRDateTime axdrDateTimeEnd = convertUnixToDateTime(String.valueOf(946684900), getProtocol().getTimeZone());  //Jan 1st, 2000 00:01
+        OctetString startTime = new OctetString(axdrDateTimeStart.getBEREncodedByteArray(), 0);
+        OctetString endTime = new OctetString(axdrDateTimeEnd.getBEREncodedByteArray(), 0);
         getProtocol().journal("Closing SMS wake-up window");
-        getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(time, time);   //Closed window, no SMSes are allowed
+        getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(startTime, endTime);   //Closed window, no SMSes are allowed
     }
 
     protected void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {

@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.issue.rest.resource;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.request.AddIssueRequest;
@@ -34,12 +33,9 @@ import com.elster.jupiter.issue.share.service.ManualIssueBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -48,15 +44,12 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -115,7 +108,8 @@ public class IssueResourceHelper {
 
         return query.select(condition).stream()
                 .filter(actionType -> actionType.createIssueAction()
-                        .map(action -> action.isApplicable(issue) && action.isApplicableForUser(user))
+                        //action.isApplicable("") is crutch to exclude start process from manual actions
+                        .map(action -> action.isApplicable(issue) && action.isApplicableForUser(user) && action.isApplicable(""))
                         .orElse(false))
                 .collect(Collectors.toList());
     }

@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 
 public class CommunicationTestServiceCallDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
@@ -22,7 +23,7 @@ public class CommunicationTestServiceCallDomainExtension extends AbstractPersist
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BigDecimal completedTasks;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    private BigDecimal triggerDate;
+    private Instant triggerDate;
 
     public CommunicationTestServiceCallDomainExtension() {
         super();
@@ -60,11 +61,11 @@ public class CommunicationTestServiceCallDomainExtension extends AbstractPersist
         this.completedTasks = completedTasks;
     }
 
-    public BigDecimal getTriggerDate() {
+    public Instant getTriggerDate() {
         return triggerDate;
     }
 
-    public void setTriggerDate(BigDecimal triggerDate) {
+    public void setTriggerDate(Instant triggerDate) {
         this.triggerDate = triggerDate;
     }
 
@@ -79,9 +80,7 @@ public class CommunicationTestServiceCallDomainExtension extends AbstractPersist
         this.setCompletedTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.COMPLETED_TASKS.javaName()))
                 .orElse(BigDecimal.ZERO)
                 .toString()));
-        this.setTriggerDate(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.TRIGGERDATE.javaName()))
-                .orElse(BigDecimal.ZERO)
-                .toString()));
+        this.setTriggerDate((Instant) propertyValues.getProperty(FieldNames.TRIGGERDATE.javaName()));
     }
 
     @Override
