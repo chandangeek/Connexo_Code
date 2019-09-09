@@ -223,6 +223,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicDataCollectionRuleTemplate.RADIOGROUP,
                     getIssueUrgencyIncreaseProps());
             properties.put(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
+            properties.put(BasicDataCollectionRuleTemplate.THRESHOLD, getRelativePeriodWithCount());
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> deviceConfigurations = new ArrayList<>();
             deviceConfigurationService.findDeviceTypeByName("Elster A1800").get().getConfigurations()

@@ -8,6 +8,9 @@ Ext.define('Uni.property.view.property.EventTime', {
     requires: [
         'Uni.property.store.RelativePeriodsWithCount'
     ],
+
+    occurencesFieldLabel: null,
+
     getEditCmp: function () {
         var me = this;
 
@@ -24,7 +27,7 @@ Ext.define('Uni.property.view.property.EventTime', {
                         maxValue: 20,
                         labelWidth: 260,
                         width: 335,
-                        fieldLabel: Uni.I18n.translate('general.create.alarms.when','UNI','Create alarms when at least '),
+                        fieldLabel: this.occurencesFieldLabel,
                         listeners: {
                             blur: function (field) {
                                 var value = field.getValue();
@@ -38,22 +41,33 @@ Ext.define('Uni.property.view.property.EventTime', {
                         disabled: false,
                         itemId: 'relative-period-combo',
                         width: 259,
-                        fieldLabel: Uni.I18n.translate('general.events.per','UNI','event(s) per '),
+                        fieldLabel: Uni.I18n.translate('general.events.per', 'UNI', 'event(s) per '),
                         displayField: 'name',
                         valueField: 'id',
                         store: 'Uni.property.store.RelativePeriodsWithCount'
                     }
                 ]
             }
-        ]
+        ];
     },
 
     setLocalizedName: function (name) {
     },
 
-    initComponent: function(){
+    initComponent: function () {
         var periods = Ext.getStore('Uni.property.store.RelativePeriodsWithCount');
         periods.load();
+
+        var fieldKey = this.initialConfig.property.getData().key;
+
+        if (fieldKey === "BasicDataCollectionRuleTemplate.threshold") {
+            this.occurencesFieldLabel = Uni.I18n.translate('general.create.issues.when', 'UNI', 'Create issues when at least');
+        } else if (fieldKey === "BasicDeviceAlarmRuleTemplate.threshold") {
+            this.occurencesFieldLabel = Uni.I18n.translate('general.create.alarms.when', 'UNI', 'Create alarms when at least');
+        } else {
+            this.occurencesFieldLabel = "Create [object] when at least";
+        }
+
         this.callParent(arguments);
     },
 
@@ -62,7 +76,7 @@ Ext.define('Uni.property.view.property.EventTime', {
             relativePeriodCombo = me.down('#relative-period-combo'),
             eventsCounter = me.down('#count-events');
 
-        if(value && value.length > 0){
+        if (value && value.length > 0) {
             eventsCounter.setValue(value.split(':')[0] < 1 ? 1 : value.split(':')[0]);
             relativePeriodCombo.setValue(Number(value.split(':')[1]) < 1 ? 1 : Number(value.split(':')[1]));
         }

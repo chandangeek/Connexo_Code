@@ -14,6 +14,7 @@ public enum MessageSeeds implements MessageSeed {
     EVENT_BAD_DATA_NO_DEVICE(1, "EventBadDataNoDevice", "Unable to process issue creation event because target device (id = {0}) wasn't found", Level.SEVERE),
     EVENT_BAD_DATA_NO_KORE_DEVICE(2, "EventBadDataNoEndDevice", "Unable to process issue creation event because target kore device (amrId = {0}) wasn't found", Level.SEVERE),
     EVENT_BAD_DATA_NO_TIMESTAMP(3, "EventBadDataNoTimestamp", "Unable to process issue creation event because event timestamp cannot be obtained", Level.SEVERE),
+    EVENT_BAD_DATA_NO_RELATIVE_PERIOD(3, "EventBadDataNoRelativePeriod", "Unable to process issue creation event because relative period cannot be obtained", Level.SEVERE),
 
     INVALID_NUMBER_OF_ARGUMENTS(9, "invalid.number.of.arguments", "Invalid number of arguments {0}, expected {1} ", Level.SEVERE),
     INVALID_ARGUMENT(10, "invalid.argument", "Invalid argument {0}", Level.SEVERE),
@@ -55,5 +56,16 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public Level getLevel() {
         return this.level;
+    }
+
+    public static final class Keys {
+        private Keys() {
+        }
+
+        public static final String LAST_CHECKED_CANNOT_BE_NULL = "lastChecked.null";
+        public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
+        public static final String DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT = "duplicateReadingTypeOnMetrologyContract";
+        public static final String FIELD_IS_REQUIRED = "thisFieldIsRequired";
+        public static final String FIELD_TOO_LONG = "thisFieldIsTooLong";
     }
 }

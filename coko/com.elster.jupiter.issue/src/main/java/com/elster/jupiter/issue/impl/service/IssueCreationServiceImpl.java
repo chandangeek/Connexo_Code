@@ -48,6 +48,8 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import org.drools.core.common.ProjectClassLoader;
+import org.drools.core.event.DebugAgendaEventListener;
+import org.drools.core.event.DebugRuleRuntimeEventListener;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
 import org.kie.api.io.ResourceType;
@@ -344,6 +346,14 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     @Override
     public void processIssueResolutionEvent(long ruleId, IssueEvent event) {
         findCreationRuleById(ruleId).get().getTemplate().resolveIssue(event);
+    }
+
+    @Override
+    public void processIssueDiscardPriorityOnResolutionEvent(final long ruleId, final IssueEvent event) {
+        final Optional<CreationRule> creationRule = findCreationRuleById(ruleId);
+        creationRule.ifPresent(rule -> {
+            rule.getTemplate().issueSetPriorityValueToDefault(event, rule.getPriority());
+        });
     }
 
     @Override

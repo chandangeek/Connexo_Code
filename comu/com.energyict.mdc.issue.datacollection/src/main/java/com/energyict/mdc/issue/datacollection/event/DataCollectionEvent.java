@@ -5,6 +5,7 @@
 package com.energyict.mdc.issue.datacollection.event;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateIssueException;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -13,7 +14,10 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
@@ -23,51 +27,67 @@ import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.OccurrenceConditionControllable;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-
+import com.google.common.collect.Range;
 import com.google.inject.Injector;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
+public abstract class DataCollectionEvent implements IssueEvent, OccurrenceConditionControllable, Cloneable {
     protected static final Logger LOG = Logger.getLogger(DataCollectionEvent.class.getName());
 
     private final IssueDataCollectionService issueDataCollectionService;
     private final MeteringService meteringService;
+    private final EventService eventService;
     private final CommunicationTaskService communicationTaskService;
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final Thesaurus thesaurus;
+    private final TimeService timeService;
+    private final Clock clock;
 
     private Device device;
-    private Instant timestamp;
-    private EventDescription eventDescription;
+
     private Optional<? extends OpenIssue> existingIssue;
+
+    private Instant timestamp;
+
+    private EventDescription eventDescription;
+
     private Injector injector;
 
     private static final String COLON_SEPARATOR = ":";
     private static final String COMMA_SEPARATOR = ",";
     private static final String SEMI_COLON_SEPARATOR = ";";
 
-    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
+    public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, EventService eventService, TimeService timeService, Clock clock, Injector injector) {
         this.issueDataCollectionService = issueDataCollectionService;
         this.meteringService = meteringService;
         this.communicationTaskService = communicationTaskService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.thesaurus = thesaurus;
+        this.timeService = timeService;
+        this.eventService = eventService;
+        this.clock = clock;
         this.injector = injector;
     }
 
@@ -91,12 +111,16 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         return deviceService;
     }
 
-    protected Thesaurus getThesaurus(){
+    protected Thesaurus getThesaurus() {
         return this.thesaurus;
     }
 
+    protected TimeService getTimeService() {
+        return timeService;
+    }
+
     protected EventDescription getDescription() {
-        if (eventDescription == null){
+        if (eventDescription == null) {
             throw new IllegalStateException("You are trying to get event description for event that was not initialized yet");
         }
         return eventDescription;
@@ -118,9 +142,9 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         this.timestamp = timestamp;
     }
 
-    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription, Device device){
+    public void wrap(Map<?, ?> rawEvent, EventDescription eventDescription, Device device) {
         this.eventDescription = eventDescription;
-        if(device != null){
+        if (device != null) {
             this.device = device;
         } else {
             getEventDevice(rawEvent);
@@ -178,7 +202,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
                                 concentrator,
                                 Interval.startAt(start));
             }
-        } catch (RuntimeException ex){
+        } catch (RuntimeException ex) {
             LOG.log(Level.WARNING, "Incorrect communication type for concentrator[id={0}]", concentrator.getId());
         }
         return numberOfDevicesWithEvents;
@@ -210,6 +234,55 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
                         parseRawInputToList(valueSet.get(2), COMMA_SEPARATOR).stream()
                                 .map(String::trim)
                                 .mapToLong(Long::parseLong).boxed().collect(Collectors.toList()).contains(this.getDevice().getState().getId()));
+    }
+
+    // Used in rule engine
+    public boolean checkOccurrenceConditions(final String relativePeriodWithCount, final String triggeringEndDeviceEventTypes) {
+        List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount, COLON_SEPARATOR);
+
+        final int eventCountThreshold = Integer.parseInt(relativePeriodWithCountValues.get(0));
+        final Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriod(Long.parseLong(relativePeriodWithCountValues.get(1)));
+
+        if (relativePeriodWithCountValues.size() != 2) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_ARGUMENTS,
+                    "Relative period with occurrence count for device alarms",
+                    String.valueOf(2),
+                    String.valueOf(relativePeriodWithCountValues.size()));
+        }
+
+        if (!relativePeriod.isPresent()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.EVENT_BAD_DATA_NO_RELATIVE_PERIOD,
+                    "Relative period can not be obtained! Relative Period: ",
+                    relativePeriodWithCountValues.get(1));
+        }
+
+        final Range<ZonedDateTime> closedInterval = relativePeriod.get().getClosedZonedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.now()));
+        final List<DataCollectionEventMetadata> dataCollectionEvents = issueDataCollectionService.getDataCollectionEventsForDeviceWithinTimePeriod(device, closedInterval);
+
+        int counter = 0;
+        for (DataCollectionEventMetadata event :
+                dataCollectionEvents) {
+            /*
+                This check is needed, because {@link UnregisteredFromGatewayDelayedEvent} will cause a NullPointerException
+                on methods getIssueResolvingEvent() and getCausingEvent()
+             */
+            if (Objects.isNull(this.getIssueResolvingEvent()) && Objects.isNull(this.getIssueCausingEvent())) {
+                return true;
+            }
+
+            if (event.getEventType().getTopic().equals(this.getIssueResolvingEvent().getTopic())) {
+                return false;
+            } else if (event.getEventType().getTopic().equals(this.getIssueCausingEvent().getTopic())) {
+                if (closedInterval.contains(event.getCreateDateTime().atZone(clock.getZone()))) {
+                    counter++;
+                }
+            }
+
+            if (counter >= eventCountThreshold) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<String> parseRawInputToList(String rawInput, String delimiter) {
@@ -248,7 +321,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
 
     protected Optional<Long> getLong(Map<?, ?> map, String key) {
         Object contents = map.get(key);
-        if (contents == null){
+        if (contents == null) {
             return Optional.empty();
         }
         return Optional.of(((Number) contents).longValue());
@@ -262,19 +335,22 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
         return clone;
     }
 
-    public DataCollectionEvent cloneForAggregation(){
+    public DataCollectionEvent cloneForAggregation() {
         DataCollectionEvent clone = this.clone();
         Optional<Device> physicalGateway = this.topologyService.getPhysicalGateway(this.device);
         if (physicalGateway.isPresent()) {
             clone.device = physicalGateway.get();
-        }
-        else {
+        } else {
             clone.device = null;
         }
         return clone;
     }
 
-    public boolean isResolveEvent(){
+    public abstract EventDescription getIssueCausingEvent();
+
+    public abstract EventDescription getIssueResolvingEvent();
+
+    public boolean isResolveEvent() {
         return false;
     }
 
