@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -158,22 +157,25 @@ public class DeviceMessageSpecWithPossibleValuesImplTest {
         assertThat(possibleValues.getDefault()).isNull();
     }
 
-    @Ignore
     @Test
     public void oneKeyAccessorTypeSpecWithPossibleValues() {
         DeviceSecurityAccessorType deviceSecurityAccessorType1 = mock(DeviceSecurityAccessorType.class);
         SecurityAccessorType securityAccessorType1 = mock(SecurityAccessorType.class);
         when(deviceSecurityAccessorType1.getSecurityAccessor()).thenReturn(securityAccessorType1);
         when(securityAccessorType1.getName()).thenReturn("A");
+
         SecurityAccessorType securityAccessorType2 = mock(SecurityAccessorType.class);
         DeviceSecurityAccessorType deviceSecurityAccessorType2 = mock(DeviceSecurityAccessorType.class);
         when(deviceSecurityAccessorType2.getSecurityAccessor()).thenReturn(securityAccessorType2);
         when(securityAccessorType2.getName()).thenReturn("C");
+
         SecurityAccessorType securityAccessorType3 = mock(SecurityAccessorType.class);
         DeviceSecurityAccessorType deviceSecurityAccessorType3 = mock(DeviceSecurityAccessorType.class);
         when(deviceSecurityAccessorType3.getSecurityAccessor()).thenReturn(securityAccessorType3);
         when(securityAccessorType3.getName()).thenReturn("B");
+
         when(this.deviceType.getDeviceSecurityAccessorType()).thenReturn(Arrays.asList(deviceSecurityAccessorType1, deviceSecurityAccessorType2, deviceSecurityAccessorType3));
+
         PropertySpec propertySpec = this.propertySpecService
                 .referenceSpec(SecurityAccessorType.class)
                 .named("AK", "Authentication key")
