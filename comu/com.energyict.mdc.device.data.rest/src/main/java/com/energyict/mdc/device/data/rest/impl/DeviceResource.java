@@ -320,9 +320,6 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
     public Response addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
-        if (info.name != null && !info.name.matches("[^a-zA-Z0-9]")) {
-            return buildErrorResponse4("name", MessageSeeds.FORBIDDEN_CHARS);
-        }
         Device newDevice = newDevice(info.deviceConfigurationId, info.batch, info.name, info.serialNumber, info.manufacturer, info.modelNbr, info.modelVersion, info.yearOfCertification, info.shipmentDate);
         return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
     }
