@@ -136,24 +136,28 @@ public class FirmwareCampaignPersistenceSupport implements PersistenceSupport<Se
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName())
                 .since(Version.version(10, 7))
+                .installValue("1")
                 .add();
         table.column(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName())
                 .since(Version.version(10, 7))
+                .installValue("1")
                 .add();
         table.column(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.databaseName())
                 .varChar(Table.NAME_LENGTH)
                 .conversion(ColumnConversion.CHAR2ENUM)
                 .map(FirmwareCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName())
                 .since(Version.version(10, 7))
+                .installValue(null)
                 .add();
         table.column(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.databaseName())
                 .varChar(Table.NAME_LENGTH)
                 .conversion(ColumnConversion.CHAR2ENUM)
                 .map(FirmwareCampaignDomainExtension.FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName())
                 .since(Version.version(10, 7))
+                .installValue(null)
                 .add();
         table.foreignKey(FK_NAME + "_DT")
                 .on(deviceType)
