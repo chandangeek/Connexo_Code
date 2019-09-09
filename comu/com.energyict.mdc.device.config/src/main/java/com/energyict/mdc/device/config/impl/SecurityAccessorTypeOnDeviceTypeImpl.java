@@ -76,7 +76,9 @@ public class SecurityAccessorTypeOnDeviceTypeImpl implements SecurityAccessorTyp
     SecurityAccessorTypeOnDeviceTypeImpl init(DeviceType deviceType, DeviceSecurityAccessorType securityAccessorType) {
         this.deviceType.set(deviceType);
         setWrappingAccessor(securityAccessorType);
-        this.securityAccessorType.set(securityAccessorType.getSecurityAccessor());
+        if (securityAccessorType != null) {
+            this.securityAccessorType.set(securityAccessorType.getSecurityAccessor());
+        }
         return this;
     }
 
