@@ -296,6 +296,42 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int VALVE_ALARM_MBUS = 64;
 
     public static final int TAMPER_CLEARED = 65;
+    /**
+     * Technical maintenance of the meter (Comlog Code 1)
+     */
+    public static final int METROLOGICAL_MAINTENANCE = 71;
+    /**
+     * Technical maintenance of the grid (Comlog Code 2)
+     */
+    public static final int TECHNICAL_MAINTENANCE = 72;
+    /**
+     * Retrieving of meter readings E (Comlog Code 3)
+     */
+    public static final int RETREIVE_METER_READINGS_E = 73;
+    /**
+     * Retrieving of meter readings G (Comlog Code 4)
+     */
+    public static final int RETREIVE_METER_READINGS_G = 74;
+    /**
+     * Retrieving of interval data E (Comlog Code 5)
+     */
+    public static final int RETREIVE_INTERVAL_DATA_E = 75;
+    /**
+     * Retrieving of interval data E (Comlog Code 5)
+     */
+    public static final int RETREIVE_INTERVAL_DATA_G = 76;
+    /**
+     * Indicates that a short voltage sag occurred on L1 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L1 = 77;
+    /**
+     * Indicates that a short voltage sag occurred on L2 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L2 = 78;
+    /**
+     * Indicates that a short voltage sag occurred on L2 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L3 = 79;
 
     public static final int SAG_PHASE_A = 80;
 
@@ -801,7 +837,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     // !!! Keep this one in sync with the above !!!
     // total number of events - 1 (first event starts at 0)
     //Left at 64, custom Beacon events must be remapped
-    public static final int MAX_NUMBER_OF_EVENTS = 64;
+    public static final int MAX_NUMBER_OF_EVENTS = 204;
 
     private final Date time;
     private final int eiCode;
