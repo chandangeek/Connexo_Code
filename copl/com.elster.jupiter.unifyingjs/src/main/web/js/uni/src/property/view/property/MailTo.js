@@ -30,7 +30,7 @@ Ext.define('Uni.property.view.property.MailTo', {
                 {
                     xtype: 'button',
                     itemId: 'txt-user-name-info',
-                    tooltip: Uni.I18n.translate('dataExport.recipients.tooltip', 'DES', 'Separate multiple e-mail addresses by semicolons (;)'),
+                    tooltip: Uni.I18n.translate('email.recipients.tooltip', 'UNI', 'Separate multiple e-mail addresses by semicolons (;)'),
                     text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
                     disabled: true, // to avoid a hand cursor
                     ui: 'blank',

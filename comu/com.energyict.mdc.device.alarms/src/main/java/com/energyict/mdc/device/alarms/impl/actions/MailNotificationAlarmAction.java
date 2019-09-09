@@ -74,7 +74,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     @Override
     public IssueActionResult execute(Issue issue) {
-        this.SendMail(issue);
+        this.sendMail(issue);
         IssueActionResult.DefaultActionResult result = new IssueActionResult.DefaultActionResult();
         result.success(getThesaurus().getFormat(TranslationKeys.ACTION_MAIL_NOTIFY).format());
         return result;
@@ -85,7 +85,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
         return this;
     }
 
-    private void SendMail(Issue issue) {
+    private void sendMail(Issue issue) {
         Transport transport = null;
         String receivers = getRecipientFromParameters(properties);
         Properties prop = getMailProperties();

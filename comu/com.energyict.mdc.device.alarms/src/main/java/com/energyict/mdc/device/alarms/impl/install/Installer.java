@@ -160,7 +160,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, StartProcessAlarmAction.class.getName(), deviceAlarmType, null);
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, CloseDeviceAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.NOT_APPLICABLE);
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, WebServiceNotificationAlarmAction.class.getName(), deviceAlarmType, CreationRuleActionPhase.CREATE);
-        issueActionService.createActionType(DeviceAlarmActionsFactory.ID, MailNotificationAlarmAction.class.getName(), deviceAlarmType);
     }
 
     private void createRelativePeriodCategory() {
