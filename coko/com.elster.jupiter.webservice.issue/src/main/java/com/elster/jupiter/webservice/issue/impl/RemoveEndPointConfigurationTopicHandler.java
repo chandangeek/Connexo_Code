@@ -6,9 +6,6 @@ package com.elster.jupiter.webservice.issue.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.fsm.EndPointConfigurationReference;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -24,9 +21,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -61,16 +55,6 @@ public class RemoveEndPointConfigurationTopicHandler implements TopicHandler {
         // the checked id can be at the beginning, middle or end, but if present, it must be separated with comma.
         if (isUsedByIssueCreationRule) {
             throw new VetoEndPointConfigurationDeleteException(webServiceIssueService.thesaurus(), MessageSeeds.END_POINT_CONFIG_IN_USE_BY_ICR, endPointConfiguration);
-        }
-        boolean isUsedByDevLifeCycle = ormService.getDataModel(FiniteStateMachineService.COMPONENT_NAME)
-                .orElseThrow(() -> new IllegalStateException(DataModel.class.getSimpleName() + " of " + FiniteStateMachineService.COMPONENT_NAME + " isn't found"))
-                .stream(EndPointConfigurationReference.class)
-                .join(EndPointConfiguration.class)
-                .filter(where("endPointConfiguration.id").isEqualTo(endPointConfiguration.getId()))
-                .findAny()
-                .isPresent();
-        if (isUsedByDevLifeCycle) {
-            throw new VetoEndPointConfigurationDeleteException(webServiceIssueService.thesaurus(),MessageSeeds.END_POINT_CONFIG_IN_USE_BY_DLC, endPointConfiguration);
         }
     }
 
