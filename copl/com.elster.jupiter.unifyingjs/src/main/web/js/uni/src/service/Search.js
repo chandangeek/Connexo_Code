@@ -842,8 +842,8 @@ Ext.define('Uni.service.Search', {
                             contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.updateSearch', 'UNI', 'Search criteria updated'));
                     },
                     failure: function (response) {
-                        var errorText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                        var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                        var errorText = Uni.I18n.translate('general.save.operation.failed', 'UNI', 'Save operation failed') + '.' + Uni.I18n.translate('error.unknownErrorOccurred', 'UNI', 'An unknown error occurred');
+                        var titleText = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'),
                             code = '';
                         if (response  && response.responseText && response.responseText.errorCode) {
                             code = response.responseText.errorCode;
@@ -872,8 +872,8 @@ Ext.define('Uni.service.Search', {
                 contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));
             },
             failure: function (response) {
-                var errorText = Uni.I18n.translate('appServers.remove.operation.failed', 'APR', 'Remove operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                var errorText = Uni.I18n.translate('general.remove.operation.failed', 'UNI', 'Remove operation failed') + '.' + Uni.I18n.translate('error.unknownErrorOccurred', 'UNI', 'An unknown error occurred');
+                var titleText = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'),
                     code = '';
                 if (response  && response.responseText && response.responseText.errorCode) {
                     code = response.responseText.errorCode;

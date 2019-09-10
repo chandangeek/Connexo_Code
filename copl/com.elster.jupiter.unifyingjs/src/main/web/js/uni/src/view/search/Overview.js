@@ -148,14 +148,13 @@ Ext.define('Uni.view.search.Overview', {
                                         emptyText:  Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...'),
                                         queryMode: 'local',
                                         style: {
-                                            'margin-right': '25px',
+                                            'margin-right': '25px'
                                         },
                                         store: Ext.create('Uni.store.search.SaveLoad'),
                                         displayField: 'name',
                                         displayValue: 'criteria',
                                         action: 'loadSearch',
                                         listConfig : {
-                                            //labelStyle: 'width:px;text-align:left',
                                             minWidth:140,
                                             maxHeight:250,
                                             style: "border-radius : 4px",
@@ -170,7 +169,7 @@ Ext.define('Uni.view.search.Overview', {
                                                     delegate: '.icon-cancel-circle2',
                                                     click: function(list, record, item, index, e) {
                                                         var cmp = Ext.ComponentQuery.query('#load-button')[0];
-                                                        cmp.nameValue = "delete"
+                                                        cmp.nameValue = "delete";
                                                         cmp.fireEvent('select', cmp);
                                                     }
                                                 }
