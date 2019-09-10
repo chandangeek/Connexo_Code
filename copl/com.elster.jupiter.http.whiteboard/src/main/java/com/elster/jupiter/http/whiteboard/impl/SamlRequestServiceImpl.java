@@ -97,7 +97,7 @@ public class SamlRequestServiceImpl implements SamlRequestService {
             return Optional.of(Base64.encodeBase64String(CompressionUtils.deflate(SamlUtils.getBytesWithCatch(convertedAuthnRequest, SamlUtils.ERROR_PROBLEM_DEFLATE_AND_ENCODE_REQUEST_TO_BASE64))));
 
         } catch (SAMLException e) {
-            LOGGER.log(Level.SEVERE,"Error while trying to create SAML Request" , e);
+            LOGGER.log(Level.SEVERE, "Error while trying to create SAML Request", e);
         }
         return Optional.empty();
     }

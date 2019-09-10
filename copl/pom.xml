@@ -1141,7 +1141,7 @@
 		<apache.cxf.version>3.2.0</apache.cxf.version>
 		<bouncycastle.version>1.60</bouncycastle.version>
 		<ejbcabundle.version>1.0.0</ejbcabundle.version>
-		<opensaml.version>3.3.0_2</opensaml.version>
+		<opensaml.version>3.3.0_3</opensaml.version>
 	</properties>
 	<profiles>
 		<profile>

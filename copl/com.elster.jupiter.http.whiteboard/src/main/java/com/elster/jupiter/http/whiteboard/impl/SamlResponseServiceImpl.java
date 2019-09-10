@@ -14,8 +14,6 @@ import org.opensaml.saml.saml2.core.*;
 import org.opensaml.security.credential.BasicCredential;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureException;
-import org.opensaml.xmlsec.signature.support.SignatureValidationProvider;
-import org.opensaml.xmlsec.signature.support.SignatureValidator;
 import org.opensaml.xmlsec.signature.support.provider.ApacheSantuarioSignatureValidationProviderImpl;
 import org.osgi.service.component.annotations.Component;
 import org.w3c.dom.Element;
@@ -101,7 +99,7 @@ public class SamlResponseServiceImpl implements SamlResponseService {
             ApacheSantuarioSignatureValidationProviderImpl signatureValidator = new ApacheSantuarioSignatureValidationProviderImpl();
             signatureValidator.validate(signature, credential);
         } catch (SignatureException | CertificateException e) {
-            LOGGER.log(Level.SEVERE,e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new SAMLException("Error while validate signature", e);
         }
     }
@@ -162,8 +160,7 @@ public class SamlResponseServiceImpl implements SamlResponseService {
         }
     }
 
-    private String base64Encode(String input)
-    {
+    private String base64Encode(String input) {
         return java.util.Base64.getUrlEncoder().encodeToString(input.getBytes());
     }
 }
