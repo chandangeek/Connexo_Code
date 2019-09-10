@@ -6,6 +6,9 @@ package com.elster.jupiter.webservice.issue.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.fsm.EndPointConfigurationReference;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -14,7 +17,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.webservice.issue.WebServiceIssueService;
 import com.elster.jupiter.webservice.issue.impl.template.AuthFailureIssueCreationRuleTemplate;
 
@@ -22,6 +24,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.webservice.issue.impl.RemoveEndPointConfigurationTopicHandler", service = TopicHandler.class, immediate = true)
 public class RemoveEndPointConfigurationTopicHandler implements TopicHandler {
@@ -41,20 +48,29 @@ public class RemoveEndPointConfigurationTopicHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         EndPointConfiguration endPointConfiguration = (EndPointConfiguration) localEvent.getSource();
-        boolean isUsed = ormService.getDataModel(IssueService.COMPONENT_NAME)
+        boolean isUsedByIssueCreationRule = ormService.getDataModel(IssueService.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException(DataModel.class.getSimpleName() + " of " + IssueService.COMPONENT_NAME + " isn't found"))
                 .stream(CreationRuleProperty.class)
                 .join(CreationRule.class)
                 .join(IssueReason.class)
                 .join(IssueType.class)
-                .filter(Where.where("rule.obsoleteTime").isNull())
-                .filter(Where.where("rule.reason.issueType.key").isEqualTo(WebServiceIssueService.ISSUE_TYPE_NAME))
-                .filter(Where.where("name").isEqualTo(AuthFailureIssueCreationRuleTemplate.END_POINT_CONFIGURATIONS))
-                .anyMatch(Where.where("value").matches("^(.*,)?" + endPointConfiguration.getId() + "(,.*)?$", ""));
+                .filter(where("rule.obsoleteTime").isNull())
+                .filter(where("rule.reason.issueType.key").isEqualTo(WebServiceIssueService.ISSUE_TYPE_NAME))
+                .filter(where("name").isEqualTo(AuthFailureIssueCreationRuleTemplate.END_POINT_CONFIGURATIONS))
+                .anyMatch(where("value").matches("^(.*,)?" + endPointConfiguration.getId() + "(,.*)?$", ""));
         // the checked id can be at the beginning, middle or end, but if present, it must be separated with comma.
-
-        if (isUsed) {
-            throw new VetoEndPointConfigurationDeleteException(webServiceIssueService.thesaurus(), endPointConfiguration);
+        if (isUsedByIssueCreationRule) {
+            throw new VetoEndPointConfigurationDeleteException(webServiceIssueService.thesaurus(), MessageSeeds.END_POINT_CONFIG_IN_USE_BY_ICR, endPointConfiguration);
+        }
+        boolean isUsedByDevLifeCycle = ormService.getDataModel(FiniteStateMachineService.COMPONENT_NAME)
+                .orElseThrow(() -> new IllegalStateException(DataModel.class.getSimpleName() + " of " + FiniteStateMachineService.COMPONENT_NAME + " isn't found"))
+                .stream(EndPointConfigurationReference.class)
+                .join(EndPointConfiguration.class)
+                .filter(where("endPointConfiguration.id").isEqualTo(endPointConfiguration.getId()))
+                .findAny()
+                .isPresent();
+        if (isUsedByDevLifeCycle) {
+            throw new VetoEndPointConfigurationDeleteException(webServiceIssueService.thesaurus(),MessageSeeds.END_POINT_CONFIG_IN_USE_BY_DLC, endPointConfiguration);
         }
     }
 
