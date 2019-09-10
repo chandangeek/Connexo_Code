@@ -59,8 +59,6 @@ public interface IssueService {
 
     Optional<IssueType> findIssueType(String key);
 
-    Optional<BundleContext> getBundleContext();
-
     IssueAssignee findIssueAssignee(Long userId, Long workGroupId);
 
     /**

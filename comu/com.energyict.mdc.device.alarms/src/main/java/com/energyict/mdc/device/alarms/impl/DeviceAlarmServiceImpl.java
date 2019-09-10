@@ -207,7 +207,6 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         this.bundleContext = bundleContext;
     }
 
-    @Override
     public Optional<BundleContext> getBundleContext(){
         return Optional.of(bundleContext);
     }
