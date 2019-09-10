@@ -228,6 +228,17 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
         return getMeterProtocol().getSecurityPropertySpec(name);
     }
 
+
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        return true;
+    }
+
     //############## Unsupported methods ##############//
 
     @Override

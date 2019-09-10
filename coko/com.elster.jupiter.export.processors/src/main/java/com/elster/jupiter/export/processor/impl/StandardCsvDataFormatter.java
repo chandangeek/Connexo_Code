@@ -47,6 +47,8 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
     public static final String VALID_STRING = "valid";
     public static final String INVALID_STRING = "suspect";
+    public static final String ACTL_STRING = "ACTL";
+    public static final String INVL_STRING = "INVL";
     public static final String SEMICOLON_SEPARATOR = ";";
     public static final String COMMA_SEPARATOR = ",";
     public static final String DEFAULT_SEPARATOR = COMMA_SEPARATOR;
@@ -128,7 +130,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
             return ValidationResult.NOT_VALIDATED;
         }
         if (readingType.isRegular() && readingType.isCumulative()) {
-            validationStatus.getBulkValidationResult();
+            return validationStatus.getBulkValidationResult();
         }
         return validationStatus.getValidationResult();
     }
@@ -172,6 +174,10 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
                 return VALID_STRING;
             case SUSPECT:
                 return INVALID_STRING;
+            case ACTUAL:
+                return ACTL_STRING;
+            case INVALID:
+                return INVL_STRING;
             default:
                 return "";
         }

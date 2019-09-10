@@ -38,6 +38,7 @@ import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.zone.MeteringZoneService;
 import com.elster.jupiter.metering.zone.impl.MeteringZoneModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -61,6 +62,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -184,7 +186,10 @@ public class InMemoryIntegrationPersistence {
                 com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
                         new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
                                 this.injector.getInstance(FiniteStateMachineService.class),
-                                this.injector.getInstance(MeteringService.class));
+                                this.injector.getInstance(MeteringService.class),
+                                this.injector.getInstance(ThreadPrincipalService.class),
+                                this.injector.getInstance(NlsService.class),
+                                this.injector.getInstance(UserService.class));
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(meteringTopicHandler);
                 StateTransitionChangeEventTopicHandler stateTransitionChangeEventTopicHandler =
                         new StateTransitionChangeEventTopicHandler(

@@ -284,6 +284,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
 
+
     public Optional<BundleContext> getBundleContext(){
         return Optional.of(bundleContext);
     }

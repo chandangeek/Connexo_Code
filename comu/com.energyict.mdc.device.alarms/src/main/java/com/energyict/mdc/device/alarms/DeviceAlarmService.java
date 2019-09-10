@@ -16,7 +16,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
-import org.osgi.framework.BundleContext;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;

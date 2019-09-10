@@ -28,7 +28,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.User;
 
 import aQute.bnd.annotation.ProviderType;
-import org.osgi.framework.BundleContext;
 
 import java.util.List;
 import java.util.Map;

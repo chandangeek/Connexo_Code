@@ -81,6 +81,40 @@ public class ComTaskResource {
         ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(comTask, thesaurus)).build();
     }
+    
+    @GET @Transactional
+    @Path("/list")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+            Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION })
+    public Response getComTasksByIds(@QueryParam("ids") String ids) {
+        List<ComTask> comTaskList = new ArrayList<>();
+        if (ids != null && !ids.trim().isEmpty()) {
+            comTaskList = Arrays.asList(ids.split(",")).stream()
+                    .map(id -> taskService.findComTask(Long.parseLong(id.trim()))
+                            .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST)))
+                    .collect(Collectors.toList());
+        }
+        return Response.status(Response.Status.OK).entity(ComTaskInfo.from(comTaskList)).build();
+    }
+    
+    @GET @Transactional
+    @Path("/filtered")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION })
+    public PagedInfoList getComTasksFiltered(@BeanParam JsonQueryParameters queryParameters,
+            @QueryParam("exclude") String excludedList) {
+        List<ComTaskInfo> infos;
+        if (excludedList != null && !excludedList.trim().isEmpty()) {
+            final List<Long> excludedIds = Arrays.asList(excludedList.split(",")).stream().map(e -> Long.parseLong(e))
+                    .collect(Collectors.toList());
+            infos = ComTaskInfo.from(taskService.findAllComTasks().stream()
+                    .filter(ct -> !excludedIds.contains(ct.getId())).collect(Collectors.toList()));
+        } else {
+            infos = ComTaskInfo.from(taskService.findAllComTasks().stream().collect(Collectors.toList()));
+        }
+        return PagedInfoList.fromCompleteList("comTasks", infos, queryParameters);
+    }
 
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
