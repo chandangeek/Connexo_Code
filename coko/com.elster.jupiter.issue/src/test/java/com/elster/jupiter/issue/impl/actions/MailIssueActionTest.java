@@ -7,6 +7,8 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.service.BaseTest;
+import com.elster.jupiter.issue.impl.service.IssueActionServiceImpl;
+import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.*;
@@ -43,7 +45,7 @@ public class MailIssueActionTest extends BaseTest{
     @Before
     public void setUp() throws Exception {
         action = getDefaultActionsFactory().createIssueAction(MailIssueAction.class.getName());
-        bundleContext = issueService.getBundleContext().get();
+        bundleContext = ((IssueServiceImpl)issueService).getBundleContext().get();
         issue = createIssueMinInfo();
     }
 

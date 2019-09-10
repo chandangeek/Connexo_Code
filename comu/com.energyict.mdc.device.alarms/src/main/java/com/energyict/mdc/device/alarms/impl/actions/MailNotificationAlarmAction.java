@@ -11,6 +11,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.MailPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.impl.DeviceAlarmServiceImpl;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -187,7 +188,7 @@ public class MailNotificationAlarmAction extends AbstractIssueAction {
 
     public Properties getMailProperties() {
         Properties props = new Properties();
-        BundleContext bundleContext = deviceAlarmService.getBundleContext().get();
+        BundleContext bundleContext = ((DeviceAlarmServiceImpl)deviceAlarmService).getBundleContext().get();
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
         password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
         fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);

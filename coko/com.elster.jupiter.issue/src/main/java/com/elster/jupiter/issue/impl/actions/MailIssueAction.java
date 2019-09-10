@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -139,7 +140,7 @@ public class MailIssueAction extends AbstractIssueAction {
 
     public Properties getMailProperties() {
         Properties props = new Properties();
-        BundleContext bundleContext = issueService.getBundleContext().get();
+        BundleContext bundleContext = ((IssueServiceImpl)issueService).getBundleContext().get();
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
         password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
         fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);

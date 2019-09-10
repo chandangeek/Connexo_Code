@@ -4,6 +4,7 @@ package com.energyict.mdc.device.alarms;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.impl.DeviceAlarmServiceImpl;
 import com.energyict.mdc.device.alarms.impl.actions.MailNotificationAlarmAction;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class MailNotificationAlarmActionTest extends BaseTest {
     @Before
     public void setUp() throws Exception {
         action = getDefaultActionsFactory().createIssueAction(MailNotificationAlarmAction.class.getName());
-        bundleContext = issueService.getBundleContext().get();
+        bundleContext = ((DeviceAlarmServiceImpl)deviceAlarmService).getBundleContext().get();
     }
 
     @Test
