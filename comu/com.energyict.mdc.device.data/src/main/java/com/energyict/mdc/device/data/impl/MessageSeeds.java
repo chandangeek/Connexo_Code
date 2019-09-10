@@ -211,7 +211,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_ZONE(2184, "NoSuchZone", "No zone with id {0}"),
     ZONE_REMOVED(2185, "ZoneRemoved", "Zone {0} removed from {1}"),
     NO_SUCH_LOAD_PROFILE_ON_DEVICE(2186, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
-
+    WRONG_STATUS(2187, Keys.WRONG_STATUS, "Wrong Status"),
+    WRONG_CARD_FORMAT(2188, Keys.WRONG_CARD_FORMAT, "Wrong Card Format"),
     ;
 
     private final int number;
@@ -412,5 +413,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String COMMAND_SHOULD_HAVE_A_KEY_TYPE_ATTRIBUTE = "command.should.have.a.key.type.attribute";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String UNKNOWN_PROPERTY = "UnknownProperty";
+        public static final String WRONG_STATUS = "WrongStatus";
+        public static final String WRONG_CARD_FORMAT = "WrongCardFormat";
     }
 }
