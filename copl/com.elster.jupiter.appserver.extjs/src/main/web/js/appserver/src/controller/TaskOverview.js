@@ -74,9 +74,14 @@ Ext.define('Apr.controller.TaskOverview', {
 
     showPreview: function(records,record){
         var me = this;
+
+        Ext.suspendLayouts();
         this.getTaskPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         this.getTaskPreview().down('form').loadRecord(record);
-        this.getTaskPreview().down('task-overview-action-menu').record = record;
+        me.getTaskPreview().down('task-overview-action-menu').record = record;
+        me.getTaskPreview().down('#task-button-action').setVisible(Uni.Auth.checkPrivileges(Apr.privileges.AppServer.administrateTaskOverview)
+            && (record.get('extraQueueCreationEnabled') || record.get('queuePrioritized'))
+        );
         if(record.get('queueStatus')== 'Busy'){
             this.getTaskPreview().down('#durationField').show();
             this.getTaskPreview().down('#currentRunField').show();
@@ -84,6 +89,7 @@ Ext.define('Apr.controller.TaskOverview', {
             this.getTaskPreview().down('#durationField').hide();
             this.getTaskPreview().down('#currentRunField').hide();
         }
+        Ext.resumeLayouts(true);
     },
 
     chooseAction: function (menu, item) {

@@ -18,7 +18,7 @@ Ext.define('Apr.privileges.AppServer', {
 
     admin: ['privilege.administrate.appServer'],
 
-    taskOverview: ['privilege.view.ViewTaskOverview'],
+    taskOverview: ['privilege.view.ViewTaskOverview', 'privilege.edit.AdministrateTaskOverview'],
     suspendTaskOverview: ['privilege.suspend.SuspendTaskOverview'],
     administrateTaskOverview: ['privilege.edit.AdministerTaskOverview'],
 

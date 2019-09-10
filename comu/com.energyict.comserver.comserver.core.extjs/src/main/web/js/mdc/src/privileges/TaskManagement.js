@@ -13,7 +13,7 @@ Ext.define('Mdc.privileges.TaskManagement', {
     ],
     singleton: true,
 
-    view: ['privilege.view.ViewTaskOverview'],
+    view: ['privilege.view.ViewTaskOverview', 'privilege.edit.AdministrateTaskOverview'],
     suspendTaskOverview: ['privilege.suspend.SuspendTaskOverview'],
     administrateTaskOverview: ['privilege.edit.AdministerTaskOverview'],
 
