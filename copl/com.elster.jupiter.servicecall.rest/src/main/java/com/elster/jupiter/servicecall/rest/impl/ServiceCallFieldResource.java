@@ -36,7 +36,7 @@ public class ServiceCallFieldResource {
     @GET
     @Path("/loglevels")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.VIEW_SERVICE_CALL_TYPES)
+    @RolesAllowed({Privileges.Constants.VIEW_SERVICE_CALL_TYPES, Privileges.Constants.ADMINISTRATE_SERVICE_CALL_TYPES})
     public PagedInfoList getLogLevels(@BeanParam JsonQueryParameters queryParameters) {
         List<IdWithDisplayValueInfo<String>> logLevels = Arrays.stream(LogLevel.values())
                 .map(logLevel -> new IdWithDisplayValueInfo<>(logLevel.name(), logLevel.getDisplayName(this.thesaurus)))

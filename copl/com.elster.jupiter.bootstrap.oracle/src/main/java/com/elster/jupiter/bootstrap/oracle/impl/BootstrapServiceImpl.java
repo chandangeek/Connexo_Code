@@ -41,6 +41,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -215,7 +217,9 @@ public final class BootstrapServiceImpl implements BootstrapService {
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException |
                     InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException
                     | BadPaddingException e) {
-                throw new InvalidPasswordException();
+                InvalidPasswordException exception = new InvalidPasswordException();
+                Logger.getAnonymousLogger().log(Level.SEVERE, exception, () -> "Bootstrap service init");
+                throw exception;
             }
         }
         return decryptedPassword;

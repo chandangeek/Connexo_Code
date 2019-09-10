@@ -67,7 +67,6 @@ import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import com.google.common.collect.Range;
 import org.apache.commons.collections.CollectionUtils;
-import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -82,6 +81,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay;
 
 public class ServiceCallCommands {
 
@@ -124,8 +125,6 @@ public class ServiceCallCommands {
         }
     }
 
-    private static final String RECURRENT_TASK_READ_OUT_DELAY = "com.energyict.mdc.cim.webservices.inbound.soap.readoutdelay";
-
     private final DeviceService deviceService;
     private final JsonService jsonService;
     private final EndDeviceEventsBuilder endDeviceEventsBuilder;
@@ -135,7 +134,6 @@ public class ServiceCallCommands {
     private final Thesaurus thesaurus;
     private final MeterReadingFaultMessageFactory faultMessageFactory;
     private final Clock clock;
-    private final BundleContext bundleContext;
     private final MasterDataService masterDataService;
     private final CommunicationTaskService communicationTaskService;
 
@@ -144,7 +142,7 @@ public class ServiceCallCommands {
                                MeterConfigParser meterConfigParser, MeterConfigFaultMessageFactory meterConfigFaultMessageFactory,
                                ServiceCallService serviceCallService, EndDeviceEventsBuilder endDeviceEventsBuilder,
                                Thesaurus thesaurus, MeterReadingFaultMessageFactory faultMessageFactory, Clock clock,
-                               BundleContext bundleContext, MasterDataService masterDataService, CommunicationTaskService communicationTaskService) {
+                               MasterDataService masterDataService, CommunicationTaskService communicationTaskService) {
         this.deviceService = deviceService;
         this.jsonService = jsonService;
         this.endDeviceEventsBuilder = endDeviceEventsBuilder;
@@ -154,7 +152,6 @@ public class ServiceCallCommands {
         this.thesaurus = thesaurus;
         this.faultMessageFactory = faultMessageFactory;
         this.clock = clock;
-        this.bundleContext = bundleContext;
         this.masterDataService = masterDataService;
         this.communicationTaskService = communicationTaskService;
     }
@@ -326,8 +323,6 @@ public class ServiceCallCommands {
                                                             Set<ReadingType> combinedReadingTypes,
                                                             ScheduleStrategy scheduleStrategy) throws ch.iec.tc57._2011.getmeterreadings.FaultMessage {
         boolean meterReadingRunning = false;
-        String property = bundleContext.getProperty(RECURRENT_TASK_READ_OUT_DELAY);
-        int delay = property == null ? 1 : Integer.parseInt(property);
         Instant now = clock.instant();
         Instant start = null;
         Instant end = null;
@@ -343,7 +338,8 @@ public class ServiceCallCommands {
         if (start != null && end != null) {
             if (CollectionUtils.isNotEmpty(existedLoadProfiles)
                     || (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes()))) {
-                processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, end, now, delay, scheduleStrategy);
+                processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, end, now,
+                        actualRecurrentTaskReadOutDelay, scheduleStrategy);
             }
         } else if (CollectionUtils.isNotEmpty(existedLoadProfiles)) {
             Set<ReadingType> readingTypes = masterDataService.findAllLoadProfileTypes().stream()
@@ -356,7 +352,7 @@ public class ServiceCallCommands {
             combinedReadingTypes.addAll(readingTypes);
         }
 
-        if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, delay)) {
+        if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, actualRecurrentTaskReadOutDelay)) {
             Set<ComTaskExecution> existedComTaskExecutions = getComTaskExecutions(meter, start, end, combinedReadingTypes, syncReplyIssue);
             for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
 
@@ -366,7 +362,7 @@ public class ServiceCallCommands {
                             XsdDateTimeConverter.marshalDateTime(start),
                             XsdDateTimeConverter.marshalDateTime(actualEnd)).get();
                 }
-                Instant trigger = getTriggerDate(actualEnd, delay, comTaskExecution, scheduleStrategy);
+                Instant trigger = getTriggerDate(actualEnd, actualRecurrentTaskReadOutDelay, comTaskExecution, scheduleStrategy);
 
                 // run now
                 if (scheduleStrategy == ScheduleStrategy.RUN_NOW) {

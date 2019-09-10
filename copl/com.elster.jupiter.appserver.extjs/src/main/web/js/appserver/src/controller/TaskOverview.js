@@ -51,7 +51,8 @@ Ext.define('Apr.controller.TaskOverview', {
                 select: this.showPreview
             },
             'task-overview-action-menu': {
-                click: this.chooseAction
+                click: this.chooseAction,
+                show: this.showMenu
             },
             'queue-priority-window-overview #save-queue-priority-button': {
                 click: this.saveQueuePriority
@@ -59,6 +60,13 @@ Ext.define('Apr.controller.TaskOverview', {
         });
     },
 
+    showMenu: function (menu) {
+        Ext.suspendLayouts();
+        menu.down('#set-queue-priority').setVisible(Uni.Auth.checkPrivileges(Apr.privileges.AppServer.administrateTaskOverview)
+                    && menu.record.get('extraQueueCreationEnabled') || menu.record.get('queuePrioritized'));
+        menu.reorderItems();
+        Ext.resumeLayouts(true);
+    },
     showTaskOverview: function () {
         var me = this;
         me.getApplication().fireEvent('changecontentevent', Ext.widget('task-overview-setup'));
@@ -68,6 +76,7 @@ Ext.define('Apr.controller.TaskOverview', {
         var me = this;
         this.getTaskPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         this.getTaskPreview().down('form').loadRecord(record);
+        this.getTaskPreview().down('task-overview-action-menu').record = record;
         if(record.get('queueStatus')== 'Busy'){
             this.getTaskPreview().down('#durationField').show();
             this.getTaskPreview().down('#currentRunField').show();
@@ -162,6 +171,7 @@ Ext.define('Apr.controller.TaskOverview', {
             });
                 window.close();
                 me.getApplication().fireEvent('acknowledge', 'Task queue and priority changed.');
+                me.getTaskPreview().down('form').loadRecord(record);
             },
         });
     },
