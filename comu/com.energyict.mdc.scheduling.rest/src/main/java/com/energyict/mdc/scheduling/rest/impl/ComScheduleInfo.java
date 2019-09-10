@@ -35,16 +35,41 @@ public class ComScheduleInfo {
 
     public static ComScheduleInfo from(ComSchedule comSchedule, boolean inUse, Instant instant) {
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
+
+        if (comSchedule == null) {
+            return comScheduleInfo;
+        }
+
         comScheduleInfo.id = comSchedule.getId();
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
-        Optional<ZonedDateTime> nextOccurrence = comSchedule.getTemporalExpression().nextOccurrence(ZonedDateTime.ofInstant((comSchedule.getStartDate().isAfter(instant) ? comSchedule.getStartDate() : instant) , ZoneId.systemDefault()));
-        nextOccurrence.ifPresent(zonedDateTime -> comScheduleInfo.plannedDate = zonedDateTime.toInstant());
         comScheduleInfo.startDate = comSchedule.getStartDate();
         comScheduleInfo.isInUse = inUse;
         comScheduleInfo.comTaskUsages = ComTaskInfo.from(comSchedule.getComTasks());
         comScheduleInfo.mRID = comSchedule.getmRID().orElse(null);
         comScheduleInfo.version = comSchedule.getVersion();
+
+        setPlannedDate(comScheduleInfo, comSchedule, instant);
+
         return comScheduleInfo;
+    }
+
+    /**
+     * Set the ComScheduleInfo plannedDate based on the ComSchedule starting date.
+     *
+     * @param comScheduleInfo the ComScheduleInfo object
+     * @param comSchedule the ComSchedule
+     * @param instant the Instant
+     */
+    private static void setPlannedDate(ComScheduleInfo comScheduleInfo, ComSchedule comSchedule, Instant instant) {
+        boolean isStartTimeAfterNow = comSchedule.getStartDate().isAfter(instant);
+
+        if (isStartTimeAfterNow) {
+            comScheduleInfo.plannedDate = comSchedule.getStartDate();
+
+        } else {
+            Optional<ZonedDateTime> nextOccurrence = comSchedule.getTemporalExpression().nextOccurrence(ZonedDateTime.ofInstant((isStartTimeAfterNow ? comSchedule.getStartDate() : instant), ZoneId.systemDefault()));
+            nextOccurrence.ifPresent(zonedDateTime -> comScheduleInfo.plannedDate = zonedDateTime.toInstant());
+        }
     }
 }
