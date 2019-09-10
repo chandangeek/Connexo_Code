@@ -21,7 +21,7 @@ public class DisconnectorControlLog extends AbstractEvent {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case 59:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Disconnector ready for manual reconnection"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.DISCONNECTOR_READY_FOR_RECONN, eventId, "Disconnector ready for manual reconnection"));
                 break;
             case 60:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MANUAL_DISCONNECTION, eventId, "Manual disconnection"));
@@ -48,28 +48,28 @@ public class DisconnectorControlLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LIMITER_THRESHOLD_CHANGED, eventId, "Limiter threshold changed"));
                 break;
             case 68:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Disconnect/Reconnect failure"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.DISCONNECT_RECONNECT_FAIL, eventId, "Disconnect/Reconnect failure"));
                 break;
             case 69:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Local reconnection"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LOCAL_RECONNECTION, eventId, "Local reconnection"));
                 break;
             case 70:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Supervision monitor 1 threshold exceeded"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SUPERVISION_1_EXCEEDED, eventId, "Supervision monitor 1 threshold exceeded"));
                 break;
             case 71:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Supervision monitor 1 threshold ok"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SUPERVISION_1_OK, eventId, "Supervision monitor 1 threshold ok"));
                 break;
             case 72:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Supervision monitor 2 threshold exceeded"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SUPERVISION_2_EXCEEDED, eventId, "Supervision monitor 2 threshold exceeded"));
                 break;
             case 73:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Supervision monitor 2 threshold ok"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SUPERVISION_2_OK, eventId, "Supervision monitor 2 threshold ok"));
                 break;
             case 74:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Supervision monitor 3 threshold exceeded"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SUPERVISION_3_EXCEEDED, eventId, "Supervision monitor 3 threshold exceeded"));
                 break;
             case 75:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Supervision monitor 3 threshold ok"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SUPERVISION_3_OK, eventId, "Supervision monitor 3 threshold ok"));
                 break;
             case 255:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.EVENT_LOG_CLEARED, eventId, "Disconnector control event log cleared"));
