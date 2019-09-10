@@ -21,7 +21,7 @@
     </description>
 
     <properties>
-        <argLine>-Xmx2g -Xms512m -Djava.util.logging.config.file=../copl/com.elster.jupiter.parent/junit-logging.properties</argLine>
+        <argLine>-Xmx4g -Xms512m -Djava.util.logging.config.file=../copl/com.elster.jupiter.parent/junit-logging.properties</argLine>
     </properties>
 
     <dependencies>
