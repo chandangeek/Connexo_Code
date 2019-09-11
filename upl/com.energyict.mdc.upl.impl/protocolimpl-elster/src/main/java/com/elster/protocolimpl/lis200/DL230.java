@@ -1,23 +1,17 @@
 package com.elster.protocolimpl.lis200;
 
+import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
+import com.elster.protocolimpl.lis200.objects.SimpleObject;
+import com.elster.protocolimpl.lis200.registers.*;
+import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
+import com.elster.utils.lis200.events.Dl230EventInterpreter;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
-import com.elster.protocolimpl.lis200.objects.LockObject;
-import com.elster.protocolimpl.lis200.objects.SimpleObject;
-import com.elster.protocolimpl.lis200.registers.HistoricRegisterDefinition;
-import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
-import com.elster.protocolimpl.lis200.registers.IRegisterReadable;
-import com.elster.protocolimpl.lis200.registers.Lis200ObisCode;
-import com.elster.protocolimpl.lis200.registers.RegisterDefinition;
-import com.elster.protocolimpl.lis200.registers.SimpleRegisterDefinition;
-import com.elster.protocolimpl.lis200.registers.StateRegisterDefinition;
-import com.elster.protocolimpl.lis200.registers.ValueRegisterDefinition;
-import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
-import com.elster.utils.lis200.events.Dl230EventInterpreter;
-
 import java.io.IOException;
+
+import static com.elster.protocolimpl.lis200.objects.LockObject.LockInfo;
+import static com.elster.protocolimpl.lis200.objects.LockObject.LockInfo.*;
 
 @SuppressWarnings({"unused"})
 public class DL230 extends LIS200 implements IRegisterReadable {
@@ -217,9 +211,9 @@ public class DL230 extends LIS200 implements IRegisterReadable {
     }
 
     @Override
-    protected LockObject[] getLockObjects()
+    protected LockInfo[] getLockObjectInfos()
     {
-        return new LockObject[] {LockObject.ManufacturerLock, LockObject.AdministratorLock, LockObject.CustomerLock, LockObject.DataCollectorLock, LockObject.UserLock6};
+        return new LockInfo[] {ManufacturerLock, AdministratorLock, CustomerLock, DataCollectorLock, UserLock6};
     }
 
  }

@@ -3,10 +3,7 @@ package com.elster.jupiter.search.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.*;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.search.SearchCriteria;
 import com.elster.jupiter.search.SearchCriteriaService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -107,7 +104,8 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
 
     @Override
     public Optional<SearchCriteria> findSearchCriteriaByUser(String userName) {
-        return dataModel.mapper(SearchCriteria.class).getOptional(userName);
+        DataMapper<SearchCriteria> searchCriteriaDataMapper = dataModel.mapper(SearchCriteria.class);
+        return searchCriteriaDataMapper.getOptional(userName);
     }
 
     private <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {

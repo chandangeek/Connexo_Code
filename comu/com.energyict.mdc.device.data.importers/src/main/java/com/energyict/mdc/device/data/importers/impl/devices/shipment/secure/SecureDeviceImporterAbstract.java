@@ -106,7 +106,7 @@ public abstract class SecureDeviceImporterAbstract {
             throw new RuntimeException(thesaurus.getFormat(MessageSeeds.SHIPMENT_CERTIFICATE_UNTRUSTED).format(e.getMessage()));
         } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
             log(logger, MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE);
-            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE).format());
+            throw new RuntimeException(thesaurus.getFormat(MessageSeeds.FAILED_TO_VERIFY_CERTIFICATE).format(e.getMessage()));
         } catch (ImportFailedException e) {
             log(logger, e.getMessageSeed(), e.getMessageParameters());
             throw new RuntimeException(thesaurus.getFormat(e.getMessageSeed()).format(e.getMessageParameters()));

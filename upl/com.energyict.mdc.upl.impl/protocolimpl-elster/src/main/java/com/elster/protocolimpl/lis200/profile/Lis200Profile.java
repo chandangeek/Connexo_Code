@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.elster.protocolimpl.lis200.utils.utils.splitLine;
+import static com.elster.protocolimpl.lis200.utils.Utils.splitLine;
 
 /**
  * Implementation of the general functionality of a LoadProfile.<br>

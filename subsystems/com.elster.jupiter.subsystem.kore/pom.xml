@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.1-Heracles-SNAPSHOT</version>
+        <version>1.1.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>kore</artifactId>
@@ -180,11 +180,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.bpm</artifactId>
         </dependency>
-        <!-- NOT included as this is more for POC of the soap whiteboard
-               <dependency>
-                   <groupId>com.elster.jupiter</groupId>
-                   <artifactId>metering.cim</artifactId>
-               </dependency>-->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>

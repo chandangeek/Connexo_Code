@@ -190,6 +190,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
 
     public abstract static class StartExternalProcesses {
         private static final String DEVICE = "com.energyict.mdc.common.device.data.Device";
+        private static final String END_DEVICE = "com.elster.jupiter.metering.EndDevice";
         private static final String DEVICE_ASSOCIATION = "device";
         private static final String USAGEPOINT_ASSOCIATION = "usagepoint";
         public static final String USAGEPOINT = "com.elster.jupiter.metering.UsagePoint";
@@ -235,7 +236,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
         }
 
         private void startProcess(ProcessReference processReference) {
-            if (sourceType.equals(DEVICE)) {
+            if (sourceType.equals(DEVICE) || sourceType.equals(END_DEVICE)) {
                 Optional<BpmProcessDefinition> bpmProcess = bpmService.findBpmProcessDefinition(processReference.getStateChangeBusinessProcess()
                         .getId());
                 if (bpmProcess.isPresent() && isProcessAvailableForDeviceTransition(bpmProcess.get())) {

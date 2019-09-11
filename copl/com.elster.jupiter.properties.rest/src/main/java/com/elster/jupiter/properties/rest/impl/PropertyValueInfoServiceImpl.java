@@ -227,6 +227,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                 && propertyType != SimplePropertyType.DEVICEGROUPTYPE
                 && propertyType != SimplePropertyType.SERVICE_CALL
                 && propertyType != SimplePropertyType.SERVICE_CALL_STATE
+                && propertyType != SimplePropertyType.CUSTOM_EVENT_TYPE
                 && propertyType != SimplePropertyType.ENDPOINT_CONFIGURATION_LIST
                 ) {
             // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
@@ -241,8 +242,11 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
                         propertyType == SimplePropertyType.RADIO_GROUP || propertyType == SimplePropertyType.DEVICEGROUPTYPE || propertyType == SimplePropertyType.LIFECYCLETRANSITION || propertyType == SimplePropertyType.RECURRENCE_SELECTION_PROPS ||
                         propertyType == SimplePropertyType.TASK || propertyType == SimplePropertyType.SERVICE_CALL || propertyType == SimplePropertyType.SERVICE_CALL_STATE || propertyType == SimplePropertyType.ENDPOINT_CONFIGURATION_LIST) {
                     possibleObjects[i] = possibleValues.getAllValues().get(i);
-                } else if (propertyType == SimplePropertyType.IDWITHNAME || propertyType == SimplePropertyType.IDWITHNAMELIST ||
-                        propertyType == SimplePropertyType.BPM_PROCESS || propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT) {
+                } else if (propertyType == SimplePropertyType.IDWITHNAME
+                        || propertyType == SimplePropertyType.IDWITHNAMELIST
+                        || propertyType == SimplePropertyType.BPM_PROCESS
+                        || propertyType == SimplePropertyType.WEB_SERVICES_ENDPOINT
+                        || propertyType == SimplePropertyType.CUSTOM_EVENT_TYPE) {
                     Object idWithName = possibleValues.getAllValues().get(i);
                     possibleObjects[i] = idWithName instanceof HasIdAndName
                             ? asInfo(((HasIdAndName) idWithName).getId(), ((HasIdAndName) idWithName).getName())

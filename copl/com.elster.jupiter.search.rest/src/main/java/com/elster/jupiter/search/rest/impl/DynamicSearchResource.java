@@ -7,11 +7,7 @@ package com.elster.jupiter.search.rest.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.InfoFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.search.*;
 import com.elster.jupiter.search.SearchCriteriaService.SearchCriteriaBuilder;
 import com.elster.jupiter.search.location.SearchLocationService;
@@ -20,16 +16,13 @@ import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +36,7 @@ import static java.util.stream.Collectors.toList;
  * Created by bvn on 6/1/15.
  */
 @Path("/search")
-public class DynamicSearchResource extends BaseResource {
+public class DynamicSearchResource {
 
     private final SearchService searchService;
     private final SearchLocationService searchLocationService;
@@ -51,14 +44,22 @@ public class DynamicSearchResource extends BaseResource {
     private final SearchCriterionInfoFactory searchCriterionInfoFactory;
     private final InfoFactoryService infoFactoryService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final SearchCriteriaService searchCriteriaService;
+    private final TransactionService transactionService;
+
 
     @Inject
-    public DynamicSearchResource(SearchService searchService, SearchLocationService searchLocationService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, InfoFactoryService infoFactoryService, ThreadPrincipalService threadPrincipalService) {
+    public DynamicSearchResource(SearchService searchService, SearchLocationService searchLocationService, ExceptionFactory exceptionFactory, SearchCriterionInfoFactory searchCriterionInfoFactory, InfoFactoryService infoFactoryService,
+                                 ThreadPrincipalService threadPrincipalService,
+                                 SearchCriteriaService searchCriteriaService,
+                                 TransactionService transactionService) {
+        this.searchCriteriaService = searchCriteriaService;
         this.searchService = searchService;
         this.searchLocationService = searchLocationService;
         this.exceptionFactory = exceptionFactory;
         this.threadPrincipalService = threadPrincipalService;
         this.searchCriterionInfoFactory = searchCriterionInfoFactory;
+        this.transactionService = transactionService;
 
         this.infoFactoryService = infoFactoryService;
     }
@@ -250,10 +251,10 @@ public class DynamicSearchResource extends BaseResource {
     public Response saveSearchCriteria(@NotNull @PathParam("name") String name,
                                               @NotNull @FormParam("filter") String filter,
                                               @NotNull @FormParam("domain") String domainId) {
-        Map<String, Object> jsonResponse = new HashMap<>();
+        Map<Object, Object> jsonResponse = new HashMap<>();
         String status = "";
-        try (TransactionContext transactionContext = getTransactionService().getContext()) {
-            SearchCriteriaBuilder searchCriteriaBuilder = getSearchCriteriaService().newSearchCriteria();
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            SearchCriteriaBuilder searchCriteriaBuilder = searchCriteriaService.newSearchCriteria();
             searchCriteriaBuilder.setUserName(threadPrincipalService.getPrincipal().getName());
             searchCriteriaBuilder.setCriteria(filter);
             searchCriteriaBuilder.setName(name);
@@ -275,9 +276,10 @@ public class DynamicSearchResource extends BaseResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/searchCriteria")
+    @Path("/saveSearchCriteria")
     public Response getSearchCriteria() {
-        List<SearchCriteria> searchCriteriaList = getSearchCriteriaService().getCreationRuleQuery().select(Where.where("userName").isEqualTo(threadPrincipalService.getPrincipal().getName()));
+        Query<SearchCriteria> searchCriteriaQuery = searchCriteriaService.getCreationRuleQuery();
+        List<SearchCriteria> searchCriteriaList = searchCriteriaQuery.select(Where.where("userName").isEqualTo(threadPrincipalService.getPrincipal().getName()));
         Map<String, Object> jsonResponse = new HashMap<>();
         jsonResponse.put("numberOfSearchResults", searchCriteriaList);
         return Response.ok().entity(jsonResponse).build();
@@ -288,8 +290,8 @@ public class DynamicSearchResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/searchCriteria/{name}")
     public Response deleteSearchCriteria(@PathParam("name") String name) {
-        try (TransactionContext transactionContext = getTransactionService().getContext()) {
-            SearchCriteriaBuilder searchCriteriaBuilder = getSearchCriteriaService().newSearchCriteria();
+        try (TransactionContext transactionContext = transactionService.getContext()) {
+            SearchCriteriaBuilder searchCriteriaBuilder = searchCriteriaService.newSearchCriteria();
             searchCriteriaBuilder.setUserName(threadPrincipalService.getPrincipal().getName());
             searchCriteriaBuilder.setName(name);
             searchCriteriaBuilder.delete();
@@ -299,7 +301,7 @@ public class DynamicSearchResource extends BaseResource {
     }
 
     private boolean checkForSearchUpdate(String name) {
-        Query<SearchCriteria> searchCriteriaQuery = getSearchCriteriaService().getCreationRuleQuery();
+        Query<SearchCriteria> searchCriteriaQuery = searchCriteriaService.getCreationRuleQuery();
         long size = searchCriteriaQuery.select(Where.where("userName").isEqualTo(threadPrincipalService.getPrincipal().getName())
                 .and(Where.where("name").isEqualTo(name))).size();
         return size > 0;

@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -184,6 +185,7 @@ public class WebServiceDestinationImplTest {
         verifyZeroInteractions(serviceCallType);
     }
 
+    @Ignore
     @Test
     public void testSendToOneEndpoint() {
         WebServiceDestinationImpl destination = getDestination(createEndPoint, createEndPoint);

@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -84,7 +85,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
@@ -1012,6 +1012,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return securityProperties;
+    }
+
+    @Override
+    public Optional<SecurityAccessor> getSecurityAccessorByName(String securityAccessorName) {
+        Optional<SecurityAccessor> optionalKeyAccessor = getSecurityAccessors()
+                .stream()
+                .filter(keyAccessor -> keyAccessor.getName().equals(securityAccessorName))
+                .findFirst();
+
+        return optionalKeyAccessor;
     }
 
     @Override

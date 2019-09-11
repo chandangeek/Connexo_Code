@@ -18,6 +18,7 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.DeviceUsageType;
 import com.energyict.mdc.common.device.config.NumericalRegisterSpec;
@@ -124,8 +125,8 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     private LoadProfileType loadProfileType2;
     private RegisterType registerType1;
     private RegisterType registerType2;
-    private SecurityAccessorType keyAccessorType;
-    private SecurityAccessorType certificateAccessorType;
+    private DeviceSecurityAccessorType keyDeviceSecAccessor;
+    private DeviceSecurityAccessorType certDeviceSecAccessor;
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -1016,30 +1017,30 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     public void addSecurityAccessorTypes() {
         setupSecurityAccessorTypes();
 
-        assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
-        assertThat(deviceType.addSecurityAccessorTypes(keyAccessorType)).isTrue();
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType);
-        assertThat(deviceType.addSecurityAccessorTypes()).isFalse();
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType);
-        assertThat(deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType)).isTrue();
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
-        assertThat(deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType)).isFalse();
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).isEmpty();
+        assertThat(deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor)).isTrue();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor);
+        assertThat(deviceType.addDeviceSecurityAccessorType()).isFalse();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor);
+        assertThat(deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor)).isTrue();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
+        assertThat(deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor)).isFalse();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
     }
 
     @Test
     @Transactional
     public void removeSecurityAccessorType() {
         setupSecurityAccessorTypes();
-        deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType);
+        deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor);
 
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
-        assertThat(deviceType.removeSecurityAccessorType(keyAccessorType)).isTrue();
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(certificateAccessorType);
-        assertThat(deviceType.removeSecurityAccessorType(keyAccessorType)).isFalse();
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(certificateAccessorType);
-        assertThat(deviceType.removeSecurityAccessorType(certificateAccessorType)).isTrue();
-        assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
+        assertThat(deviceType.removeDeviceSecurityAccessorType(keyDeviceSecAccessor)).isTrue();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(certDeviceSecAccessor);
+        assertThat(deviceType.removeDeviceSecurityAccessorType(keyDeviceSecAccessor)).isFalse();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(certDeviceSecAccessor);
+        assertThat(deviceType.removeDeviceSecurityAccessorType(certDeviceSecAccessor)).isTrue();
+        assertThat(deviceType.getDeviceSecurityAccessorType()).isEmpty();
     }
 
     @Test
@@ -1047,24 +1048,24 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     public void removeSecurityAccessorTypeUsedInSecurityPropertySetOnActiveDeviceConfiguration() {
         setupSecurityProperties();
         setupSecurityAccessorTypes();
-        deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType);
+        deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor);
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("COnf").add();
         deviceConfiguration.createSecurityPropertySet("SPS")
                 .authenticationLevel(authLevel.getId())
                 .encryptionLevel(encLevel.getId())
-                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
-                .addConfigurationSecurityProperty(spec2.getName(), keyAccessorType)
+                .addConfigurationSecurityProperty(spec1.getName(), keyDeviceSecAccessor.getSecurityAccessor())
+                .addConfigurationSecurityProperty(spec2.getName(), keyDeviceSecAccessor.getSecurityAccessor())
                 .build();
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
         deviceConfiguration.activate();
 
-        deviceType.removeSecurityAccessorType(certificateAccessorType);
-        assertThat(deviceType.getSecurityAccessorTypes()).containsExactly(keyAccessorType);
+        deviceType.removeDeviceSecurityAccessorType(certDeviceSecAccessor);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsExactly(keyDeviceSecAccessor);
 
         expectedException.expect(SecurityAccessorTypeCanNotBeDeletedException.class);
         expectedException.expectMessage("The security accessor couldn't be removed from the device type"
                 + " because it is used by security sets on active device configurations.");
-        deviceType.removeSecurityAccessorType(keyAccessorType);
+        deviceType.removeDeviceSecurityAccessorType(keyDeviceSecAccessor);
     }
 
     @Test
@@ -1072,26 +1073,26 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
     public void removeSecurityAccessorTypeUsedInSecurityPropertySetOnInactiveDeviceConfiguration() {
         setupSecurityProperties();
         setupSecurityAccessorTypes();
-        deviceType.addSecurityAccessorTypes(keyAccessorType, certificateAccessorType);
+        deviceType.addDeviceSecurityAccessorType(keyDeviceSecAccessor, certDeviceSecAccessor);
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("COnf").add();
         deviceConfiguration.createSecurityPropertySet("SPS")
                 .authenticationLevel(authLevel.getId())
                 .encryptionLevel(encLevel.getId())
-                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
-                .addConfigurationSecurityProperty(spec2.getName(), certificateAccessorType)
+                .addConfigurationSecurityProperty(spec1.getName(), keyDeviceSecAccessor.getSecurityAccessor())
+                .addConfigurationSecurityProperty(spec2.getName(), certDeviceSecAccessor.getSecurityAccessor())
                 .build();
-        assertThat(deviceType.getSecurityAccessorTypes()).containsOnly(keyAccessorType, certificateAccessorType);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).containsOnly(keyDeviceSecAccessor, certDeviceSecAccessor);
 
-        deviceType.removeSecurityAccessorType(keyAccessorType);
-        deviceType.removeSecurityAccessorType(certificateAccessorType);
-        assertThat(deviceType.getSecurityAccessorTypes()).isEmpty();
+        deviceType.removeDeviceSecurityAccessorType(keyDeviceSecAccessor);
+        deviceType.removeDeviceSecurityAccessorType(certDeviceSecAccessor);
+        assertThat(deviceType.getDeviceSecurityAccessorType()).isEmpty();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "securityAccessorType")
     public void addInvalidSecurityAccessorType() {
-        deviceType.addSecurityAccessorTypes((SecurityAccessorType) null);
+        deviceType.addDeviceSecurityAccessorType((DeviceSecurityAccessorType) null);
     }
 
     private void setupLogBookTypesInExistingTransaction(String logBookTypeBaseName) {
@@ -1146,18 +1147,18 @@ public class DeviceTypeImplIT extends DeviceTypeProvidingPersistenceTest {
         KeyType certs = securityManagementService.newCertificateType("Friends").add();
         KeyType aes128 = securityManagementService.newSymmetricKeyType("AES128", "AES", 128).add();
         TrustStore main = securityManagementService.newTrustStore("MAIN").add();
-        certificateAccessorType = securityManagementService.addSecurityAccessorType("Certificate", certs)
+        certDeviceSecAccessor = new DeviceSecurityAccessorType(Optional.empty(),  securityManagementService.addSecurityAccessorType("Certificate", certs)
                 .managedCentrally()
                 .description("just certificates")
                 .trustStore(main)
                 .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
-                .add();
-        keyAccessorType = securityManagementService.addSecurityAccessorType("Key", aes128)
+                .add());
+        keyDeviceSecAccessor = new DeviceSecurityAccessorType(Optional.empty(),  securityManagementService.addSecurityAccessorType("Key", aes128)
                 .keyEncryptionMethod("SSM")
                 .description("general use AK")
                 .duration(TimeDuration.days(365))
                 .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
-                .add();
+                .add());
     }
 
     private void setupSecurityProperties() {

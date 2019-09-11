@@ -6,6 +6,7 @@ package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -13,46 +14,36 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.search.SearchBuilder;
-import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
-import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.search.*;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-
 import com.jayway.jsonpath.JsonModel;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-
+import static com.elster.jupiter.search.SearchCriteriaService.SearchCriteriaBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     private SearchDomain devicesDomain;
     private SearchBuilder searchBuilder;
     private Finder finder;
+    private SearchCriteriaBuilder searchCriteriaBuilder;
 
     @Override
     @Before
@@ -61,7 +52,9 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         SearchDomain devicesDomain = mockDeviceSearchDomain();
 
         SearchDomain deviceTypeDomain = mock(SearchDomain.class);
+        Query<SearchCriteria> searchCriteriaQuery= mock(Query.class);
         when(deviceTypeDomain.getId()).thenReturn("com.deviceTypes");
+        when(this.searchCriteriaService.getCreationRuleQuery()).thenReturn(searchCriteriaQuery);
         when(this.searchService.getDomains()).thenReturn(Arrays.asList(devicesDomain, deviceTypeDomain));
         when(searchService.findDomain("com.deviceTypes")).thenReturn(Optional.of(deviceTypeDomain));
     }
@@ -308,6 +301,72 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<String>get("$.searchResults[2].name")).isEqualTo("SPE01000003");
 
     }
+
+    @Test
+    public void testGetSearchCriteria() throws IOException {
+        Query<SearchCriteria> searchCriteriaQuery = mock(Query.class);
+        when(searchCriteriaService.getCreationRuleQuery()).thenReturn(searchCriteriaQuery);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        Response response = target("/search/saveSearchCriteria")
+                                    .request("application/json").accept("application/json").get();
+        JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testGetSearchCriteriaWithNonExisting() throws IOException {
+        Query<SearchCriteria> searchCriteriaQuery = mock(Query.class);
+        when(searchCriteriaService.getCreationRuleQuery()).thenReturn(searchCriteriaQuery);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when(threadPrincipalService.getPrincipal().getName()).thenReturn("Dummy");
+        Response response = target("/search/saveSearchCriteria")
+                .request("application/json").accept("application/json").get();
+        JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(model.<net.minidev.json.JSONArray>get("$.numberOfSearchResults").size()).isEqualTo(0);
+    }
+
+    @Test
+    public void testPostSearchCriteria() throws IOException {
+        searchCriteriaBuilder = mock(SearchCriteriaBuilder.class);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when( searchCriteriaService.newSearchCriteria()).thenReturn(searchCriteriaBuilder);
+        when(threadPrincipalService.getPrincipal().getName()).thenReturn("root");
+        Form input = new Form();
+        //input.param("name", "device_type");
+        input.param("domain", "device");
+        input.param("filter", "[{\"initialConfig\":{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"},\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+        Response response = target("/search/saveCriteria/device_type")
+                .request("application/json").accept("application/json").post(entity);
+        JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(model.<String>get("$.status")).isEqualTo("Save");
+    }
+
+    @Test
+    public void testDeleteSearchCriteria() throws IOException {
+        searchCriteriaBuilder = mock(SearchCriteriaBuilder.class);
+        when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when( searchCriteriaService.newSearchCriteria()).thenReturn(searchCriteriaBuilder);
+        when(threadPrincipalService.getPrincipal().getName()).thenReturn("root");
+        Form input = new Form();
+        //input.param("name", "device_type");
+        input.param("domain", "device");
+        input.param("filter", "[{\"initialConfig\":{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"},\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"}]");
+        Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
+        target("/search/saveCriteria/device_type")
+                .request("application/json").accept("application/json").post(entity);
+
+        Response response1 = target("/search/searchCriteria/device_type")
+                .request("application/json").accept("application/json").delete();
+
+        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+    }
+
 
     interface DeviceType extends HasId, HasName { }
     interface DeviceConfig extends HasId, HasName {  }

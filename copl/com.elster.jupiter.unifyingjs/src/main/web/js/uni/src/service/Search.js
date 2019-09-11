@@ -744,6 +744,7 @@ Ext.define('Uni.service.Search', {
             items: [{
                 xtype: 'combobox',
                 id: 'saveEntered',
+                itemId:'Save-Entered',
                 emptyText: Uni.I18n.translate('general.typeName', 'UNI', 'Type a name'),
                 fieldLabel: Uni.I18n.translate('general.nameCombo', 'UNI', 'Name'),
                 required: true,
@@ -783,7 +784,10 @@ Ext.define('Uni.service.Search', {
         combo.selectedValue = combo.getValue();
 
         if(combo.nameValue !== undefined && combo.nameValue === 'delete'){
-            Ext.create('Uni.view.window.Confirmation').show({
+            var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                itemId: 'removeSearchConfirmationWindow'
+            });
+            confirmationWindow.show({
                 title: Ext.String.format(Uni.I18n.translate('importService.remove.title', 'UNI', 'Remove \'{0}\'?'), combo.selectedValue),
                 msg: Uni.I18n.translate('importService.remove.message', 'UNI', 'This search criteria will no longer be available.'),
                 fn: function (state) {
@@ -838,14 +842,14 @@ Ext.define('Uni.service.Search', {
                             contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.updateSearch', 'UNI', 'Search criteria updated'));
                     },
                     failure: function (response) {
+                        var errorText = Uni.I18n.translate('general.save.operation.failed', 'UNI', 'Save operation failed') + '.' + Uni.I18n.translate('error.unknownErrorOccurred', 'UNI', 'An unknown error occurred');
+                        var titleText = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'),
+                            code = '';
+                        if (response  && response.responseText && response.responseText.errorCode) {
+                            code = response.responseText.errorCode;
+                        }
+                        contRef.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
 
-                            var errorText = Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                            var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
-                                code = '';
-                            if (response  && response.responseText && response.responseText.errorCode) {
-                                code = response.responseText.errorCode;
-                            }
-                            contRef.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
 
                     }
                 });
@@ -868,13 +872,14 @@ Ext.define('Uni.service.Search', {
                 contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));
             },
             failure: function (response) {
-                var errorText = Uni.I18n.translate('appServers.remove.operation.failed', 'APR', 'Remove operation failed') + '.' + Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
-                var titleText = Uni.I18n.translate('appServers.save.operation.failedTitle', 'APR', 'Couldn\'t perform your action'),
+                var errorText = Uni.I18n.translate('general.remove.operation.failed', 'UNI', 'Remove operation failed') + '.' + Uni.I18n.translate('error.unknownErrorOccurred', 'UNI', 'An unknown error occurred');
+                var titleText = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'),
                     code = '';
                 if (response  && response.responseText && response.responseText.errorCode) {
                     code = response.responseText.errorCode;
                 }
                 contRef.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
+
 
             }
         });

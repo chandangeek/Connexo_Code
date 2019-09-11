@@ -296,6 +296,42 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int VALVE_ALARM_MBUS = 64;
 
     public static final int TAMPER_CLEARED = 65;
+    /**
+     * Technical maintenance of the meter (Comlog Code 1)
+     */
+    public static final int METROLOGICAL_MAINTENANCE = 71;
+    /**
+     * Technical maintenance of the grid (Comlog Code 2)
+     */
+    public static final int TECHNICAL_MAINTENANCE = 72;
+    /**
+     * Retrieving of meter readings E (Comlog Code 3)
+     */
+    public static final int RETREIVE_METER_READINGS_E = 73;
+    /**
+     * Retrieving of meter readings G (Comlog Code 4)
+     */
+    public static final int RETREIVE_METER_READINGS_G = 74;
+    /**
+     * Retrieving of interval data E (Comlog Code 5)
+     */
+    public static final int RETREIVE_INTERVAL_DATA_E = 75;
+    /**
+     * Retrieving of interval data E (Comlog Code 5)
+     */
+    public static final int RETREIVE_INTERVAL_DATA_G = 76;
+    /**
+     * Indicates that a short voltage sag occurred on L1 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L1 = 77;
+    /**
+     * Indicates that a short voltage sag occurred on L2 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L2 = 78;
+    /**
+     * Indicates that a short voltage sag occurred on L2 phase
+     */
+    public static final int SHORT_VOLTAGE_SAG_L3 = 79;
 
     public static final int SAG_PHASE_A = 80;
 
@@ -434,6 +470,116 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int HIGH_VOLTAGE_TEST  = 147;
 
     public static final int REVERSE_POWER_TEST  = 148;
+
+    public static final int TOU_PROGRAMMED  = 149;
+
+    public static final int EXTERNAL_ALERT  = 150;
+
+    public static final int FIRMWARE_VERIFICATION_FAIL  = 151;
+
+    public static final int UNEXPECTED_CONSUMPTION  = 152;
+
+    public static final int PHASE_REVERSAL  = 153;
+
+    public static final int MISSING_NEUTRAL  = 154;
+
+    public static final int N_TIMES_DECRYPT_FAIL  = 155;
+
+    public static final int DISCONNECTOR_READY_FOR_RECONN  = 156;
+
+    public static final int DISCONNECT_RECONNECT_FAIL  = 157;
+
+    public static final int LOCAL_RECONNECTION  = 158;
+
+    public static final int SUPERVISION_1_EXCEEDED  = 159;
+
+    public static final int SUPERVISION_1_OK  = 160;
+
+    public static final int SUPERVISION_2_EXCEEDED  = 161;
+
+    public static final int SUPERVISION_2_OK  = 162;
+
+    public static final int SUPERVISION_3_EXCEEDED  = 163;
+
+    public static final int SUPERVISION_3_OK  = 164;
+
+    public static final int PHASE_ASYMMETRY  = 165;
+
+    public static final int COMMUNICATION_TIMEOUT  = 166;
+
+    public static final int MODEM_INITIALIZATION_FAIL  = 167;
+
+    public static final int SIM_CARD_FAIL  = 168;
+
+    public static final int SIM_CARD_OK  = 169;
+
+    public static final int GSM_GPRS_REGISTRATION_FAIL  = 170;
+
+    public static final int PDP_CONTEXT_ESTABLISHED  = 171;
+
+    public static final int PDP_CONTEXT_DESTROYED = 172;
+
+    public static final int PDP_CONTEXT_FAIL = 173;
+
+    public static final int MODEM_SW_RESET = 174;
+
+    public static final int MODEM_HW_RESET = 175;
+
+    public static final int GSM_CONNECTION = 176;
+
+    public static final int GSM_HANG_UP = 177;
+
+    public static final int DIAGNOSTIC_FAILURE = 178;
+
+    public static final int USER_INITIALIZATION_FAIL = 179;
+
+    public static final int ANSWER_NUMBER_EXCEEDED = 180;
+
+    public static final int LOCAL_COMMUNICATION_ATTEMPT = 181;
+
+    public static final int GLOBAL_KEY = 182;
+
+    public static final int UNDERVOLTAGE_L1 = 183;
+
+    public static final int UNDERVOLTAGE_L2 = 184;
+
+    public static final int UNDERVOLTAGE_L3 = 185;
+
+    public static final int OVERVOLTAGE_L1 = 186;
+
+    public static final int OVERVOLTAGE_L2 = 187;
+
+    public static final int OVERVOLTAGE_L3 = 188;
+
+    public static final int MISSINGVOLTAGE_L1 = 189;
+
+    public static final int MISSINGVOLTAGE_L2 = 190;
+
+    public static final int MISSINGVOLTAGE_L3 = 191;
+
+    public static final int NORMALVOLTAGE_L1 = 192;
+
+    public static final int NORMALVOLTAGE_L2 = 193;
+
+    public static final int NORMALVOLTAGE_L3 = 194;
+
+    public static final int BADVOLTAGE_L1 = 195;
+
+    public static final int BADVOLTAGE_L2 = 196;
+
+    public static final int BADVOLTAGE_L3 = 197;
+
+    public static final int SIGNAL_QUALITY_LOW = 198;
+
+    public static final int METER_ALARM_END = 199;
+
+    public static final int REVERSE_POWER = 200;
+
+    public static final int INPUT_EVENT = 201;
+
+    public static final int CHANGE_IMPULSE = 202;
+
+    public static final int PLUS_A_STORED = 203;
 
     /**
      * Start of Beacon3100 custom codes
@@ -691,7 +837,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     // !!! Keep this one in sync with the above !!!
     // total number of events - 1 (first event starts at 0)
     //Left at 64, custom Beacon events must be remapped
-    public static final int MAX_NUMBER_OF_EVENTS = 64;
+    public static final int MAX_NUMBER_OF_EVENTS = 204;
 
     private final Date time;
     private final int eiCode;

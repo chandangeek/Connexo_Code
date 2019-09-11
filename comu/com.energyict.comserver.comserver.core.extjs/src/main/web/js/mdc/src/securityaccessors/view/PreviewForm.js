@@ -62,6 +62,16 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         renderer: function (value) {
                             return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
                         }
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Key renewal command'),
+                        itemId: 'previewPropertiesCommandName',
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('keyRenewal.command', 'MDC', 'Wrapper name'),
+                        itemId: 'previewWrapperName',
                     }
                 ]
             },
@@ -99,6 +109,11 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                         fieldLabel: Uni.I18n.translate('securityaccessors.viewPrivileges', 'MDC', 'View privileges'),
                         xtype: 'execution-level-displayfield',
                         name: 'viewLevelsInfo'
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('securityaccessors.editPrivileges', 'MDC', 'Edit privileges'),
+                        xtype: 'execution-level-displayfield',
+                        name: 'editLevelsInfo'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('securityaccessors.defaultServiceKey', 'MDC', 'Default service key'),

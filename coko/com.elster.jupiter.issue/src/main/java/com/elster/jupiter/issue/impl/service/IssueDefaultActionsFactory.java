@@ -7,6 +7,7 @@ package com.elster.jupiter.issue.impl.service;
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
+import com.elster.jupiter.issue.impl.actions.MailIssueAction;
 import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
@@ -145,6 +146,7 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
             actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
             actionProviders.put(WebServiceNotificationAction.class.getName(), injector.getProvider(WebServiceNotificationAction.class));
             actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
+            actionProviders.put(MailIssueAction.class.getName(), injector.getProvider(MailIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {
             LOG.warning(e.getMessage());
         }

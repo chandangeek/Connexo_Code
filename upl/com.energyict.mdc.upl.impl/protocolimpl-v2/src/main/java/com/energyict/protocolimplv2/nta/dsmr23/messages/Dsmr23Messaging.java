@@ -42,6 +42,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessag
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayOutputStream;
@@ -276,8 +277,10 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case overThresholdDurationAttributeName:
                 return String.valueOf(((Duration) messageAttribute).getSeconds());
             case newEncryptionKeyAttributeName:
-            case newPasswordAttributeName:
             case newAuthenticationKeyAttributeName:
+                KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, (KeyAccessorType) messageAttribute);
+                return keyRenewalInfo.toJson();
+            case newPasswordAttributeName:
             case passwordAttributeName:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case meterTimeAttributeName:
@@ -303,7 +306,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     }
 
     private String convertKeyAccessorType(KeyAccessorType messageAttribute, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        String[] values = new String[]{keyAccessorTypeExtractor.name(messageAttribute), this.keyAccessorTypeExtractor.passiveValueContent(messageAttribute)};
+        KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, messageAttribute);
+        String[] values = new String[]{keyAccessorTypeExtractor.name(messageAttribute), keyRenewalInfo.toJson()};
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             new ObjectOutputStream(out).writeObject(values);

@@ -36,7 +36,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
+import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
@@ -405,12 +405,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
             if (action instanceof AuthorizedTransitionAction) {
                 AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) action;
                 ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(transitionAction, device, this.thesaurus, MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
-                postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
+                postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
                 throw exception;
             } else {
                 AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) action;
                 ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(businessProcessAction, device, this.thesaurus, MessageSeeds.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
-                postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
+                postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
                 throw exception;
             }
         }
@@ -451,7 +451,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .collect(Collectors.toSet());
         if (!missingRequiredPropertySpecNames.isEmpty()) {
             RequiredMicroActionPropertiesException exception = new RequiredMicroActionPropertiesException(this.thesaurus, MessageSeeds.MISSING_REQUIRED_PROPERTY_VALUES, missingRequiredPropertySpecNames);
-            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
             throw exception;
         }
     }
@@ -480,7 +480,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (lastStateChangeTimestamp.isPresent() && !effectiveTimestamp.isAfter(lastStateChangeTimestamp.get())) {
             EffectiveTimestampNotAfterLastStateChangeException exception = new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
                     device, effectiveTimestamp, lastStateChangeTimestamp.get(), getLongDateFormatForCurrentUser());
-            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
             throw exception;
         }
     }
@@ -496,7 +496,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (!range.contains(effectiveTimestamp)) {
             EffectiveTimestampNotInRangeException exception = new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
                     lowerBound, upperBound, getLongDateFormatForCurrentUser());
-            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
             throw exception;
         }
     }
@@ -588,7 +588,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .collect(Collectors.toList());
         if (!violations.isEmpty()) {
             MultipleMicroCheckViolationsException exception = new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
-            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
             throw exception;
         }
     }
@@ -688,12 +688,25 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void postEventForTransitionFailed(AuthorizedAction action, Device device, String cause) {
-        if(transactionService.isInTransaction()){
+        postEventForTransitionFailed(action, device, cause, true);
+    }
+
+    /**
+     * Create an event for a Failed Transition.<br>
+     * We don't want to do rollbacks before saving the failure message into DB, otherwise we'll get a
+     * TransactionRequiredException
+     *
+     * @param action the authorize action
+     * @param device the device
+     * @param cause the cause
+     * @param shouldRollback should rollback flag
+     */
+    private void postEventForTransitionFailed(AuthorizedAction action, Device device, String cause, Boolean shouldRollback) {
+        if(transactionService.isInTransaction() && shouldRollback){
             transactionService.rollback();
         }
         eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
                 TransitionFailedEventInfo.forFailure(action, device, cause, Instant.now(clock)));
-
     }
 
     private void postEventForTransitionDone(Device device) {
