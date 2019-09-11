@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -11,7 +12,6 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationPointID;
@@ -61,7 +61,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
                     if (device.isPresent()) {
                         try {
                             sapCustomPropertySets.setLocation(device.get(), message.locationId);
-                        } catch (SAPWebServiceException ex) {
+                        } catch (LocalizedException ex) {
                             log(LogLevel.WARNING, thesaurus.getFormat(ex.getMessageSeed()).format(ex.getMessageArgs()));
                         }
                     } else {
@@ -85,9 +85,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
             msg.getUtilitiesDeviceERPSmartMeterLocationNotificationMessage()
                     .forEach(message -> {
                         LocationMessage locationMsg = new LocationMessage(message);
-                        if (locationMsg.isValid()) {
-                            locationMessages.add(locationMsg);
-                        }
+                        locationMessages.add(locationMsg);
                     });
         }
 
@@ -128,7 +126,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
         private String getLocationId(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
             return Optional.ofNullable(msg.getUtilitiesDevice())
                     .map(UtilsDvceERPSmrtMtrLocNotifUtilsDvce::getLocation)
-                    .map(location -> location.get(0))
+                    .flatMap(location -> location.stream().findFirst())
                     .map(UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointID)
                     .map(InstallationPointID::getValue)
                     .orElse(null);

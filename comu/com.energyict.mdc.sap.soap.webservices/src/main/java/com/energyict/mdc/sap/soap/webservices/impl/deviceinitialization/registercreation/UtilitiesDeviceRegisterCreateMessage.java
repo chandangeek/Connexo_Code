@@ -12,10 +12,10 @@ import java.util.Optional;
 public class UtilitiesDeviceRegisterCreateMessage {
 
     private String deviceId;
-    private List<UtilitiesDeviceRegisterMessage> utilitiesDeviceRegisterMessage = new ArrayList<>();
+    private List<UtilitiesDeviceRegisterMessage> utilitiesDeviceRegisterMessages = new ArrayList<>();
 
-    public List<UtilitiesDeviceRegisterMessage> getUtilitiesDeviceRegisterMessage() {
-        return utilitiesDeviceRegisterMessage;
+    public List<UtilitiesDeviceRegisterMessage> getUtilitiesDeviceRegisterMessages() {
+        return utilitiesDeviceRegisterMessages;
     }
 
     public String getDeviceId() {
@@ -40,7 +40,7 @@ public class UtilitiesDeviceRegisterCreateMessage {
 
             requestMessage.getRegister()
                     .forEach(message ->
-                            utilitiesDeviceRegisterMessage.add(UtilitiesDeviceRegisterMessage
+                            utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
                                     .builder()
                                     .from(message)
                                     .build()));
@@ -52,7 +52,7 @@ public class UtilitiesDeviceRegisterCreateMessage {
 
             requestMessage.getRegister()
                     .forEach(message ->
-                            utilitiesDeviceRegisterMessage.add(UtilitiesDeviceRegisterMessage
+                            utilitiesDeviceRegisterMessages.add(UtilitiesDeviceRegisterMessage
                                     .builder()
                                     .from(message)
                                     .build()));

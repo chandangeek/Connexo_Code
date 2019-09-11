@@ -6,7 +6,7 @@ package com.energyict.mdc.common.device.config;
 
 import com.elster.jupiter.metering.ReadingType;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
@@ -17,7 +17,7 @@ import java.util.Optional;
  *
  * @author Geert
  */
-@ProviderType
+@ConsumerType
 public interface NumericalRegisterSpec extends RegisterSpec {
 
     /**

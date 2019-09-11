@@ -158,9 +158,9 @@ public class A1440Profile extends VDEWProfile {
 		}
 		switch(logcode) {
 		case FATAL_DEVICE_ERROR:            return MeterEvent.FATAL_ERROR;
-		case RUNNING_RESERVE_EXHAUSTED:     return MeterEvent.OTHER;
-		case DISTURBED_MEASURE:             return MeterEvent.OTHER;
-		case SEASONAL_SWITCHOVER:           return MeterEvent.OTHER;
+		case RUNNING_RESERVE_EXHAUSTED:     return MeterEvent.REVERSE_ROTATION;
+		case DISTURBED_MEASURE:             return MeterEvent.MEASUREMENT_SYSTEM_ERROR;
+		case SEASONAL_SWITCHOVER:           return MeterEvent.SEASON_CHANGE;
 
 		case DEVICE_RESET:                  return MeterEvent.MAXIMUM_DEMAND_RESET;
 		case DEVICE_CLOCK_SET_INCORRECT:    return MeterEvent.SETCLOCK;
@@ -169,23 +169,23 @@ public class A1440Profile extends VDEWProfile {
 
 		case VARIABLE_SET:                  return MeterEvent.CONFIGURATIONCHANGE;
 		case BEGIN_OF_ERROR:                return MeterEvent.METER_ALARM;
-		case END_OF_ERROR:                  return MeterEvent.METER_ALARM;
-		case REVERSE_POWER:					return MeterEvent.OTHER;
+		case END_OF_ERROR:                  return MeterEvent.METER_ALARM_END;
+		case REVERSE_POWER:					return MeterEvent.REVERSE_POWER;
 
-		case INPUT_EVENT1:					return MeterEvent.OTHER;
+		case INPUT_EVENT1:					return MeterEvent.INPUT_EVENT;
 		case CLEAR_LOGBOOK:                 return MeterEvent.CLEAR_DATA;
 		case CLEAR_LOADPROFILE:             return MeterEvent.CLEAR_DATA;
-		case INPUT_EVENT2:					return MeterEvent.OTHER;
+		case INPUT_EVENT2:					return MeterEvent.INPUT_EVENT;
 
-		case CHANGE_OF_IMPULSECONSTANT:		return MeterEvent.CONFIGURATIONCHANGE;
-		case TERMINAL_COVER_OPENED:			return MeterEvent.OTHER;
-		case MAIN_COVER_OPENED:				return MeterEvent.OTHER;
-		case WRONG_PASSWORD_USED:			return MeterEvent.OTHER;
+		case CHANGE_OF_IMPULSECONSTANT:		return MeterEvent.CHANGE_IMPULSE;
+		case TERMINAL_COVER_OPENED:			return MeterEvent.TERMINAL_OPENED;
+		case MAIN_COVER_OPENED:				return MeterEvent.MAIN_COVER_TEMPER;
+		case WRONG_PASSWORD_USED:			return MeterEvent.DOT1X_FAILURE;
 
-		case PLUS_A_STORED:					return MeterEvent.OTHER;
-		case L1_MISSING:					return MeterEvent.PHASE_FAILURE;
-		case L2_MISSING:					return MeterEvent.PHASE_FAILURE;
-		case L3_MISSING:					return MeterEvent.PHASE_FAILURE;
+		case PLUS_A_STORED:					return MeterEvent.PLUS_A_STORED;
+		case L1_MISSING:					return MeterEvent.MISSINGVOLTAGE_L1;
+		case L2_MISSING:					return MeterEvent.MISSINGVOLTAGE_L2;
+		case L3_MISSING:					return MeterEvent.MISSINGVOLTAGE_L3;
 
 		default:                            return MeterEvent.OTHER;
 		}

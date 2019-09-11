@@ -101,12 +101,16 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("total")).isEqualTo(2);
         assertThat(jsonModel.<Integer>get("$.occurrences[0].id")).isEqualTo(0);
-        assertThat(jsonModel.<String>get("$.occurrences[0].status")).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING.getName());
+        assertThat(jsonModel.<Object>get("$.occurrences[0].status")).isNotNull();
+        assertThat(jsonModel.<String>get("$.occurrences[0].status.id")).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING.name());
+        assertThat(jsonModel.<String>get("$.occurrences[0].status.name")).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING.getName());
         assertThat(jsonModel.<String>get("$.occurrences[0].request")).isEqualTo("Request1");
         assertThat(jsonModel.<String>get("$.occurrences[0].applicationName")).isEqualTo(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
 
         assertThat(jsonModel.<Integer>get("$.occurrences[1].id")).isEqualTo(0);
-        assertThat(jsonModel.<String>get("$.occurrences[1].status")).isEqualTo(WebServiceCallOccurrenceStatus.SUCCESSFUL.getName());
+        assertThat(jsonModel.<Object>get("$.occurrences[1].status")).isNotNull();
+        assertThat(jsonModel.<String>get("$.occurrences[1].status.id")).isEqualTo(WebServiceCallOccurrenceStatus.SUCCESSFUL.name());
+        assertThat(jsonModel.<String>get("$.occurrences[1].status.name")).isEqualTo(WebServiceCallOccurrenceStatus.SUCCESSFUL.getName());
         assertThat(jsonModel.<String>get("$.occurrences[1].request")).isEqualTo("Request2");
         assertThat(jsonModel.<String>get("$.occurrences[1].applicationName")).isEqualTo(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
     }
@@ -143,7 +147,9 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(0);
-        assertThat(jsonModel.<String>get("$.status")).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING.getName());
+        assertThat(jsonModel.<Object>get("$.status")).isNotNull();
+        assertThat(jsonModel.<String>get("$.status.id")).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING.name());
+        assertThat(jsonModel.<String>get("$.status.name")).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING.getName());
         assertThat(jsonModel.<String>get("$.request")).isEqualTo("Request1");
         assertThat(jsonModel.<String>get("$.applicationName")).isEqualTo(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
     }

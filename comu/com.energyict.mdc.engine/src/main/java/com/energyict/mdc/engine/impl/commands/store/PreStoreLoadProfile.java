@@ -169,16 +169,13 @@ public class PreStoreLoadProfile {
         }
 
         private IntervalBlock processBlock(IntervalBlock intervalBlock, String readingTypeMRID, Unit unit, BigDecimal multiplier, Range<Instant> rangeToProcess, ZoneId zone) {
-            /*
             Optional<IntervalReading> invalidInterval = findInValidInterval(intervalBlock, readingTypeMRID, zone);
 
-
             if (invalidInterval.isPresent()) {
-                //IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
-                //setPreStoreResult(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH);
-                //return processingBlock;
+                IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
+                setPreStoreResult(PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH);
+                return processingBlock;
             }
-            */
 
             Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(readingTypeMRID);
             int scaler = getScaler(unit, configuredUnit);
@@ -193,7 +190,12 @@ public class PreStoreLoadProfile {
 
         private Optional<IntervalReading> findInValidInterval(IntervalBlock intervalBlock, String readingTypeMRID, ZoneId zone) {
             Optional<TimeDuration> timeDuration = mdcReadingTypeUtilService.getReadingTypeInterval(readingTypeMRID);
-            final boolean validInterval = timeDuration.isPresent() && Stream.of(LoadProfileIntervals.values())
+
+            if (!timeDuration.isPresent()){
+                return Optional.empty();
+            }
+
+            final boolean validInterval = Stream.of(LoadProfileIntervals.values())
                     .filter(interval -> interval.getTimeDuration().getSeconds() == timeDuration.get().getSeconds())
                     .findAny()
                     .isPresent();

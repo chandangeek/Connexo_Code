@@ -25,7 +25,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
-import static com.elster.protocolimpl.lis200.utils.utils.splitLine;
+import static com.elster.protocolimpl.lis200.utils.Utils.splitLine;
 
 /**
  * Basic functionality for Register reading support

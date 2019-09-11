@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization;
 
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -11,7 +12,6 @@ import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterutilitiespodbulknotification.SmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryBulkAssignedNotificationCIn;
@@ -62,7 +62,7 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
                     if (device.isPresent()) {
                         try {
                             sapCustomPropertySets.setPod(device.get(), message.podId);
-                        } catch (SAPWebServiceException ex) {
+                        } catch (LocalizedException ex) {
                             log(LogLevel.WARNING, thesaurus.getFormat(ex.getMessageSeed()).format(ex.getMessageArgs()));
                         }
                     } else {
@@ -86,9 +86,7 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
             msg.getSmartMeterUtilitiesMeasurementTaskERPPointOfDeliveryAssignedNotificationMessage()
                     .forEach(message -> {
                         PodMessage podMsg = new PodMessage(message);
-                        if (podMsg.isValid()) {
-                            podMessages.add(podMsg);
-                        }
+                        podMessages.add(podMsg);
                     });
         }
 
@@ -130,7 +128,7 @@ public class PointOfDeliveryBulkAssignedNotificationEndpoint extends AbstractInb
         private String getPodId(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifMsg msg) {
             return Optional.ofNullable(msg.getUtilitiesMeasurementTask())
                     .map(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsMsmtTsk::getUtilitiesPointOfDeliveryAssignment)
-                    .map(pod -> pod.get(0))
+                    .flatMap(pod -> pod.stream().findFirst())
                     .map(SmrtMtrUtilsMsmtTskERPPtDelivAssgndNotifUtilsPtDeliv::getUtilitiesPointOfDeliveryPartyID)
                     .map(UtilitiesPointOfDeliveryPartyID::getValue)
                     .orElse(null);

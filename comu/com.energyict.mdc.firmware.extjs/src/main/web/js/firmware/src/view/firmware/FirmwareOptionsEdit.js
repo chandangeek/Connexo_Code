@@ -245,6 +245,14 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     }
                     if (result) record.set("checkOptions", checkOptions);
 
+                    var firmwareUpgradeOptions = me.down('#firmwareUpgradeOptions');
+                    if (!firmwareUpgradeOptions.getValue() || !firmwareUpgradeOptions.getValue().selectedOptions){
+                        me.down('#firmwareUpgradeOptionsError').show();
+                        result = false;
+                    }else{
+                        me.down('#firmwareUpgradeOptionsError').hide();
+                    }
+
                     return result;
                 },
                 items: [
@@ -298,12 +306,23 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         ]
                     },
                     {
+                        xtype: 'displayfield',
+                        itemId: 'firmwareUpgradeOptionsError',
+                        padding: '-10 0 -10 0',
+                        fieldLabel: '&nbsp',
+                        hidden: true,
+                        renderer: function (value, field) {
+                            return '<span style="color:red;">' + Uni.I18n.translate('firmware.specs.save.validationError', 'FWC', 'You must select at least one item in the group') + '</span>';
+                        }
+                    },
+                    {
                         xtype: 'checkboxgroup',
                         required: false,
                         itemId: 'firmwareTargetFileStatus',
                         columns: 1,
                         vertical: true,
                         fieldLabel: Uni.I18n.translate('general.firmwareTargetFileStatus', 'FWC', 'Target firmware status'),
+                        required: true,
                         items: [
                             {
                                 beforeSubTpl: '<span style="font-style:italic;color: grey;padding: 0 5px 5px 0;">' + Uni.I18n.translate('general.upload.fw.target.firm.status', 'FWC', 'Check if the uploaded firmware has this status') + '</span>',
@@ -353,9 +372,9 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         items: [
                             {
                                 itemId: 'masterFirmwareCheck',
-                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck', 'FWC', 'Master has the latest firmware (both meter and communication)') + '</b>',
+                                boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck', 'FWC', 'Master has the latest firmware (meter, communication and auxiliary)') + '</b>',
                                 inputValue: 'currentFirmwareCheck',
-                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck.comment', 'FWC', 'The latest firmeware on the master is chosen only within versions with the selected status') + '</span>',
+                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.masterFirmwareCheck.comment', 'FWC', 'The latest firmware on the master is chosen only within versions with the selected status') + '</span>',
                             }
                         ]
                     },

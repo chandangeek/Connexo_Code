@@ -88,7 +88,9 @@ class WebServiceDestinationImpl extends AbstractDataExportDestination implements
         TimeDuration timeout = getTimeout(createEndPoint);
         List<ServiceCallStatus> serviceCallStates = new ArrayList<>(2);
         List<CompletableFuture<Void>> serviceCalls = new ArrayList<>(2);
-        if (getChangeWebServiceEndpoint().filter(Predicates.not(createEndPoint::equals)).isPresent()) {
+// want to send 2 different requests when the same endpoint is set for both services
+//        if (getChangeWebServiceEndpoint().filter(Predicates.not(createEndPoint::equals)).isPresent()) {
+        if (getChangeWebServiceEndpoint().isPresent()) {
             EndPointConfiguration changeEndPoint = getChangeWebServiceEndpoint().get();
             DataExportWebService changeService = getExportWebService(changeEndPoint);
             TimeDuration changeTimeout = getTimeout(changeEndPoint);

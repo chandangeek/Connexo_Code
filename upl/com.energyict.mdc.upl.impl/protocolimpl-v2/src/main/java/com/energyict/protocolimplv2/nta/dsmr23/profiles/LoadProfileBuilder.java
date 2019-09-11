@@ -60,6 +60,12 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     protected static final ObisCode HourlyStatusObiscode = ObisCode.fromString("0.x.96.10.3.255");
 
     /**
+     * MBus master value obis code,
+     * used to filter load profile channels used by slave devices
+     */
+    public static final ObisCode MBUS_MASTER_VALUE = ObisCode.fromString("0.x.24.2.1.255");
+
+    /**
      * The used meterProtocol
      */
     private final AbstractDlmsProtocol meterProtocol;
@@ -260,7 +266,15 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                             }
                             coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
                         } else {
-                            getMeterProtocol().journal(Level.WARNING, "Unexpected channel found in device which could not be mapped to the master device or to any of the slave devices: "+co.getLogicalName());
+                            if (co.getLogicalName().getObisCode().equalsIgnoreBChannel(MBUS_MASTER_VALUE)) {
+                                // For some profiles we expect MBus channels stored which are not found
+                                // Ex:  if there is only one Mbus channel, only 0.1.24.2.1.255 obis will be present,
+                                //      but not 0.2.24.2.1.255, 0.3.24.2.1.255, 0.4.24.2.1.255
+                                // so swallow this case and don't alert the user
+                            } else {
+                                // this is a genuine warning, we found a wrong channel
+                                getMeterProtocol().journal(Level.WARNING, "Unexpected channel found in device which could not be mapped to the master device or to any of the slave devices: " + co.getLogicalName());
+                            }
                         }
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);

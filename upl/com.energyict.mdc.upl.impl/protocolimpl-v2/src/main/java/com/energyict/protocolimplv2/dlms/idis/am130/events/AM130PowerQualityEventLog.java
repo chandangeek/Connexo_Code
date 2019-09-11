@@ -22,16 +22,16 @@ public class AM130PowerQualityEventLog extends PowerQualityEventLog {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case 90:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_FAILURE, eventId, "Phase Asymmetry"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_ASYMMETRY, eventId, "Phase Asymmetry"));
                 break;
             case 92:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_FAILURE, eventId, "Bad Voltage Quality L1"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BADVOLTAGE_L1, eventId, "Bad Voltage Quality L1"));
                 break;
             case 93:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_FAILURE, eventId, "Bad Voltage Quality L2"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BADVOLTAGE_L2, eventId, "Bad Voltage Quality L2"));
                 break;
             case 94:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_FAILURE, eventId, "Bad Voltage Quality L3"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.BADVOLTAGE_L3, eventId, "Bad Voltage Quality L3"));
                 break;
             default:
                 super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);

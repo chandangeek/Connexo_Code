@@ -328,7 +328,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2018-05-18 09:05:00 +0300 (Fri, 18 May 2018)$";
+        return "$Date: 2019-09-04$";
     }
 
     @Override

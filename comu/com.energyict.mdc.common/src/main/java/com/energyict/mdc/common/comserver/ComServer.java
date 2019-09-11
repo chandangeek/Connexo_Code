@@ -9,7 +9,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.time.Instant;
 import java.util.List;
@@ -44,7 +44,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (16:42)
  */
-@ProviderType
+@ConsumerType
 public interface ComServer extends HasId, HasName {
     String CHANGES_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.changesInterPollDelay";
     String SCHEDULING_INTER_POLL_DELAY_RESOURCE_KEY = "comserver.schedulingInterPollDelay";
@@ -318,7 +318,7 @@ public interface ComServer extends HasId, HasName {
      */
     String getQueryApiPostUriIfSupported();
 
-    @ProviderType
+    @ConsumerType
     interface ComServerBuilder<CS extends ComServer, CSB extends ComServerBuilder> {
         CSB name(String comServerName);
         CSB changesInterPollDelay(TimeDuration changesInterPollDelay);

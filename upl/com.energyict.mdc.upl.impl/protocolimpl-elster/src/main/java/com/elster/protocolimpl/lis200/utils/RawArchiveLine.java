@@ -38,7 +38,7 @@ public class RawArchiveLine
 
         this.rali = rali;
 
-        data = utils.splitLine(rawArchiveLine);
+        data = Utils.splitLine(rawArchiveLine);
 
         timeStamp = rali.getDateFormat().parse(data[rali.getTstCol()]);
     }
@@ -48,7 +48,7 @@ public class RawArchiveLine
         if (sysStateCol < 0) {
             return 0;
         } else {
-            return utils.StateToInt(data[sysStateCol]);
+            return Utils.StateToInt(data[sysStateCol]);
         }
     }
 
@@ -110,7 +110,7 @@ public class RawArchiveLine
      */
     public int getLineState() {
 
-        return utils.SysStateToEIState(getSysState());
+        return Utils.SysStateToEIState(getSysState());
 
     }
 
@@ -173,7 +173,7 @@ public class RawArchiveLine
         }
 
         for (int col : rali.getInstanceStateCols()) {
-            int state = utils.StateToInt(data[col]);
+            int state = Utils.StateToInt(data[col]);
             if ((state & 0x3) > 0) {
                 return IntervalStateBits.CORRUPTED;
             }

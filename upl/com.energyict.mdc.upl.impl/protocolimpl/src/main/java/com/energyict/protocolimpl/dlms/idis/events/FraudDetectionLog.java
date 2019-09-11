@@ -36,10 +36,10 @@ public class FraudDetectionLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.N_TIMES_WRONG_PASSWORD, eventId, "Association authentication failure (n time failed authentication)"));
                 break;
             case 49:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.N_TIMES_WRONG_PASSWORD, eventId, "Decryption or authentication failure (n time failure)"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.N_TIMES_DECRYPT_FAIL, eventId, "Decryption or authentication failure (n time failure)"));
                 break;
             case 50:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Replay attack"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REPLAY_ATTACK, eventId, "Replay attack"));
                 break;
             case 255:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.EVENT_LOG_CLEARED, eventId, "Fraud detection log cleared"));

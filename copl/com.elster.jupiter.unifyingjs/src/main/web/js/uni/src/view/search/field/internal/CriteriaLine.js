@@ -8,7 +8,7 @@
 Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     extend: 'Ext.panel.Panel',
     xtype: 'uni-search-internal-criterialine',
-    minWidth: 300,
+    layout: 'fit',
 
     requires: [
         'Uni.view.search.field.internal.Input',
@@ -69,7 +69,6 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
             }, me.itemsDefaultConfig));
 
             Ext.resumeLayouts(true);
-            Ext.re
         }
 
         if (me.rendered) {

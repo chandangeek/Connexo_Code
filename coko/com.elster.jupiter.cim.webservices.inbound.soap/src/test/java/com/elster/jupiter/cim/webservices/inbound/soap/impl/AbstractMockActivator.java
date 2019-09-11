@@ -4,9 +4,12 @@
 
 package com.elster.jupiter.cim.webservices.inbound.soap.impl;
 
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.MasterDataLinkageConfigMasterCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigCustomPropertySet;
+import com.elster.jupiter.cim.webservices.inbound.soap.servicecall.usagepointconfig.UsagePointConfigMasterCustomPropertySet;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyUsagePointConfigWebService;
-import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -91,8 +94,6 @@ public abstract class AbstractMockActivator {
     @Mock
     protected JsonService jsonService;
     @Mock
-    protected SendMeterReadingsProvider sendMeterReadingsProvider;
-    @Mock
     private ServiceCallType serviceCallType;
     @Mock
     private QueueTableSpec queueTableSpec;
@@ -106,6 +107,14 @@ public abstract class AbstractMockActivator {
     private ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
     @Mock
     private ReplyUsagePointConfigWebService replyUsagePointConfigWebService;
+    @Mock
+    private MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet;
+    @Mock
+    private MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet;
+    @Mock
+    private UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet;
+    @Mock
+    private UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet;
 
     @Before
     public void init() {
@@ -132,7 +141,9 @@ public abstract class AbstractMockActivator {
                 transactionService, meteringService, nlsService, upgradeService, metrologyConfigurationService,
                 userService, usagePointLifeCycleService, customPropertySetService, endPointConfigurationService,
                 webServicesService, serviceCallService, messageService, jsonService,
-                replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService);
+                replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService,
+                masterDataLinkageConfigMasterCustomPropertySet, masterDataLinkageConfigCustomPropertySet,
+                usagePointConfigMasterCustomPropertySet, usagePointConfigCustomPropertySet);
     }
 
     protected <T> T getInstance(Class<T> clazz) {

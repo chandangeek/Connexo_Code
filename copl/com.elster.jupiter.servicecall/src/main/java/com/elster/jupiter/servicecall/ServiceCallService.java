@@ -190,4 +190,5 @@ public interface ServiceCallService {
     Set<DefaultState> nonFinalStates();
 
     List<DestinationSpec> getCompatibleQueues4();
+
 }

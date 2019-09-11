@@ -24,6 +24,8 @@ import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -69,13 +71,17 @@ public class CreationRuleResource extends BaseResource {
     private final CreationRuleActionInfoFactory actionFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, CreationRuleActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory) {
+    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, CreationRuleActionInfoFactory actionFactory,
+            PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory,
+            MeteringGroupsService meteringGroupsService) {
         this.ruleInfoFactory = ruleInfoFactory;
         this.actionFactory = actionFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @GET
@@ -97,6 +103,7 @@ public class CreationRuleResource extends BaseResource {
                         add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.TASK.getName()).get());
+                        add(getIssueService().findIssueType(IssueTypes.WEB_SERVICE.getName()).get());
                     }})));
         }
 
@@ -161,6 +168,7 @@ public class CreationRuleResource extends BaseResource {
             setBaseFields(rule, builder);
             setActions(rule, builder);
             setTemplate(rule, builder);
+            setExcludedDeviceGroups(rule, builder);
             builder.complete();
             context.commit();
         }
@@ -180,6 +188,7 @@ public class CreationRuleResource extends BaseResource {
             updater.removeActions();
             setActions(rule, updater);
             setTemplate(rule, updater);
+            setExcludedDeviceGroups(rule, updater);
             updater.complete();
             context.commit();
         }
@@ -227,9 +236,9 @@ public class CreationRuleResource extends BaseResource {
     @Path("/validateaction")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response validateAction(@QueryParam("reason_name") String reasonName, CreationRuleActionInfo info) {
+    public Response validateAction(@QueryParam("reason_name") String reasonKey, CreationRuleActionInfo info) {
         CreationRuleActionBuilder actionBuilder = getIssueCreationService().newCreationRule().newCreationRuleAction();
-        setAction(info, actionBuilder, reasonName);
+        setAction(info, actionBuilder, reasonKey);
         CreationRuleAction ruleAction = actionBuilder.complete();
         ruleAction.validate();
         return Response.ok(actionFactory.asInfo(ruleAction)).build();
@@ -276,11 +285,22 @@ public class CreationRuleResource extends BaseResource {
         }
     }
 
+    private void setExcludedDeviceGroups(CreationRuleInfo rule, CreationRuleBuilder builder) {
+        if (rule.exclGroups != null) {
+            List<EndDeviceGroup> groupList = rule.exclGroups.stream().map(exclGroupInfo -> {
+                return meteringGroupsService.findEndDeviceGroup(exclGroupInfo.deviceGroupId).orElse(null);
+            }).filter(elem -> elem != null).collect(Collectors.toList());
+            builder.setExcludedDeviceGroups(groupList);
+        } else {
+            builder.setExcludedDeviceGroups(new ArrayList<>());
+        }
+    }
+
     private void setActions(CreationRuleInfo rule, CreationRuleBuilder builder) {
         rule.actions.forEach((info) -> setAction(info, builder.newCreationRuleAction(), null));
     }
 
-    private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder, String reasonName) {
+    private void setAction(CreationRuleActionInfo actionInfo, CreationRuleActionBuilder actionBuilder, String reasonKey) {
         if (actionInfo.phase != null) {
             actionBuilder.setPhase(CreationRuleActionPhase.fromString(actionInfo.phase.uuid));
         }
@@ -288,7 +308,7 @@ public class CreationRuleResource extends BaseResource {
             Optional<IssueActionType> actionType = getIssueActionService().findActionType(actionInfo.type.id);
             if (actionType.isPresent() && actionType.get().createIssueAction().isPresent() && actionInfo.properties != null) {
                 actionBuilder.setActionType(actionType.get());
-                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonName(reasonName).getPropertySpecs()) {
+                for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonKey(reasonKey).getPropertySpecs()) {
                     Object value = propertyValueInfoService.findPropertyValue(propertySpec, actionInfo.properties);
                     if (value != null) {
                         actionBuilder.addProperty(propertySpec.getName(), value);

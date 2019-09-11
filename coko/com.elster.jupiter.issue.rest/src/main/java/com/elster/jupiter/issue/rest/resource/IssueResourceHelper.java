@@ -36,7 +36,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -109,7 +108,8 @@ public class IssueResourceHelper {
 
         return query.select(condition).stream()
                 .filter(actionType -> actionType.createIssueAction()
-                        .map(action -> action.isApplicable(issue) && action.isApplicableForUser(user))
+                        //action.isApplicable("") is crutch to exclude start process from manual actions
+                        .map(action -> action.isApplicable(issue) && action.isApplicableForUser(user) && action.isApplicable(""))
                         .orElse(false))
                 .collect(Collectors.toList());
     }
@@ -180,6 +180,9 @@ public class IssueResourceHelper {
         if (jsonFilter.hasProperty(IssueRestModuleConst.METER)) {
             meteringService.findEndDeviceByName(jsonFilter.getString(IssueRestModuleConst.METER))
                     .ifPresent(filter::addDevice);
+            if(jsonFilter.hasProperty("showTopology")) {
+                filter.setShowTopology(jsonFilter.getBoolean("showTopology"));
+            }
         }
         if (jsonFilter.hasProperty(IssueRestModuleConst.LOCATION)) {
             Long locationId = Long.valueOf(jsonFilter.getString(IssueRestModuleConst.LOCATION));
@@ -222,6 +225,9 @@ public class IssueResourceHelper {
             }
         }
 
+        if (jsonFilter.hasProperty(IssueRestModuleConst.PRIORITY)){
+            filter.setPriority(jsonFilter.getComplexProperty(IssueRestModuleConst.PRIORITY));
+        }
 
         if (jsonFilter.getLongList(IssueRestModuleConst.WORKGROUP).stream().allMatch(s -> s == null)) {
             jsonFilter.getStringList(IssueRestModuleConst.WORKGROUP).stream().map(id -> userService.getWorkGroup(Long.valueOf(id)).orElse(null))
@@ -249,6 +255,7 @@ public class IssueResourceHelper {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.TASK.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.SERVICE_CALL_ISSUE.getName()).orElse(null));
                     filter.addIssueType(issueService.findIssueType(IssueTypes.MANUAL.getName()).orElse(null));
+                    filter.addIssueType(issueService.findIssueType(IssueTypes.WEB_SERVICE.getName()).orElse(null));
                 } else if (jsonFilter.getString(IssueRestModuleConst.APPLICATION).compareToIgnoreCase("INS") == 0) {
                     filter.addIssueType(issueService.findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).orElse(null));
                 }

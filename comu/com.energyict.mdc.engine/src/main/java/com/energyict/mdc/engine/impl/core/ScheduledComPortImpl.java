@@ -117,7 +117,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private String initializeThreadName() {
-        return "ComPort schedule for " + this.getComPort().getName();
+        long threadId = 0;
+        if (this.self != null) {
+            threadId = this.self.getId();
+        }
+        return "ComPort schedule for " + this.getComPort().getName() + "/" + threadId;
     }
 
     protected DeviceCommandExecutor getDeviceCommandExecutor() {
@@ -210,28 +214,33 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     public void run() {
         setThreadPrinciple();
 
-        this.comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
+        try {
+            comServerDAO.releaseTasksFor(comPort); // cleanup any previous tasks you kept busy ...
+        } catch (PersistenceException e) {
+            exceptionLogger.unexpectedError(e);
+            runningComServer.refresh(getComPort());
+            continueRunning.set(false);
+        }
 
         while (continueRunning()) {
             try {
-                LOGGER.info("[" + Thread.currentThread().getName() + "] run");
                 doRun();
             } catch (Throwable t) {
-                this.exceptionLogger.unexpectedError(t);
+                exceptionLogger.unexpectedError(t);
                 if (t instanceof PersistenceException) {
-                    this.runningComServer.refresh(getComPort());
-                    this.continueRunning.set(false);
+                    runningComServer.refresh(getComPort());
+                    continueRunning.set(false);
                 } else {
                     // Give the infrastructure some time to recover from e.g. unexpected SQL errors
-                    this.reschedule();
+                    reschedule();
                 }
             }
         }
-        this.status = ServerProcessStatus.SHUTDOWN;
+        status = ServerProcessStatus.SHUTDOWN;
     }
 
     protected boolean continueRunning() {
-        return this.continueRunning.get() && !Thread.currentThread().isInterrupted();
+        return continueRunning.get() && !Thread.currentThread().isInterrupted();
     }
 
     protected abstract void doRun();
@@ -254,7 +263,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     protected void reschedule() {
         try {
-            Thread.sleep(getSleepDurationInMs());
+            Thread.sleep(Math.abs(getSleepDurationInMs()));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

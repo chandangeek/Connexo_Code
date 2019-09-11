@@ -69,22 +69,22 @@ public class StandardEventLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.FIRMWARE_ACTIVATED, eventId, "Firmware activated"));
                 break;
             case 19:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Passive TOU programmed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.TOU_PROGRAMMED, eventId, "Passive TOU programmed"));
                 break;
             case 47:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CONFIGURATIONCHANGE, eventId, "One or more parameters changed"));
                 break;
             case 48:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CONFIGURATIONCHANGE, eventId, "Global key(s) changed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.GLOBAL_KEY, eventId, "Global key(s) changed"));
                 break;
             case 51:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "FW verification failed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.FIRMWARE_VERIFICATION_FAIL, eventId, "FW verification failed"));
                 break;
             case 88:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Phase sequence reversal"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_REVERSAL, eventId, "Phase sequence reversal"));
                 break;
             case 89:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Missing neutral"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MISSING_NEUTRAL, eventId, "Missing neutral"));
                 break;
             case 254:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LOADPROFILE_CLEARED, eventId, "E-meter load profile cleared"));
