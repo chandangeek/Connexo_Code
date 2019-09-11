@@ -224,7 +224,7 @@ public class SecurityAccessorTypeOnDeviceTypeResource {
     @RolesAllowed(DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE)
     public Response removeSecurityAccessorTypeFromDeviceType(@PathParam("deviceTypeId") long id, @PathParam("securityAccessorId") long securityAccessorId, SecurityAccessorsForDeviceTypeInfo info) {
 
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.version, info.name);
         Optional<SecurityAccessorType> any = deviceType.getDeviceSecurityAccessorType()
                 .stream()
                 .filter(f -> f.getWrappingSecurityAccessor().isPresent() && f.getWrappingSecurityAccessor().get().getId() == securityAccessorId)
