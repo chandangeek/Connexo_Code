@@ -62,6 +62,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
@@ -170,6 +171,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile IssueCreationService issueCreationService;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile UpgradeService upgradeService;
+    private volatile MeteringGroupsService meteringGroupsService;
     private volatile Clock clock;
 
     private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
@@ -197,7 +199,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
-                            UpgradeService upgradeService, Clock clock, EventService eventService,  BundleContext bundleContext) {
+                            UpgradeService upgradeService,MeteringGroupsService meteringGroupsService, Clock clock, EventService eventService,  BundleContext bundleContext) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -211,6 +213,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setTransactionService(transactionService);
         setThreadPrincipalService(threadPrincipalService);
         setUpgradeService(upgradeService);
+        setMeteringGroupsService(meteringGroupsService);
         setClock(clock);
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
@@ -242,6 +245,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(IssueAssignmentService.class).to(IssueAssignmentServiceImpl.class).in(Scopes.SINGLETON);
                 bind(IssueCreationService.class).to(IssueCreationServiceImpl.class).in(Scopes.SINGLETON);
                 bind(Clock.class).toInstance(clock);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(EventService.class).toInstance(eventService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
             }
@@ -261,7 +265,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .put(version(10, 5), UpgraderV10_5.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), UpgraderV10_7.class).build()
-        );
+                );
     }
 
     @Reference
@@ -340,6 +344,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @Reference

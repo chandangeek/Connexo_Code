@@ -24,6 +24,8 @@ import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleActionBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -69,13 +71,17 @@ public class CreationRuleResource extends BaseResource {
     private final CreationRuleActionInfoFactory actionFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, CreationRuleActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory) {
+    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, CreationRuleActionInfoFactory actionFactory,
+            PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory,
+            MeteringGroupsService meteringGroupsService) {
         this.ruleInfoFactory = ruleInfoFactory;
         this.actionFactory = actionFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     @GET
@@ -162,6 +168,7 @@ public class CreationRuleResource extends BaseResource {
             setBaseFields(rule, builder);
             setActions(rule, builder);
             setTemplate(rule, builder);
+            setExcludedDeviceGroups(rule, builder);
             builder.complete();
             context.commit();
         }
@@ -181,6 +188,7 @@ public class CreationRuleResource extends BaseResource {
             updater.removeActions();
             setActions(rule, updater);
             setTemplate(rule, updater);
+            setExcludedDeviceGroups(rule, updater);
             updater.complete();
             context.commit();
         }
@@ -274,6 +282,17 @@ public class CreationRuleResource extends BaseResource {
                 }
             }
             builder.setProperties(properties);
+        }
+    }
+
+    private void setExcludedDeviceGroups(CreationRuleInfo rule, CreationRuleBuilder builder) {
+        if (rule.exclGroups != null) {
+            List<EndDeviceGroup> groupList = rule.exclGroups.stream().map(exclGroupInfo -> {
+                return meteringGroupsService.findEndDeviceGroup(exclGroupInfo.deviceGroupId).orElse(null);
+            }).filter(elem -> elem != null).collect(Collectors.toList());
+            builder.setExcludedDeviceGroups(groupList);
+        } else {
+            builder.setExcludedDeviceGroups(new ArrayList<>());
         }
     }
 

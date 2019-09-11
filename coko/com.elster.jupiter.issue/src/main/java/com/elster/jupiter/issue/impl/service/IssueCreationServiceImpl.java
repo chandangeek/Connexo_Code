@@ -20,6 +20,7 @@ import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -27,6 +28,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -52,6 +54,8 @@ import org.kie.internal.utils.CompositeClassLoader;
 
 import javax.inject.Inject;
 import javax.naming.OperationNotSupportedException;
+
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,6 +82,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     private volatile Optional<User> batchUser;
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile UserService userService;
+    private volatile Clock clock;
 
     private volatile KnowledgeBase knowledgeBase;
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
@@ -99,7 +104,8 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             KieResources resourceFactoryService,
             EndPointConfigurationService endPointConfigurationService,
             Thesaurus thesaurus,
-            EventService eventService) {
+            EventService eventService,
+            Clock clock) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.queryService = queryService;
@@ -110,6 +116,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         this.endPointConfigurationService = endPointConfigurationService;
         this.eventService = eventService;
         this.userService = userService;
+        this.clock = clock;
     }
 
     @Override
@@ -183,8 +190,13 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                     + " was restricted");
             return;
         }
-
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
+            if (event.getEndDevice().isPresent() && isEndDeviceExcludedForRule(event.getEndDevice().get(), firedRule)) {
+                LOG.info("Issue creation for device " + event.getEndDevice().map(EndDevice::getName) + " for rule "
+                        + firedRule.getName()
+                        + " is restricted because the device is in the Issue Creation Rule's excluded device group(s)");
+                return;
+            }
             if (isIssueCreationRestrictedByComTask(firedRule, event)) {
                 final String deviceName = event.getEndDevice().map(dev -> dev.getName()).orElse("");
                 LOG.info("Issue creation rule \'" + firedRule.getName()
@@ -219,6 +231,19 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                     }
                 }
         );
+    }
+
+    private boolean isEndDeviceExcludedForRule(EndDevice endDevice, CreationRule creationRule) {
+        if (creationRule.getExcludedGroupMappings() != null) {
+            final Instant now = clock.instant();
+            for (CreationRuleExclGroup mapping : creationRule.getExcludedGroupMappings()) {
+                final EndDeviceGroup group = mapping.getEndDeviceGroup();
+                if (group.isMember(endDevice, now)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
@@ -263,7 +288,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         }
         return Integer.parseInt(values.get(0)) == 1;
     }
-    
+
     private boolean isIssueCreationRestrictedByComTask(CreationRule rule, IssueEvent event) {
         if (event instanceof FiltrableByComTask) {
             if (rule.getTemplate() instanceof AllowsComTaskFiltering) {
