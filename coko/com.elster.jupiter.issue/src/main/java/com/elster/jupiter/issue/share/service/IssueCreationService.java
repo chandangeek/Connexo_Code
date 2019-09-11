@@ -15,6 +15,7 @@ import com.elster.jupiter.issue.share.entity.DueInType;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -74,6 +75,8 @@ public interface IssueCreationService {
         CreationRuleBuilder setProperties(Map<String, Object> props);
         
         CreationRuleActionBuilder newCreationRuleAction();
+        
+        CreationRuleBuilder setExcludedDeviceGroups(List<EndDeviceGroup> deviceGroupsList);
         
         CreationRule complete();
         
