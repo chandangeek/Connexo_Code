@@ -31,6 +31,8 @@ public interface WebServiceCallOccurrenceFinderBuilder {
 
     WebServiceCallOccurrenceFinderBuilder withDomainAndValues(Set<String> domains, Set<String> values);
 
+    WebServiceCallOccurrenceFinderBuilder withDomainValueLike(String value);
+
     Finder<WebServiceCallOccurrence> build();
 
 }

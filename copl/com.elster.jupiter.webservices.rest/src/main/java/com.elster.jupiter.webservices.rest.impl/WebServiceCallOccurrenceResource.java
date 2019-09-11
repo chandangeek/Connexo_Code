@@ -14,6 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -33,6 +34,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -131,6 +133,17 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
 
         return PagedInfoList.fromPagedList("logs", logsInfo, queryParameters);
 
+    }
+
+    @GET
+    @Path("/relatedobjects")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
+    public Response getRelatedObjects(@BeanParam JsonQueryParameters params) {
+        String searchText = params.getLike();
+        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
+        List<WebServiceCallRelatedObjectType> listRelatedObjects = webServiceCallOccurrenceService.getRelatedObjectTypeByValue(dbSearchText);
+        return Response.ok().entity(listRelatedObjects.stream().map(obj -> new RelatedObjectInfo(obj.getId(), obj.getValue())).collect(Collectors.toList())).build();
     }
 
 }

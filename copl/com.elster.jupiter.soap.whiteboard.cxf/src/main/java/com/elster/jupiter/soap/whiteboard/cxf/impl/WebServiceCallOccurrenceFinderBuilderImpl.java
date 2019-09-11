@@ -111,6 +111,13 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
         }
         return this;
     }
+    @Override
+    public WebServiceCallOccurrenceFinderBuilder withDomainValueLike(String value){
+        this.condition = this.condition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedObject.class)
+                .asSubquery(this.subCondition.and(ListOperator.IN.contains(dataModel.query(WebServiceCallRelatedObjectType.class)
+                        .asSubquery(this.innerSubCondition.and(where("value").likeIgnoreCase(value)), "id"), "type")), "occurrence"), "id"));
+        return this;
+    }
 
     @Override
     public Finder<WebServiceCallOccurrence> build() {

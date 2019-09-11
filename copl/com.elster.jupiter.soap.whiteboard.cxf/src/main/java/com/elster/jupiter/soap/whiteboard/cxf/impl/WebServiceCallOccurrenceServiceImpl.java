@@ -1,5 +1,6 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
 public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurrenceService {
@@ -93,6 +95,16 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
                 .getUnique(fieldName, values);
         return relatedObjectType;
     }
+
+    @Override
+    public List<WebServiceCallRelatedObjectType> getRelatedObjectTypeByValue(String value){
+        Condition typeCondition = Condition.TRUE;
+
+        typeCondition = typeCondition.and(where("value").likeIgnoreCase(value));
+
+        return DefaultFinder.of(WebServiceCallRelatedObjectType.class, typeCondition, this.dataModel)
+                .defaultSortColumn("startTime").find();
+    };
 
 
     @Override

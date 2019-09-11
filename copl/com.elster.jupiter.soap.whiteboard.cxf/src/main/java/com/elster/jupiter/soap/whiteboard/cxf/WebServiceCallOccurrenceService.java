@@ -4,6 +4,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectTy
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
 import java.util.Optional;
 
 @ProviderType
@@ -26,4 +27,6 @@ public interface WebServiceCallOccurrenceService {
     Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByKeyAndValue(String key, String value);
 
     Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByDomainKeyAndValue(String domain, String key, String value);
+
+    List<WebServiceCallRelatedObjectType> getRelatedObjectTypeByValue(String value);
 }
