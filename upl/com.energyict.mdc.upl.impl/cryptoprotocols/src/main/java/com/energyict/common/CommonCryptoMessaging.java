@@ -3,12 +3,15 @@ package com.energyict.common;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
@@ -19,11 +22,13 @@ public class CommonCryptoMessaging {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public CommonCryptoMessaging(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public CommonCryptoMessaging(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     public String format(OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
@@ -33,6 +38,9 @@ public class CommonCryptoMessaging {
                 return ((HexString) messageAttribute).getContent();
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
+            case DeviceMessageConstants.newMasterKeyAttributeName:
+            case DeviceMessageConstants.newPSKAttributeName:
+            case DeviceMessageConstants.newPSKKEKAttributeName:
                 if (Arrays.<DeviceMessageSpec>asList(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY.get(propertySpecService, nlsService, converter),
                         SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY.get(propertySpecService, nlsService, converter),
                         SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_PREDEFINED_CLIENT.get(propertySpecService, nlsService, converter),
@@ -41,6 +49,8 @@ public class CommonCryptoMessaging {
                         SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY_FOR_CLIENT.get(propertySpecService, nlsService, converter))
                         .contains(offlineDeviceMessage.getSpecification())) {
                     return ((HexString) messageAttribute).getContent();
+                } else {
+                    return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
                 }
         }
         return null;

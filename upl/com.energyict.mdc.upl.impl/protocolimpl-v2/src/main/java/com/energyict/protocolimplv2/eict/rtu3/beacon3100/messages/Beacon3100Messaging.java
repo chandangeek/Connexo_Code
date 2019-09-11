@@ -1,5 +1,37 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -68,37 +100,6 @@ import com.energyict.encryption.asymetric.keyagreement.KeyAgreementImpl;
 import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.upl.DeviceGroupExtractor;
-import com.energyict.mdc.upl.DeviceMasterDataExtractor;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessage;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceGroup;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.CertificateWrapper;
-import com.energyict.mdc.upl.security.KeyAccessorType;
-import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.DataParseException;
@@ -146,6 +147,7 @@ import com.energyict.protocolimplv2.messages.validators.BeaconMessageValidator;
 import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.sercurity.KeyRenewalInfo;
 import com.google.common.io.BaseEncoding;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.openssl.PEMParser;
@@ -181,7 +183,78 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.energyict.dlms.DLMSUtils.getBytesFromHexString;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BroadcastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayAfterLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentFast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentSlow;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayPerBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.LogicalDeviceLSap;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_SKIP_TRANSFER_STATUS_CHECK;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxCycles;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MeterTimeZone;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastGroup;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.PadLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RequestedBlockSize;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelMulticast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelUnicast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyMulticastV0;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepActivate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepEnable;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepInitiate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepVerify;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UdpMeterPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateEntityAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.clientMacAddress;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.commonNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configurationCAImageFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dlmsLanInitialLockoutTime;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dlmsWanInitialLockoutTime;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMasterKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.pemCRL;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteShellLockoutDuration;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteShellMaxLoginAttempts;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteSyslogDestination;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteSyslogIpVersion;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteSyslogPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteSyslogTransportServiceType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.snmpLockoutDuration;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trustStoreNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trustedCertificateWrapperAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnAuthenticationType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnEnabled;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnGatewayAddress;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnIPCompressionEnabled;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnLocalIdentifier;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnRemoteCertificate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnRemoteIdentifier;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnSharedSecret;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnVirtualIPEnabled;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.webPortalLockoutDuration;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.webPortalMaxLoginAttempts;
 
 /**
  * Copyrights EnergyICT
@@ -567,11 +640,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.DelayBetweenBlockSentFast:
             case DeviceMessageConstants.DelayBetweenBlockSentSlow:
                 return String.valueOf(((Duration) messageAttribute).toMillis());
-            case DeviceMessageConstants.passwordAttributeName:
-            case DeviceMessageConstants.newPasswordAttributeName:
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
             case DeviceMessageConstants.newMasterKeyAttributeName:
+                KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, (KeyAccessorType) messageAttribute);
+                return keyRenewalInfo.toJson();
+            case DeviceMessageConstants.passwordAttributeName:
+            case DeviceMessageConstants.newPasswordAttributeName:
             case DeviceMessageConstants.vpnSharedSecret:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.ntpAuthKey:
@@ -2263,28 +2338,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
     }
 
-    protected CollectedMessage changeEncryptionKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newSymmetricKey, masterKey);
-
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
-
-        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
-        int clientToChangeKeyFor = getClientId(pendingMessage);
-
-        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
-        if (clientInUse == clientToChangeKeyFor) {
-            securityContext.setFrameCounter(1);
-        } else {
-            ((BeaconCache) getProtocol().getDeviceCache()).setTXFrameCounter(clientToChangeKeyFor, 1);
-        }
-        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
-
-        return collectedMessage;
-    }
-
     protected SecuritySetup getSecuritySetup() throws IOException {
         return getSecuritySetup(0); //default security Setup Object for legacy Beacon versions
     }
@@ -2319,37 +2372,57 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         return 0;
     }
 
-    protected CollectedMessage changeAuthKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newSymmetricKey, masterKey);
+    protected CollectedMessage changeEncryptionKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        int clientToChangeKeyFor = getClientId(pendingMessage);
 
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
+        renewKeyForClient(wrappedKey, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), getSecuritySetup(clientToChangeKeyFor));
+
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        if (clientInUse == clientToChangeKeyFor) {
+            securityContext.setFrameCounter(1);
+            //Update the key in the security provider, it is used instantly
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
+        } else {
+            ((BeaconCache) getProtocol().getDeviceCache()).setTXFrameCounter(clientToChangeKeyFor, 1);
+        }
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+
+        return collectedMessage;
+    }
+
+
+    protected CollectedMessage changeAuthKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        int clientToChangeKeyFor = getClientId(pendingMessage);
+
+        renewKeyForClient(wrappedKey, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), getSecuritySetup(clientToChangeKeyFor));
+
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+
+        if (clientInUse == clientToChangeKeyFor) {
+            //Update the key in the security provider, it is used instantly
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
+        }
         return collectedMessage;
     }
 
     protected CollectedMessage changeMasterKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newSymmetricKey, masterKey);
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        int clientToChangeKeyFor = getClientId(pendingMessage);
+        renewKeyForClient(wrappedKey, SecurityMessage.KeyID.MASTER_KEY.getId(), getSecuritySetup(clientToChangeKeyFor));
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(newSymmetricKey);
         return collectedMessage;
-    }
-
-    private void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, byte[] newSymmetricKey, byte[] masterKey) throws IOException {
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-        int clientId = getClientId(pendingMessage);
-
-        Array keyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(keyId));
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
-        keyArray.addDataType(keyData);
-
-        getSecuritySetup(clientId).transferGlobalKey(keyArray);
     }
 
     private void activateAdvancedDlmsEncryption(OfflineDeviceMessage pendingMessage) throws IOException {

@@ -41,7 +41,7 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
         {name: 'keySize', type: 'int'},
         {name: 'isReversible', type: 'boolean', defaultValue: true, convert: null},
         {name: 'defaultServiceKey', type: 'string'},
-
+        {name: 'isWrapper', defaultValue: false, convert: null},
         {
             name: 'viewLevelsInfo',
             persist: false,
@@ -109,8 +109,24 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
                 }
                 return value;
             }
+        },
+        {
+            name: 'keyRenewalCommandSpecification',
+            useNull: true,
+            defaultValue: null
+        },
+        {
+            name: 'wrapperIdAndName',
+            useNull: true,
+            defaultValue: null
+        },
+        {
+            name: 'properties',
+            useNull: true,
+            defaultValue: null
         }
     ],
+
 
     proxy: {
         type: 'rest',
@@ -126,6 +142,15 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
     },
     associations: [
         {
+            name: 'properties',
+            type: 'hasMany',
+            model: 'Uni.property.model.Property',
+            associationKey: 'properties',
+            getterName: 'geProperties',
+            setterName: 'setProperties',
+            foreignKey: 'properties'
+        },
+        {
             name: 'keyType',
             type: 'hasOne',
             model: 'Mdc.securityaccessors.model.KeyType',
@@ -133,6 +158,24 @@ Ext.define('Mdc.securityaccessors.model.SecurityAccessor', {
             getterName: 'getKeyType',
             setterName: 'setKeyType',
             foreignKey: 'keyType'
+        },
+        {
+            name: 'keyRenewalCommandSpecification',
+            type: 'hasOne',
+            model: 'Mdc.securityaccessors.model.IdWithName',
+            associationKey: 'keyRenewalCommandSpecification',
+            getterName: 'getKeyRenewalCommandSpecification',
+            setterName: 'setKeyRenewalCommandSpecification',
+            foreignKey: 'keyRenewalCommandSpecification'
+        },
+        {
+            name: 'wrapperIdAndName',
+            type: 'hasOne',
+            model: 'Mdc.securityaccessors.model.IdWithName',
+            associationKey: 'wrapperIdAndName',
+            getterName: 'getWrapperIdAndName',
+            setterName: 'setWrapperIdAndName',
+            foreignKey: 'wrapperIdAndName'
         }
     ]
 

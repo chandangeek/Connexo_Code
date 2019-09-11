@@ -113,6 +113,12 @@ Ext.define('Isu.controller.history.Administration', {
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
                                     action: 'showEdit'
+                                },
+                                addexclgroups: {
+                                    title: Uni.I18n.translate('general.excludeDeviceGroups', 'ISU', 'Add device groups to exclude'),
+                                    route: 'addexclgroups',
+                                    controller: 'Isu.controller.CreationRuleGroupsEdit',
+                                    action: 'showEdit'
                                 }
                             }
                         },
@@ -134,6 +140,12 @@ Ext.define('Isu.controller.history.Administration', {
                                     title: Uni.I18n.translate('general.addAction', 'ISU', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
+                                    action: 'showEdit'
+                                },
+                                addexclgroups: {
+                                    title: Uni.I18n.translate('general.excludeDeviceGroups', 'ISU', 'Add device groups to exclude'),
+                                    route: 'addexclgroups',
+                                    controller: 'Isu.controller.CreationRuleGroupsEdit',
                                     action: 'showEdit'
                                 }
                             }

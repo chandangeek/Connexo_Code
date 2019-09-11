@@ -253,25 +253,42 @@ public interface DeviceType extends HasId, HasName {
 
     void update();
 
+
+    /**
+     * @return a list of all known security accessor types linked to this device type.
+     * Use getDeviceSecurityAccessorType() instead
+     */
+    @Deprecated
+    List<SecurityAccessorType> getSecurityAccessorTypes();
+
     /**
      * Returns a list of all known security accessor types linked to this device type.
      * @return
      */
-    List<SecurityAccessorType> getSecurityAccessorTypes();
+    List<DeviceSecurityAccessorType> getDeviceSecurityAccessorType();
+
+    /**
+     *
+     * @param keyAccessorType
+     * @return DeviceSecurityAccessorType that is defined (including wrapper se accessor). If not defined empty
+     */
+    Optional<SecurityAccessorType> getWrappingSecurityAccessorType(SecurityAccessorType keyAccessorType);
 
     /**
      * Adds given security accessor types to this device type if not linked already.
      * @param securityAccessorTypes
      * @return {@code true} if device type is updated with new links to security accessor types, {@code false} otherwise.
      */
-    boolean addSecurityAccessorTypes(SecurityAccessorType... securityAccessorTypes);
+    boolean addDeviceSecurityAccessorType(DeviceSecurityAccessorType... deviceSecurityAccessorTypes);
 
     /**
      * Removes the SecurityAccessorType from the DeviceType.
      * @param securityAccessorType
      * @return {@code true} if a link to security accessor type is removed from device type, {@code false} otherwise.
      */
-    boolean removeSecurityAccessorType(SecurityAccessorType securityAccessorType);
+    boolean removeDeviceSecurityAccessorType(DeviceSecurityAccessorType securityAccessorType);
+
+    void setWrappingSecurityAccessor(DeviceSecurityAccessorType deviceSecurityAccessorType, Optional<SecurityAccessorType> wrappingSecurityAccessor);
 
     Optional<String> getDefaultKeyOfSecurityAccessorType(SecurityAccessorType securityAccessorType);
 
@@ -410,4 +427,11 @@ public interface DeviceType extends HasId, HasName {
      */
     @Deprecated
     void save();
+
+
+    /**
+     * Returns a list of all known security accessor linked to this device type.
+     * @return
+     */
+    List<SecurityAccessorTypeOnDeviceType> getSecurityAccessors();
 }

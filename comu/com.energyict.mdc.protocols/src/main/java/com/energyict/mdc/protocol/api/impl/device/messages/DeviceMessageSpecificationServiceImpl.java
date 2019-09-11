@@ -177,6 +177,11 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     }
 
     @Override
+    public DeviceMessageCategory getSecurityCategory() {
+        return UPLDeviceMessageCategoryAdapter.adaptTo(DeviceMessageCategories.SECURITY.get(uplPropertySpecService, uplNlsService, converter));
+    }
+
+    @Override
     public String getComponentName() {
         return COMPONENT_NAME;
     }
