@@ -130,28 +130,24 @@ public class TimeOfUseCampaignPersistenceSupport implements PersistenceSupport<S
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_COMTASK_ID.javaName())
                 .since(Version.version(10, 7))
-                .installValue("1")
                 .add();
         table.column(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.databaseName())
                 .number()
                 .conversion(ColumnConversion.NUMBER2LONG)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_COMTASK_ID.javaName())
                 .since(Version.version(10, 7))
-                .installValue("1")
                 .add();
         table.column(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.databaseName())
                 .varChar(Table.NAME_LENGTH)
                 .conversion(ColumnConversion.CHAR2ENUM)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.CALENDAR_UPLOAD_CONNECTIONSTRATEGY.javaName())
                 .since(Version.version(10, 7))
-                .installValue(null)
                 .add();
         table.column(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.databaseName())
                 .varChar(Table.NAME_LENGTH)
                 .conversion(ColumnConversion.CHAR2ENUM)
                 .map(TimeOfUseCampaignDomainExtension.FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName())
                 .since(Version.version(10, 7))
-                .installValue(null)
                 .add();
         table.foreignKey(FK_NAME + "_CAL")
                 .on(calendar)

@@ -71,26 +71,26 @@ public class UpgraderV10_7 implements com.elster.jupiter.upgrade.Upgrader {
         touCampaignInfo.deviceType = resultSet.getLong("DEVICE_TYPE");
         touCampaignInfo.activationOption = resultSet.getString("ACTIVATION_OPTION");
         try {
-            deviceConfigurationService.findDeviceType(touCampaignInfo.deviceType).get()
-                    .getConfigurations().stream()
-                    .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+            deviceConfigurationService.findDeviceType(touCampaignInfo.deviceType)
+                    .get().getConfigurations().stream()
+                    .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                     .forEach(cte -> cte.getComTask().getProtocolTasks().stream()
                             .filter(protocolTask ->  protocolTask instanceof MessagesTask)
-                            .collect(Collectors.toList())
-                            .stream()
                             .flatMap(task-> ((MessagesTask) task).getDeviceMessageCategories().stream())
                             .filter(ctg -> ctg.getName().equals("Activity calendar"))
                             .findAny()
-                            .ifPresent(x-> touCampaignInfo.calendarUploadComtaskId = cte.getComTask().getId()));
+                            .map(x-> touCampaignInfo.calendarUploadComtaskId = cte.getComTask().getId()).orElse(touCampaignInfo.calendarUploadComtaskId = null));
 
             if(!touCampaignInfo.activationOption.equals("withoutActivation")) {
-                touCampaignInfo.validationComtaskId = deviceConfigurationService.findDeviceType(touCampaignInfo.deviceType).get()
-                        .getConfigurations().stream()
-                        .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                        .flatMap(cte -> cte.getComTask().getProtocolTasks().stream())
-                        .filter(protocolTask -> protocolTask instanceof StatusInformationTask)
-                        .findAny().get()
-                        .getComTask().getId();
+                touCampaignInfo.validationComtaskId = deviceConfigurationService.findDeviceType(touCampaignInfo.deviceType)
+                        .map(deviceType -> deviceType.getConfigurations().stream()
+                                .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                                .flatMap(cte -> cte.getComTask().getProtocolTasks().stream())
+                                .filter(protocolTask -> protocolTask instanceof StatusInformationTask)
+                                .findAny()
+                                .map(cte -> cte.getComTask().getId())
+                                .orElse(null))
+                        .orElse(null);
             }else{
                 touCampaignInfo.validationComtaskId = null;
             }
@@ -118,7 +118,7 @@ public class UpgraderV10_7 implements com.elster.jupiter.upgrade.Upgrader {
         String updateType;
         Long validationTimeout;
         String withUniqueCalendarName;
-        long calendarUploadComtaskId;
+        Long calendarUploadComtaskId;
         Long validationComtaskId;
     }
 

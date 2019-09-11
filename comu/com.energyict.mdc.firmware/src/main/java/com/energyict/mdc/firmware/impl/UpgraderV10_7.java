@@ -11,8 +11,11 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
 
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.ComTaskEnablementImpl;
 import com.energyict.mdc.tasks.impl.ServerTaskService;
 
 import javax.inject.Inject;
@@ -284,25 +287,26 @@ public class UpgraderV10_7 implements Upgrader {
                 .getLong("ID"), this::toLong);
         firmwareCampaignInfo.validationTimeoutValue = resultSet.getLong("VALIDATION_TIMEOUT_VALUE");
         firmwareCampaignInfo.validationTimeoutUnit = resultSet.getLong("VALIDATION_TIMEOUT_UNIT");
-        try {
-            firmwareCampaignInfo.firmwareUploadComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType).get()
-                    .getConfigurations().stream()
-                    .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                    .filter(cte -> cte.getComTask().getName().equals(ServerTaskService.FIRMWARE_COMTASK_NAME))
-                    .findAny()
-                    .get()
-                    .getComTask()
-                    .getId();
-            firmwareCampaignInfo.validationComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType).get()
-                    .getConfigurations().stream()
-                    .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                    .flatMap(cte -> cte.getComTask().getProtocolTasks().stream())
-                    .filter(protocolTask -> protocolTask instanceof StatusInformationTask)
-                    .findAny().get()
-                    .getComTask().getId();
-        } catch (Exception e) {
-            this.logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+
+        firmwareCampaignInfo.firmwareUploadComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
+                .map(deviceType -> deviceType.getConfigurations().stream()
+                        .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                        .filter(cte -> cte.getComTask().getName().equals(ServerTaskService.FIRMWARE_COMTASK_NAME))
+                        .findAny()
+                        .map(cte -> cte.getComTask().getId())
+                        .orElse(null))
+                .orElse(null);
+
+        firmwareCampaignInfo.validationComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
+                .map(deviceType -> deviceType.getConfigurations().stream()
+                        .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                        .flatMap(cte -> cte.getComTask().getProtocolTasks().stream())
+                        .filter(protocolTask -> protocolTask instanceof StatusInformationTask)
+                        .findAny()
+                        .map(cte -> cte.getComTask().getId())
+                        .orElse(null))
+                .orElse(null);
+
         return firmwareCampaignInfo;
     }
 
@@ -371,8 +375,8 @@ public class UpgraderV10_7 implements Upgrader {
         Long activationDate;
         Long validationTimeoutValue;
         Long validationTimeoutUnit;
-        long firmwareUploadComTaskId;
-        long validationComTaskId;
+        Long firmwareUploadComTaskId;
+        Long validationComTaskId;
     }
 
     private class ServiceCallInfo {
