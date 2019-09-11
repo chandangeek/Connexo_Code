@@ -212,6 +212,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.SerialComponentService;
@@ -456,7 +457,8 @@ public class DemoTest {
                 new MeteringImportsModule(),
                 new MeteringZoneModule(),
                 new IssueDeviceLifecycleModule(),
-                new TaskIssueModule()
+                new TaskIssueModule(),
+                new TimeOfUseCampaignModule()
         );
 
         doPreparations();

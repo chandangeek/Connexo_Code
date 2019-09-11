@@ -12,7 +12,6 @@ import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateAlarmCreationRuleCommand;
 import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
-import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDataLoggerSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDefaultDeviceLifeCycleCommand;
@@ -216,6 +215,7 @@ public class DemoServiceImpl {
     private Injector injector;
 
     private boolean reThrowEx = false;
+
     public DemoServiceImpl() {
     }
 
@@ -490,10 +490,10 @@ public class DemoServiceImpl {
     }
 
     @Reference
-     @SuppressWarnings("unused")
-     public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+    @SuppressWarnings("unused")
+    public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
-     }
+    }
 
     @Reference
     @SuppressWarnings("unused")
@@ -964,7 +964,7 @@ public class DemoServiceImpl {
     public void createMetrologyConfigurations() {
         executeTransaction(() -> {
             CreateMetrologyConfigurationsCommand command = injector.getInstance(CreateMetrologyConfigurationsCommand.class);
-            if(licenseService.getLicenseForApplication("INS").isPresent()) {
+            if (licenseService.getLicenseForApplication("INS").isPresent()) {
                 command.createMetrologyConfigurations();
             } else {
                 command.createMultisenseMetrologyConfigurations();
@@ -1011,14 +1011,6 @@ public class DemoServiceImpl {
     public void createNtaConfig() {
         executeTransaction(() -> {
             CreateNtaConfigCommand command = injector.getInstance(CreateNtaConfigCommand.class);
-            command.run();
-        });
-    }
-
-    @SuppressWarnings("unused")
-    public void createAssignmentRules() {
-        executeTransaction(() -> {
-            CreateAssignmentRulesCommand command = injector.getInstance(CreateAssignmentRulesCommand.class);
             command.run();
         });
     }
