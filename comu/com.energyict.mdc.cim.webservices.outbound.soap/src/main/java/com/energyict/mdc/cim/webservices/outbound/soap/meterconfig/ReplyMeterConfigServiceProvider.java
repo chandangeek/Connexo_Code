@@ -134,7 +134,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     @Override
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
         deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
-            MeterConfigEventMessageType message = createInfoResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED, null);
+            MeterConfigEventMessageType message = createInfoResponseMessage(Collections.emptyList(), createMeterConfig(Collections.singletonList(device)), 0, HeaderType.Verb.CHANGED, null);
             using("changedMeterConfig")
                     .toEndpoints(endPointConfiguration)
                     .send(message);
@@ -159,7 +159,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 break;
             case GET:
                 method = "replyMeterConfig";
-                message = createInfoResponseMessage(getMeterConfig(successfulDevices), HeaderType.Verb.REPLY, correlationId);
+                message = createInfoResponseMessage(failedDevices, getMeterConfig(successfulDevices), expectedNumberOfCalls, HeaderType.Verb.REPLY, correlationId);
                 break;
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
@@ -197,7 +197,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         return meterConfigFactory.asGetMeterConfig(devices);
     }
 
-    private MeterConfigEventMessageType createInfoResponseMessage(MeterConfig meterConfig, HeaderType.Verb verb, String correlationId) {
+    private MeterConfigEventMessageType createInfoResponseMessage(List<FailedMeterOperation> failedDevices, MeterConfig meterConfig, long expectedNumberOfCalls, HeaderType.Verb verb, String correlationId) {
         MeterConfigEventMessageType meterConfigEventMessageType = meterConfigMessageObjectFactory.createMeterConfigEventMessageType();
 
         // set header
@@ -207,6 +207,30 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         MeterConfigPayloadType payloadType = meterConfigMessageObjectFactory.createMeterConfigPayloadType();
         payloadType.setMeterConfig(meterConfig);
         meterConfigEventMessageType.setPayload(payloadType);
+
+        ReplyType replyType = cimMessageObjectFactory.createReplyType();
+        if (failedDevices.isEmpty()) {
+            replyType.setResult(ReplyType.Result.OK);
+        } else if (expectedNumberOfCalls == failedDevices.size()) {
+            replyType.setResult(ReplyType.Result.FAILED);
+        } else {
+            replyType.setResult(ReplyType.Result.PARTIAL);
+        }
+
+        // set errors
+        failedDevices.forEach(failedMeterOperation -> {
+            ErrorType errorType = new ErrorType();
+            errorType.setCode(failedMeterOperation.getErrorCode());
+            errorType.setDetails(failedMeterOperation.getErrorMessage());
+            ObjectType objectType = new ObjectType();
+            objectType.setMRID(failedMeterOperation.getmRID());
+            objectType.setObjectType("EndDevice");
+            Name name = new Name();
+            name.setName(failedMeterOperation.getMeterName());
+            objectType.getName().add(name);
+            errorType.setObject(objectType);
+            replyType.getError().add(errorType);
+        });
 
         return meterConfigEventMessageType;
     }
