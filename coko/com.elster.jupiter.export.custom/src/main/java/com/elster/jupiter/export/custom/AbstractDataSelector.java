@@ -50,7 +50,7 @@ abstract class AbstractDataSelector implements DataSelector {
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
         Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
         Map<Long, Optional<Instant>> lastRuns = activeItems.stream().collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastRun));
-        AbstractItemDataSelector itemDataSelector = getItemDataSelector();
+        CustomMeterReadingItemDataSelector itemDataSelector = getItemDataSelector();
 
         try {
             Map<Long, Optional<MeterReadingData>> selectedData = new LinkedHashMap<>();
@@ -107,7 +107,7 @@ abstract class AbstractDataSelector implements DataSelector {
 
     abstract void warnIfObjectsHaveNoneOfTheReadingTypes(DataExportOccurrence occurrence);
 
-    abstract AbstractItemDataSelector getItemDataSelector();
+    abstract CustomMeterReadingItemDataSelector getItemDataSelector();
 
     abstract MeterReadingSelectorConfig getSelectorConfig();
 
