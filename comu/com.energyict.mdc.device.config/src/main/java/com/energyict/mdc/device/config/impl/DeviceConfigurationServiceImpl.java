@@ -42,6 +42,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
@@ -718,6 +719,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         .put(Version.version(10, 4, 1), UpgraderV10_4_1.class)
                         .put(Version.version(10, 4, 2), V10_4_2SimpleUpgrader.class)
                         .put(Version.version(10, 6), V10_6SimpleUpgrader.class)
+                        .put(Version.version(10, 7), V10_7SimpleUpgrader.class)
                         .build());
         initPrivileges();
     }
