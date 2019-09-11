@@ -55,6 +55,15 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.wrappedBy', 'MDC', 'Wrapped by'),
+                dataIndex: 'wrapperIdAndName',
+                flex: 2,
+                hidden: true,
+                renderer: function (val) {
+                    return Ext.isEmpty(val) ? '-' : val.name;
+                }
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 width: 150,
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
@@ -100,5 +109,15 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
         ];
 
         me.callParent(arguments);
+    },
+
+    listeners: {
+        'beforerender' : function(grid) {
+            if (grid.deviceTypeId == null){
+                grid.columns[5].hidden = true;
+            } else {
+                grid.columns[5].hidden = false;
+            }
+        }
     }
 });

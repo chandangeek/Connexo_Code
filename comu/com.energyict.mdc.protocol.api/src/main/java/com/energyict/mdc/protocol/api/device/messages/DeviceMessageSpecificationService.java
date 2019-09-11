@@ -85,4 +85,6 @@ public interface DeviceMessageSpecificationService {
 
     DeviceMessageCategory getFirmwareCategory();
 
+    DeviceMessageCategory getSecurityCategory();
+
 }

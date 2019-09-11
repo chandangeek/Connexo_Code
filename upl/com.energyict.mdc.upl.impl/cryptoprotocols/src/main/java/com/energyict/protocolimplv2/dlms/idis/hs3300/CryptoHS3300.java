@@ -1,10 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300;
 
-import com.energyict.common.IrreversibleKeyImpl;
-import com.energyict.common.framework.CryptoDlmsSession;
-import com.energyict.dlms.cosem.FrameCounterProvider;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.TypedProperties;
@@ -18,6 +13,12 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.common.IrreversibleKeyImpl;
+import com.energyict.common.framework.CryptoDlmsSession;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -119,7 +120,7 @@ public class CryptoHS3300 extends HS3300 {
         if (this.deviceMessaging == null) {
             this.deviceMessaging = new CryptoHS3300Messaging(this, getCollectedDataFactory(), getIssueFactory(),
                     getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor(),
-                    this.getMessageFileExtractor(), this.getKeyAccessorTypeExtractor());
+                    getCertificateWrapperExtractor(), this.getMessageFileExtractor(), this.getKeyAccessorTypeExtractor());
         }
         return this.deviceMessaging;
     }

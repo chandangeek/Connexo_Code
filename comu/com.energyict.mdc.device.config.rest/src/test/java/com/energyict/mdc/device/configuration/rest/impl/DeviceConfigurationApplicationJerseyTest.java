@@ -61,6 +61,7 @@ import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.configuration.rest.TrustStoreValuesProvider;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -150,6 +151,9 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     IssueService issueService;
     @Mock
     HsmPublicConfiguration hsmPublicConfiguration;
+    @Mock
+    DeviceMessageService deviceMessageService;
+
     PropertyValueInfoService propertyValueInfoService;
     MdcPropertyUtils mdcPropertyUtils;
     SecurityAccessorResourceHelper securityAccessorResourceHelper;
@@ -258,6 +262,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setIssueService(issueService);
         application.setAliasSearchFilterFactory(aliasSearchFilterFactory);
         application.setHsmPublicConfiguration(hsmPublicConfiguration);
+        application.setDeviceMessageService(deviceMessageService);
         return application;
     }
 

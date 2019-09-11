@@ -5,19 +5,28 @@
 package com.elster.jupiter.issue.impl.database;
 
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
+import com.elster.jupiter.issue.impl.actions.MailIssueAction;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
 import static com.elster.jupiter.orm.Version.version;
+import static com.elster.jupiter.util.conditions.Where.where;
 
+@LiteralSql
 public class UpgraderV10_7 implements Upgrader {
 
     private final DataModel dataModel;
@@ -41,6 +50,7 @@ public class UpgraderV10_7 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 7));
         this.addManualIssueType();
+        this.createActionTypesIfNotPresent();
         addCloseActionType();
         userService.addModulePrivileges(privilegesProviderV10_7);
         updateOpenIssueType();
@@ -66,5 +76,21 @@ public class UpgraderV10_7 implements Upgrader {
 
     private void addCloseActionType() {
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), issueService.findIssueType(IssueService.MANUAL_ISSUE_TYPE).get());
+    }
+    private void createActionTypesIfNotPresent() {
+        IssueType type = null;
+        Condition classNameCondition = buildCondition("className", Optional.of(MailIssueAction.class.getName()));
+        Condition factoryCondition = buildCondition("factoryId", Optional.of(IssueDefaultActionsFactory.ID));
+        if (issueActionService.getActionTypeQuery().select(classNameCondition.and(factoryCondition)).isEmpty()) {
+            issueActionService.createActionType(IssueDefaultActionsFactory.ID, MailIssueAction.class.getName(), type, CreationRuleActionPhase.CREATE);
+        }
+    }
+
+    private Condition buildCondition(String field, Optional<?> value) {
+        Condition condition = where(field).isNull();
+        if (value.isPresent()) {
+            condition = condition.or(where(field).isEqualTo(value.get()));
+        }
+        return condition;
     }
 }

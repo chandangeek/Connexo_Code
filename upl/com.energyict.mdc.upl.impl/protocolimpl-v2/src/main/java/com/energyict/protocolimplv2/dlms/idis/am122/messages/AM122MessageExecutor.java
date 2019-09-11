@@ -1,25 +1,24 @@
 package com.energyict.protocolimplv2.dlms.idis.am122.messages;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
 import java.util.Date;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.adHocEndOfBillingActivationDatedAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPSKAttributeName;
 
 
 public class AM122MessageExecutor extends AM540MessageExecutor {
