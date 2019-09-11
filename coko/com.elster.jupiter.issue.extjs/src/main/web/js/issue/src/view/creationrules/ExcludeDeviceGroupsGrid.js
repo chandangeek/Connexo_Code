@@ -61,7 +61,7 @@ Ext.define('Isu.view.creationrules.ExcludeDeviceGroupsGrid', {
                 store: me.store,
                 isSecondPagination: true,
                 dock: 'bottom',
-                itemsPerPageMsg: Uni.I18n.translate('deviceGroup.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Device groups per page')
+                itemsPerPageMsg: Uni.I18n.translate('deviceGroup.pagingtoolbarbottom.itemsPerPage', 'ISU', 'Device groups per page')
             }
         ];
 
