@@ -1,6 +1,6 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectType;
+//import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectTypeImpl;
 
 import aQute.bnd.annotation.ProviderType;
 

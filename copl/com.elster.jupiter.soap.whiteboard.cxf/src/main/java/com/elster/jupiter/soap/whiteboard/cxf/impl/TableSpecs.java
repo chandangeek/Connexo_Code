@@ -15,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -146,23 +147,23 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceCallRelatedObjectType> table = dataModel.addTable(this.name(), WebServiceCallRelatedObjectType.class);
-            table.map(WebServiceCallRelatedObjectType.class);
+            table.map(WebServiceCallRelatedObjectTypeImpl.class);
             table.since(version(10, 7));
 
             Column idColumn = table.addAutoIdColumn();
 
             table.column("TYPE_DOMAIN")
                     .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectType.Fields.TYPE_DOMAIN.fieldName())
+                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.TYPE_DOMAIN.fieldName())
                     .add();
 
             table.column("TYPE_KEY")
                     .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectType.Fields.TYPE_KEY.fieldName())
+                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.TYPE_KEY.fieldName())
                     .add();
             table.column("TYPE_VALUE")
                     .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectType.Fields.TYPE_VALUE.fieldName())
+                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.TYPE_VALUE.fieldName())
                     .add();
 
             table.primaryKey("PK_WS_RELATED_OBJECTS_TYPE").on(idColumn).add();

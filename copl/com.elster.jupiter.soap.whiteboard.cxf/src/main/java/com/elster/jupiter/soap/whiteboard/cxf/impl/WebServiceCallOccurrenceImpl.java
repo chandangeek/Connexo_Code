@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
@@ -212,7 +213,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
                 .getUnique(fieldName, values);
         if(!relatedObjectType.isPresent()){
-            relatedObjectType = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectType.class));
+            relatedObjectType = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectTypeImpl.class));
             relatedObjectType.get().init(domain,key,value);
             relatedObjectType.get().save();
         }

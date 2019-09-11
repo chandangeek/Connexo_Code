@@ -2,11 +2,12 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
 
-public class WebServiceCallRelatedObjectType implements HasId {
+public class WebServiceCallRelatedObjectTypeImpl implements WebServiceCallRelatedObjectType, HasId {
 
     private final DataModel dataModel;
 
@@ -35,13 +36,13 @@ public class WebServiceCallRelatedObjectType implements HasId {
     }
 
     @Inject
-    public WebServiceCallRelatedObjectType(DataModel dataModel) {
+    public WebServiceCallRelatedObjectTypeImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
 
 
-    public WebServiceCallRelatedObjectType init(String typeDomain,
+    public WebServiceCallRelatedObjectTypeImpl init(String typeDomain,
                                                 String key,
                                                 String value) {
         this.typeDomain = typeDomain;

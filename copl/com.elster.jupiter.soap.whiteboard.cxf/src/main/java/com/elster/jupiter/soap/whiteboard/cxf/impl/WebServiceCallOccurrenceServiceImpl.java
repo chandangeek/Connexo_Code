@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObject;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.common.collect.Range;

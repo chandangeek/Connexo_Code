@@ -14,7 +14,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectType;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectType;
+//import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectType;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -143,7 +144,8 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         String searchText = params.getLike();
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
         List<WebServiceCallRelatedObjectType> listRelatedObjects = webServiceCallOccurrenceService.getRelatedObjectTypeByValue(dbSearchText);
-        return Response.ok().entity(listRelatedObjects.stream().map(obj -> new RelatedObjectInfo(obj.getId(), obj.getValue())).collect(Collectors.toList())).build();
+        //List<String> listInfo = listRelatedObjects.stream().map(obj->obj.getValue()).collect(toList());
+        return Response.ok().entity(listRelatedObjects.stream().map(obj -> obj.getValue()).collect(Collectors.toList())).build();
     }
 
 }
