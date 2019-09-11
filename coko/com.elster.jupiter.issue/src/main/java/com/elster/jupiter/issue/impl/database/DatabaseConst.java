@@ -17,6 +17,7 @@ public final class DatabaseConst {
     public static final String USER_TABLE = "USR_USER";
     public static final String ASSIGNEE_RULE_JOURNAL_TABLE_NAME = "ISU_ASSIGMENTRULEJRNL";
     public static final String CREATION_RULE_JOURNAL_TABLE_NAME = "ISU_CREATIONRULEJRNL";
+    public static final String CREATION_RULE_EXCL_GROUP_JOURNAL_TABLE_NAME = "ISU_CREATIONRULEEXCLGROUPJRNL";
 
     // Issue table
     public static final String ISSUE_COLUMN_DUE_DATE = "DUE_DATE";
