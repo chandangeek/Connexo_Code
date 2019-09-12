@@ -1,12 +1,10 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
-import com.energyict.common.CommonCryptoMessageExecutor;
-import com.energyict.common.CommonCryptoMessaging;
-import com.energyict.common.framework.CryptoSecurityContext;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.encryption.asymetric.util.KeyUtils;
-import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.crypto.KeyRenewalAgree2EGenerateResponse;
@@ -27,6 +25,18 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.common.CommonCryptoMessageExecutor;
+import com.energyict.common.CommonCryptoMessaging;
+import com.energyict.common.framework.CryptoSecurityContext;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -67,7 +77,7 @@ public class CryptoBeaconMessaging extends Beacon3100Messaging {
         this.hsmProtocolService = hsmProtocolService;
         this.executor = new CommonCryptoMessageExecutor(beacon3100, collectedDataFactory, issueFactory);
         this.cryptoMasterDataSerializer = new CryptoMasterDataSerializer(objectMapperService, propertySpecService, deviceMasterDataExtractor, beacon3100.getDlmsSessionProperties(), nlsService, hsmProtocolService);
-        commonCryptoMessaging = new CommonCryptoMessaging(propertySpecService, nlsService, converter);
+        commonCryptoMessaging = new CommonCryptoMessaging(propertySpecService, nlsService, converter, getKeyAccessorTypeExtractor());
     }
 
     @Override

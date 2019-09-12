@@ -9,9 +9,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
+
 import java.util.logging.Logger;
 
 class Installer implements FullInstaller {
@@ -19,12 +21,15 @@ class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final EventService eventService;
     private final TaskService taskService;
+    private final UpgraderV10_7 upgraderV10_7;
 
     @Inject
-    Installer(DataModel dataModel, EventService eventService, TaskService taskService) {
+    Installer(DataModel dataModel, EventService eventService, TaskService taskService,
+            UpgraderV10_7 upgraderV10_7) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.taskService = taskService;
+        this.upgraderV10_7 = upgraderV10_7;
     }
 
     @Override
@@ -38,6 +43,11 @@ class Installer implements FullInstaller {
         doTry(
                 "Create Firmware Com Task",
                 this::createFirmwareComTaskIfNotPresentYet,
+                logger
+        );
+        doTry(
+                "Create Firmware Com Task",
+                () -> upgraderV10_7.migrate(dataModelUpgrader),
                 logger
         );
     }

@@ -90,7 +90,36 @@ public enum EndDeviceControlTypeMapping {
     DISABLE_SUP_CAPACITY_LIM("0.31.139.22"),
     ENABLE_SUP_CAPACITY_LIM("0.31.139.26"),
     //key renewal
-    KEY_RENEWAL("0.12.32.13", Collections.singletonList(DeviceMessageId.SECURITY_KEY_RENEWAL)) {
+    KEY_RENEWAL("0.12.32.13",
+            //Commands for changing multiple keys at once are not supported. Also service key injection related commands will not be included since these have a separate process
+            Collections.singletonList(DeviceMessageId.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT),
+            Collections.singletonList(DeviceMessageId.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY),
+            Collections.singletonList(DeviceMessageId.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT),
+            Collections.singletonList(DeviceMessageId.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY),
+            Collections.singletonList(DeviceMessageId.CHANGE_MASTER_KEY_WITH_NEW_KEYS),
+            Collections.singletonList(DeviceMessageId.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT),
+            Collections.singletonList(DeviceMessageId.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT),
+            Collections.singletonList(DeviceMessageId.CHANGE_PSK_WITH_NEW_KEYS),
+            Collections.singletonList(DeviceMessageId.CHANGE_PSK_KEK),
+            Collections.singletonList(DeviceMessageId.CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_WITH_PASSWORD),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_HLS_SECRET),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_HLS_SECRET_HEX),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_LLS_SECRET),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_LLS_SECRET_HEX),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_PASSWORD),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_PASSWORD_WITH_NEW_PASSWORD),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_EXECUTION_KEY),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD1),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_WEBPORTAL_PASSWORD2),
+            Collections.singletonList(DeviceMessageId.SECURITY_AGREE_NEW_AUTHENTICATION_KEY),
+            Collections.singletonList(DeviceMessageId.SECURITY_AGREE_NEW_ENCRYPTION_KEY),
+            Collections.singletonList(DeviceMessageId.SECURITY_CHANGE_TEMPORARY_KEY),
+            Collections.singletonList(DeviceMessageId.SECURITY_KEY_RENEWAL)
+    ) {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
             return Optional.of(new KeyRenewalCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));

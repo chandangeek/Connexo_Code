@@ -1,11 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300.messages;
 
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -14,6 +8,13 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -117,9 +118,7 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void changePSK(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newPSKKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newPSKAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newPSKKey, masterKey);
+        byte[] wrappedKey = getWrappedKey(pendingMessage, newPSKAttributeName);
         Data pskRenewalObject = getProtocol().getDlmsSession().getCosemObjectFactory().getData(PSK_RENEWAL_OBISCODE);
         try {
             getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().setBit(REQUESTS_SIGNED_FLAG);
@@ -133,9 +132,7 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
     }
 
     protected void changePSKKEK(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newPSKKEK = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newPSKKEKAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newPSKKEK, masterKey);
+        byte[] wrappedKey = getWrappedKey(pendingMessage, newPSKKEKAttributeName);
         Data pskKEKRenewalObject = getProtocol().getDlmsSession().getCosemObjectFactory().getData(PSK_KEK_RENEWAL_OBISCODE);
         try {
             getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().setBit(REQUESTS_SIGNED_FLAG);

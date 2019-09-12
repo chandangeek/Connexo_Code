@@ -9,10 +9,12 @@ import com.elster.jupiter.metering.UsagePoint;
 public class UsagePointInfo {
     private long id;
     private String info;
+    private String mRID;
 
     public UsagePointInfo(UsagePoint up) {
         this.id = up.getId();
         this.info = up.getName();
+        this.mRID = up.getMRID();
     }
 
     public String getInfo() {
@@ -31,4 +33,11 @@ public class UsagePointInfo {
         this.id = id;
     }
 
+    public String getmRID() {
+        return mRID;
+    }
+
+    public void setmRID(String mRID) {
+        this.mRID = mRID;
+    }
 }

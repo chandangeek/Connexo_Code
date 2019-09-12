@@ -11,7 +11,9 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -23,6 +25,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -41,6 +44,7 @@ public class ComTasksApplication extends Application implements MessageSeedProvi
     private volatile Thesaurus thesaurus;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile License license;
+    private volatile UserService userService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -67,6 +71,7 @@ public class ComTasksApplication extends Application implements MessageSeedProvi
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(userService).to(UserService.class);
         }
     };
 
@@ -88,7 +93,7 @@ public class ComTasksApplication extends Application implements MessageSeedProvi
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus("CTS", Layer.REST);
+        thesaurus = nlsService.getThesaurus("CTS", Layer.REST);
     }
 
     @Reference
@@ -101,6 +106,11 @@ public class ComTasksApplication extends Application implements MessageSeedProvi
         this.license = license;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -110,4 +120,5 @@ public class ComTasksApplication extends Application implements MessageSeedProvi
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 }

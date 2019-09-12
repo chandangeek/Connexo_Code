@@ -1015,6 +1015,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public Optional<SecurityAccessor> getSecurityAccessorByName(String securityAccessorName) {
+        Optional<SecurityAccessor> optionalKeyAccessor = getSecurityAccessors()
+                .stream()
+                .filter(keyAccessor -> keyAccessor.getName().equals(securityAccessorName))
+                .findFirst();
+
+        return optionalKeyAccessor;
+    }
+
+    @Override
     public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
         List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties
                 .size());

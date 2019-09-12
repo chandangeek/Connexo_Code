@@ -16,6 +16,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
+import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.web.events.EventServlet;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 import com.energyict.mdc.engine.impl.web.queryapi.QueryApiServlet;
@@ -52,6 +53,8 @@ import static com.elster.jupiter.util.Checks.is;
  * @since 2012-10-11 (15:43)
  */
 public class EmbeddedJettyServer implements EmbeddedWebServer {
+
+    private static final Logger LOGGER = Logger.getLogger( EmbeddedJettyServer.class.getName() );
 
     private final ShutdownFailureLogger shutdownFailureLogger;
     private final static String INBOUND_COMPORT_SERVICE = "Jetty_InboundComportService";
@@ -159,7 +162,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
      * Creates a new EmbeddedJettyServer that will host the servlet for the event mechanism.
      *
      * @param eventRegistrationUri The URI on which the servlet should be listening
-     * @param serviceProvider The ServiceProvider
+     * @param eventAPIStatistics The EventAPIStatistics
      */
     public static EmbeddedJettyServer newForEventMechanism (URI eventRegistrationUri, EventAPIStatistics eventAPIStatistics) {
         EmbeddedJettyServer server = new EmbeddedJettyServer(new EventMechanismShutdownFailureLogger(eventRegistrationUri));
@@ -254,6 +257,7 @@ public class EmbeddedJettyServer implements EmbeddedWebServer {
         }
         catch (Exception e) {
             e.printStackTrace(System.err);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

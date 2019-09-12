@@ -48,6 +48,7 @@ public class LGLogBookFactory extends Dsmr40LogBookFactory {
                     try {
                         getProtocol().journal("Reading logbook "+profileGeneric.getObisCode()+" from "+fromDate.getTime());
                         dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
+                        getProtocol().journal("Collected "+dataContainer.getRoot().element.length+" raw events from "+profileGeneric.getObisCode());
                         collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer,  logBookReader));
                     } catch (NotInObjectListException e) {
                         getProtocol().journal(Level.WARNING, "Logbook not in objects list: "+profileGeneric.getObisCode().toString());

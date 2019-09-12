@@ -40,6 +40,7 @@ public enum SimplePropertyType implements PropertyType {
     QUANTITY(Quantity.class),
     LISTREADINGQUALITY(ListReadingQualityFactory.class),
     ASSIGN(String.class),
+    MAILTO(String.class),
     ENDDEVICEEVENTTYPE(ListValueFactory.class),
     LIFECYCLESTATUSINDEVICETYPE(ListValueFactory.class),
     DEVICEGROUPTYPE(ListValueFactory.class),
@@ -62,7 +63,9 @@ public enum SimplePropertyType implements PropertyType {
     RECURRENCE(HasIdAndName.class),
     ENDDEVICEGROUPLIST(ListValueFactory.class),
     SERVICE_CALL(HasIdAndName.class),
-    SERVICE_CALL_STATE(HasIdAndName.class);
+    SERVICE_CALL_STATE(HasIdAndName.class),
+    CUSTOM_EVENT_TYPE(HasIdAndName.class),
+    EXCLUDED_COM_TASKS(ListValueFactory.class);
 
 
     private Class typeClass;
@@ -75,6 +78,7 @@ public enum SimplePropertyType implements PropertyType {
         if (valueFactory instanceof StringAreaFactory) {
             return TEXTAREA;
         }
+
         for (SimplePropertyType simplePropertyType : values()) {
             if (simplePropertyType.matches(valueFactory)) {
                 return simplePropertyType;

@@ -9,19 +9,19 @@ import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.DSMR40ActivityCalendarController;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,11 +56,14 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
     }
 
     @Override
-    protected AbstractMessageExecutor getMbusMessageExecutor() {
-        if (this.mbusMessageExecutor == null) {
-            this.mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
-        }
-        return this.mbusMessageExecutor;
+    protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        renewKey(wrappedKey, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId());
+
+        //Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
     }
 
     @Override
@@ -167,39 +170,13 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
     }
 
     @Override
-    protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-
-        Array authenticationKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
-        authenticationKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(authenticationKeyArray);
-
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
-    }
-
-    @Override
     protected void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
         byte[] oldKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
 
-        Array encryptionKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
-        encryptionKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(encryptionKeyArray);
+        renewKey(wrappedKey, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId());
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
@@ -210,6 +187,14 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
             securityContext.setFrameCounter(1);
             securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
         }
+    }
+
+    @Override
+    protected AbstractMessageExecutor getMbusMessageExecutor() {
+        if (this.mbusMessageExecutor == null) {
+            this.mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return this.mbusMessageExecutor;
     }
 
     /**

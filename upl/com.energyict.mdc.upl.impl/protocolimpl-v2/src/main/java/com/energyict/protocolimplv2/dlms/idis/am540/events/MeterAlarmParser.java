@@ -21,10 +21,10 @@ public class MeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 0)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 6, alarmGeneratedEventDescription+"Clock invalid"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.CLOCK_INVALID, 6, alarmGeneratedEventDescription+"Clock invalid"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 1, alarmGeneratedEventDescription+"Total Power Failure"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.POWERDOWN, 1, alarmGeneratedEventDescription+"Total Power Failure"));
                     break;
             }
         }
@@ -32,10 +32,10 @@ public class MeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 1)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 7, alarmGeneratedEventDescription+"Battery replace"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.REPLACE_BATTERY, 7, alarmGeneratedEventDescription+"Battery replace"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 2, alarmGeneratedEventDescription+"Power Resume"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.POWERUP, 2, alarmGeneratedEventDescription+"Power Resume"));
                     break;
             }
         }
@@ -45,7 +45,7 @@ public class MeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 82, alarmGeneratedEventDescription+"Voltage Missing Phase L1"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.MISSINGVOLTAGE_L1, 82, alarmGeneratedEventDescription+"Voltage Missing Phase L1"));
                     break;
             }
         }
@@ -55,7 +55,7 @@ public class MeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 83, alarmGeneratedEventDescription+"Voltage Missing Phase L2"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.MISSINGVOLTAGE_L2, 83, alarmGeneratedEventDescription+"Voltage Missing Phase L2"));
                     break;
             }
         }
@@ -65,7 +65,7 @@ public class MeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 84, alarmGeneratedEventDescription+"Voltage Missing Phase L3"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.MISSINGVOLTAGE_L3, 84, alarmGeneratedEventDescription+"Voltage Missing Phase L3"));
                     break;
             }
         }
@@ -75,7 +75,7 @@ public class MeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 85, alarmGeneratedEventDescription+"Voltage Normal Phase L1"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.NORMALVOLTAGE_L1, 85, alarmGeneratedEventDescription+"Voltage Normal Phase L1"));
                     break;
             }
         }
@@ -85,7 +85,7 @@ public class MeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 86, alarmGeneratedEventDescription+"Voltage Normal Phase L2"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.NORMALVOLTAGE_L2, 86, alarmGeneratedEventDescription+"Voltage Normal Phase L2"));
                     break;
             }
         }
@@ -95,7 +95,7 @@ public class MeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 87, alarmGeneratedEventDescription+"Voltage Normal Phase L3"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.NORMALVOLTAGE_L3, 87, alarmGeneratedEventDescription+"Voltage Normal Phase L3"));
                     break;
             }
         }
@@ -103,10 +103,10 @@ public class MeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 8)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 12, alarmGeneratedEventDescription+"Program memory error"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.PROGRAM_MEMORY_ERROR, 12, alarmGeneratedEventDescription+"Program memory error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 89, alarmGeneratedEventDescription+"Missing Neutral"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.MISSING_NEUTRAL, 89, alarmGeneratedEventDescription+"Missing Neutral"));
                     break;
             }
         }
@@ -114,10 +114,10 @@ public class MeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 9)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 13, alarmGeneratedEventDescription+"RAM error"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.RAM_MEMORY_ERROR, 13, alarmGeneratedEventDescription+"RAM error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 90, alarmGeneratedEventDescription+"Phase Asymmetry"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_ASYMMETRY, 90, alarmGeneratedEventDescription+"Phase Asymmetry"));
                     break;
             }
         }
@@ -125,10 +125,10 @@ public class MeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 10)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 14, alarmGeneratedEventDescription+"NV memory error"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.NV_MEMORY_ERROR, 14, alarmGeneratedEventDescription+"NV memory error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 91, alarmGeneratedEventDescription+"Current Reversal"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.REVERSE_RUN, 91, alarmGeneratedEventDescription+"Current Reversal"));
                     break;
             }
         }
@@ -136,10 +136,10 @@ public class MeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 11)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 16, alarmGeneratedEventDescription+"Measurement system error"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.MEASUREMENT_SYSTEM_ERROR, 16, alarmGeneratedEventDescription+"Measurement system error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 88, alarmGeneratedEventDescription+"Wrong Phase Sequence"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.PHASE_REVERSAL, 88, alarmGeneratedEventDescription+"Wrong Phase Sequence"));
                     break;
             }
         }
@@ -147,10 +147,10 @@ public class MeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 12)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 15, alarmGeneratedEventDescription+"Watchdog error"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.WATCHDOG_ERROR, 15, alarmGeneratedEventDescription+"Watchdog error"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 52, alarmGeneratedEventDescription+"Unexpected Consumption"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.UNEXPECTED_CONSUMPTION, 52, alarmGeneratedEventDescription+"Unexpected Consumption"));
                     break;
             }
         }
@@ -158,10 +158,10 @@ public class MeterAlarmParser {
         if (ProtocolTools.isBitSet(meterAlarmCode, 13)) {
             switch (alarmRegister){
                 case 1:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 40, alarmGeneratedEventDescription+"Fraud attempt"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.TERMINAL_OPENED, 40, alarmGeneratedEventDescription+"Fraud attempt"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 48, alarmGeneratedEventDescription+"Key Exchanged"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.GLOBAL_KEY, 48, alarmGeneratedEventDescription+"Key Exchanged"));
                     break;
             }
         }
@@ -171,7 +171,7 @@ public class MeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 92, alarmGeneratedEventDescription+"Bad Voltage Quality L1"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.BADVOLTAGE_L1, 92, alarmGeneratedEventDescription+"Bad Voltage Quality L1"));
                     break;
             }
         }
@@ -181,7 +181,7 @@ public class MeterAlarmParser {
                 case 1:
                     break;//Reserved for future use
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 93, alarmGeneratedEventDescription+"Bad Voltage Quality L2"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.BADVOLTAGE_L2, 93, alarmGeneratedEventDescription+"Bad Voltage Quality L2"));
                     break;
             }
         }
@@ -192,7 +192,7 @@ public class MeterAlarmParser {
                     meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 100, alarmGeneratedEventDescription+"M-Bus communication error ch1"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 94, alarmGeneratedEventDescription+"Bad Voltage Quality L3"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.BADVOLTAGE_L3, 94, alarmGeneratedEventDescription+"Bad Voltage Quality L3"));
                     break;
             }
         }
@@ -203,7 +203,7 @@ public class MeterAlarmParser {
                     meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 110, alarmGeneratedEventDescription+"M-Bus communication error ch2"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 20, alarmGeneratedEventDescription+"External Alert"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.EXTERNAL_ALERT, 20, alarmGeneratedEventDescription+"External Alert"));
                     break;
             }
         }
@@ -214,7 +214,7 @@ public class MeterAlarmParser {
                     meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 120, alarmGeneratedEventDescription+"M-Bus communication error ch3"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 53, alarmGeneratedEventDescription+"Local communication attempt"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.LOCAL_COMMUNICATION_ATTEMPT, 158, alarmGeneratedEventDescription+"Local communication attempt"));
                     break;
             }
         }
@@ -353,7 +353,7 @@ public class MeterAlarmParser {
                     meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 132, alarmGeneratedEventDescription+"Battery low on M-bus ch4"));
                     break;
                 case 2:
-                    meterEvents.add(new MeterEvent(date, alarmGeneratedMeterEvent, 68, alarmGeneratedEventDescription+"Disconnect/Reconnect Failure"));
+                    meterEvents.add(new MeterEvent(date, MeterEvent.DISCONNECT_RECONNECT_FAIL, 68, alarmGeneratedEventDescription+"Disconnect/Reconnect Failure"));
                     break;
             }
         }
