@@ -232,6 +232,8 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             replyType.getError().add(errorType);
         });
 
+        meterConfigEventMessageType.setReply(replyType);
+
         return meterConfigEventMessageType;
     }
 
