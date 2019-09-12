@@ -12,7 +12,6 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 interface IExportTask extends ExportTask, HasAuditInfo {
 
@@ -33,7 +32,5 @@ interface IExportTask extends ExportTask, HasAuditInfo {
     CompositeDataExportDestination getCompositeDestination(Instant at);
 
     boolean hasDefaultSelector();
-
-    Optional<ReadingDataSelectorConfigImpl> getReadingDataSelectorConfig();
 
 }

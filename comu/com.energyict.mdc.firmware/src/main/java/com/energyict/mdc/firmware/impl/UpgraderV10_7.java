@@ -75,7 +75,10 @@ public class UpgraderV10_7 implements Upgrader {
                 execute(statement, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY 1");
             }
             execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT PK_FWC_CAMPAIGN_PROPS DROP INDEX");
-            execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
+            try { // due to different behavior during the upgrade from 10.6 to 10.7 and 10.5 and older to 10.7
+                execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
+            } catch (Exception ignored) {
+            }
             executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN_PROPS", this::updateProps);
             execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS ADD CONSTRAINT PK_FWC_CAMPAIGN_PROPS PRIMARY KEY (CAMPAIGN, KEY) USING INDEX");
             dataModelUpgrader.upgrade(dataModel, version(10, 7));

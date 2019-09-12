@@ -162,6 +162,11 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     }
 
     @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
+    @Override
     public String getComponentName() {
         return COMPONENT_NAME;
     }

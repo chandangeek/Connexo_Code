@@ -1255,7 +1255,7 @@ public class BpmResource {
             }
             if (obj != null) {
                 taskContentInfos = new TaskContentInfos(obj);
-                if (taskContentInfos.status == null || taskContentInfos.status.equals("null")) {
+                if (taskContentInfos.id == null || taskContentInfos.id.equals("null")) {
                     throw new NoTaskWithIdException(thesaurus, MessageSeeds.NO_TASK_WITH_ID, id);
                 }
             }

@@ -167,8 +167,8 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .finish(),
                 this.propertySpecService
                         .bigDecimalSpec()
-                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CHANNEL_ID.javaName(), TranslationKeys.CHANNEL_REGISTER_ID)
-                        .describedAs(TranslationKeys.CHANNEL_REGISTER_ID)
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CHANNEL_ID.javaName(), TranslationKeys.CHANNEL_OR_REGISTER_ID)
+                        .describedAs(TranslationKeys.CHANNEL_OR_REGISTER_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService

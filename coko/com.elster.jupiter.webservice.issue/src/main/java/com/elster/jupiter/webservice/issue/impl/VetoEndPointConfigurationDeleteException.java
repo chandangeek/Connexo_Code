@@ -9,7 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 public class VetoEndPointConfigurationDeleteException extends LocalizedException {
-    public VetoEndPointConfigurationDeleteException(Thesaurus thesaurus, EndPointConfiguration endPointConfiguration) {
-        super(thesaurus, MessageSeeds.END_POINT_CONFIG_IN_USE, endPointConfiguration.getName());
+    public VetoEndPointConfigurationDeleteException(Thesaurus thesaurus, MessageSeeds messageSeed, EndPointConfiguration endPointConfiguration) {
+        super(thesaurus, messageSeed, endPointConfiguration.getName());
     }
 }
