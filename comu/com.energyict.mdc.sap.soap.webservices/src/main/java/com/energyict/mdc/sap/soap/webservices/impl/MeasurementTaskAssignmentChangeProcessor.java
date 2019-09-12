@@ -289,8 +289,22 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         readingTypes.stream().forEach(selectorBuilder::fromReadingType);
         selectorBuilder.endSelection();
 
-        EndPointConfiguration endPointCreate = getEndPointConfiguration(UtilitiesTimeSeriesBulkCreateRequestProvider.NAME);
-        EndPointConfiguration endPointChange = getEndPointConfiguration(UtilitiesTimeSeriesBulkChangeRequestProvider.NAME);
+        EndPointConfiguration endPointCreate;
+        Optional<String> endPointName = WebServiceActivator.getExportTaskNewDataEndpointName();
+        if (endPointName.isPresent()) {
+            endPointCreate = getEndPointConfiguration(endPointName.get());
+        } else {
+            endPointCreate = getEndPointConfiguration(Arrays.asList(UtilitiesTimeSeriesBulkCreateRequestProvider.NAME, UtilitiesTimeSeriesBulkChangeRequestProvider.NAME));
+        }
+
+        EndPointConfiguration endPointChange;
+        endPointName = WebServiceActivator.getExportTaskUpdatedDataEndpointName();
+        if (endPointName.isPresent()) {
+            endPointChange = getEndPointConfiguration(endPointName.get());
+        } else {
+            endPointChange = getEndPointConfiguration(Arrays.asList(UtilitiesTimeSeriesBulkChangeRequestProvider.NAME, UtilitiesTimeSeriesBulkCreateRequestProvider.NAME));
+        }
+
         if (endPointCreate != null && endPointChange != null) {
             ExportTask dataExportTask = builder.create();
             // add create and update end points
@@ -298,20 +312,26 @@ public class MeasurementTaskAssignmentChangeProcessor implements TranslationKeyP
         }
     }
 
-    private EndPointConfiguration getEndPointConfiguration(String webServiceName) {
-        Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.getEndPointConfigurationsForWebService(webServiceName)
-                .stream()
-                .filter(EndPointConfiguration::isActive)
-                .findFirst();
-        if (endPointConfig.isPresent()) {
-            return endPointConfig.get();
-        }
-        throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINT_NOT_FOUND, webServiceName);
+    private EndPointConfiguration getEndPointConfiguration(String name) {
+            Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.getEndPointConfiguration(name);
+            if (endPointConfig.isPresent()) {
+                return endPointConfig.get();
+            }
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINT_BY_NAME_NOT_FOUND, name);
     }
 
-    private RelativePeriod findRelativePeriodOrThrowException(String name) {
-        return timeService.findRelativePeriodByName(name)
-                .orElseThrow(() -> new IllegalArgumentException("Unable to find relative period '" + name + "'."));
+    private EndPointConfiguration getEndPointConfiguration(List<String> webservices) {
+            for (String webservice : webservices) {
+                Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.getEndPointConfigurationsForWebService(webservice)
+                        .stream()
+                        .filter(EndPointConfiguration::isActive)
+                        .findFirst();
+                if (endPointConfig.isPresent()) {
+                    return endPointConfig.get();
+                }
+            }
+
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.ENDPOINTS_NOT_FOUND, webservices.toString().join(","));
     }
 
     private int getNumberOfReadingTypes(ExportTask exportTask) {

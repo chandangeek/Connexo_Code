@@ -15,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     UNABLE_TO_CREATE_ISSUE_MISSING_WSC_OCCURRENCE(2, "WebServiceIssueUnableToFindWSCOccurrence", "Unable to create issue: couldn''t find web service call occurrence with id {0}.", Level.WARNING),
 
     END_POINT_CONFIG_IN_USE_BY_ICR(1001,"EndPointConfigInUseByIssueCreationRule", "Web service end point ''{0}'' is in use by an issue creation rule.", Level.SEVERE),
-    END_POINT_CONFIG_IN_USE_BY_DLC(1002,"EndPointConfigInUseByDevLifeCycle","Web service end point ''{0}'' is in use by a device life cycle.", Level.SEVERE),
+    END_POINT_CONFIG_IN_USE_BY_FSM(1002,"EndPointConfigInUseByLifeCycle","Web service end point ''{0}'' is in use by a device life cycle.", Level.SEVERE),
 
     CLOSE_ACTION_WRONG_STATUS(2001, "action.wrong.status", "You are trying to apply the incorrect status", Level.SEVERE),
     CLOSE_ACTION_ISSUE_CLOSED(2002, "action.issue.closed", "Issue closed", Level.INFO),
