@@ -267,6 +267,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile Clock clock;
+    private volatile OrmService ormService;
     private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -303,6 +304,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+        this.ormService = ormService;
         this.dataModel = dataModel;
     }
 
@@ -549,8 +551,8 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         }
 
         @Override
-        public DataModel dataModel() {
-            return dataModel;
+        public OrmService ormService() {
+            return ormService;
         }
 
         @Override

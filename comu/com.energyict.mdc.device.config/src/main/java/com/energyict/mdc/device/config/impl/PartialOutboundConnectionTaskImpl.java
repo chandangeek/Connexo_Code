@@ -47,7 +47,7 @@ abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskIm
         }
     }
 
-    private final SchedulingService schedulingService;
+    private SchedulingService schedulingService;
 
     @Valid
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
@@ -58,6 +58,10 @@ abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskIm
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.RETRY_DELAY_MUST_BE_HIGHER + '}')
     @MinTimeDuration(value = 60, groups = {Save.Create.class, Save.Update.class}, message = '{' + MessageSeeds.Keys.RETRY_DELAY_MUST_BE_HIGHER + '}')
     private TimeDuration rescheduleRetryDelay;
+
+    public PartialOutboundConnectionTaskImpl() {
+        super();
+    }
 
     PartialOutboundConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, protocolPluggableService);

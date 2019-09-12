@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.AbstractConnectionTypePluggableClassDeleg
 import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.config.impl.ProtocolDialectConfigurationPropertiesImpl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
@@ -38,6 +39,7 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.TypedProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -128,6 +130,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private boolean executing;
     private ConnectionType connectionType;
     private String name;
+    private List<ConnectionTaskProperty> properties = new ArrayList<ConnectionTaskProperty>();
 
     protected ConnectionTaskImpl() {
         super();
@@ -291,11 +294,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.clearPropertyCache();
     }
 
+    private Instant now;
+
+    @XmlAttribute
     protected Instant now() {
         if (clock != null) {
-            return clock.instant();
+            now = clock.instant();
         }
-        return null;
+        return now;
     }
 
     @Override
@@ -561,12 +567,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    @JsonIgnore
     @XmlTransient
     public PCTT getPartialConnectionTask() {
-        if (partialConnectionTask.isPresent()) {
+        if (this.partialConnectionTask.isPresent())
             return this.partialConnectionTask.get();
-        }
         return null;
+    }
+
+    public void setPartialConnectionTask(PCTT partialConnectionTask) {
+        this.partialConnectionTask.set(partialConnectionTask);
     }
 
     @Override
@@ -699,16 +709,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    @XmlElement(type = ConnectionTaskPropertyImpl.class, name = "properties")
+    @XmlElement(type = ConnectionTaskPropertyImpl.class)
     public List<ConnectionTaskProperty> getProperties() {
-        if (this.now() != null) {
-            return this.getProperties(this.now());
+        if (clock != null) {
+            this.properties = this.getProperties(this.now());
         }
-        return new ArrayList<>();
-    }
-
-    public void setProperties(List<ConnectionTaskProperty> ignore) {
-
+        return this.properties;
     }
 
     @Override

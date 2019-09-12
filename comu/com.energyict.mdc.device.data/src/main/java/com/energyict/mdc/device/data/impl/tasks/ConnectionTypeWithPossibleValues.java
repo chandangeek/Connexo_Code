@@ -25,14 +25,14 @@ public class ConnectionTypeWithPossibleValues extends AbstractConnectionTypeDele
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return connectionType.getPropertySpecs().stream().
+        return getInnerConnectionType().getPropertySpecs().stream().
                 map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getSecurityAccessorTypes(), ps)).
                 collect(Collectors.toList());
     }
 
     @Override
     public Optional<PropertySpec> getPropertySpec(String name) {
-        return connectionType.getPropertySpec(name).
+        return getInnerConnectionType().getPropertySpec(name).
                 map(ps -> KeyAccessorPropertySpecWithPossibleValues.addValuesIfApplicable(() -> getDevice().getDeviceType().getSecurityAccessorTypes(), ps));
     }
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -232,8 +233,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.appendPropertyToMessage(builder, property.getName(), property.getValue());
     }
 
-    private void addProtocolDialectPropertiesAsJournalEntries(ConnectionTask connectionTask) {
-        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(connectionTask.getDevice(), connectionTask.getProtocolDialectConfigurationProperties());
+    private void addProtocolDialectPropertiesAsJournalEntries(ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
+        TypedProperties protocolDialectTypedProperties = JobExecution.getProtocolDialectTypedProperties(getComServerDAO(), connectionTask, comTaskExecution);
         if (!protocolDialectTypedProperties.propertyNames().isEmpty()) {
             currentTaskExecutionBuilder.ifPresent(b -> b.addComTaskExecutionMessageJournalEntry(now(), ComServer.LogLevel.INFO, asString(protocolDialectTypedProperties), ""));
         }
@@ -427,7 +428,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.currentTaskExecutionBuilder = Optional.of(this.sessionBuilder.addComTaskExecutionSession(comTaskExecution, comTaskExecution.getComTask(), now()));
         initializeJournalist();
         if (this.isLogLevelEnabled(ComServer.LogLevel.DEBUG)) {
-            this.addProtocolDialectPropertiesAsJournalEntries(this.connectionTask);
+            this.addProtocolDialectPropertiesAsJournalEntries(getConnectionTask(), comTaskExecution);
         }
     }
 

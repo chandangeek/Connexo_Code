@@ -51,6 +51,10 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private int numberOfSimultaneousConnections = 1;
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
 
+    public PartialScheduledConnectionTaskImpl() {
+        super();
+    }
+
     @Inject
     PartialScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
         super(dataModel, eventService, thesaurus, protocolPluggableService, schedulingService);

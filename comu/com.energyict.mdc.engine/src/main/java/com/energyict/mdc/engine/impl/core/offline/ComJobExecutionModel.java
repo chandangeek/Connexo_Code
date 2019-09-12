@@ -299,7 +299,7 @@ public class ComJobExecutionModel implements CanProvideDescriptionTitle {
         return getSecurityPropertySets();
     }
 
-    public TypedProperties findProtocolDialectPropertiesFor(int comTaskExecutionId) {
+    public TypedProperties findProtocolDialectPropertiesFor(long comTaskExecutionId) {
         return getProtocolDialectPropertiesPerComTaskExecutionIdMap().get(comTaskExecutionId);
     }
 

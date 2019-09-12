@@ -160,8 +160,6 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
      */
     List<ConnectionTaskProperty> getProperties();
 
-    void setProperties(List<ConnectionTaskProperty> ignore);
-
     /**
      * Gets the list of {@link ConnectionTaskProperty ConnectionTaskProperties}
      * that are active on the specified Date to connect to devices.<br>

@@ -673,6 +673,18 @@
 			</dependency>
 			<dependency>
 				<groupId>com.elster.jupiter</groupId>
+				<artifactId>orm.h2</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
+				<artifactId>orm.oracle</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elster.jupiter</groupId>
 				<artifactId>osgi.goodies</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
@@ -1193,6 +1205,8 @@
 				<module>com.elster.jupiter.messaging.oracle</module>
 				<module>com.elster.jupiter.nls.rest</module>
 				<module>com.elster.jupiter.orm</module>
+				<module>com.elster.jupiter.orm.h2</module>
+				<module>com.elster.jupiter.orm.oracle</module>
 				<module>com.elster.jupiter.osgi.goodies</module>
 				<module>com.elster.jupiter.pki</module>
 				<module>com.elster.jupiter.pki.rest</module>

@@ -12,13 +12,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
@@ -33,6 +32,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -64,6 +64,7 @@ public class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedO
     @SuppressWarnings("unused") //Used by the orm
     private Instant modTime;
 
+    private List<PropertySpec> propertySpecs;
     // transient
     private transient TypedProperties typedProperties;
 
@@ -159,12 +160,19 @@ public class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedO
     }
 
     @Override
+    @XmlElements( {
+            @XmlElement(type = BasicPropertySpec.class),
+            @XmlElement(type = KeyAccessorPropertySpecWithPossibleValues.class),
+            @XmlElement(type = UPLToConnexoPropertySpecAdapter.class),
+    })
     public List<PropertySpec> getPropertySpecs() {
-        if (this.getDeviceProtocolDialect() == null) {
-            return Collections.emptyList();
-        } else {
-            return this.getDeviceProtocolDialect().getPropertySpecs();
-        }
+        if (propertySpecs == null && deviceConfiguration != null)
+            if (this.getDeviceProtocolDialect() == null) {
+                propertySpecs = Collections.emptyList();
+            } else {
+                propertySpecs = this.getDeviceProtocolDialect().getPropertySpecs();
+            }
+        return propertySpecs;
     }
 
     @Override

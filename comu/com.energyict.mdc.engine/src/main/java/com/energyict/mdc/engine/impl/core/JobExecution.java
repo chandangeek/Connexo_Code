@@ -106,13 +106,18 @@ public abstract class JobExecution implements ScheduledJob {
         this.preparationContext = new PreparationContext();
     }
 
-    protected static TypedProperties getProtocolDialectTypedProperties(Device device, ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties) {
-        Optional<ProtocolDialectProperties> protocolDialectPropertiesWithName = device.getProtocolDialectProperties(protocolDialectConfigurationProperties.getDeviceProtocolDialectName());
+    protected static TypedProperties getProtocolDialectTypedProperties(ComServerDAO comServerDAO, ConnectionTask connectionTask, ComTaskExecution comTaskExecution) {
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = connectionTask.getProtocolDialectConfigurationProperties();
+        TypedProperties protocolDialectProperties = comServerDAO.findProtocolDialectPropertiesFor(comTaskExecution.getId());
         TypedProperties result;
-        if (protocolDialectPropertiesWithName.isPresent()) {
-            result = protocolDialectPropertiesWithName.get().getTypedProperties();
+        if (protocolDialectProperties == null) {
+            result = TypedProperties.inheritingFrom(
+                    protocolDialectConfigurationProperties != null
+                            ? protocolDialectConfigurationProperties.getTypedProperties()
+                            : TypedProperties.empty()
+            );
         } else {
-            result = TypedProperties.inheritingFrom(protocolDialectConfigurationProperties.getTypedProperties());
+            result = protocolDialectProperties;
         }
         addDefaultValuesIfNecessary(protocolDialectConfigurationProperties, result);
         addProtocolDialectNameAsProperty(protocolDialectConfigurationProperties, result);
@@ -124,12 +129,9 @@ public abstract class JobExecution implements ScheduledJob {
      */
     private static void addDefaultValuesIfNecessary(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, TypedProperties result) {
         if (protocolDialectConfigurationProperties != null) {
-            DeviceProtocolDialect theActualDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect();
-            if (theActualDialect != null) {
-                for (PropertySpec propertySpec : theActualDialect.getUPLPropertySpecs()) {
-                    if (!result.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
-                        result.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
-                    }
+            for (PropertySpec propertySpec : protocolDialectConfigurationProperties.getUPLPropertySpecs()) {
+                if (!result.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                    result.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
                 }
             }
         }
@@ -217,7 +219,7 @@ public abstract class JobExecution implements ScheduledJob {
         final List<ProtocolTask> protocolTasks = generateProtocolTaskList(comTaskExecution);
         commandCreator.createCommands(
                 groupedDeviceCommand,
-                getProtocolDialectTypedProperties(getConnectionTask().getDevice(), getConnectionTask().getProtocolDialectConfigurationProperties()),
+                getProtocolDialectTypedProperties(getComServerDAO(), getConnectionTask(), comTaskExecution),
                 this.preparationContext.getComChannelPlaceHolder(),
                 protocolTasks,
                 deviceProtocolSecurityPropertySet,

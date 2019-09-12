@@ -7,6 +7,7 @@ package com.energyict.mdc.device.config;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -16,9 +17,11 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +32,8 @@ import java.util.Set;
  * Serves as template for wrappers.
  */
 abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
-    protected ConnectionType connectionType;
+
+    private ConnectionType innerConnectionType;
 
     private ConnectionTypeDirection direction;
 
@@ -38,83 +42,94 @@ abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
     }
 
     protected AbstractConnectionTypeDelegate(ConnectionType connectionType) {
-        this.connectionType = connectionType;
+        this.innerConnectionType = connectionType;
     }
 
     @Override
     @XmlTransient
     public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
-        return this.connectionType.getCustomPropertySet();
+        return this.innerConnectionType.getCustomPropertySet();
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.connectionType.getPropertySpecs();
+        return this.innerConnectionType.getPropertySpecs();
     }
 
     @Override
     public boolean allowsSimultaneousConnections() {
-        return this.connectionType.allowsSimultaneousConnections();
+        return this.innerConnectionType.allowsSimultaneousConnections();
     }
 
     @Override
     public boolean supportsComWindow() {
-        return this.connectionType.supportsComWindow();
+        return this.innerConnectionType.supportsComWindow();
     }
 
     @Override
     public Set<ComPortType> getSupportedComPortTypes() {
-        return this.connectionType.getSupportedComPortTypes();
+        return this.innerConnectionType.getSupportedComPortTypes();
     }
 
     @Override
     public ComChannel connect() throws ConnectionException {
-        return this.connectionType.connect();
+        return this.innerConnectionType.connect();
     }
 
     @Override
     public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
-        return this.connectionType.connect(properties);
+        return this.innerConnectionType.connect(properties);
     }
 
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
-        this.connectionType.disconnect(comChannel);
+        this.innerConnectionType.disconnect(comChannel);
     }
 
     @Override
     @XmlAttribute
     public ConnectionTypeDirection getDirection() {
-        if (connectionType != null) {
-            direction = this.connectionType.getDirection();
+        if (innerConnectionType != null) {
+            direction = this.innerConnectionType.getDirection();
         }
         return direction;
     }
 
     @Override
     public String getVersion() {
-        return this.connectionType.getVersion();
+        return this.innerConnectionType.getVersion();
     }
 
     @Override
     public void copyProperties(TypedProperties properties) {
-        this.connectionType.copyProperties(properties);
+        this.innerConnectionType.copyProperties(properties);
     }
 
     @Override
     public Optional<PropertySpec> getPropertySpec(String name) {
-        return this.connectionType.getPropertySpec(name);
+        return this.innerConnectionType.getPropertySpec(name);
     }
 
     @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
-        return this.connectionType.getUPLPropertySpecs();
+        return this.innerConnectionType.getUPLPropertySpecs();
     }
 
     @Override
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
-        this.connectionType.setUPLProperties(properties);
+        this.innerConnectionType.setUPLProperties(properties);
 
+    }
+
+    @XmlElements({
+            @XmlElement(type = UPLConnectionTypeAdapter.class),
+    })
+    protected ConnectionType getInnerConnectionType() {
+        return innerConnectionType;
+    }
+
+    protected void setInnerConnectionType(ConnectionType innerConnectionType) {
+        this.innerConnectionType = innerConnectionType;
     }
 
     @Override

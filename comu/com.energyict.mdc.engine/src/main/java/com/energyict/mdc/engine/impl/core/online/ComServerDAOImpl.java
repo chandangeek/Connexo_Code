@@ -9,8 +9,8 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.*;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
@@ -877,7 +877,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, Instant stopDate, final ComSession.SuccessIndicator successIndicator) {
         this.executeTransaction(() -> {
-            builder.injectServices(serviceProvider.dataModel(), serviceProvider.connectionTaskService(), serviceProvider.thesaurus());
+            builder.injectServices(serviceProvider.ormService().getDataModel(DeviceDataServices.COMPONENT_NAME).get(), serviceProvider.connectionTaskService(), serviceProvider.thesaurus());
             return builder.endSession(stopDate, successIndicator).create();
         });
         return null;
@@ -1762,7 +1762,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
         CommunicationTaskService communicationTaskService();
 
-        DataModel dataModel();
+        OrmService ormService();
 
         DeviceService deviceService();
 

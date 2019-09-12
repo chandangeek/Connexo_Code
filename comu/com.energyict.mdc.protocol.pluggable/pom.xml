@@ -133,6 +133,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>hsm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>connectiontypes</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>

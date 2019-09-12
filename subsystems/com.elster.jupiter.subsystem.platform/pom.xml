@@ -173,6 +173,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.oracle</artifactId>
+        </dependency>
         <!-- TODO do not included as this is more for development troubleshooting -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>

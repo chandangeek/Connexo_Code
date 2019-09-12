@@ -189,7 +189,7 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
 
     @Override
     public TypedProperties findProtocolDialectPropertiesFor(long comTaskExecutionId) {
-        return null;
+        return getComJobExecutionModel().findProtocolDialectPropertiesFor(comTaskExecutionId);
     }
 
     @Override

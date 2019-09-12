@@ -1,8 +1,10 @@
 -classpath: target/classes
 -dsannotations: *
-
 Export-Package: com.energyict.dlms,\
                com.energyict.protocols.naming,\
+               com.energyict.mdc.protocols.tasks,\
+               com.energyict.mdc.channels.ip.*,\
+               com.energyict.mdc.channels.serial.*,\
                com.energyict.protocolimplv2.security
 Import-Package: !test.wsdl.import2.types,\
     !org.apache.bsf,\

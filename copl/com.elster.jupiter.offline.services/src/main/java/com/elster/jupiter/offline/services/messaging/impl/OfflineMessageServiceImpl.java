@@ -13,20 +13,27 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.upgrade.UpgradeService;
+import com.google.common.collect.ImmutableMap;
+import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Collections;
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
 /**
  * Osgi Component class.
  */
-@Component(name = "com.elster.jupiter.offline.messaging", service = {MessageService.class},
+@Component(name = "com.elster.jupiter.messaging.offline", service = {MessageService.class},
         property = {"name=" + MessageService.COMPONENTNAME})
 public class OfflineMessageServiceImpl implements MessageService {
 
@@ -34,17 +41,50 @@ public class OfflineMessageServiceImpl implements MessageService {
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile UpgradeService upgradeService;
 
     public OfflineMessageServiceImpl() {
+    }
+
+    @Inject
+    OfflineMessageServiceImpl(OrmService ormService, Publisher publisher, NlsService nlsService, UpgradeService upgradeService) {
+        setOrmService(ormService);
+        setPublisher(publisher);
+        setNlsService(nlsService);
+        setUpgradeService(upgradeService);
+        activate();
     }
 
     @Reference
     public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(MessageService.COMPONENTNAME, "Jupiter Messaging");
+        for (TableSpecs each : TableSpecs.values()) {
+            each.addTo(dataModel);
+        }
+    }
+
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
     }
 
     @Activate
     public final void activate() {
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(Publisher.class).toInstance(publisher);
+                bind(NlsService.class).toInstance(nlsService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(MessageService.class).toInstance(OfflineMessageServiceImpl.this);
+            }
+        });
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+                Version.version(10, 2), UpgraderV10_2.class,
+                Version.version(10, 5), UpgraderV10_5.class,
+                Version.version(10, 7), UpgraderV10_7.class
+        ));
     }
 
     @Deactivate
@@ -53,51 +93,53 @@ public class OfflineMessageServiceImpl implements MessageService {
 
     @Override
     public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer, boolean isPrioritized) {
-        return null;
-    }
-
-    @Override
-    public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
-        return null;
+        OfflineTableSpecImpl result = OfflineTableSpecImpl.from(dataModel, name, payloadType, multiConsumer, isPrioritized);
+        result.save();
+        result.activate();
+        return result;
     }
 
     @Override
     public Optional<QueueTableSpec> getQueueTableSpec(String name) {
-        return Optional.empty();
+        // check if dataModel is already installed because this method get potentially called before the initAll is run
+        return dataModel.mapper(QueueTableSpec.class).getOptional(name);
     }
 
     @Override
     public Optional<DestinationSpec> getDestinationSpec(String name) {
-        return Optional.of(new DefaultDestinationSpecImpl(name));
-    }
-
-    public List<DestinationSpec> getDestinationSpecs(String queueTypeName) {
-        return Collections.emptyList();
+        // check if dataModel is already installed because this method get potentially called before the initAll is run
+        return dataModel.mapper(DestinationSpec.class).getOptional(name);
     }
 
     @Override
     public Optional<DestinationSpec> lockDestinationSpec(String name, long version) {
-        return Optional.empty();
+        return dataModel.mapper(DestinationSpec.class).lockObjectIfVersion(version, name);
     }
 
     @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
-        return Optional.empty();
+        // check if dataModel is already installed because this method get potentially called before the initAll is run
+        return dataModel.mapper(SubscriberSpec.class).getOptional(destinationSpecName, name);
     }
 
     @Override
-     public List<SubscriberSpec> getSubscribers() {
-        return Collections.emptyList();
+    public List<SubscriberSpec> getSubscribers() {
+        return dataModel.mapper(SubscriberSpec.class).find();
     }
 
     @Override
     public List<SubscriberSpec> getNonSystemManagedSubscribers() {
-        return Collections.emptyList();
+        return dataModel.mapper(SubscriberSpec.class).find("systemManaged", false);
+    }
+
+    @Override
+    public List<DestinationSpec> getDestinationSpecs(String queueTypeName) {
+        return dataModel.mapper(DestinationSpec.class).find("queueTypeName", queueTypeName);
     }
 
     @Override
     public List<DestinationSpec> findDestinationSpecs() {
-        return Collections.emptyList();
+        return dataModel.mapper(DestinationSpec.class).find();
     }
 
     @Reference
@@ -109,5 +151,9 @@ public class OfflineMessageServiceImpl implements MessageService {
     public final void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
+    DataModel getDataModel() {
+        return dataModel;
     }
 }

@@ -4,19 +4,21 @@
 
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.upl.TypedProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author sva
@@ -36,6 +38,15 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
      * @return the DeviceConfiguration
      */
     DeviceConfiguration getDeviceConfiguration();
+
+    /**
+     * Holding the property specs for the UPL adaptation
+     *
+     * @return The device protocol property specs
+     */
+    default List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::adaptTo).collect(Collectors.toList());
+    }
 
     /**
       * The device protocol dialect {@link com.energyict.mdc.protocol.api.DeviceProtocolDialect}

@@ -30,7 +30,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -115,6 +114,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
     private volatile Clock clock;
+    private volatile OrmService ormService;
     private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -375,6 +375,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(dataModel);
         }
+        this.ormService = ormService;
         this.dataModel = dataModel;
     }
 
@@ -838,8 +839,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         }
 
         @Override
-        public DataModel dataModel() {
-            return dataModel;
+        public OrmService ormService() {
+            return ormService;
         }
 
         @Override

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.properties;
 
+import com.elster.jupiter.properties.impl.PropertySpecPossibleValuesImpl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -190,6 +191,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     }
 
     @Override
+    @XmlElement(type = PropertySpecPossibleValuesImpl.class)
     public PropertySpecPossibleValues getPossibleValues() {
         return this.possibleValues;
     }

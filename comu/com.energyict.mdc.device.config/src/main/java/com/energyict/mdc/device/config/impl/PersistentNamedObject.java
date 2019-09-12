@@ -25,6 +25,10 @@ public abstract class PersistentNamedObject<T> extends PersistentIdObject<T> {
         super();
     }
 
+    protected PersistentNamedObject(Class<T> domainClass) {
+        super(domainClass);
+    }
+
     protected PersistentNamedObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(domainClass, dataModel, eventService, thesaurus);
     }

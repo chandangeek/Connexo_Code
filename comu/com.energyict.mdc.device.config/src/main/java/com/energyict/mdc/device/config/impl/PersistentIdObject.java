@@ -27,6 +27,10 @@ public abstract class PersistentIdObject<T> {
         super();
     }
 
+    protected PersistentIdObject(Class<T> domainClass) {
+        this.domainClass = domainClass;
+    }
+
     protected PersistentIdObject(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         this.domainClass = domainClass;
         this.dataModel = dataModel;

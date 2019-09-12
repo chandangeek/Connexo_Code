@@ -3,6 +3,10 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
+import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
@@ -11,13 +15,19 @@ import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationExcepti
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.ConnectionTypeCustomPropertySetNameDetective;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToLoadCustomPropertySetClass;
+import com.energyict.mdc.protocols.tasks.AbstractConnectionTypeImpl;
+import com.energyict.mdc.protocols.tasks.ConnectionTypeImpl;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.protocol.exceptions.ConnectionException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -34,32 +44,46 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
 
     private static ConnectionTypeCustomPropertySetNameDetective connectionTypeCustomPropertySetNameDetective;
 
-    private final com.energyict.mdc.upl.io.ConnectionType uplConnectionType;
-    private final CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
+    private com.energyict.mdc.upl.io.ConnectionType uplConnectionType;
+    private CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
+
+    private Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> customPropertySet;
+
+    public UPLConnectionTypeAdapter() {
+    }
 
     public UPLConnectionTypeAdapter(com.energyict.mdc.upl.io.ConnectionType uplConnectionType, CustomPropertySetInstantiatorService customPropertySetInstantiatorService) {
         this.uplConnectionType = uplConnectionType;
         this.customPropertySetInstantiatorService = customPropertySetInstantiatorService;
     }
 
+    @XmlElements({
+            @XmlElement(type = OutboundTcpIpConnectionType.class),
+            @XmlElement(type = OutboundUdpConnectionType.class),
+            @XmlElement(type = RxTxSerialConnectionType.class),
+            @XmlElement(type = SioSerialConnectionType.class)
+    })
     public ConnectionType getUplConnectionType() {
         return uplConnectionType;
     }
 
     @Override
     public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
-        this.ensureConnectionTypeCustomPropertySetNameMappingLoaded();
-        String cpsJavaClassName = connectionTypeCustomPropertySetNameDetective.customPropertySetClassNameFor(this.uplConnectionType.getClass());
+        if (customPropertySet == null && customPropertySetInstantiatorService != null) {
+            this.ensureConnectionTypeCustomPropertySetNameMappingLoaded();
+            String cpsJavaClassName = connectionTypeCustomPropertySetNameDetective.customPropertySetClassNameFor(this.uplConnectionType.getClass());
 
-        if (Checks.is(cpsJavaClassName).emptyOrOnlyWhiteSpace()) {
-            return Optional.empty();
-        } else {
-            try {
-                return Optional.of(customPropertySetInstantiatorService.createCustomPropertySet(cpsJavaClassName));
-            } catch (ClassNotFoundException e) {
-                throw new UnableToLoadCustomPropertySetClass(e, cpsJavaClassName, ConnectionTypeCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
+            if (Checks.is(cpsJavaClassName).emptyOrOnlyWhiteSpace()) {
+                return Optional.empty();
+            } else {
+                try {
+                    customPropertySet = Optional.of(customPropertySetInstantiatorService.createCustomPropertySet(cpsJavaClassName));
+                } catch (ClassNotFoundException e) {
+                    throw new UnableToLoadCustomPropertySetClass(e, cpsJavaClassName, ConnectionTypeCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
+                }
             }
         }
+        return customPropertySet;
     }
 
     private void ensureConnectionTypeCustomPropertySetNameMappingLoaded() {
@@ -88,21 +112,29 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public boolean allowsSimultaneousConnections() {
         return uplConnectionType.allowsSimultaneousConnections();
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public boolean supportsComWindow() {
         return uplConnectionType.supportsComWindow();
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public Set<ComPortType> getSupportedComPortTypes() {
         return uplConnectionType.getSupportedComPortTypes();
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public ConnectionType.ConnectionTypeDirection getDirection() {
         return uplConnectionType.getDirection();
     }
@@ -113,11 +145,15 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
         uplConnectionType.setUPLProperties(adaptedProperties);
     }
 
+    @JsonIgnore
+    @XmlTransient
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return uplConnectionType.getUPLPropertySpecs();
     }
 
     @Override
+    @JsonIgnore
+    @XmlTransient
     public String getVersion() {
         return uplConnectionType.getVersion();
     }
