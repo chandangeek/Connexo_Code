@@ -18,6 +18,7 @@ Ext.define('Isu.controller.Main', {
 
     controllers: [
         'Isu.controller.history.Administration',
+        'Isu.controller.AddDeviceGroupFromIssues',
         'Isu.controller.AssignmentRules',
         'Isu.controller.CreationRules',
         'Isu.controller.CreationRuleEdit',
