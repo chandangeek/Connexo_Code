@@ -19,6 +19,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.EndDeviceEventsBuilder;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.XsdDateTimeConverter;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
@@ -82,7 +83,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.energyict.mdc.cim.webservices.inbound.soap.impl.InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay;
 
 public class ServiceCallCommands {
 
@@ -181,7 +181,7 @@ public class ServiceCallCommands {
     }
 
     private void setCallBackUrl(MeterConfigMasterDomainExtension meterConfigMasterDomainExtension,
-            EndPointConfiguration outboundEndPointConfiguration) {
+                                EndPointConfiguration outboundEndPointConfiguration) {
         if (outboundEndPointConfiguration != null) {
             meterConfigMasterDomainExtension.setCallbackURL(outboundEndPointConfiguration.getUrl());
         }
@@ -339,7 +339,7 @@ public class ServiceCallCommands {
             if (CollectionUtils.isNotEmpty(existedLoadProfiles)
                     || (CollectionUtils.isNotEmpty(syncReplyIssue.getExistedReadingTypes()))) {
                 processLoadProfiles(subParentServiceCall, device, index, syncReplyIssue, start, end, now,
-                        actualRecurrentTaskReadOutDelay, scheduleStrategy);
+                        InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, scheduleStrategy);
             }
         } else if (CollectionUtils.isNotEmpty(existedLoadProfiles)) {
             Set<ReadingType> readingTypes = masterDataService.findAllLoadProfileTypes().stream()
@@ -352,7 +352,7 @@ public class ServiceCallCommands {
             combinedReadingTypes.addAll(readingTypes);
         }
 
-        if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, actualRecurrentTaskReadOutDelay)) {
+        if (isMeterReadingRequired(reading.getSource(), meter, combinedReadingTypes, actualEnd, now, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay)) {
             Set<ComTaskExecution> existedComTaskExecutions = getComTaskExecutions(meter, start, end, combinedReadingTypes, syncReplyIssue);
             for (ComTaskExecution comTaskExecution : existedComTaskExecutions) {
 
@@ -362,7 +362,7 @@ public class ServiceCallCommands {
                             XsdDateTimeConverter.marshalDateTime(start),
                             XsdDateTimeConverter.marshalDateTime(actualEnd)).get();
                 }
-                Instant trigger = getTriggerDate(actualEnd, actualRecurrentTaskReadOutDelay, comTaskExecution, scheduleStrategy);
+                Instant trigger = getTriggerDate(actualEnd, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, comTaskExecution, scheduleStrategy);
 
                 // run now
                 if (scheduleStrategy == ScheduleStrategy.RUN_NOW) {
@@ -436,10 +436,10 @@ public class ServiceCallCommands {
                                                        Set<ReadingType> combinedReadingTypes, SyncReplyIssue syncReplyIssue) {
         Set<ComTaskExecution> existedComTaskExecutions = new HashSet<>();
         if (comTaskExecutionRequired(start, end, combinedReadingTypes, true)) {
-            fillComTaskExecutions(existedComTaskExecutions, meter, combinedReadingTypes, syncReplyIssue,true);
+            fillComTaskExecutions(existedComTaskExecutions, meter, combinedReadingTypes, syncReplyIssue, true);
         }
         if (comTaskExecutionRequired(start, end, combinedReadingTypes, false)) {
-            fillComTaskExecutions(existedComTaskExecutions, meter, combinedReadingTypes, syncReplyIssue,false);
+            fillComTaskExecutions(existedComTaskExecutions, meter, combinedReadingTypes, syncReplyIssue, false);
         }
         return existedComTaskExecutions;
     }
@@ -494,7 +494,7 @@ public class ServiceCallCommands {
     private void updateLoadProfileNextRedingBlockStart(Set<ReadingType> readingTypes, Device device, Instant start) {
         device.getLoadProfiles().stream()
                 .filter(loadProfile -> loadProfile.getChannels().stream()
-                            .anyMatch(channel -> readingTypes.contains(channel.getReadingType()))
+                        .anyMatch(channel -> readingTypes.contains(channel.getReadingType()))
                 )
                 .forEach(loadProfile -> device.getLoadProfileUpdaterFor(loadProfile).setLastReading(start).update());
     }
@@ -609,12 +609,12 @@ public class ServiceCallCommands {
             return syncReplyIssue.getExistedReadingTypes();
         }
         return syncReplyIssue.getExistedReadingTypes().stream()
-            .filter(rt -> !notFoundReadingTypesMrids.contains(rt.getMRID()))
-            .collect(Collectors.toSet());
+                .filter(rt -> !notFoundReadingTypesMrids.contains(rt.getMRID()))
+                .collect(Collectors.toSet());
     }
 
     private DeviceMessage createDeviceMessage(Device device, ServiceCall childServiceCall, LoadProfile loadProfile, Instant releaseDate,
-                                                   Instant start, Instant end) {
+                                              Instant start, Instant end) {
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST)
                 .setTrackingId(Long.toString(childServiceCall.getId()))
                 .setReleaseDate(releaseDate);

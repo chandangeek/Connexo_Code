@@ -249,7 +249,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Instant doUpdateNextExecutionTimestamp(PostingMode postingMode) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(this.now().toEpochMilli());
         this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar).toInstant());
         return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
@@ -259,12 +259,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
-            if(comTask.getNextExecutionTimestamp() == null) {
+            if (comTask.getNextExecutionTimestamp() == null) {
                 updateNextExecutionTimeStampBasedOnComTask();
             } else {
                 this.schedule(comTask.getNextExecutionTimestamp().minusMillis(1));
             }
-        }else {
+        } else {
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -325,7 +325,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     public Instant applyComWindowIfAny(Instant calculatedNextExecutionTimestamp) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(calculatedNextExecutionTimestamp.toEpochMilli());
         this.applyComWindowIfAny(calendar);
         return calendar.getTime().toInstant();
@@ -367,7 +367,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant calculateNextRetryExecutionTimestamp() {
         Instant failureDate = this.now();
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(failureDate.toEpochMilli());
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
@@ -395,7 +395,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant calculateNextRescheduleTimestamp() {
         Instant failureDate = this.now();
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(failureDate.toEpochMilli());
         TimeDuration retryDelay = getRescheduleRetryDelay();
         retryDelay.addTo(calendar);
@@ -409,7 +409,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine, NextExecutionSpecs nextExecutionSpecs) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(baseLine.toEpochMilli());
         if (nextExecutionSpecs != null) {
             return nextExecutionSpecs.getNextTimestamp(calendar).toInstant();

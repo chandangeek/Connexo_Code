@@ -15,7 +15,7 @@ Ext.define('Mdc.privileges.TaskManagement', {
 
     view: ['privilege.view.ViewTaskOverview'],
     suspendTaskOverview: ['privilege.suspend.SuspendTaskOverview'],
-    administrateTaskOverview: ['privilege.edit.AdministrateTaskOverview'],
+    administrateTaskOverview: ['privilege.edit.AdministerTaskOverview'],
 
     all: function () {
         return Ext.Array.merge(Mdc.privileges.TaskManagement.view);

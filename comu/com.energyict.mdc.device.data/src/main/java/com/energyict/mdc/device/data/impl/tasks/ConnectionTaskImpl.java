@@ -115,7 +115,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @ValidPluggableClassId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private long pluggableClassId;
     private ConnectionTypePluggableClass pluggableClass;
-   // @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
+    // @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
     private Reference<ComSession> lastSession = ValueReference.absent();
@@ -179,7 +179,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      *
      * @param eventService the new event service
      */
-    protected  void injectEventService(EventService eventService) {
+    protected void injectEventService(EventService eventService) {
         this.eventService = eventService;
     }
 
@@ -777,7 +777,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void deactivate() {
-        if(!ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE.equals(this.getStatus())) {
+        if (!ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE.equals(this.getStatus())) {
             this.status = ConnectionTaskLifecycleStatus.INACTIVE;
             setExecutingComServer(null);
             this.update();
@@ -829,7 +829,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.getPluggableClass().getConnectionType();
     }
 
-    protected TimeZone getClocksTimeZone() {
+    protected TimeZone getUTCTimeZone() {
         return TimeZone.getTimeZone("UTC");
     }
 
@@ -845,7 +845,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void notifyConnectionFunctionUpdate(Optional<ConnectionFunction> previousConnectionFunction, Optional<ConnectionFunction> newConnectionFunction) {
-        if (previousConnectionFunction.isPresent() && newConnectionFunction.isPresent() && previousConnectionFunction.get().getId()== newConnectionFunction.get().getId()) {
+        if (previousConnectionFunction.isPresent() && newConnectionFunction.isPresent() && previousConnectionFunction.get().getId() == newConnectionFunction.get().getId()) {
             return; // In case the connection function has not changed, then there is no reason to notify someone
         }
 

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
@@ -85,20 +86,23 @@ public abstract class ScheduledJobImpl extends JobExecution {
 
     private ComWindow getComWindow() {
         ComWindow comWindowToUse = this.getConnectionTask().getCommunicationWindow();
-
-        Optional<ComTaskExecution> touComTaskExecution = getComTaskExecutions().stream()
-                .filter(comTaskExecution -> getServiceProvider().touService().getCampaignOn(comTaskExecution).isPresent())
-                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == getServiceProvider().touService().getCampaignOn(comTaskExecution).get().getCalendarUploadComTaskId())
+        Optional<ComWindow> touComWindow = getComTaskExecutions().stream()
+                .map(comTaskExecution -> getServiceProvider().touService().getCampaignOn(comTaskExecution)
+                        .filter(c -> c.getCalendarUploadComTaskId() == comTaskExecution.getComTask().getId())
+                        .map(TimeOfUseCampaign::getComWindow))
+                .flatMap(Functions.asStream())
                 .findFirst();
-        if (touComTaskExecution.isPresent()) {
-            comWindowToUse = getServiceProvider().touService().getCampaignOn(touComTaskExecution.get()).get().getComWindow();
+        if (touComWindow.isPresent()) {
+            comWindowToUse = touComWindow.get();
         }
-        Optional<ComTaskExecution> firmwareComTaskExecution = getComTaskExecutions().stream().filter(ComTaskExecution::isFirmware)
-                .filter(comTaskExecution -> getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution).isPresent())
-                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution).get().getFirmwareUploadComTaskId())
+        Optional<ComWindow> firmwareComWindow = getComTaskExecutions().stream()
+                .map(comTaskExecution -> getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution)
+                        .filter(c -> c.getFirmwareUploadComTaskId() == comTaskExecution.getComTask().getId())
+                        .map(FirmwareCampaign::getComWindow))
+                .flatMap(Functions.asStream())
                 .findFirst();
-        if (firmwareComTaskExecution.isPresent()) {
-            comWindowToUse =  getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(firmwareComTaskExecution.get()).get().getComWindow();
+        if (firmwareComWindow.isPresent()) {
+            comWindowToUse = firmwareComWindow.get();
         }
         return comWindowToUse;
     }
