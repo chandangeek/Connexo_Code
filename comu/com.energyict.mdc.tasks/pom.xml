@@ -83,7 +83,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+        </dependency>
+  
         <!-- TESTS -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -138,11 +142,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>transaction</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>users</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
