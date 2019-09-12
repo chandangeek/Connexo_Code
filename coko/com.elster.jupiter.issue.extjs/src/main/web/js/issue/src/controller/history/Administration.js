@@ -31,7 +31,7 @@ Ext.define('Isu.controller.history.Administration', {
                             controller: 'Isu.controller.BulkChangeIssues'
                         },
                         devicegroup: {
-                            title: 'Add device group',
+                            title: Uni.I18n.translate('general.addDeviceGroup', 'ISU', 'Add device group'),
                             route: 'devicegroup',
                             controller: 'Isu.controller.AddDeviceGroupFromIssues',
                             privileges: Isu.privileges.Issue.closeOrAssing,
