@@ -26,8 +26,10 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.getenddeviceevents.provider",
         service = {ReplyGetEndDeviceEventsWebService.class, OutboundSoapEndPointProvider.class},
@@ -81,8 +83,14 @@ public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointP
     @Override
     public void call(EndPointConfiguration endPointConfiguration, List<EndDeviceEventRecord> endDeviceEvents, String correlationId) {
         GetEndDeviceEventsRequestMessageType message = createResponseMessage(createEndDeviceEvents(endDeviceEvents), correlationId);
+        Set<String> values = new HashSet<>();
+                endDeviceEvents.forEach(event->{
+                values.add(event.getEndDevice().getName());
+                values.add(event.getEndDevice().getMRID());
+        });
         using("getEndDeviceEvents")
                 .toEndpoints(endPointConfiguration)
+                .withRelatedObject("Device",values)
                 .send(message);
     }
 

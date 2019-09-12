@@ -6,6 +6,7 @@ import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface WebServiceCallOccurrence {
@@ -36,6 +37,7 @@ public interface WebServiceCallOccurrence {
     void setApplicationName(String applicationName);
     void setRelatedObjectId(long relatedObjectId);
     void createRelatedObject(String domain, String key, String value);
+    void createRelatedObjects(String domain, Set<String> values);
     void retry();
 
     void save();

@@ -9,6 +9,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @ProviderType
 public interface OutboundEndPointProvider extends EndPointProvider {
@@ -61,6 +62,6 @@ public interface OutboundEndPointProvider extends EndPointProvider {
          */
         Map<EndPointConfiguration, ?> sendRawXml(String message);
 
-        RequestSender withRelatedObject(String domain, String type , List values);
+        RequestSender withRelatedObject(String domain, Set values);
     }
 }

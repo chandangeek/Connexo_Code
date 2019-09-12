@@ -32,8 +32,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replymasterdatalinkageconfig.provider", service = {
@@ -68,7 +70,8 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 	}
 
 	@Override
-	public void call(EndPointConfiguration endPointConfiguration, String operation,
+	public void
+	call(EndPointConfiguration endPointConfiguration, String operation,
 			List<LinkageOperation> successfulLinkages, List<FailedLinkageOperation> failedLinkages,
 			BigDecimal expectedNumberOfCalls, String correlationId) {
 		String method;
@@ -89,8 +92,18 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 			default:
 				throw new UnsupportedOperationException(operation + " isn't supported.");
 		}
+		Set<String> values = new HashSet<>();
+		successfulLinkages.forEach(link->{
+			values.add(link.getMeterMrid());
+			values.add(link.getMeterName());
+		});
+		failedLinkages.forEach(link->{
+			values.add(link.getMeterMrid());
+			values.add(link.getMeterName());
+		});
 		using(method)
 				.toEndpoints(endPointConfiguration)
+				.withRelatedObject("Device", values)
 				.send(message);
 	}
 

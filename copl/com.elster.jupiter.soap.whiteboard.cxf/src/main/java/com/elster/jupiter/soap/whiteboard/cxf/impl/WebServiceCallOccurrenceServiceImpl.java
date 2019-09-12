@@ -103,8 +103,7 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
 
         typeCondition = typeCondition.and(where("value").likeIgnoreCase(value));
 
-        return DefaultFinder.of(WebServiceCallRelatedObjectType.class, typeCondition, this.dataModel)
-                .defaultSortColumn("startTime").find();
+        return DefaultFinder.of(WebServiceCallRelatedObjectType.class, typeCondition, this.dataModel).find();
     };
 
 

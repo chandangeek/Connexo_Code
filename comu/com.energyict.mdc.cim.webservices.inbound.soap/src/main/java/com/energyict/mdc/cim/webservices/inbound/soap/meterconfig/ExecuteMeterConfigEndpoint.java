@@ -99,8 +99,11 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
+                    //TO-DO create objects from SET -> check that parameter is uniq in scope of this occurrence. And only after that try to create
                     meterConfig.getMeter().stream().forEach(meter -> {
                         createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
+                        createRelatedObject("DeviceX", "mrID", meter.getMRID());
+                        createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
                     });
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
@@ -113,7 +116,11 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
                             OperationEnum.CREATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
+
                     createRelatedObject("DeviceX", "name", meterName);
+                    createRelatedObject("DeviceX", "mrID", meter.getMRID());
+                    createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
+
                     Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
 
                     return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
@@ -159,6 +166,11 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.UPDATE, requestMessage.getHeader().getCorrelationID());
+                    meterConfig.getMeter().stream().forEach(meter -> {
+                        createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
+                        createRelatedObject("DeviceX", "mrID", meter.getMRID());
+                        createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
+                    });
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE,
@@ -170,6 +182,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
                             OperationEnum.UPDATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
+                    createRelatedObject("DeviceX", "name", meterName);
+                    createRelatedObject("DeviceX", "mrID", meter.getMRID());
+                    createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
+
                     Device changedDevice = deviceBuilder.prepareChangeFrom(meterInfo).build();
                     return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, requestMessage.getHeader().getCorrelationID());
                 }
@@ -299,6 +315,11 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                    meterConfig.getMeter().stream().forEach(meter -> {
+                        createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
+                        createRelatedObject("DeviceX", "mrID", meter.getMRID());
+                        createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
+                    });
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 } else {
                     // call synchronously
@@ -306,6 +327,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                    createRelatedObject("DeviceX", "name", meter.getNames().stream().findFirst().map(Name::getName).orElse(null));
+                    createRelatedObject("DeviceX", "mrID", meter.getMRID());
+                    createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
                     return createResponseMessage(device, HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException e) {

@@ -32,8 +32,10 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.xml.ws.Service;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.cim.webservices.outbound.soap.replyusagepointconfig.provider", service = {
         ReplyUsagePointConfigWebService.class, OutboundSoapEndPointProvider.class }, immediate = true, property = {
@@ -118,8 +120,18 @@ public class ReplyUsagePointConfigServiceProvider
             default:
                 throw new UnsupportedOperationException(operation + " isn't supported.");
         }
+        Set<String> values = new HashSet<>();
+        successList.forEach(up->{
+            values.add(up.getName());
+            values.add(up.getMRID());
+        });
+        failureList.forEach(upO->{
+            values.add(upO.getUsagePointName());
+            values.add(upO.getUsagePointMrid());
+        });
         using(method)
                 .toEndpoints(endPointConfiguration)
+                .withRelatedObject("UsagePoint", values)
                 .send(message);
     }
 

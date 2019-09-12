@@ -81,6 +81,11 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
         masterDataLinkageMessageValidatorProvider.get().validate(message, action);
         return runInTransactionWithOccurrence(() -> {
             try {
+                message.getPayload()
+                        .getMasterDataLinkageConfig().getMeter().stream().forEach(meter ->{
+                            createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
+                            createRelatedObject("DeviceX", "mrID", meter.getMRID());
+                });
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                     return processAsynchronously(message, action);
                 }

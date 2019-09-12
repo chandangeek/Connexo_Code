@@ -1,11 +1,11 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 public class RelatedObjectInfo {
-    long id;
-    String value;
+    public long id;
+    public String typeValue;
 
     public RelatedObjectInfo(long id, String value){
         this.id = id;
-        this.value = value;
+        this.typeValue = value;
     }
 }

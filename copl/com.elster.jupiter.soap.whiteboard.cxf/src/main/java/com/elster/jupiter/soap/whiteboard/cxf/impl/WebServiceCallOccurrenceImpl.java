@@ -20,8 +20,10 @@ import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -222,6 +224,20 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         relatedObject.init(this, relatedObjectType.get());
         relatedObject.save();
     }
+
+    @Override
+    public void createRelatedObjects(String domain, Set<String> values){
+
+        values.forEach(value->{
+            /* TO-DO remove key. Now just for compability */
+            if (value != null && !value.isEmpty()){
+                createRelatedObject(domain, "dummyKey", value);
+            }
+
+        });
+
+    }
+
 
 
 

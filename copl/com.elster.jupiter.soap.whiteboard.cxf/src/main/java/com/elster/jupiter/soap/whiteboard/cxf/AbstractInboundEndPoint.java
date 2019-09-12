@@ -143,7 +143,17 @@ public abstract class AbstractInboundEndPoint {
     }
 
     protected void createRelatedObject(String domain, String type, String value){
-        webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).createRelatedObject(domain, type, value);
+        if (value != null && !value.isEmpty()) {
+            webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).createRelatedObject(domain, type, value);
+        }
+    }
+
+    protected void createRelatedObjects(String domain, String type, Set<String> values){
+        values.forEach(value ->{
+            if (value != null && !value.isEmpty()) {
+                webServicesService.getOngoingOccurrence(MessageUtils.getOccurrenceId(webServiceContext)).createRelatedObject(domain, type, value);
+            }
+        });
     }
 
     private String getApplicationName() {

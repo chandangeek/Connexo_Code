@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -131,7 +132,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         private Collection<EndPointConfiguration> endPointConfigurations;
         private String domain;
         private String type;
-        private List<String> values;
+        private Set<String> values;
 
 
         private RequestSenderImpl(String methodName) {
@@ -139,9 +140,9 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
 
-        public RequestSenderImpl withRelatedObject(String domain, String type , List values){
+        public RequestSenderImpl withRelatedObject(String domain, Set values){
             this.domain = domain;
-            this.type = type;
+            this.type = "dummyType"; //TO-DO Will remove it.
             this.values = values;
             return this;
         }
@@ -247,7 +248,8 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                         try {
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
                             WebServiceCallOccurrence wsCo= webServicesService.getOngoingOccurrence(id);
-                            values.stream().forEach(value -> wsCo.createRelatedObject(domain, type, value));
+                            //values.stream().forEach(value -> wsCo.createRelatedObject(domain, type, value));
+                            wsCo.createRelatedObjects("Device", values);
                             Object response = method.invoke(port, request);
                             webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);

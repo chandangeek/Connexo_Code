@@ -43,8 +43,10 @@ import javax.xml.ws.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
@@ -165,10 +167,17 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
         }
-        List names = successfulDevices.stream().map(device-> device.getName()).collect(Collectors.toList());
+        Set<String> values = new HashSet();
+        successfulDevices.stream().map(device-> device.getName()).collect(Collectors.toSet());
+        successfulDevices.forEach(device->{
+            values.add(device.getName());
+            values.add(device.getmRID());
+            values.add(device.getSerialNumber());
+        });
+
         using(method)
                 .toEndpoints(endPointConfiguration)
-                .withRelatedObject("DeviceX", "name", names)
+                .withRelatedObject("DeviceX",  values)
                 .send(message);
     }
 

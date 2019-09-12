@@ -144,8 +144,9 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         String searchText = params.getLike();
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
         List<WebServiceCallRelatedObjectType> listRelatedObjects = webServiceCallOccurrenceService.getRelatedObjectTypeByValue(dbSearchText);
-        //List<String> listInfo = listRelatedObjects.stream().map(obj->obj.getValue()).collect(toList());
-        return Response.ok().entity(listRelatedObjects.stream().map(obj -> obj.getValue()).collect(Collectors.toList())).build();
+        List<RelatedObjectInfo> listInfo = listRelatedObjects.stream().map(obj->new RelatedObjectInfo(obj.getId(), obj.getValue())).collect(toList());
+
+        return Response.ok().entity(listInfo).build();
     }
 
 }
