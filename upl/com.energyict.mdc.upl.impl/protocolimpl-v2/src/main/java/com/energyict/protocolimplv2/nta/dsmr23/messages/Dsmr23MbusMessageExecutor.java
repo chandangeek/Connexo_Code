@@ -374,4 +374,3 @@ public class Dsmr23MbusMessageExecutor extends AbstractMessageExecutor {
         return getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode();
     }
 }
-

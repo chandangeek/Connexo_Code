@@ -219,4 +219,5 @@ public class EK280 extends LIS200 implements IRegisterReadable {
     {
         return new LockObject.LockInfo[] {ManufacturerLock, AdministratorLock, CustomerLock, DataCollectorLock, UserLock6};
     }
+
 }

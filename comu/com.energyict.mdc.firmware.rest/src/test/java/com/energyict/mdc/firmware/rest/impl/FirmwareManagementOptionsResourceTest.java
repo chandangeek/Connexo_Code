@@ -207,4 +207,3 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
         target(URI).request().put(Entity.json(firmwareManagementOptionsInfo));
     }
 }
-

@@ -35,7 +35,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.ScriptTable;
-
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -981,4 +980,3 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
 }
-
