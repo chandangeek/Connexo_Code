@@ -188,6 +188,12 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                         .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.PROCESSING_DATE.javaName(), TranslationKeys.PROCESSING_DATE)
                         .describedAs(TranslationKeys.PROCESSING_DATE)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName(), TranslationKeys.CANCELLED_BY_SAP)
+                        .describedAs(TranslationKeys.CANCELLED_BY_SAP_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -298,6 +304,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.databaseName())
                     .bool()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.FUTURE_CASE.javaName())
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CANCELLED_BY_SAP.javaName())
+                    .since(Version.version(10, 7, 1))
                     .add();
         }
 

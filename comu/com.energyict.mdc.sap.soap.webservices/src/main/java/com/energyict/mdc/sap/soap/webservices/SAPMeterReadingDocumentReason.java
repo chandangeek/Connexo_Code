@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 
 @ProviderType
 public interface SAPMeterReadingDocumentReason {
@@ -13,12 +14,17 @@ public interface SAPMeterReadingDocumentReason {
     /**
      * Reading reason code
      */
-    String getCode();
+    List<String> getCodes();
 
     /**
      * Collection interval support
      */
     boolean hasCollectionInterval();
+
+    /**
+     * Collection interval support
+     */
+    long gedAdditionalTime();
 
     /**
      * Bulk request support

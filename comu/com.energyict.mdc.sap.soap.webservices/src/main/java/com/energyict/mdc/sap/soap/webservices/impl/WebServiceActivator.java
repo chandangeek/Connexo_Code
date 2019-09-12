@@ -58,6 +58,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterRea
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultBulkCreateConfirmationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateConfirmationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentBulkCancellationRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentCancellationRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
@@ -145,6 +147,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final List<UtilitiesDeviceRegisteredNotification> UTILITIES_DEVICE_REGISTERED_NOTIFICATION = new CopyOnWriteArrayList<>();
     public static final List<UtilitiesDeviceRegisteredBulkNotification> UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION = new CopyOnWriteArrayList<>();
     public static final List<MeasurementTaskAssignmentChangeConfirmation> MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<MeterReadingDocumentCancellationConfirmation> METER_READING_DOCUMENT_CANCELLATION_CONFIRMATION = new CopyOnWriteArrayList<>();
+    public static final List<MeterReadingDocumentBulkCancellationConfirmation> METER_READING_DOCUMENT_BULK_CANCELLATION_CONFIRMATION = new CopyOnWriteArrayList<>();
     public static final String EXPORT_TASK_NAME = "sap.soap.measurementtaskassignment.export.task";
     public static final String EXPORT_TASK_DEVICE_GROUP_NAME = "sap.soap.measurementtaskassignment.device.group";
     public static final String LIST_OF_ROLE_CODES = "sap.soap.measurementtaskassignment.role.codes";
@@ -327,7 +331,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::addCustomPropertySet);
 
         upgradeService.register(InstallIdentifier.identifier(APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
-                ImmutableMap.of(version(10, 7), UpgraderV10_7.class));
+                ImmutableMap.of(
+                        version(10, 7), UpgraderV10_7.class,
+                        version(10, 7, 1), UpgraderV10_7_1.class
+                ));
 
         registerServices(bundleContext);
 
@@ -436,6 +443,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(MeasurementTaskAssignmentChangeRequestEndpoint.class),
                 InboundServices.SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(MeterReadingDocumentCancellationRequestEndpoint.class),
+                InboundServices.SAP_SMART_METER_METER_READING_DOCUMENT_ERP_CANCELLATION_CONFIRMATION.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(MeterReadingDocumentBulkCancellationRequestEndpoint.class),
+                InboundServices.SAP_SMART_METER_METER_READING_DOCUMENT_ERP_BULK_CANCELLATION_CONFIRMATION.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -561,6 +574,24 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeMeasurementTaskAssignmentChangeRequestConfirmation(MeasurementTaskAssignmentChangeConfirmation measurementTaskAssignmentChangeRequestConfirmation) {
             MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMeterReadingDocumentCancellationConfirmation(MeterReadingDocumentCancellationConfirmation meterReadingDocumentCancellationConfirmation) {
+        METER_READING_DOCUMENT_CANCELLATION_CONFIRMATION.add(meterReadingDocumentCancellationConfirmation);
+    }
+
+    public void removeMeterReadingDocumentCancellationConfirmation(MeterReadingDocumentCancellationConfirmation meterReadingDocumentCancellationConfirmation) {
+        METER_READING_DOCUMENT_CANCELLATION_CONFIRMATION.remove(meterReadingDocumentCancellationConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMeterReadingDocumentBulkCancellationConfirmation(MeterReadingDocumentBulkCancellationConfirmation meterReadingDocumentBulkCancellationConfirmation) {
+        METER_READING_DOCUMENT_BULK_CANCELLATION_CONFIRMATION.add(meterReadingDocumentBulkCancellationConfirmation);
+    }
+
+    public void removeMeterReadingDocumentBulkCancellationConfirmation(MeterReadingDocumentBulkCancellationConfirmation meterReadingDocumentBulkCancellationConfirmation) {
+        METER_READING_DOCUMENT_BULK_CANCELLATION_CONFIRMATION.remove(meterReadingDocumentBulkCancellationConfirmation);
     }
 
     @Reference

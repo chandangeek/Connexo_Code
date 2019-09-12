@@ -12,6 +12,8 @@ public enum AdditionalProperties {
     READING_COLLECTION_INTERVAL("com.elster.jupiter.sap.readingcollectioninterval", 60),
     CONFIRMATION_TIMEOUT("com.elster.jupiter.sap.confirmationtimeout", 5),
     CHECK_SCHEDULED_REQUESTS_FREQUENCY("com.elster.jupiter.sap.checkscheduledrequestsfrequency", 60),
+    CHECK_SCHEDULED_READING_ATTEMPTS("com.elster.jupiter.sap.checkscheduledreadingattempts", 3),
+    CHECK_SCHEDULED_READING_INTERVAL("com.elster.jupiter.sap.checkscheduledreadinginterval", 1440),
     CHECK_CONFIRMATION_TIMEOUT_FREQUENCY("com.elster.jupiter.sap.checkconfirmationtimeoutfrequency", 1),
     ;
 

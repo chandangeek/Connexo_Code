@@ -5,6 +5,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -55,7 +56,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     private void processServiceCall(ServiceCall serviceCall) {
         MeterReadingDocumentCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterReadingDocumentCreateRequestCustomPropertySet()).get();
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
-        if (device.isPresent()) {
+        if (device.isPresent() && device.get().getStage().getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
             extension.setDeviceName(device.get().getName());
             Optional<Channel> channel = sapCustomPropertySets.getChannel(extension.getLrn(), extension.getScheduledReadingDate());
             if (channel.isPresent()) {
@@ -66,6 +67,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                         .findFirst()
                         .ifPresent(readingType -> extension.setDataSource(readingType.getMRID()));
             } else {
+                serviceCall.log(LogLevel.WARNING,"The channel/register is not found.");
                 serviceCall.update(extension);
                 serviceCall.requestTransition(DefaultState.PAUSED);
                 return;
@@ -86,6 +88,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
+            serviceCall.log(LogLevel.WARNING,"The device is not found or the device is not in operational stage.");
             serviceCall.requestTransition(DefaultState.PAUSED);
         }
     }
@@ -93,7 +96,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     private Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
         return WebServiceActivator.METER_READING_REASONS
                 .stream()
-                .filter(readingReason -> readingReason.getCode().equals(readingReasonCode))
+                .filter(readingReason -> readingReason.getCodes().contains(readingReasonCode))
                 .findFirst();
     }
 

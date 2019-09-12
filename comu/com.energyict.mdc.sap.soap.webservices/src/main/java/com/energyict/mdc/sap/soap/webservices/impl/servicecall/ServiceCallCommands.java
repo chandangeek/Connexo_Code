@@ -35,6 +35,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnecti
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
 
 import javax.inject.Inject;
@@ -43,6 +44,7 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
@@ -98,22 +100,22 @@ public class ServiceCallCommands {
 
     public void updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage message) {
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.types.add(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_RESULT.getTypeName());
+        filter.types.add(ServiceCallTypes.METER_READING_DOCUMENT_CREATE_RESULT.getTypeName());
         filter.states.add(DefaultState.WAITING.name());
         serviceCallService.getServiceCallFinder(filter)
                 .stream()
                 .forEach(serviceCall -> {
-                    MasterMeterReadingDocumentCreateResultDomainExtension extension =
-                            serviceCall.getExtension(MasterMeterReadingDocumentCreateResultDomainExtension.class).get();
-                    if (extension.getRequestUUID().equals(message.getUuid())) {
-                        if (message.getProcessingResultCode().equals(ProcessingResultCode.FAILED.getCode())) {
-                            serviceCall.requestTransition(DefaultState.ONGOING);
-                            serviceCall.requestTransition(DefaultState.FAILED);
-                        } else {
-                            serviceCall.requestTransition(DefaultState.ONGOING);
-                            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                    MeterReadingDocumentCreateResultDomainExtension extension =
+                            serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class).get();
+                    message.getProcessingResultCodes().stream().forEach(item ->{
+                        if (extension.getMeterReadingDocumentId().equals(item.getFirst())) {
+                            if (item.getLast().equals(ProcessingResultCode.FAILED.getCode())) {
+                                serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.ONGOING, DefaultState.FAILED);
+                            } else {
+                                serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
+                             }
                         }
-                    }
+                    });
                 });
     }
 
@@ -344,4 +346,6 @@ public class ServiceCallCommands {
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
                         .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
     }
+
+
 }

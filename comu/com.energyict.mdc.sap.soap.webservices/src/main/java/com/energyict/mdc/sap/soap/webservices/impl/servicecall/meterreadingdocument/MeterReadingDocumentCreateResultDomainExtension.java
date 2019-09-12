@@ -33,8 +33,11 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         DATA_SOURCE("dataSource", "dataSource"),
         FUTURE_CASE("futureCase", "futureCase"),
         PROCESSING_DATE("processingDate", "processingDate"),
+        NEXT_READING_ATTEMPT_DATE("nextReadingAttemptDate", "nextReadingAttemptDate"),
+        READING_ATTEMPT("readingAttempt", "readingAttempt"),
         ACTUAL_READING_DATE("actualReadingDate", "actualReadingDate"),
-        READING("reading", "reading");
+        READING("reading", "reading"),
+        CANCELLED_BY_SAP("cancelledBySap", "cancelledBySap");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -84,8 +87,13 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private boolean futureCase;
     private Instant processingDate;
+    private Instant nextReadingAttemptDate;
+    //@NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private BigDecimal readingAttempt;
     private Instant actualReadingDate;
     private BigDecimal reading;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String cancelledBySap;
 
     public MeterReadingDocumentCreateResultDomainExtension() {
         super();
@@ -179,6 +187,39 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.processingDate = processingDate;
     }
 
+    public Instant getNextReadingAttemptDate() {
+        return nextReadingAttemptDate;
+    }
+
+    public void setNextReadingAttemptDate(Instant nextReadingAttemptDate) {
+        this.nextReadingAttemptDate = nextReadingAttemptDate;
+    }
+
+
+    public String getCancelledBySap() {
+        return cancelledBySap;
+    }
+
+    public void setCancelledBySap(String cancelledBySap) {
+        this.cancelledBySap = cancelledBySap;
+    }
+
+    public boolean isCancelledBySap() {
+        return cancelledBySap != null && cancelledBySap.toLowerCase().equals("yes");
+    }
+
+    public BigDecimal getReadingAttempt() {
+        if(readingAttempt == null){
+            readingAttempt = BigDecimal.ZERO;
+        }
+        return readingAttempt;
+    }
+
+    public void setReadingAttempt(BigDecimal readingAttempt) {
+        this.readingAttempt = readingAttempt;
+    }
+
+
     public Instant getActualReadingDate() {
         return actualReadingDate;
     }
@@ -207,11 +248,14 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.setReadingReasonCode((String) propertyValues.getProperty(FieldNames.READING_REASON_CODE.javaName()));
         this.setScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.SCHEDULED_READING_DATE.javaName()));
         this.setProcessingDate((Instant) propertyValues.getProperty(FieldNames.PROCESSING_DATE.javaName()));
+        this.setNextReadingAttemptDate((Instant) propertyValues.getProperty(FieldNames.NEXT_READING_ATTEMPT_DATE.javaName()));
+        this.setReadingAttempt((BigDecimal) propertyValues.getProperty(FieldNames.READING_ATTEMPT.javaName()));
         this.setChannelId((BigDecimal) propertyValues.getProperty(FieldNames.CHANNEL_ID.javaName()));
         this.setDataSource((String) propertyValues.getProperty(FieldNames.DATA_SOURCE.javaName()));
         this.setFutureCase((Boolean) propertyValues.getProperty(FieldNames.FUTURE_CASE.javaName()));
         this.setActualReadingDate((Instant) propertyValues.getProperty(FieldNames.ACTUAL_READING_DATE.javaName()));
         this.setReading((BigDecimal) propertyValues.getProperty(FieldNames.READING.javaName()));
+        this.setCancelledBySap((String) propertyValues.getProperty(FieldNames.CANCELLED_BY_SAP.javaName()));
     }
 
     @Override
@@ -224,11 +268,14 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         propertySetValues.setProperty(FieldNames.READING_REASON_CODE.javaName(), this.getReadingReasonCode());
         propertySetValues.setProperty(FieldNames.SCHEDULED_READING_DATE.javaName(), this.getScheduledReadingDate());
         propertySetValues.setProperty(FieldNames.PROCESSING_DATE.javaName(), this.getProcessingDate());
+        propertySetValues.setProperty(FieldNames.NEXT_READING_ATTEMPT_DATE.javaName(), this.getNextReadingAttemptDate());
+        propertySetValues.setProperty(FieldNames.READING_ATTEMPT.javaName(), this.getReadingAttempt());
         propertySetValues.setProperty(FieldNames.CHANNEL_ID.javaName(), this.getChannelId());
         propertySetValues.setProperty(FieldNames.DATA_SOURCE.javaName(), this.getDataSource());
         propertySetValues.setProperty(FieldNames.FUTURE_CASE.javaName(), this.isFutureCase());
         propertySetValues.setProperty(FieldNames.ACTUAL_READING_DATE.javaName(), this.getActualReadingDate());
         propertySetValues.setProperty(FieldNames.READING.javaName(), this.getReading());
+        propertySetValues.setProperty(FieldNames.CANCELLED_BY_SAP.javaName(), this.getCancelledBySap());
     }
 
     @Override

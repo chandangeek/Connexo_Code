@@ -29,7 +29,6 @@ public class CheckConfirmationTimeoutHandlerFactory  implements MessageHandlerFa
     private volatile TaskService taskService;
     private volatile Clock clock;
     private volatile ServiceCallService serviceCallService;
-    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     public CheckConfirmationTimeoutHandlerFactory() {
     }
@@ -43,7 +42,7 @@ public class CheckConfirmationTimeoutHandlerFactory  implements MessageHandlerFa
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new CheckConfirmationTimeoutHandler(clock, serviceCallService, sapCustomPropertySets));
+        return taskService.createMessageHandler(new CheckConfirmationTimeoutHandler(clock, serviceCallService));
     }
 
     @Reference
@@ -59,10 +58,5 @@ public class CheckConfirmationTimeoutHandlerFactory  implements MessageHandlerFa
     @Reference
     public final void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
-    }
-
-    @Reference
-    public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
-        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 }

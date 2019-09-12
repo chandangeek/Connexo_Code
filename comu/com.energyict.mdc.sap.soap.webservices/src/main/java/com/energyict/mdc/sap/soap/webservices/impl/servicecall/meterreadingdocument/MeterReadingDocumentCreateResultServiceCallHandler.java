@@ -47,7 +47,9 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
                 serviceCall.requestTransition(DefaultState.ONGOING);
                 break;
             case ONGOING:
-                executeReasonCodeProvider(serviceCall);
+                if (!oldState.equals(DefaultState.WAITING)) {
+                    executeReasonCodeProvider(serviceCall);
+                }
                 break;
             default:
                 break;
@@ -69,7 +71,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
                     .map(this::findReadingReasonProvider)
                     .map(Optional::get)
                     .orElseThrow(() -> new IllegalStateException("Unable to get reading reason provider for service call"))
-                    .process(SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService)
+                    .process(SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock)
                             .from(serviceCall, WebServiceActivator.SAP_PROPERTIES)
                             .build());
         }
@@ -78,7 +80,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
     private Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
         return WebServiceActivator.METER_READING_REASONS
                 .stream()
-                .filter(readingReason -> readingReason.getCode().equals(readingReasonCode))
+                .filter(readingReason -> readingReason.getCodes().contains(readingReasonCode))
                 .findFirst();
     }
 }

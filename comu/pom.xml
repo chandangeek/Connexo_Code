@@ -804,6 +804,7 @@
 				<module>com.energyict.mdc.test.api.rest</module>
 				<module>com.energyict.mdc.demo.customtask</module>
 				<module>com.energyict.mdc.webservices.demo</module>
+				<module>com.energyict.mdc.sap.soap.custom</module>
 			</modules>
 		</profile>
 	</profiles>

@@ -39,6 +39,11 @@ public class MeterReadingDocumentCreateResultMessage {
     private String url;
     private boolean bulk;
 
+    //statistic
+    private int documentsTotal;
+    private int documentsCanceledBySap;
+    private int documentsSuccessfullyProcessed;
+
     public MtrRdngDocERPRsltBulkCrteReqMsg getBulkResultMessage() {
         return bulkResultMessage;
     }
@@ -55,6 +60,18 @@ public class MeterReadingDocumentCreateResultMessage {
         return bulk;
     }
 
+    public int getDocumentsTotal() {
+        return documentsTotal;
+    }
+
+    public int getDocumentsCanceledBySap() {
+        return documentsCanceledBySap;
+    }
+
+    public int getDocumentsSuccessfullyProcessed() {
+        return documentsSuccessfullyProcessed;
+    }
+
     public static Builder builder() {
         return new MeterReadingDocumentCreateResultMessage().new Builder();
     }
@@ -67,16 +84,22 @@ public class MeterReadingDocumentCreateResultMessage {
         }
 
         public Builder from(ServiceCall parent, List<ServiceCall> children, Instant now) {
+            documentsTotal = children.size();
             MasterMeterReadingDocumentCreateResultDomainExtension extension = parent.getExtensionFor(new MasterMeterReadingDocumentCreateResultCustomPropertySet()).get();
             MeterReadingDocumentCreateResultMessage.this.bulk = extension.isBulk();
 
             if (bulk) {
                 bulkResultMessage.setMessageHeader(createBulkHeader(extension, now));
                 children.forEach(child -> {
-                    com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqMsg crteReqMsg = BULK_OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqMsg();
-                    crteReqMsg.setMessageHeader(createBulkHeader(extension, now));
-                    crteReqMsg.setMeterReadingDocument(createBulkBody(child));
-                    bulkResultMessage.getMeterReadingDocumentERPResultCreateRequestMessage().add(crteReqMsg);
+                    MeterReadingDocumentCreateResultDomainExtension childExtension = parent.getExtensionFor(new MeterReadingDocumentCreateResultCustomPropertySet()).get();
+                    if(!childExtension.isCancelledBySap()) {
+                        com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqMsg crteReqMsg = BULK_OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqMsg();
+                        crteReqMsg.setMessageHeader(createBulkHeader(extension, now));
+                        crteReqMsg.setMeterReadingDocument(createBulkBody(child));
+                        bulkResultMessage.getMeterReadingDocumentERPResultCreateRequestMessage().add(crteReqMsg);
+                    }else{
+                        documentsCanceledBySap++;
+                    }
                 });
             } else {
                 resultMessage.setMessageHeader(createHeader(extension, now));
@@ -181,6 +204,7 @@ public class MeterReadingDocumentCreateResultMessage {
                 result.setActualMeterReadingDate(childExtension.getActualReadingDate());
                 result.setActualMeterReadingTime(LocalDateTime.ofInstant(childExtension.getActualReadingDate(), ZoneId.systemDefault()).toLocalTime());
                 meterReadingDocument.setResult(result);
+                documentsSuccessfullyProcessed++;
             }
 
             return meterReadingDocument;

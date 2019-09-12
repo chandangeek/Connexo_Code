@@ -177,6 +177,8 @@ public interface ServiceCallService {
 
     Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState);
 
+    Finder<ServiceCall> findAvailableServiceCalls(String serviceCallName, Set<DefaultState> inState);
+
     void cancelServiceCallsFor(Object target);
 
     /**
@@ -190,5 +192,9 @@ public interface ServiceCallService {
     Set<DefaultState> nonFinalStates();
 
     List<DestinationSpec> getCompatibleQueues4();
+
+    void transitionWithLockIfPossible(ServiceCall serviceCall, DefaultState state);
+
+    void transitionWithLockIfPossible(ServiceCall serviceCall, DefaultState firstState, DefaultState secondState);
 
 }

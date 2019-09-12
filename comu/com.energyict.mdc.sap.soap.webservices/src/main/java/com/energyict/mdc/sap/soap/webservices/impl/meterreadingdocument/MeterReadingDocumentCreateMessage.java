@@ -64,7 +64,7 @@ public class MeterReadingDocumentCreateMessage {
     private Optional<SAPMeterReadingDocumentReason> findReasonCode() {
         return WebServiceActivator.METER_READING_REASONS
                 .stream()
-                .filter(reasonCode -> reasonCode.getCode().equals(readingReasonCode))
+                .filter(reasonCode -> reasonCode.getCodes().contains(readingReasonCode))
                 .findFirst();
     }
 
