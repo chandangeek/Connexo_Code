@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.messaging;
 
-import com.energyict.common.CommonCryptoMessaging;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -14,6 +13,8 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.common.CommonCryptoMessaging;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
@@ -32,7 +33,7 @@ public class CryptoAM540Messaging extends AM540Messaging {
 
     public CryptoAM540Messaging(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, calendarExtractor, messageFileExtractor, keyAccessorTypeExtractor);
-        commonCryptoMessaging = new CommonCryptoMessaging(propertySpecService, nlsService, converter);
+        commonCryptoMessaging = new CommonCryptoMessaging(propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
     }
 
     @Override

@@ -75,6 +75,7 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
     private SessionKeyCapability renewCapability;
     private int keySize;
     private boolean isReversible;
+    private boolean isWrapper;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -212,6 +213,11 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         return ProtocolKeyTypes.HSM.getName().equals(this.getKeyType().getName());
     }
 
+    @Override
+    public boolean isWrapper() {
+        return isWrapper;
+    }
+
     public void setKeyEncryptionMethod(String keyEncryptionMethod) {
         this.keyEncryptionMethod = keyEncryptionMethod;
     }
@@ -317,6 +323,10 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         return getClass().getName() + ": " + name;
     }
 
+    public void setIsWrapper(boolean isWrapper) {
+        this.isWrapper = isWrapper;
+    }
+
 
     public enum Fields {
         ID("id"),
@@ -333,7 +343,8 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         IMPORT_CAPABILITY("importCapability"),
         RENEW_CAPABILITY("renewCapability"),
         KEY_SIZE("keySize"),
-        REVERSIBLE("isReversible");
+        REVERSIBLE("isReversible"),
+        ISWRAPPER("isWrapper");
 
 
         private final String javaFieldName;
@@ -402,6 +413,12 @@ public class SecurityAccessorTypeImpl implements SecurityAccessorType, Persisten
         @Override
         public Updater reversible(boolean reversible) {
             SecurityAccessorTypeImpl.this.reversible(reversible);
+            return this;
+        }
+
+        @Override
+        public Updater isWrapper(boolean isWrapper) {
+            SecurityAccessorTypeImpl.this.setIsWrapper(isWrapper);
             return this;
         }
 

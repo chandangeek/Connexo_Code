@@ -17,6 +17,7 @@ import com.elster.jupiter.properties.rest.RecurrenceSelectionPropertyFactory;
 import com.elster.jupiter.properties.rest.RelativePeriodWithCountPropertyFactory;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.properties.rest.WebServicesEndPointFactory;
+import com.elster.jupiter.properties.rest.*;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -40,6 +41,9 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
     public PropertyType getPropertyType(PropertySpec propertySpec) {
         if (propertySpec.getValueFactory() instanceof AssignPropertyFactory) {
             return SimplePropertyType.ASSIGN;
+        }
+        if (propertySpec.getValueFactory() instanceof MailPropertyFactory) {
+            return SimplePropertyType.MAILTO;
         }
         if (propertySpec.getValueFactory() instanceof RaiseEventPropertyFactory) {
             return SimplePropertyType.RAISEEVENTPROPS;

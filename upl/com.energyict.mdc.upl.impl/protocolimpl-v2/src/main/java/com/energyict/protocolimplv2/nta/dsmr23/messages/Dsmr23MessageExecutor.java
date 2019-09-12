@@ -35,7 +35,7 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
+
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -74,6 +74,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.sercurity.KeyRenewalInfo;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.DatatypeConverter;
@@ -206,9 +207,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                     changeAuthLevel(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
-                    changeAuthenticationOrEncryptionKey(pendingMessage, 0);
+                    changeEncryptionKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
-                    changeAuthenticationOrEncryptionKey(pendingMessage, 2);
+                    changeAuthenticationKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
                     changeHLSSecretUsingServiceKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
@@ -535,15 +536,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void changeAuthenticationOrEncryptionKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
-        Array globalKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(getProtocol().getDlmsSession().getProperties().getSecurityProvider().getAuthenticationKey()));
-        globalKeyArray.addDataType(keyData);
+    private void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        byte[] wrappedKey = getWrappedKey(pendingMessage, newEncryptionKeyAttributeName);
+        renewKey(wrappedKey, 0);
+    }
 
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(globalKeyArray);
+    private void changeAuthenticationKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        byte[] wrappedKey = getWrappedKey(pendingMessage, newAuthenticationKeyAttributeName);
+        renewKey(wrappedKey, 2);
     }
 
     private void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -560,34 +560,20 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             throw DataParseException.generalParseException(e);
         }
         String keyAccessorName = values[0];
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(values[1], "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(values[1]);
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
 
         Optional<String> securityAttribute = this.keyAccessorTypeExtractor.correspondingSecurityAttribute(
                 keyAccessorName,
                 getProtocol().getDlmsSessionProperties().getSecurityPropertySet().getName()
         );
         if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey())) {
-            renewKey(newSymmetricKey, masterKey, 2);
+            renewKey(wrappedKey, 2);
         } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey())) {
-            renewKey(newSymmetricKey, masterKey, 0);
+            renewKey(wrappedKey, 0);
         } else {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");
         }
-    }
-
-    private void renewKey(byte[] newSymmetricKey, byte[] masterKey, int type) throws IOException {
-        Array globalKeyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-
-        byte[] key = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-
-        keyData.addDataType(OctetString.fromByteArray(key));
-        globalKeyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-        ss.transferGlobalKey(globalKeyArray);
     }
 
     private void globalMeterReset() throws IOException {

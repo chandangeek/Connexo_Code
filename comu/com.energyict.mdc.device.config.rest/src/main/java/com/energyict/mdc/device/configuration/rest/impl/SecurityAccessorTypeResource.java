@@ -257,6 +257,7 @@ public class SecurityAccessorTypeResource {
             keyFunctionTypeBuilder.keySize(securityAccessorTypeInfo.keySize);
             keyFunctionTypeBuilder.reversible(securityAccessorTypeInfo.isReversible);
         }
+        keyFunctionTypeBuilder.isWrapper(securityAccessorTypeInfo.isWrapper);
 
         SecurityAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
         SecurityAccessorTypeInfo resultInfo = keyFunctionTypeInfoFactory.from(keyFunctionType);
@@ -312,6 +313,7 @@ public class SecurityAccessorTypeResource {
             updater.keySize(securityAccessorTypeInfo.keySize);
             updater.reversible(securityAccessorTypeInfo.isReversible);
         }
+        new IsWrapperUpdater(securityAccessorTypeInfo, securityAccessorType, updater, resourceHelper, exceptionFactory).update();
         if (securityAccessorTypeInfo.duration != null && securityAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
             updater.duration(getDuration(securityAccessorTypeInfo));
         } else {
