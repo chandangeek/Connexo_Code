@@ -10,7 +10,7 @@ import java.util.logging.Level;
 enum MessageSeeds implements MessageSeed {
     PROPERTY_NOT_FOUND(1001, "Property with key \"{0}\" not found"),
     DATASOURCE_SETUP_FAILED(1002, "Data source setup failed."),
-    JDBC_PASSWORD_NOT_CORRECT(1003, "The database password or encryption key are incorrect");
+    JDBC_PASSWORD_NOT_CORRECT(1003, "The database password or encryption key are incorrect.");
 
     private final int number;
     private final String defaultFormat;
