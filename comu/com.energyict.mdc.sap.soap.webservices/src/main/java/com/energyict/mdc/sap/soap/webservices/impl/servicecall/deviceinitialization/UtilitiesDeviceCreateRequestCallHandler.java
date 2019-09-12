@@ -85,7 +85,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         UtilitiesDeviceCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new UtilitiesDeviceCreateRequestCustomPropertySet()).get();
 
         try {
-            getDeviceHelper().processDeviceCreate(extension.getDeviceId(), extension.getSerialId(), extension.getDeviceType(), extension.getShipmentDate(), extension.getManufacturer(), extension.getModelNumber());
+            getDeviceHelper().processDeviceCreation(extension.getDeviceId(), extension.getSerialId(), extension.getDeviceType(), extension.getShipmentDate(), extension.getManufacturer(), extension.getModelNumber());
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (LocalizedException ex) {
             extension.setError(ex.getMessageSeed(), ex.getMessageArgs());

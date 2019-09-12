@@ -18,7 +18,8 @@ public enum Privileges implements TranslationKey {
     //Privileges
     VIEW_TASK_OVERVIEW(Constants.VIEW_TASK_OVERVIEW, "View task overview"),
     SUSPEND_TASK_OVERVIEW(Constants.SUSPEND_TASK_OVERVIEW, "Suspend task overview"),
-    ADMINISTRATE_TASK_OVERVIEW(Constants.ADMINISTRATE_TASK_OVERVIEW, "Administrate task overview"),;
+    ADMINISTER_TASK_OVERVIEW(Constants.ADMINISTER_TASK_OVERVIEW, "Administer task overview"),
+    ;
 
     private final String key;
     private final String description;
@@ -50,8 +51,8 @@ public enum Privileges implements TranslationKey {
 
     public interface Constants {
         String VIEW_TASK_OVERVIEW = "privilege.view.ViewTaskOverview";
-        String SUSPEND_TASK_OVERVIEW ="privilege.suspend.SuspendTaskOverview";
-        String ADMINISTRATE_TASK_OVERVIEW = "privilege.edit.AdministrateTaskOverview";
+        String SUSPEND_TASK_OVERVIEW = "privilege.suspend.SuspendTaskOverview";
+        String ADMINISTER_TASK_OVERVIEW = "privilege.edit.AdministerTaskOverview";
     }
 
 

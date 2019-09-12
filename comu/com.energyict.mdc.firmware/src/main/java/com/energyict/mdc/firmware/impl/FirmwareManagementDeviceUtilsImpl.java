@@ -71,10 +71,10 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         this.firmwareMessages = new ArrayList<>();
     }
 
-    public FirmwareManagementDeviceUtils initFor(Device device, boolean oneMassagePerFirmwareType) {
+    public FirmwareManagementDeviceUtils initFor(Device device, boolean onlyLastMessagePerFirmwareType) {
         this.device = device;
         initFirmwareComTaskExecution();
-        if (oneMassagePerFirmwareType) {
+        if (onlyLastMessagePerFirmwareType) {
             // only firmware upgrade, no revoked messages and only one message for each firmware type
             initFirmwareMessagesUnique();
         } else {
@@ -96,8 +96,9 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
                 activationMessages.put(candidate.getTrackingId(), candidate);
             }
         });
-        for (List<DeviceMessage> messages : uploadMessages.values())
+        for (List<DeviceMessage> messages : uploadMessages.values()) {
             this.firmwareMessages.addAll(messages);
+        }
         this.firmwareMessages.addAll(this.firmwareMessages.stream()
                 .map(message -> activationMessages.get(String.valueOf(message.getId())))
                 .filter(Objects::nonNull)
@@ -114,7 +115,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         Optional<FirmwareVersion> version = getFirmwareVersionFromMessage(candidate);
         if (version.isPresent()) {
             FirmwareType key = version.get().getFirmwareType();
-            if(uploadMessages.containsKey(key)) {
+            if (uploadMessages.containsKey(key)) {
                 uploadMessages.get(key).add(candidate);
             } else {
                 uploadMessages.put(key, new ArrayList<>(Arrays.asList(candidate)));
@@ -192,7 +193,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         Optional<DeviceMessageAttribute> activationDateMessageAttr = message.getAttributes().stream()
                 .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
                 .filter(deviceMessageAttribute -> {
-                    if(deviceMessageAttribute.getSpecification() != null) {
+                    if (deviceMessageAttribute.getSpecification() != null) {
                         return deviceMessageAttribute.getSpecification().getValueFactory().getValueType().equals(Date.class);
                     }
                     return false;

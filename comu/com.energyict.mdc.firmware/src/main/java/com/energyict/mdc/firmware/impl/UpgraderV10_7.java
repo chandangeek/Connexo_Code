@@ -87,7 +87,7 @@ public class UpgraderV10_7 implements Upgrader {
             execute(statement, "DROP TABLE FWC_CAMPAIGN_STATUS");
             execute(statement, "DROP TABLE FWC_CAMPAIGN_DEVICES");
             execute(statement, "DROP TABLE FWC_CAMPAIGN");
-            execute(dataModel,"UPDATE FWC_FIRMWAREVERSION SET TYPE = CASE WHEN TYPE=0 THEN 0 WHEN TYPE=1 THEN 1 WHEN TYPE=2 THEN 3 WHEN TYPE=3 THEN 2 END");
+            execute(dataModel, "UPDATE FWC_FIRMWAREVERSION SET TYPE = 3 WHERE TYPE = 2");
         } catch (SQLException e) {
             e.printStackTrace();
         }

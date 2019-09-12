@@ -24,7 +24,7 @@ public class UpgraderV10_7 implements Upgrader {
         return new String[]{
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES,
-                com.elster.jupiter.tasks.security.Privileges.Constants.ADMINISTRATE_TASK_OVERVIEW,
+                com.elster.jupiter.tasks.security.Privileges.Constants.ADMINISTER_TASK_OVERVIEW,
         };
     }
 }

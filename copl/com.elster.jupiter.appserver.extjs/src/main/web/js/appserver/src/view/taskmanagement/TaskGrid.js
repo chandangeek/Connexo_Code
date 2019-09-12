@@ -66,7 +66,7 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                    // return taskManagement == undefined || !taskManagement.controller.canAdministrate();
                     return !((taskManagement != undefined && taskManagement.controller.canAdministrate())
                         || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview')
-                        ||  Uni.Auth.checkPrivileges('privilege.edit.AdministrateTaskOverview'));
+                        ||  Uni.Auth.checkPrivileges('privilege.edit.AdministerTaskOverview'));
                 },
                 menu: {
                     xtype: 'task-management-action-menu',
