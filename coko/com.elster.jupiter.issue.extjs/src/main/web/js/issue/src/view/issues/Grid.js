@@ -114,6 +114,14 @@ Ext.define('Isu.view.issues.Grid', {
                         handler: function () {
                             me.router.getRoute(me.router.currentRoute + '/bulkaction').forward(me.router.arguments, Uni.util.QueryString.getQueryStringValues(false));
                         }
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'create-group-from-issues-button',
+                        action: 'createGroupFromIssuesAction',
+                        privileges: Isu.privileges.Issue.closeOrAssing,
+                        text: Uni.util.Application.getAppName() === 'MdmApp' ? Uni.I18n.translate('usagepointgroupfromissues.issues.addGroupButton', 'IMT', 'Add usage point group') :
+                            Uni.util.Application.getAppName() === 'MultiSense' ? Uni.I18n.translate('devicegroupfromissues.issues.addGroupButton', 'ISU', 'Add device group') : ''
                     }
                 ]
             },

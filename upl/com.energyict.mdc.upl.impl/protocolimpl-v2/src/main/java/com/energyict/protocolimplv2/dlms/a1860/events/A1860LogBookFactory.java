@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class A1860LogBookFactory implements DeviceLogBookSupport {
 
@@ -103,7 +104,8 @@ public class A1860LogBookFactory implements DeviceLogBookSupport {
                     basicEvents.add(basicEvent);
                 }
 
-                collectedLogBook.setCollectedMeterEvents(new StandardEventLog(basicEvents).buildMeterEvent());
+                //map the meter events in order to change the device type of the code to the correct device type from protocol
+                collectedLogBook.setCollectedMeterEvents(new StandardEventLog(basicEvents).buildMeterEvent().stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList()));
             } catch (IOException e) {
                 if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries())) {
                     collectedLogBook.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
