@@ -8,8 +8,6 @@ import java.time.Instant;
 @ProviderType
 public interface Entity {
 
-   /* long getId();*/
-
     long getVersion();
 
     Instant getCreateTime();

@@ -37,8 +37,7 @@ public class SearchCriteriaServiceImplTest {
     }
     private SearchCriteriaServiceImpl getTestInstance() {
         return new SearchCriteriaServiceImpl();
-        /*return new SearchCriteriaServiceImpl(this.ormService, this.queryService, this.nlsService, this.upgradeService,
-        this.clock);*/
+
     }
 
 }

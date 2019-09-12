@@ -10,8 +10,7 @@ Ext.define('Uni.store.search.SaveLoad', {
     storeId: 'Uni.store.search.SaveLoads',
     alias: 'store.saveSearchStore',
     autoLoad: true,
-   // remoteFilter: true,
-   // pageSize: 100,
+
     fields: [
         {type: 'string', name: 'name'},
         {type: 'string', name: 'user'},
@@ -26,7 +25,7 @@ Ext.define('Uni.store.search.SaveLoad', {
     }],
     proxy: {
         type: 'rest',
-        url: '../../api/jsr/search/searchCriteria',
+        url: '../../api/jsr/search/saveSearchCriteria',
         pageParam: false,
         startParam: false,
         limitParam: false,

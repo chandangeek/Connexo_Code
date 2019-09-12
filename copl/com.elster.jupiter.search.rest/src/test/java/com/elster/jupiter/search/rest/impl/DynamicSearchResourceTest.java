@@ -334,7 +334,6 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         when( searchCriteriaService.newSearchCriteria()).thenReturn(searchCriteriaBuilder);
         when(threadPrincipalService.getPrincipal().getName()).thenReturn("root");
         Form input = new Form();
-        //input.param("name", "device_type");
         input.param("domain", "device");
         input.param("filter", "[{\"initialConfig\":{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"},\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"}]");
         Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);
@@ -353,7 +352,6 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         when( searchCriteriaService.newSearchCriteria()).thenReturn(searchCriteriaBuilder);
         when(threadPrincipalService.getPrincipal().getName()).thenReturn("root");
         Form input = new Form();
-        //input.param("name", "device_type");
         input.param("domain", "device");
         input.param("filter", "[{\"initialConfig\":{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"},\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":[\"10\"],\"filter\":\"\"}],\"id\":\"deviceType\"}]");
         Entity<Form> entity = Entity.entity(input, MediaType.APPLICATION_FORM_URLENCODED);

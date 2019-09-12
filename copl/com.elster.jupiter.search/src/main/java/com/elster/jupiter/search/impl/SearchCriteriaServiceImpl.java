@@ -79,7 +79,7 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
                 bind(Clock.class).toInstance(clock);
             }
         });
-        // issueCreationService = dataModel.getInstance(IssueCreationService.class);
+
         this.upgradeService.register(
                 InstallIdentifier.identifier("Pulse", SearchCriteriaServiceImpl.COMPONENT_NAME),
                 dataModel,

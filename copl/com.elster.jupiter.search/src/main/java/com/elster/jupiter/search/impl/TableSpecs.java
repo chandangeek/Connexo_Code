@@ -2,10 +2,7 @@ package com.elster.jupiter.search.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;/*
-import com.elster.jupiter.search.impl.records.SearchCriteriaImpl;
-import com.elster.jupiter.search.share.entity.SearchCriteria;
-*/
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.search.SearchCriteria;
 
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
