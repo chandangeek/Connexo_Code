@@ -1,7 +1,5 @@
 package com.energyict.mdc.sap.soap.webservices.impl.custompropertyset;
 
-import com.elster.jupiter.nls.Thesaurus;
-
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
@@ -13,12 +11,10 @@ import java.util.Optional;
 
 public class UniqueDeviceIdentifierValidator implements ConstraintValidator<UniqueDeviceIdentifier, DeviceSAPInfoDomainExtension> {
     private final SAPCustomPropertySets sapCustomPropertySets;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public UniqueDeviceIdentifierValidator(SAPCustomPropertySets sapCustomPropertySets, Thesaurus thesaurus) {
+    public UniqueDeviceIdentifierValidator(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -32,7 +28,7 @@ public class UniqueDeviceIdentifierValidator implements ConstraintValidator<Uniq
             Optional<Device> other = sapCustomPropertySets.getDevice(deviceIdentifier.get());
             if(other.isPresent() && other.get().getId() != device.getDevice().getId()) {
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(this.thesaurus.getSimpleFormat(MessageSeeds.DEVICE_IDENTIFIER_MUST_BE_UNIQUE).format())
+                    context.buildConstraintViolationWithTemplate(this.sapCustomPropertySets.getThesaurus().getSimpleFormat(MessageSeeds.DEVICE_IDENTIFIER_MUST_BE_UNIQUE).format())
                             .addPropertyNode("deviceIdentifier")
                             .addConstraintViolation();
                     return false;

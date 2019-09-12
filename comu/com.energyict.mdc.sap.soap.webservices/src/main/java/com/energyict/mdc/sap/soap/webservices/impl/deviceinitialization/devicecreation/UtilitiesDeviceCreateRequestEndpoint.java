@@ -77,7 +77,7 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
         if (isValid(msg)) {
             String sapDeviceId = getDeviceId(msg);
             try {
-                deviceHelper.processDeviceCreate(sapDeviceId, getSerialId(msg), getDeviceType(msg),
+                deviceHelper.processDeviceCreation(sapDeviceId, getSerialId(msg), getDeviceType(msg),
                         getShipmentDate(msg), getManufacturer(msg), getModelNumber(msg));
             } catch (LocalizedException ex) {
                 sendProcessError(msg, ex.getMessageSeed(), ex.getMessageArgs());

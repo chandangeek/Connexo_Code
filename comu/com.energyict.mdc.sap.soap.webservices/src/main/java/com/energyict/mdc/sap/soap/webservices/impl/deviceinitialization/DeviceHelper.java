@@ -30,8 +30,8 @@ public class DeviceHelper {
         this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
-    public void processDeviceCreate(String sapDeviceId, String serialId, String deviceType,
-                                    Instant shipmentDate, String manufacture, String modelNumber) throws SAPWebServiceException {
+    public void processDeviceCreation(String sapDeviceId, String serialId, String deviceType,
+                                      Instant shipmentDate, String manufacture, String modelNumber) throws SAPWebServiceException {
         validateSapDeviceIdUniqueness(sapDeviceId, serialId);
         Device device = getOrCreateDevice(deviceType, serialId, shipmentDate, manufacture, modelNumber);
         sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);

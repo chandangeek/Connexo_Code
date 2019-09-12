@@ -24,7 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_PROPERTY(1003, Keys.UNKNOWN_PROPERTY, "Unknown property {name}"),
     FIELD_HAS_UNEXPECTED_SIZE(1004, Keys.FIELD_HAS_UNEXPECTED_SIZE, "Field should have from {min} to {max} characters"),
     CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER(1005, Keys.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, "The custom attribute set ''{0}'' is not editable by current user."),
-    DEVICE_IDENTIFIER_MUST_BE_UNIQUE(1006, Keys.DEVICE_IDENTIFIER_MUST_BE_UNIQUE, "Device identifier must be unique"),
+    DEVICE_IDENTIFIER_MUST_BE_UNIQUE(1006, Keys.DEVICE_IDENTIFIER_MUST_BE_UNIQUE, "Device identifier must be unique."),
 
     // Service call
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2001, "CouldNotFindServiceCallType", "Couldn''t find service call type {0} having version {1}."),
@@ -62,7 +62,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_REGISTER_SPEC_FOUND(4019, "NoRegisterSpecFound", "No register spec found with obis code ''{0}''"),
     NO_CHANNEL_SPEC_FOUND(4020, "NoChannelSpecFound", "No channel spec found with obis code ''{0}''"),
     NO_DEFAULT_DEVICE_CONFIGURATION(4021, "NoDefaultDeviceConfiguration", "No default device configuration for device type ''{0}''."),
-    SAP_DEVICE_IDENTIFIER_MUST_BE_UNIQUE(4022, "sapDeviceIdentifierMustBeUnique", "Sap device identifier must be unique."),
+    SAP_DEVICE_IDENTIFIER_MUST_BE_UNIQUE(4022, "sapDeviceIdentifierMustBeUnique", "SAP device identifier must be unique."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
