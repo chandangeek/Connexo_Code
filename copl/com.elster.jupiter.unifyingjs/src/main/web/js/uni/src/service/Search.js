@@ -381,15 +381,6 @@ Ext.define('Uni.service.Search', {
 
     clearFilters: function () {
         var me = this;
-        var visibility =false;
-        var domainsStore = me.getSearchResultsStore();
-        var domainsListeners = domainsStore.on({
-            load: function () {
-                visibility = domainsStore.count() === 1;
-            },
-            scope: me,
-            destroyable: true
-        });
         me.getSearchResultsStore().removeAll();
         me.setDomain(me.searchDomain, function () {
             me.applyFilters();

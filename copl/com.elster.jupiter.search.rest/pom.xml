@@ -95,6 +95,10 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>transaction</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>security.thread</artifactId>
+    </dependency>
 
     <!-- Testing -->
 
@@ -128,11 +132,10 @@
       <artifactId>org.apache.servicemix.bundles.json</artifactId>
       <scope>test</scope>
     </dependency>
-      <dependency>
-          <groupId>com.elster.jupiter</groupId>
-          <artifactId>security.thread</artifactId>
-          <scope>compile</scope>
-      </dependency>
-
-  </dependencies>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>users</artifactId>
+      <scope>test</scope>
+    </dependency>
+    </dependencies>
 </project>

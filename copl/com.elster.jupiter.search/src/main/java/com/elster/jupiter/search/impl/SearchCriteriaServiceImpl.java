@@ -91,7 +91,6 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
 
     @Override
     public SearchCriteriaBuilder newSearchCriteria() {
-        // return new CreationRuleBuilderImpl(dataModel, dataModel.getInstance(CreationRuleImpl.class));
         return new SearchCriteriaBuilderImpl(dataModel, dataModel.getInstance(SearchCriteriaImpl.class));
     }
 

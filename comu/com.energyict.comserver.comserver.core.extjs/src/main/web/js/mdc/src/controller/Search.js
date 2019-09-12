@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.Search', {
             },
             'uni-view-search-overview #load-button': {
                 select: function (combo, value, a){
-                    var res =  me.service.loadSearch(combo, value, a, me);
+                    me.service.loadSearch(combo, value, a, me);
                     scope: me.service;
                 }
 

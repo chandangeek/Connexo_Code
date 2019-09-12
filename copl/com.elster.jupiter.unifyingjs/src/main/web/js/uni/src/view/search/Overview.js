@@ -104,7 +104,7 @@ Ext.define('Uni.view.search.Overview', {
                             {
                                 // Sticky criteria.
                                 xtype: 'uni-search-internal-criteriapanel',
-                                itemId: 'search-criteriasearch-criteria-selector-sticky',
+                                itemId: 'search-criteria-sticky',
                                 layout: 'column',
                                 lbar: {
                                     xtype: 'label',

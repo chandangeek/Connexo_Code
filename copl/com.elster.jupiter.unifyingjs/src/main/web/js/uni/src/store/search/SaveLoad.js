@@ -7,8 +7,6 @@
  */
 Ext.define('Uni.store.search.SaveLoad', {
     extend: 'Ext.data.Store',
-    storeId: 'Uni.store.search.SaveLoads',
-    alias: 'store.saveSearchStore',
     autoLoad: true,
 
     fields: [
