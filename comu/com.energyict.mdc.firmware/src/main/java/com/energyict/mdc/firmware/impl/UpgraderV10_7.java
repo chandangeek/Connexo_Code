@@ -11,11 +11,8 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
 
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
-import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.impl.ComTaskEnablementImpl;
 import com.energyict.mdc.tasks.impl.ServerTaskService;
 
 import javax.inject.Inject;

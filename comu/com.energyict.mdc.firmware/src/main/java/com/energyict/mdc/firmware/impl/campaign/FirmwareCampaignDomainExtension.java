@@ -126,9 +126,9 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private Instant activationDate;
     private TimeDuration validationTimeout;
     private List<FirmwareCampaignProperty> properties = new ArrayList<>();
-    private long firmwareUploadComTaskId;
+    private Long firmwareUploadComTaskId;
     private ConnectionStrategy firmwareUploadConnectionStrategy;
-    private long validationComTaskId;
+    private Long validationComTaskId;
     private ConnectionStrategy validationConnectionStrategy;
 
     @Inject
@@ -179,7 +179,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public void setFirmwareUploadComTaskId(long firmwareUploadComTaskId){
+    public void setFirmwareUploadComTaskId(Long firmwareUploadComTaskId){
         this.firmwareUploadComTaskId = firmwareUploadComTaskId;
     }
 
@@ -189,7 +189,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public void setValidationComTaskId(long validationComTaskId){
+    public void setValidationComTaskId(Long validationComTaskId){
         this.validationComTaskId = validationComTaskId;
     }
 
@@ -204,12 +204,12 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     @Override
-    public long getValidationComTaskId(){
+    public Long getValidationComTaskId(){
         return validationComTaskId;
     }
 
     @Override
-    public long getFirmwareUploadComTaskId(){
+    public Long getFirmwareUploadComTaskId(){
         return firmwareUploadComTaskId;
     }
 
@@ -389,9 +389,9 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.setValidationTimeout((TimeDuration) propertyValues.getProperty(FieldNames.VALIDATION_TIMEOUT.javaName()));
         this.setFirmwareType((FirmwareType) propertyValues.getProperty(FieldNames.FIRMWARE_TYPE.javaName()));
         this.setManagementOption((ProtocolSupportedFirmwareOptions) propertyValues.getProperty(FieldNames.MANAGEMENT_OPTION.javaName()));
-        this.setFirmwareUploadComTaskId((long)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName()));
+        this.setFirmwareUploadComTaskId((Long)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName()));
         this.setFirmwareUploadConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName()));
-        this.setValidationComTaskId((long)propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
+        this.setValidationComTaskId((Long)propertyValues.getProperty(FieldNames.VALIDATION_COMTASK_ID.javaName()));
         this.setValidationConnectionStrategy((ConnectionStrategy)propertyValues.getProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName()));
     }
 
@@ -406,7 +406,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         propertySetValues.setProperty(FieldNames.VALIDATION_TIMEOUT.javaName(), this.getValidationTimeout());
         propertySetValues.setProperty(FieldNames.FIRMWARE_TYPE.javaName(), this.getFirmwareType());
         propertySetValues.setProperty(FieldNames.MANAGEMENT_OPTION.javaName(), this.getFirmwareManagementOption());
-        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(), this.getFirmwareUploadComTaskId());
+        propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_COMTASK_ID.javaName(),this.getFirmwareUploadComTaskId());
         propertySetValues.setProperty(FieldNames.FIRMWARE_UPLOAD_CONNECTIONSTRATEGY.javaName(),this.getFirmwareUploadConnectionStrategy().isPresent()?this.getFirmwareUploadConnectionStrategy().get():null);
         propertySetValues.setProperty(FieldNames.VALIDATION_COMTASK_ID.javaName(), this.getValidationComTaskId());
         propertySetValues.setProperty(FieldNames.VALIDATION_CONNECTIONSTRATEGY.javaName(), this.getValidationConnectionStrategy().isPresent()?this.getValidationConnectionStrategy().get():null);
