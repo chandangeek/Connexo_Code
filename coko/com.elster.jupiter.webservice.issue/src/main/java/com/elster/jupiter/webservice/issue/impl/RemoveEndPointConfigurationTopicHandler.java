@@ -54,7 +54,7 @@ public class RemoveEndPointConfigurationTopicHandler implements TopicHandler {
                 .anyMatch(where("value").matches("^(.*,)?" + endPointConfiguration.getId() + "(,.*)?$", ""));
         // the checked id can be at the beginning, middle or end, but if present, it must be separated with comma.
         if (isUsedByIssueCreationRule) {
-            throw new VetoEndPointConfigurationDeleteException(webServiceIssueService.thesaurus(), MessageSeeds.END_POINT_CONFIG_IN_USE_BY_ICR, endPointConfiguration);
+            throw new VetoEndPointConfigurationDeleteException(webServiceIssueService.thesaurus(), endPointConfiguration);
         }
     }
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.webservice.issue.impl;
+package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
@@ -22,9 +22,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import static com.elster.jupiter.webservice.issue.WebServiceIssueService.COMPONENT_NAME;
 
-@Component(name = "com.elster.jupiter.webservice.issue.impl.RemoveEndPointConfigurationFSMTopicHandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.elster.jupiter.fsm.impl.RemoveEndPointConfigurationFSMTopicHandler", service = TopicHandler.class, immediate = true)
 public class RemoveEndPointConfigurationFSMTopicHandler implements TopicHandler {
     private Thesaurus thesaurus;
     private OrmService ormService;
@@ -50,13 +49,13 @@ public class RemoveEndPointConfigurationFSMTopicHandler implements TopicHandler 
                 .findAny()
                 .isPresent();
         if (isUsedByLifeCycle) {
-            throw new VetoEndPointConfigurationDeleteException(this.thesaurus, MessageSeeds.END_POINT_CONFIG_IN_USE_BY_FSM, endPointConfiguration);
+            throw new VetoEndPointConfigurationDeleteException(this.thesaurus, endPointConfiguration);
         }
     }
 
     @Reference
     public final void setThesaurus(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(FiniteStateMachineService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference

@@ -20,6 +20,7 @@ public enum MessageSeeds implements MessageSeed {
     // Generic
     FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
+    END_POINT_CONFIG_IN_USE_BY_FSM(1002, Keys.END_POINT_CONFIG_IS_USE,"Web service end point ''{0}'' is in use by a device life cycle.", Level.SEVERE),
 
     // StateTransitionEventType
     UNIQUE_EVENT_TYPE_SYMBOL(200, Keys.UNIQUE_EVENT_TYPE_SYMBOL, "The symbolic representation of a state transition event type must be unique"),
@@ -103,5 +104,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String AT_LEAST_ONE_STAGE = "stage.set.min1stage";
         public static final String UNIQUE_STAGE_SET_NAME = "stage.set.unique.name";
         public static final String NO_DUPLICATE_STAGE_NAME = "stage.set.no.duplicate.stage.name";
+        public static final String END_POINT_CONFIG_IS_USE ="EndPointConfigInUseByLifeCycle";
     }
 }
