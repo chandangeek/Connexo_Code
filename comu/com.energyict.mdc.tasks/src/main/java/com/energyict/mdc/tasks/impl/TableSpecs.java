@@ -47,11 +47,16 @@ public enum TableSpecs {
             Column discriminator = table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column nameColumn = table.column("NAME").varChar().map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
-            table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
-            table.column("MANUALSYSTEMTASK").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.MANUAL_SYSTEM_TASK.fieldName()).since(Version.version(10, 7)).installValue("0").add();
+            table.column("MAXNROFTRIES").number().conversion(NUMBER2INT)
+                    .map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
+            table.column("MANUALSYSTEMTASK").number().conversion(NUMBER2BOOLEAN)
+                    .map(ComTaskImpl.Fields.MANUAL_SYSTEM_TASK.fieldName()).since(Version.version(10, 7))
+                    .installValue("0").add();
             table.primaryKey("PK_CTS_COMTASK").on(idColumn).add();
-            UniqueConstraint uniqueOnName = table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn).upTo(Version.version(10, 3)).add();
-            table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn, discriminator).previously(uniqueOnName).since(Version.version(10, 3)).add();
+            UniqueConstraint uniqueOnName = table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn)
+                    .upTo(Version.version(10, 3)).add();
+            table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn, discriminator).previously(uniqueOnName)
+                    .since(Version.version(10, 3)).add();
         }
     },
     CTS_PROTOCOLTASK {
@@ -65,35 +70,47 @@ public enum TableSpecs {
             Column comTask = table.column("COMTASKID").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
 
             table.column("CLOCKTASKTYPE").number().conversion(NUMBER2ENUM).map(CLOCK_TASK_TYPE.fieldName()).add();
-            table.column("MINCLOCKDIFFVALUE").number().conversion(NUMBER2INT).map(MINIMUM_CLOCK_DIFF.fieldName() + ".count").add();
-            table.column("MINCLOCKDIFFUNIT").number().conversion(NUMBER2INT).map(MINIMUM_CLOCK_DIFF.fieldName()+".timeUnitCode").add();
-            table.column("MAXCLOCKDIFFVALUE").number().conversion(NUMBER2INT).map(MAXIMUM_CLOCK_DIFF.fieldName()+".count").add();
-            table.column("MAXCLOCKDIFFUNIT").number().conversion(NUMBER2INT).map(MAXIMUM_CLOCK_DIFF.fieldName()+".timeUnitCode").add();
-            table.column("MAXCLOCKSHIFTVALUE").number().conversion(NUMBER2INT).map(MAXIMUM_CLOCK_SHIFT.fieldName()+".count").add();
-            table.column("MAXCLOCKSHIFTUNIT").number().conversion(NUMBER2INT).map(MAXIMUM_CLOCK_SHIFT.fieldName()+".timeUnitCode").add();
+            table.column("MINCLOCKDIFFVALUE").number().conversion(NUMBER2INT)
+                    .map(MINIMUM_CLOCK_DIFF.fieldName() + ".count").add();
+            table.column("MINCLOCKDIFFUNIT").number().conversion(NUMBER2INT)
+                    .map(MINIMUM_CLOCK_DIFF.fieldName() + ".timeUnitCode").add();
+            table.column("MAXCLOCKDIFFVALUE").number().conversion(NUMBER2INT)
+                    .map(MAXIMUM_CLOCK_DIFF.fieldName() + ".count").add();
+            table.column("MAXCLOCKDIFFUNIT").number().conversion(NUMBER2INT)
+                    .map(MAXIMUM_CLOCK_DIFF.fieldName() + ".timeUnitCode").add();
+            table.column("MAXCLOCKSHIFTVALUE").number().conversion(NUMBER2INT)
+                    .map(MAXIMUM_CLOCK_SHIFT.fieldName() + ".count").add();
+            table.column("MAXCLOCKSHIFTUNIT").number().conversion(NUMBER2INT)
+                    .map(MAXIMUM_CLOCK_SHIFT.fieldName() + ".timeUnitCode").add();
 
-            table.column("CHECKCLOCKDIFF").number().conversion(NUMBER2BOOLEAN).map(VERIFY_CLOCK_DIFFERENCE.fieldName()).add();
-            table.column("VERIFYSERIAL").number().conversion(NUMBER2BOOLEAN).map(VERIFY_SERIAL_NUMBER.fieldName()).add();
-            table.column("BASICMAXCLOCKDIFFVALUE").number().conversion(NUMBER2INT).map(MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".count").add();
-            table.column("BASICMAXCLOCKDIFFUNIT").number().conversion(NUMBER2INT).map(MAXIMUM_CLOCK_DIFFERENCE.fieldName()+".timeUnitCode").add();
+            table.column("CHECKCLOCKDIFF").number().conversion(NUMBER2BOOLEAN).map(VERIFY_CLOCK_DIFFERENCE.fieldName())
+                    .add();
+            table.column("VERIFYSERIAL").number().conversion(NUMBER2BOOLEAN).map(VERIFY_SERIAL_NUMBER.fieldName())
+                    .add();
+            table.column("BASICMAXCLOCKDIFFVALUE").number().conversion(NUMBER2INT)
+                    .map(MAXIMUM_CLOCK_DIFFERENCE.fieldName() + ".count").add();
+            table.column("BASICMAXCLOCKDIFFUNIT").number().conversion(NUMBER2INT)
+                    .map(MAXIMUM_CLOCK_DIFFERENCE.fieldName() + ".timeUnitCode").add();
 
             table.column("TOPOLOGYACTION").number().conversion(NUMBER2ENUM).map(TOPOLOGY_ACTION.fieldName()).add();
 
-            table.column("FAILIFCONFIGMISMATCH").number().conversion(NUMBER2BOOLEAN).map(FAIL_IF_CONFIGURATION_MISMATCH.fieldName()).add();
-            table.column("MARKASBADTIME").number().conversion(NUMBER2BOOLEAN).map(MARK_INTERVALS_AS_BAD_TIME.fieldName()).add();
-            table.column("CREATEMETEREVENTS").number().conversion(NUMBER2BOOLEAN).map(CREATE_METER_EVENTS_FROM_STATUS_FLAGS.fieldName()).add();
-            table.column("MINCLOCKDIFFBADTIMEVALUE").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".count").add();
-            table.column("MINCLOCKDIFFBADTIMEUNIT").number().conversion(NUMBER2INT).map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName()+".timeUnitCode").add();
+            table.column("FAILIFCONFIGMISMATCH").number().conversion(NUMBER2BOOLEAN)
+                    .map(FAIL_IF_CONFIGURATION_MISMATCH.fieldName()).add();
+            table.column("MARKASBADTIME").number().conversion(NUMBER2BOOLEAN)
+                    .map(MARK_INTERVALS_AS_BAD_TIME.fieldName()).add();
+            table.column("CREATEMETEREVENTS").number().conversion(NUMBER2BOOLEAN)
+                    .map(CREATE_METER_EVENTS_FROM_STATUS_FLAGS.fieldName()).add();
+            table.column("MINCLOCKDIFFBADTIMEVALUE").number().conversion(NUMBER2INT)
+                    .map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName() + ".count").add();
+            table.column("MINCLOCKDIFFBADTIMEUNIT").number().conversion(NUMBER2INT)
+                    .map(MIN_CLOCK_DIFF_BEFORE_BAD_TIME.fieldName() + ".timeUnitCode").add();
 
-            table.column("MESSAGETASKTYPE").number().conversion(NUMBER2ENUM).map(MessagesTaskImpl.Fields.MESSAGE_TASK_TYPE.fieldName()).add();
+            table.column("MESSAGETASKTYPE").number().conversion(NUMBER2ENUM)
+                    .map(MessagesTaskImpl.Fields.MESSAGE_TASK_TYPE.fieldName()).add();
 
-            table.foreignKey("FK_CTS_PROTOCOLTASK_COMTASK").
-                    on(comTask).
-                    references(CTS_COMTASK.name()).
-                    map(ProtocolTaskImpl.Fields.COM_TASK.fieldName()).
-                    reverseMap(ComTaskImpl.Fields.PROTOCOL_TASKS.fieldName()).
-                    composition().
-                    add();
+            table.foreignKey("FK_CTS_PROTOCOLTASK_COMTASK").on(comTask).references(CTS_COMTASK.name())
+                    .map(ProtocolTaskImpl.Fields.COM_TASK.fieldName())
+                    .reverseMap(ComTaskImpl.Fields.PROTOCOL_TASKS.fieldName()).composition().add();
             table.primaryKey("PK_CTS_PROTOCOLTASK").on(idColumn).add();
         }
     },
@@ -105,15 +122,12 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addAuditColumns();
             Column messageTaskId = table.column("MESSAGETASK").number().conversion(NUMBER2LONG).add(); // DO NOT MAP
-            table.column("MESSAGECATEGORY").number().notNull().conversion(NUMBER2INT).map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
-            table.foreignKey("FK_CTS_DEVMSGTUSAGE_COMTASK").
-                    on(messageTaskId).
-                    references(CTS_PROTOCOLTASK.name()).
-                    map(MessagesTaskTypeUsageImpl.Fields.PROTOCOL_TASK.fieldName()).
-                    reverseMap(MessagesTaskImpl.Fields.DEVICE_MESSAGE_USAGES.fieldName()).
-                    onDelete(DeleteRule.CASCADE).
-                    composition().
-                    add();
+            table.column("MESSAGECATEGORY").number().notNull().conversion(NUMBER2INT)
+                    .map(MessagesTaskTypeUsageImpl.Fields.DEVICE_MESSAGE_CATEGORY.fieldName()).add();
+            table.foreignKey("FK_CTS_DEVMSGTUSAGE_COMTASK").on(messageTaskId).references(CTS_PROTOCOLTASK.name())
+                    .map(MessagesTaskTypeUsageImpl.Fields.PROTOCOL_TASK.fieldName())
+                    .reverseMap(MessagesTaskImpl.Fields.DEVICE_MESSAGE_USAGES.fieldName()).onDelete(DeleteRule.CASCADE)
+                    .composition().add();
             table.primaryKey("PK_CTS_DEVICEMSGTYPEUSAGE").on(idColumn).add();
         }
     },
@@ -126,102 +140,74 @@ public enum TableSpecs {
             Column registerGroup = table.column("REGISTERGROUP").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
             table.addAuditColumns();
 
-            table
-                .foreignKey("FK_CTS_REGGRPUSAGE_PROTOCOLTSK")
-                .on(registerTask).references(CTS_PROTOCOLTASK.name())
-                .map(RegisterGroupUsageImpl.Fields.REGISTERS_TASK_REFERENCE.fieldName())
-                .reverseMap(RegistersTaskImpl.Fields.REGISTER_GROUP_USAGES.fieldName())
-                .composition()
-                .onDelete(CASCADE)
-                .add();
-            table
-                .foreignKey("FK_CTS_REGISTERGROUP")
-                .on(registerGroup)
-                .references(RegisterGroup.class)
-                .map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName())
-                .add();
-            table
-                .primaryKey("PK_CTS_REGISTERGROUPUSAGE")
-                .on(registerTask, registerGroup)
-                .add();
+            table.foreignKey("FK_CTS_REGGRPUSAGE_PROTOCOLTSK").on(registerTask).references(CTS_PROTOCOLTASK.name())
+                    .map(RegisterGroupUsageImpl.Fields.REGISTERS_TASK_REFERENCE.fieldName())
+                    .reverseMap(RegistersTaskImpl.Fields.REGISTER_GROUP_USAGES.fieldName()).composition()
+                    .onDelete(CASCADE).add();
+            table.foreignKey("FK_CTS_REGISTERGROUP").on(registerGroup).references(RegisterGroup.class)
+                    .map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
+            table.primaryKey("PK_CTS_REGISTERGROUPUSAGE").on(registerTask, registerGroup).add();
         }
     },
 
     CTS_LOADPROFILETYPEUSAGE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<LoadProfileTypeUsageInProtocolTask> table = dataModel.addTable(name(), LoadProfileTypeUsageInProtocolTask.class);
+            Table<LoadProfileTypeUsageInProtocolTask> table = dataModel.addTable(name(),
+                    LoadProfileTypeUsageInProtocolTask.class);
             table.map(LoadProfileTypeUsageInProtocolTaskImpl.class);
             Column loadProfileTask = table.column("LOADPROFILETASK").number().notNull().add(); // DO NOT MAP
             Column loadProfileType = table.column("LOADPROFILETYPE").number().notNull().add(); // DO NOT MAP
             table.addAuditColumns();
 
-            table.primaryKey("PK_CTS_LOADPRFLTYPEUSAGE").on(loadProfileTask,loadProfileType).add();
+            table.primaryKey("PK_CTS_LOADPRFLTYPEUSAGE").on(loadProfileTask, loadProfileType).add();
 
-            table.foreignKey("FK_CTS_LOADPRFLTYPEUSAGE_TASK").
-                    on(loadProfileTask).references(CTS_PROTOCOLTASK.name()).
-                    map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TASK_REFERENCE.fieldName()).
-                    reverseMap(LoadProfilesTaskImpl.Fields.LOAD_PROFILE_TYPE_USAGES.fieldName()).
-                    composition().
-                    onDelete(CASCADE).
-                    add();
-            table.foreignKey("FK_CTS_LOADPRFLTYPEUSAGE_TYPE").
-                    on(loadProfileType).
-                    references(LoadProfileType.class).
-                    map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName()).
-                    add();
+            table.foreignKey("FK_CTS_LOADPRFLTYPEUSAGE_TASK").on(loadProfileTask).references(CTS_PROTOCOLTASK.name())
+                    .map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TASK_REFERENCE.fieldName())
+                    .reverseMap(LoadProfilesTaskImpl.Fields.LOAD_PROFILE_TYPE_USAGES.fieldName()).composition()
+                    .onDelete(CASCADE).add();
+            table.foreignKey("FK_CTS_LOADPRFLTYPEUSAGE_TYPE").on(loadProfileType).references(LoadProfileType.class)
+                    .map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName()).add();
         }
     },
 
     CTS_LOGBOOKTYPEUSAGE {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<LogBookTypeUsageInProtocolTask> table = dataModel.addTable(name(), LogBookTypeUsageInProtocolTask.class);
+            Table<LogBookTypeUsageInProtocolTask> table = dataModel.addTable(name(),
+                    LogBookTypeUsageInProtocolTask.class);
             table.map(LogBookTypeUsageInProtocolTaskImpl.class);
             Column logbooksTask = table.column("LOGBOOKSTASK").number().notNull().add(); // DO NOT MAP
             Column logbookType = table.column("LOGBOOKTYPE").number().notNull().add(); // DO NOT MAP
             table.addAuditColumns();
 
-            table.primaryKey("PK_CTS_LOGBOOKTYPEUSAGE").on(logbooksTask,logbookType).add();
+            table.primaryKey("PK_CTS_LOGBOOKTYPEUSAGE").on(logbooksTask, logbookType).add();
 
-            table
-                .foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TASK")
-                .on(logbooksTask)
-                .references(CTS_PROTOCOLTASK.name())
-                .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TASK_REFERENCE.fieldName())
-                .reverseMap(LogBooksTaskImpl.Fields.LOGBOOK_TYPE_USAGES.fieldName())
-                .composition()
-                .onDelete(DeleteRule.CASCADE)
-                .add();
-            table
-                .foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TYPE")
-                .on(logbookType)
-                .references(LogBookType.class)
-                .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName())
-                .add();
+            table.foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TASK").on(logbooksTask).references(CTS_PROTOCOLTASK.name())
+                    .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TASK_REFERENCE.fieldName())
+                    .reverseMap(LogBooksTaskImpl.Fields.LOGBOOK_TYPE_USAGES.fieldName()).composition()
+                    .onDelete(DeleteRule.CASCADE).add();
+            table.foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TYPE").on(logbookType).references(LogBookType.class)
+                    .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName()).add();
         }
     },
 
     CTS_COMTASKUSERACTION {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<ComTaskImpl.ComTaskUserActionRecord> table = dataModel.addTable(name(), ComTaskImpl.ComTaskUserActionRecord.class);
+            Table<ComTaskImpl.ComTaskUserActionRecord> table = dataModel
+                    .addTable(name(), ComTaskImpl.ComTaskUserActionRecord.class).since(version(10, 7));
             table.map(ComTaskImpl.ComTaskUserActionRecord.class);
-            Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
+            Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction")
+                    .add();
             Column comTask = table.column("COMTASK").number().notNull().add();
             table.setJournalTableName("CTS_COMTASKUSERACTIONJRNL").since(version(10, 7));
             table.addAuditColumns();
-            table.foreignKey("FK_CTS_COMTASKUSERACTION")
-                    .on(comTask)
-                    .references(CTS_COMTASK.name())
-                    .reverseMap("comTaskUserActionRecords")
-                    .composition()
-                    .map("comTask")
-                    .add();
+            table.foreignKey("FK_CTS_COMTASKUSERACTION").on(comTask).references(CTS_COMTASK.name())
+                    .reverseMap("comTaskUserActionRecords").composition().map("comTask").add();
             table.primaryKey("PK_CTS_COMTASKUSERACTION").on(useraction, comTask).add();
         }
-    }
-    ;
+    };
 
     abstract void addTo(DataModel component);
 
