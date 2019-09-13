@@ -19,11 +19,15 @@ import com.elster.jupiter.issue.share.FiltrableByComTask;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.CreationRuleExclGroup;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.IssueTypes;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -39,6 +43,9 @@ import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
@@ -62,6 +69,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -139,6 +147,37 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         Query<CreationRule> query = query(CreationRule.class, eagers);
         query.setRestriction(where("obsoleteTime").isNull());
         return query;
+    }
+
+    @Override
+    public List<CreationRuleAction> findActionsByMultiValueProperty(List<IssueTypes> issueTypes, String propertyKey,
+            List<String> groupIdsList) {
+        final List<CreationRuleAction> actionsList;
+        if (issueTypes != null && !issueTypes.isEmpty()) {
+            final Condition condition = Where.where("type.issueType.key")
+                    .in(issueTypes.stream().map(type -> type.getName()).collect(Collectors.toList()));
+            actionsList = dataModel.query(CreationRuleAction.class, IssueActionType.class, IssueType.class)
+                    .select(condition);
+        } else {
+            actionsList = dataModel.stream(CreationRuleAction.class).select();
+        }
+        final List<CreationRuleAction> filteredActions = actionsList.stream().filter(action -> {
+            if (action.getProperties().containsKey(propertyKey)) {
+                if (groupIdsList != null) {
+                    List<HasId> value = (List<HasId>) action.getProperties().get(propertyKey);
+                    if (value != null && !value.isEmpty()) {
+                        List<String> valuesList = value.stream().map(object -> String.valueOf(object.getId()))
+                                .collect(Collectors.toList());
+                        valuesList.retainAll(groupIdsList);
+                        if (!valuesList.isEmpty()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }).collect(Collectors.toList());
+        return filteredActions;
     }
 
     @Override

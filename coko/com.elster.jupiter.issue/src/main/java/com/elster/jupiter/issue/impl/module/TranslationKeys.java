@@ -28,6 +28,7 @@ public enum TranslationKeys implements TranslationKey {
     ACTION_ASSIGN_ISSUE("issue.action.assignIssue", "Assign issue"),
     ACTION_COMMENT_ISSUE("issue.action.commentIssue", "Comment issue"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
+    CLOSE_ACTION_DEVICE_EXCLUDED_FROM_AUTOCLOSURE("action.issue.close.device.excluded", "Device ''{0}'' is excluded from autoclosure"),
     ACTION_MAIL_ISSUE("issue.action.email", "Email"),
     ACTION_MAIL_TO("issue.action.mail.to", "To"),
     ACTION_RETRY_NOW("ActionRetryNow", "Retry now"),
@@ -49,7 +50,8 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_PROPERTY_COMMENT(CloseIssueAction.COMMENT, "Comment"),
     CLOSE_ACTION_WRONG_STATUS("action.wrong.status", "You are trying to apply the incorrect status"),
     CLOSE_ACTION_ISSUE_CLOSED("action.issue.closed", "Issue closed"),
-    CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed");
+    CLOSE_ACTION_ISSUE_ALREADY_CLOSED("action.issue.already.closed", "Issue already closed"),
+    CLOSE_ACTION_PROPERTY_EXCLUDED_GROUPS("close.issue.action.excluded.device.groups", "Excluded device groups");
 
     private final String key;
     private final String defaultFormat;

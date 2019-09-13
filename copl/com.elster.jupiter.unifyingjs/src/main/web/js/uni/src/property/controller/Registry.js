@@ -71,6 +71,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         'Uni.property.view.property.Recurrence',
         'Uni.property.view.property.Task',
+		'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
         'Uni.property.view.property.ServiceCallIssueType',
         'Uni.property.view.property.ServiceCallIssueState',
         'Uni.property.view.property.CustomEventTypeReference',
@@ -144,6 +145,7 @@ Ext.define('Uni.property.controller.Registry', {
         ANY_READINGTYPE: 'Uni.property.view.property.ReadingType',
         INTEGER: 'Uni.property.view.property.Number',
         WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference',
+        ENDDEVICEGROUPLIST: 'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
         SERVICE_CALL: 'Uni.property.view.property.ServiceCallIssueType',
         SERVICE_CALL_STATE: 'Uni.property.view.property.ServiceCallIssueState',
         CUSTOM_EVENT_TYPE: 'Uni.property.view.property.CustomEventTypeReference',
@@ -166,6 +168,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.PropertyDeviceLifecycleTransition',
         'Uni.property.store.PropertyCommunicationTasks',
         'Uni.property.store.PropertyCommunicationTasksCurrentValue',
+        'Uni.property.store.PropertyEndDeviceGroups',
         'Uni.property.store.PropertyWebServices',
     ],
 
@@ -177,7 +180,7 @@ Ext.define('Uni.property.controller.Registry', {
      */
     addProperty: function (key, model) {
         if (!Ext.isString(key)) {
-            throw '!Ext.isString(key)'
+            throw '!Ext.isString(key)';
         }
 
         if (!this.getProperty(key)) {

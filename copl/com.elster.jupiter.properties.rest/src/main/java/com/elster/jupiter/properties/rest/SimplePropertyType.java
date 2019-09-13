@@ -61,6 +61,7 @@ public enum SimplePropertyType implements PropertyType {
     LIFECYCLETRANSITION(ListValueFactory.class),
     TASK(ListValueFactory.class),
     RECURRENCE(HasIdAndName.class),
+    ENDDEVICEGROUPLIST(ListValueFactory.class),
     SERVICE_CALL(HasIdAndName.class),
     SERVICE_CALL_STATE(HasIdAndName.class),
     CUSTOM_EVENT_TYPE(HasIdAndName.class),
