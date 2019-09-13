@@ -207,7 +207,7 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
                     + numberOfTasks + ", current load: " + currentHighPriorityLoadPerComPortPool.get(comPortPoolId));
             numberOfTasks = Math.max(0, numberOfTasks - currentHighPriorityLoadPerComPortPool.get(comPortPoolId)); // Subtract the current high priority load from the maximum number
         } else {
-            LOGGER.info("[high-prio] no load info about pool " + comPortPoolId + "!");
+            LOGGER.fine("[high-prio] no load info about pool " + comPortPoolId + "!");
         }
         return new MaximumNumberOfTaskForComPortPool(comPortPoolId, numberOfTasks);
     }
