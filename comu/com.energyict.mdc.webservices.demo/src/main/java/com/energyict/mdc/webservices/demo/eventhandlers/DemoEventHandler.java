@@ -23,7 +23,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbu
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPCrteReqPrpty;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt;
 
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
@@ -32,7 +31,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@Component(name = "DemoEventHandler", service = TopicHandler.class, immediate = true)
+// TODO: is it needed once CustomSapDeviceEventHandler is implemented
+// @Component(name = "DemoEventHandler", service = TopicHandler.class, immediate = true)
 public class DemoEventHandler implements TopicHandler {
 
     private static final Logger LOGGER = Logger.getLogger(DemoEventHandler.class.getName());
