@@ -324,12 +324,6 @@ public class DeviceResource {
         return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
     }
 
-    private Response buildErrorResponse4(String field, MessageSeeds message) {
-        LocalizedFieldValidationException fieldValidationException = new LocalizedFieldValidationException(message, field);
-        ConstraintViolationInfo constraintViolationInfo = new ConstraintViolationInfo(thesaurus).from(fieldValidationException);
-        return Response.status(Response.Status.BAD_REQUEST).entity(constraintViolationInfo).build();
-    }
-
     private Device newDevice(long deviceConfigurationId, String batch, String name, String serialNumber, String manufacturer, String modelNbr, String modelVersion, int yearOfCertification, Instant shipmentDate) {
         Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(deviceConfigurationId);
         DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfiguration.orElse(null), name, shipmentDate);
