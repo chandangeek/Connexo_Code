@@ -210,6 +210,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 this.bind(bundleContext).to(BundleContext.class);
                 this.bind(samlResponseService).to(SamlResponseService.class);
                 this.bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
+                this.bind(thesaurus).to(Thesaurus.class);
             }
         };
     }

@@ -1,6 +1,9 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.MessageSeeds;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -18,9 +21,7 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
@@ -42,6 +43,9 @@ public class AcsResource {
 
     @Inject
     private UserService userService;
+
+    @Inject
+    private Thesaurus thesaurus;
 
     @POST
     @Path("acs")
@@ -68,8 +72,9 @@ public class AcsResource {
                     if (session != null) {
                         session.invalidate();
                     }
-                    final String message = "You don't have permission to access " + relayState;
-                    throw new ForbiddenException(Response.status(Response.Status.FORBIDDEN).entity(message).build());
+                    throw new ForbiddenException(Response.status(Response.Status.FORBIDDEN)
+                            .entity(thesaurus.getFormat((TranslationKey) MessageSeeds.SSO_ACCESS_PERMISION_FORBIDDEN).format(relayState))
+                            .build());
                 }
 
             }
