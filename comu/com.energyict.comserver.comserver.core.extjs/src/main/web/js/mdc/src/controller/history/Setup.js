@@ -381,6 +381,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
+                        autoclosureexclusions: {
+                            title: Uni.I18n.translate('devicemenu.exclusionsFromAutoclosure', 'MDC', 'Exclusions from autoclosure'),
+                            route: 'autoclosureexclusions',
+                            controller: 'Mdc.controller.setup.AutoclosureExclusions',
+                            privileges: [ Mdc.privileges.Device.viewDevice, Mdc.privileges.CreationRule.viewCreationRule ],
+                            action: 'showAutoclosureExclusions',
+                        },
                         changedeviceconfiguration: {
                             title: Uni.I18n.translate('devicemenu.changedeviceconfiguration', 'MDC', 'Change device configuration'),
                             route: 'changedeviceconfiguration',

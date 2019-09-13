@@ -26,6 +26,8 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -52,7 +54,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -71,17 +77,17 @@ public class CreationRuleResource extends BaseResource {
     private final CreationRuleActionInfoFactory actionFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Clock clock;
     private final MeteringGroupsService meteringGroupsService;
 
     @Inject
-    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, CreationRuleActionInfoFactory actionFactory,
-            PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory,
-            MeteringGroupsService meteringGroupsService) {
+    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, CreationRuleActionInfoFactory actionFactory, PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory, Clock clock, MeteringGroupsService meteringGroupsService) {
         this.ruleInfoFactory = ruleInfoFactory;
         this.actionFactory = actionFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
         this.meteringGroupsService = meteringGroupsService;
+        this.clock = clock;
     }
 
     @GET
@@ -120,6 +126,38 @@ public class CreationRuleResource extends BaseResource {
         }
         List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asInfo).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("creationRules", infos, queryParams);
+    }
+
+
+    @GET
+    @Path("/device/{deviceId}/excludedfromautoclosurerules")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE})
+    public PagedInfoList getAutocloseExclusions(@BeanParam JsonQueryParameters queryParams,
+            @PathParam("deviceId") String deviceId) {
+        List<CreationRuleInfo> infos = new ArrayList<>();
+        final Optional<EndDevice> endDeviceOptional = getMeteringService().findEndDeviceByName(deviceId);
+        if (endDeviceOptional.isPresent()) {
+            final EndDevice endDevice = endDeviceOptional.get();
+            final Instant now = clock.instant();
+            final List<EndDeviceGroup> endDeviceGroups = getMeteringGroupsService().findEndDeviceGroups();
+            if (endDeviceGroups != null) {
+                final List<EndDeviceGroup> groups = endDeviceGroups.stream()
+                        .filter(group -> group.isMember(endDevice, now)).collect(Collectors.toList());
+                if (groups != null && !groups.isEmpty()) {
+                    final List<String> groupIdsList = groups.stream().map(e -> String.valueOf(e.getId()))
+                            .collect(Collectors.toList());
+                    List<CreationRuleAction> actions = getIssueCreationService()
+                            .findActionsByMultiValueProperty(
+                                    Arrays.asList(IssueTypes.DATA_COLLECTION, IssueTypes.DATA_VALIDATION,
+                                            IssueTypes.DEVICE_LIFECYCLE),
+                                    "CloseIssueAction.excludedGroups", groupIdsList);
+                    infos = actions.stream().map(action -> action.getRule()).map(ruleInfoFactory::asInfo)
+                            .collect(Collectors.toList());
+                }
+            }
+        }
+        return PagedInfoList.fromCompleteList("creationRules", infos, queryParams);
     }
 
 
