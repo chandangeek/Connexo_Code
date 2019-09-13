@@ -182,7 +182,7 @@ Ext.define('Uni.view.search.Overview', {
                                     },
                                     {
                                         xtype: 'button',
-                                        itemId: 'save-button',
+                                        itemId: 'save-search-button',
                                         id:'saveSearchButton',
                                         text:  Uni.I18n.translate('general.save', 'UNI', 'Save'),
                                         action: 'saveSearchWindow',
@@ -253,7 +253,7 @@ Ext.define('Uni.view.search.Overview', {
                 me.down('#search-domain').setVisible(visible);
                 me.down('#search-domain-separator').setVisible(visible);
                 me.down('#load-button').setVisible(visibility);
-                me.down('#save-button').setVisible(visibility);
+                me.down('#save-search-button').setVisible(visibility);
             },
             scope: me,
             destroyable: true

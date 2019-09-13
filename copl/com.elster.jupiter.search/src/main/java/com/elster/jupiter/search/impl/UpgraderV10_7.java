@@ -11,6 +11,11 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.elster.jupiter.util.streams.Currying.perform;
 
 class UpgraderV10_7 implements Upgrader {
 
@@ -36,16 +41,32 @@ class UpgraderV10_7 implements Upgrader {
     }
 
     private void upgradeOpenIssue(Connection connection) {
-        String[] sqlStatements = {
-              "CREATE OR REPLACE VIEW DYN_SEARCHCRITERIA"
-        };
-        for (String sqlStatement : sqlStatements) {
-            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
-            }
+        List<String> ddl = Arrays.asList(
+                "CREATE TABLE DYN_SEARCHCRITERIA (" +
+                        "ID NUMBER NOT NULL" +
+                        "NAME VARCHAR2(80 CHAR)  NOT NULL" +
+                        "USERNAME  VARCHAR2(80 CHAR)  NOT NULL"+
+                        "CRITERIA  VARCHAR2(4000 CHAR)  NOT NULL"+
+                        "DOMAIN  VARCHAR2(80 CHAR)  NOT NULL"+
+                        ")",
+                "CREATE UNIQUE INDEX DYN_PK_DYN_SEARCHCRITERIA ON DYN_SEARCHCRITERIA (NAME)",
+                "ALTER TABLE DYN_SEARCHCRITERIA ADD CONSTRAINT DYN_PK_DYN_SEARCHCRITERIA PRIMARY KEY (NAME, USERNAME)",
+                "CREATE SEQUENCE  \"DYN_SEARCHCRITERIAID\"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 1000 NOORDER  NOCYCLE"
+        );
+        try (Statement statement = connection.createStatement()) {
+            ddl.forEach(perform(this::executeDdl).on(statement));
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
         }
     }
+
+    private void executeDdl(Statement statement, String sql) {
+        try {
+            statement.execute(sql);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
 
 }

@@ -384,8 +384,8 @@ Ext.define('Uni.service.Search', {
         me.getSearchResultsStore().removeAll();
         me.setDomain(me.searchDomain, function () {
             me.applyFilters();
-            Ext.getCmp('loadDropDown').clearValue();
-            Ext.getCmp('saveSearchButton').disable();
+            Ext.ComponentQuery.query('#load-button')[0].clearValue();
+            Ext.ComponentQuery.query('#save-search-button')[0].disable();
         })
     },
 
@@ -785,7 +785,9 @@ Ext.define('Uni.service.Search', {
                     if (state === 'confirm') {
                         me.removeSearchCriteria(combo.selectedValue, contRef);
                         combo.nameValue = undefined;
-                       }
+                    }else if(state === 'cancel'){
+                        combo.nameValue = undefined;
+                    }
                 }
             });
         }else {
@@ -809,37 +811,37 @@ Ext.define('Uni.service.Search', {
         var me = this;
         var flag= false;
         var router = this.router;
-            var name = Ext.getCmp('saveEntered').getValue();
+        var name = Ext.ComponentQuery.query('#Save-Entered')[0].getValue();
         if (router && router.currentRoute == 'search') {
             Uni.util.History.setParsePath(false);
             router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
         }
-            if(name !== null &&  typeof (name !==  'undefined')) {
-                Ext.Ajax.request({
-                    type: 'rest',
-                    url: "../../api/jsr/search/saveCriteria/" + name,
-                    method: "POST",
-                    async : false,
-                    params: {
-                        filter: JSON.stringify(me.getFilters()),
-                        domain: JSON.stringify(me.getDomain().id)
-                    },
-                    success: function (response) {
-                        flag=true;
-                        Ext.getCmp('loadDropDown').getStore().load();
-                        if(JSON.parse(response.responseText).status === 'Save')
-                            contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.saveSearch', 'UNI', 'Search criteria saved'));
-                        else
-                            contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.updateSearch', 'UNI', 'Search criteria updated'));
-                    },
-                    failure: function (response) {
-                        var errorText = Uni.I18n.translate('general.save.operation.failed', 'UNI', 'Save operation failed') + '.' + Uni.I18n.translate('error.unknownErrorOccurred', 'UNI', 'An unknown error occurred');
-                        var titleText = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'),
-                            code = '';
-                        if (response  && response.responseText && response.responseText.errorCode) {
-                            code = response.responseText.errorCode;
-                        }
-                        contRef.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
+        if(name !== null &&  typeof (name !==  'undefined')) {
+            Ext.Ajax.request({
+                type: 'rest',
+                url: "../../api/jsr/search/saveCriteria/" + name,
+                method: "POST",
+                async : false,
+                params: {
+                    filter: JSON.stringify(me.getFilters()),
+                    domain: JSON.stringify(me.getDomain().id)
+                },
+                success: function (response) {
+                    flag=true;
+                    Ext.ComponentQuery.query('#load-button')[0].getStore().load();
+                    if(JSON.parse(response.responseText).status === 'Save')
+                        contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.saveSearch', 'UNI', 'Search criteria saved'));
+                    else
+                        contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.updateSearch', 'UNI', 'Search criteria updated'));
+                },
+                failure: function (response) {
+                    var errorText = Uni.I18n.translate('general.save.operation.failed', 'UNI', 'Save operation failed') + '.' + Uni.I18n.translate('error.unknownErrorOccurred', 'UNI', 'An unknown error occurred');
+                    var titleText = Uni.I18n.translate('error.requestFailedConnexoKnownError', 'UNI', 'Couldn\'t perform your action'),
+                        code = '';
+                    if (response  && response.responseText && response.responseText.errorCode) {
+                        code = response.responseText.errorCode;
+                    }
+                    contRef.getApplication().getController('Uni.controller.Error').showError(titleText, errorText, code);
 
 
                     }
@@ -858,8 +860,8 @@ Ext.define('Uni.service.Search', {
             async : false,
             success: function (response) {
                 me.clearFilters();
-                Ext.getCmp('loadDropDown').clearValue();
-                Ext.getCmp('loadDropDown').getStore().load();
+                Ext.ComponentQuery.query('#load-button')[0].clearValue();
+                Ext.ComponentQuery.query('#load-button')[0].getStore().load();
                 contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));
             },
             failure: function (response) {
