@@ -122,7 +122,7 @@ public abstract class AbstractRescheduleBehaviorTest {
     @Before
     public void setup() {
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)
-                .executionStarted(any(ConnectionTask.class), any(ComServer.class));
+                .executionStarted(any(ConnectionTask.class), any(ComPort.class));
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)
                 .executionFailed(any(ConnectionTask.class));
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)

@@ -162,7 +162,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
      * @return A flag that indicates a successful locking of the ConnectionTask
      */
     protected boolean attemptLock(ScheduledConnectionTask connectionTask) {
-        return this.getComServerDAO().attemptLock(connectionTask, this.getComPort().getComServer()) != null;
+        return this.getComServerDAO().attemptLock(connectionTask, this.getComPort()) != null;
     }
 
     protected void unlock(ScheduledConnectionTask connectionTask) {

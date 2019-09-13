@@ -64,7 +64,7 @@ public interface CommunicationTaskService {
      */
     List<ComTaskExecution> findComTaskExecutionsWithConnectionFunction(Device device, ConnectionFunction connectionFunction);
 
-    TimeDuration releaseTimedOutComTasks(ComServer comServer);
+    TimeDuration releaseTimedOutComTasks(ComPort comPort);
 
     /**
      * Cleans up any marker flags on {@link ComTaskExecution}s that were not properly
@@ -75,9 +75,9 @@ public interface CommunicationTaskService {
      * picking up the tasks again.
      * This is intended to be called at startup time.
      *
-     * @param comServer The ComServer that is currently starting up.
+     * @param comPort The ComPort that is currently starting up.
      */
-    void releaseInterruptedComTasks(ComServer comServer);
+    void releaseInterruptedComTasks(ComPort comPort);
 
     /**
      * Finds the ComTaskExecution with the given ID

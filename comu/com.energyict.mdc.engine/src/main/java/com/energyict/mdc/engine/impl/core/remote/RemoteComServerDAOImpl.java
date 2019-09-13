@@ -193,19 +193,19 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ScheduledConnectionTask attemptLock (ScheduledConnectionTask connectionTask, ComServer comServer) {
+    public ScheduledConnectionTask attemptLock (ScheduledConnectionTask connectionTask, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         JSONObject response = this.post(QueryMethod.AttemptLock, queryParameters);
         return null; // TODO properly implement using orm's locking mechanism
     }
 
     @Override
-    public boolean attemptLock(OutboundConnectionTask connectionTask, ComServer comServer) {
+    public boolean attemptLock(OutboundConnectionTask connectionTask, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         JSONObject response = this.post(QueryMethod.AttemptLock, queryParameters);
         return true; // TODO properly implement using orm's locking mechanism
     }
@@ -243,10 +243,10 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.CONNECTIONTASK, connectionTask.getId());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         this.post(QueryMethod.ExecutionStarted, queryParameters);
         return connectionTask;
     }
@@ -430,16 +430,16 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void releaseInterruptedTasks (ComServer comServer) {
+    public void releaseInterruptedTasks(ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         this.post(QueryMethod.ReleaseInterruptedComTasks, queryParameters);
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks (ComServer comServer) {
+    public TimeDuration releaseTimedOutTasks(ComPort comPort) {
         Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         JSONObject response = this.post(QueryMethod.ReleaseTimedOutComTasks, queryParameters);
         return this.toTimeDuration(response);
     }
