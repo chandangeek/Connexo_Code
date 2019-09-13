@@ -45,7 +45,7 @@ Ext.define('Wss.view.webservice.HistoryForm', {
                         return '-';
                     }
 
-                    if (me.endpoint) {
+                    if (me.endpoint || !(Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices'))) {
                         return Ext.String.htmlEncode(endpoint.get('name'));
                     }
 
