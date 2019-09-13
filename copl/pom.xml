@@ -4,7 +4,7 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
+    <parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>parent</artifactId>
 		<version>1.1.0-Heracles-SNAPSHOT</version>
@@ -990,8 +990,8 @@
 			</dependency>
 
 			<dependency>
-				<groupId>org.apache.servicemix.bundles</groupId>
-				<artifactId>org.apache.servicemix.bundles.opensaml</artifactId>
+				<groupId>com.elster.jupiter.bundles</groupId>
+				<artifactId>com.elster.jupiter.bundles.opensaml</artifactId>
 				<version>${opensaml.version}</version>
 			</dependency>
 			<dependency>
@@ -1141,7 +1141,7 @@
 		<apache.cxf.version>3.2.0</apache.cxf.version>
 		<bouncycastle.version>1.60</bouncycastle.version>
 		<ejbcabundle.version>1.0.0</ejbcabundle.version>
-		<opensaml.version>3.3.0_3</opensaml.version>
+		<opensaml.version>1.0.0</opensaml.version>
 	</properties>
 	<profiles>
 		<profile>

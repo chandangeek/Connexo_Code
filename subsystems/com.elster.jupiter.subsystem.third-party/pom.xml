@@ -365,8 +365,8 @@
             <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.opensaml</artifactId>
+            <groupId>com.elster.jupiter.bundles</groupId>
+            <artifactId>com.elster.jupiter.bundles.opensaml</artifactId>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
