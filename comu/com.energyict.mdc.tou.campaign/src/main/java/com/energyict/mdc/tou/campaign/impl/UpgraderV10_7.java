@@ -55,11 +55,12 @@ public class UpgraderV10_7 implements com.elster.jupiter.upgrade.Upgrader {
         return true;
     }
     private void updateCampaignInBd(TimeOfUseCampaignInfo info) {
-        execute(dataModel,"UPDATE TOU_TU1_CAMPAIGN SET CALENDAR_UPLOAD_COMTASK_ID = " +info.calendarUploadComtaskId+ " , VALIDATION_COMTASK_ID = " +info.validationComtaskId+ " WHERE  DEVICE_TYPE = " +info.deviceType+ " AND ACTIVATION_OPTION = \'"+info.activationOption+"\'");
+        execute(dataModel,"UPDATE TOU_TU1_CAMPAIGN SET CALENDAR_UPLOAD_COMTASK_ID = " +info.calendarUploadComtaskId+ " , VALIDATION_COMTASK_ID = " +info.validationComtaskId+ " WHERE  SERVICECALL = " +info.serviceCall);
     }
 
     private TimeOfUseCampaignInfo update(ResultSet resultSet) throws SQLException {
         TimeOfUseCampaignInfo touCampaignInfo = new TimeOfUseCampaignInfo();
+        touCampaignInfo.serviceCall = resultSet.getLong("SERVICECALL");
         touCampaignInfo.deviceType = resultSet.getLong("DEVICE_TYPE");
         touCampaignInfo.activationOption = resultSet.getString("ACTIVATION_OPTION");
         Optional<DeviceType> devType = deviceConfigurationService.findDeviceType(touCampaignInfo.deviceType);
@@ -89,6 +90,7 @@ public class UpgraderV10_7 implements com.elster.jupiter.upgrade.Upgrader {
     }
 
     private class TimeOfUseCampaignInfo {
+        Long serviceCall;
         Long deviceType;
         String activationOption;
         Long calendarUploadComtaskId;
