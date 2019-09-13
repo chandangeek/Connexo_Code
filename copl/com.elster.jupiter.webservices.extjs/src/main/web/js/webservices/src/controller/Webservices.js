@@ -130,7 +130,11 @@ Ext.define('Wss.controller.Webservices', {
                        occurrence: occurrence
                    });
 
+                   var endpointName = occurrence.getEndpoint() && occurrence.getEndpoint().get('name');
+
                    me.getApplication().fireEvent('changecontentevent', view);
+                   me.getApplication().fireEvent('occurenceload', endpointName);
+
               }
         });
     },

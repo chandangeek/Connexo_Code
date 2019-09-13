@@ -57,7 +57,7 @@ Ext.define('Wss.controller.Main', {
                         {
                             text: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service endpoint history'),
                             href: '#/administration/webservicehistory',
-                            hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.webservices')) && !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')),
+                            hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.webservices')) && !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')) && !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
                             route: 'webservicehistory'
                         }
                     ]
@@ -88,7 +88,7 @@ Ext.define('Wss.controller.Main', {
                         {
                             text: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service endpoint history'),
                             href: '#/workspace/webservicehistory',
-                            hidden: !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')),
+                            hidden: !(Uni.Auth.hasPrivilege('privilege.view.webservices')) && !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')),
                             route: 'webservicehistory'
                         }
                     ]
