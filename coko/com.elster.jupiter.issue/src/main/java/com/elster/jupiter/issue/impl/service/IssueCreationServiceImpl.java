@@ -48,8 +48,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import org.drools.core.common.ProjectClassLoader;
-import org.drools.core.event.DebugAgendaEventListener;
-import org.drools.core.event.DebugRuleRuntimeEventListener;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
 import org.kie.api.io.ResourceType;
@@ -63,7 +61,6 @@ import org.kie.internal.utils.CompositeClassLoader;
 
 import javax.inject.Inject;
 import javax.naming.OperationNotSupportedException;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;

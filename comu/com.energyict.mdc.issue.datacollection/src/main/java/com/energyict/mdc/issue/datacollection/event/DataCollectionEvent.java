@@ -45,7 +45,6 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -238,7 +237,7 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
 
     // Used in rule engine
     public boolean checkOccurrenceConditions(final String relativePeriodWithCount, final String triggeringEndDeviceEventTypes) {
-        List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount, COLON_SEPARATOR);
+        final List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount, COLON_SEPARATOR);
 
         final int eventCountThreshold = Integer.parseInt(relativePeriodWithCountValues.get(0));
         final Optional<RelativePeriod> relativePeriod = timeService.findRelativePeriod(Long.parseLong(relativePeriodWithCountValues.get(1)));
@@ -260,16 +259,7 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
         final List<DataCollectionEventMetadata> dataCollectionEvents = issueDataCollectionService.getDataCollectionEventsForDeviceWithinTimePeriod(device, closedInterval);
 
         int counter = 0;
-        for (DataCollectionEventMetadata event :
-                dataCollectionEvents) {
-            /*
-                This check is needed, because {@link UnregisteredFromGatewayDelayedEvent} will cause a NullPointerException
-                on methods getIssueResolvingEvent() and getCausingEvent()
-             */
-            if (Objects.isNull(this.getIssueResolvingEvent()) && Objects.isNull(this.getIssueCausingEvent())) {
-                return true;
-            }
-
+        for (DataCollectionEventMetadata event : dataCollectionEvents) {
             if (event.getEventType().getTopic().equals(this.getIssueResolvingEvent().getTopic())) {
                 return false;
             } else if (event.getEventType().getTopic().equals(this.getIssueCausingEvent().getTopic())) {

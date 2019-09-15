@@ -78,6 +78,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -166,6 +167,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile EndPointConfigurationService endPointConfigurationService;
     private volatile UpgradeService upgradeService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile TimeService timeService;
     private volatile Clock clock;
 
     private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
@@ -193,7 +195,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                             TransactionService transactionService,
                             ThreadPrincipalService threadPrincipalService,
                             EndPointConfigurationService endPointConfigurationService,
-                            UpgradeService upgradeService, MeteringGroupsService meteringGroupsService, Clock clock, EventService eventService, BundleContext bundleContext) {
+                            UpgradeService upgradeService, MeteringGroupsService meteringGroupsService, Clock clock, TimeService timeService, EventService eventService, BundleContext bundleContext) {
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
@@ -211,6 +213,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         setClock(clock);
         setEndPointConfigurationService(endPointConfigurationService);
         setEventService(eventService);
+        setTimeService(timeService);
         activate(bundleContext);
     }
 
@@ -242,6 +245,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(EventService.class).toInstance(eventService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
+                bind(TimeService.class).toInstance(timeService);
             }
         });
         setBundleContext(bundleContext);
@@ -276,6 +280,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    private void setTimeService(final TimeService timeService) {
+        this.timeService = timeService;
     }
 
     public void setBundleContext(BundleContext bundleContext) {

@@ -117,7 +117,8 @@ public enum TableSpecs {
         public void addTo(final DataModel dataModel) {
             Table<DataCollectionEventMetadata> table = dataModel.addTable(name(), DataCollectionEventMetadata.class);
             table.map(DataCollectionEventMetadataImpl.class);
-            table.setJournalTableName("IDC_DATACOLLECTION_EVENT_JRNL").upTo(version(10, 7));
+            table.since(version(10, 7));
+            table.setJournalTableName("IDC_DATACOLLECTION_EVENT_JRNL");
 
             Column idColumn = table.addAutoIdColumn();
 

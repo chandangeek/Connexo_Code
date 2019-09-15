@@ -65,7 +65,7 @@ Ext.define('Uni.property.view.property.EventTime', {
         } else if (fieldKey === "BasicDeviceAlarmRuleTemplate.threshold") {
             this.occurencesFieldLabel = Uni.I18n.translate('general.create.alarms.when', 'UNI', 'Create alarms when at least');
         } else {
-            this.occurencesFieldLabel = "Create [object] when at least";
+            this.occurencesFieldLabel = Uni.I18n.translate('general.create.abstract.when', 'UNI', 'Create {0} when at least', ['[object is not initialized]']);
         }
 
         this.callParent(arguments);
