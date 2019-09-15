@@ -8,27 +8,36 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation;
 import com.elster.jupiter.pki.SecurityAccessorUserAction;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class SecurityAccessorTypeInfoFactory {
     private final ExecutionLevelInfoFactory executionLevelInfoFactory;
     private final UserService userService;
     private final Thesaurus thesaurus;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public SecurityAccessorTypeInfoFactory(ExecutionLevelInfoFactory executionLevelInfoFactory, UserService userService, Thesaurus thesaurus) {
+    public SecurityAccessorTypeInfoFactory(ExecutionLevelInfoFactory executionLevelInfoFactory, UserService userService, Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils) {
         this.executionLevelInfoFactory = executionLevelInfoFactory;
         this.userService = userService;
         this.thesaurus = thesaurus;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     public SecurityAccessorTypeInfo from(SecurityAccessorType securityAccessorType) {
@@ -53,8 +62,9 @@ public class SecurityAccessorTypeInfoFactory {
             info.renewCapability = securityAccessorType.getHsmKeyType().getRenewCapability();
             info.keySize =  securityAccessorType.getHsmKeyType().getKeySize();
             info.isReversible = securityAccessorType.getHsmKeyType().isReversible();
-            info.isReversible = securityAccessorType.getHsmKeyType().isReversible();
         }
+        info.isWrapper = securityAccessorType.isWrapper();
+
         return info;
     }
 
@@ -70,6 +80,53 @@ public class SecurityAccessorTypeInfoFactory {
         return info;
     }
 
+    public SecurityAccessorTypeInfo from(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
+        SecurityAccessorTypeInfo info = from(securityAccessorTypeOnDeviceType.getSecurityAccessorType());
+
+        securityAccessorTypeOnDeviceType.getKeyRenewalDeviceMessageSpecification().ifPresent(
+                deviceMessageSpec -> {
+                    info.keyRenewalCommandSpecification = new IdWithNameInfo(deviceMessageSpec.getId().name(), deviceMessageSpec.getName());
+
+                }
+        );
+
+        Optional<SecurityAccessorType> wrappingSecurityAccessor = securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().getWrappingSecurityAccessor();
+
+        if (wrappingSecurityAccessor.isPresent()) {
+            SecurityAccessorType securityAccessorType = wrappingSecurityAccessor.get();
+            info.wrapperIdAndName = new IdWithNameInfo(securityAccessorType.getId(), securityAccessorType.getName());
+        } else {
+            info.wrapperIdAndName = new IdWithNameInfo(getNotSetSecurityAccessorWrapper().id, getNotSetSecurityAccessorWrapper().name);
+        }
+
+
+        TypedProperties typedProperties = TypedProperties.empty();
+        Collection<PropertySpec> propertySpecs = new ArrayList<>();
+        securityAccessorTypeOnDeviceType
+                .getKeyRenewalAttributes()
+                .stream()
+                .forEach(attribute-> {
+                    typedProperties.setProperty(attribute.getName(), attribute.getValue());
+                    propertySpecs.add(attribute.getSpecification());
+                });
+        if (propertySpecs.size() > 0) {
+            info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, typedProperties);
+        }
+        return info;
+    }
+
+    public SecurityAccessorTypeInfo withSecurityLevels(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
+        SecurityAccessorTypeInfo info = from(securityAccessorTypeOnDeviceType);
+        Set<SecurityAccessorUserAction> allUserActions = EnumSet.allOf(SecurityAccessorUserAction.class);
+        List<Group> groups = userService.getGroups();
+        Set<SecurityAccessorUserAction> keyAccessorTypeUserActions = securityAccessorTypeOnDeviceType.getDeviceSecurityAccessorType().getSecurityAccessor().getUserActions();
+        info.editLevels = executionLevelInfoFactory.getEditPrivileges(keyAccessorTypeUserActions, groups);
+        info.defaultEditLevels = executionLevelInfoFactory.getEditPrivileges(allUserActions, groups);
+        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(keyAccessorTypeUserActions, groups);
+        info.defaultViewLevels = executionLevelInfoFactory.getViewPrivileges(allUserActions, groups);
+        return info;
+    }
+
     public IdWithNameInfo purposeToInfo(SecurityAccessorType.Purpose purpose) {
         return new IdWithNameInfo(purpose.name(), SecurityAccessorTypePurposeTranslation.translate(purpose, thesaurus));
     }
@@ -77,4 +134,9 @@ public class SecurityAccessorTypeInfoFactory {
     public SecurityAccessorType.Purpose purposeFromInfo(IdWithNameInfo info) {
         return SecurityAccessorType.Purpose.valueOf(info.id.toString());
     }
+
+    public SecurityAccessorTypeInfo getNotSetSecurityAccessorWrapper() {
+        return SecurityAccessorTypeInfo.getNotAvailable(thesaurus.getString(MessageSeeds.SECACC_WRAPPER_NOT_SET.getKey(), MessageSeeds.SECACC_WRAPPER_NOT_SET.getDefaultFormat()));
+    }
+
 }

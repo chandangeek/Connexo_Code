@@ -215,6 +215,11 @@ public enum EndDeviceEventTypeMapping {
     BADVOLTAGE_L2           (196, EndDeviceEventTypeFactory.getBadVoltageL2()),
     BADVOLTAGE_L3           (197, EndDeviceEventTypeFactory.getBadVoltageL3()),
     SIGNAL_QUALITY_LOW      (198, EndDeviceEventTypeFactory.getSignalQualityLow()),
+    METER_ALARM_END         (199, EndDeviceEventTypeFactory.getMeterAlarmEnd()),
+    REVERSE_POWER           (200, EndDeviceEventTypeFactory.getReversePower()),
+    INPUT_EVENT             (201, EndDeviceEventTypeFactory.getInputEvent()),
+    CHANGE_IMPULSE          (202, EndDeviceEventTypeFactory.getChangeImpulse()),
+    PLUS_A_STORED           (203, EndDeviceEventTypeFactory.getPulsAStored()),
 
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
     POWER_MANAGEMENT_SWITCH_LOW_POWER       (100002, EndDeviceEventTypeFactory.getPowerManagementSwitchLowPowerEventType()),

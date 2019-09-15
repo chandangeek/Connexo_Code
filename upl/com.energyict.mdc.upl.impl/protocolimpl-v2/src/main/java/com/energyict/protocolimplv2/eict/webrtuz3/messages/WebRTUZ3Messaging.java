@@ -35,6 +35,7 @@ import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -161,11 +162,13 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
-        } else if (propertySpec.getName().equals(newEncryptionKeyAttributeName) ||
-                propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
-                propertySpec.getName().equals(newPasswordAttributeName) ||
+        } else if (propertySpec.getName().equals(newPasswordAttributeName) ||
                 propertySpec.getName().equals(passwordAttributeName)) {
             return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+        } else if (propertySpec.getName().equals(newEncryptionKeyAttributeName) ||
+                propertySpec.getName().equals(newAuthenticationKeyAttributeName)) {
+            KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, (KeyAccessorType) messageAttribute);
+            return keyRenewalInfo.toJson();
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
             return String.valueOf(((Duration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
+import com.energyict.cim.EndDeviceType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -55,6 +56,8 @@ import java.util.logging.Level;
  * @since 19/12/2014 - 10:42
  */
 public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
+
+    private final EndDeviceType typeMeter = EndDeviceType.DAPDEVICE;
 
     protected IDISLogBookFactory idisLogBookFactory = null;
     protected IDISMessaging idisMessaging = null;
@@ -329,7 +332,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-09 15:56:50 +0300 (Mon, 09 May 2016)$";
+        return "$Date: 2019-09-09$";
     }
 
     @Override
@@ -340,5 +343,9 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     @Override
     public ManufacturerInformation getManufacturerInformation() {
         return null;
+    }
+
+    public EndDeviceType getTypeMeter() {
+        return typeMeter;
     }
 }

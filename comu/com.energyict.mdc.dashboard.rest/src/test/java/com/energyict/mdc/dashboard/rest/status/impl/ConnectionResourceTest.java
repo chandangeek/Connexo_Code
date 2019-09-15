@@ -341,7 +341,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
         when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.OnHold);
         when(connectionTask.getCurrentRetryCount()).thenReturn(7);
-        when(connectionTask.getExecutingComServer()).thenReturn(comServer);
+        when(connectionTask.getExecutingComPort()).thenReturn(comPort);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.OUTBOUND);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
@@ -436,7 +436,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         when(connectionTask.getSuccessIndicator()).thenReturn(ConnectionTask.SuccessIndicator.SUCCESS);
         when(connectionTask.getTaskStatus()).thenReturn(TaskStatus.OnHold);
         when(connectionTask.getCurrentRetryCount()).thenReturn(7);
-        when(connectionTask.getExecutingComServer()).thenReturn(comServer);
+        when(connectionTask.getExecutingComPort()).thenReturn(comPort);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(connectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.OUTBOUND);
         when(connectionTask.getConnectionType()).thenReturn(connectionType);

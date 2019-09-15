@@ -17,6 +17,7 @@ import com.energyict.mdc.common.comserver.OutboundCapableComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -207,7 +208,7 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
                     + numberOfTasks + ", current load: " + currentHighPriorityLoadPerComPortPool.get(comPortPoolId));
             numberOfTasks = Math.max(0, numberOfTasks - currentHighPriorityLoadPerComPortPool.get(comPortPoolId)); // Subtract the current high priority load from the maximum number
         } else {
-            LOGGER.info("[high-prio] no load info about pool " + comPortPoolId + "!");
+            LOGGER.fine("[high-prio] no load info about pool " + comPortPoolId + "!");
         }
         return new MaximumNumberOfTaskForComPortPool(comPortPoolId, numberOfTasks);
     }
@@ -241,15 +242,22 @@ public class PriorityComTaskServiceImpl implements PriorityComTaskService {
         sqlBuilder.append(" ct on cte.");
         sqlBuilder.append(ComTaskExecutionFields.CONNECTIONTASK.fieldName());
         sqlBuilder.append(" = ct.id");
+        sqlBuilder.append("  left join ");
+        sqlBuilder.append("MDC_COMPORT cp on cp.id"); // can't refer to MDC_COMPORT through TableSpecs, it's in mdc.engine
+        sqlBuilder.append(" = cte.");
+        sqlBuilder.append(ComTaskExecutionFields.COMPORT.fieldName());
         sqlBuilder.append(" where ");
-        sqlBuilder.append("   (ct.");
-        sqlBuilder.append(ConnectionTaskFields.COM_SERVER.fieldName());
+        sqlBuilder.append(" ct.");
+        sqlBuilder.append(ConnectionTaskFields.STATUS.fieldName());
+        sqlBuilder.append(" = " + ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE.ordinal());
+        sqlBuilder.append(" and (ct.");
+        sqlBuilder.append(ConnectionTaskFields.COM_PORT.fieldName());
         sqlBuilder.append(" is null");
         sqlBuilder.append(" or ct.");
-        sqlBuilder.append(ConnectionTaskFields.COM_SERVER.fieldName());
-        sqlBuilder.append(" = ");
+        sqlBuilder.append(ConnectionTaskFields.COM_PORT.fieldName());
+        sqlBuilder.append(" in (select id from MDC_COMPORT where comserverid = ");
         sqlBuilder.addLong(comServer.getId());
-        sqlBuilder.append(") ");
+        sqlBuilder.append(")) ");
         sqlBuilder.append("   and ct.obsolete_date is null");
         sqlBuilder.append("   and cte.obsolete_date is null");
         sqlBuilder.append("   and ");

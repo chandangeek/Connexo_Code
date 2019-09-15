@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
@@ -9,10 +10,6 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
 
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.EventPushNotificationConfig;
@@ -30,6 +27,7 @@ import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
+import com.energyict.sercurity.KeyRenewalInfo;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -239,9 +237,10 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     protected CollectedMessage changeMasterKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newSymmetricKey, masterKey);
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        renewKeyForClient(wrappedKey, SecurityMessage.KeyID.MASTER_KEY.getId(), getClientSecuritySetup(pendingMessage));
 
         //Update the key in the security provider, it is used instantly
         getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(newSymmetricKey);
@@ -249,43 +248,39 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     }
 
     protected CollectedMessage changeAuthenticationKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newSymmetricKey, masterKey);
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        renewKeyForClient(wrappedKey, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), getClientSecuritySetup(pendingMessage));
 
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+        int clientToChangeKeyFor = getClientId(pendingMessage);
+
+        if (clientInUse == clientToChangeKeyFor) {
+            //Update the key in the security provider, it is used instantly
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
+        }
         return collectedMessage;
     }
 
     protected CollectedMessage changeEncryptionKeyAndUseNewKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
-        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newSymmetricKey, masterKey);
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+        renewKeyForClient(wrappedKey, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), getClientSecuritySetup(pendingMessage));
 
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
+        int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
+        int clientToChangeKeyFor = getClientId(pendingMessage);
 
-        //Reset frame counter, only if a different key has been written
         SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
-        securityContext.setFrameCounter(1);
+
+        if (clientInUse == clientToChangeKeyFor) {
+            securityContext.setFrameCounter(1);
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
+        }
         securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
 
         return collectedMessage;
-    }
-
-    protected void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, byte[] newSymmetricKey, byte[] masterKey) throws IOException {
-        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
-        ObisCode clientSecuritySetupObis = getClientSecuritySetupObis(pendingMessage);
-
-        Array keyArray = new Array();
-        Structure keyData = new Structure();
-        keyData.addDataType(new TypeEnum(keyId));
-        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
-        keyArray.addDataType(keyData);
-
-        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup(clientSecuritySetupObis);
-        ss.transferGlobalKey(keyArray);
     }
 
     protected void clearWhiteList() throws IOException {
@@ -514,6 +509,11 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
             }
         }
         return ClientSecuritySetup.Management.getID();
+    }
+
+    protected SecuritySetup getClientSecuritySetup(OfflineDeviceMessage pendingMessage) throws NotInObjectListException {
+        ObisCode clientSecuritySetupObis = getClientSecuritySetupObis(pendingMessage);
+        return getCosemObjectFactory().getSecuritySetup(clientSecuritySetupObis);
     }
 
 }
