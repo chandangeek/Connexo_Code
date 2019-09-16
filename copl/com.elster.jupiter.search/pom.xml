@@ -54,7 +54,14 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>properties</artifactId>
     </dependency>
-
+      <dependency>
+          <groupId>com.elster.jupiter</groupId>
+          <artifactId>upgrade</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>com.elster.jupiter</groupId>
+          <artifactId>users</artifactId>
+      </dependency>
     <!-- Testing -->
     <dependency>
       <groupId>junit</groupId>
@@ -74,6 +81,5 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>orm</artifactId>
     </dependency>
-
   </dependencies>
 </project>
