@@ -38,6 +38,7 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -233,6 +234,21 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         return responseMessage;
     }
 
+    private MeterConfigResponseMessageType createResponseMessageCustomPayload(HeaderType.Verb verb, String correlationId, ReplyType replyType) {
+        MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory
+                .createMeterConfigResponseMessageType();
+
+        // set header
+        HeaderType header = cimMessageObjectFactory.createHeaderType();
+        header.setNoun(NOUN);
+        header.setVerb(verb);
+        header.setCorrelationID(correlationId);
+
+        responseMessage.setHeader(header);
+        responseMessage.setReply(replyType);
+        return responseMessage;
+    }
+
     private MeterConfigResponseMessageType createQuickResponseMessage(HeaderType.Verb verb, String correlationId) {
         MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory
                 .createMeterConfigResponseMessageType();
@@ -305,7 +321,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     if (faultMessages.isEmpty()) {
                         return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                     } else  {
-                        throw faultMessageFactory.meterConfigFaultMessage(faultMessages);
+                        return createResponseMessageCustomPayload(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID(),
+                                faultMessageFactory.meterConfigFaultMessage(faultMessages).getFaultInfo().getReply());
                     }
                 } else {
                     // call synchronously
