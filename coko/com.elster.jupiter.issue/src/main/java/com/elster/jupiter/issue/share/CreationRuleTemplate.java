@@ -4,13 +4,12 @@
 
 package com.elster.jupiter.issue.share;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.properties.HasDynamicProperties;
-
-import aQute.bnd.annotation.ConsumerType;
 
 import javax.naming.OperationNotSupportedException;
 import java.util.Optional;
@@ -19,9 +18,9 @@ import java.util.Optional;
 public interface CreationRuleTemplate extends HasDynamicProperties {
 
     String getName();
-    
+
     String getDisplayName();
-    
+
     String getDescription();
 
     String getContent();
@@ -37,9 +36,26 @@ public interface CreationRuleTemplate extends HasDynamicProperties {
 
     Optional<? extends Issue> resolveIssue(IssueEvent event);
 
-    default Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId) {return Optional.empty();}
+    /**
+     * This method is responsible for updating an issue with new priority value.
+     */
+    default void issueSetPriorityValueToDefault(IssueEvent event, Priority priority) {
+        final Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
+        existingIssue.ifPresent(issue -> {
+            if (!issue.getStatus().isHistorical()) {
+                issue.setPriority(priority);
+                issue.update();
+            }
+        });
+    }
+
+    default Optional<CreationRule> getCreationRuleWhichUsesDeviceType(Long deviceTypeId) {
+        return Optional.empty();
+    }
 
     default void closeAllOpenIssues(IssueEvent event) throws OperationNotSupportedException {
         throw new OperationNotSupportedException("Method is not supported for current rule template");
-    };
+    }
+
+    ;
 }

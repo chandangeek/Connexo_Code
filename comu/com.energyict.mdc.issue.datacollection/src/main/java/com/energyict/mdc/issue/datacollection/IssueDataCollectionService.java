@@ -9,10 +9,14 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.google.common.collect.Range;
 
+import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface IssueDataCollectionService {
@@ -23,7 +27,7 @@ public interface IssueDataCollectionService {
 
     Optional<? extends IssueDataCollection> findIssue(long id);
 
-    Optional<? extends  IssueDataCollection> findAndLockIssueDataCollectionByIdAndVersion(long id, long version);
+    Optional<? extends IssueDataCollection> findAndLockIssueDataCollectionByIdAndVersion(long id, long version);
 
     Optional<OpenIssueDataCollection> findOpenIssue(long id);
 
@@ -34,5 +38,13 @@ public interface IssueDataCollectionService {
     <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
 
     Finder<? extends IssueDataCollection> findIssues(IssueDataCollectionFilter filter, Class<?>... eagers);
+
+    void logDataCollectionEventDescription(final Device device, final String topic, final Long timestamp);
+
+    List<DataCollectionEventMetadata> getDataCollectionEvents();
+
+    List<DataCollectionEventMetadata> getDataCollectionEventsForDevice(Device device);
+
+    List<DataCollectionEventMetadata> getDataCollectionEventsForDeviceWithinTimePeriod(Device device, Range<ZonedDateTime> range);
 
 }

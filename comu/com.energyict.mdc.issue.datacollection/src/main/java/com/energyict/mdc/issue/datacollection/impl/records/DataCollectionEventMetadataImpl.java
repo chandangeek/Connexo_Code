@@ -1,0 +1,197 @@
+package com.energyict.mdc.issue.datacollection.impl.records;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
+
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Objects;
+
+public final class DataCollectionEventMetadataImpl implements DataCollectionEventMetadata, PersistenceAware {
+
+    public enum Fields {
+        EVENTYPE("eventType"),
+        DEVICE("device");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
+    }
+
+    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
+    private Reference<EventType> eventType = ValueReference.absent();
+
+    private Reference<Device> device = ValueReference.absent();
+
+    private Reference<Issue> issue = ValueReference.absent();
+
+    private Instant createDateTime;
+
+    private long id;
+
+    /**
+     * Audit fields
+     */
+    private long version;
+
+    private Instant createTime;
+
+    private Instant modTime;
+
+    private String userName;
+
+    private DataModel dataModel;
+
+    @Inject
+    public DataCollectionEventMetadataImpl(final DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
+
+    public DataCollectionEventMetadataImpl init(EventType eventType, Device device, Issue issue, Instant createDateTime) {
+        this.eventType.set(eventType);
+
+        if (device == null) {
+            this.device.setNull();
+        } else {
+            this.device.set(device);
+        }
+
+        if (issue == null) {
+            this.issue.setNull();
+        } else {
+            this.issue.set(issue);
+        }
+        this.createDateTime = createDateTime;
+
+        return this;
+    }
+
+    @Override
+    public EventType getEventType() {
+        return eventType.get();
+    }
+
+    @Override
+    public Device getDevice() {
+        return device.or(null);
+    }
+
+    @Override
+    public Issue getIssue() {
+        return issue.get();
+    }
+
+    @Override
+    public Instant getCreateDateTime() {
+        return createDateTime;
+    }
+
+    @Override
+    public void setEventType(final EventType eventType) {
+        this.eventType.set(eventType);
+    }
+
+    @Override
+    public void setDevice(final Device device) {
+        if (device == null) {
+            this.device.setNull();
+        } else {
+            this.device.set(device);
+        }
+    }
+
+    @Override
+    public void setIssue(final Issue issue) {
+        if (issue == null) {
+            this.issue.setNull();
+        } else {
+            this.issue.set(issue);
+        }
+    }
+
+    @Override
+    public void setCreateDateTime(final Instant dateTime) {
+        this.createDateTime = dateTime;
+    }
+
+    public DataModel getDataModel() {
+        return dataModel;
+    }
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    public void save() {
+        Save.CREATE.save(dataModel, this);
+    }
+
+    @Override
+    public void update() {
+        Save.UPDATE.save(dataModel, this);
+    }
+
+    @Override
+    public void delete() {
+        dataModel.remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        DataCollectionEventMetadataImpl that = (DataCollectionEventMetadataImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+}
