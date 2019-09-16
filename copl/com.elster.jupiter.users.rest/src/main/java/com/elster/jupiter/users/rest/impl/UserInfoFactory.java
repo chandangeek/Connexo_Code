@@ -27,16 +27,19 @@ import java.util.List;
 @Component(name = "user.info.factory", service = {InfoFactory.class}, immediate = true)
 public class UserInfoFactory implements InfoFactory<User> {
 
-    private GroupInfoFactory groupInfoFactory;
-
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile UserService userService;
 
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
-        groupInfoFactory = new GroupInfoFactory(threadPrincipalService);
+    }
+
+    @Reference
+    public void setUserService(final UserService userService) {
+        this.userService = userService;
     }
 
     @Reference
@@ -60,6 +63,7 @@ public class UserInfoFactory implements InfoFactory<User> {
         userInfo.lastSuccessfulLogin = user.getLastSuccessfulLogin() == null ? null : user.getLastSuccessfulLogin().toString();
         userInfo.lastUnSuccessfulLogin = user.getLastUnSuccessfulLogin() == null ? null : user.getLastUnSuccessfulLogin().toString();
 
+        final GroupInfoFactory groupInfoFactory = new GroupInfoFactory(threadPrincipalService, userService);
         for (Group group : user.getGroups()) {
             userInfo.groups.add(groupInfoFactory.from(nlsService, group));
         }
