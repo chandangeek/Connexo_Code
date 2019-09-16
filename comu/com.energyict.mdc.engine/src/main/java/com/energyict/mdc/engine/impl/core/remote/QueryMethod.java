@@ -167,6 +167,22 @@ public enum QueryMethod {
             return null;
         }
     },
+    ExecutionRescheduledToComWindow {
+        @Override
+        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
+            if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION)) {
+                Integer comTaskExecutionId = (Integer) parameters.get(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION);
+                Optional<ComTaskExecution> comTaskExecution = serviceProvider.communicationTaskService().findComTaskExecution(comTaskExecutionId);
+                if (parameters.containsKey(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE)) {
+                    Date rescheduleDate = new Date((Long) parameters.get(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE));
+                    if(comTaskExecution.isPresent()){
+                        executionRescheduledToComWindow(serviceProvider, comTaskExecution.get(), rescheduleDate.toInstant());
+                    }
+                }
+            }
+            return null;
+        }
+    },
     ExecutionFailed {
         @Override
         protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
@@ -333,6 +349,14 @@ public enum QueryMethod {
         });
     }
 
+    protected void executionRescheduledToComWindow(ServiceProvider serviceProvider, ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+        this.executeTransaction(serviceProvider, new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                serviceProvider.comServerDAO().executionRescheduledToComWindow(comTaskExecution, rescheduleDate);
+            }
+        });
+    }
     protected void executionStarted(ServiceProvider serviceProvider, ComPort comPort, ComTaskExecution comTaskExecution) {
         this.executeTransaction(serviceProvider, new VoidTransaction() {
             @Override

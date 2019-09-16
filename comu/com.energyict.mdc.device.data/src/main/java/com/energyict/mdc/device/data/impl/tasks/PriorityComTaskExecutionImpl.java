@@ -322,6 +322,12 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     }
 
     @Override
+    public void executionRescheduledToComWindow(Instant comWindowStartDate) {
+        ((ComTaskExecutionImpl) comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
+        comTaskExecutionLink.executionRescheduled(comWindowStartDate);
+    }
+
+    @Override
     public void executionStarted(ComPort comPort) {
         ((ComTaskExecutionImpl) comTaskExecution).executionStarted(comPort);
     }
