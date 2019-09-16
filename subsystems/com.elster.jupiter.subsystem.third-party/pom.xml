@@ -364,6 +364,18 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.bundles</groupId>
+            <artifactId>com.elster.jupiter.bundles.opensaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.santuario</groupId>
+            <artifactId>xmlsec</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
