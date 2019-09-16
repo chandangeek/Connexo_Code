@@ -250,20 +250,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     }
 
     private MeterConfigResponseMessageType createQuickResponseMessage(HeaderType.Verb verb, String correlationId) {
-        MeterConfigResponseMessageType responseMessage = meterConfigMessageObjectFactory
-                .createMeterConfigResponseMessageType();
-
-        // set header
-        HeaderType header = cimMessageObjectFactory.createHeaderType();
-        header.setNoun(NOUN);
-        header.setVerb(verb);
-        header.setCorrelationID(correlationId);
-        responseMessage.setHeader(header);
-
-        // set reply
-        responseMessage.setReply(replyTypeFactory.okReplyType());
-
-        return responseMessage;
+        return createResponseMessageCustomPayload(verb, correlationId, replyTypeFactory.okReplyType());
     }
 
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
