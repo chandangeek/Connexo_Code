@@ -2,6 +2,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
@@ -142,7 +143,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmSuccessServiceCall() throws HsmBaseException {
+	public void testAddKeysHsmSuccessServiceCall() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -170,7 +171,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmSuccessNoServiceCall() throws HsmBaseException {
+	public void testAddKeysHsmSuccessNoServiceCall() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -247,7 +248,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmServiceCall_HsmBaseExceptionThrown() throws HsmBaseException {
+	public void testAddKeysHsmServiceCall_HsmBaseExceptionThrown() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -262,7 +263,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmNoServiceCall_HsmBaseExceptionThrown() throws HsmBaseException {
+	public void testAddKeysHsmNoServiceCall_HsmBaseExceptionThrown() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
@@ -305,7 +306,7 @@ public class SecurityHelperTest {
 	}
 
 	@Test
-	public void testAddKeysHsmNoServiceCall_RuntimeExceptionThrown() throws HsmBaseException {
+	public void testAddKeysHsmNoServiceCall_RuntimeExceptionThrown() throws HsmBaseException, HsmNotConfiguredException {
 		final List<SecurityKeyInfo> securityInfoList = Arrays.asList(securityInfo);
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);

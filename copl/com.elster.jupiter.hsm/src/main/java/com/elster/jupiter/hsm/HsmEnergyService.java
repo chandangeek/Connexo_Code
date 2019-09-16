@@ -4,6 +4,7 @@
 package com.elster.jupiter.hsm;
 
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.Message;
 import com.elster.jupiter.hsm.model.keys.HsmKey;
 import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
@@ -16,7 +17,7 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface HsmEnergyService {
 
-    HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException;
+    HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException, HsmNotConfiguredException;
 
     HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException;
 

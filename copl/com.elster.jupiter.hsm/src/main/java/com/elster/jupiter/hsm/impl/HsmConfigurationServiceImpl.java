@@ -11,6 +11,7 @@ import com.elster.jupiter.hsm.impl.loader.HsmResourceLoaderFactory;
 import com.elster.jupiter.hsm.impl.resources.HsmReloadableConfigResource;
 import com.elster.jupiter.hsm.impl.resources.HsmReloadableJssConfigResource;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 
 import com.atos.worldline.jss.configuration.RawConfiguration;
 import org.osgi.framework.BundleContext;
@@ -55,18 +56,18 @@ public class HsmConfigurationServiceImpl implements HsmConfigurationService {
     }
 
     @Override
-    public HsmConfiguration getHsmConfiguration() throws HsmBaseException {
+    public HsmConfiguration getHsmConfiguration() throws HsmNotConfiguredException {
         if (hsmConfiguration == null) {
-            throw new HsmBaseException("HSM/JSS not initialized!");
+            throw new HsmNotConfiguredException();
         }
         return hsmConfiguration;
     }
 
 
     @Override
-    public Collection<String> getLabels() throws HsmBaseException {
+    public Collection<String> getLabels() throws HsmNotConfiguredException {
         if (rawConfiguration == null) {
-            throw new HsmBaseException("HSM/JSS not initialized!");
+            throw new HsmNotConfiguredException();
         }
         return rawConfiguration.getRawLabels().stream().map(s -> s.name()).collect(Collectors.toList());
     }
