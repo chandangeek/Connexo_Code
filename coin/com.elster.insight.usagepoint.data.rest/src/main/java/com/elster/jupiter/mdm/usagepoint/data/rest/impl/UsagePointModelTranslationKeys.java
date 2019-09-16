@@ -14,7 +14,8 @@ public enum UsagePointModelTranslationKeys implements TranslationKey {
     TYPE_MODEL("displayType", "Type"),
     CONNECTION_STATE_MODEL("displayConnectionState", "Connection state"),
     LOCATION_MODEL("location", "Location"),
-    STATE("state", "State");
+    STATE("state", "State"),
+    TIME_OF_USE_MODEL("timeOfUse", "Time of use");
     private final String key;
     private final String defaultFormat;
 
