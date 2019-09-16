@@ -23,7 +23,7 @@ import java.rmi.RemoteException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.Semaphore;
-
+import java.util.logging.*;
 
 
 @XmlRootElement
@@ -69,8 +69,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
     private String mrid = null;
     private Long connTaskId = null;
 
-
-//    private final DevicePropertiesDelegate devicePropertiesDelegate;
+    private java.util.logging.Logger logger;
 
     public OutboundTcpIpWithWakeUpConnectionType(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -552,22 +551,26 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
     }
 
     /**
-     * Logging messages to output errors to system-out,
-     * to give the poor delivery & support people some hints in case of trouble
-     *
-     * @param errorMessage
+     * Log messages to to give the poor delivery & support people some hints in case of trouble
+     * TODO: find a magic way to connect to journal, create an service, etc
      */
-    //TODO: find a magic way to connect to journal, create an service, etc
+    private Logger getLogger() {
+        if (this.logger==null) {
+            this.logger = Logger.getLogger(this.getClass().getName());
+        }
+        return this.logger;
+    }
+
     private void logError(String errorMessage) {
-        System.err.println("[Wakeup]"+getSession()+"[ERROR] "+ errorMessage);
+        getLogger().severe("[Wakeup]" + getSession() + errorMessage);
     }
 
     private void logError(Exception ex) {
-        System.err.println("[Wakeup]"+getSession()+"[ERROR] "+ ex.getLocalizedMessage()+ "\n"+ex.toString());
+        logError( ex.getLocalizedMessage()+ "\n"+ex.toString());
     }
 
     private void log(String message) {
-        System.out.println("[Wakeup]"+getSession()+message);
+        getLogger().info("[Wakeup]" + getSession() + message);
     }
 
 

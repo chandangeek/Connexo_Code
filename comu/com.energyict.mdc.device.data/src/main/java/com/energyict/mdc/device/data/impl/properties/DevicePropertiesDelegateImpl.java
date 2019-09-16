@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.*;
 import javax.inject.*;
 import java.time.*;
 import java.util.*;
+import java.util.logging.*;
 
 /**
  * Provides an immediate link to the device connection type properties
@@ -188,8 +189,7 @@ public class DevicePropertiesDelegateImpl implements DevicePropertiesDelegate{
     }
 
     private void logError(String errorMessage) {
-        System.err.println("[DPD][ERROR] "+ errorMessage);
-
+        Logger.getLogger(this.getClass().getName()).severe(errorMessage);
     }
 
 }
