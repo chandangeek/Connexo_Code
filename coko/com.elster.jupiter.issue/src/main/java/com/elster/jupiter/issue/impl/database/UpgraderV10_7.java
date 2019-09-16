@@ -6,6 +6,7 @@ package com.elster.jupiter.issue.impl.database;
 
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.MailIssueAction;
+import com.elster.jupiter.issue.impl.actions.ProcessAction;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
@@ -88,6 +89,7 @@ public class UpgraderV10_7 implements Upgrader {
 
     private void addCloseActionType() {
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), issueService.findIssueType(IssueService.MANUAL_ISSUE_TYPE).get());
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, ProcessAction.class.getName(), (IssueType) null);
     }
 
     private void createActionTypesIfNotPresent() {
