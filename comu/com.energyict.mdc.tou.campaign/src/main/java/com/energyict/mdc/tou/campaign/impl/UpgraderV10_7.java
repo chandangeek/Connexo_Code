@@ -90,7 +90,7 @@ public class UpgraderV10_7 implements com.elster.jupiter.upgrade.Upgrader {
     }
 
     private class TimeOfUseCampaignInfo {
-        Long serviceCall;
+        long serviceCall;
         Long deviceType;
         String activationOption;
         Long calendarUploadComtaskId;
