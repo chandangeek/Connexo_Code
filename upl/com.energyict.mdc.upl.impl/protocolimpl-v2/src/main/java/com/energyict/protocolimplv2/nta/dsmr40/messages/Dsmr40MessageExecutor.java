@@ -91,10 +91,6 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
                     changeAuthenticationLevel(pendingMessage, 3, true);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.DISABLE_DLMS_AUTHENTICATION_LEVEL_P3)) {
                     changeAuthenticationLevel(pendingMessage, 3, false);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
-                    changeEncryptionKeyAndUseNewKey(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
-                    changeAuthenticationKeyAndUseNewKey(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
@@ -167,14 +163,6 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
      */
     protected int getConfigurationObjectFlagsIndex(){
         return 1;
-    }
-
-    protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        throw new ProtocolException("This message is not yet supported in DSMR4.0");
-    }
-
-    protected void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        throw new ProtocolException("This message is not yet supported in DSMR4.0");
     }
 
     @Override
