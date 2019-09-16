@@ -316,13 +316,17 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             faultMessages.add(e);
                         }
                     });
-                    EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
-                    createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
-                    if (faultMessages.isEmpty()) {
-                        return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
-                    } else  {
-                        return createResponseMessageCustomPayload(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID(),
-                                faultMessageFactory.meterConfigFaultMessage(faultMessages).getFaultInfo().getReply());
+                    if (meterConfig.getMeter().size() == faultMessages.size()) {
+                        throw faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.FAILED);
+                    } else {
+                        EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
+                        createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                        if (faultMessages.isEmpty()) {
+                            return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                        } else  {
+                            return createResponseMessageCustomPayload(Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID(),
+                                    faultMessageFactory.meterConfigFaultMessage(MessageSeeds.NO_DEVICE, faultMessages, ReplyType.Result.PARTIAL).getFaultInfo().getReply());
+                        }
                     }
                 } else {
                     // call synchronously
