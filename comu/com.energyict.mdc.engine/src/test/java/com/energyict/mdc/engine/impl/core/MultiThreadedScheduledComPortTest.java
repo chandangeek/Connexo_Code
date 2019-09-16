@@ -56,6 +56,9 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ScheduledComPortMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignService;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -63,6 +66,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
@@ -254,6 +259,16 @@ public class MultiThreadedScheduledComPortTest {
     private ScheduledComPortImpl.ServiceProvider serviceProvider;
     @Mock
     private RunningComServer runningComServer;
+    @Mock
+    private FirmwareService firmwareService;
+    @Mock
+    private FirmwareCampaignService firmwareCampaignService;
+    @Mock
+    private TimeOfUseCampaignService timeOfUseCampaignService;
+    @Mock
+    private TimeOfUseCampaign timeOfUseCampaign;
+    @Mock
+    private FirmwareCampaign firmwareCampaign;
 
     private Clock clock = Clock.systemUTC();
     private ComPortRelatedComChannel comChannel;
@@ -307,6 +322,11 @@ public class MultiThreadedScheduledComPortTest {
         when(this.serviceProvider.engineService()).thenReturn(engineService);
         when(this.serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
         when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+        when(timeOfUseCampaignService.getCampaignOn(any())).thenReturn(Optional.of(timeOfUseCampaign));
+        when(firmwareCampaignService.getCampaignOn(any())).thenReturn(Optional.of(firmwareCampaign));
+        when(this.firmwareService.getFirmwareCampaignService()).thenReturn(this.firmwareCampaignService);
+        when(this.serviceProvider.firmwareService()).thenReturn(this.firmwareService);
+        when(this.serviceProvider.touService()).thenReturn(this.timeOfUseCampaignService);
     }
 
     public void setupEventPublisher() {

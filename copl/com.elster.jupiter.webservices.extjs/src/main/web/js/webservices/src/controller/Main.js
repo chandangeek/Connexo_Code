@@ -34,7 +34,7 @@ Ext.define('Wss.controller.Main', {
     initMenu: function () {
         var namespace = Uni.util.Application.getAppNamespace();
 
-        if (Wss.privileges.Webservices.canView() || Wss.privileges.Webservices.canAdministrate()) {
+        if (Wss.privileges.Webservices.canView() || Wss.privileges.Webservices.canAdministrate() || Wss.privileges.Webservices.canViewHistory()) {
             if (namespace === 'SystemApp') {
                 var menuItem = Ext.create('Uni.model.MenuItem', {
                     text: Uni.I18n.translate('general.administration', 'WSS', 'Administration'),
@@ -51,13 +51,13 @@ Ext.define('Wss.controller.Main', {
                         {
                             text: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
                             href: '#/administration/webserviceendpoints',
-                            hidden: !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')),
+                            hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.webservices')) && !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
                             route: 'webserviceendpoints'
                         },
                         {
                             text: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service endpoint history'),
                             href: '#/administration/webservicehistory',
-                            hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.webservices')) && !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
+                            hidden: !(Uni.Auth.hasPrivilege('privilege.administrate.webservices')) && !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')) && !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
                             route: 'webservicehistory'
                         }
                     ]
@@ -82,13 +82,13 @@ Ext.define('Wss.controller.Main', {
                         {
                             text: Uni.I18n.translate('webservices.webserviceEndpoints', 'WSS', 'Web service endpoints'),
                             href: '#/workspace/webserviceendpoints',
-                            hidden: !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')),
+                            hidden: !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
                             route: 'webserviceendpoints'
                         },
                         {
                             text: Uni.I18n.translate('webservices.webserviceHistory', 'WSS', 'Web service endpoint history'),
                             href: '#/workspace/webservicehistory',
-                            hidden: !(Uni.Auth.hasPrivilege('privilege.view.webservices')),
+                            hidden: !(Uni.Auth.hasPrivilege('privilege.view.webservices')) && !(Uni.Auth.hasPrivilege('privilege.viewHistory.webservices')),
                             route: 'webservicehistory'
                         }
                     ]

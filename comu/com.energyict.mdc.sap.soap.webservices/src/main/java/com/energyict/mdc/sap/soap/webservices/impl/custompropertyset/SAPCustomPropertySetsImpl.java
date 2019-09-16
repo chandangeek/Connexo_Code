@@ -114,7 +114,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     @Activate
     public void activate() {
-        customPropertySetService.addCustomPropertySet(deviceInfo = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus));
+        customPropertySetService.addCustomPropertySet(deviceInfo = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, this));
         customPropertySetService.addCustomPropertySet(channelInfo = new DeviceChannelSAPInfoCustomPropertySet(propertySpecService, thesaurus));
         customPropertySetService.addCustomPropertySet(registerInfo = new DeviceRegisterSAPInfoCustomPropertySet(propertySpecService, thesaurus));
     }
@@ -159,6 +159,11 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
     @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     @Override

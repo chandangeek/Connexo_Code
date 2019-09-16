@@ -13,6 +13,7 @@ import org.joda.time.DateTimeConstants;
 import java.beans.XMLDecoder;
 import java.io.ByteArrayInputStream;
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,19 +96,19 @@ public class ComWindowTest {
     }
 
     @Test
-    public void testIncludesTimeDurationThatRunsAcrossMidnight () {
+    public void testIncludesTimeDurationThatRunsAcrossMidnight() {
         ComWindow comWindow = new ComWindow(TEN_PM, TWO_AM);
         assertTrue(comWindow.includes(new TimeDuration(23, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
-    public void testIncludesTimeDurationThatRunsAcrossMidnightAtStart () {
+    public void testIncludesTimeDurationThatRunsAcrossMidnightAtStart() {
         ComWindow comWindow = new ComWindow(TEN_PM, TWO_AM);
         assertTrue(comWindow.includes(new TimeDuration(22, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
-    public void testIncludesTimeDurationThatRunsAcrossMidnightAtEnd () {
+    public void testIncludesTimeDurationThatRunsAcrossMidnightAtEnd() {
         ComWindow comWindow = new ComWindow(TEN_PM, TWO_AM);
         assertTrue(comWindow.includes(new TimeDuration(2, TimeDuration.TimeUnit.HOURS)));
     }
@@ -125,19 +126,19 @@ public class ComWindowTest {
     }
 
     @Test
-    public void testDoesNotIncludeTimeDurationAfterEnd () {
+    public void testDoesNotIncludeTimeDurationAfterEnd() {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
         assertFalse(comWindow.includes(new TimeDuration(12, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
-    public void testDoesNotIncludeTimeDurationBeforeStart () {
+    public void testDoesNotIncludeTimeDurationBeforeStart() {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
         assertFalse(comWindow.includes(new TimeDuration(1, TimeDuration.TimeUnit.HOURS)));
     }
 
     @Test
-    public void testIncludesCalendarAtStart () {
+    public void testIncludesCalendarAtStart() {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
         Calendar calendar = this.getCalendar();
         calendar.add(Calendar.SECOND, START_SECONDS);
@@ -145,7 +146,7 @@ public class ComWindowTest {
     }
 
     @Test
-    public void testIncludesCalendarInMiddle () {
+    public void testIncludesCalendarInMiddle() {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
         Calendar calendar = this.getCalendar();
         calendar.add(Calendar.SECOND, START_SECONDS + 1);
@@ -153,7 +154,7 @@ public class ComWindowTest {
     }
 
     @Test
-    public void testIncludesCalendarAtEnd () {
+    public void testIncludesCalendarAtEnd() {
         ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
         Calendar calendar = this.getCalendar();
         calendar.add(Calendar.SECOND, END_SECONDS);
@@ -175,8 +176,8 @@ public class ComWindowTest {
         assertFalse(comWindow.includes(calendar));
     }
 
-    private Calendar getCalendar () {
-        Calendar calendar = Calendar.getInstance();
+    private Calendar getCalendar() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.set(Calendar.YEAR, 2013);
         calendar.set(Calendar.MONTH, Calendar.JANUARY);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -187,7 +188,7 @@ public class ComWindowTest {
         return calendar;
     }
 
-//    @Test
+    //    @Test
 //    public void testXmlEncoding() throws Exception {
 //        ComWindow comWindow = new ComWindow(START_SECONDS, END_SECONDS);
 //        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -209,7 +210,7 @@ public class ComWindowTest {
 
         XMLDecoder xmlDecoder = new XMLDecoder(new ByteArrayInputStream(xml.getBytes()));
         ComWindow comWindow = (ComWindow) xmlDecoder.readObject();
-        assertThat(comWindow.getStart().getMillis()).isEqualTo(START_SECONDS*1000);
-        assertThat(comWindow.getEnd().getMillis()).isEqualTo(END_SECONDS*1000);
+        assertThat(comWindow.getStart().getMillis()).isEqualTo(START_SECONDS * 1000);
+        assertThat(comWindow.getEnd().getMillis()).isEqualTo(END_SECONDS * 1000);
     }
 }

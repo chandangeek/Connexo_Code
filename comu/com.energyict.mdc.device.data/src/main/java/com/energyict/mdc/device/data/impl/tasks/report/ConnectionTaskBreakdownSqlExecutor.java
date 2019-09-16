@@ -60,7 +60,7 @@ class ConnectionTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
         sqlBuilder.append("         ct.comportpool,");
         sqlBuilder.append("         dev.devicetype,");
         sqlBuilder.append("         CASE WHEN ctsFromCtes.connectiontask IS NOT NULL");
-        sqlBuilder.append("                OR ct.comserver          IS NOT NULL");
+        sqlBuilder.append("                OR ct.comport          IS NOT NULL");
         sqlBuilder.append("              THEN '" + ServerComTaskStatus.Busy.name() + "'");
         sqlBuilder.append("              WHEN (   discriminator = '");
         sqlBuilder.append(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);

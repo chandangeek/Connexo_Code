@@ -70,6 +70,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
+
 public class MeterReadingsBuilder {
 
     private final MeteringService meteringService;
@@ -90,12 +92,13 @@ public class MeterReadingsBuilder {
     private Set<ReadingType> referencedReadingTypes;
     private Set<ReadingQualityType> referencedReadingQualityTypes;
     private Map<String, RangeSet<Instant>> readingTypesMRIDsTimeRangeMap;
+    private int registerUpperBoundShift;
 
     @Inject
     public MeterReadingsBuilder(MeteringService meteringService,
-                         MetrologyConfigurationService metrologyConfigurationService,
-                         MeterReadingFaultMessageFactory faultMessageFactory, DeviceService deviceService,
-                         MasterDataService masterDataService) {
+                                MetrologyConfigurationService metrologyConfigurationService,
+                                MeterReadingFaultMessageFactory faultMessageFactory, DeviceService deviceService,
+                                MasterDataService masterDataService) {
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.faultMessageFactory = faultMessageFactory;
@@ -151,8 +154,8 @@ public class MeterReadingsBuilder {
     public MeterReadingsBuilder withLoadProfiles(Set<String> loadProfilesNames) {
         if (loadProfilesNames != null) {
             loadProfiles.addAll(masterDataService.findAllLoadProfileTypes().stream()
-                        .filter(loadProfile -> loadProfilesNames.contains(loadProfile.getName()))
-                        .collect(Collectors.toSet()));
+                    .filter(loadProfile -> loadProfilesNames.contains(loadProfile.getName()))
+                    .collect(Collectors.toSet()));
         }
         return this;
     }
@@ -168,6 +171,11 @@ public class MeterReadingsBuilder {
 
     public MeterReadingsBuilder withReadingTypesMRIDsTimeRangeMap(Map<String, RangeSet<Instant>> readingTypesMRIDsTimeRangeMap) {
         this.readingTypesMRIDsTimeRangeMap = readingTypesMRIDsTimeRangeMap;
+        return this;
+    }
+
+    public MeterReadingsBuilder withRegisterUpperBoundShift(int registerUpperBoundShift) {
+        this.registerUpperBoundShift = registerUpperBoundShift;
         return this;
     }
 
@@ -285,9 +293,9 @@ public class MeterReadingsBuilder {
         if (currentTimePeriods.isEmpty()) {
             return Collections.<ReadingType, List<ReadingWithQualities>>emptyMap();
         }
-        Map<ReadingType, List<ReadingWithQualities>>  result = new HashMap<>();
-        for (Channel channel: channelsContainer.getChannels()) {
-            for (ReadingType readingType: channel.getReadingTypes()) {
+        Map<ReadingType, List<ReadingWithQualities>> result = new HashMap<>();
+        for (Channel channel : channelsContainer.getChannels()) {
+            for (ReadingType readingType : channel.getReadingTypes()) {
                 if (readingTypeFullAliasNames.contains(readingType.getFullAliasName())
                         || readingTypeMRIDs.contains(readingType.getMRID())) {
                     Optional<CimChannel> cimChannel = channel.getCimChannel(readingType);
@@ -319,7 +327,7 @@ public class MeterReadingsBuilder {
         return new ArrayList<>(readingsWithQualities.values());
     }
 
-    private static List<ReadingWithQualities> getReadingsWithQualities(CimChannel channel, RangeSet<Instant> timePeriods) {
+    private List<ReadingWithQualities> getReadingsWithQualities(CimChannel channel, RangeSet<Instant> timePeriods) {
         Map<Instant, ReadingWithQualities> readingsWithQualities = getReadingRecords(channel, timePeriods)
                 .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, ReadingWithQualities::from, (a, b) -> a, TreeMap::new));
         Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamps = channel.findReadingQualities()
@@ -341,11 +349,23 @@ public class MeterReadingsBuilder {
         return getReadingRecords(records, timePeriods);
     }
 
-    private static Stream<BaseReadingRecord> getReadingRecords(CimChannel channel, RangeSet<Instant> timePeriods) {
-        Collection<? extends BaseReadingRecord> records = (channel.isRegular() ?
-                channel.getIntervalReadings(timePeriods.span()) :
-                channel.getRegisterReadings(timePeriods.span()));
+    private Stream<BaseReadingRecord> getReadingRecords(CimChannel channel, RangeSet<Instant> timePeriods) {
+        Collection<? extends BaseReadingRecord> records;
+        if (channel.isRegular()) {
+            records = channel.getIntervalReadings(timePeriods.span());
+        } else {
+            Range<Instant> registerUppedBoundRange = getRegisterRangeWithUpperBoundShift(timePeriods);
+            records = channel.getRegisterReadings(registerUppedBoundRange);
+            timePeriods = TreeRangeSet.create(timePeriods);
+            timePeriods.add(registerUppedBoundRange);
+        }
         return getReadingRecords(records, timePeriods);
+    }
+
+    private Range<Instant> getRegisterRangeWithUpperBoundShift(RangeSet<Instant> timePeriods) {
+        Range<Instant> timeRange = timePeriods.span();
+        Instant newUpperBound = timeRange.upperEndpoint().plus(registerUpperBoundShift, MINUTES);
+        return Ranges.copy(timeRange).withClosedUpperBound(newUpperBound);
     }
 
     private static Stream<BaseReadingRecord> getReadingRecords(Collection<? extends BaseReadingRecord> baseReadingRecords, RangeSet<Instant> timePeriods) {
@@ -357,6 +377,7 @@ public class MeterReadingsBuilder {
 
     /**
      * To filter readings that bring no information: no value, no reading qualities (derived is always present).
+     *
      * @param reading {@link BaseReadingRecord} to check.
      * @return {@code true} if it is missing with no reading qualities (except derived that is always present).
      */
@@ -379,7 +400,7 @@ public class MeterReadingsBuilder {
 
     private Optional<MeterReading> wrapInMeterReading(String purpose, EndDevice endDevice, Map<ReadingType, List<ReadingWithQualities>> readingsByReadingTypes) {
         MeterReading meterReading = new MeterReading();
-        if(purpose != null) {
+        if (purpose != null) {
             meterReading.setUsagePoint(createUsagePointPurpose(purpose));
         }
         if (endDevice != null) {
@@ -553,7 +574,7 @@ public class MeterReadingsBuilder {
         return info;
     }
 
-    private static ch.iec.tc57._2011.meterreadings.LoadProfile createLoadProfile(LoadProfileType loadProfile, Set<String>referencedReadingTypesMrids) {
+    private static ch.iec.tc57._2011.meterreadings.LoadProfile createLoadProfile(LoadProfileType loadProfile, Set<String> referencedReadingTypesMrids) {
         ch.iec.tc57._2011.meterreadings.LoadProfile info = new ch.iec.tc57._2011.meterreadings.LoadProfile();
         info.setName(loadProfile.getName());
         List<ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType> readingTypes = info.getReadingType();
@@ -562,15 +583,15 @@ public class MeterReadingsBuilder {
                 .map(channel -> channel.getReadingType().getMRID())
                 .filter(mrid -> referencedReadingTypesMrids.contains(mrid))
                 .forEach(mrid -> {
-                        ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType readingType =
-                                new ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType();
-                        readingType.setRef(mrid);
+                    ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType readingType =
+                            new ch.iec.tc57._2011.meterreadings.LoadProfile.ReadingType();
+                    readingType.setRef(mrid);
                     readingTypes.add(readingType);
                 });
         return info;
     }
 
-    private static ch.iec.tc57._2011.meterreadings.RegisterGroup createRegisterGroup(RegisterGroup registerGroup, Set<String>referencedReadingTypesMrids) {
+    private static ch.iec.tc57._2011.meterreadings.RegisterGroup createRegisterGroup(RegisterGroup registerGroup, Set<String> referencedReadingTypesMrids) {
         ch.iec.tc57._2011.meterreadings.RegisterGroup info = new ch.iec.tc57._2011.meterreadings.RegisterGroup();
         info.setName(registerGroup.getName());
         List<ch.iec.tc57._2011.meterreadings.RegisterGroup.ReadingType> readingTypes = info.getReadingType();

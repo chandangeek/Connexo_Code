@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
@@ -25,11 +26,13 @@ import java.util.Optional;
 class FirmwareStorage {
 
     private final FirmwareService firmwareService;
+    private final DeviceConfigurationService deviceConfigurationService;
     private final Clock clock;
 
-    FirmwareStorage(FirmwareService firmwareService, Clock clock) {
+    FirmwareStorage(FirmwareService firmwareService, Clock clock, DeviceConfigurationService deviceConfigurationService) {
         this.firmwareService = firmwareService;
         this.clock = clock;
+        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     private FirmwareService getFirmwareService() {
@@ -55,15 +58,22 @@ class FirmwareStorage {
     private void updateFirmwareVersionForType(Optional<String> collectedFirmwareVersion, Device device, FirmwareType firmwareType) {
         collectedFirmwareVersion.ifPresent(version -> {
             if (!version.isEmpty()) {
-                Optional<FirmwareVersion> existingFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType(), firmwareType);
-                existingFirmwareVersion.map(firmwareVersion -> createOrUpdateActiveVersion(device, firmwareVersion)).
-                        orElseGet(() -> createOrUpdateActiveVersion(device, createNewGhostFirmwareVersion(device, version, firmwareType)));
+                FirmwareVersion firmwareVersion;
+                Optional<FirmwareVersion> existentFirmwareVersion = getFirmwareVersionFor(version, device.getDeviceType(), firmwareType);
+                if (existentFirmwareVersion.isPresent()) {
+                    firmwareVersion = existentFirmwareVersion.get();
+                } else {
+                    deviceConfigurationService.findAndLockDeviceType(device.getDeviceType().getId());
+                    firmwareVersion = getFirmwareVersionFor(version, device.getDeviceType(), firmwareType)
+                            .orElseGet(() -> createNewGhostFirmwareVersion(device, version, firmwareType));
+                }
+                createOrUpdateActiveVersion(device, firmwareVersion);
             }
         });
     }
 
     private FirmwareVersion createNewGhostFirmwareVersion(Device device, String version, FirmwareType firmwareType) {
-       return getFirmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType, version).create();
+        return getFirmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType, version).create();
     }
 
     private ActivatedFirmwareVersion createOrUpdateActiveVersion(Device device, FirmwareVersion collectedFirmwareVersion) {

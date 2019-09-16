@@ -52,6 +52,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -474,6 +475,8 @@ public abstract class JobExecution implements ScheduledJob {
         MeteringService meteringService();
 
         FirmwareService firmwareService();
+
+        TimeOfUseCampaignService touService();
 
     }
 

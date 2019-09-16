@@ -165,6 +165,10 @@
             <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign</artifactId>
+        </dependency>
 
         <!-- Web libraries -->
         <!-- will be embedded in the bundle -->

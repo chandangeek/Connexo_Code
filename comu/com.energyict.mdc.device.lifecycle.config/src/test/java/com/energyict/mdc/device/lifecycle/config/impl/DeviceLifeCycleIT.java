@@ -1014,6 +1014,11 @@ public class DeviceLifeCycleIT {
         DeviceLifeCycle deviceLifeCycle = builder.complete();
         deviceLifeCycle.save();
 
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // Business method
         DeviceLifeCycleUpdater deviceLifeCycleUpdater = deviceLifeCycle.startUpdate();
         String newName = "Updated";

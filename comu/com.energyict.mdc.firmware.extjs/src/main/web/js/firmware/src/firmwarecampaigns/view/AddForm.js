@@ -264,7 +264,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 allowBlank: false,
                 forceSelection: true,
                 emptyText: Uni.I18n.translate(
-                    'general.validationComTask.empty',
+                    'general.comTask.empty',
                     'FWC',
                     'Select communication task ...'
                 ),
@@ -344,6 +344,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         ];
 
         me.callParent(arguments);
+
+        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
+           item.setTooltip('Restore to default empty value');
+        })
     },
 
     onDeviceTypeChange: function (combo, newValue) {
