@@ -192,7 +192,7 @@ public class TaskResource {
     @GET
     @Path("/triggers/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     public TaskTrigger getTriggers(@PathParam("id") long id) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));

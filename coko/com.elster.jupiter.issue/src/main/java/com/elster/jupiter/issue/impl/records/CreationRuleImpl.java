@@ -223,7 +223,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         }
     }
 
-    CreationRuleProperty addProperty(String name, Object value) {
+    public CreationRuleProperty addProperty(String name, Object value) {
         CreationRuleProperty newProperty = getDataModel().getInstance(CreationRulePropertyImpl.class).init(this, name, value);
         properties.add(newProperty);
         return newProperty;
