@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.identifiers.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DevicePropertiesDelegate;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,6 +44,7 @@ public class Services {
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
     private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<DevicePropertiesDelegate> DEVICE_PROPERTIES_DELEGATE = new AtomicReference<>();
     private static AtomicReference<DeviceIdentifier.Finder> DEVICE_FINDER = new AtomicReference<>();
     private static AtomicReference<LoadProfileIdentifier.Finder> LOADPROFILE_FINDER = new AtomicReference<>();
     private static AtomicReference<LogBookIdentifier.Finder> LOGBOOK_FINDER = new AtomicReference<>();
@@ -70,6 +72,8 @@ public class Services {
             return numberLookupFinder();
         } else if (CertificateWrapperExtractor.class.equals(serviceType)) {
             return certificateWrapperExtractor();
+        } else if (DevicePropertiesDelegate.class.equals(serviceType)){
+            return devicePropertiesDelegate();
         } else if (LoadProfileExtractor.class.equals(serviceType)) {
             return loadProfileExtractor();
         } else if (DeviceMasterDataExtractor.class.equals(serviceType)) {
@@ -189,6 +193,14 @@ public class Services {
 
     public static void certificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
         CERTIFICATE_WRAPPER_EXTRACTOR.set(certificateWrapperExtractor);
+    }
+
+    public static DevicePropertiesDelegate devicePropertiesDelegate() {
+        return DEVICE_PROPERTIES_DELEGATE.get();
+    }
+
+    public static void devicePropertiesDelegate(DevicePropertiesDelegate devicePropertiesDelegate) {
+        DEVICE_PROPERTIES_DELEGATE.set(devicePropertiesDelegate);
     }
 
     public static DeviceMasterDataExtractor deviceMasterDataExtractor() {

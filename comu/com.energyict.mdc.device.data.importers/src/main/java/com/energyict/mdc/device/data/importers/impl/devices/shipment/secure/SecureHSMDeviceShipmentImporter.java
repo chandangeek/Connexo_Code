@@ -10,6 +10,7 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.krypto.AsymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.krypto.SymmetricAlgorithm;
 import com.elster.jupiter.hsm.model.request.ImportKeyRequest;
@@ -73,7 +74,7 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
                 securityAccessor.setActualValue(hsmKey);
                 securityAccessor.save();
             }
-        } catch (HsmBaseException | InvalidKeyException e) {
+        } catch (HsmNotConfiguredException | HsmBaseException | InvalidKeyException e) {
             logger.log(Level.SEVERE, e.getMessage());
             throw new ImportFailedException(MessageSeeds.IMPORT_FAILED_FOR_DEVICE_KEY, device.getName(), device.getSerialNumber(), deviceKey.getName());
         }

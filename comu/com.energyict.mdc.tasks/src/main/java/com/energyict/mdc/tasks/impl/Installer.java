@@ -21,15 +21,12 @@ class Installer implements FullInstaller {
     private final DataModel dataModel;
     private final EventService eventService;
     private final TaskService taskService;
-    private final UpgraderV10_7 upgraderV10_7;
 
     @Inject
-    Installer(DataModel dataModel, EventService eventService, TaskService taskService,
-            UpgraderV10_7 upgraderV10_7) {
+    Installer(DataModel dataModel, EventService eventService, TaskService taskService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.taskService = taskService;
-        this.upgraderV10_7 = upgraderV10_7;
     }
 
     @Override
@@ -43,11 +40,6 @@ class Installer implements FullInstaller {
         doTry(
                 "Create Firmware Com Task",
                 this::createFirmwareComTaskIfNotPresentYet,
-                logger
-        );
-        doTry(
-                "Create Firmware Com Task",
-                () -> upgraderV10_7.migrate(dataModelUpgrader),
                 logger
         );
     }

@@ -48,7 +48,6 @@ import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -61,7 +60,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.security.KeyStore;
 import java.security.Principal;
 import java.time.Clock;
@@ -330,7 +328,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
 
-
     @Override
     public Optional<Group> findGroup(String name) {
         for (Group group : getGroups()) {
@@ -355,7 +352,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         if (!users.isEmpty()) {
             if (users.get(0).getStatus()) {
                 return Optional.of(users.get(0));
-            }else{
+            } else {
                 throw new FoundUserIsNotActiveException(thesaurus, authenticationName);
             }
         }
@@ -424,6 +421,11 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Override
     public Optional<Group> findAndLockGroupByIdAndVersion(long id, long version) {
         return dataModel.mapper(Group.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public DataModel getDataModel() {
+        return dataModel;
     }
 
     @Override
@@ -754,12 +756,12 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
-    public Optional<WorkGroup> getWorkGroup(long id){
+    public Optional<WorkGroup> getWorkGroup(long id) {
         return dataModel.mapper(WorkGroup.class).getOptional(id);
     }
 
     @Override
-    public Optional<WorkGroup> getWorkGroup(String name){
+    public Optional<WorkGroup> getWorkGroup(String name) {
         return getWorkGroupsQuery()
                 .select(where("name").isEqualTo(name))
                 .stream()
@@ -779,12 +781,12 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     @Override
-    public List<WorkGroup> getWorkGroups(){
+    public List<WorkGroup> getWorkGroups() {
         return dataModel.mapper(WorkGroup.class).find();
     }
 
     @Override
-    public List<User> getUsers(){
+    public List<User> getUsers() {
         return dataModel.mapper(User.class).find();
     }
 

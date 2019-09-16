@@ -27,6 +27,7 @@ public enum ConnectionTypePluggableClassTranslationKeys implements TranslationKe
     TLSHsmConnectionType("TLSHSMConnectionType", "Outbound TLS HSM"),
     TcpIpPostDialConnectionType("TcpIpPostDialConnectionType", "Outbound TCP/IP post dial"),
     OutboundTcpIpConnectionType("OutboundTcpIpConnectionType", "Outbound TCP/IP"),
+    OutboundTcpIpWithWakeUpConnectionType("OutboundTcpIpWithWakeUpConnectionType", "Outbound TCP/IP with wakeup"),
     InboundIpConnectionType("InboundIpConnectionType", "Inbound IP"),
     CTRInboundDialHomeIdConnectionType("CTRInboundDialHomeIdConnectionType", "Inbound CTR"),
     WavenisSerialConnectionType("WavenisSerialConnectionType", "Wavenis serial"),

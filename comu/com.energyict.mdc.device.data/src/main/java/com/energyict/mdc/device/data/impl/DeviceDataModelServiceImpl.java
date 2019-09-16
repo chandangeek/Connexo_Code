@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.datavault.DataVaultService;
@@ -161,6 +162,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile DataVaultService dataVaultService;
     private volatile SecurityManagementService securityManagementService;
     private volatile MeteringZoneService meteringZoneService;
+    private volatile CalendarService calendarService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -198,7 +200,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
-            LockService lockService, DataVaultService dataVaultService, SecurityManagementService securityManagementService,  MeteringZoneService meteringZoneService) {
+            LockService lockService, DataVaultService dataVaultService,
+            SecurityManagementService securityManagementService, MeteringZoneService meteringZoneService,
+            CalendarService calendarService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -237,7 +241,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setDataVaultService(dataVaultService);
         setSecurityManagementService(securityManagementService);
         setMeteringZoneService(meteringZoneService);
+        setCalendarService(calendarService);
         activate(bundleContext);
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference
@@ -368,6 +378,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.clock = clock;
     }
 
+    @Override
     public ProtocolPluggableService protocolPluggableService() {
         return protocolPluggableService;
     }
@@ -618,6 +629,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(CrlRequestTaskPropertiesService.class).toInstance(crlRequestTaskPropertiesService);
                 bind(MeteringZoneService.class).toInstance(meteringZoneService);
+                bind(CalendarService.class).toInstance(calendarService);
             }
         };
     }

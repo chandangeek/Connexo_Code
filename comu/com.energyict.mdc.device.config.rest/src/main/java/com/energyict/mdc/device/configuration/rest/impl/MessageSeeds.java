@@ -67,9 +67,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_MESSAGE_SPEC(232, "NoSuchMessageSpec", "No such device message specification"),
     SECACC_WRAPPER_IN_USE(233,Keys.SEC_ACCESSOR_WRAPPER_IN_USE , "Security accessor is declared as wrapper by another key ({0})"),
     SECACC_WRAPPER_NOT_SET(234,Keys.SEC_ACCESSOR_NOT_SET , "Not set"),
-    NO_SUCH_CUSTOMPROPERTYSET(235, "noSuchCPS", "No custom property set with id {0}."),
-    DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(236, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''"),
-    SECACC_WRAPPER_IN_USE_BY_DEV(237,Keys.SEC_ACCESSOR_WRAPPER_IN_USE_BY_DEV , "Security accessor is declared as wrapper by another key ({0}) on device {1}");
+    SECACC_WRAPPER_IN_USE_BY_DEV(235,Keys.SEC_ACCESSOR_WRAPPER_IN_USE_BY_DEV , "Security accessor is declared as wrapper by another key ({0}) on device {1}"),
+    HSM_NOT_CONFIGURED(236, Keys.HSM_NOT_CONFIGURED, "HSM not configured on your system" ),
+    NO_SUCH_CUSTOMPROPERTYSET(237, "noSuchCPS", "No custom property set with id {0}."),
+    DEVICE_TYPE_IN_USE_BY_ISSUE_CREATION_RULE(238, "DeviceLifecycleInUseByCreationRule", "Cannot change life cycle ''{1}'' for device type ''{0}'', this is in use by issue creation rule ''{2}''");
+
 
 
     private final int number;
@@ -126,5 +128,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SEC_ACCESSOR_WRAPPER_IN_USE = "security.accessor.wrapper.in.use";
         public static final String SEC_ACCESSOR_WRAPPER_IN_USE_BY_DEV = "security.accessor.wrapper.in.use.by.device";
         public static final String SEC_ACCESSOR_NOT_SET = "security.accessor.wrapper.not.set";
+        public static final String HSM_NOT_CONFIGURED = "hsm.not.configured";
     }
 }
