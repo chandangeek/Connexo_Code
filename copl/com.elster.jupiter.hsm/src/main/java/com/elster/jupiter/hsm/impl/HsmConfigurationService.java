@@ -6,22 +6,19 @@
 
 package com.elster.jupiter.hsm.impl;
 
-import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 
 import aQute.bnd.annotation.ProviderType;
-import com.atos.worldline.jss.api.basecrypto.ChainingMode;
-import com.atos.worldline.jss.api.basecrypto.PaddingAlgorithm;
-import com.atos.worldline.jss.configuration.RawConfiguration;
 
 import java.util.Collection;
 
 @ProviderType
 public interface HsmConfigurationService {
 
-    HsmConfiguration getHsmConfiguration() throws HsmBaseException;
+    HsmConfiguration getHsmConfiguration() throws HsmNotConfiguredException;
 
-    Collection<String> getLabels() throws HsmBaseException;
+    Collection<String> getLabels() throws HsmNotConfiguredException;
 
     void reload();
 }

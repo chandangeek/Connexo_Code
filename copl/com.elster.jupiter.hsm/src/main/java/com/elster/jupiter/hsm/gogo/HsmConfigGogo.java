@@ -11,6 +11,7 @@ import com.elster.jupiter.hsm.impl.HsmConfigurationService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.Message;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
 import com.elster.jupiter.hsm.model.response.ServiceKeyInjectionResponse;
 import org.osgi.service.component.annotations.Component;
@@ -39,17 +40,7 @@ public class HsmConfigGogo {
     private volatile HsmEnergyService hsmEnergyService;
     private volatile HsmConfigurationService hsmConfigurationService;
 
-    @Reference
-    public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
-        this.hsmEnergyService = hsmEnergyService;
-    }
-
-    @Reference
-    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
-        this.hsmConfigurationService = hsmConfigurationService;
-    }
-
-    public void hsmConfigPrint() throws HsmBaseException {
+    public void hsmConfigPrint() throws HsmBaseException, HsmNotConfiguredException {
         logger.debug("hsmConfigPrint");
         HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
         System.out.println("JSS file:" + hsmConfiguration.getJssInitFile());
@@ -96,5 +87,15 @@ public class HsmConfigGogo {
         System.out.println("HSM service key injection service key (hex) = " + ((Message)skiResponse).toHex());
         Optional.ofNullable(skiResponse.getWarning())
                 .ifPresent(warning -> System.out.println("HSM service key injection warning = " + warning));
+    }
+
+    @Reference
+    public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
+        this.hsmEnergyService = hsmEnergyService;
+    }
+
+    @Reference
+    public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) {
+        this.hsmConfigurationService = hsmConfigurationService;
     }
 }
