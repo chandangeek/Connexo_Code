@@ -292,9 +292,21 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 //get mrid or name of device
                 if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
+                    List<FaultMessage> faultMessages = new ArrayList<>();
+                    meterConfig.getMeter().stream().map(meterConfigParser::asMeterInfo).forEach(meterInfo ->  {
+                        try {
+                            deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
+                        } catch (FaultMessage e) {
+                            faultMessages.add(e);
+                        }
+                    });
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
-                    return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                    if (faultMessages.isEmpty()) {
+                        return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                    } else  {
+                        throw faultMessageFactory.meterConfigFaultMessage(faultMessages);
+                    }
                 } else {
                     // call synchronously
                     Meter meter = meterConfig.getMeter().stream().findFirst()

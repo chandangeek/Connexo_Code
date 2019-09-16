@@ -63,7 +63,7 @@ public class MeterConfigParser {
         this.faultMessageFactory = faultMessageFactory;
     }
 
-    public MeterInfo asMeterInfo(Meter meter) throws FaultMessage {
+    public MeterInfo asMeterInfo(Meter meter) {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
         meterInfo.setmRID(extractMrid(meter).orElse(null));
