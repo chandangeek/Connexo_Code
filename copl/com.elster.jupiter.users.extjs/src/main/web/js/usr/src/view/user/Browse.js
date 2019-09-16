@@ -4,7 +4,6 @@
 
 Ext.define('Usr.view.user.Browse', {
 
-    // extend: 'Ext.panel.Panel',
     extend: 'Uni.view.container.ContentContainer',
 
     alias: 'widget.userBrowse',
@@ -12,10 +11,6 @@ Ext.define('Usr.view.user.Browse', {
     itemId: 'userBrowse',
 
     overflowY: 'auto',
-
-    // ui: 'large',
-    //
-    // layout: 'card',
 
     stores: [
         'Uni.store.search.Domains',
@@ -54,116 +49,14 @@ Ext.define('Usr.view.user.Browse', {
             domainsStore = this.getService().getSearchDomainsStore(),
             store = Ext.getStore('Uni.store.search.Properties');
 
-        // me.items = [
-        //     {
-        //         xtype: 'preview-container',
-        //         itenId: 'search-preview-container',
-        //         // grid: {
-        //         //     xtype: 'userList'
-        //         // },
-        //         grid: {
-        //             xtype: 'users-grid',
-        //             itemId: 'users-grid',
-        //             service: me.userDomainSearchService
-        //         },
-        //         emptyComponent: {
-        //             xtype: 'uni-form-empty-message',
-        //             text: Uni.I18n.translate('user.Browse.empty', 'USR', 'An error occurred while loading the users.')
-        //         }
-        //         // previewComponent: {
-        //         //     xtype: 'userDetails'
-        //         // }
-        //     }
-        // ];
-
-        // me.tbar = {
-        //     xtype: 'panel',
-        //     items: [
-        //         {
-        //             itemId: 'step-errors',
-        //             xtype: 'uni-form-error-message',
-        //             hidden: true
-        //         },
-        //         {
-        //             xtype: 'panel',
-        //             itemId: 'grid-filter',
-        //             maskElement: 'el',
-        //             ui: 'filter',
-        //             defaults: {
-        //                 xtype: 'panel',
-        //                 layout: 'hbox'
-        //             },
-        //             items: [
-        //                 {
-        //                     xtype: 'uni-search-internal-criteriapanel',
-        //                     itemId: 'search-criteria-sticky',
-        //                     layout: 'column',
-        //                     lbar: {
-        //                         xtype: 'label',
-        //                         text: Uni.I18n.translate('searchItems.filter.criteria', 'MDC', 'Criteria'),
-        //                         width: 100
-        //                     },
-        //                     rbar: [{
-        //                         disabled: true,
-        //                         itemId: 'search-criteria-selector',
-        //                         xtype: 'search-criteria-selector',
-        //                         service: me.userDomainSearchService
-        //                     }],
-        //                     margin: '10 0 0 0',
-        //                     service: me.userDomainSearchService,
-        //                     sticky: true
-        //                 },
-        //                 {
-        //                     xtype: 'uni-search-internal-criteriapanel',
-        //                     itemId: 'search-criteria-removable',
-        //                     layout: 'column',
-        //                     margin: '0 0 0 100',
-        //                     service: me.userDomainSearchService
-        //                 }
-        //             ],
-        //             bbar: {
-        //                 xtype: 'container',
-        //                 layout: {
-        //                     type: 'hbox',
-        //                     pack: 'end'
-        //                 },
-        //                 items: [
-        //                     {
-        //                         xtype: 'button',
-        //                         itemId: 'search-button',
-        //                         ui: 'action',
-        //                         text: Uni.I18n.translate('general.apply', 'MDC', 'Apply'),
-        //                         action: 'search'
-        //                     },
-        //                     {
-        //                         xtype: 'button',
-        //                         itemId: 'clear-all-button',
-        //                         text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
-        //                         action: 'clearFilters',
-        //                         margin: '0 0 0 0',
-        //                         disabled: true
-        //                     }
-        //                 ]
-        //             }
-        //         }
-        //     ]
-        // };
-
         me.content = [
             {
                 xtype: 'panel',
                 ui: 'large',
                 title: Uni.I18n.translate('general.users', 'USR', 'Users'),
-                // layout: {
-                //     type: 'vbox',
-                //     align: 'stretch'
-                // },
                 items: [
                     {
                         xtype: 'preview-container',
-                        // grid: {
-                        //     xtype: 'userList'
-                        // },
                         grid: {
                             xtype: 'users-grid',
                             itemId: 'users-grid',
@@ -259,10 +152,10 @@ Ext.define('Usr.view.user.Browse', {
 
         var panel = me.down('#search-main-container');
         var listeners = store.on({
-            beforeload:  function() {
+            beforeload: function () {
                 panel.setLoading(true);
             },
-            load: function() {
+            load: function () {
                 panel.setLoading(false);
             },
             scope: me,
@@ -270,7 +163,7 @@ Ext.define('Usr.view.user.Browse', {
         });
 
         var domainsListeners = domainsStore.on({
-            load: function() {
+            load: function () {
                 var visible = domainsStore.count() > 1;
                 me.down('#search-domain').setVisible(visible);
                 me.down('#search-domain-separator').setVisible(visible);
@@ -290,27 +183,5 @@ Ext.define('Usr.view.user.Browse', {
             resultsListeners.destroy();
             domainsListeners.destroy();
         });
-
-        // me.callParent(arguments);
-        //
-        // var panel = me.down('#grid-filter');
-        // var listeners = store.on({
-        //     beforeload: function () {
-        //         panel.setLoading(true);
-        //     },
-        //     load: function () {
-        //         panel.setLoading(false);
-        //     },
-        //     scope: me,
-        //     destroyable: true
-        // });
-        //
-        // me.on('render', function () {
-        //     me.down('#search-criteria-selector').setSearchContainer(Ext.ComponentQuery.query('contentcontainer')[0]);
-        // });
-        // me.on('destroy', function () {
-        //     listeners.destroy();
-        // });
-
     }
 });
