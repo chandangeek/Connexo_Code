@@ -41,6 +41,17 @@ public enum PropertyTranslationKeys implements TranslationKey {
     OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS_DESCRIPTION("upl.property.ip.outbound.postdial.commandAttempts.description", "Number of attempts"),
     OUTBOUND_IP_POST_DIAL_COMMAND("upl.property.ip.outbound.postdial.command", "Commands"),
     OUTBOUND_IP_POST_DIAL_COMMAND_DESCRIPTION("upl.property.ip.outbound.postdial.command.description", "Commands"),
+
+    OUTBOUND_IP_WAKEUP_ENDPOINT_ADDRESS("upl.property.ip.outbound.vfwakeup.vfEndpointAddress", "Webservice webpoint address"),
+    OUTBOUND_IP_WAKEUP_SOAP_ACTION("upl.property.ip.outbound.vfwakeup.vfSoapAction", "Webservice SOAP action"),
+    OUTBOUND_IP_WAKEUP_REQUEST_TIMEOUT("upl.property.ip.outbound.vfwakeup.requestTimeout", "Webservice request timeout"),
+    OUTBOUND_IP_WAKEUP_CONNECT_TIMEOUT("upl.property.ip.outbound.vfwakeup.connectTimeout", "Host monitoring timeout before connect"),
+    OUTBOUND_IP_WAKEUP_SEMAPHORE_MAX_PERMITS("upl.property.ip.outbound.vfwakeup.semaphoreMaxPermits", "Semaphore max permits"),
+    OUTBOUND_IP_WAKEUP_GPRS_SOURCE_ID("upl.property.ip.outbound.vfwakeup.sourceId", "Source ID"),
+    OUTBOUND_IP_WAKEUP_GPRS_TRIGGER_TYPE("upl.property.ip.outbound.vfwakeup.triggerType", "Trigger type"),
+    OUTBOUND_IP_WAKEUP_GPRS_USER_ID("upl.property.ip.outbound.vfwakeup.userId", "User ID"),
+    OUTBOUND_IP_WAKEUP_GPRS_USER_PASS("upl.property.ip.outbound.vfwakeup.userPass", "User password"),
+
     TLS_PREFERRED_CIPHER_SUITES("upl.property.tls.preferred.cipher.suites", "Preferred cipher suites"),
     TLS_PREFERRED_CIPHER_SUITES_DESCRIPTION("upl.property.tls.preferred.cipher.suites.description", "Preferred cipher suites"),
     CLIENT_TLS_PRIVATE_KEY("upl.property.tls.client.private.key", "Client TLS private key"),
