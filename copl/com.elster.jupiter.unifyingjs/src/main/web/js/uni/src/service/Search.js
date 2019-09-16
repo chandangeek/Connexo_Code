@@ -384,8 +384,8 @@ Ext.define('Uni.service.Search', {
         me.getSearchResultsStore().removeAll();
         me.setDomain(me.searchDomain, function () {
             me.applyFilters();
-            Ext.ComponentQuery.query('#load-button')[0].clearValue();
-            Ext.ComponentQuery.query('#save-search-button')[0].disable();
+            Ext.getCmp('loadDropDown').clearValue();
+            Ext.getCmp('saveSearchButton').disable();
         })
     },
 
@@ -717,7 +717,7 @@ Ext.define('Uni.service.Search', {
     openSaveSearch: function (contRef) {
         var me = this;
         var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-            confirmText: Uni.I18n.translate('general.button.save', 'IMT', 'Save'),
+            confirmText: Uni.I18n.translate('general.save', 'UNI', 'Save'),
             itemId: 'saveSearchConfirmationWindow',
             green : true,
             closeAction: 'destroy',
@@ -811,7 +811,7 @@ Ext.define('Uni.service.Search', {
         var me = this;
         var flag= false;
         var router = this.router;
-        var name = Ext.ComponentQuery.query('#Save-Entered')[0].getValue();
+        var name = Ext.getCmp('saveEntered').getValue();
         if (router && router.currentRoute == 'search') {
             Uni.util.History.setParsePath(false);
             router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
@@ -828,7 +828,7 @@ Ext.define('Uni.service.Search', {
                 },
                 success: function (response) {
                     flag=true;
-                    Ext.ComponentQuery.query('#load-button')[0].getStore().load();
+                    Ext.getCmp('loadDropDown').getStore().load();
                     if(JSON.parse(response.responseText).status === 'Save')
                         contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.saveSearch', 'UNI', 'Search criteria saved'));
                     else
@@ -860,8 +860,9 @@ Ext.define('Uni.service.Search', {
             async : false,
             success: function (response) {
                 me.clearFilters();
-                Ext.ComponentQuery.query('#load-button')[0].clearValue();
-                Ext.ComponentQuery.query('#load-button')[0].getStore().load();
+                var loadButtonCmp= Ext.getCmp('loadDropDown');
+                loadButtonCmp.clearValue();
+                loadButtonCmp.getStore().load();
                 contRef.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deleteSearch', 'UNI', 'Search criteria deleted'));
             },
             failure: function (response) {

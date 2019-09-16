@@ -9,6 +9,7 @@ import com.elster.jupiter.search.SearchCriteriaService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -85,7 +86,7 @@ public class SearchCriteriaServiceImpl implements SearchCriteriaService, Message
                 dataModel,
                 Installer.class,
                 ImmutableMap.of(
-                        version(10, 7), UpgraderV10_7.class)
+                        version(10, 7), V10_7SimpleUpgrader.class)
         );
     }
 

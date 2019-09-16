@@ -21,15 +21,6 @@ class Installer implements FullInstaller {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
-        doTry(
-                "view for all search criteria",
-                this::createViews,
-                logger
-        );
-    }
-
-    private void createViews() {
-        new CreateSearchCriteriaViewOperation(dataModel).execute();
     }
 
 }
