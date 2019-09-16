@@ -56,7 +56,7 @@ class Installer implements FullInstaller {
 
     private void createFirmwareComTask() {
         SystemComTask systemComTask = dataModel.getInstance(SystemComTask.class);
-        systemComTask.setName(ServerTaskService.FIRMWARE_COMTASK_NAME);
+        systemComTask.setName(TaskService.FIRMWARE_COMTASK_NAME);
         systemComTask.createFirmwareUpgradeTask();
         systemComTask.save();
     }

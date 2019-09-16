@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.tasks.impl;
@@ -22,8 +22,6 @@ import java.util.List;
  * @since 2014-11-21 (10:48)
  */
 public interface ServerTaskService extends TaskService {
-
-    String FIRMWARE_COMTASK_NAME = "Firmware management";
 
     Thesaurus getThesaurus();
 

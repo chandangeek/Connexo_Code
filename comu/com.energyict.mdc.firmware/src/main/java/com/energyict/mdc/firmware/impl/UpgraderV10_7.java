@@ -13,7 +13,7 @@ import com.elster.jupiter.util.Pair;
 
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.tasks.impl.ServerTaskService;
+import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -288,7 +288,7 @@ public class UpgraderV10_7 implements Upgrader {
         firmwareCampaignInfo.firmwareUploadComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
                 .map(deviceType -> deviceType.getConfigurations().stream()
                         .flatMap( cnf -> cnf.getComTaskEnablements().stream())
-                        .filter(cte -> cte.getComTask().getName().equals(ServerTaskService.FIRMWARE_COMTASK_NAME))
+                        .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME))
                         .findAny()
                         .map(cte -> cte.getComTask().getId())
                         .orElse(null))
