@@ -122,9 +122,9 @@ public class A1860LogBookFactory implements DeviceLogBookSupport {
                 if (numberOfEntries > 0) {
                     TableRead tableRead = protocol.getDlmsSession().getCosemObjectFactory().getTableRead(mapObisCodeAnsiCode.get(logBookReader.getLogBookObisCode()));
                     byte[] buffer = fullRead(tableRead, numberOfEntries, 11, 9);
-                    PowerQualityMonitorLog powerQualityMonitorLog = new PowerQualityMonitorLog(null, false);
+                    PowerQualityMonitorLog powerQualityMonitorLog = new PowerQualityMonitorLog(null, true);
                     powerQualityMonitorLog.parse(buffer);
-                    collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(powerQualityMonitorLog.getMeterEvents()));
+                    collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(powerQualityMonitorLog.getMeterEvents()).stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList()));
                 }
             } catch (IOException e) {
                 sLogger.severe("Error trying to read the table buffer for " + PQM_LOG);
@@ -139,7 +139,7 @@ public class A1860LogBookFactory implements DeviceLogBookSupport {
                     byte[] buffer = fullRead(tableRead, numberOfEntries, 7, 9);
                     SagLog sagLog = new SagLog(null, null);
                     sagLog.parse(buffer);
-                    collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(sagLog.getMeterEvents()));
+                    collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(sagLog.getMeterEvents()).stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList()));
                 }
             } catch (IOException e) {
                 sLogger.severe("Error trying to read the table buffer for " + SAG_LOG);
