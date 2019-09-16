@@ -4,11 +4,12 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.protocol.ProtocolReadingQualities;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -20,16 +21,17 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.tools.TimeDurations;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.ProtocolReadingQualities;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Simple command that will get the timeDifference between the device and the HeadEndSystem and based on
- * the {@link com.energyict.mdc.tasks.LoadProfilesTask#getMinClockDiffBeforeBadTime()}, we mark <b>ALL</b>
+ * the {@link LoadProfilesTask#getMinClockDiffBeforeBadTime()}, we mark <b>ALL</b>
  * intervals of <b>ALL</b> the LoadProfiles
  */
 public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implements MarkIntervalsAsBadTimeCommand {

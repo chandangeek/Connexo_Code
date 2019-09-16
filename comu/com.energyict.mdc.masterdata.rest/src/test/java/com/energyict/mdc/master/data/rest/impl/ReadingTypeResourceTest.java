@@ -3,11 +3,8 @@ package com.energyict.mdc.master.data.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeFilter;
-
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.common.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.impl.MessageSeeds;
-
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.ReadingTypeInformation;
 
 import com.energyict.obis.ObisCode;
@@ -19,7 +16,6 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;

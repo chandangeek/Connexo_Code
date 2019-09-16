@@ -6,7 +6,8 @@ package com.energyict.mdc.device.lifecycle;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -15,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Models the exceptional situation that occurs when
- * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}
+ * an {@link AuthorizedTransitionAction}
  * is executed by the user and the effective timestamp is not within the range
  * defined by the max future and past time shift configured on the {@link DeviceLifeCycle}.
  *

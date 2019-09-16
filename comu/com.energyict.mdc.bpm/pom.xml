@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.1.0-Heracles-SNAPSHOT</version>
 
     </parent>
     <artifactId>mdc.bpm</artifactId>
@@ -63,6 +63,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -277,11 +281,6 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.common</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.engine</artifactId>
             <scope>test</scope>
         </dependency>
@@ -358,6 +357,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.zone</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

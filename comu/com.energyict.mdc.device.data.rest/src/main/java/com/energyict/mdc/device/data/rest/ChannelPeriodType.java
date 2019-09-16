@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.rest;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.common.device.data.Channel;
 
 public enum ChannelPeriodType {
 

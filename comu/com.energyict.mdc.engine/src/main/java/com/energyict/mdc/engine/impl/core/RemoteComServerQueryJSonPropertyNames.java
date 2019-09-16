@@ -4,6 +4,14 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.RemoteComServer;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
+
 /**
  * Defines constants that represent the property names of the JSon object
  * that will pass query information back and forth between
@@ -34,42 +42,56 @@ public final class RemoteComServerQueryJSonPropertyNames {
 
     /**
      * The name of the property that specifies the unique identifier
-     * of a {@link com.energyict.mdc.engine.config.ComServer}
+     * of a {@link ComServer}
      * that is passed as an argument to a remote com server query.
      */
     public static final String COMSERVER = "com-server";
 
     /**
      * The name of the property that specifies the host name
-     * of a {@link com.energyict.mdc.engine.config.RemoteComServer}
+     * of a {@link RemoteComServer}
      * that is passed as an argument to a remote com server query.
      */
     public static final String HOSTNAME = "host-name";
 
     /**
      * The name of the property that specifies the unique identifier
-     * of a {@link com.energyict.mdc.engine.config.ComPort}
+     * of a {@link ComPort}
      * that is passed as an argument to a remote com server query.
      */
     public static final String COMPORT = "com-port";
 
     /**
      * The name of the property that specifies the unique identifier
-     * of a {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}
+     * of a {@link ComTaskExecution}
      * that is passed as an argument to a remote com server query.
      */
     public static final String COMTASKEXECUTION = "com-task-execution";
 
     /**
+     * The name of the property that specifies the unique identifier
+     * of a {@link PriorityComTaskExecutionLink}
+     * that is passed as an argument to a remote com server query.
+     */
+    public static final String HIGH_PRIORITY_COMTASKEXECUTION = "hi-prio-com-task-execution";
+
+    /**
      * The name of the property that specifies a collection of unique identifiers
-     * of {@link com.energyict.mdc.device.data.tasks.ComTaskExecution}s
+     * of {@link ComTaskExecution}s
      * that are passed as an argument to a remote com server query.
      */
     public static final String COMTASKEXECUTION_COLLECTION = "com-task-executions";
 
     /**
+     * The name of the property that specifies a collection of unique identifiers
+     * of {@link PriorityComTaskExecutionLink}s
+     * that are passed as an argument to a remote com server query.
+     */
+    public static final String HIGH_PRIORITY_COMTASKEXECUTION_COLLECTION = "hi-prio-com-task-executions";
+
+    /**
      * The name of the property that specifies the unique identifier
-     * of a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
+     * of a {@link ConnectionTask}
      * that is passed as an argument to a remote com server query.
      */
     public static final String CONNECTIONTASK = "connection-task";
@@ -92,7 +114,7 @@ public final class RemoteComServerQueryJSonPropertyNames {
 
     /**
      * The name of the property that specifies the maximum number
-     * of tries for a {@link com.energyict.mdc.device.data.tasks.ScheduledConnectionTask}.
+     * of tries for a {@link ScheduledConnectionTask}.
      */
     public static final String MAX_NR_OF_TRIES = "max-tries";
 

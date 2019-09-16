@@ -34,6 +34,7 @@ public class TaskInfo {
     public String name;
     public IdWithNameInfo application;
     public String queue;
+    public String queueType;
     public String queueStatus;
     public Long queueStatusDate;
     public String trigger;
@@ -43,7 +44,9 @@ public class TaskInfo {
     public String lastRunStatus;
     public Long lastRunDate;
     public Long lastRunDuration;
-    public boolean isExtraQueueCreationEnabled;
+    public Boolean extraQueueCreationEnabled;
+    public Boolean queuePrioritized;
+    public Integer priority;
 
     public TaskInfo(){}  // needed for serialization - deserialization
     TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
@@ -51,7 +54,10 @@ public class TaskInfo {
         name = recurrentTask.getName();
         application = new IdWithNameInfo(recurrentTask.getApplication(), thesaurus.getString(recurrentTask.getApplication(), recurrentTask.getApplication()));
         queue = recurrentTask.getDestination().getName();
-        isExtraQueueCreationEnabled = recurrentTask.getDestination().isExtraQueueCreationEnabled();
+        queueType = recurrentTask.getDestination().getQueueTypeName();
+        extraQueueCreationEnabled = recurrentTask.getDestination().isExtraQueueCreationEnabled();
+        queuePrioritized = recurrentTask.getDestination().isPrioritized();
+        priority = recurrentTask.getPriority();
         trigger = Never.NEVER.equals(recurrentTask.getScheduleExpression()) ? thesaurus.getFormat(TranslationKeys.NOTSCHEDULED).format() :
                 thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService, locale) + ")";
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();

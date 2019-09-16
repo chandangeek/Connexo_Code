@@ -124,29 +124,35 @@ import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationServ
 import com.elster.insight.issue.datavalidation.impl.UsagePointDataValidationIssueCreationRuleTemplate;
 import com.elster.insight.issue.datavalidation.impl.UsagePointIssueDataValidationModule;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.config.SecurityPropertySet;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LogBook;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.common.masterdata.LoadProfileType;
+import com.energyict.mdc.common.masterdata.LogBookType;
+import com.energyict.mdc.common.masterdata.RegisterType;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
 import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplate;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.command.impl.CommandRuleModule;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.cps.ChannelSAPInfoCustomPropertySet;
 import com.energyict.mdc.device.config.cps.DeviceEMeterInfoCustomPropertySet;
 import com.energyict.mdc.device.config.cps.DeviceSAPInfoCustomPropertySet;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -164,9 +170,6 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.loadprofilenextreading.DeviceLoadProfileNextReadingImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
@@ -191,10 +194,7 @@ import com.energyict.mdc.issue.datavalidation.impl.IssueDataValidationModule;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.IssueDeviceLifecycleModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
@@ -212,6 +212,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.tou.campaign.impl.servicecall.TimeOfUseCampaignModule;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.SerialComponentService;
@@ -262,8 +263,8 @@ import static org.mockito.Mockito.when;
 
 public class DemoTest {
 
-    private static BundleContext bundleContext = mock(BundleContext.class) ;
-    private static ComponentContext componentContext = mock(ComponentContext.class) ;
+    private static BundleContext bundleContext = mock(BundleContext.class);
+    private static ComponentContext componentContext = mock(ComponentContext.class);
     protected static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private PassphraseFactory passphraseFactory;
@@ -456,7 +457,8 @@ public class DemoTest {
                 new MeteringImportsModule(),
                 new MeteringZoneModule(),
                 new IssueDeviceLifecycleModule(),
-                new TaskIssueModule()
+                new TaskIssueModule(),
+                new TimeOfUseCampaignModule()
         );
 
         doPreparations();
@@ -838,7 +840,7 @@ public class DemoTest {
             createDefaultStuff();
             prepareSearchDomain();
             preparePKIService();
-            ((NlsServiceImpl) injector.getInstance(NlsService.class)).addTranslationKeyProvider((MeteringDataModelServiceImpl)injector.getInstance(MeteringDataModelService.class));
+            ((NlsServiceImpl) injector.getInstance(NlsService.class)).addTranslationKeyProvider((MeteringDataModelServiceImpl) injector.getInstance(MeteringDataModelService.class));
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();

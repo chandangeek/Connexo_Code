@@ -5,16 +5,20 @@
 package com.energyict.mdc.tasks;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.energyict.mdc.common.tasks.TaskServiceKeys.TASK_SERVICE_COMPONENT_NAME;
+
 @ProviderType
 public interface TaskService {
 
-    String COMPONENT_NAME = "CTS";
+    String COMPONENT_NAME = TASK_SERVICE_COMPONENT_NAME;
 
     public ComTask newComTask(String name);
 

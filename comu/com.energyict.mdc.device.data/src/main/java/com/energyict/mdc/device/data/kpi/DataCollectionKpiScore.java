@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.kpi;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.TaskStatus;
 
 import aQute.bnd.annotation.ProviderType;
 

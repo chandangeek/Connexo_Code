@@ -7,7 +7,7 @@
 	    <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.1.0-Heracles-SNAPSHOT</version>
     </parent>
 
 	<groupId>com.energyict</groupId>
@@ -17,7 +17,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<jetty-server.version>7.6.3.v20120416</jetty-server.version>
+		<jetty-server.version>9.4.15.v20190215</jetty-server.version>
 		<serialio.version>10.0.4.2</serialio.version>
 		<org.rxtx.version>2.2pre2</org.rxtx.version>
 		<json.version>20090211</json.version>
@@ -553,6 +553,36 @@
 			</dependency>
 			<!-- Web libraries -->
 			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>3.1.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-http</artifactId>
+				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-jaas</artifactId>
+				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-plus</artifactId>
+				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-security</artifactId>
+				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-server</artifactId>
 				<version>${jetty-server.version}</version>
@@ -566,7 +596,24 @@
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-websocket</artifactId>
+				<artifactId>jetty-webapp</artifactId>
+				<version>${jetty-server.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.websocket</groupId>
+				<artifactId>websocket-client</artifactId>
+				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.websocket</groupId>
+				<artifactId>websocket-server</artifactId>
+				<version>${jetty-server.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.websocket</groupId>
+				<artifactId>websocket-servlet</artifactId>
 				<version>${jetty-server.version}</version>
 				<scope>provided</scope>
 			</dependency>

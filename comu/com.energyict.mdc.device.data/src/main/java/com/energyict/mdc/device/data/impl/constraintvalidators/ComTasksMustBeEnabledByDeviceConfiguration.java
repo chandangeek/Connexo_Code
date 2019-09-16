@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.Constraint;
@@ -15,10 +18,10 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Validates the constraint that all {@link com.energyict.mdc.tasks.ComTask}s
+ * Validates the constraint that all {@link ComTask}s
  * of a {@link com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl}
- * should be enabled by the {@link com.energyict.mdc.device.data.Device}'s
- * {@link com.energyict.mdc.device.config.DeviceConfiguration configuration}.
+ * should be enabled by the {@link Device}'s
+ * {@link DeviceConfiguration configuration}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-07 (09:51)

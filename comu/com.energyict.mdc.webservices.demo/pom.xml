@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.1.0-Heracles-SNAPSHOT</version>
 
     </parent>
 
@@ -22,6 +22,10 @@
 
     <dependencies>
 
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.common</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tasks</artifactId>

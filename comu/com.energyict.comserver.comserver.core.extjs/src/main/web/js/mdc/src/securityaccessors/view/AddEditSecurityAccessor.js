@@ -292,8 +292,16 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     hidden: true,
                     checked: false,
                     disabled: me.isEdit
-                }
-                ,
+                },
+                {
+                    xtype: 'checkboxfield',
+                    fieldLabel: Uni.I18n.translate('general.isWrapper', 'MDC', 'Is wrapper'),
+                    itemId: 'mdc-security-accessor-isWrapper-checkbox',
+                    name: 'isWrapper',
+                    hidden: true,
+                    checked: false,
+                    disabled: me.isEdit
+                },
                 {
                     xtype: 'checkboxfield',
                     fieldLabel: Uni.I18n.translate('general.manageCentrally', 'MDC', 'Manage centrally'),

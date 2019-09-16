@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.search.SearchableProperty;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 
 import org.junit.Before;
 

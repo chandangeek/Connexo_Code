@@ -5,8 +5,8 @@
 package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.common.masterdata.RegisterGroup;
+import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.REGISTERS_FLAG;
 import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
- * Implementation for a {@link com.energyict.mdc.tasks.RegistersTask}.
+ * Implementation for a {@link RegistersTask}.
  *
  * @author gna
  * @since 30/04/12 - 13:26

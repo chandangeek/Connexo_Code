@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.events.logging;
 
-import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 
 public class ComPortCommunicationLoggingEvent extends ComPortOperationsLoggingEvent {

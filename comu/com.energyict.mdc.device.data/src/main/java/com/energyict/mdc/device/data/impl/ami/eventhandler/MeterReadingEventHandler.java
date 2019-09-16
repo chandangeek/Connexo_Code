@@ -13,7 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
@@ -64,9 +64,7 @@ public class MeterReadingEventHandler implements MessageHandler {
         long completedTasks = extension.getCompletedTasks().longValue();
         long expectedTasks = extension.getExpectedTasks().longValue();
 
-        Instant triggerDate = Instant.ofEpochMilli(extension.getTriggerDate().longValue());
-
-        if (Instant.ofEpochMilli(Long.valueOf(messageProperties.get("timestamp").toString())).isAfter(triggerDate)) {
+        if (Instant.ofEpochMilli(Long.valueOf(messageProperties.get("timestamp").toString())).isAfter(extension.getTriggerDate())) {
             if (EventType.METERREADING_CREATED.topic().equals(messageProperties.get("event.topics"))) {
                 extension.setSuccessfulTasks(new BigDecimal(++successfulTasks));
             } else {

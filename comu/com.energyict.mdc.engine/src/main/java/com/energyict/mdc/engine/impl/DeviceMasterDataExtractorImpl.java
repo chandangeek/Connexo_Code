@@ -1,25 +1,25 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -182,7 +182,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         return this.securityProperties(device, securityPropertySetAdapter.getActual());
     }
 
-    private Collection<SecurityProperty> securityProperties(Device device, com.energyict.mdc.device.config.SecurityPropertySet securityPropertySet) {
+    private Collection<SecurityProperty> securityProperties(Device device, com.energyict.mdc.common.device.config.SecurityPropertySet securityPropertySet) {
         TypedProperties securityProperties = device.getSecurityProperties(securityPropertySet);
         return securityProperties.propertyNames().stream()
                 .map(propertyName -> new SecurityProperty() {
@@ -244,9 +244,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
 
     private static class DeviceConfigurationAdapter implements DeviceConfiguration {
         private final ProtocolPluggableService protocolPluggableService;
-        private final com.energyict.mdc.device.config.DeviceConfiguration actual;
+        private final com.energyict.mdc.common.device.config.DeviceConfiguration actual;
 
-        private DeviceConfigurationAdapter(com.energyict.mdc.device.config.DeviceConfiguration actual, ProtocolPluggableService protocolPluggableService) {
+        private DeviceConfigurationAdapter(com.energyict.mdc.common.device.config.DeviceConfiguration actual, ProtocolPluggableService protocolPluggableService) {
             this.actual = actual;
             this.protocolPluggableService = protocolPluggableService;
         }
@@ -345,9 +345,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private static class LogBookSpecAdapter implements LogBookSpec {
-        private final com.energyict.mdc.device.config.LogBookSpec actual;
+        private final com.energyict.mdc.common.device.config.LogBookSpec actual;
 
-        private LogBookSpecAdapter(com.energyict.mdc.device.config.LogBookSpec actual) {
+        private LogBookSpecAdapter(com.energyict.mdc.common.device.config.LogBookSpec actual) {
             this.actual = actual;
         }
 
@@ -390,9 +390,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private static class LogBookTypeAdapter implements LogBookType {
-        private final com.energyict.mdc.masterdata.LogBookType actual;
+        private final com.energyict.mdc.common.masterdata.LogBookType actual;
 
-        private LogBookTypeAdapter(com.energyict.mdc.masterdata.LogBookType actual) {
+        private LogBookTypeAdapter(com.energyict.mdc.common.masterdata.LogBookType actual) {
             this.actual = actual;
         }
 
@@ -425,9 +425,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private static class LoadProfileSpecAdapter implements LoadProfileSpec {
-        private final com.energyict.mdc.device.config.LoadProfileSpec actual;
+        private final com.energyict.mdc.common.device.config.LoadProfileSpec actual;
 
-        private LoadProfileSpecAdapter(com.energyict.mdc.device.config.LoadProfileSpec actual) {
+        private LoadProfileSpecAdapter(com.energyict.mdc.common.device.config.LoadProfileSpec actual) {
             this.actual = actual;
         }
 
@@ -465,9 +465,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private static class RegisterSpecAdapter implements RegisterSpec {
-        private final com.energyict.mdc.device.config.RegisterSpec actual;
+        private final com.energyict.mdc.common.device.config.RegisterSpec actual;
 
-        private RegisterSpecAdapter(com.energyict.mdc.device.config.RegisterSpec actual) {
+        private RegisterSpecAdapter(com.energyict.mdc.common.device.config.RegisterSpec actual) {
             this.actual = actual;
         }
 
@@ -515,7 +515,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
 
     private static class ProtocolTaskAdapterFactory {
         //Note that other tasks are not sync'ed to the Beacon
-        static Optional<ProtocolTask> adapt(com.energyict.mdc.tasks.ProtocolTask cxoTask) {
+        static Optional<ProtocolTask> adapt(com.energyict.mdc.common.tasks.ProtocolTask cxoTask) {
             if (cxoTask instanceof ClockTask) {
                 return Optional.of(new ClockTaskAdapter((ClockTask) cxoTask));
             } else if (cxoTask instanceof RegistersTask) {
@@ -588,9 +588,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private static class RegisterGroupAdapter implements RegisterGroup {
-        private final com.energyict.mdc.masterdata.RegisterGroup actual;
+        private final com.energyict.mdc.common.masterdata.RegisterGroup actual;
 
-        private RegisterGroupAdapter(com.energyict.mdc.masterdata.RegisterGroup actual) {
+        private RegisterGroupAdapter(com.energyict.mdc.common.masterdata.RegisterGroup actual) {
             this.actual = actual;
         }
 
@@ -657,9 +657,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private static class LoadProfileTypeAdapter implements LoadProfileType {
-        private final com.energyict.mdc.masterdata.LoadProfileType actual;
+        private final com.energyict.mdc.common.masterdata.LoadProfileType actual;
 
-        private LoadProfileTypeAdapter(com.energyict.mdc.masterdata.LoadProfileType actual) {
+        private LoadProfileTypeAdapter(com.energyict.mdc.common.masterdata.LoadProfileType actual) {
             this.actual = actual;
         }
 
@@ -775,9 +775,9 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private class NextExecutionSpecsAdapter implements NextExecutionSpecs {
-        private final com.energyict.mdc.scheduling.NextExecutionSpecs actual;
+        private final com.energyict.mdc.common.scheduling.NextExecutionSpecs actual;
 
-        private NextExecutionSpecsAdapter(com.energyict.mdc.scheduling.NextExecutionSpecs actual) {
+        private NextExecutionSpecsAdapter(com.energyict.mdc.common.scheduling.NextExecutionSpecs actual) {
             this.actual = actual;
         }
 
@@ -908,13 +908,13 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private class SecurityPropertySetAdapter implements SecurityPropertySet {
-        private final com.energyict.mdc.device.config.SecurityPropertySet actual;
+        private final com.energyict.mdc.common.device.config.SecurityPropertySet actual;
 
-        private SecurityPropertySetAdapter(com.energyict.mdc.device.config.SecurityPropertySet actual) {
+        private SecurityPropertySetAdapter(com.energyict.mdc.common.device.config.SecurityPropertySet actual) {
             this.actual = actual;
         }
 
-        com.energyict.mdc.device.config.SecurityPropertySet getActual() {
+        com.energyict.mdc.common.device.config.SecurityPropertySet getActual() {
             return actual;
         }
 

@@ -6,9 +6,10 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  * Listens for events of {@link ComTaskExecution}s that are marked
  * to use either the default {@link ConnectionTask} or either the {@link ConnectionTask}
  * corresponding to a certain {@link ConnectionFunction} of the related
- * {@link com.energyict.mdc.device.data.Device}
+ * {@link Device}
  * but are not linked to the correct default/connection function based connection task.
  *
  * @author Rudi Vankeirsbilck (rudi)

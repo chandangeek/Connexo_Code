@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>0.0.1-Heracles-SNAPSHOT</version>
+        <version>1.1.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>demo</artifactId>
@@ -153,6 +153,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>estimators</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cim.webservices.outbound.soap</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -453,6 +457,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.groups</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tou.campaign</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

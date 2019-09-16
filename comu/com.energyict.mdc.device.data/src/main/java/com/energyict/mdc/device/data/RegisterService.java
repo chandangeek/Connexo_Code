@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import aQute.bnd.annotation.ProviderType;

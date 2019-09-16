@@ -50,6 +50,14 @@ Ext.define('Cfg.view.validationtask.Grid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('validationTasks.general.suspended', 'CFG', 'Suspended'),
+                dataIndex: 'suspendUntilTime',
+                renderer: function(value) {
+                    return value ? Uni.I18n.translate('general.suspended.yes', 'APR', 'Yes') : Uni.I18n.translate('general.suspended.no', 'APR', 'No');
+                },
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 menu: {

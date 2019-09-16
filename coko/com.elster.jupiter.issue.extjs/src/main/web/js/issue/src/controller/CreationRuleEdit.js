@@ -15,13 +15,16 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         'Isu.store.CreationRuleReasons',
         'Isu.store.CreationRuleIssueTypes'
     ],
+    
     views: [
-        'Isu.view.creationrules.Edit'
+        'Isu.view.creationrules.Edit',
     ],
-
+    
     models: [
         'Isu.model.CreationRuleAction',
-        'Isu.model.CreationRule'
+        'Isu.model.CreationRule',
+        'Isu.model.FilteredDeviceGroup',
+        'Isu.model.ExcludedDeviceGroup'
     ],
 
     refs: [
@@ -36,6 +39,10 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         {
             ref: 'actionsGrid',
             selector: 'issues-creation-rules-edit issues-creation-rules-actions-list'
+        },
+        {
+            ref: 'excludeDeviceGroupsGrid',
+            selector: 'issues-creation-rules-edit issues-creation-rules-excl-device-groups-list'
         }
     ],
 
@@ -46,6 +53,9 @@ Ext.define('Isu.controller.CreationRuleEdit', {
             },
             'issues-creation-rules-edit button[action=addAction]': {
                 click: this.addAction
+            },
+            'issues-creation-rules-edit button[action=excludeDeviceGroup]': {
+                click: this.excludeDeviceGroup
             }
         });
     },
@@ -122,6 +132,10 @@ Ext.define('Isu.controller.CreationRuleEdit', {
 
         basicForm.clearInvalid();
         formErrorsPanel.hide();
+        if (!form.validateIssueReason()){
+            formErrorsPanel.show();
+            return;
+        }
         page.setLoading();
         form.updateRecord();
         form.getRecord().save({
@@ -162,5 +176,15 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         me.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', form.getRecord());
 
         router.getRoute(router.currentRoute + '/addaction').forward();
+    },
+    
+    excludeDeviceGroup: function () {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            form = me.getRuleForm(),
+            excludedGroups = me.getExcludeDeviceGroupsGrid().getStore();
+        form.updateRecord();
+        me.getStore('Isu.store.Clipboard').set('issuesCreationRuleState', form.getRecord());
+        router.getRoute(router.currentRoute + '/addexclgroups').forward();
     }
 });

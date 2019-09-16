@@ -17,28 +17,28 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.data.ConnectionInitiationTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionProperty;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.common.tasks.TaskPriorityConstants;
+import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import com.energyict.protocol.exceptions.ConnectionException;
@@ -193,7 +193,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private EarliestNextExecutionTimeStampAndPriority getEarliestNextExecutionTimeStampAndPriority() {
         Condition condition = where(ComTaskExecutionFields.CONNECTIONTASK.fieldName()).isEqualTo(this)
-                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+                .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isNotNull());
 
         List<ComTaskExecution> comTaskExecutions = this.getDataModel().mapper(ComTaskExecution.class).select(condition,
                 Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
@@ -248,7 +249,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Instant doUpdateNextExecutionTimestamp(PostingMode postingMode) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(this.now().toEpochMilli());
         this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar).toInstant());
         return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
@@ -258,12 +259,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
-            if(comTask.getNextExecutionTimestamp() == null) {
+            if (comTask.getNextExecutionTimestamp() == null) {
                 updateNextExecutionTimeStampBasedOnComTask();
             } else {
                 this.schedule(comTask.getNextExecutionTimestamp().minusMillis(1));
             }
-        }else {
+        } else {
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -324,7 +325,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     public Instant applyComWindowIfAny(Instant calculatedNextExecutionTimestamp) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(calculatedNextExecutionTimestamp.toEpochMilli());
         this.applyComWindowIfAny(calendar);
         return calendar.getTime().toInstant();
@@ -366,7 +367,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant calculateNextRetryExecutionTimestamp() {
         Instant failureDate = this.now();
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(failureDate.toEpochMilli());
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
@@ -386,12 +387,29 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         }
     }
 
+    @Override
+    protected void doExecutionRescheduled() {
+        super.doExecutionRescheduled();
+        schedule(calculateNextRescheduleTimestamp());
+    }
+
+    private Instant calculateNextRescheduleTimestamp() {
+        Instant failureDate = this.now();
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
+        calendar.setTimeInMillis(failureDate.toEpochMilli());
+        TimeDuration retryDelay = getRescheduleRetryDelay();
+        retryDelay.addTo(calendar);
+        applyComWindowIfAny(calendar);
+
+        return calendar.getTime().toInstant();
+    }
+
     private Instant calculateNextExecutionTimestamp(Instant now) {
         return this.calculateNextExecutionTimestampFromBaseline(now, this.getNextExecutionSpecs());
     }
 
     private Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine, NextExecutionSpecs nextExecutionSpecs) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(baseLine.toEpochMilli());
         if (nextExecutionSpecs != null) {
             return nextExecutionSpecs.getNextTimestamp(calendar).toInstant();

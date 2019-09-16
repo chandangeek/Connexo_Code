@@ -16,5 +16,4 @@ public class CreationRuleTemplateInfo {
     public String displayName;
     public String description;
     public List<PropertyInfo> properties;
-
 }

@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.scheduling.model;
 
-import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
 

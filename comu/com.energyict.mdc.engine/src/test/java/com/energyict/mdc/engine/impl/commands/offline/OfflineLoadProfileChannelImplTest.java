@@ -5,10 +5,10 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;

@@ -7,10 +7,10 @@ package com.energyict.mdc.masterdata.rest;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.masterdata.MeasurementType;
 
+import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;

@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 
 import java.util.List;
 import java.util.function.Predicate;

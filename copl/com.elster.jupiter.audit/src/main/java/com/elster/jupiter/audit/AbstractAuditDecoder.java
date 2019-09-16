@@ -100,6 +100,18 @@ public abstract class AbstractAuditDecoder implements AuditDecoder {
     }
 
     @SuppressWarnings("unchecked")
+    public <T> List<T> getActualEntriesByCreateTime(DataMapper<T> dataMapper, Map<String, Object> valueMap) {
+        final Condition[] inputCondition = {Condition.TRUE};
+        valueMap.entrySet().stream()
+                .forEach(entry -> inputCondition[0] = inputCondition[0].and(where(entry.getKey()).isEqualTo(entry.getValue())));
+
+        Condition conditionFromCurrent = inputCondition[0]
+                .and(where("createTime").isGreaterThanOrEqual(getAuditTrailReference().getModTimeStart()))
+                .and(where("createTime").isLessThanOrEqual(getAuditTrailReference().getModTimeEnd()));
+        return dataMapper.select(conditionFromCurrent);
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> List<T> getHistoryEntries(DataMapper<T> dataMapper, ImmutableSetMultimap<Operator, Pair<String, Object>> pair) {
         List<Comparison> conditionFromJournal = pair.entries().stream()
                 .map(entry -> entry.getKey().compare(entry.getValue().getFirst(), entry.getValue().getLast()))

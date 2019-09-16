@@ -13,13 +13,14 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class CommunicationTestEventHandlerTest {
         communicationTestServiceCallDomainExtension.setExpectedTasks(BigDecimal.ONE);
         communicationTestServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         communicationTestServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
-        communicationTestServiceCallDomainExtension.setTriggerDate(BigDecimal.ZERO);
+        communicationTestServiceCallDomainExtension.setTriggerDate(Instant.MIN);
         when(serviceCall.getExtensionFor(any(CommunicationTestServiceCallCustomPropertySet.class))).thenReturn(Optional.of(communicationTestServiceCallDomainExtension));
         when(serviceCall.getExtension(any())).thenReturn(Optional.of(communicationTestServiceCallDomainExtension));
         when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));

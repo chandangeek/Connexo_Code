@@ -1,29 +1,17 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.issue.rest.impl;
 
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.TranslationKeys;
-import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
-import com.elster.jupiter.issue.rest.impl.resource.AssigneeResource;
-import com.elster.jupiter.issue.rest.impl.resource.CreationRuleResource;
-import com.elster.jupiter.issue.rest.impl.resource.DeviceGroupResource;
-import com.elster.jupiter.issue.rest.impl.resource.HistoryResource;
-import com.elster.jupiter.issue.rest.impl.resource.IssuePriorityResource;
-import com.elster.jupiter.issue.rest.impl.resource.IssueResource;
-import com.elster.jupiter.issue.rest.impl.resource.IssueTypeResource;
-import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
-import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
-import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
-import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
-import com.elster.jupiter.issue.rest.impl.resource.TopIssuesResource;
-import com.elster.jupiter.issue.rest.impl.resource.WorkGroupsResource;
+import com.elster.jupiter.issue.rest.impl.resource.*;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
+import com.elster.jupiter.issue.rest.response.cep.CreationRuleExclGroupInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfoFactory;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfoFactory;
 import com.elster.jupiter.issue.rest.response.issue.IssueInfoFactoryService;
@@ -31,8 +19,10 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -76,6 +66,8 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile LocationService locationService;
+    private volatile SearchLocationService searchLocationService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile IssueInfoFactoryService issueInfoFactoryService;
@@ -91,6 +83,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
                     StatusResource.class,
                     CreationRuleResource.class,
                     MeterResource.class,
+                    LocationResource.class,
                     DeviceGroupResource.class,
                     IssueTypeResource.class,
                     ActionResource.class,
@@ -138,6 +131,16 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     }
 
     @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
+    }
+
+    @Reference
+    public void setSearchLocationService(SearchLocationService searchLocationService) {
+        this.searchLocationService = searchLocationService;
+    }
+
+    @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
@@ -157,7 +160,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
     }
-
+    
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -195,6 +198,8 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(restQueryService).to(RestQueryService.class);
             bind(meteringService).to(MeteringService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
+            bind(locationService).to(LocationService.class);
+            bind(searchLocationService).to(SearchLocationService.class);
             bind(nlsService).to(NlsService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(thesaurus).to(Thesaurus.class);
@@ -202,6 +207,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(CreationRuleTemplateInfoFactory.class).to(CreationRuleTemplateInfoFactory.class);
             bind(CreationRuleInfoFactory.class).to(CreationRuleInfoFactory.class);
             bind(CreationRuleActionInfoFactory.class).to(CreationRuleActionInfoFactory.class);
+            bind(CreationRuleExclGroupInfoFactory.class).to(CreationRuleExclGroupInfoFactory.class);
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
             bind(IssueResourceHelper.class).to(IssueResourceHelper.class);
             bind(IssueInfoFactory.class).to(IssueInfoFactory.class);

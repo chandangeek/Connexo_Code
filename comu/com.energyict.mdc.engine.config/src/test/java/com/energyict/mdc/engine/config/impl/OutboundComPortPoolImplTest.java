@@ -11,19 +11,20 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.Expected;
 import com.energyict.mdc.ExpectedErrorRule;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.ports.ComPortType;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
 import java.util.Optional;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -43,6 +44,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     private static final ComPortType COM_PORT_TYPE = ComPortType.TCP;
     private static final TimeDuration EXECUTION_TIMEOUT = new TimeDuration(120);
+    private static final long PCTHIGHPRIOTASKS = 3;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -106,7 +108,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() throws TranslatableApplicationException, SQLException {
-        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(null, COM_PORT_TYPE, EXECUTION_TIMEOUT);
+        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(null, COM_PORT_TYPE, EXECUTION_TIMEOUT, PCTHIGHPRIOTASKS);
         outboundComPortPool.setDescription(DESCRIPTION);
 
         // Expecting TranslatableApplicationException because the name is not set
@@ -116,7 +118,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "comPortType")
     public void testCreateWithoutComPortType() throws TranslatableApplicationException, SQLException {
-        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(NAME_BASIS + outboundComPortPoolIndex++, null, EXECUTION_TIMEOUT);
+        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(NAME_BASIS + outboundComPortPoolIndex++, null, EXECUTION_TIMEOUT, PCTHIGHPRIOTASKS);
         outboundComPortPool.setDescription(DESCRIPTION);
 
         // Expecting TranslatableApplicationException because the ComPortType is not set
@@ -189,11 +191,11 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT_POOL+"}", property = "name")
     public void testUpdateWithSameName() throws TranslatableApplicationException, SQLException {
         String name = NAME_BASIS + outboundComPortPoolIndex++;
-        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(name, COM_PORT_TYPE, EXECUTION_TIMEOUT);
+        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(name, COM_PORT_TYPE, EXECUTION_TIMEOUT, PCTHIGHPRIOTASKS);
         outboundComPortPool.setDescription(DESCRIPTION);
         outboundComPortPool.update();
 
-        OutboundComPortPool duplicateComPortPool = getEngineModelService().newOutboundComPortPool(name, COM_PORT_TYPE, EXECUTION_TIMEOUT);
+        OutboundComPortPool duplicateComPortPool = getEngineModelService().newOutboundComPortPool(name, COM_PORT_TYPE, EXECUTION_TIMEOUT, PCTHIGHPRIOTASKS);
         duplicateComPortPool.setDescription(DESCRIPTION);
         duplicateComPortPool.update();
 
@@ -294,7 +296,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         assertThat(noComPortPoolForThisName.isPresent()).isFalse();
 
         // creating the exact same comportpool
-        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(comPortPoolName, COM_PORT_TYPE, EXECUTION_TIMEOUT);
+        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(comPortPoolName, COM_PORT_TYPE, EXECUTION_TIMEOUT, PCTHIGHPRIOTASKS);
         outboundComPortPool.setDescription(DESCRIPTION);
         outboundComPortPool.update();
 
@@ -304,7 +306,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
 
     private int outboundComPortPoolIndex =1;
     private OutboundComPortPool newOutboundComPortPoolWithoutViolations() {
-        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(NAME_BASIS+outboundComPortPoolIndex++, COM_PORT_TYPE, EXECUTION_TIMEOUT);
+        OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(NAME_BASIS+outboundComPortPoolIndex++, COM_PORT_TYPE, EXECUTION_TIMEOUT, PCTHIGHPRIOTASKS);
         outboundComPortPool.setDescription(DESCRIPTION);
         outboundComPortPool.update();
         return outboundComPortPool;

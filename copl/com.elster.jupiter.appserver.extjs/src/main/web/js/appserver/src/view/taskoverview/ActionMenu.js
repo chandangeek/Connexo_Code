@@ -8,11 +8,11 @@ Ext.define('Apr.view.taskoverview.ActionMenu', {
     initComponent: function () {
         this.items = [
             {
-                itemId: 'set-queue',
-                text: Uni.I18n.translate('general.menu.setqueue', 'APR', 'Set queue'),
-                privileges: Usr.privileges.Users.admin,
-                action: 'setQueue',
-                section: this.SECTION_ACTION
+                itemId: 'set-queue-priority',
+                text: Uni.I18n.translate('general.menu.setQueueAndPriority', 'APR', 'Set queue and priority'),
+                privileges: Apr.privileges.AppServer.administrateTaskOverview,
+                action: 'setQueueAndPriority',
+                section: this.SECTION_EDIT
             }
         ];
         this.callParent(arguments);

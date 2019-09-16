@@ -6,7 +6,7 @@ package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import aQute.bnd.annotation.ProviderType;
@@ -27,6 +27,14 @@ public interface FirmwareCampaignBuilder {
     FirmwareCampaignBuilder withFirmwareType(FirmwareType firmwareType);
 
     FirmwareCampaignBuilder withManagementOption(ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions);
+
+    FirmwareCampaignBuilder withFirmwareUploadComTaskId(long id);
+
+    FirmwareCampaignBuilder withValidationComTaskId(long id);
+
+    FirmwareCampaignBuilder withFirmwareUploadConnectionStrategy(String name);
+
+    FirmwareCampaignBuilder withValidationConnectionStrategy(String name);
 
     FirmwareCampaign create();
 

@@ -9,11 +9,12 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -67,13 +68,20 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         sqlBuilder.append("         CASE WHEN ct.id IS NULL");
         sqlBuilder.append("              THEN 0");
         sqlBuilder.append("              ELSE 1");
-        sqlBuilder.append("         END as thereisabusytask");
+        sqlBuilder.append("         END as thereisabusytask,");
+
+        sqlBuilder.append("         CASE WHEN hp.comtaskexecution  = cte.id");
+        sqlBuilder.append("              THEN 1");
+        sqlBuilder.append("              ELSE 0");
+        sqlBuilder.append("         END as isapriotask");
+
         sqlBuilder.append("    FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte");
         sqlBuilder.append("    JOIN " + TableSpecs.DDC_DEVICE.name() + " dev ON cte.device = dev.id");
         sqlBuilder.append("    JOIN enddevices kd ON dev.meterid = kd.id");
         sqlBuilder.append("    LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct ON cte.connectiontask = ct.id");
-        sqlBuilder.append("                                                                   AND ct.comserver is not null");
+        sqlBuilder.append("                                                                   AND ct." + ConnectionTaskFields.COM_PORT.fieldName()+ " is not null");
         sqlBuilder.append("                                                                   AND ct.lastCommunicationStart > cte.nextExecutionTimestamp");
+        sqlBuilder.append("    LEFT JOIN DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id");
         sqlBuilder.append("   WHERE cte.obsolete_date is null");
         return sqlBuilder;
     }
@@ -106,12 +114,27 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         sqlBuilder.addLong(now.getEpochSecond());
         sqlBuilder.append("))");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Busy.name() + "'");
+
+
         sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND isapriotask = 0");
         sqlBuilder.append("                        AND comport is null");
         sqlBuilder.append("                        AND thereisabusytask = 0");
         sqlBuilder.append("                        AND nextexecutiontimestamp <=");
         sqlBuilder.addLong(now.getEpochSecond());
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Pending.name() + "'");
+
+        sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND isapriotask = 1");
+        sqlBuilder.append("                        AND comport is null");
+        sqlBuilder.append("                        AND thereisabusytask = 0");
+        sqlBuilder.append("                        AND nextexecutiontimestamp <=");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("                       THEN '" + ServerComTaskStatus.PendingWithPriority.name() + "'");
+
+
+
+
         sqlBuilder.append("                       WHEN onhold = 0");
         sqlBuilder.append("                        AND comport is null");
         sqlBuilder.append("                        AND currentretrycount = 0");
@@ -122,12 +145,25 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         sqlBuilder.addLong(now.getEpochSecond());
         sqlBuilder.append(")");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.NeverCompleted.name() + "'");
+
         sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND isapriotask = 0");
         sqlBuilder.append("                        AND nextexecutiontimestamp >");
         sqlBuilder.addLong(now.getEpochSecond());
         sqlBuilder.append("                        AND comport is null");
         sqlBuilder.append("                        AND currentretrycount > 0");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Retrying.name() + "'");
+
+
+        sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND isapriotask = 1");
+        sqlBuilder.append("                        AND nextexecutiontimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append("                        AND comport is null");
+        sqlBuilder.append("                        AND currentretrycount > 0");
+        sqlBuilder.append("                       THEN '" + ServerComTaskStatus.RetryingWithPriority.name() + "'");
+
+
         sqlBuilder.append("                       WHEN onhold = 0");
         sqlBuilder.append("                        AND nextexecutiontimestamp >");
         sqlBuilder.addLong(now.getEpochSecond());
@@ -136,7 +172,11 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         sqlBuilder.append("                        AND lastExecutionfailed = 1");
         sqlBuilder.append("                        AND currentretrycount = 0");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Failed.name() + "'");
+
+
+
         sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND isapriotask = 0");
         sqlBuilder.append("                        AND comport is null");
         sqlBuilder.append("                        AND lastexecutionfailed = 0");
         sqlBuilder.append("                        AND currentretrycount = 0");
@@ -158,6 +198,36 @@ class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor
         sqlBuilder.append("                        )");
         sqlBuilder.append("                        )");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.Waiting.name() + "'");
+
+
+
+        sqlBuilder.append("                       WHEN onhold = 0");
+        sqlBuilder.append("                        AND isapriotask = 1");
+        sqlBuilder.append("                        AND comport is null");
+        sqlBuilder.append("                        AND lastexecutionfailed = 0");
+        sqlBuilder.append("                        AND currentretrycount = 0");
+        sqlBuilder.append("                        AND (   lastExecutionTimestamp is null");
+        sqlBuilder.append("                             OR lastSuccessfulCompletion is not null)");
+        sqlBuilder.append("                        AND ((");
+        sqlBuilder.append("                                        plannednextexecutiontimestamp IS NULL");
+        sqlBuilder.append("                                AND nextexecutiontimestamp IS NULL");
+        sqlBuilder.append("                        )");
+        sqlBuilder.append("                        OR ((discriminator = 2 OR (discriminator = 1 AND nextexecutionspecs IS NULL))");
+        sqlBuilder.append("                        AND (nextexecutiontimestamp IS NULL OR nextexecutiontimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append(")");
+        sqlBuilder.append("                        )");
+        sqlBuilder.append("                        OR (nextexecutionspecs IS NOT NULL");
+        sqlBuilder.append("                                AND (nextexecutiontimestamp IS NULL OR nextexecutiontimestamp >");
+        sqlBuilder.addLong(now.getEpochSecond());
+        sqlBuilder.append(")");
+        sqlBuilder.append("                        )");
+        sqlBuilder.append("                        )");
+        sqlBuilder.append("                       THEN '" + ServerComTaskStatus.WaitingWithPriority.name() + "'");
+
+
+
+
         sqlBuilder.append("                       WHEN onhold <> 0");
         sqlBuilder.append("                       THEN '" + ServerComTaskStatus.OnHold.name() + "'");
         sqlBuilder.append("                       ELSE");

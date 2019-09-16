@@ -1603,6 +1603,13 @@ public final class DeviceMessageConstants {
     public static final String SET_LOCKOUT_DURATION_DEFAULT_TRANSLATION = "Lockout Duration";
     public static final String executionMinutesForEachHour = "ConfigurationChangeDeviceMessage.executionMinutesForEachHour";
     public static final String executionMinutesForEachHourDefaultTranslation = "Execution minutes for each hour of the day";
+    public static final String daysOfMonthSchedule = "DeviceActionMessage.SetModemSchedule.DaysOfMonth";
+    public static final String daysOfMonthScheduleDefaultTranslation = "Days of month when the modem will be reset";
+    public static final String daysOfWeekSchedule = "DeviceActionMessage.SetModemSchedule.DaysOfWeek";
+    public static final String daysOfWeekScheduleDefaultTranslation = "Days of week when the modem will be reset";
+    public static final String enableModemResetSchedule = "DeviceActionMessage.SetModemSchedule.EnableModemResetScheduler";
+    public static final String enableModemResetScheduleDefaultTranslation = "Enable modem reset scheduler";
+    ;
 
     // Hide constructor for class with only public constants
     private DeviceMessageConstants() {
@@ -1737,6 +1744,31 @@ public final class DeviceMessageConstants {
     public static final String snmpAuthPassphraseDefaultTranslation = "USM authentication passphrase";
     public static final String snmpUserState = "NetworkConnectivityMessage.snmpUserState";
     public static final String snmpUserStateDefaultTranslation = "User state";
+    public static final String snmpMaxLoginAttempts = "NetworkConnectivityMessage.snmpMaxLoginAttempts";
+    public static final String snmpMaxLoginAttemptsDefaultTranslation = "SNMP max login attempts";
+    public static final String snmpLockoutDuration = "NetworkConnectivityMessage.snmpLockoutDuration";
+    public static final String snmpLockoutDurationDefaultTranslation = "SNMP lockout duration";
+
+    // Communication Port Protection IC
+    public static final String dlmsLanAllowedFailedAttempts = "NetworkConnectivityMessage.dlmsLanAllowedFailedAttempts";
+    public static final String dlmsLanAllowedFailedAttemptsDefaultTranslation = "DLMS LAN allowed failed attempts";
+    public static final String dlmsLanInitialLockoutTime = "NetworkConnectivityMessage.dlmsLanInitialLockoutTime";
+    public static final String dlmsLanInitialLockoutTimeDefaultTranslation = "DLMS LAN initial lockout time";
+    public static final String dlmsWanAllowedFailedAttempts = "NetworkConnectivityMessage.dlmsWanAllowedFailedAttempts";
+    public static final String dlmsWanAllowedFailedAttemptsDefaultTranslation = "DLMS WAN allowed failed attempts";
+    public static final String dlmsWanInitialLockoutTime = "NetworkConnectivityMessage.dlmsWanInitialLockoutTime";
+    public static final String dlmsWanInitialLockoutTimeDefaultTranslation = "DLMS WAN initial lockout time";
+
+    // Remote Shell IC
+    public static final String remoteShellMaxLoginAttempts = "NetworkConnectivityMessage.remoteShellMaxLoginAttempts";
+    public static final String remoteShellMaxLoginAttemptsDefaultTranslation = "Remote shell max login attempts";
+    public static final String remoteShellLockoutDuration = "NetworkConnectivityMessage.remoteShellLockoutDuration";
+    public static final String remoteShellLockoutDurationDefaultTranslation = "Remote shell lockout duration";
+    // Web Portal IC
+    public static final String webPortalMaxLoginAttempts = "NetworkConnectivityMessage.webPortalMaxLoginAttempts";
+    public static final String webPortalMaxLoginAttemptsDefaultTranslation = "Web portal max login attempts";
+    public static final String webPortalLockoutDuration = "NetworkConnectivityMessage.webPortalLockoutDuration";
+    public static final String webPortalLockoutDurationDefaultTranslation = "Web portal lockout duration";
 
     //VPN Setup IC
     public static final String vpnEnabled = "NetworkConnectivityMessage.vpnEnabled";

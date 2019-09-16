@@ -7,7 +7,7 @@ package com.energyict.mdc.device.data.impl.audit;
 import com.elster.jupiter.audit.AuditOperationType;
 import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.AuditTrail;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import java.util.Optional;
 

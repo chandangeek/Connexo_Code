@@ -12,19 +12,24 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.StopWatch;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.common.tasks.ClockTask;
+import com.energyict.mdc.common.tasks.ClockTaskType;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -36,18 +41,14 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.CommunicationInterruptedException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
@@ -121,7 +122,7 @@ public abstract class AbstractRescheduleBehaviorTest {
     @Before
     public void setup() {
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)
-                .executionStarted(any(ConnectionTask.class), any(ComServer.class));
+                .executionStarted(any(ConnectionTask.class), any(ComPort.class));
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)
                 .executionFailed(any(ConnectionTask.class));
         doAnswer(invocationOnMock -> Stream.of(invocationOnMock.getArguments()).filter(o -> o instanceof ConnectionTask).findAny().orElse(null)).when(comServerDAO)
@@ -215,6 +216,15 @@ public abstract class AbstractRescheduleBehaviorTest {
         ClockCommandImpl clockCommand = spy(new ClockCommandImpl(groupedDeviceCommand, clockTask, comTaskExecution));
         doThrow(new ConnectionCommunicationException(com.energyict.mdc.engine.impl.commands.MessageSeeds.UNEXPECTED_IO_EXCEPTION, new IOException("For testing purposes only")))
                 .when(clockCommand)
+                .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
+        groupedDeviceCommand.addCommand(clockCommand, comTaskExecution);
+    }
+
+    protected void mockConnectionInterruptedFailureComCommand(GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        ClockTask clockTask = mock(ClockTask.class);
+        when(clockTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
+        ClockCommandImpl clockCommand = spy(new ClockCommandImpl(groupedDeviceCommand, clockTask, comTaskExecution));
+        doThrow(new CommunicationInterruptedException(com.energyict.mdc.engine.impl.commands.MessageSeeds.NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED, new IOException("Hi, I'm interrupting your connection"))).when(clockCommand)
                 .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         groupedDeviceCommand.addCommand(clockCommand, comTaskExecution);
     }

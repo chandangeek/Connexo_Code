@@ -30,10 +30,11 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.DeviceValidation;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;

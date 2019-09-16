@@ -11,7 +11,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
+import com.energyict.mdc.common.device.data.ChannelEstimationRuleOverriddenProperties;
 
 import javax.inject.Inject;
 import java.util.Collections;

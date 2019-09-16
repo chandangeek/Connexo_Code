@@ -5,7 +5,7 @@
 package com.energyict.mdc.issue.datavalidation.impl.actions;
 
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.AbstractIssueAction;
+import com.elster.jupiter.issue.share.AbstractCloseIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
 import com.elster.jupiter.issue.share.entity.ActionType;
@@ -13,6 +13,8 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.HasIdAndName;
@@ -35,11 +37,12 @@ import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.time.Clock;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class CloseIssueAction extends AbstractIssueAction {
+public class CloseIssueAction extends AbstractCloseIssueAction {
 
     private static final String NAME = "CloseIssueAction";
     public static final String CLOSE_STATUS = NAME + ".status";
@@ -49,8 +52,10 @@ public class CloseIssueAction extends AbstractIssueAction {
     private final ThreadPrincipalService threadPrincipalService;
 
     @Inject
-    protected CloseIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, ThreadPrincipalService threadPrincipalService) {
-        super(dataModel, thesaurus, propertySpecService);
+    protected CloseIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService,
+            IssueService issueService, ThreadPrincipalService threadPrincipalService,
+            MeteringGroupsService meteringGroupsService, Clock clock) {
+        super(dataModel, thesaurus, propertySpecService, meteringGroupsService, clock);
         this.issueService = issueService;
         this.threadPrincipalService = threadPrincipalService;
     }
@@ -58,7 +63,14 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public IssueActionResult execute(Issue issue) {
         DefaultActionResult result = new DefaultActionResult();
-
+        
+        final EndDevice endDevice = issue.getDevice();
+        if (endDevice != null && this.isEndDeviceExcludedFromAutoClosure(endDevice, properties)) {
+            result.fail(getThesaurus().getFormat(TranslationKeys.CLOSE_ACTION_DEVICE_EXCLUDED_FROM_CLOSING)
+                    .format(endDevice.getName()));
+            return result;
+        }
+        
         Optional<IssueStatus> closeStatus = getStatusFromParameters(properties);
         if (!closeStatus.isPresent()) {
             result.fail(getThesaurus().getFormat(TranslationKeys.CLOSE_ACTION_WRONG_STATUS).format());
@@ -93,6 +105,7 @@ public class CloseIssueAction extends AbstractIssueAction {
                 .describedAs(TranslationKeys.CLOSE_ACTION_PROPERTY_COMMENT)
                 .fromThesaurus(getThesaurus())
                 .finish());
+        builder.add(this.getExcludedGroupsPropertySpec());
         return builder.build();
     }
 

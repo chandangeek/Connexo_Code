@@ -9,6 +9,7 @@ import com.elster.jupiter.audit.AuditService;
 import com.elster.jupiter.audit.impl.AuditServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -83,13 +84,15 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceCommunicationConfiguration;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -100,9 +103,11 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCal
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.PriorityComTaskServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -115,8 +120,6 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
@@ -303,6 +306,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private LicenseService licenseService;
         private IssueService issueService;
         private com.energyict.mdc.issues.IssueService mdcIssueService;
+        private CalendarService calendarService;
 
 
         public void initializeDatabase(String testName, boolean showSqlLogging) {
@@ -379,6 +383,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 this.schedulingService = injector.getInstance(SchedulingService.class);
                 this.issueService = injector.getInstance(IssueService.class);
                 this.mdcIssueService = injector.getInstance(com.energyict.mdc.issues.IssueService.class);
+                this.calendarService = injector.getInstance(CalendarService.class);
                 this.deviceDataModelService =
                         new DeviceDataModelServiceImpl(
                                 this.bundleContext,
@@ -412,7 +417,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(LockService.class),
                                 injector.getInstance(DataVaultService.class),
                                 injector.getInstance(SecurityManagementService.class),
-                                injector.getInstance(MeteringZoneService.class)
+                                injector.getInstance(MeteringZoneService.class), calendarService
                         );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
@@ -485,6 +490,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(DeviceMessageService.class).toInstance(mock(DeviceMessageService.class));
 
                 bind(ConnectionTaskService.class).to(ConnectionTaskServiceImpl.class).in(Scopes.SINGLETON);
+                bind(PriorityComTaskService.class).to(PriorityComTaskServiceImpl.class).in(Scopes.SINGLETON);
                 bind(CommunicationTaskService.class).to(CommunicationTaskServiceImpl.class).in(Scopes.SINGLETON);
                 bind(LoadProfileService.class).to(LoadProfileServiceImpl.class).in(Scopes.SINGLETON);
                 bind(LogBookService.class).to(LogBookServiceImpl.class).in(Scopes.SINGLETON);
@@ -499,7 +505,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(HsmEnergyService.class).toInstance(mock(HsmEnergyService.class));
                 bind(HsmEncryptionService.class).toInstance(mock(HsmEncryptionService.class));
                 bind(MeteringZoneService.class).to(MeteringZoneServiceImpl.class).in(Scopes.SINGLETON);
-                bind(AppService.class).toInstance(mock(AppService.class));}
+                bind(AppService.class).toInstance(mock(AppService.class));
+            }
         }
 
         public static class SpyEventService implements EventService {

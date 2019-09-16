@@ -42,6 +42,7 @@ import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
 import com.elster.jupiter.metering.impl.aggregation.InstantTruncaterFactory;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.aggregation.SourceChannelSetFactory;
+import com.elster.jupiter.metering.impl.audit.AuditTranslationKeys;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
@@ -73,7 +74,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
-import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -306,6 +307,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                         .put(version(10, 4, 1), UpgraderV10_4_1.class)
                         .put(version(10, 4, 3), UpgraderV10_4_3.class)
                         .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 7), V10_7SimpleUpgrader.class)
                         .build());
         this.meteringService.readLocationTemplatesFromDatabase();
     }
@@ -417,6 +419,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
         Arrays.stream(GasDayOptions.RelativePeriodTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(YesNoAnswer.values()).map(YesNoAnswerTranslationKey::new).forEach(translationKeys::add);
+        Arrays.stream(AuditTranslationKeys.values()).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));

@@ -40,6 +40,14 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                text: Uni.I18n.translate('general.runNowWithPriority', 'MDC', 'Run with priority'),
+                action: 'runNowWithPriority',
+                visible: function () {
+                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;;
+                },
+                section: this.SECTION_ACTION
+            },
+            {
                 text: Uni.I18n.translate('general.activate', 'MDC', 'Activate'),
                 action: 'toggleActivation',
                 visible: function () {

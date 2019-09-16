@@ -11,11 +11,11 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 
 import java.util.Optional;
 
@@ -57,7 +57,7 @@ public class ComTaskExecutionObsoleteEventHandlerTest {
     @Mock
     Device device;
     @Mock
-    ComServer comServer;
+    ComPort comPort;
     @Mock
     LocalEvent event;
 
@@ -67,7 +67,7 @@ public class ComTaskExecutionObsoleteEventHandlerTest {
     public void setUp() throws Exception {
         obsoleteEventHandler = new ComTaskExecutionObsoleteEventHandler(topologyService, thesaurus);
 
-        when(comServer.getName()).thenReturn("MyComserver");
+        when(comPort.getName()).thenReturn("MyComport");
         when(comTaskExecution.getId()).thenReturn(1L);
         when(device.getName()).thenReturn("MyDevice");
         when(comTaskExecution.getDevice()).thenReturn(device);
@@ -98,7 +98,7 @@ public class ComTaskExecutionObsoleteEventHandlerTest {
         when(comTaskExecution.getConnectionFunction()).thenReturn(Optional.empty());
         when(event.getSource()).thenReturn(comTaskExecution);
 
-        when(connectionTask.getExecutingComServer()).thenReturn(null);
+        when(connectionTask.getExecutingComPort()).thenReturn(null);
         when(topologyService.findDefaultConnectionTaskForTopology(device)).thenReturn(Optional.of(connectionTask));
 
         // Business method
@@ -112,13 +112,13 @@ public class ComTaskExecutionObsoleteEventHandlerTest {
     @Test
     @Expected(
             value = ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException.class,
-            message = "You can not make comtaskexecution 1 for device MyDevice obsolete because it is currently executing on comserver MyComserver")
+            message = "You can not make comtaskexecution 1 for device MyDevice obsolete because it is currently executing on comport MyComport")
     public void testHandleWhenUsingDefaultConnectionTaskInUse() throws Exception {
         when(comTaskExecution.usesDefaultConnectionTask()).thenReturn(true);
         when(comTaskExecution.getConnectionFunction()).thenReturn(Optional.empty());
         when(event.getSource()).thenReturn(comTaskExecution);
 
-        when(connectionTask.getExecutingComServer()).thenReturn(comServer);
+        when(connectionTask.getExecutingComPort()).thenReturn(comPort);
         when(topologyService.findDefaultConnectionTaskForTopology(device)).thenReturn(Optional.of(connectionTask));
 
         // Business method
@@ -131,7 +131,7 @@ public class ComTaskExecutionObsoleteEventHandlerTest {
         when(comTaskExecution.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
         when(event.getSource()).thenReturn(comTaskExecution);
 
-        when(connectionTask.getExecutingComServer()).thenReturn(null);
+        when(connectionTask.getExecutingComPort()).thenReturn(null);
         when(topologyService.findDefaultConnectionTaskForTopology(device)).thenReturn(Optional.empty());
         when(topologyService.findConnectionTaskWithConnectionFunctionForTopology(device, connectionFunction)).thenReturn(Optional.of(connectionTask));
 
@@ -146,13 +146,13 @@ public class ComTaskExecutionObsoleteEventHandlerTest {
     @Test
     @Expected(
             value = ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException.class,
-            message = "You can not make comtaskexecution 1 for device MyDevice obsolete because it is currently executing on comserver MyComserver")
+            message = "You can not make comtaskexecution 1 for device MyDevice obsolete because it is currently executing on comport MyComport")
     public void testHandleWhenUsingConnectionTaskBasedOnConnectionFunctionInUse() throws Exception {
         when(comTaskExecution.usesDefaultConnectionTask()).thenReturn(false);
         when(comTaskExecution.getConnectionFunction()).thenReturn(Optional.of(connectionFunction));
         when(event.getSource()).thenReturn(comTaskExecution);
 
-        when(connectionTask.getExecutingComServer()).thenReturn(comServer);
+        when(connectionTask.getExecutingComPort()).thenReturn(comPort);
         when(topologyService.findDefaultConnectionTaskForTopology(device)).thenReturn(Optional.empty());
         when(topologyService.findConnectionTaskWithConnectionFunctionForTopology(device, connectionFunction)).thenReturn(Optional.of(connectionTask));
 

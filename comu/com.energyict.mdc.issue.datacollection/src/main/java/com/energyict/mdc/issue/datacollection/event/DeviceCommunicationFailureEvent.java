@@ -7,9 +7,10 @@ package com.energyict.mdc.issue.datacollection.event;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -21,6 +22,8 @@ import com.energyict.mdc.issue.datacollection.impl.event.EventDescription;
 import com.google.inject.Injector;
 
 import javax.inject.Inject;
+
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -71,5 +74,14 @@ public class DeviceCommunicationFailureEvent extends ConnectionEvent {
 
     protected void setComTaskId(Long comTaskId) {
         this.comTaskId = Optional.of(comTaskId);
+    }
+
+    @Override
+    public boolean matchesByComTask(List<HasId> comTasks) {
+        if (this.comTaskId.isPresent()) {
+            final long id = comTaskId.get();
+            return comTasks.stream().filter(e -> id == e.getId()).findFirst().isPresent();
+        }
+        return false;
     }
 }

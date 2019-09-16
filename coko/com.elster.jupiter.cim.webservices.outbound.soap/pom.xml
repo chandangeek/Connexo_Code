@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.elster.jupiter</groupId>
 		<artifactId>kore</artifactId>
-		<version>0.0.1-Heracles-SNAPSHOT</version>
+		<version>1.1.0-Heracles-SNAPSHOT</version>
 
 	</parent>
 
@@ -121,24 +121,86 @@
 				<artifactId>jaxws-maven-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>g1</id>
 						<goals>
 							<goal>wsimport</goal>
 						</goals>
+						<configuration>
+							<wsdlDirectory>src/main/resources/</wsdlDirectory>
+							<wsdlFiles>
+								<wsdlFile>wsdl/enddeviceconfig/ReplyEndDeviceConfig.wsdl</wsdlFile>
+							</wsdlFiles>
+							<sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+							<bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+							<keep>true</keep>
+							<wsdlLocation>wsdl/enddeviceconfig/ReplyEndDeviceConfig.wsdl</wsdlLocation>
+						</configuration>
+					</execution>
+					<execution>
+						<id>g2</id>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+						<configuration>
+							<wsdlDirectory>src/main/resources/</wsdlDirectory>
+							<wsdlFiles>
+								<wsdlFile>wsdl/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlFile>
+							</wsdlFiles>
+							<sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+							<bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+							<keep>true</keep>
+							<wsdlLocation>wsdl/masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlLocation>
+						</configuration>
+					</execution>
+					<execution>
+						<id>g3</id>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+						<configuration>
+							<wsdlDirectory>src/main/resources/</wsdlDirectory>
+							<wsdlFiles>
+								<wsdlFile>wsdl/meterreadings/SendMeterReadings.wsdl</wsdlFile>
+							</wsdlFiles>
+							<sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+							<bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+							<keep>true</keep>
+							<wsdlLocation>wsdl/meterreadings/SendMeterReadings.wsdl</wsdlLocation>
+						</configuration>
+					</execution>
+					<execution>
+						<id>g4</id>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+						<configuration>
+							<wsdlDirectory>src/main/resources</wsdlDirectory>
+							<wsdlFiles>
+								<wsdlFile>wsdl/meterreadings/GetMeterReadings.wsdl</wsdlFile>
+							</wsdlFiles>
+							<sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+							<bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+							<keep>true</keep>
+							<wsdlLocation>wsdl/meterreadings/GetMeterReadings.wsdl</wsdlLocation>
+						</configuration>
+					</execution>
+					<execution>
+						<id>g5</id>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+						<configuration>
+							<wsdlDirectory>src/main/resources</wsdlDirectory>
+							<wsdlFiles>
+								<wsdlFile>wsdl/usagepointconfig/ReplyUsagePointConfig.wsdl</wsdlFile>
+							</wsdlFiles>
+							<sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
+							<bindingDirectory>src/main/resources/wsdl/binding</bindingDirectory>
+							<keep>true</keep>
+							<wsdlLocation>wsdl/usagepointconfig/ReplyUsagePointConfig.wsdl</wsdlLocation>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<wsdlDirectory>src/main/resources</wsdlDirectory>
-					<wsdlFiles>
-						<wsdlFile>enddeviceconfig/ReplyEndDeviceConfig.wsdl</wsdlFile>
-						<wsdlFile>meterreadings/SendMeterReadings.wsdl</wsdlFile>
-						<wsdlFile>meterreadings/GetMeterReadings.wsdl</wsdlFile>
-						<wsdlFile>masterdatalinkageconfig/ReplyMasterDataLinkageConfig.wsdl</wsdlFile>
-						<wsdlFile>usagepointconfig/ReplyUsagePointConfig.wsdl</wsdlFile>
-					</wsdlFiles>
-					<sourceDestDir>${project.build.directory}/generated-sources/jaxws</sourceDestDir>
-					<bindingDirectory>${basedir}/src/main/resources/binding</bindingDirectory>
-					<keep>true</keep>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

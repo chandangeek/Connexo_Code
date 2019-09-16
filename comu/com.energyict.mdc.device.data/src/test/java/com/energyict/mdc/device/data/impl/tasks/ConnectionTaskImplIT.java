@@ -14,35 +14,37 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.OnlineComServer;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.common.device.config.ConnectionStrategy;
+import com.energyict.mdc.common.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.common.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialect;
+import com.energyict.mdc.common.protocol.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocol;
+import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.impl.PersistenceIntegrationTest;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -84,6 +86,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static final BigDecimal PORT_PROPERTY_VALUE = new BigDecimal(1521);
     protected static final BigDecimal UPDATED_PORT_PROPERTY_VALUE = new BigDecimal(4049);
     private static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
+    private static final long PCTHIGHPRIOTASKS = 0;
 
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID;
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK2_ID;
@@ -123,6 +126,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected ComTaskEnablement comTaskEnablement3;
     private OnlineComServer onlineComServer;
     private OnlineComServer otherOnlineComServer;
+    private InboundComPort inboundComPort;
+    private InboundComPort otherInboundComPort;
+    private OutboundComPort outboundComPort;
+    private OutboundComPort otherOutboundComPort;
     private String COM_TASK_NAME = "TheNameOfMyComTask";
     private int maxNrOfTries = 5;
 
@@ -269,11 +276,11 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private static OutboundComPortPool createInactiveOutboundIpComPortPool(String name) {
-        return inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        return inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES), PCTHIGHPRIOTASKS);
     }
 
     private static OutboundComPortPool createOutboundModemComPortPool(String name) {
-        OutboundComPortPool modemComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.SERIAL, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        OutboundComPortPool modemComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.SERIAL, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES), PCTHIGHPRIOTASKS);
         modemComPortPool.setActive(true);
         modemComPortPool.update();
         return modemComPortPool;
@@ -313,9 +320,13 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     @Before
-    public void setupComServers() {
-        this.onlineComServer = createComServer("First");
-        this.otherOnlineComServer = createComServer("Second");
+    public void setupComServersAndPorts() {
+        onlineComServer = createComServer("First");
+        otherOnlineComServer = createComServer("Second");
+        inboundComPort = onlineComServer.newTCPBasedInboundComPort("inboundComPort", 5, 4059).add();
+        otherInboundComPort = onlineComServer.newTCPBasedInboundComPort("otherInboundComPort", 5, 4060).add();
+        outboundComPort = onlineComServer.newOutboundComPort("outboundComPort", 5).comPortType(ComPortType.TCP).add();
+        otherOutboundComPort = onlineComServer.newOutboundComPort("otherOutboundComPort", 5).comPortType(ComPortType.TCP).add();
     }
 
     protected OnlineComServer createComServer(String name) {
@@ -331,6 +342,22 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
         onlineComServer.serverName(name);
         onlineComServer.eventRegistrationPort(ComServer.DEFAULT_EVENT_REGISTRATION_PORT_NUMBER);
         return onlineComServer.create();
+    }
+
+    public InboundComPort getInboundComPort() {
+        return inboundComPort;
+    }
+
+    public InboundComPort getOtherInboundComPort() {
+        return otherInboundComPort;
+    }
+
+    public OutboundComPort getOutboundComPort() {
+        return outboundComPort;
+    }
+
+    public OutboundComPort getOtherOutboundComPort() {
+        return otherOutboundComPort;
     }
 
     @Before

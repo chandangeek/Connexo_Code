@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.pluggable.PluggableClass;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
@@ -12,8 +15,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Models the constraint that a {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
- * should have a valid {@link com.energyict.mdc.pluggable.PluggableClass}.
+ * Models the constraint that a {@link ConnectionTask}
+ * should have a valid {@link PluggableClass}.
  * This constraint is validated against the id to avoid that we need to load
  * the pluggable class when updating a ConnectionTask.
  *

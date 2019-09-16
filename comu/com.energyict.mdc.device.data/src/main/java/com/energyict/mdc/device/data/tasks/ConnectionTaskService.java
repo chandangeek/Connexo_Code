@@ -4,17 +4,25 @@
 
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.data.ConnectionInitiationTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -187,21 +195,21 @@ public interface ConnectionTaskService {
 
     /**
      * Attempts to lock the {@link ConnectionTask} that is about to be executed
-     * by the specified {@link ComServer} and returns the locked ConnectionTask
+     * by the specified {@link ComPort} and returns the locked ConnectionTask
      * when the lock succeeds and <code>null</code> when the lock fails.
      * Note that this MUST run in an existing transactional context.
      *
      * @param connectionTask The ConnectionTask
-     * @param comServer      The ComServer that is about to execute the ConnectionTask
+     * @param ComPort      The ComPort that is about to execute the ConnectionTask
      * @return <code>true</code> iff the lock succeeds
      */
-    <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComServer comServer);
+    <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComPort comPort);
 
     <T extends ConnectionTask> T attemptLockConnectionTask(long id);
 
     /**
      * Removes the business lock on the specified {@link ConnectionTask},
-     * making it available for other {@link ComServer}s to execute the ConnectionTask.
+     * making it available for other {@link ComPort}s to execute the ConnectionTask.
      *
      * @param connectionTask The ConnectionTask
      */
@@ -218,26 +226,26 @@ public interface ConnectionTaskService {
 
     /**
      * Cleans up any marker flags on {@link ConnectionTask}s that were not properly
-     * cleaned because the {@link ComServer} they were running
+     * cleaned because the {@link ComPort} they were running
      * on was actually forcefully shutdown, i.e. not allowing it to
      * shut down running processing and cleanup when done.
-     * Leaving the marker flags, prohibits the ComServer from
+     * Leaving the marker flags, prohibits the ComPort from
      * picking up the tasks again.
      * This is intended to be called at startup time.
      *
-     * @param comServer The ComServer that is currently starting up.
+     * @param comPort The ComPort that is currently starting up.
      */
-    void releaseInterruptedConnectionTasks(ComServer comServer);
+    void releaseInterruptedConnectionTasks(ComPort comPort);
 
     /**
      * Cleans up any marker flags on {@link ConnectionTask}s that are running
-     * on {@link com.energyict.mdc.engine.config.OutboundComPort}s of the {@link ComServer}
+     * on {@link OutboundComPort}s of the {@link ComPort}
      * for a period of time that is longer than the task execution timeout specified
-     * on the {@link com.energyict.mdc.engine.config.OutboundComPortPool} they are contained in.
+     * on the {@link OutboundComPortPool} they are contained in.
      *
-     * @param outboundCapableComServer The ComServer
+     * @param comPort The ComPort
      */
-    void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer);
+    void releaseTimedOutConnectionTasks(ComPort comPort);
 
     List<ComSession> findAllSessionsFor(ConnectionTask<?, ?> connectionTask);
 
@@ -250,8 +258,8 @@ public interface ConnectionTaskService {
     List<ComSession> findComSessions(ComPortPool comPortPool);
 
     /**
-     * Finds all ConnectionTasks locked by a specific ComServer
+     * Finds all ConnectionTasks locked by a specific ComPort
      */
-    List<ConnectionTask> findLockedByComServer(ComServer comServer);
+    List<ConnectionTask> findLockedByComPort(ComPort comPort);
 
 }

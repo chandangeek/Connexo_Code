@@ -63,7 +63,8 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsOverview', {
                                 {
                                     xtype: 'firmware-versions',
                                     deviceType: me.deviceType,
-                                    router: me.router
+                                    router: me.router,
+                                    store: 'Fwc.store.Firmwares'
                                 }
                             ]
                         }

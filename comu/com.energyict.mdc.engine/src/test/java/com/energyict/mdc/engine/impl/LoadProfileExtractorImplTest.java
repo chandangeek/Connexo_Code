@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.config.ChannelSpec;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;

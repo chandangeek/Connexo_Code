@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.topology;
 
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -44,7 +44,7 @@ public interface CommunicationPath {
     public Device getTarget();
 
     /**
-     * Gets the number of intermediate {@link com.energyict.mdc.device.data.Device}s
+     * Gets the number of intermediate {@link Device}s
      * that are involved in this CommunicationPath.
      *
      * @return The number of intermediate Devices

@@ -10,8 +10,10 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.util.Checks;
@@ -22,6 +24,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -33,42 +36,71 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Resource to manage end point configurations
  */
 @Path("/endpointconfigurations")
-public class EndPointConfigurationResource {
+public class EndPointConfigurationResource extends BaseResource {
 
-    private final EndPointConfigurationService endPointConfigurationService;
     private final EndPointConfigurationInfoFactory endPointConfigurationInfoFactory;
-    private final ExceptionFactory exceptionFactory;
     private final WebServicesService webServicesService;
-    private final EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
 
     @Inject
-    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService, EndPointConfigurationInfoFactory endPointConfigurationInfoFactory, ExceptionFactory exceptionFactory, WebServicesService webServicesService, EndpointConfigurationLogInfoFactory endpointConfigurationLogInfoFactory,ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory) {
-        this.endPointConfigurationService = endPointConfigurationService;
+    public EndPointConfigurationResource(EndPointConfigurationService endPointConfigurationService,
+                                         EndPointConfigurationInfoFactory endPointConfigurationInfoFactory,
+                                         ExceptionFactory exceptionFactory,
+                                         WebServicesService webServicesService,
+                                         EndPointLogInfoFactory endpointConfigurationLogInfoFactory,
+                                         ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
+                                         WebServiceCallOccurrenceInfoFactory endpointConfigurationOccurrenceInfoFactorty,
+                                         ThreadPrincipalService threadPrincipalService,
+                                         WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
+        super(endPointConfigurationService, exceptionFactory, endpointConfigurationLogInfoFactory, endpointConfigurationOccurrenceInfoFactorty,
+                threadPrincipalService, webServiceCallOccurrenceService);
         this.endPointConfigurationInfoFactory = endPointConfigurationInfoFactory;
-        this.exceptionFactory = exceptionFactory;
         this.webServicesService = webServicesService;
-        this.endpointConfigurationLogInfoFactory = endpointConfigurationLogInfoFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
-    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams, @Context UriInfo uriInfo) {
-        List<EndPointConfigurationInfo> infoList = endPointConfigurationService.findEndPointConfigurations()
-                .from(queryParams)
-                .stream()
-                .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
-                .collect(toList());
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES,
+            Privileges.Constants.ADMINISTRATE_WEB_SERVICES,
+            Privileges.Constants.RETRY_WEB_SERVICES})
+    public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
+                                                   @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                                                   @Context UriInfo uriInfo) {
+
+        List<EndPointConfigurationInfo> infoList;
+        if ("SYS".equals(applicationName)) {
+            infoList = endPointConfigurationService.findEndPointConfigurations()
+                    .from(queryParams)
+                    .stream()
+                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                    .collect(toList());
+        } else {
+            Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
+
+            Set<String> webServiceNames = webServicesService.getWebServices().stream()
+                    .filter(ws -> applicationNameToFilter.contains(ws.getApplicationName()))
+                    .map(ws -> ws.getName())
+                    .collect(toSet());
+
+            infoList = endPointConfigurationService.findEndPointConfigurations(webServiceNames)
+                    .from(queryParams)
+                    .stream()
+                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                    .collect(toList());
+        }
+
+
         return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
     }
 
@@ -77,7 +109,9 @@ public class EndPointConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
     @Transactional
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES,
+            Privileges.Constants.ADMINISTRATE_WEB_SERVICES,
+            Privileges.Constants.RETRY_WEB_SERVICES})
     public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return endPointConfigurationService.getEndPointConfiguration(id)
                 .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
@@ -185,12 +219,13 @@ public class EndPointConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}/logs")
-    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
     public PagedInfoList getAllLogs(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         EndPointConfiguration endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_END_POINT_CONFIG));
 
-        List<EndpointConfigurationLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
+        /* Logs contains actions not related to occurrence. */
+        List<EndPointLogInfo> endpointConfigurationLogs = endPointConfiguration.getLogs()
                 .from(queryParameters)
                 .stream()
                 .map(endpointConfigurationLogInfoFactory::from)

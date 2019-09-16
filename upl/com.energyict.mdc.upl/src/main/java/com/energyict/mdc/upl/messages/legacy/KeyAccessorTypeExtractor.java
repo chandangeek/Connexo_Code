@@ -7,6 +7,8 @@ package com.energyict.mdc.upl.messages.legacy;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
 /**
@@ -17,6 +19,7 @@ import java.util.Optional;
  * @author stijn
  * @since 11.05.17 - 08:44
  */
+@ProviderType
 public interface KeyAccessorTypeExtractor {
 
     String id(KeyAccessorType keyAccessorType);
@@ -40,6 +43,8 @@ public interface KeyAccessorTypeExtractor {
      * @return The ThreadContext
      */
     ThreadContext threadContext();
+
+    String getWrapperKeyActualValue(KeyAccessorType keyAccessorType);
 
     /**
      * Models contextual information that can be different

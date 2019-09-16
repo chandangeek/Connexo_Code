@@ -11,10 +11,9 @@ import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -121,13 +120,13 @@ public class ChannelDataTransferor {
     }
 
     private void updateLastReadingIfApplicable(DataLoggerChannelUsage channelUsage, Channel channel) {
-        LoadProfile toUpdate = getChannel(channelUsage.getPhysicalGatewayReference().getOrigin(), channel).map(com.energyict.mdc.device.data.Channel::getLoadProfile).get();
+        LoadProfile toUpdate = getChannel(channelUsage.getPhysicalGatewayReference().getOrigin(), channel).map(com.energyict.mdc.common.device.data.Channel::getLoadProfile).get();
         if (toUpdate.getLastReading() == null || Instant.ofEpochSecond(toUpdate.getLastReading().getTime()).isBefore(channel.getLastDateTime())) {
             channelUsage.getPhysicalGatewayReference().getOrigin().getLoadProfileUpdaterFor(toUpdate).setLastReading(channel.getLastDateTime()).update();
         }
     }
 
-    private Optional<com.energyict.mdc.device.data.Channel> getChannel(Device device, com.elster.jupiter.metering.Channel channel) {
+    private Optional<com.energyict.mdc.common.device.data.Channel> getChannel(Device device, com.elster.jupiter.metering.Channel channel) {
         return device.getChannels().stream().filter(mdcChannel -> channel.getReadingTypes().contains(mdcChannel.getReadingType())).findFirst();
     }
 

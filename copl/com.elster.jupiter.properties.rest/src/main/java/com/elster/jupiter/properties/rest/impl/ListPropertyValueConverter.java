@@ -14,10 +14,16 @@ import com.elster.jupiter.properties.rest.DeviceGroupPropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleInDeviceTypePropertyFactory;
 import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFactory;
 import com.elster.jupiter.properties.rest.EndDeviceEventTypePropertyFactory;
+import com.elster.jupiter.properties.rest.EndDeviceGroupPropertyFactory;
+import com.elster.jupiter.properties.rest.ExcludedComTaskPropertyFactory;
+import com.elster.jupiter.properties.rest.EndPointConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.MetrologyConfigurationPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.ServiceCallStateInfoPropertyFactory;
+import com.elster.jupiter.properties.rest.ServiceCallTypeInfoPropertyFactory;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.properties.rest.TaskPropertyFacory;
+import com.elster.jupiter.util.HasId;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,6 +67,24 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
         if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceEventTypePropertyFactory) {
             return SimplePropertyType.ENDDEVICEEVENTTYPE;
         }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndDeviceGroupPropertyFactory) {
+            return SimplePropertyType.ENDDEVICEGROUPLIST;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof ServiceCallTypeInfoPropertyFactory) {
+            return SimplePropertyType.SERVICE_CALL;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof ServiceCallStateInfoPropertyFactory) {
+            return SimplePropertyType.SERVICE_CALL_STATE;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof ExcludedComTaskPropertyFactory) {
+            return SimplePropertyType.EXCLUDED_COM_TASKS;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory() instanceof EndPointConfigurationPropertyFactory) {
+            return SimplePropertyType.ENDPOINT_CONFIGURATION_LIST;
+        }
+        if (((ListValueFactory) propertySpec.getValueFactory()).getActualFactory().isReference()) {
+            return SimplePropertyType.IDWITHNAMELIST;
+        }
         return SimplePropertyType.LISTVALUE;
     }
 
@@ -77,10 +101,15 @@ public class ListPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         if (domainValue != null) {
-            List<HasIdAndName> value = (List<HasIdAndName>) domainValue;
-            return value.stream().map(HasIdAndName::getId).collect(Collectors.toList());
+            List<?> value = (List<?>) domainValue;
+            return value.stream().map(ListPropertyValueConverter::retrieveId).collect(Collectors.toList());
         }
         return null;
     }
 
+    private static Object retrieveId(Object value) {
+        return value instanceof HasIdAndName
+                ? ((HasIdAndName) value).getId()
+                : value instanceof HasId ? ((HasId) value).getId() : value;
+    }
 }

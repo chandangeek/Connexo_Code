@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.common.device.config.LogBookSpec;
+import com.energyict.mdc.common.device.data.LogBook;
 
 /**
  * Provides functionality to manipulate the LogBook in order to perform a valid DeviceConfigChange

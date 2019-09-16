@@ -13,7 +13,9 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
 
     edit: false,
 
-    content: [
+    initComponent: function() {
+        var me = this;
+        me.content = [
         {
             xtype: 'form',
             itemId: 'comPortPoolEditForm',
@@ -76,6 +78,36 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     width: 600
                 },
                 {
+                    xtype: 'numberfield',
+                    name: 'pctHighPrioTasks',
+                    fieldLabel: Uni.I18n.translate('comPortPool.form.percentageOfPriorityTasks', 'MDC', 'Percentage of priority tasks'),
+                    itemId: 'percentageOfPriorityTasks',
+                    value: 0,
+                    maxValue: 100,
+                    minValue: 0,
+                    required: true,
+                    allowBlank: false,
+                    listeners: {
+                        change: function () {
+                            me.changeMaxPriorityConnections();
+                        },
+                        blur: me.numberFieldValidation
+                    }
+                },
+                {
+                    xtype: 'displayfield',
+                    name: 'maxPriorityConnections',
+                    fieldLabel: Uni.I18n.translate('comPortPool.form.maxPriorityConnections', 'MDC', 'Max priority connections'),
+                    itemId: 'maxPriorityConnections',
+                    editable: false,
+                    hidden: true,
+                    listeners: {
+                        afterrender: function (field) {
+                            field.focus(false, 500);
+                        }
+                    }
+                },
+                {
                     xtype: 'combobox',
                     name: 'discoveryProtocolPluggableClassId',
                     itemId: 'cbo-comportpool-protocol-detect',
@@ -131,7 +163,9 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                 }
             ]
         }
-    ],
+    ];
+        me.callParent(arguments);
+    },
 
     isEdit: function () {
         return this.edit;
@@ -146,5 +180,31 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
         }
         this.down('#cancelLink').href = returnLink;
-    }
+    },
+
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue || value > field.maxValue) {
+            field.setValue(field.minValue);
+        }
+    },
+
+    changeMaxPriorityConnections: function() {
+        var me =this,
+            pctHighPrioTasks = me.down('#percentageOfPriorityTasks').getValue() ;
+        if(this.edit && pctHighPrioTasks >= 0 && pctHighPrioTasks <= 100) {
+            me.down('#maxPriorityConnections').show();
+            Ext.Ajax.request({
+                url: '/api/mdc/comportpools/' + me.down("[name=id]").getValue() + '/maxPriorityConnections',
+                method: 'GET',
+                params: {
+                    pctHighPrioTasks: pctHighPrioTasks
+                },
+                success: function (operation) {
+                    me.down('#maxPriorityConnections').setValue(operation.responseText);
+                }
+            })
+        }
+    },
 });

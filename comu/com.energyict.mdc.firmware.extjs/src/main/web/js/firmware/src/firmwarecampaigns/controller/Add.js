@@ -26,7 +26,10 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.store.Firmwares',
         'Fwc.store.DeviceGroups',
-        'Fwc.firmwarecampaigns.store.DaysWeeksMonths'
+        'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
+        'Fwc.firmwarecampaigns.store.ComTasksForValidate',
+        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
+        'Fwc.firmwarecampaigns.store.ConnectionStrategy'
     ],
 
     refs: [
@@ -91,9 +94,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             periodCount = form.down('#period-number'),
             timeBoundaryStart = form.down('#timeBoundaryStart'),
             timeBoundaryEnd = form.down('#timeBoundaryEnd'),
-            baseForm = form.getForm();
+            baseForm = form.getForm(),
+            firmwareVersionsView = form.down('firmware-version-options');
 
-        if (!form.isValid()) {
+        var versionOptions = firmwareVersionsView.getDataFromChecks(true);
+
+        if (!form.isValid() || !versionOptions) {
             errorMessage.show();
             return;
         }
@@ -105,6 +111,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         page.setLoading();
         var record = form.getRecord();
         var propertyForm = form.down('property-form');
+        var firmwareVersionsView = form.down('firmware-version-options');
+
 
         if(record.get('managementOption')){
             record.set('validationTimeout', {
@@ -113,8 +121,53 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             });
         }
 
+        if (versionOptions){
+            record.set('checkOptions', versionOptions);
+        }
+
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
+
+        var sendCalendarComTaskField = form.down('[name=calendarUploadComTask]');
+        var calendarUploadComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
+
+        if (calendarUploadComTask) {
+            record.set('calendarUploadComTask', calendarUploadComTask.getData());
+        }
+
+        var sendCalendarConnectionStrategyField = form.down('[name=calendarUploadConnectionStrategy]');
+        var calendarUploadConnectionStrategy = sendCalendarConnectionStrategyField.store.getById(
+            sendCalendarConnectionStrategyField.value
+        );
+
+        if (calendarUploadConnectionStrategy) {
+            record.set('calendarUploadConnectionStrategy', calendarUploadConnectionStrategy.getData());
+        }
+
+        if (record.get('managementOption') && (record.get('managementOption').id === "activate"
+        || record.get('managementOption').id === "activateOnDate")) {
+            var validationComTaskField = form.down('[name=validationComTask]');
+            var validationComTask = validationComTaskField.store.getById(
+                validationComTaskField.value
+            );
+
+            if (validationComTask) {
+                record.set('validationComTask', validationComTask.getData());
+            }
+
+            var validationConnectionStrategyField = form.down('[name=validationConnectionStrategy]');
+            var validationConnectionStrategy = validationConnectionStrategyField.store.getById(
+                validationConnectionStrategyField.value
+            );
+
+            if (validationConnectionStrategy) {
+                record.set('validationConnectionStrategy', validationConnectionStrategy.getData());
+            }
+        }
+        else {
+            record.set('validationComTask', undefined);
+            record.set('validationConnectionStrategy', undefined);
+        }
 
         record.save({
             backUrl: page.returnLink,

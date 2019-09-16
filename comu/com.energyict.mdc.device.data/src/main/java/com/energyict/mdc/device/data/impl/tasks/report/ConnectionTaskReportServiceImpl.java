@@ -13,18 +13,18 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskBreakdowns;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import org.joda.time.DateTimeConstants;
 
@@ -87,7 +87,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     private Map<TaskStatus, Long> doGetConnectionTaskStatusCount(EndDeviceGroup deviceGroup) {
         ConnectionTaskStatusCountSqlBuilder sqlBuilder =
                 new ConnectionTaskStatusCountSqlBuilder(
-                        this.taskStatusesForCounting(EnumSet.allOf(TaskStatus.class)),
+                        this.taskStatusesForCounting(TaskStatus.withoutPrio()),
                         deviceGroup,
                         this);
         return this.addMissingTaskStatusCounters(this.deviceDataModelService.fetchTaskStatusCounters(sqlBuilder));
@@ -238,7 +238,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         if (waitingOnly) {
             sqlBuilder.append(" and nextexecutiontimestamp >");
             sqlBuilder.addLong(this.toSeconds(this.deviceDataModelService.clock().instant()));
-            sqlBuilder.append(" and ct.comserver is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
+            sqlBuilder.append(" and ct.comport is null and ct.status = 0 and ct.currentretrycount = 0 and ct.lastExecutionFailed = 0 and ct.lastsuccessfulcommunicationend is not null");
         } else {
             sqlBuilder.append(" and ct.nextexecutiontimestamp is not null");
             sqlBuilder.append(" and ct.lastsession is not null ");

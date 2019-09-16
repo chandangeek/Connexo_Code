@@ -38,7 +38,12 @@ public enum EndDeviceDomain  implements CimMnemonicProvider {
     PRESSURE(29, "Pressure"),
     RCDSWITCH(31, "RCDSwitch"),
     TEMPERATURE(35, "Temperature"),
-    CLOCK(36, "Clock");
+    CLOCK(36, "Clock"),
+    WATCHDOG(37, "Watchdog"),
+    KYZPULSECOUNTER(38,"KYZPulseCounter"),
+    ASSOCIATEDDEVICE(39,"AssociatedDevice"),
+    VOLUME(40,"Volume"),
+    RECODER(41,"Recoder");
 
     private int value;
     private String mnemonic;

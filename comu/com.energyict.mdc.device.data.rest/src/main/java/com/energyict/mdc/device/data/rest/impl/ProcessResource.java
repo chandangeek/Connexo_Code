@@ -21,10 +21,10 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.alarms.DeviceAlarmFilter;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import org.json.JSONArray;
@@ -59,9 +59,9 @@ import java.util.stream.Collectors;
 
 @Path("/flowprocesses")
 public class ProcessResource {
-    
+
     public final static String USAGE_POINT_VARIABLE_ID = "usagePointId";
-    
+
     private enum ProcessObjectType {
         DEVICE("device", "deviceId"),
         ALARM("devicealarm", "alarmId"),
@@ -187,13 +187,15 @@ public class ProcessResource {
                 Optional<? extends Issue> tmpIssue = issueService.findIssue(Long.valueOf(issueId));
                 if (tmpIssue.isPresent()) {
                     processGeneralInfos.setObjectName(i, tmpIssue.get().getIssueId() + ": " + tmpIssue.get().getTitle());
-                    processGeneralInfos.setCorrDeviceName(i, tmpIssue.get().getDevice().getName());
+                    if (tmpIssue.get().getDevice() != null) {
+                        processGeneralInfos.setCorrDeviceName(i, tmpIssue.get().getDevice().getName());
+                    }
                     processGeneralInfos.setIssueType(i, tmpIssue.get().getReason().getIssueType().getKey());
                 } else {
                     System.out.println("There is no corresponding issue in database");
                 }
             }
-            
+
             if (processGeneralInfos.getVariableId(i).equals(USAGE_POINT_VARIABLE_ID)) {
                 final String usagePointMRID = processGeneralInfos.getValue(i);
                 Optional<UsagePoint> usagePoint = meteringService.findUsagePointByMRID(usagePointMRID);
@@ -263,7 +265,7 @@ public class ProcessResource {
         List<Meter> listMeters = meteringService.findMeters(filter).paged(params.getStart(), params.getLimit()).find();
         return Response.ok().entity(listMeters.stream().map(alm -> new DeviceObjectInfo(alm.getId(), alm.getName(), alm.getMRID())).collect(Collectors.toList())).build();
     }
-    
+
     @GET
     @Path("/usagepointobjects")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

@@ -15,34 +15,34 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Predicates;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.OutboundComPortPool;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.ConnectionInitiationTask;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.InboundConnectionTask;
+import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
+import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionBuilderImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import org.joda.time.DateTimeConstants;
@@ -86,29 +86,35 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
-    public void releaseInterruptedConnectionTasks(ComServer comServer) {
-        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_CONNECTIONTASK.name() + " SET comserver = NULL WHERE comserver = ");
-        sqlBuilder.addLong(comServer.getId());
-        this.deviceDataModelService.executeUpdate(sqlBuilder);
+    public void releaseInterruptedConnectionTasks(ComPort comPort) {
+        SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_CONNECTIONTASK.name() + " SET ");
+        sqlBuilder.append(ConnectionTaskFields.COM_PORT.fieldName());
+        sqlBuilder.append(" = NULL WHERE ");
+        sqlBuilder.append(ConnectionTaskFields.COM_PORT.fieldName());
+        sqlBuilder.append(" = ");
+        sqlBuilder.addLong(comPort.getId());
+        deviceDataModelService.executeUpdate(sqlBuilder);
     }
 
     @Override
-    public void releaseTimedOutConnectionTasks(ComServer outboundCapableComServer) {
-        List<ComPortPool> containingComPortPoolsForComServer = this.deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComServer(outboundCapableComServer);
-        for (ComPortPool comPortPool : containingComPortPoolsForComServer) {
-            this.releaseTimedOutConnectionTasks((OutboundComPortPool) comPortPool);
+    public void releaseTimedOutConnectionTasks(ComPort comPort) {
+        List<OutboundComPortPool> containingComPortPoolsForComPort = deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort((OutboundComPort) comPort);
+        for (ComPortPool comPortPool : containingComPortPoolsForComPort) {
+            releaseTimedOutConnectionTasks((OutboundComPortPool) comPortPool);
         }
     }
 
     private void releaseTimedOutConnectionTasks(OutboundComPortPool outboundComPortPool) {
-        long now = this.toSeconds(this.deviceDataModelService.clock().instant());
+        long now = toSeconds(deviceDataModelService.clock().instant());
         int timeOutSeconds = outboundComPortPool.getTaskExecutionTimeout().getSeconds();
-        this.deviceDataModelService.executeUpdate(this.releaseTimedOutConnectionTasksSqlBuilder(outboundComPortPool, now, timeOutSeconds));
+        deviceDataModelService.executeUpdate(releaseTimedOutConnectionTasksSqlBuilder(outboundComPortPool, now, timeOutSeconds));
     }
 
     private SqlBuilder releaseTimedOutConnectionTasksSqlBuilder(OutboundComPortPool outboundComPortPool, long now, int timeOutSeconds) {
         SqlBuilder sqlBuilder = new SqlBuilder("UPDATE " + TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append("   set comserver = null");
+        sqlBuilder.append("   set ");
+        sqlBuilder.append(ConnectionTaskFields.COM_PORT.fieldName());
+        sqlBuilder.append(" = null");
         sqlBuilder.append(" where id in (select connectiontask from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" where id in (");
@@ -123,32 +129,32 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public Optional<ConnectionTask> findConnectionTask(long id) {
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).getOptional(id);
+        return deviceDataModelService.dataModel().mapper(ConnectionTask.class).getOptional(id);
     }
 
     @Override
     public Optional<ConnectionTask> findAndLockConnectionTaskByIdAndVersion(long id, long version) {
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockObjectIfVersion(version, id);
+        return deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockObjectIfVersion(version, id);
     }
 
     @Override
     public Optional<OutboundConnectionTask> findOutboundConnectionTask(long id) {
-        return this.deviceDataModelService.dataModel().mapper(OutboundConnectionTask.class).getOptional(id);
+        return deviceDataModelService.dataModel().mapper(OutboundConnectionTask.class).getOptional(id);
     }
 
     @Override
     public Optional<InboundConnectionTask> findInboundConnectionTask(long id) {
-        return this.deviceDataModelService.dataModel().mapper(InboundConnectionTask.class).getOptional(id);
+        return deviceDataModelService.dataModel().mapper(InboundConnectionTask.class).getOptional(id);
     }
 
     @Override
     public Optional<ScheduledConnectionTask> findScheduledConnectionTask(long id) {
-        return this.deviceDataModelService.dataModel().mapper(ScheduledConnectionTask.class).getOptional(id);
+        return deviceDataModelService.dataModel().mapper(ScheduledConnectionTask.class).getOptional(id);
     }
 
     @Override
     public Optional<ConnectionInitiationTask> findConnectionInitiationTask(long id) {
-        return this.deviceDataModelService.dataModel().mapper(ConnectionInitiationTask.class).getOptional(id);
+        return deviceDataModelService.dataModel().mapper(ConnectionInitiationTask.class).getOptional(id);
     }
 
     @Override
@@ -157,7 +163,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                     where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
                 and(where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull()).
                 and(where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask));
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition).stream().findFirst();
+        return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition).stream().findFirst();
     }
 
     @Override
@@ -165,7 +171,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         List<Long> connectionTaskIds = new ArrayList<>();
         SqlBuilder sqlBuilder = new SqlBuilder("select id from " + TableSpecs.DDC_CONNECTIONTASK + " where OBSOLETE_DATE is null and PARTIALCONNECTIONTASK =");
         sqlBuilder.addLong(partialConnectionTaskId);
-        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(true)) {
+        try (Connection connection = deviceDataModelService.dataModel().getConnection(true)) {
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
@@ -185,24 +191,24 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         Condition condition =
                     where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
                 and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
+        return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
     }
 
     @Override
     public List<ConnectionTask> findAllConnectionTasksByDevice(Device device) {
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
+        return deviceDataModelService.dataModel().mapper(ConnectionTask.class).find(ConnectionTaskFields.DEVICE.fieldName(), device);
     }
 
     @Override
     public List<InboundConnectionTask> findInboundConnectionTasksByDevice(Device device) {
         Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        return this.deviceDataModelService.dataModel().mapper(InboundConnectionTask.class).select(condition);
+        return deviceDataModelService.dataModel().mapper(InboundConnectionTask.class).select(condition);
     }
 
     @Override
     public List<ScheduledConnectionTask> findScheduledConnectionTasksByDevice(Device device) {
         Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        return this.deviceDataModelService.dataModel().mapper(ScheduledConnectionTask.class).select(condition);
+        return deviceDataModelService.dataModel().mapper(ScheduledConnectionTask.class).select(condition);
     }
 
     @Override
@@ -210,7 +216,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
                           and(where("isDefault").isEqualTo(true)).
                           and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
+        List<ConnectionTask> connectionTasks = deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
         if (connectionTasks.size() == 1) {
             return Optional.of(connectionTasks.get(0));
         }
@@ -230,7 +236,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public List<ConnectionTask> findConnectionTasksByStatus(TaskStatus status) {
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(ServerConnectionTaskStatus.forTaskStatus(status).condition());
+        return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(ServerConnectionTaskStatus.forTaskStatus(status).condition());
     }
 
     /**
@@ -240,7 +246,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
      * @return The QueryExecutor
      */
     private QueryExecutor<Device> deviceFromDeviceGroupQueryExecutor() {
-        return this.deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class);
+        return deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class);
     }
 
     @Override
@@ -248,18 +254,18 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         ConnectionTaskFilterSqlBuilder sqlBuilder =
                 new ConnectionTaskFilterSqlBuilder(
                         filter,
-                        this.deviceDataModelService.clock(),
-                        this.deviceFromDeviceGroupQueryExecutor());
-        DataMapper<ConnectionTask> dataMapper = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class);
-        return this.fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
+                        deviceDataModelService.clock(),
+                        deviceFromDeviceGroupQueryExecutor());
+        DataMapper<ConnectionTask> dataMapper = deviceDataModelService.dataModel().mapper(ConnectionTask.class);
+        return fetchConnectionTasks(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
     }
 
     @Override
     public List<ConnectionTypePluggableClass> findConnectionTypeByFilter(ConnectionTaskFilterSpecification filter) {
         // TODO provide native query....
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>();
-        List<String> javaClassNames = this.findConnectionTasksByFilter(filter, 0, Integer.MAX_VALUE - 1).stream().map(ct -> ct.getPluggableClass().getJavaClassName()).collect(Collectors.toList());
-        this.protocolPluggableService.findAllConnectionTypePluggableClasses().stream().
+        List<String> javaClassNames = findConnectionTasksByFilter(filter, 0, Integer.MAX_VALUE - 1).stream().map(ct -> ct.getPluggableClass().getJavaClassName()).collect(Collectors.toList());
+        protocolPluggableService.findAllConnectionTypePluggableClasses().stream().
                 filter(pluggableClass -> javaClassNames.contains(pluggableClass.getJavaClassName())).
                 forEach(connectionTypePluggableClasses::add);
 
@@ -290,11 +296,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public void setDefaultConnectionTask(ConnectionTask newDefaultConnectionTask) {
-        this.doSetDefaultConnectionTask(newDefaultConnectionTask.getDevice(), (ConnectionTaskImpl) newDefaultConnectionTask);
+        doSetDefaultConnectionTask(newDefaultConnectionTask.getDevice(), (ConnectionTaskImpl) newDefaultConnectionTask);
     }
 
     public void doSetDefaultConnectionTask(final Device device, final ConnectionTaskImpl newDefaultConnectionTask) {
-        this.clearOldDefault(device, newDefaultConnectionTask);
+        clearOldDefault(device, newDefaultConnectionTask);
         if (newDefaultConnectionTask != null) {
             newDefaultConnectionTask.setAsDefault();
         }
@@ -304,20 +310,20 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         Condition condition = where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
                           and(where("isDefault").isEqualTo(true)).
                           and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
-        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
+        List<ConnectionTask> connectionTasks = deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
         connectionTasks
                 .stream()
                 .filter(connectionTask -> isPreviousDefault(newDefaultConnectionTask, connectionTask))
                 .map(ConnectionTaskImpl.class::cast)
                 .forEach(connectionTask -> {
                     connectionTask.clearDefault();
-                    this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARDEFAULT.topic(), connectionTask);
+                    eventService.postEvent(EventType.CONNECTIONTASK_CLEARDEFAULT.topic(), connectionTask);
                 });
     }
 
     @Override
     public void clearDefaultConnectionTask(Device device) {
-        this.doSetDefaultConnectionTask(device, null);
+        doSetDefaultConnectionTask(device, null);
     }
 
     private boolean isPreviousDefault(ConnectionTask newDefaultConnectionTask, ConnectionTask connectionTask) {
@@ -329,21 +335,21 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     @Override
     public void setConnectionTaskHavingConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction) {
         clearConnectionTaskConnectionFunction(connectionTask, oldConnectionFunction);
-        this.eventService.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic(), connectionTask);
+        eventService.postEvent(EventType.CONNECTIONTASK_SETASCONNECTIONFUNCTION.topic(), connectionTask);
     }
 
     @Override
     public void clearConnectionTaskConnectionFunction(ConnectionTask<?, ?> connectionTask, Optional<ConnectionFunction> oldConnectionFunction) {
-        oldConnectionFunction.ifPresent(connectionFunction -> this.eventService.postEvent(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION.topic(), Pair.of(connectionTask, connectionFunction)));
+        oldConnectionFunction.ifPresent(connectionFunction -> eventService.postEvent(EventType.CONNECTIONTASK_CLEARCONNECTIONFUNCTION.topic(), Pair.of(connectionTask, connectionFunction)));
     }
 
     @Override
-    public <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComServer comServer) {
-        Optional<ConnectionTask> lockResult = this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockNoWait(connectionTask.getId());
+    public <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComPort comPort) {
+        Optional<ConnectionTask> lockResult = deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockNoWait(connectionTask.getId());
         if (lockResult.isPresent()) {
             T lockedConnectionTask = (T) lockResult.get();
-            if (lockedConnectionTask.getExecutingComServer() == null) {
-                ((ConnectionTaskImpl) lockedConnectionTask).updateExecutingComServer(comServer);
+            if (lockedConnectionTask.getExecutingComPort() == null) {
+                ((ConnectionTaskImpl) lockedConnectionTask).updateExecutingComPort(comPort);
                 return lockedConnectionTask;
             } else {
                 // No database lock but business lock is already set
@@ -357,22 +363,22 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public ConnectionTask attemptLockConnectionTask(long id) {
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lock(id);
+        return deviceDataModelService.dataModel().mapper(ConnectionTask.class).lock(id);
     }
 
     @Override
     public void unlockConnectionTask(ConnectionTask connectionTask) {
-        this.unlockConnectionTask((ConnectionTaskImpl) connectionTask);
+        unlockConnectionTask((ConnectionTaskImpl) connectionTask);
     }
 
     private void unlockConnectionTask(ConnectionTaskImpl connectionTask) {
-        connectionTask.updateExecutingComServer(null);
+        connectionTask.updateExecutingComPort(null);
     }
 
     @Override
     public boolean hasConnectionTasks(ComPortPool comPortPool) {
         List<ConnectionTask> connectionTasks =
-                this.deviceDataModelService.dataModel().query(ConnectionTask.class).
+                deviceDataModelService.dataModel().query(ConnectionTask.class).
                         select(where("comPortPool").isEqualTo(comPortPool),
                                 new Order[0], false, new String[0],
                                 1, 1);
@@ -383,39 +389,39 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     public boolean hasConnectionTasks(PartialConnectionTask partialConnectionTask) {
         Condition condition = where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask).
                 and(where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull());
-        List<ConnectionTask> connectionTasks = this.deviceDataModelService.dataModel().query(ConnectionTask.class).select(condition, new Order[0], false, new String[0], 1, 1);
+        List<ConnectionTask> connectionTasks = deviceDataModelService.dataModel().query(ConnectionTask.class).select(condition, new Order[0], false, new String[0], 1, 1);
         return !connectionTasks.isEmpty();
     }
 
     @Override
     public List<ComSession> findAllSessionsFor(ConnectionTask<?, ?> connectionTask) {
-        return this.deviceDataModelService.dataModel().mapper(ComSession.class).
+        return deviceDataModelService.dataModel().mapper(ComSession.class).
                 select(where(ComSessionImpl.Fields.CONNECTION_TASK.fieldName()).isEqualTo(connectionTask));
     }
 
     @Override
     public ComSessionBuilder buildComSession(ConnectionTask<?, ?> connectionTask, ComPortPool comPortPool, ComPort comPort, Instant startTime) {
-        return new ComSessionBuilderImpl(this.deviceDataModelService.dataModel(), connectionTask, comPortPool, comPort, startTime);
+        return new ComSessionBuilderImpl(deviceDataModelService.dataModel(), connectionTask, comPortPool, comPort, startTime);
     }
 
     @Override
     public Optional<ComSession> findComSession(long id) {
-        return this.deviceDataModelService.dataModel().mapper(ComSession.class).getOptional(id);
+        return deviceDataModelService.dataModel().mapper(ComSession.class).getOptional(id);
     }
 
     @Override
     public List<ComSession> findComSessions(ComPort comPort) {
-        return this.deviceDataModelService.dataModel().mapper(ComSession.class).find("comPort", comPort);
+        return deviceDataModelService.dataModel().mapper(ComSession.class).find("comPort", comPort);
     }
 
     @Override
     public List<ComSession> findComSessions(ComPortPool comPortPool) {
-        return this.deviceDataModelService.dataModel().mapper(ComSession.class).find("comPortPool", comPortPool);
+        return deviceDataModelService.dataModel().mapper(ComSession.class).find("comPortPool", comPortPool);
     }
 
     @Override
-    public List<ConnectionTask> findLockedByComServer(ComServer comServer) {
-        Condition condition = where(ConnectionTaskFields.COM_SERVER.fieldName()).isEqualTo(comServer);
-        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
+    public List<ConnectionTask> findLockedByComPort(ComPort comPort) {
+        Condition condition = where(ConnectionTaskFields.COM_PORT.fieldName()).isEqualTo(comPort);
+        return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
     }
 }

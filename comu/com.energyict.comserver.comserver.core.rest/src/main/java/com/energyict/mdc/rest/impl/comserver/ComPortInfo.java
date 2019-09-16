@@ -9,8 +9,8 @@ import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.channel.serial.BaudrateValue;
 import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.ports.ComPortType;
 

@@ -10,12 +10,16 @@ Ext.define('Apr.controller.TaskManagement', {
         'Apr.view.taskmanagement.TaskGrid',
         'Apr.view.taskmanagement.TaskPreview',
         'Apr.view.taskmanagement.TaskFilter',
-        'Apr.view.taskmanagement.Add'
+        'Apr.view.taskmanagement.Add',
+        'Apr.view.taskmanagement.QueueAndPriorityWindow'
     ],
     stores: [
         'Apr.store.Tasks',
         'Apr.store.QueuesByApplication',
-        'Apr.store.CustomTaskTypes'
+        'Apr.store.TasksQueueTypes',
+        'Apr.store.CustomTaskTypes',
+        'Apr.store.TasksType',
+        'Apr.store.Queues'
     ],
     models: [
         'Apr.model.Task',
@@ -44,6 +48,10 @@ Ext.define('Apr.controller.TaskManagement', {
         {
             ref: 'taskManagementGrid',
             selector: 'task-management-grid'
+        },
+        {
+            ref: 'queuePriorityWindow',
+            selector: 'queue-priority-window-management'
         }
     ],
 
@@ -61,6 +69,9 @@ Ext.define('Apr.controller.TaskManagement', {
             'task-management-action-menu': {
                 click: this.chooseMenuAction,
                 show: this.onMenuShow
+            },
+            'queue-priority-window-management #save-queue-priority-button': {
+                click: this.saveQueuePriority
             }
         });
     },
@@ -68,12 +79,15 @@ Ext.define('Apr.controller.TaskManagement', {
     showTaskManagement: function () {
         var me = this,
             queuesStore = me.getStore('Apr.store.QueuesByApplication'), widget;
+            queueTypesStore = me.getStore('Apr.store.TasksQueueTypes'), widget;
 
         queuesStore.getProxy().extraParams = {application: this.applicationKey};
+        queueTypesStore.getProxy().extraParams = {application: this.applicationKey};
         widget = Ext.widget('task-management-setup', {
             applicationKey: me.applicationKey,
             addTaskRoute: me.addTaskRoute,
             queuesStore: queuesStore,
+            queueTypesStore: queueTypesStore,
             router: me.getController('Uni.controller.history.Router')
         });
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -115,7 +129,10 @@ Ext.define('Apr.controller.TaskManagement', {
         Ext.suspendLayouts();
         taskPreview.setTitle(Ext.String.htmlEncode(record.get('name')));
         taskPreview.down('#task-management-preview-form').loadRecord(record);
-        taskPreview.down('#btn-task-management-preview-action-menu').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canAdministrate());
+        taskPreview.down('#btn-task-management-preview-action-menu').setVisible(
+            (taskManagement && taskManagement.controller && taskManagement.controller.canAdministrate())
+            || me.canSetQueuePriority(record) || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview')
+        );
         taskPreview.down('task-management-action-menu').record = record;
         if (record.get('queueStatus') == 'Busy') {
             taskPreview.down('#durationField').show();
@@ -162,20 +179,33 @@ Ext.define('Apr.controller.TaskManagement', {
             case 'suspendTask':
                 me.suspendTaskManagement(record, me.suspendOperationStart, me.suspendOperationCompleted, this);
                 break;
+            case 'setQueueAndPriority':
+                me.setQueueAndPriority(record);
+                break;
         }
     },
 
     onMenuShow: function (menu) {
         var taskType = menu.record.get('queue'),
             taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
-
         Ext.suspendLayouts();
         menu.down('#run-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRun());
         menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
         menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
         menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
+        menu.down('#set-queue-priority').setVisible(this.canSetQueuePriority(menu.record));
         menu.reorderItems();
         Ext.resumeLayouts(true);
+    },
+
+    canSetQueuePriority: function (record) {
+        var application = record.get('application').name,
+            privilege = false;
+        if (application === "MultiSense") {
+            privilege = Uni.Auth.checkPrivileges(Mdc.privileges.TaskManagement.administrateTaskOverview)
+               && (record.get('extraQueueCreationEnabled') || record.get('queuePrioritized'));
+        };
+        return privilege;
     },
 
     /* add task section */
@@ -395,6 +425,51 @@ Ext.define('Apr.controller.TaskManagement', {
             // This will force refresh of details, needed for "Suspended" detail
         }
     },
+
+   setQueueAndPriority: function (record) {
+            var me = this,
+            storeTaskType = Ext.getStore('Apr.store.TasksType');
+            storeTaskType.getProxy().setUrl(record.getId());
+        storeTaskType.load(function(records, operation, success) {
+            if (success) {
+                var window = Ext.widget('queue-priority-window-management', {
+                    record: record,
+                    storeTaskType: storeTaskType
+                });
+                window.show();
+            };
+        });
+    },
+   saveQueuePriority: function() {
+        var me = this,
+            window = me.getQueuePriorityWindow(),
+            record = window.record,
+            taskId = record.getId(),
+            priority = window.down('#priority-field').getValue(),
+            queue = window.down('#queue-field').getValue(),
+            updatedData;
+
+        updatedData = {
+            id: taskId,
+            queue: queue,
+            priority: priority
+        };
+
+        Ext.Ajax.request({
+            url: '/api/tsk/task',
+            method: 'PUT',
+            jsonData: Ext.encode(updatedData),
+            success: function (response) {
+            record.set({
+                'queue': queue,
+                'priority': priority
+            });
+                window.close();
+                me.getApplication().fireEvent('acknowledge', 'Task queue and priority changed.');
+                me.getTaskPreview().down('form').loadRecord(record);
+            },
+        });
+   },
 
     /* common section */
     saveOperationComplete: function () {

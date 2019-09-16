@@ -244,6 +244,7 @@ public class ServiceCallTransitionIT {
                 EventServiceImpl eventService = (EventServiceImpl) this.eventService;
                 eventService.addTopicHandler(serviceCallStateChangeTopicHandler);
                 StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler();
+                stateTransitionTriggerEventTopicHandler.setFiniteStateMachineService(injector.getInstance(FiniteStateMachineService.class));
                 stateTransitionTriggerEventTopicHandler.setEventService(eventService);
                 eventService.addTopicHandler(stateTransitionTriggerEventTopicHandler);
 

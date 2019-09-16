@@ -10,16 +10,16 @@ import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.TrackingCategory;
 import com.energyict.mdc.common.rest.FieldValidationException;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.MultiSenseEndDeviceCommand;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
-import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -32,10 +32,10 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
 
     private final EndDevice endDevice;
     private final EndDeviceControlType endDeviceControlType;
-    private final List<DeviceMessageId> possibleDeviceMessageIds;
+    protected final List<DeviceMessageId> possibleDeviceMessageIds;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceService deviceService;
-    private final Thesaurus thesaurus;
+    protected final Thesaurus thesaurus;
 
     private List<PropertySpec> commandArgumentSpecs = null;
     private Map<PropertySpec, Object> propertyValueMap = new HashMap<>();
@@ -123,12 +123,12 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand, MultiSen
         return propertyValueMap;
     }
 
-    private Device findDeviceForEndDevice(EndDevice endDevice) {
+    protected Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
-    private DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {
+    protected DeviceMessageSpec findDeviceMessageSpec(DeviceMessageId deviceMessageId) {
         return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue())
                 .orElseThrow(NoSuchElementException.deviceMessageSpecWithIdNotFound(thesaurus, deviceMessageId.dbValue()));
     }

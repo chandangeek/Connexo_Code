@@ -14,9 +14,9 @@ public class RenewKeyRequest {
     private final HsmKeyType hsmKeyType;
 
 
-    public RenewKeyRequest(byte[] masterKey, String actualLabel, HsmKeyType hsmKeyType) {
+    public RenewKeyRequest(byte[] masterKey, String masterKeyLabel, HsmKeyType hsmKeyType) {
         this.masterKey = masterKey;
-        this.masterKeyLabel = actualLabel;
+        this.masterKeyLabel = masterKeyLabel;
         this.hsmKeyType =hsmKeyType;
     }
 
@@ -27,9 +27,6 @@ public class RenewKeyRequest {
     public String getMasterKeyLabel() {
         return masterKeyLabel;
     }
-
-
-
 
     public SessionKeyCapability getRenewCapability() {
         return hsmKeyType.getRenewCapability();

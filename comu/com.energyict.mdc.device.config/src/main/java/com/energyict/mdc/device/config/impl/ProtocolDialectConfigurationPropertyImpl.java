@@ -7,9 +7,9 @@ package com.energyict.mdc.device.config.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.device.config.EventType;
+import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
-import com.energyict.mdc.device.config.events.EventType;
 
 import javax.validation.constraints.Size;
 import java.time.Instant;

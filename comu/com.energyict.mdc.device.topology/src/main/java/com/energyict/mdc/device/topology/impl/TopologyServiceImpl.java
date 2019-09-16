@@ -38,16 +38,17 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.device.data.Channel;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.common.protocol.ConnectionFunction;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.DataLoggerReference;
@@ -72,7 +73,7 @@ import com.energyict.mdc.device.topology.impl.utils.MeteringChannelProvider;
 import com.energyict.mdc.device.topology.impl.utils.Utils;
 import com.energyict.mdc.device.topology.kpi.Privileges;
 import com.energyict.mdc.device.topology.kpi.RegisteredDevicesKpiService;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -186,7 +187,9 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
             Version.version(10, 2), V10_2SimpleUpgrader.class,
                 Version.version(10, 4), UpgraderV10_4.class,
-                Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class));
+                Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class,
+                Version.version(10, 7), UpgraderV10_7.class
+        ));
         this.registerRealServices(bundleContext);
     }
 
@@ -455,6 +458,65 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices) {
         return DefaultFinder.of(PhysicalGatewayReference.class, where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave), dataModel).paged(0, numberOfDevices).sorted("interval.start", false).stream();
+    }
+
+    @Override
+    public List<Device> getSlaveDevices(Device device) {
+        List<Device> slaveDevices = new ArrayList<>();
+        TopologyTimeline timeline = getPhysicalTopologyTimeline(device);
+        slaveDevices.addAll(timeline.getAllDevices().stream()
+                .filter(d -> hasNotEnded(timeline, d))
+                .sorted(new DeviceRecentlyAddedComporator(timeline))
+                .collect(Collectors.toList()));
+        return slaveDevices;
+    }
+
+    private static class DeviceRecentlyAddedComporator implements Comparator<Device> {
+
+        private TopologyTimeline timeline;
+        DeviceRecentlyAddedComporator(TopologyTimeline timeline) {
+            this.timeline = timeline;
+        }
+
+        @Override
+        public int compare(Device d1, Device d2) {
+            Optional<Instant> d1AddTime = this.timeline.mostRecentlyAddedOn(d1);
+            Optional<Instant> d2AddTime = this.timeline.mostRecentlyAddedOn(d2);
+            if (!d1AddTime.isPresent() && !d2AddTime.isPresent()) {
+                return 0;
+            } else if (!d1AddTime.isPresent() && d2AddTime.isPresent()) {
+                return 1;
+            } else if (!d2AddTime.isPresent() && d1AddTime.isPresent()) {
+                return -1;
+            }
+            return -1 * d1AddTime.get().compareTo(d2AddTime.get());
+        }
+
+    }
+
+    private static boolean hasNotEnded(TopologyTimeline timeline, Device device) {
+        List<TopologyTimeslice> x1 = timeline.getSlices()
+                .stream()
+                .filter(s -> contains(s, device)).collect(Collectors.toList());
+
+        List<TopologyTimeslice> x2 = timeline.getSlices()
+                .stream()
+                .filter(s -> contains(s, device))
+                .sorted((s1, s2) -> s2.getPeriod().lowerEndpoint().compareTo(s1.getPeriod().lowerEndpoint()))
+                .collect(Collectors.toList());
+
+        Optional<TopologyTimeslice> first = timeline.getSlices()
+                .stream()
+                .filter(s -> contains(s, device))
+                .sorted((s1, s2) -> s2.getPeriod().lowerEndpoint().compareTo(s1.getPeriod().lowerEndpoint()))
+                .findFirst();
+        return first.filter(topologyTimeslice -> !topologyTimeslice.getPeriod().hasUpperBound()).isPresent();
+    }
+
+    private static boolean contains(TopologyTimeslice timeslice, Device device) {
+        return timeslice.getDevices()
+                .stream()
+                .anyMatch(d -> d.getId() == device.getId());
     }
 
     @Override

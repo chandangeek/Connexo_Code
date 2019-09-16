@@ -6,7 +6,8 @@ package com.energyict.mdc.tasks.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.common.tasks.TaskServiceKeys;
+import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
@@ -16,7 +17,7 @@ import javax.validation.constraints.NotNull;
 import static com.energyict.mdc.upl.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
 /**
- * Implementation for a {@link com.energyict.mdc.tasks.TopologyTask}.
+ * Implementation for a {@link TopologyTask}.
  *
  * @author gna
  * @since 25/04/12 - 9:05
@@ -38,7 +39,7 @@ class TopologyTaskImpl extends ProtocolTaskImpl implements TopologyTask {
         }
     }
 
-    @NotNull(groups = { Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY +"}")
+    @NotNull(groups = { Save.Create.class, Save.Update.class}, message = "{"+ TaskServiceKeys.CAN_NOT_BE_EMPTY +"}")
     private TopologyAction topologyAction;
 
     @Inject

@@ -19,7 +19,7 @@
     <dependencySets>
         <dependencySet>
             <includes>
-            <!-- External dependencies. -->
+                <!-- External dependencies. -->
                 <include>com.elster.jupiter.subsystem:platform:zip</include>
             </includes>
             <scope>provided</scope>
@@ -32,7 +32,7 @@
             <outputDirectory>bundles</outputDirectory>
             <includes>
                 <include>com.elster.jupiter:*</include>
-				<include>com.elster.jupiter.subsystem:kore</include>
+                <include>com.elster.jupiter.subsystem:kore</include>
             </includes>
             <excludes>
                 <exclude>com.elster.jupiter:drools-integration:pom</exclude>

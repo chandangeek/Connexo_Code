@@ -10,7 +10,7 @@ Ext.define('Apr.controller.TaskOverview', {
         'Apr.view.taskoverview.TaskPreviewForm',
         'Apr.view.taskoverview.TaskPreview',
         'Apr.view.taskoverview.TaskFilter',
-        'Apr.view.taskoverview.SetQueue'
+        'Apr.view.taskoverview.QueueAndPriorityWindow'
     ],
     stores: [
         'Apr.store.Tasks',
@@ -36,6 +36,10 @@ Ext.define('Apr.controller.TaskOverview', {
         {
             ref: 'taskOverviewGrid',
             selector: '#task-overview-grid'
+        },
+        {
+            ref: 'queuePriorityWindow',
+            selector: 'queue-priority-window-overview'
         }
 
     ],
@@ -47,11 +51,22 @@ Ext.define('Apr.controller.TaskOverview', {
                 select: this.showPreview
             },
             'task-overview-action-menu': {
-                click: this.chooseAction
+                click: this.chooseAction,
+                show: this.showMenu
+            },
+            'queue-priority-window-overview #save-queue-priority-button': {
+                click: this.saveQueuePriority
             },
         });
     },
 
+    showMenu: function (menu) {
+        Ext.suspendLayouts();
+        menu.down('#set-queue-priority').setVisible(Uni.Auth.checkPrivileges(Apr.privileges.AppServer.administrateTaskOverview)
+                    && menu.record.get('extraQueueCreationEnabled') || menu.record.get('queuePrioritized'));
+        menu.reorderItems();
+        Ext.resumeLayouts(true);
+    },
     showTaskOverview: function () {
         var me = this;
         me.getApplication().fireEvent('changecontentevent', Ext.widget('task-overview-setup'));
@@ -59,8 +74,14 @@ Ext.define('Apr.controller.TaskOverview', {
 
     showPreview: function(records,record){
         var me = this;
+
+        Ext.suspendLayouts();
         this.getTaskPreview().setTitle(Ext.String.htmlEncode(record.get('name')));
         this.getTaskPreview().down('form').loadRecord(record);
+        me.getTaskPreview().down('task-overview-action-menu').record = record;
+        me.getTaskPreview().down('#task-button-action').setVisible(Uni.Auth.checkPrivileges(Apr.privileges.AppServer.administrateTaskOverview)
+            && (record.get('extraQueueCreationEnabled') || record.get('queuePrioritized'))
+        );
         if(record.get('queueStatus')== 'Busy'){
             this.getTaskPreview().down('#durationField').show();
             this.getTaskPreview().down('#currentRunField').show();
@@ -68,6 +89,7 @@ Ext.define('Apr.controller.TaskOverview', {
             this.getTaskPreview().down('#durationField').hide();
             this.getTaskPreview().down('#currentRunField').hide();
         }
+        Ext.resumeLayouts(true);
     },
 
     chooseAction: function (menu, item) {
@@ -75,8 +97,8 @@ Ext.define('Apr.controller.TaskOverview', {
             record = menu.record || me.getTaskOverviewGrid().getSelectionModel().getLastSelected();
 
         switch (item.action) {
-            case 'setQueue':
-                me.setQueue(record);
+            case 'setQueueAndPriority':
+                me.setQueueAndPriority(record);
                 break;
         }
     },
@@ -114,31 +136,49 @@ Ext.define('Apr.controller.TaskOverview', {
             }
         });
     },
-
-    setQueue: function (record) {
-
-        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-            itemId: 'setQueueConfirmationWindow',
-            confirmText: Uni.I18n.translate('general.save', 'APR', 'Save'),
-            closeAction: 'destroy',
-            green: true,
-            record: record,
-            confirmation: Ext.bind(this.onCheck, this, [getConfirmationWindow])
+    setQueueAndPriority: function (record) {
+            var me = this,
+            store = Ext.getStore('Apr.store.TasksType');
+            store.getProxy().setUrl(record.getId());
+        store.load(function(records, operation, success) {
+            if (success) {
+                var window = Ext.widget('queue-priority-window-overview', {
+                    record: record,
+                    store: store
+                });
+                window.show();
+            };
         });
+    },
 
-        confirmationWindow.insert(1, {
-            xtype: 'set-queue',
-            itemId: 'setQueueItem',
-            padding: '-10 0 0 -20',
-            record: record
+    saveQueuePriority: function() {
+       var me = this,
+            window = me.getQueuePriorityWindow(),
+            record = window.record,
+            taskId = record.getId(),
+            priority = window.down('#priority-field').getValue(),
+            queue = window.down('#queue-field').getValue(),
+            updatedData;
+
+        updatedData = {
+            id: taskId,
+            queue: queue,
+            priority: priority
+        };
+
+        Ext.Ajax.request({
+            url: '/api/tsk/task',
+            method: 'PUT',
+            jsonData: Ext.encode(updatedData),
+            success: function (response) {
+            record.set({
+                'queue': queue,
+                'priority': priority
+            });
+                window.close();
+                me.getApplication().fireEvent('acknowledge', 'Task queue and priority changed.');
+                me.getTaskPreview().down('form').loadRecord(record);
+            },
         });
-
-        confirmationWindow.show({
-            title: Uni.I18n.translate('general.setqueue', 'APR', "Set queue for '{0}'?", record.data.name, false)
-        });
-
-        function getConfirmationWindow() {
-            return confirmationWindow;
-        }
-    }
+    },
 });

@@ -14,14 +14,13 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.Unit;
-
 import com.energyict.mdc.common.ValidObisCode;
+import com.energyict.mdc.common.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;

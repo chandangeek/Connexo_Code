@@ -43,6 +43,7 @@ public class MasterDataLinkageHandler {
     private ConfigEventInfo configurationEvent;
     private UsagePointInfo usagePoint;
     private MeterInfo meter;
+    private String correlationId;
 
     private MasterDataLinkageAction currentLinkageAction;
 
@@ -65,6 +66,7 @@ public class MasterDataLinkageHandler {
         usagePointNodes = message.getPayload().getMasterDataLinkageConfig().getUsagePoint();
         meterNodes = message.getPayload().getMasterDataLinkageConfig().getMeter();
         configurationEvent = null;
+        correlationId = message.getHeader().getCorrelationID();
         return this;
     }
 
@@ -81,7 +83,7 @@ public class MasterDataLinkageHandler {
         if (shouldCreateResponse()) {
             linkMeterToUsagePoint(transform(meterNodes.get(0)), getMeterRoleForKey(meterNodes.get(0).getRole()),
                     transform(usagePointNodes.get(0)), configurationEventNode.getCreatedDateTime());
-            return createSuccessfulResponseWithVerb(HeaderType.Verb.CREATED);
+            return createSuccessfulResponseWithVerb(HeaderType.Verb.CREATED, correlationId);
         } else {
             linkMeterToUsagePoint(transform(meter), getMeterRoleForKey(meter.getRole()), transform(usagePoint),
                     configurationEvent.getCreatedDateTime());
@@ -94,7 +96,7 @@ public class MasterDataLinkageHandler {
         if (shouldCreateResponse()) {
             unlinkMeterFromUsagePoint(transform(meterNodes.get(0)), transform(usagePointNodes.get(0)),
                     configurationEventNode.getEffectiveDateTime());
-            return createSuccessfulResponseWithVerb(HeaderType.Verb.CLOSED);
+            return createSuccessfulResponseWithVerb(HeaderType.Verb.CLOSED, correlationId);
         } else {
             unlinkMeterFromUsagePoint(transform(meter), transform(usagePoint),
                     configurationEvent.getEffectiveDateTime());
@@ -176,7 +178,7 @@ public class MasterDataLinkageHandler {
                         MessageSeeds.NO_METER_ROLE_WITH_KEY, key));
     }
 
-    private MasterDataLinkageConfigResponseMessageType createSuccessfulResponseWithVerb(HeaderType.Verb verb) {
+    private MasterDataLinkageConfigResponseMessageType createSuccessfulResponseWithVerb(HeaderType.Verb verb, String correlationId) {
         ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
         ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory linkageMessageFactory = new ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory();
 
@@ -185,6 +187,7 @@ public class MasterDataLinkageHandler {
 
         HeaderType header = cimMessageFactory.createHeaderType();
         header.setVerb(verb);
+        header.setCorrelationID(correlationId);
         header.setNoun(ExecuteMasterDataLinkageConfigEndpoint.NOUN);
         response.setHeader(header);
 
@@ -197,7 +200,7 @@ public class MasterDataLinkageHandler {
         return response;
     }
 
-    public MasterDataLinkageConfigResponseMessageType createQuickResponseMessage(HeaderType.Verb verb) {
+    public MasterDataLinkageConfigResponseMessageType createQuickResponseMessage(HeaderType.Verb verb, String correlationId) {
         ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
         ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory linkageMessageFactory = new ch.iec.tc57._2011.masterdatalinkageconfigmessage.ObjectFactory();
 
@@ -206,6 +209,7 @@ public class MasterDataLinkageHandler {
 
         HeaderType header = cimMessageFactory.createHeaderType();
         header.setVerb(verb);
+        header.setCorrelationID(correlationId);
         header.setNoun(ExecuteMasterDataLinkageConfigEndpoint.NOUN);
         responseMessage.setHeader(header);
 

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
@@ -22,23 +23,23 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.DefaultBeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.comserver.ComPortPool;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.google.inject.AbstractModule;
@@ -117,6 +118,8 @@ public class DeviceSearchDomainTest {
     private SecurityManagementService securityManagementService;
     @Mock
     private MeteringZoneService meteringZoneService;
+    @Mock
+    private CalendarService calendarService;
 
     private Injector injector;
 
@@ -320,6 +323,7 @@ public class DeviceSearchDomainTest {
                 bind(PropertySpecService.class).to(PropertySpecServiceImpl.class);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(MeteringZoneService.class).toInstance(meteringZoneService);
+                bind(CalendarService.class).toInstance(calendarService);
             }
         };
     }

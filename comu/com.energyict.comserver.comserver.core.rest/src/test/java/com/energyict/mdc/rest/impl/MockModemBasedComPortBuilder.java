@@ -5,8 +5,8 @@
 package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
 
 import java.math.BigDecimal;
 import java.util.List;

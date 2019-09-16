@@ -4,75 +4,110 @@
 
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DecimalFormat;
+import java.sql.Statement;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.orm.Version.version;
 
+@LiteralSql
 public class UpgraderV10_7 implements Upgrader {
     private final DataModel dataModel;
     private final FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller;
-    Map<Long, Long> campaignIds = new HashMap<>();
-    Map<Long, Long> campaignStates = new HashMap<>();
-    Map<Long, Long> deviceStates = new HashMap<>();
-    long currentId;
-    long scsCampaignTypeId;
-    long scsCampaignItemTypeId;
-    long cpsCampaign;
-    long cpsCampaignItem;
-    static final long SECONDSINDAY = 86400;
+    private final EventService eventService;
+    private final Logger logger = Logger.getLogger(UpgraderV10_7.class.getName());
+    private Map<Long, Pair> campaignIdAndCreationTimeByOldIds = new HashMap<>();
+    private Map<Long, Long> campaignStates = new HashMap<>();
+    private Map<Long, Long> deviceStates = new HashMap<>();
+    private long currentId;
+    private long startId;
+    private long campaignServiceCallTypeId;
+    private long itemServiceCallTypeId;
+    private long campaignRegisteredCPSId;
+    private long itemRegisteredCPSId;
+    private static final long MILLISINDAY = 86400000;
 
     @Inject
-    UpgraderV10_7(DataModel dataModel, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller) {
+    UpgraderV10_7(DataModel dataModel, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller,
+                  EventService eventService) {
         this.dataModel = dataModel;
         this.firmwareCampaignServiceCallLifeCycleInstaller = firmwareCampaignServiceCallLifeCycleInstaller;
+        this.eventService = eventService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        firmwareCampaignServiceCallLifeCycleInstaller.createServiceCallTypes();
-        initVariables();
-        executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN", this::makeCampaignAndSC);
-        executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN_DEVICES", this::makeDeviceAndSC);
-        execute(dataModel, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT PK_FWC_CAMPAIGN_PROPS DROP INDEX",
-                "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
-        executeQuery(dataModel, "SELECT * FROM FWC_CAMPAIGN_PROPS", this::updateProps);
-        execute(dataModel, "ALTER TABLE FWC_CAMPAIGN_PROPS ADD CONSTRAINT PK_FWC_CAMPAIGN_PROPS PRIMARY KEY (CAMPAIGN, KEY) USING INDEX");
-        dataModelUpgrader.upgrade(dataModel, version(10, 7));
-        execute(dataModel, "UPDATE FWC_CAMPAIGN_PROPS SET CPS_ID = " + cpsCampaign,
-                "ALTER TABLE FWC_CAMPAIGN_PROPS MODIFY CPS_ID NUMBER NOT NULL");
-        execute(dataModel, "DROP TABLE FWC_CAMPAIGN_STATUS");
-        execute(dataModel, "DROP TABLE FWC_CAMPAIGN_DEVICES");
-        execute(dataModel, "DROP TABLE FWC_CAMPAIGN");
+        try (Connection connection = dataModel.getConnection(true);
+             Statement statement = connection.createStatement()) {
+            firmwareCampaignServiceCallLifeCycleInstaller.createServiceCallTypes();
+            execute(statement, "DELETE FROM EVT_EVENTTYPE WHERE COMPONENT = 'FWC'");
+            for (EventType eventType : EventType.values()) {
+                try {
+                    eventType.createIfNotExists(eventService);
+                } catch (Exception e) {
+                    this.logger.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+            initVariables(statement);
+            executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN", this::makeCampaignAndSC);
+            executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN_DEVICES", this::makeDeviceAndSC);
+            if (startId != currentId) {
+                execute(statement, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY " + (currentId - startId));
+                execute(statement, "SELECT SCS_SERVICE_CALLID.NEXTVAL FROM DUAL");
+                execute(statement, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY 1");
+            }
+            execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT PK_FWC_CAMPAIGN_PROPS DROP INDEX");
+            try { // due to different behavior during the upgrade from 10.6 to 10.7 and 10.5 and older to 10.7
+                execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
+            } catch (Exception ignored) {
+            }
+            executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN_PROPS", this::updateProps);
+            execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS ADD CONSTRAINT PK_FWC_CAMPAIGN_PROPS PRIMARY KEY (CAMPAIGN, KEY) USING INDEX");
+            dataModelUpgrader.upgrade(dataModel, version(10, 7));
+            execute(statement, "UPDATE FWC_CAMPAIGN_PROPS SET CPS_ID = " + campaignRegisteredCPSId);
+            execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS MODIFY CPS_ID NUMBER NOT NULL");
+            execute(statement, "DROP TABLE FWC_CAMPAIGN_STATUS");
+            execute(statement, "DROP TABLE FWC_CAMPAIGN_DEVICES");
+            execute(statement, "DROP TABLE FWC_CAMPAIGN");
+            execute(dataModel, "UPDATE FWC_FIRMWAREVERSION SET TYPE = 3 WHERE TYPE = 2");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private Boolean updateProps(ResultSet resultSet) throws SQLException {
         while (resultSet.next()) {
-            execute(dataModel, "UPDATE FWC_CAMPAIGN_PROPS SET CAMPAIGN = " + campaignIds.get(resultSet.getLong(1)) + " WHERE CAMPAIGN=" + resultSet.getLong(1));
+            execute(dataModel, "UPDATE FWC_CAMPAIGN_PROPS SET CAMPAIGN = " + campaignIdAndCreationTimeByOldIds.get(resultSet.getLong(1)).getFirst() + " WHERE CAMPAIGN=" + resultSet.getLong(1));
         }
         return true;
     }
 
-    private void initVariables() {
-        campaignStates.put(0L, executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaign') AND \"NAME\"='sclc.default.ongoing'", this::toLong));
-        campaignStates.put(1L, executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaign') AND \"NAME\"='sclc.default.successful'", this::toLong));
-        campaignStates.put(2L, executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaign') AND \"NAME\"='sclc.default.cancelled'", this::toLong));
-        deviceStates.put(0L, executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.pending'", this::toLong));
-        deviceStates.put(1L, executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.ongoing'", this::toLong));
-        deviceStates.put(2L, executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.failed'", this::toLong));
-        long deviceStateSuccessId = executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.successful'", this::toLong);
+    private void initVariables(Statement statement) {
+        campaignStates.put(0L, executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaign') AND \"NAME\"='sclc.default.ongoing'", this::toLong));
+        campaignStates.put(1L, executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaign') AND \"NAME\"='sclc.default.successful'", this::toLong));
+        campaignStates.put(2L, executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaign') AND \"NAME\"='sclc.default.cancelled'", this::toLong));
+        deviceStates.put(0L, executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.pending'", this::toLong));
+        deviceStates.put(1L, executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.ongoing'", this::toLong));
+        deviceStates.put(2L, executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.failed'", this::toLong));
+        long deviceStateSuccessId = executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.successful'", this::toLong);
         deviceStates.put(3L, deviceStateSuccessId);
         deviceStates.put(4L, deviceStateSuccessId);
         deviceStates.put(5L, deviceStateSuccessId);
@@ -82,20 +117,21 @@ public class UpgraderV10_7 implements Upgrader {
         deviceStates.put(9L, deviceStateSuccessId);
         deviceStates.put(10L, deviceStateSuccessId);
         deviceStates.put(11L, deviceStateSuccessId);
-        deviceStates.put(12L, executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.rejected'", this::toLong));
-        deviceStates.put(13L, executeQuery(dataModel, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.cancelled'", this::toLong));
-        currentId = executeQuery(dataModel, "SELECT NVL(MAX(ID),0) FROM SCS_SERVICE_CALL", this::toLong);
-        scsCampaignTypeId = executeQuery(dataModel, "SELECT \"ID\" FROM \"SCS_SERVICE_CALL_TYPE\" WHERE \"HANDLER\"='FirmwareCampaignServiceCallHandler'", this::toLong);
-        scsCampaignItemTypeId = executeQuery(dataModel, "SELECT \"ID\" FROM \"SCS_SERVICE_CALL_TYPE\" WHERE \"HANDLER\"='FirmwareCampaignItemServiceCallHandler'", this::toLong);
-        cpsCampaign = executeQuery(dataModel, "SELECT \"ID\" FROM \"CPS_REGISTERED_CUSTOMPROPSET\" WHERE \"LOGICALID\"='com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension'", this::toLong);
-        cpsCampaignItem = executeQuery(dataModel, "SELECT \"ID\" FROM \"CPS_REGISTERED_CUSTOMPROPSET\" WHERE \"LOGICALID\"='com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemDomainExtension'", this::toLong);
+        deviceStates.put(12L, executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.rejected'", this::toLong));
+        deviceStates.put(13L, executeQuery(statement, "SELECT \"ID\" FROM \"FSM_STATE\" WHERE \"FSM\" = (SELECT \"ID\" FROM \"FSM_FINITE_STATE_MACHINE\" WHERE \"NAME\"='FirmwareCampaignItem') AND \"NAME\"='sclc.default.cancelled'", this::toLong));
+        currentId = executeQuery(statement, "SELECT NVL(MAX(ID),0) FROM SCS_SERVICE_CALL", this::toLong);
+        startId = currentId;
+        campaignServiceCallTypeId = executeQuery(statement, "SELECT \"ID\" FROM \"SCS_SERVICE_CALL_TYPE\" WHERE \"HANDLER\"='FirmwareCampaignServiceCallHandler'", this::toLong);
+        itemServiceCallTypeId = executeQuery(statement, "SELECT \"ID\" FROM \"SCS_SERVICE_CALL_TYPE\" WHERE \"HANDLER\"='FirmwareCampaignItemServiceCallHandler'", this::toLong);
+        campaignRegisteredCPSId = executeQuery(statement, "SELECT \"ID\" FROM \"CPS_REGISTERED_CUSTOMPROPSET\" WHERE \"LOGICALID\"='com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension'", this::toLong);
+        itemRegisteredCPSId = executeQuery(statement, "SELECT \"ID\" FROM \"CPS_REGISTERED_CUSTOMPROPSET\" WHERE \"LOGICALID\"='com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemDomainExtension'", this::toLong);
     }
 
     private Boolean makeCampaignAndSC(ResultSet resultSet) throws SQLException {
         List<ServiceCallInfo> serviceCallInfos = new ArrayList<>();
         List<FirmwareCampaignInfo> firmwareCampaignInfos = new ArrayList<>();
         while (resultSet.next()) {
-            campaignIds.put(resultSet.getLong(1), ++currentId);
+            campaignIdAndCreationTimeByOldIds.put(resultSet.getLong("ID"), Pair.of(++currentId, resultSet.getLong("CREATETIME")));
             serviceCallInfos.add(makeCampaignSC(resultSet));
             firmwareCampaignInfos.add(makeCampaign(resultSet));
         }
@@ -116,7 +152,7 @@ public class UpgraderV10_7 implements Upgrader {
         }
         if (!firmwareCampaignItemInfos.isEmpty()) {
             serviceCallInfos.forEach(this::writeScInBd);
-            firmwareCampaignItemInfos.forEach(this::writeCampaignItemsInBd);
+            firmwareCampaignItemInfos.forEach(this::writeCampaignItemInBd);
         }
         return true;
     }
@@ -164,7 +200,7 @@ public class UpgraderV10_7 implements Upgrader {
         execute(dataModel, "INSERT INTO FWC_FC1_CAMPAIGN (SERVICECALL,CPS,VERSIONCOUNT,CREATETIME,MODTIME,USERNAME,NAME,DEVICE_GROUP,MANAGEMENT_OPTION,FIRMWARE_TYPE,ACTIVATION_START,ACTIVATION_END,DEVICE_TYPE,ACTIVATION_DATE,VALIDATION_TIMEOUT_VALUE,VALIDATION_TIMEOUT_UNIT) VALUES " + values);
     }
 
-    private void writeCampaignItemsInBd(FirmwareCampaignItemInfo info) {
+    private void writeCampaignItemInBd(FirmwareCampaignItemInfo info) {
         String values = new ValueBuilder()
                 .add(info.serviceCall)
                 .add(info.cps)
@@ -184,40 +220,38 @@ public class UpgraderV10_7 implements Upgrader {
         serviceCallInfo.id = currentId;
         serviceCallInfo.parent = null;
         serviceCallInfo.lastCompletedTime = null;
-        serviceCallInfo.state = campaignStates.get(resultSet.getLong(3));
+        serviceCallInfo.state = campaignStates.get(resultSet.getLong("STATUS"));
         serviceCallInfo.origin = "MultiSense";
         serviceCallInfo.externalReference = null;
-        serviceCallInfo.reference = new DecimalFormat("SC_00000000").format(currentId);
         serviceCallInfo.targetCmp = null;
         serviceCallInfo.targetTable = null;
         serviceCallInfo.targetKey = null;
         serviceCallInfo.targetId = null;
-        serviceCallInfo.serviceCallType = scsCampaignTypeId;
-        serviceCallInfo.versionCount = resultSet.getLong(14);
-        serviceCallInfo.createTime = resultSet.getLong(15);
-        serviceCallInfo.modTime = resultSet.getLong(16);
-        serviceCallInfo.username = resultSet.getString(17);
+        serviceCallInfo.serviceCallType = campaignServiceCallTypeId;
+        serviceCallInfo.versionCount = resultSet.getLong("VERSIONCOUNT");
+        serviceCallInfo.createTime = resultSet.getLong("CREATETIME");
+        serviceCallInfo.modTime = resultSet.getLong("MODTIME");
+        serviceCallInfo.username = resultSet.getString("USERNAME");
         return serviceCallInfo;
     }
 
     private ServiceCallInfo makeDeviceSC(ResultSet resultSet) throws SQLException {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
         serviceCallInfo.id = currentId;
-        serviceCallInfo.parent = campaignIds.get(resultSet.getLong(1));
+        serviceCallInfo.parent = (Long) campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getFirst();
         serviceCallInfo.lastCompletedTime = null;
-        serviceCallInfo.state = deviceStates.get(resultSet.getLong(3));
+        serviceCallInfo.state = deviceStates.get(resultSet.getLong("STATUS"));
         serviceCallInfo.origin = null;
         serviceCallInfo.externalReference = null;
-        serviceCallInfo.reference = new DecimalFormat("SC_00000000").format(currentId);
         serviceCallInfo.targetCmp = "DDC";
         serviceCallInfo.targetTable = "DDC_DEVICE";
-        long deviceId = resultSet.getLong(2);
+        long deviceId = resultSet.getLong("DEVICE");
         serviceCallInfo.targetKey = "[" + deviceId + "]";
         serviceCallInfo.targetId = deviceId;
-        serviceCallInfo.serviceCallType = scsCampaignItemTypeId;
+        serviceCallInfo.serviceCallType = itemServiceCallTypeId;
         serviceCallInfo.versionCount = 1L;
-        serviceCallInfo.createTime = resultSet.getLong(5);
-        serviceCallInfo.modTime = resultSet.getLong(6);
+        serviceCallInfo.createTime = resultSet.getLong("STARTED_ON") == 0 ? (Long) campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getLast() : resultSet.getLong("STARTED_ON");
+        serviceCallInfo.modTime = resultSet.getLong("FINISHED_ON");
         serviceCallInfo.username = "batch executor";
         return serviceCallInfo;
     }
@@ -225,37 +259,40 @@ public class UpgraderV10_7 implements Upgrader {
     private FirmwareCampaignInfo makeCampaign(ResultSet resultSet) throws SQLException {
         FirmwareCampaignInfo firmwareCampaignInfo = new FirmwareCampaignInfo();
         firmwareCampaignInfo.serviceCall = currentId;
-        firmwareCampaignInfo.cps = cpsCampaign;
-        firmwareCampaignInfo.versionCount = resultSet.getLong(14);
-        firmwareCampaignInfo.createTime = resultSet.getLong(15);
-        firmwareCampaignInfo.modTime = resultSet.getLong(16);
-        firmwareCampaignInfo.username = resultSet.getString(17);
-        firmwareCampaignInfo.name = resultSet.getString(2);
+        firmwareCampaignInfo.cps = campaignRegisteredCPSId;
+        firmwareCampaignInfo.versionCount = resultSet.getLong("VERSIONCOUNT");
+        firmwareCampaignInfo.createTime = resultSet.getLong("CREATETIME");
+        firmwareCampaignInfo.modTime = resultSet.getLong("MODTIME");
+        firmwareCampaignInfo.username = resultSet.getString("USERNAME");
+        firmwareCampaignInfo.name = resultSet.getString("CAMPAIGN_NAME");
         firmwareCampaignInfo.deviceGroup = " ";
-        firmwareCampaignInfo.managementOption = resultSet.getLong(5);
-        firmwareCampaignInfo.firmwareType = resultSet.getLong(6);
-        long dayOfStart = LocalDate.ofEpochDay(firmwareCampaignInfo.createTime / SECONDSINDAY).atStartOfDay().toInstant(ZoneOffset.UTC).getEpochSecond() * 1000;
-        firmwareCampaignInfo.activationStart = dayOfStart + resultSet.getLong(9);
-        firmwareCampaignInfo.activationEnd = dayOfStart + resultSet.getLong(10);
-        firmwareCampaignInfo.deviceType = resultSet.getLong(4);
+        firmwareCampaignInfo.managementOption = resultSet.getLong("MANAGEMENT_OPTION");
+        firmwareCampaignInfo.firmwareType = resultSet.getLong("FIRMWARE_TYPE");
+        long dayOfStart = LocalDate.ofEpochDay(firmwareCampaignInfo.createTime / MILLISINDAY)
+                .atStartOfDay()
+                .toInstant(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()))
+                .getEpochSecond() * 1000;
+        firmwareCampaignInfo.activationStart = dayOfStart + resultSet.getLong("COMWINDOWSTART");
+        firmwareCampaignInfo.activationEnd = dayOfStart + resultSet.getLong("COMWINDOWEND");
+        firmwareCampaignInfo.deviceType = resultSet.getLong("DEVICE_TYPE");
         firmwareCampaignInfo.activationDate = executeQuery(dataModel, "SELECT \"VALUE\" FROM FWC_CAMPAIGN_PROPS WHERE \"KEY\"='FirmwareDeviceMessage.upgrade.activationdate' AND \"CAMPAIGN\"=" + resultSet
-                .getLong(1), this::toLong);
-        firmwareCampaignInfo.validationTimeoutValue = resultSet.getLong(12);
-        firmwareCampaignInfo.validationTimeoutUnit = resultSet.getLong(13);
+                .getLong("ID"), this::toLong);
+        firmwareCampaignInfo.validationTimeoutValue = resultSet.getLong("VALIDATION_TIMEOUT_VALUE");
+        firmwareCampaignInfo.validationTimeoutUnit = resultSet.getLong("VALIDATION_TIMEOUT_UNIT");
         return firmwareCampaignInfo;
     }
 
     private FirmwareCampaignItemInfo makeDevice(ResultSet resultSet) throws SQLException {
         FirmwareCampaignItemInfo firmwareCampaignItemInfo = new FirmwareCampaignItemInfo();
         firmwareCampaignItemInfo.serviceCall = currentId;
-        firmwareCampaignItemInfo.cps = cpsCampaignItem;
+        firmwareCampaignItemInfo.cps = itemRegisteredCPSId;
         firmwareCampaignItemInfo.versionCount = 1L;
-        firmwareCampaignItemInfo.createTime = resultSet.getLong(5);
-        firmwareCampaignItemInfo.modTime = resultSet.getLong(6);
+        firmwareCampaignItemInfo.createTime = resultSet.getLong("STARTED_ON");
+        firmwareCampaignItemInfo.modTime = resultSet.getLong("FINISHED_ON");
         firmwareCampaignItemInfo.username = "batch executor";
-        firmwareCampaignItemInfo.parent = campaignIds.get(resultSet.getLong(1));
-        firmwareCampaignItemInfo.device = resultSet.getLong(2);
-        firmwareCampaignItemInfo.deviceMessage = resultSet.getObject(4) == null ? null : resultSet.getLong(4);
+        firmwareCampaignItemInfo.parent = (Long) campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getFirst();
+        firmwareCampaignItemInfo.device = resultSet.getLong("DEVICE");
+        firmwareCampaignItemInfo.deviceMessage = resultSet.getObject("MESSAGE_ID", Long.class);
         return firmwareCampaignItemInfo;
     }
 
@@ -319,7 +356,6 @@ public class UpgraderV10_7 implements Upgrader {
         Long state;
         String origin;
         String externalReference;
-        String reference;
         String targetCmp;
         String targetTable;
         String targetKey;

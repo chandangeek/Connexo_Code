@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
 
 import java.time.Instant;
 

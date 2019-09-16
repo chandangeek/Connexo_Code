@@ -5,9 +5,9 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.fsm.StateTransition;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 
 import java.time.Instant;
 

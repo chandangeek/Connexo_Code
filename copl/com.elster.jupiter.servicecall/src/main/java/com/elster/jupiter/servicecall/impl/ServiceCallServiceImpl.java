@@ -85,8 +85,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
-    public static final String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
-    static final String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
+    final static String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
+    public final static String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
+
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -286,13 +287,17 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
+    public Optional<ServiceCallType> findServiceCallType(long id) {
+        return dataModel.mapper(ServiceCallType.class).getOptional(id);
+    }
+
     public List<ServiceCallType> getServiceCallTypes(String destination) {
         return dataModel.mapper(ServiceCallType.class).find(ServiceCallTypeImpl.Fields.destination.fieldName(), destination);
     }
 
     @Override
-    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String destination) {
-        return new ServiceCallTypeBuilderImpl(this, name, versionName, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, dataModel, thesaurus);
+    public ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, String destination, DefaultState retryState) {
+        return new ServiceCallTypeBuilderImpl(this, name, versionName, reservedByApplication, (IServiceCallLifeCycle) serviceCallLifeCycle, destination, retryState, dataModel, thesaurus);
     }
 
     @Override
@@ -458,7 +463,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         if (filter.targetObject != null) {
             condition = condition.and(where(ServiceCallImpl.Fields.targetObject.fieldName()).isEqualTo(dataModel.asRefAny(filter.targetObject)));
         }
-
+        if (filter.appKey != null) {
+            condition = condition.and(where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.appKey.fieldName()).isNull().or(
+                    where(ServiceCallImpl.Fields.type.fieldName() + "." + ServiceCallTypeImpl.Fields.appKey.fieldName()).isEqualTo(filter.appKey)
+            ));
+        }
         return condition;
     }
 

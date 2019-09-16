@@ -15,10 +15,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -205,6 +205,9 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(createDescription("manufacturer", String.class));
         infos.add(createDescription("modelNbr", String.class));
         infos.add(createDescription("modelVersion", String.class));
+        infos.add(createDescription("activeCalendar", String.class));
+        infos.add(createDescription("passiveCalendar", String.class));
+        infos.add(createDescription("plannedPassiveCalendar", String.class));
         infos.add(createDescription("hasServiceKeys", Boolean.class));
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 

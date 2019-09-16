@@ -5,8 +5,8 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 
+import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.engine.config.ComServer;
 
 import com.google.common.collect.Ordering;
 

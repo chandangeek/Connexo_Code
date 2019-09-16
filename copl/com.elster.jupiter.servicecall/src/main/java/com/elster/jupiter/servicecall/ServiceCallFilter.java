@@ -19,4 +19,5 @@ public class ServiceCallFilter {
     public Instant modificationDateTo;
     public ServiceCall parent;
     public Object targetObject;
+    public String appKey;
 }

@@ -7,6 +7,8 @@ package com.elster.jupiter.rest.util;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
 
+import java.util.Objects;
+
 /**
  * Created by bvn on 8/12/14.
  */
@@ -25,5 +27,32 @@ public class IdWithNameInfo {
     public IdWithNameInfo(Object id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        IdWithNameInfo that = (IdWithNameInfo) obj;
+        if (this.id == null && that.id == null) {
+            return true;
+        }
+        if(this.id == null && that.id != null) {
+            return false;
+        }
+        return this.id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    public String getName() {
+        return name;
     }
 }

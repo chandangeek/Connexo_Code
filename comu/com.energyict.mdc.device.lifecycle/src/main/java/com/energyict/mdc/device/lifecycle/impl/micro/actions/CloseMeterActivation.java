@@ -7,9 +7,9 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
@@ -20,7 +20,7 @@ import java.util.List;
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will close the current meter activation for the Device on the effective
  * timestamp of the transition.
- * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#CLOSE_METER_ACTIVATION}
+ * @see {@link MicroAction#CLOSE_METER_ACTIVATION}
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-06 5(14:30)

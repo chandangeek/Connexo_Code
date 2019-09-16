@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.dashboard.impl;
 
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 
 /**
  * Provides an implementation for the {@link ComScheduleBreakdown} interface.

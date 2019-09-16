@@ -157,7 +157,24 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             xtype: 'displayfield',
             itemId: 'firmware-image-identifier-field',
             fieldLabel: Uni.I18n.translate('device.firmware.field.image.identifier', 'FWC', 'Image identifier'),
-            name: 'imageIdentifier'
+            name: 'imageIdentifier',
+            renderer: function (value, field) {
+                var returnValue = value;
+                if (Ext.isEmpty(value)) {
+                    return '-';
+                }
+                if(!Ext.isEmpty(field.up().record.getActiveVersion())) {
+                    returnValue += ' (';
+                    returnValue += field.up().record.getActiveVersion().getFirmwareVersionStatus().get('localizedValue');
+                    if(field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
+                        returnValue +=  ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
+                            Uni.I18n.translate('device.firmware.field.status.deprecatedVersion.tooltip', 'FWC', 'Firmware version/image is deprecated. Consider uploading new firmware version.') +
+                            '"></span>';
+                    }
+                    returnValue += ')';
+                }
+                return returnValue;
+            }
         },
         {
             xtype: 'displayfield',

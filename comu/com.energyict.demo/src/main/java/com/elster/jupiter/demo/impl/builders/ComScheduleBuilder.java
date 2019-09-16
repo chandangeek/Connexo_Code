@@ -7,9 +7,9 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.scheduling.ComSchedule;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 
 import javax.inject.Inject;
 import java.time.LocalDateTime;

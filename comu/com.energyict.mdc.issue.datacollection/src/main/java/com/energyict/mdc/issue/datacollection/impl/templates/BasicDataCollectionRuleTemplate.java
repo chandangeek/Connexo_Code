@@ -4,8 +4,8 @@
 
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -18,20 +18,24 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.rest.ExcludedComTaskPropertyFactory;
 import com.elster.jupiter.properties.rest.RaiseEventUrgencyFactory;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfo;
 import com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -42,12 +46,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
 import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
@@ -60,22 +63,30 @@ import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEv
         property = {"name=" + BasicDataCollectionRuleTemplate.NAME},
         service = CreationRuleTemplate.class,
         immediate = true)
-public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate {
+public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate implements AllowsComTaskFiltering{
     private static final Logger LOG = Logger.getLogger(BasicDataCollectionRuleTemplate.class.getName());
     static final String NAME = "BasicDataCollectionRuleTemplate";
 
     public static final String EVENTTYPE = NAME + ".eventType";
+    public static final String EXCLUDEDCOMTASKS = NAME + ".excludedComTasks";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
     public static final String RADIOGROUP = NAME + ".increaseurgency";
     private static final String DEFAULT_VALUE = "Do nothing";
     private static final Long DEFAULT_KEY = 0L;
+    public static final String VALUE_SEPARATOR = ",";
+    
+    private volatile TaskService taskService;
 
     //for OSGI
     public BasicDataCollectionRuleTemplate() {
     }
 
     @Inject
-    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService,
+            IssueService issueService, PropertySpecService propertySpecService,
+            DeviceConfigurationService deviceConfigurationService,
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+            CommunicationTaskService communicationTaskService) {
         this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
@@ -83,6 +94,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         setPropertySpecService(propertySpecService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceLifeCycleConfigurationService( deviceLifeCycleConfigurationService);
+        setTaskService(taskService);
         activate();
     }
 
@@ -118,6 +130,11 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+    }
+    
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @Override
@@ -213,12 +230,18 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish());
         builder.add(propertySpecService
-                .specForValuesOf(new EventTypeValueFactory(eventTypes))
+                .specForValuesOf(new CustomEventTypeValueFactory(eventTypes))
                 .named(EVENTTYPE, TranslationKeys.PARAMETER_NAME_EVENT_TYPE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
                 .addValues(eventTypes.getEventTypes())
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .finish());
+        builder.add(propertySpecService.specForValuesOf(new ExcludedComTaskValueFactory())
+                .named(EXCLUDEDCOMTASKS, TranslationKeys.PARAMETER_EXCLUDED_COM_TASKS)
+                .describedAs(TranslationKeys.PARAMETER_EXCLUDED_COM_TASKS)
+                .fromThesaurus(this.getThesaurus())
+                .markMultiValued(VALUE_SEPARATOR)
                 .finish());
         builder.add(propertySpecService
                 .booleanSpec()
@@ -363,5 +386,56 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                 builder.addNull(Types.VARCHAR);
             }
         }
+    }
+    
+    private class ExcludedComTaskValueFactory implements ValueFactory<ComTask>, ExcludedComTaskPropertyFactory {
+
+        @Override
+        public ComTask fromStringValue(String stringValue) {
+            return taskService.findComTask(Long.parseLong(stringValue)).orElse(null);
+        }
+
+        @Override
+        public String toStringValue(ComTask object) {
+            return String.valueOf(object.getId());
+        }
+
+        @Override
+        public Class<ComTask> getValueType() {
+            return ComTask.class;
+        }
+
+        @Override
+        public ComTask valueFromDatabase(Object object) {
+            return this.fromStringValue((String) object);
+        }
+
+        @Override
+        public Object valueToDatabase(ComTask object) {
+            return this.toStringValue(object);
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, ComTask value) throws SQLException {
+            if (value != null) {
+                statement.setObject(offset, valueToDatabase(value));
+            } else {
+                statement.setNull(offset, Types.VARCHAR);
+            }
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, ComTask value) {
+            if (value != null) {
+                builder.addObject(valueToDatabase(value));
+            } else {
+                builder.addNull(Types.VARCHAR);
+            }
+        }
+    }
+
+    @Override
+    public List<? extends HasId> getExcludedComTasks(Map<String, Object> properties) {
+        return (List<ComTask>) properties.get(EXCLUDEDCOMTASKS);
     }
 }

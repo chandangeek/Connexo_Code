@@ -29,10 +29,21 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 }
             },
             {
+                header: Uni.I18n.translate('general.queueType', 'APR', 'Queue type'),
+                dataIndex: 'queueType',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
                 dataIndex: 'queue',
                 flex: 1
             },
+            {
+                header: Uni.I18n.translate('general.priority', 'APR', 'Priority'),
+                dataIndex: 'priority',
+                flex: 1
+            },
+
             {
                 header: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
                 dataIndex: 'queueStatusString',
@@ -51,15 +62,15 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 width: 120,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     var taskType = record.get('queue'),
+                        canAdminTaskOverview = Uni.Auth.checkPrivileges('privilege.edit.AdministrateTaskOverview') && (record.get('extraQueueCreationEnabled') || record.get('queuePrioritized')),
                         taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
-
                    // return taskManagement == undefined || !taskManagement.controller.canAdministrate();
                     return !((taskManagement != undefined && taskManagement.controller.canAdministrate())
-                        || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview'));
+                        || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview') || canAdminTaskOverview);
                 },
                 menu: {
                     xtype: 'task-management-action-menu',
-                    itemId: 'task-management-action-menu'
+                    itemId: 'task-management-action-menu',
                 }
             }
 

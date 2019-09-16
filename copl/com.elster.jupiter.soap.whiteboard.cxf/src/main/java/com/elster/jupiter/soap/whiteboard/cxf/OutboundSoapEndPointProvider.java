@@ -16,5 +16,5 @@ import javax.xml.ws.Service;
 public interface OutboundSoapEndPointProvider extends EndPointProvider {
     Service get();
 
-    Class getService();
+    Class<?> getService();
 }

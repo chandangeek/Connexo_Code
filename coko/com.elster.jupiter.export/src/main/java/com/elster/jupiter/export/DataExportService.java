@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.export;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
 import com.elster.jupiter.properties.PropertySpec;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.nio.file.Path;
 import java.time.Instant;

@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
@@ -88,6 +89,7 @@ public class SAPMeterReadingDocumentCollectionDataBuilder implements SAPMeterRea
                         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                     });
                     if (!closestReadingRecord.isPresent()) {
+                        serviceCall.log(LogLevel.SEVERE, "The reading is not found");
                         serviceCall.requestTransition(DefaultState.FAILED);
                     }
                 });

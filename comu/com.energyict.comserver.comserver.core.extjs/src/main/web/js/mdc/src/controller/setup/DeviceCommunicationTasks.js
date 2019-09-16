@@ -8,7 +8,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     requires: [
         'Ext.ux.window.Notification',
         'Mdc.store.DeviceSchedules',
-        'Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp'
+        'Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp',
+        'Uni.Auth'
     ],
 
     views: [
@@ -57,6 +58,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 },
                 '#runDeviceComTaskNow[action=runDeviceComTaskNow]': {
                     click: this.runDeviceComTaskNow
+                },
+                '#runDeviceComTaskNowWithPriority[action=runDeviceComTaskNowWithPriority]': {
+                    click: this.runDeviceComTaskWithPriority
                 },
                 '#changeButton[action=changeUrgencyOfDeviceComTask]': {
                     click: this.changeUrgency
@@ -115,12 +119,13 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
 
     configureMenu: function (menu) {
         var selection = menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
-            isNotShared = selection.get('scheduleTypeKey') !== 'SHARED',
             isOnHold = selection.get('isOnHold'),
             isSystemComtask = selection.get('comTask').isSystemComTask,
             connectionDefinedOnDevice = selection.get('connectionDefinedOnDevice'),
-            isMinimizeConnections = !connectionDefinedOnDevice ? false : selection.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS';
-
+            isMinimizeConnections = !connectionDefinedOnDevice ? false : selection.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
+        	privilegeToExecuteWasChecked = false,
+        	canExecute;
+        
         if (menu.down('#changeConnectionMethodOfDeviceComTask')) {
             menu.down('#changeConnectionMethodOfDeviceComTask').show();
         }
@@ -129,14 +134,42 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         }
         if (menu.down('#runDeviceComTaskNow')) {
             if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) {
-                menu.down('#runDeviceComTaskNow').show();
+            	canExecute = Uni.Auth.hasAnyPrivilege(selection.get('comTask').privileges);
+            	privilegeToExecuteWasChecked = true;
+            	if (canExecute) {
+            		menu.down('#runDeviceComTaskNow').show();
+            	} else {
+            		menu.down('#runDeviceComTaskNow').hide();
+            	}
             } else {
                 menu.down('#runDeviceComTaskNow').hide();
             }
         }
+        if (menu.down('#runDeviceComTaskNowWithPriority')) {
+            if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) {
+            	if (!privilegeToExecuteWasChecked) {
+            		canExecute = Uni.Auth.hasAnyPrivilege(selection.get('comTask').privileges);
+            		privilegeToExecuteWasChecked = true;
+            	}
+            	if (canExecute) {
+            		menu.down('#runDeviceComTaskNowWithPriority').show();
+            	} else {
+            		menu.down('#runDeviceComTaskNowWithPriority').hide();
+            	}
+            } else {
+                menu.down('#runDeviceComTaskNowWithPriority').hide();
+            }
+        }
         if (menu.down('#runDeviceComTask')) {
             if (connectionDefinedOnDevice && !isOnHold && isMinimizeConnections && !isSystemComtask) {
-                menu.down('#runDeviceComTask').show();
+            	if (!privilegeToExecuteWasChecked) {
+            		canExecute = Uni.Auth.hasAnyPrivilege(selection.get('comTask').privileges);
+            	}
+            	if (canExecute) {
+            		menu.down('#runDeviceComTask').show();
+            	} else {
+            		menu.down('#runDeviceComTask').hide();
+            	}
             } else {
                 menu.down('#runDeviceComTask').hide();
             }
@@ -186,6 +219,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var request = {};
         this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
         this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/runnow', Uni.I18n.translate('deviceCommunicationTask.runNow', 'MDC', 'Run now succeeded'));
+    },
+
+    runDeviceComTaskWithPriority: function () {
+        var request = {};
+        this.comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0];
+        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.get('comTask').id + '/runprio', Uni.I18n.translate('deviceCommunicationTask.runPrio', 'MDC', 'Run with priority succeeded'));
     },
 
     showChangePopUp: function (menuItem) {

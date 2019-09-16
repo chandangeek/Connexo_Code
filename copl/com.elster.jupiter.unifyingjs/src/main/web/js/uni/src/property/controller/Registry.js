@@ -27,6 +27,7 @@ Ext.define('Uni.property.controller.Registry', {
     singleton: true,
     requires: [
         'Uni.property.view.property.Text',
+        'Uni.property.view.property.MailTo',
         'Uni.property.view.property.Combobox',
         'Uni.property.view.property.DeviceGroupCombobox',
         'Uni.property.view.property.Textarea',
@@ -69,7 +70,13 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.metrologyconfigurations.MetrologyConfigurations',
         'Uni.property.view.property.devicelifecycletransitions.DeviceLifecycleTransitions',
         'Uni.property.view.property.Recurrence',
-        'Uni.property.view.property.Task'
+        'Uni.property.view.property.Task',
+		'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
+        'Uni.property.view.property.ServiceCallIssueType',
+        'Uni.property.view.property.ServiceCallIssueState',
+        'Uni.property.view.property.CustomEventTypeReference',
+        'Uni.property.view.property.comtasks.ComTasks',
+        'Uni.property.view.property.webservices.WebServiceIssue',
     ],
 
     /**
@@ -79,6 +86,7 @@ Ext.define('Uni.property.controller.Registry', {
         ADVANCEREADINGSSETTINGS: 'Uni.property.view.property.AdvanceReadingsSettings',
         ADVANCEREADINGSSETTINGSWITHOUTNONE: 'Uni.property.view.property.AdvanceReadingsSettingsWithoutNone',
         ASSIGN: 'Uni.property.view.property.Assign',
+        MAILTO: 'Uni.property.view.property.MailTo',
         BOOLEAN: 'Uni.property.view.property.Boolean',
         BPM_PROCESS: 'Uni.property.view.property.StartAlarmProcess',
         CLOCK: 'Uni.property.view.property.DateTime',
@@ -136,7 +144,13 @@ Ext.define('Uni.property.controller.Registry', {
         REGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
         ANY_READINGTYPE: 'Uni.property.view.property.ReadingType',
         INTEGER: 'Uni.property.view.property.Number',
-        WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference'
+        WEB_SERVICES_ENDPOINT: 'Uni.property.view.property.Reference',
+        ENDDEVICEGROUPLIST: 'Uni.property.view.property.enddevicegroups.EndDeviceGroups',
+        SERVICE_CALL: 'Uni.property.view.property.ServiceCallIssueType',
+        SERVICE_CALL_STATE: 'Uni.property.view.property.ServiceCallIssueState',
+        CUSTOM_EVENT_TYPE: 'Uni.property.view.property.CustomEventTypeReference',
+        EXCLUDED_COM_TASKS: 'Uni.property.view.property.comtasks.ComTasks',
+        ENDPOINT_CONFIGURATION_LIST: 'Uni.property.view.property.webservices.WebServiceIssue',
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
@@ -151,7 +165,11 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.store.DeviceEventOrActions',
         'Uni.property.store.RelativePeriodsWithCount',
         'Uni.property.store.ReadingTypes',
-        'Uni.property.store.PropertyDeviceLifecycleTransition'
+        'Uni.property.store.PropertyDeviceLifecycleTransition',
+        'Uni.property.store.PropertyCommunicationTasks',
+        'Uni.property.store.PropertyCommunicationTasksCurrentValue',
+        'Uni.property.store.PropertyEndDeviceGroups',
+        'Uni.property.store.PropertyWebServices',
     ],
 
     /**
@@ -162,7 +180,7 @@ Ext.define('Uni.property.controller.Registry', {
      */
     addProperty: function (key, model) {
         if (!Ext.isString(key)) {
-            throw '!Ext.isString(key)'
+            throw '!Ext.isString(key)';
         }
 
         if (!this.getProperty(key)) {

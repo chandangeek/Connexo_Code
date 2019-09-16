@@ -5,17 +5,38 @@
 package com.energyict.mdc.device.data.impl.ami;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.ami.*;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ami.CommandFactory;
+import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
+import com.elster.jupiter.metering.ami.EndDeviceCommand;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.*;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.config.ComTaskEnablement;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.common.tasks.RegistersTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.MultiSenseEndDeviceCommand;
@@ -23,17 +44,15 @@ import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.ami.servicecall.*;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.RegistersTask;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -47,7 +66,14 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -205,7 +231,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         if (supportedReadingTypes.size() < readingTypes.size()) {
             serviceCall.requestTransition(DefaultState.FAILED);
         } else {
-            multiSenseDevice.getComTaskExecutions()
+            multiSenseDevice.getComTaskExecutions().stream()
                     .forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
         }
 
@@ -301,7 +327,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         onDemandReadServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
         onDemandReadServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         onDemandReadServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
-        onDemandReadServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
+        onDemandReadServiceCallDomainExtension.setTriggerDate(triggerDate);
 
         ServiceCallType serviceCallType = serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
@@ -327,22 +353,42 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall) {
         Device multiSenseDevice = findDeviceForEndDevice(endDeviceCommand.getEndDevice());
-        ServiceCall serviceCall = getServiceCallCommands().createOperationServiceCall(Optional.ofNullable(parentServiceCall), multiSenseDevice, endDeviceCommand.getEndDeviceControlType(), releaseDate);
+        ServiceCall serviceCall = getServiceCallCommands().createOperationServiceCall(Optional.ofNullable(parentServiceCall),
+                multiSenseDevice, endDeviceCommand.getEndDeviceControlType(), releaseDate);
         serviceCall.requestTransition(DefaultState.PENDING);
         serviceCall.requestTransition(DefaultState.ONGOING);
         serviceCall.log(LogLevel.INFO, "Handling command " + endDeviceCommand.getEndDeviceControlType());
 
         try {
+            checkComTaskEnablement(endDeviceCommand);
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
-            scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages);
+            scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages);  // Intentionally reload the device here
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
             serviceCall.requestTransition(DefaultState.WAITING);
             return new CompletionOptionsImpl(serviceCall);
         } catch (RuntimeException e) {
             serviceCall.log("Encountered an exception when trying to create/schedule the device command(s)", e);
+            serviceCall.log(LogLevel.SEVERE, e.getLocalizedMessage());
             serviceCall.requestTransition(DefaultState.FAILED);
             throw e;
+        }
+    }
+
+    private void checkComTaskEnablement(EndDeviceCommand endDeviceCommand) throws NoSuchElementException {
+        EndDevice endDevice = endDeviceCommand.getEndDevice();
+            if (endDevice != null) {
+            Device device = findDeviceForEndDevice(endDevice);
+
+            // just to check negative case when there is no ManualSystemTask of type MessagesTask
+            boolean noCommandComTaskEnablement = device.getDeviceConfiguration()
+                    .getComTaskEnablements().stream()
+                    .filter(cte -> cte.getComTask().isManualSystemTask())
+                    .noneMatch(cte -> cte.getComTask().getProtocolTasks().stream()
+                            .anyMatch(task -> task instanceof MessagesTask));
+            if (noCommandComTaskEnablement) {
+                throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
+            }
         }
     }
 
@@ -380,6 +426,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         deviceMessageIds.forEach(deviceMessageId -> comTaskEnablements.add(device.getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getComTask().getProtocolTasks().stream().
                         filter(task -> task instanceof MessagesTask).
                         flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
@@ -388,7 +435,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                         findFirst().
                         isPresent())
                 .findAny()
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_COMTASK_FOR_COMMAND).format()))));
+                .orElseThrow(() -> NoSuchElementException.comTaskCouldNotBeLocated(thesaurus))));
         return comTaskEnablements.stream().distinct();
     }
 
@@ -438,7 +485,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         communicationTestServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
         communicationTestServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         communicationTestServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
-        communicationTestServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
+        communicationTestServiceCallDomainExtension.setTriggerDate(triggerDate);
 
         ServiceCallType serviceCallType = serviceCallService.findServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION)
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)

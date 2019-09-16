@@ -64,16 +64,20 @@ Ext.define('Isu.controller.CreationManualRule', {
             reasonEditedValueWithoutSpaces = reasonEditedValue.trim();
 
             if (reason === -1){
-                if (reasonEditedValueWithoutSpaces !== ''){
+                if (reasonEditedValueWithoutSpaces === ''){
+                    comboReason.markInvalid(Uni.I18n.translate('issues.required.field', 'ISU', 'This field is required'));
+                    return false;
+                }else if (reasonEditedValue.length > 80) {
+                    comboReason.markInvalid(Uni.I18n.translate('issues.maxLength', 'ISU', "This field's text length should be between 1 and 80 symbols"));
+                    return false;
+                }
+                else{
                     var reasonData = {
                         id: reasonEditedValue,
                         name: reasonEditedValue
                     };
                     comboReason.store.add(reasonData);
                     record.set('reasonId', reasonEditedValue)
-                }else{
-                    comboReason.markInvalid(Uni.I18n.translate('issues.required.field', 'ISU', 'This field is required'));
-                    return false;
                 }
             }
             return true;
@@ -114,9 +118,10 @@ Ext.define('Isu.controller.CreationManualRule', {
 
        form.updateRecord();
        var record = form.getRecord();
+       var formIsValid = form.isValid();
        var issueReasonIsValid = me.validateIssueReason(record);
 
-       if (!form.isValid() || !issueReasonIsValid) {
+       if (!formIsValid || !issueReasonIsValid) {
             errorMessage.show();
             return;
        }

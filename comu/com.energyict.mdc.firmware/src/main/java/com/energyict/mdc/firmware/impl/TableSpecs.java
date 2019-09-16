@@ -7,25 +7,30 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
+import com.energyict.mdc.firmware.FirmwareCampaignVersionStateShapshot;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.SecurityAccessorOnDeviceType;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignDomainExtension;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignItemPersistenceSupport;
+import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignPersistenceSupport;
 import com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignPropertyImpl;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
+import com.google.common.collect.Range;
+
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -55,6 +60,7 @@ public enum TableSpecs {
                     .add();
             Column meterFWDependency = table.column(FirmwareVersionImpl.Fields.METER_FW_DEP.name()).number().since(Version.version(10, 6)).add();
             Column communicationFWDependency = table.column(FirmwareVersionImpl.Fields.COM_FW_DEP.name()).number().since(Version.version(10, 6)).add();
+            Column auxiliaryFWDependency = table.column(FirmwareVersionImpl.Fields.AUX_FW_DEP.name()).number().since(Version.version(10, 7)).add();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
             table.foreignKey("FWC_FK_DEVICETYPE")
                     .on(deviceTypeColumn)
@@ -75,6 +81,12 @@ public enum TableSpecs {
                     .references(FirmwareVersion.class)
                     .map(FirmwareVersionImpl.Fields.COM_FW_DEP.fieldName())
                     .since(Version.version(10, 6))
+                    .add();
+            table.foreignKey("FWC_FK_FW_AUX_FW_DEP")
+                    .on(auxiliaryFWDependency)
+                    .references(FirmwareVersion.class)
+                    .map(FirmwareVersionImpl.Fields.AUX_FW_DEP.fieldName())
+                    .since(Version.version(10, 7))
                     .add();
         }
     },
@@ -120,6 +132,98 @@ public enum TableSpecs {
                     .bool()
                     .map(descriptor.fieldName())
                     .since(Version.version(10, 6))
+                    .installValue(defaultValue)
+                    .add();
+        }
+    },
+
+    FWC_CAMPAIGN_VERSION_SNAPSHOT{
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<FirmwareCampaignVersionStateShapshot> table = dataModel.addTable(name(), FirmwareCampaignVersionStateShapshot.class).since(version(10, 7));
+            table.map(FirmwareCampaignVersionSnapshotImpl.class);
+            Column firmwareCampaignColumn = table.column("FW_CAMPAIGN").number().notNull().add();
+            Column cps = table.column("CPS_ID")
+                    .number()
+                    .notNull()
+                    .add();
+
+            Column version = table.column(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWAREVERSION.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWAREVERSION.fieldName())
+                    .add();
+            Column type = table.column(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWARETYPE.name())
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .conversion(CHAR2ENUM)
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWARETYPE.fieldName())
+                    .add();
+            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWARESTATUS.name())
+                    .varChar(NAME_LENGTH)
+                    .conversion(CHAR2ENUM)
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.FIRMWARESTATUS.fieldName())
+                    .add();
+            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.IMAGEIDENTIFIER.name())
+                    .varChar(NAME_LENGTH)
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.IMAGEIDENTIFIER.fieldName())
+                    .add();
+            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.RANK.name())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.RANK.fieldName())
+                    .add();
+            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.METER_FW_DEP.name())
+                    .varChar(NAME_LENGTH)
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.METER_FW_DEP.fieldName())
+                    .add();
+            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.COM_FW_DEP.name())
+                    .varChar(NAME_LENGTH)
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.COM_FW_DEP.fieldName())
+                    .add();
+            table.column(FirmwareCampaignVersionSnapshotImpl.Fields.AUX_FW_DEP.name())
+                    .varChar(NAME_LENGTH)
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.AUX_FW_DEP.fieldName())
+                    .add();
+
+            table.primaryKey("FWC_PK_VERSION_SNAPSHOT").on(firmwareCampaignColumn, cps,version,type).add();
+            table.foreignKey("FK_FWC_VRST_TO_CAMPAIGN")
+                    .on(firmwareCampaignColumn, cps)
+                    .references(FirmwareCampaignDomainExtension.class)
+                    .onDelete(CASCADE)
+                    .map(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName())
+                    .add();
+        }
+    },
+
+    FWC_CAMPAIGN_CHECK_OPTIONS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<FirmwareCampaignManagementOptions> table = dataModel.addTable(name(), FirmwareCampaignManagementOptions.class).since(version(10, 7));
+            table.map(FirmwareCampaignManagementOptionsImpl.class);
+            Column firmwareCampaignColumn = table.column("FW_CAMPAIGN").number().notNull().add();
+            Column cps = table.column("CPS_ID")
+                    .number()
+                    .notNull()
+                    .add();
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_FINAL, "'Y'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_TARGET_FW_TEST, "'Y'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_CURRENT_FW, "'N'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_FINAL, "'Y'");
+            addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_TEST, "'N'");
+            table.primaryKey("FWC_PK_CHECK_OPTIONS").on(firmwareCampaignColumn,cps).add();
+            table.foreignKey("FK_FWC_CHECKOPT_TO_CAMPAIGN")
+                    .on(firmwareCampaignColumn, cps)
+                    .references(FirmwareCampaignDomainExtension.class)
+                    .onDelete(CASCADE)
+                    .map(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName())
+                    .add();
+        }
+
+        private Column addCheckConfigurationColumnFor10_7(Table<FirmwareCampaignManagementOptions> table, FirmwareCampaignManagementOptionsImpl.Fields descriptor, String defaultValue) {
+            return table.column(descriptor.name())
+                    .bool()
+                    .map(descriptor.fieldName())
                     .installValue(defaultValue)
                     .add();
         }
@@ -184,8 +288,11 @@ public enum TableSpecs {
         }
     },
 
-    FWC_CAMPAIGN { //removed in 10.7
-
+    /**
+     * @deprecated removed in 10.7; now done via {@link FirmwareCampaignPersistenceSupport}
+     */
+    @Deprecated
+    FWC_CAMPAIGN {
         @Override
         void addTo(DataModel dataModel) {
             Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
@@ -217,7 +324,7 @@ public enum TableSpecs {
                     .since(version(10, 4, 1))
                     .installValue(Integer.toString(TimeDuration.TimeUnit.HOURS.getCode()))
                     .add();
-            table.setJournalTableName("FWC_CAMPAIGNJRNL").since(version(10, 2));
+            table.setJournalTableName("FWC_CAMPAIGNJRNL").during(Range.closedOpen(version(10, 2), version(10, 7)));
             table.addAuditColumns();
 
             table.unique("UQ_FWC_CAMPAIGN_NAME").on(name).add();
@@ -230,8 +337,11 @@ public enum TableSpecs {
         }
     },
 
-    FWC_CAMPAIGN_DEVICES { //removed in 10.7
-
+    /**
+     * @deprecated removed in 10.7; now done via {@link FirmwareCampaignItemPersistenceSupport}
+     */
+    @Deprecated
+    FWC_CAMPAIGN_DEVICES {
         @Override
         void addTo(DataModel dataModel) {
             Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
@@ -247,6 +357,7 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map("campaign")
+                    .onDelete(CASCADE)
                     .add();
             table.foreignKey("FK_FWC_DEVICE_TO_DEVICE")
                     .on(device)
@@ -258,8 +369,11 @@ public enum TableSpecs {
         }
     },
 
-    FWC_CAMPAIGN_STATUS { //removed in 10.7
-
+    /**
+     * @deprecated removed in 10.7; now done as {@link DefaultState}
+     */
+    @Deprecated
+    FWC_CAMPAIGN_STATUS {
         @Override
         void addTo(DataModel dataModel) {
             Table<String> table = dataModel.addTable(name(), String.class).upTo(version(10, 7));
@@ -276,6 +390,7 @@ public enum TableSpecs {
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map("campaign")
+                    .onDelete(CASCADE)
                     .composition()
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN_STATUS").on(campaign).add();
@@ -307,12 +422,12 @@ public enum TableSpecs {
                     .map(FirmwareCampaignPropertyImpl.Fields.VALUE.fieldName())
                     .notNull()
                     .add();
-
             table.setJournalTableName("FWC_CAMPAIGN_PROPSJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.foreignKey("FK_FWC_PROPS_TO_CAMPAIGN")
                     .on(campaign, cps)
                     .since(version(10, 7))
+                    // previously referenced FWC_CAMPAIGN; old fk is removed manually in UpgraderV10_7
                     .references(FirmwareCampaignDomainExtension.class)
                     .onDelete(CASCADE)
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())

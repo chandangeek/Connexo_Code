@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 
 import java.time.Instant;
@@ -40,7 +41,7 @@ public interface RescheduleBehavior {
          * Handle the retry logic for the scenario where the
          * connection was not allowed to be setup because the
          * time of execution was outside the {@link com.energyict.mdc.common.ComWindow}
-         * of the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
+         * of the {@link ConnectionTask}.
          */
         OUTSIDE_COM_WINDOW
     }

@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.users.Group;
 
@@ -21,6 +22,7 @@ import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
+
 
 public enum TableSpecs {
     WS_ENDPOINTCFG {
@@ -83,6 +85,62 @@ public enum TableSpecs {
             table.primaryKey("PK_WS_ENDPOINT").on(id).add();
         }
     },
+    WS_CALL_OCCURRENCE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<WebServiceCallOccurrence> table = dataModel.addTable(this.name(), WebServiceCallOccurrence.class);
+            table.map(WebServiceCallOccurrenceImpl.class);
+            table.since(version(10, 7));
+
+            Column idColumn = table.addAutoIdColumn();
+
+            Column endPoint = table.column("ENDPOINTCFG").number().notNull().add();
+            table.foreignKey("FK_WS_CALL_OCCURRENCE_2_EPC")
+                    .references(WS_ENDPOINTCFG.name())
+                    .on(endPoint)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(WebServiceCallOccurrenceImpl.Fields.ENDPOINT_CONFIGURATION.fieldName())
+                    .add();
+
+            Column startTimeColumn = table.column("STARTTIME")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .notNull()
+                    .map(WebServiceCallOccurrenceImpl.Fields.START_TIME.fieldName())
+                    .add();
+
+            table.column("ENDTIME")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(WebServiceCallOccurrenceImpl.Fields.END_TIME.fieldName())
+                    .add();
+
+            table.column("REQUESTNAME")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallOccurrenceImpl.Fields.REQUEST_NAME.fieldName())
+                    .add();
+
+            table.column("STATUS")
+                    .varChar(NAME_LENGTH)
+                    .conversion(ColumnConversion.CHAR2ENUM)
+                    .notNull()
+                    .map(WebServiceCallOccurrenceImpl.Fields.STATUS.fieldName())
+                    .add();
+            table.column("APPLICATIONNAME")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallOccurrenceImpl.Fields.APPLICATION_NAME.fieldName())
+                    .add();
+            table.column("PAYLOAD")
+                    .type("CLOB")
+                    .conversion(CLOB2STRING)
+                    .map(WebServiceCallOccurrenceImpl.Fields.PAYLOAD.fieldName())
+                    .add();
+
+
+            table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
+            table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
+        }
+    },
     WS_ENDPOINT_LOG {
         @Override
         void addTo(DataModel dataModel) {
@@ -94,33 +152,41 @@ public enum TableSpecs {
                     .references(WS_ENDPOINTCFG.name())
                     .on(endPoint)
                     .onDelete(DeleteRule.CASCADE)
-                    .map(EndPointLogImpl.Fields.endPointConfiguration.fieldName())
+                    .map(EndPointLogImpl.Fields.ENDPOINT_CONFIGURATION.fieldName())
                     .add();
             table.column("LOGLEVEL")
                     .number()
                     .conversion(ColumnConversion.NUMBER2ENUM)
                     .notNull()
-                    .map(EndPointLogImpl.Fields.logLevel.fieldName())
+                    .map(EndPointLogImpl.Fields.LOG_LEVEL.fieldName())
                     .add();
             Column timestampColumn = table.column("TIMESTAMP")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .notNull()
-                    .map(EndPointLogImpl.Fields.timestamp.fieldName())
+                    .map(EndPointLogImpl.Fields.TIMESTAMP.fieldName())
                     .add();
             table.column("MESSAGE")
                     .number()
                     .varChar(MAX_STRING_LENGTH)
-                    .map(EndPointLogImpl.Fields.message.fieldName())
+                    .map(EndPointLogImpl.Fields.MESSAGE.fieldName())
                     .add();
             table.column("STACKTRACE")
                     .type("CLOB")
                     .conversion(CLOB2STRING)
-                    .map(EndPointLogImpl.Fields.stacetrace.fieldName())
+                    .map(EndPointLogImpl.Fields.STACKTRACE.fieldName())
+                    .add();
+            Column occurrence = table.column("OCCURRENCEID").number().since(version(10, 7)).add();
+
+            table.foreignKey("FK_WS_EP_LOG_2_OCCURRENCE")
+                    .references(WS_CALL_OCCURRENCE.name())
+                    .on(occurrence)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(EndPointLogImpl.Fields.OCCURRENCE.fieldName())
+                    .since(version(10, 7))
                     .add();
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
             table.autoPartitionOn(timestampColumn, LifeCycleClass.WEBSERVICES);
-
         }
     },
     WS_ENDPOINT_PROPS {
