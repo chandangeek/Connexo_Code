@@ -12,6 +12,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.elster.jupiter.metering.DefaultState;
@@ -96,6 +97,7 @@ public class DeviceBuilder {
         Optional<String> statusValue = Optional.ofNullable(meter.getStatusValue());
         Optional<Instant> statusEffectiveDate = Optional.ofNullable(meter.getStatusEffectiveDate());
         Optional<Instant> multiplierEffectiveDate = Optional.ofNullable(meter.getMultiplierEffectiveDate());
+        Optional<Instant> shipmentDate = Optional.ofNullable(meter.getShipmentDate());
         String newDeviceConfigurationName = meter.getDeviceConfigurationName();
 
         return () -> {
@@ -154,7 +156,14 @@ public class DeviceBuilder {
             if (batch.isPresent()) {
                 batchService.findOrCreateBatch(batch.get()).addDevice(changedDevice);
             }
-
+            if (shipmentDate.isPresent()) {
+                if (DefaultState.IN_STOCK.equals(DefaultState.from(changedDevice.getState()).orElse(null))) {
+                    changedDevice.getLifecycleDates().setReceivedDate(shipmentDate.get());
+                } else {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
+                            MessageSeeds.SHIPMENT_DATE_NOT_IN_STOCK).get();
+                }
+            }
             serialNumber.ifPresent(changedDevice::setSerialNumber);
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
             changedDevice.setModelVersion(modelVersion.orElse(currentModelVersion));

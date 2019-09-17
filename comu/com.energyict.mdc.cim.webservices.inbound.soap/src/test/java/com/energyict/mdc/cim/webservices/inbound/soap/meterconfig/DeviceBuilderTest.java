@@ -11,6 +11,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Batch;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.elster.jupiter.metering.DefaultState;
@@ -129,6 +130,9 @@ public class DeviceBuilderTest {
 	@Mock
 	private StateTransition stateTransition;
 
+	@Mock
+	private CIMLifecycleDates lifecycleDates;
+
 	private MeterInfo meterInfo;
 
 	private DeviceBuilder testable;
@@ -185,6 +189,7 @@ public class DeviceBuilderTest {
 		when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 		when(batchService.findOrCreateBatch(BATCH)).thenReturn(batch);
 		when(device.getDeviceType()).thenReturn(deviceType);
+		when(device.getLifecycleDates()).thenReturn(lifecycleDates);
 		when(deviceLifeCycleService.getExecutableActions(device)).thenReturn(Arrays.asList(executableAction));
 		when(executableAction.getAction()).thenReturn(authorizedTransitionAction);
 		when(authorizedTransitionAction.getStateTransition()).thenReturn(stateTransition);
