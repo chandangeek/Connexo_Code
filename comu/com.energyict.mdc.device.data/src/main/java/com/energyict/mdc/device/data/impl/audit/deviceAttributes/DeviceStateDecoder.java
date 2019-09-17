@@ -12,7 +12,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 
 import java.util.Comparator;

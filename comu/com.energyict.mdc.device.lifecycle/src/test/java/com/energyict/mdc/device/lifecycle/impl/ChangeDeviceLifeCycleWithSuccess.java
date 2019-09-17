@@ -22,7 +22,7 @@ import com.elster.jupiter.metering.impl.SwitchStateMachineEventHandlerFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;

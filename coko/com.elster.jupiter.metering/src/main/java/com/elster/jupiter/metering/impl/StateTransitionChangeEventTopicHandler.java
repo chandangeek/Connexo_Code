@@ -13,6 +13,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
@@ -199,55 +200,6 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             effectiveTimestamp = this.clock.instant();
         }
         return effectiveTimestamp;
-    }
-
-    private enum DefaultState implements TranslationKey {
-
-        IN_STOCK("dlc.default.inStock", "In stock"),
-        COMMISSIONING("dlc.default.commissioning", "Commissioning"),
-        ACTIVE("dlc.default.active", "Active"),
-        INACTIVE("dlc.default.inactive", "Inactive"),
-        DECOMMISSIONED("dlc.default.decommissioned", "Decommissioned"),
-        REMOVED("dlc.default.removed", "Removed");
-
-        private final String key;
-        private final String defaultFormat;
-
-        DefaultState(String key, String defaultFormat) {
-            this.key = key;
-            this.defaultFormat = defaultFormat;
-        }
-
-        @Override
-        public String getKey() {
-            return key;
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return defaultFormat;
-        }
-
-        /**
-         * Determines the DefaultState for the specified {@link State}.
-         * Will return <code>Optional.empty()</code> when the State
-         * is not standard or the symbolic name does not match
-         * one of the standards.
-         *
-         * @param state The State
-         * @return The DefaultState
-         */
-        public static Optional<DefaultState> from(State state) {
-            if (state != null && !state.isCustom()) {
-                String symbolicName = state.getName();
-                return Stream
-                        .of(DefaultState.values())
-                        .filter(d -> d.getKey().equals(symbolicName))
-                        .findFirst();
-            } else {
-                return Optional.empty();
-            }
-        }
     }
 
     @Override

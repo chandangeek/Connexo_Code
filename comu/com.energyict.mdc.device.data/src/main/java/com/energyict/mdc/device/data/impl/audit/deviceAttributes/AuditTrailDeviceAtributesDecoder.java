@@ -23,7 +23,7 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.audit.AbstractDeviceAuditDecoder;
