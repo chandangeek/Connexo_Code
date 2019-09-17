@@ -193,7 +193,7 @@ public class TimeOfUseCampaignServiceImpl implements TimeOfUseCampaignService, M
 
     @Activate
     public void activate(BundleContext bundleContext) {
-        dataModel = upgradeService.newNonOrmDataModel();
+        dataModel = ormService.newDataModel(COMPONENT_NAME, "Time of use campaign");
         dataModel.register(getModule());
         customPropertySets.add(dataModel.getInstance(TimeOfUseCampaignCustomPropertySet.class));
         customPropertySets.add(dataModel.getInstance(TimeOfUseItemPropertySet.class));
