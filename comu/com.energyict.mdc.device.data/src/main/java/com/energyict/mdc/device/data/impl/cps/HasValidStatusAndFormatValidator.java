@@ -35,6 +35,7 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
         cardFormats.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.CARD_FORMAT_MINI, thesaurus));
         cardFormats.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.CARD_FORMAT_NANO, thesaurus));
         cardFormats.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.CARD_FORMAT_SW, thesaurus));
+        cardFormats.add(null);
         if (!cardFormats.contains(value.getCardFormat())) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.WRONG_CARD_FORMAT + "}")
@@ -50,6 +51,7 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
         statuses.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.STATUS_INACTIVE, thesaurus));
         statuses.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.STATUS_PRE_ACTIVE, thesaurus));
         statuses.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.STATUS_TEST, thesaurus));
+        statuses.add(null);
         if (!statuses.contains(value.getStatus())) {
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.WRONG_STATUS + "}")
                     .addPropertyNode(SIMCardDomainExtension.FieldNames.STATUS.javaName())
