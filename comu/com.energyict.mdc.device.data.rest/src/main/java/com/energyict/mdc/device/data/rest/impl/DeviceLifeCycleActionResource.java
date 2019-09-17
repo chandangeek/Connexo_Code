@@ -22,7 +22,7 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.InvalidLastCheckedException;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;

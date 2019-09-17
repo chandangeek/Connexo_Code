@@ -27,7 +27,7 @@ import com.elster.jupiter.properties.rest.DeviceLifeCycleTransitionPropertyFacto
 import com.elster.jupiter.properties.rest.RecurrenceSelectionPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.device.config.DeviceType;
-import com.energyict.mdc.common.device.lifecycle.config.DefaultState;
+import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
