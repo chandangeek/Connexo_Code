@@ -526,17 +526,21 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
     private static int getSystemProperty(String propertyName, int defaultValue) {
         int value = defaultValue;
 
-        String property = FrameworkUtil.getBundle(OutboundTcpIpWithWakeUpConnectionType.class).getBundleContext().getProperty(propertyName);
-        if (property!=null){
-            try {
-                value = Integer.parseInt(property);
-            }catch (Exception ex){
-                System.err.println("[Wakeup]: System configuration property ["+propertyName+"] could not be parsed, using default value of "+defaultValue);
-            }
-        } else {
-            System.err.println("[Wakeup]: System configuration property ["+propertyName+"] is not defined, using default value of "+defaultValue);
-        }
+        try {
+            String property = FrameworkUtil.getBundle(OutboundTcpIpWithWakeUpConnectionType.class).getBundleContext().getProperty(propertyName);
 
+            if (property!=null){
+                try {
+                    value = Integer.parseInt(property);
+                }catch (Exception ex){
+                    System.err.println("[Wakeup]: System configuration property ["+propertyName+"] could not be parsed, using default value of "+defaultValue);
+                }
+            } else {
+                System.err.println("[Wakeup]: System configuration property ["+propertyName+"] is not defined, using default value of "+defaultValue);
+            }
+        } catch (Exception ex){
+            System.err.println("[Wakeup]: Cannot get system configuration property ["+propertyName+"] using default value of "+defaultValue+": "+ex.getLocalizedMessage());
+        }
         return value;
     }
 
