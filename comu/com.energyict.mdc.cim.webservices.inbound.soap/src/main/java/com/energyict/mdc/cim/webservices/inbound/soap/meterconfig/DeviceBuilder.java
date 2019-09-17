@@ -156,9 +156,13 @@ public class DeviceBuilder {
             if (batch.isPresent()) {
                 batchService.findOrCreateBatch(batch.get()).addDevice(changedDevice);
             }
-            CIMLifecycleDates cimLifecycleDates = changedDevice.getLifecycleDates();
-            if (DefaultState.IN_STOCK.equals(DefaultState.from(changedDevice.getState()))) {
-                shipmentDate.ifPresent(cimLifecycleDates::setReceivedDate);
+            if (shipmentDate.isPresent()) {
+                if (DefaultState.IN_STOCK.equals(DefaultState.from(changedDevice.getState()).orElse(null))) {
+                    changedDevice.getLifecycleDates().setReceivedDate(shipmentDate.get());
+                } else {
+                    throw faultMessageFactory.meterConfigFaultMessageSupplier(meter.getDeviceName(),
+                            MessageSeeds.SHIPMENT_DATE_NOT_IN_STOCK).get();
+                }
             }
             serialNumber.ifPresent(changedDevice::setSerialNumber);
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));
