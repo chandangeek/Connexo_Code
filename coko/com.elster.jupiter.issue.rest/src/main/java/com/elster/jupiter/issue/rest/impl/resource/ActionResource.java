@@ -103,12 +103,12 @@ public class ActionResource extends BaseResource {
 
         final String actionTypeClassName = issueActionType.getClassName();
 
-        if (actionTypeClassName.equals("com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction")) {
+        if ((actionTypeClassName != null) && actionTypeClassName.equals("com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction")) {
             final boolean anyMatch = createdActionTypeClassNames.containsValue("com.elster.jupiter.issue.impl.actions.ProcessAction");
             return !anyMatch;
         }
 
-        if (actionTypeClassName.equals("com.elster.jupiter.issue.impl.actions.ProcessAction")) {
+        if ((actionTypeClassName != null) &&  actionTypeClassName.equals("com.elster.jupiter.issue.impl.actions.ProcessAction")) {
             final boolean anyMatch = createdActionTypeClassNames.containsValue("com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction");
             return !anyMatch;
         }
