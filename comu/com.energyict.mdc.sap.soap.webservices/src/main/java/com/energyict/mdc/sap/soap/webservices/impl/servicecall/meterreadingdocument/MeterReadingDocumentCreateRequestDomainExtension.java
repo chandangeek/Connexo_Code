@@ -188,12 +188,20 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         return cancelledBySap;
     }
 
+    public void setCancelledBySap(String cancelledBySap) {
+        this.cancelledBySap = cancelledBySap;
+    }
+
     public boolean isCancelledBySap() {
         return cancelledBySap != null && cancelledBySap.toLowerCase().equals("yes");
     }
 
-    public void setCancelledBySap(String cancelledBySap) {
-        this.cancelledBySap = cancelledBySap;
+    public void setCancelledBySap(boolean isCancelledBySap) {
+        if(isCancelledBySap){
+            setCancelledBySap("Yes");
+        }else{
+            setCancelledBySap("No");
+        }
     }
 
     @Override
@@ -232,5 +240,9 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
 
     @Override
     public void validateDelete() {
+    }
+
+    public ServiceCall getServiceCall(){
+        return serviceCall.get();
     }
 }

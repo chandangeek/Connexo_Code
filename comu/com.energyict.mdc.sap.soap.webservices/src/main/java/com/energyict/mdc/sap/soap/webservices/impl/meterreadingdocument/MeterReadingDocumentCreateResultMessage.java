@@ -36,7 +36,6 @@ public class MeterReadingDocumentCreateResultMessage {
 
     private MtrRdngDocERPRsltBulkCrteReqMsg bulkResultMessage;
     private MtrRdngDocERPRsltCrteReqMsg resultMessage;
-    private String url;
     private boolean bulk;
 
     //statistic
@@ -50,10 +49,6 @@ public class MeterReadingDocumentCreateResultMessage {
 
     public MtrRdngDocERPRsltCrteReqMsg getResultMessage() {
         return resultMessage;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public boolean isBulk() {
@@ -91,7 +86,7 @@ public class MeterReadingDocumentCreateResultMessage {
             if (bulk) {
                 bulkResultMessage.setMessageHeader(createBulkHeader(extension, now));
                 children.forEach(child -> {
-                    MeterReadingDocumentCreateResultDomainExtension childExtension = parent.getExtensionFor(new MeterReadingDocumentCreateResultCustomPropertySet()).get();
+                    MeterReadingDocumentCreateResultDomainExtension childExtension = child.getExtensionFor(new MeterReadingDocumentCreateResultCustomPropertySet()).get();
                     if(!childExtension.isCancelledBySap()) {
                         com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreaterequest.MtrRdngDocERPRsltCrteReqMsg crteReqMsg = BULK_OBJECT_FACTORY.createMtrRdngDocERPRsltCrteReqMsg();
                         crteReqMsg.setMessageHeader(createBulkHeader(extension, now));

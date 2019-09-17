@@ -8,7 +8,7 @@ public enum AdditionalProperties {
 
     REGISTER_SEARCH_ATTEMPTS("com.elster.jupiter.sap.registersearchattempts", 3),
     REGISTER_SEARCH_INTERVAL("com.elster.jupiter.sap.registersearchinterval", 5),
-    READING_DATE_WINDOW("com.elster.jupiter.sap.readingdatewindow", 1440),
+    READING_DATE_WINDOW("com.elster.jupiter.sap.readingdatewindow", 4320),
     READING_COLLECTION_INTERVAL("com.elster.jupiter.sap.readingcollectioninterval", 60),
     CONFIRMATION_TIMEOUT("com.elster.jupiter.sap.confirmationtimeout", 5),
     CHECK_SCHEDULED_REQUESTS_FREQUENCY("com.elster.jupiter.sap.checkscheduledrequestsfrequency", 60),

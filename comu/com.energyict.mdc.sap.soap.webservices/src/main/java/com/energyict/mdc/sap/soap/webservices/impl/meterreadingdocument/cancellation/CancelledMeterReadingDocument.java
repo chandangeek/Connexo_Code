@@ -6,7 +6,7 @@ public class CancelledMeterReadingDocument {
     private String id;
     private boolean success;
     private MessageSeeds cancelError;
-    private Object cancelArgs;
+    private Object[] cancelArgs;
 
     public CancelledMeterReadingDocument(String id, boolean success) {
         this.id = id;
@@ -32,7 +32,7 @@ public class CancelledMeterReadingDocument {
         return cancelError;
     }
 
-    public Object getCancelArgs() {
+    public Object[] getCancelArgs() {
         return cancelArgs;
     }
 }

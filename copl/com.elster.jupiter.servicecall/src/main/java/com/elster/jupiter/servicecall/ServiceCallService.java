@@ -177,7 +177,7 @@ public interface ServiceCallService {
 
     Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState);
 
-    Finder<ServiceCall> findAvailableServiceCalls(String serviceCallName, Set<DefaultState> inState);
+    Finder<ServiceCall> findAvailableServiceCalls(String serviceCallTypeName, Set<DefaultState> inState);
 
     void cancelServiceCallsFor(Object target);
 

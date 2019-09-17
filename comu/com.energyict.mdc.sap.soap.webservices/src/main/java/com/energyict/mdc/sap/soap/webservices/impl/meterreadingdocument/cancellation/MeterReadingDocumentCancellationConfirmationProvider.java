@@ -56,7 +56,7 @@ public class MeterReadingDocumentCancellationConfirmationProvider extends Abstra
     @Override
     public void call(MeterReadingDocumentCancellationConfirmationMessage confMsg) {
         using("smartMeterMeterReadingDocumentERPCancellationConfirmationCOut")
-                .send(confMsg.getConfirmationMessage());
+                .send(confMsg.getConfirmationMessage().get());
     }
 
     @Override

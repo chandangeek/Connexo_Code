@@ -42,10 +42,13 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case ONGOING:
+            case CANCELLED:
                 if (!oldState.equals(DefaultState.WAITING)) {
                     sendResultMessage(serviceCall);
-                    setConfirmationTime(serviceCall);
-                    serviceCall.requestTransition(DefaultState.WAITING);
+                    if (!newState.equals(DefaultState.CANCELLED)) {
+                        setConfirmationTime(serviceCall);
+                        serviceCall.requestTransition(DefaultState.WAITING);
+                    }
                 }
                 break;
             default:
@@ -69,6 +72,11 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
                     } else if (parentServiceCall.getState().equals(DefaultState.WAITING)) {
                         parentServiceCall.requestTransition(DefaultState.ONGOING);
                         resultTransition(parentServiceCall, children);
+                    } else if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
+                        parentServiceCall.requestTransition(DefaultState.ONGOING);
+                    } else if (parentServiceCall.getState().equals(DefaultState.SCHEDULED)) {
+                        parentServiceCall.requestTransition(DefaultState.PENDING);
+                        parentServiceCall.requestTransition(DefaultState.ONGOING);
                     }
                 } else if (isLastWaitingOrCancelledChild(children)) {
                     if (parentServiceCall.getState().equals(DefaultState.PENDING)) {
@@ -86,6 +94,9 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
     }
 
     private void resultTransition(ServiceCall parent, List<ServiceCall> children) {
+        long confirmedOrders = children.stream().filter(sc -> sc.getState().equals(DefaultState.SUCCESSFUL)).count();
+        parent.log(LogLevel.INFO, "Successfully orders confirmed by SAP: " + confirmedOrders + ".");
+
         if (hasAllChildrenInState(children, DefaultState.SUCCESSFUL) && parent.canTransitionTo(DefaultState.SUCCESSFUL)) {
             parent.requestTransition(DefaultState.SUCCESSFUL);
         } else if (hasAnyChildState(children, DefaultState.CANCELLED) && parent.canTransitionTo(DefaultState.CANCELLED)) {
@@ -129,9 +140,9 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
         int childrenCanceledBySap = resultMessage.getDocumentsCanceledBySap();
         int childrenSuccessfullyProcessed = resultMessage.getDocumentsSuccessfullyProcessed();
         serviceCall.log(LogLevel.INFO, "Total orders: " + childrenTotal +
-                ". Successfully processed orders: " + childrenSuccessfullyProcessed +
-                ". Failed processed orders: " + (childrenTotal - childrenSuccessfullyProcessed - childrenCanceledBySap) +
-                ". Cancelled by Sap orders: " + childrenCanceledBySap + ".");
+                ": successfully processed orders: " + childrenSuccessfullyProcessed +
+                ", failed processed orders: " + (childrenTotal - childrenSuccessfullyProcessed - childrenCanceledBySap) +
+                ", cancelled by Sap orders: " + childrenCanceledBySap + ".");
 
         serviceCall.log(LogLevel.INFO, "Sent the results to Sap.");
 
@@ -154,7 +165,7 @@ public class MasterMeterReadingDocumentCreateResultServiceCallHandler implements
     }
 
     private boolean isServiceCallCancelledBySap(ServiceCall sc) {
-        Optional<MeterReadingDocumentCreateRequestDomainExtension> extension = sc.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class);
+        Optional<MeterReadingDocumentCreateResultDomainExtension> extension = sc.getExtension(MeterReadingDocumentCreateResultDomainExtension.class);
         if (extension.isPresent()) {
             return extension.get().isCancelledBySap();
         } else {

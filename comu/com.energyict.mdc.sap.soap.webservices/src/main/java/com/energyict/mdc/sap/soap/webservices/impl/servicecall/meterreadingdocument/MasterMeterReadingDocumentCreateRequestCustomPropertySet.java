@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
 @Component(name = "MasterMeterReadingDocumentCreateRequestCustomPropertySet",

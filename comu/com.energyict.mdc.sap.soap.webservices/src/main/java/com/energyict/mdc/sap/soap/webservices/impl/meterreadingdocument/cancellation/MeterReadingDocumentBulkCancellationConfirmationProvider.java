@@ -8,8 +8,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkCance
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcancellationconfirmation.SmartMeterMeterReadingDocumentERPBulkCancellationConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcancellationconfirmation.SmartMeterMeterReadingDocumentERPBulkCancellationConfirmationCOutService;
-import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcancellationconfirmation.SmrtMtrMtrRdngDocERPBulkCanclnConfMsg;
-
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -18,7 +16,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
 import java.util.Map;
-
 
 @Component(name = MeterReadingDocumentBulkCancellationConfirmation.NAME,
         service = {MeterReadingDocumentBulkCancellationConfirmation.class, OutboundSoapEndPointProvider.class},

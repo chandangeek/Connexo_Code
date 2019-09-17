@@ -11,6 +11,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
@@ -36,16 +37,22 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
     private volatile Clock clock;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile ServiceCallService serviceCallService;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
-                serviceCall.requestTransition(DefaultState.ONGOING);
+                serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.ONGOING);
                 break;
             case ONGOING:
-                processServiceCall(serviceCall);
+                serviceCallService.lockServiceCall(serviceCall.getId()).ifPresent(lockedServiceCall ->{
+                    if(lockedServiceCall.getState().equals(DefaultState.ONGOING)) {
+                        processServiceCall(lockedServiceCall);
+                    }
+                });
+
                 break;
             default:
                 // No specific action required for these states
@@ -108,6 +115,11 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 }
 

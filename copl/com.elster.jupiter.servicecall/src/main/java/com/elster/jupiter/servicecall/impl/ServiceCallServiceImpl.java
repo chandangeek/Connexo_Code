@@ -402,9 +402,9 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
-    public Finder<ServiceCall> findAvailableServiceCalls(String serviceCallName, Set<DefaultState> inState) {
+    public Finder<ServiceCall> findAvailableServiceCalls(String serviceCallTypeName, Set<DefaultState> inState) {
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.types.add(serviceCallName);
+        filter.types.add(serviceCallTypeName);
         filter.states = inState.stream().map(Enum::name).collect(Collectors.toList());
         return getServiceCallFinder(filter);
     }

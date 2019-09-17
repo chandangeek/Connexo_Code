@@ -1,7 +1,5 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation;
 
-import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcancellationconfirmation.Log;

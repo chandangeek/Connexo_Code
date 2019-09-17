@@ -43,6 +43,7 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.AP
         immediate = true)
 public class MeterReadingDocumentCreateRequestCustomPropertySet implements CustomPropertySet<ServiceCall, MeterReadingDocumentCreateRequestDomainExtension> {
     public static final String CUSTOM_PROPERTY_SET_NAME = "MeterReadingDocumentCreateRequestCustomPropertySet";
+    public static final String MODEL_NAME = "MR1";
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
@@ -204,7 +205,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
 
         @Override
         public String componentName() {
-            return "MR1";
+            return MODEL_NAME;
         }
 
         @Override

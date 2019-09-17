@@ -195,7 +195,6 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.nextReadingAttemptDate = nextReadingAttemptDate;
     }
 
-
     public String getCancelledBySap() {
         return cancelledBySap;
     }
@@ -206,6 +205,14 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
 
     public boolean isCancelledBySap() {
         return cancelledBySap != null && cancelledBySap.toLowerCase().equals("yes");
+    }
+
+    public void setCancelledBySap(boolean isCancelledBySap) {
+        if(isCancelledBySap){
+            setCancelledBySap("Yes");
+        }else{
+            setCancelledBySap("No");
+        }
     }
 
     public BigDecimal getReadingAttempt() {
@@ -280,5 +287,9 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
 
     @Override
     public void validateDelete() {
+    }
+
+    public ServiceCall getServiceCall(){
+        return serviceCall.get();
     }
 }

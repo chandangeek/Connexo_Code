@@ -55,32 +55,33 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             case PENDING:
                 immediately.remove(serviceCall.getId());
                 scheduled.remove(serviceCall.getId());
-                serviceCall.findChildren().stream().forEach(child -> child.requestTransition(DefaultState.PENDING));
+                serviceCall.findChildren().stream().forEach(child -> serviceCallService.transitionWithLockIfPossible(child, DefaultState.PENDING));
                 break;
             case ONGOING:
                 if (oldState.equals(DefaultState.PAUSED)) {
                     serviceCall.findChildren()
                             .stream()
                             .filter(child -> child.getState().isOpen())
-                            .forEach(child -> child.requestTransition(DefaultState.ONGOING));
+                            .forEach(child -> serviceCallService.transitionWithLockIfPossible(child, DefaultState.ONGOING));
                 } else {
                     resultTransition(serviceCall);
                 }
                 break;
             case CANCELLED:
-                if (allChildCancelledBySap(serviceCall)) {
-                    serviceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
-                    break;
-                }
-                //if not continue to create result service call
             case FAILED:
             case PARTIAL_SUCCESS:
             case SUCCESSFUL:
-                if (immediately.get(serviceCall.getId()) != null) {
-                    createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(serviceCall);
-                }
-                if (scheduled.get(serviceCall.getId()) != null) {
-                    createMasterMeterReadingDocumentResultServiceCallForScheduling(serviceCall);
+                if (allChildCancelledBySap(serviceCall)) {
+                    serviceCall.log(LogLevel.INFO, "All orders are cancelled by SAP.");
+                } else {
+                    //if not continue to create result service call
+                    if (immediately.get(serviceCall.getId()) != null) {
+                        createMasterMeterReadingDocumentResultServiceCallForImmediateProcessing(serviceCall);
+                    }
+
+                    if (scheduled.get(serviceCall.getId()) != null) {
+                        createMasterMeterReadingDocumentResultServiceCallForScheduling(serviceCall);
+                    }
                 }
                 break;
             case SCHEDULED:
@@ -258,9 +259,9 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
 
     private boolean isServiceCallCancelledBySap(ServiceCall sc) {
         Optional<MeterReadingDocumentCreateRequestDomainExtension> extension = sc.getExtension(MeterReadingDocumentCreateRequestDomainExtension.class);
-        if(extension.isPresent()){
+        if (extension.isPresent()) {
             return extension.get().isCancelledBySap();
-        }else{
+        } else {
             return false;
         }
     }

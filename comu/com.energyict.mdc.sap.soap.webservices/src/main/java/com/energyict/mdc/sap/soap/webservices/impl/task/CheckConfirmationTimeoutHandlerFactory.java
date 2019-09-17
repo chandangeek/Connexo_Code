@@ -8,7 +8,6 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.tasks.TaskService;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

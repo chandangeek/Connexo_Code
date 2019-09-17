@@ -13,7 +13,6 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancell
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcancellationconfirmation.SmrtMtrMtrRdngDocERPCanclnConfMtrRdngDoc;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 public class CancellationConfirmationMessageFactory {
