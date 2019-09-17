@@ -14,13 +14,13 @@ Ext.define('Apr.privileges.AppServer', {
     ],
     singleton: true,
     view: ['privilege.administrate.appServer',
-        'privilege.view.appServer', 'privilege.view.ViewTaskOverview', 'privilege.edit.AdministrateTaskOverview'],
+        'privilege.view.appServer', 'privilege.view.ViewTaskOverview', 'privilege.edit.AdministerTaskOverview'],
 
     admin: ['privilege.administrate.appServer'],
 
-    taskOverview: ['privilege.view.ViewTaskOverview'],
+    taskOverview: ['privilege.view.ViewTaskOverview', 'privilege.edit.AdministerTaskOverview'],
     suspendTaskOverview: ['privilege.suspend.SuspendTaskOverview'],
-    administrateTaskOverview: ['privilege.edit.AdministrateTaskOverview'],
+    administrateTaskOverview: ['privilege.edit.AdministerTaskOverview'],
 
     all: function () {
         return Ext.Array.merge(Apr.privileges.AppServer.view);

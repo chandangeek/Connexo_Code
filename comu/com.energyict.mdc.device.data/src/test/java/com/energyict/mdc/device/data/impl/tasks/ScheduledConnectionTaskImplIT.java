@@ -18,7 +18,6 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
-import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -113,7 +112,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getCurrentRetryCount()).isEqualTo(0);
         assertThat(connectionTask.getRescheduleDelay()).isEqualTo(TimeDuration.minutes(5));
         assertThat(connectionTask.lastExecutionFailed()).isEqualTo(false);
-        assertThat(connectionTask.getExecutingComServer()).isNull();
+        assertThat(connectionTask.getExecutingComPort()).isNull();
         assertThat(connectionTask.getProtocolDialectConfigurationProperties()).isEqualTo(this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0));
     }
 
@@ -1342,13 +1341,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testAttemptLock() {
         String name = "testAttemptLock";
-        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        ScheduledConnectionTaskImpl connectionTask = createAsapWithNoPropertiesWithoutViolations(name);
 
         // Business method
-        ScheduledConnectionTask lockedConnectionTask = this.attemptLock(connectionTask);
+        ScheduledConnectionTask lockedConnectionTask = attemptLock(connectionTask);
 
         // Asserts
-        assertThat(lockedConnectionTask.getExecutingComServer().getId()).isEqualTo(this.getOnlineComServer().getId());
+        assertThat(lockedConnectionTask.getExecutingComPort().getId()).isEqualTo(getOutboundComPort().getId());
     }
 
     @Test
@@ -1356,43 +1355,43 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     public void testUnlock() {
         ServerConnectionTaskService connectionTaskService = inMemoryPersistence.getConnectionTaskService();
         String name = "testUnlock";
-        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
-        ScheduledConnectionTaskImpl lockedConnectionTask = connectionTaskService.attemptLockConnectionTask(connectionTask, this.getOnlineComServer());
+        ScheduledConnectionTaskImpl connectionTask = createAsapWithNoPropertiesWithoutViolations(name);
+        ScheduledConnectionTaskImpl lockedConnectionTask = connectionTaskService.attemptLockConnectionTask(connectionTask, getOutboundComPort());
 
         // Business method
         connectionTaskService.unlockConnectionTask(lockedConnectionTask);
 
         // Asserts
-        assertThat(connectionTask.getExecutingComServer()).isNull();
+        assertThat(connectionTask.getExecutingComPort()).isNull();
     }
 
     @Test
     @Transactional
     public void testAttemptLockWillFailWhenAlreadyLockedByTheSameComServer() {
         String name = "testAttemptLockWhenAlreadyLockedByTheSameComServer";
-        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+        ScheduledConnectionTaskImpl connectionTask = createAsapWithNoPropertiesWithoutViolations(name);
 
         // Business method
-        ScheduledConnectionTask lockedConnectionTask = this.attemptLock(connectionTask);
+        ScheduledConnectionTask lockedConnectionTask = attemptLock(connectionTask);
 
         // Asserts
-        assertThat(lockedConnectionTask.getExecutingComServer().getId()).isEqualTo(this.getOnlineComServer().getId());
+        assertThat(lockedConnectionTask.getExecutingComPort().getId()).isEqualTo(getOutboundComPort().getId());
     }
 
     @Test
     @Transactional
-    public void testAttemptLockWhenAlreadyLockedByAnotherComServer() {
-        String name = "testAttemptLockWhenAlreadyLockedByAnotherComServer";
-        ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
+    public void testAttemptLockWhenAlreadyLockedByAnotherComPort() {
+        String name = "testAttemptLockWhenAlreadyLockedByAnotherComPort";
+        ScheduledConnectionTaskImpl connectionTask = createAsapWithNoPropertiesWithoutViolations(name);
 
-        ScheduledConnectionTask lockedConnectionTask = this.attemptLock(connectionTask, this.getOnlineComServer());
+        ScheduledConnectionTask lockedConnectionTask = attemptLock(connectionTask, getOutboundComPort());
 
         // Business method
-        ScheduledConnectionTask shouldBeNull = this.attemptLock(connectionTask, this.getOtherOnlineComServer());
+        ScheduledConnectionTask shouldBeNull = attemptLock(connectionTask, getOtherOutboundComPort());
 
         // Asserts
         assertThat(shouldBeNull).isNull();
-        assertThat(lockedConnectionTask.getExecutingComServer().getId()).isEqualTo(this.getOnlineComServer().getId());
+        assertThat(lockedConnectionTask.getExecutingComPort().getId()).isEqualTo(getOutboundComPort().getId());
     }
 
     @Test
@@ -1743,11 +1742,11 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask) {
-        return this.attemptLock(connectionTask, this.getOnlineComServer());
+        return this.attemptLock(connectionTask, getOutboundComPort());
     }
 
-    private ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
-        return inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer);
+    private ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort) {
+        return inMemoryPersistence.getConnectionTaskService().attemptLockConnectionTask(connectionTask, comPort);
     }
 
     private ScheduledConnectionTaskImpl createAsapWithNoPropertiesWithoutViolations(String name) {

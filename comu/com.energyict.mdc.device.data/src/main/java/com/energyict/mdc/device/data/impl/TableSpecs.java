@@ -274,7 +274,8 @@ public enum TableSpecs {
                     .map(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName())
                     .notAudited()
                     .add();
-            Column comServer = table.column("COMSERVER").number().notAudited().add();
+            Column comServer = table.column("COMSERVER").number().notAudited().upTo(version(10,7)).add();
+            Column comPort = table.column("COMPORT").number().notAudited().since(version(10,7)).previously(comServer).add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             // Common columns for sheduled connection tasks
@@ -317,7 +318,14 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_CONNECTIONTASK_COMSRVER").
                     on(comServer).
                     references(ComServer.class).
-                    map(ConnectionTaskFields.COM_SERVER.fieldName()).
+                    map("comServer").
+                    upTo(version(10, 7)).
+                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_COMPORT").
+                    on(comPort).
+                    references(ComPort.class).
+                    map(ConnectionTaskFields.COM_PORT.fieldName()).
+                    since(version(10, 7)).
                     add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_INITIATR").
                     on(initiator).

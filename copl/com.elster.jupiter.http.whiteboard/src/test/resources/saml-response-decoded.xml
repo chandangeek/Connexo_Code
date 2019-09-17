@@ -1,0 +1,79 @@
+<samlp:Response xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+                ID="pfxcd5649a2-3d01-2fb9-0b11-6815db9f331e" Version="2.0" IssueInstant="2019-09-05T12:18:04Z"
+                Destination="{recipient}" InResponseTo="692ba17e-db10-40ef-942f-fc5428a0fac5">
+    <saml:Issuer>https://app.onelogin.com/saml/metadata/ff3f9d0d-522f-462a-91fd-d4548e3ba16e</saml:Issuer>
+    <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:SignedInfo>
+            <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+            <ds:Reference URI="#pfxcd5649a2-3d01-2fb9-0b11-6815db9f331e">
+                <ds:Transforms>
+                    <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                </ds:Transforms>
+                <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                <ds:DigestValue>61HYq8FOTA3OsgZGV/SYgZmx/wg=</ds:DigestValue>
+            </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>
+            NWHhW3hs5b15B+dRus1jasP9avOGZV/AwMdHNDpH734uCLvTcGcpzRAVWh2/tsyZG6qo5mcPEYnPSKfsxVNqC7MZl0XpXHByAnhDuDxAztEzZzOvTrF+8n2UuY3x052gQwc+Txf1veHys8uM5Kc6QlgOzfyqSX78Hc+g2X3ur2rTOmopBPafImodEQgeGc3dYET/8adL/N+o2b5ARGGWiqY5vGlyTW5hIC1V0nDjL9fo1i8wL1tBrYmmfCv76nKkewblBvrXZILuxm57hwbCyxaNOf+YDrjnagadtrVYFtEeC6CsSrX0y88eCRZul1ierRicjFfZs7dacou5bJzPIA==
+        </ds:SignatureValue>
+        <ds:KeyInfo>
+            <ds:X509Data>
+                <ds:X509Certificate>
+                    MIID3zCCAsegAwIBAgIUai6NUwHUyrT8D3ENwa3T6hvY7LwwDQYJKoZIhvcNAQEFBQAwRjERMA8GA1UECgwIUGVudGFsb2cxFTATBgNVBAsMDE9uZUxvZ2luIElkUDEaMBgGA1UEAwwRT25lTG9naW4gQWNjb3VudCAwHhcNMTkwODE0MDgyMDAzWhcNMjQwODE0MDgyMDAzWjBGMREwDwYDVQQKDAhQZW50YWxvZzEVMBMGA1UECwwMT25lTG9naW4gSWRQMRowGAYDVQQDDBFPbmVMb2dpbiBBY2NvdW50IDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKI/m3JuJO+oOWgGTPoThZ97tAvs0T1mWq48j0SdIckL+iKCRXe8Y90EKZZd2c3RBhUJwEStOdTxoHz/klRgfkNly2xqqmaqFKThmGe3xlFcAkwJp8c6N7lwSRCLorcDyxKwRTy1yY1TjSh92bWt0dH5JPG00GPQHEX/viWlqKuZTzmGh7mtje1K4q75g1INFVR4yqU/LNzoKB1erDxazN+964Ys60xST43O1uMbsxu9kDE+0cOCDZ6MtEKhEzsgqQdYmlhZ/EXdYJwKfHROoEG3blee32rZklkGc/aSmXhxUAQJNgtJv7QbDPZdxmAHYfj6VZfJpDRTaJqU1NEEIdcCAwEAAaOBxDCBwTAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBRaAXwLErrEgkjPcPUo43yXlmbz3TCBgQYDVR0jBHoweIAUWgF8CxK6xIJIz3D1KON8l5Zm892hSqRIMEYxETAPBgNVBAoMCFBlbnRhbG9nMRUwEwYDVQQLDAxPbmVMb2dpbiBJZFAxGjAYBgNVBAMMEU9uZUxvZ2luIEFjY291bnQgghRqLo1TAdTKtPwPcQ3BrdPqG9jsvDAOBgNVHQ8BAf8EBAMCB4AwDQYJKoZIhvcNAQEFBQADggEBAAT/VBjAZd0E7iCjSxX8DcJK31o8IyrUemuaq6dss+jDVdWy9WtWJg80JZgTLF/V968D7mVV+ZDHLREVip7xfPAkOG7M15i3Nxsb8MxMEjsAK77ITGs13mTAtrfmHWn+3/ZacdMzljSLP5jhCVh0FcODXhdvLJDXK3Rc/JiEGoZhNFEjzplblxTetNM0xG0n0FYLfPGemViIX5vsVCsg3BoJIKSkEoGt9vhMOIUMhYF1KPF3YqdfH1JXEtHaGJxnhKNIoKqr1G5C574XusH4X0RSL4YuoJ7cHDG3vpgJkoxeKYGuP45ORsfj55AypRx3nmYUVsjsJCp20xP3hB8xxcc=
+                </ds:X509Certificate>
+            </ds:X509Data>
+        </ds:KeyInfo>
+    </ds:Signature>
+    <samlp:Status>
+        <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+    </samlp:Status>
+    <saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2.0"
+                    ID="A132f419977d01762f458e2bf1a2ef544fb927ff2" IssueInstant="2019-09-05T12:18:04Z">
+        <saml:Issuer>https://app.onelogin.com/saml/metadata/ff3f9d0d-522f-462a-91fd-d4548e3ba16e</saml:Issuer>
+        <saml:Subject>
+            <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">sdediu@pentalog.com
+            </saml:NameID>
+            <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+                <saml:SubjectConfirmationData NotOnOrAfter="2019-09-05T12:21:04Z" Recipient="{recipient}"
+                                              InResponseTo="692ba17e-db10-40ef-942f-fc5428a0fac5"/>
+            </saml:SubjectConfirmation>
+        </saml:Subject>
+        <saml:Conditions NotBefore="2019-09-05T12:15:04Z" NotOnOrAfter="2019-09-05T12:21:04Z">
+            <saml:AudienceRestriction>
+                <saml:Audience>http://localhost:8080/apps/admin/index.html</saml:Audience>
+            </saml:AudienceRestriction>
+        </saml:Conditions>
+        <saml:AuthnStatement AuthnInstant="2019-09-05T12:18:03Z" SessionNotOnOrAfter="2019-09-06T12:18:04Z"
+                             SessionIndex="_22842100-b205-0137-477f-15fe64f51223">
+            <saml:AuthnContext>
+                <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+                </saml:AuthnContextClassRef>
+            </saml:AuthnContext>
+        </saml:AuthnStatement>
+        <saml:AttributeStatement>
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" Name="User.LastName">
+                <saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">Raven
+                </saml:AttributeValue>
+            </saml:Attribute>
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" Name="User.email">
+                <saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">
+                    test@connexo.nl
+                </saml:AttributeValue>
+            </saml:Attribute>
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" Name="User.FirstName">
+                <saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string">Serge
+                </saml:AttributeValue>
+            </saml:Attribute>
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" Name="PersonImmutableID">
+                <saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"
+                                     xsi:type="xs:string"/>
+            </saml:Attribute>
+            <saml:Attribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic" Name="memberOf">
+                <saml:AttributeValue xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:string"/>
+            </saml:Attribute>
+        </saml:AttributeStatement>
+    </saml:Assertion>
+</samlp:Response>

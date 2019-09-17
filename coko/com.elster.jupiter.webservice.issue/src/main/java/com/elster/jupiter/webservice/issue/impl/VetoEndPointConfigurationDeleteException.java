@@ -10,6 +10,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 public class VetoEndPointConfigurationDeleteException extends LocalizedException {
     public VetoEndPointConfigurationDeleteException(Thesaurus thesaurus, EndPointConfiguration endPointConfiguration) {
-        super(thesaurus, MessageSeeds.END_POINT_CONFIG_IN_USE, endPointConfiguration.getName());
+        super(thesaurus, MessageSeeds.END_POINT_CONFIG_IN_USE_BY_ICR, endPointConfiguration.getName());
     }
 }

@@ -126,7 +126,7 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         ComTaskExecution comTaskExecution = createComTaskExecutionWithConnectionTaskAndSetNextExecTimeStamp(connectionTask, pastDate);
         final Instant futureDate = freezeClock(2013, Calendar.AUGUST, 5); // make the task pending
         OutboundComPort outboundComPort = createOutboundComPort();
-        connectionTask.executionStarted(getOnlineComServer());
+        connectionTask.executionStarted(outboundComPort);
         Fetcher<ComTaskExecution> plannedComTaskExecutions = inMemoryPersistence.getCommunicationTaskService().getPlannedComTaskExecutionsFor(outboundComPort);
 
         assertThat(plannedComTaskExecutions.iterator().hasNext()).isFalse();

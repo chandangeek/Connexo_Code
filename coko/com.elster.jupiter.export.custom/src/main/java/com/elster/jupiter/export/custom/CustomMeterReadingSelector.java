@@ -69,7 +69,7 @@ public class CustomMeterReadingSelector extends AbstractDataSelector {
     }
 
     @Override
-    AbstractItemDataSelector getItemDataSelector() {
+    CustomMeterReadingItemDataSelector getItemDataSelector() {
         return getDataModel().getInstance(CustomMeterReadingItemDataSelector.class).init(getLogger());
     }
 

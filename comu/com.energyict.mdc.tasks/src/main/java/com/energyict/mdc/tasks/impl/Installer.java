@@ -9,9 +9,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
+
 import java.util.logging.Logger;
 
 class Installer implements FullInstaller {

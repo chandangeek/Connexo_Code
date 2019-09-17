@@ -22,13 +22,13 @@ public class AM130StandardEventLog extends StandardEventLog {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case 20:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "External alert detected"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.EXTERNAL_ALERT, eventId, "External alert detected"));
                 break;
             case 21:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "End of non-periodic billing interval"));
                 break;
             case 52:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unexpected consumption"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.UNEXPECTED_CONSUMPTION, eventId, "Unexpected consumption"));
                 break;
             default:
                 super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);

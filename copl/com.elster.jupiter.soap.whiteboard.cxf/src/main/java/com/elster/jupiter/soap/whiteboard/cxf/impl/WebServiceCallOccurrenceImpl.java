@@ -192,7 +192,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
             Optional<EndPointProvider> endPointProviderOptional = webServicesService.getProvider(endPointConfiguration.getWebServiceName());
             if (endPointProviderOptional.isPresent() && endPointProviderOptional.get() instanceof OutboundEndPointProvider) {
                 log(LogLevel.INFO, "Retrying web service call occurrence.");
-                ((OutboundEndPointProvider) endPointProviderOptional.get()).using(requestName).toEndpoints(endPointConfiguration).isItRetry(true).sendRawXml(payload);
+                ((OutboundEndPointProvider) endPointProviderOptional.get()).using(requestName).toEndpoints(endPointConfiguration).sendRawXml(payload);
             } else {
                 log(LogLevel.SEVERE, "Couldn't retry web service call occurrence: web service is either not registered in the system or doesn't support retry.");
             }

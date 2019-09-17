@@ -300,7 +300,7 @@ public class EventPushNotificationParserTest extends TestCase {
         assertEquals(new DialHomeIdDeviceIdentifier("02237EFFFEFDAB5F").toString(), parser.getDeviceIdentifier().toString());
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertEquals(meterProtocolEvent.getTime().getTime(), 1488809815000L);
-        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.OTHER);
+        assertEquals(meterProtocolEvent.getEiCode(), MeterEvent.TERMINAL_OPENED);
         assertEquals(meterProtocolEvent.getProtocolCode(), 40);
         assertEquals(meterProtocolEvent.getMessage(), "Alarm generated event: Fraud attempt");
     }
@@ -460,7 +460,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
         assertNotNull(meterProtocolEvent.getTime().getTime());
-        assertEquals(MeterEvent.OTHER, meterProtocolEvent.getEiCode());
+        assertEquals(MeterEvent.TERMINAL_OPENED, meterProtocolEvent.getEiCode());
         assertEquals(40, meterProtocolEvent.getProtocolCode());
         assertEquals("Alarm generated event: Fraud attempt", meterProtocolEvent.getMessage());
     }

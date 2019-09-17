@@ -70,7 +70,7 @@ public class TaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     public PagedInfoList getTasks(@BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext) {
         if (!queryParams.getStart().isPresent() || !queryParams.getLimit().isPresent()) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -104,7 +104,7 @@ public class TaskResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     public TaskInfo getTask(@PathParam("id") long id, @Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         Principal principal = (Principal) securityContext.getUserPrincipal();
         Locale locale = determineLocale(principal);
@@ -118,7 +118,7 @@ public class TaskResource {
     @GET
     @Path("/applications")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     public List<IdWithNameInfo> getApplications(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
         List<String> applicationNames = new ArrayList<String>();
@@ -136,7 +136,7 @@ public class TaskResource {
 
     @GET
     @Path("/queues")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<QueueInfo> getQueues(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
@@ -159,7 +159,7 @@ public class TaskResource {
 
     @GET
     @Path("/queueTypes")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<QueueTypeInfo> getQueueTypes(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
@@ -177,7 +177,7 @@ public class TaskResource {
     @GET
     @Path("/byapplication")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     public List<TaskMinInfo> getTasksByApplication(@Context UriInfo uriInfo) {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         String applicationName = queryParameters.containsKey("application") ? queryParameters.getFirst("application") : "";
@@ -192,7 +192,7 @@ public class TaskResource {
     @GET
     @Path("/triggers/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     public TaskTrigger getTriggers(@PathParam("id") long id) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -203,7 +203,7 @@ public class TaskResource {
     @GET
     @Path("/compatiblequeues/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW, Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     public Response getCompatibleQueues(@PathParam("id") long id) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<QueueInfo> queues = taskService.getCompatibleQueues4(recurrentTask.getDestination().getName())
@@ -218,7 +218,7 @@ public class TaskResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_TASK_OVERVIEW})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_TASK_OVERVIEW})
     public Response modifyTask(TaskMinInfo info) {
         RecurrentTask recurrentTask = taskService.getRecurrentTask(info.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         if (!Checks.is(info.queue).empty()) {

@@ -105,13 +105,20 @@ Ext.define('Wss.controller.history.Webservices', {
                     action: 'showEndpointHistoryOverview',
                     controller: 'Wss.controller.Webservices',
                     privileges: ['privilege.viewHistory.webservices'],
-                            items: {
+                    callback: function (route) {
+                                        var router = this;
+                                        this.getApplication().on('occurenceload', function (name) {
+                                            route.setTitle(name);
+                                        }, { single: true });
+                                        return this;
+                                    },
+                    items: {
                                 occurrence: {
                                     privileges: ['privilege.viewHistory.webservices'],
                                     route: '{occurenceId}',
                                     title: Uni.I18n.translate('general.log', 'WSS', 'Log'),
                                     controller: 'Wss.controller.Webservices',
-                                    action:  'showWebserviceEndPoint',
+                                    action:  'showWebserviceEndPoint'
                                 }
                             },
                     }

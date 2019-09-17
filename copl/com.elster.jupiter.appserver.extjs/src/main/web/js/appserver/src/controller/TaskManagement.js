@@ -129,7 +129,10 @@ Ext.define('Apr.controller.TaskManagement', {
         Ext.suspendLayouts();
         taskPreview.setTitle(Ext.String.htmlEncode(record.get('name')));
         taskPreview.down('#task-management-preview-form').loadRecord(record);
-        taskPreview.down('#btn-task-management-preview-action-menu').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canAdministrate());
+        taskPreview.down('#btn-task-management-preview-action-menu').setVisible(
+            (taskManagement && taskManagement.controller && taskManagement.controller.canAdministrate())
+            || me.canSetQueuePriority(record) || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview')
+        );
         taskPreview.down('task-management-action-menu').record = record;
         if (record.get('queueStatus') == 'Busy') {
             taskPreview.down('#durationField').show();
@@ -190,17 +193,17 @@ Ext.define('Apr.controller.TaskManagement', {
         menu.down('#edit-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canEdit());
         menu.down('#history-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canHistory());
         menu.down('#remove-task').setVisible(taskManagement && taskManagement.controller && taskManagement.controller.canRemove());
-        menu.down('#set-queue-priority').setVisible(this.canAdminTaskOverview(menu));
+        menu.down('#set-queue-priority').setVisible(this.canSetQueuePriority(menu.record));
         menu.reorderItems();
         Ext.resumeLayouts(true);
     },
 
-    canAdminTaskOverview: function (menu) {
-        var application = menu.record.get('application').name,
+    canSetQueuePriority: function (record) {
+        var application = record.get('application').name,
             privilege = false;
         if (application === "MultiSense") {
             privilege = Uni.Auth.checkPrivileges(Mdc.privileges.TaskManagement.administrateTaskOverview)
-               && (menu.record.get('extraQueueCreationEnabled') || menu.record.get('queuePrioritized'));
+               && (record.get('extraQueueCreationEnabled') || record.get('queuePrioritized'));
         };
         return privilege;
     },

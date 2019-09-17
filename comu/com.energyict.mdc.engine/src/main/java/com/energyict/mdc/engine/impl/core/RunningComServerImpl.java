@@ -619,8 +619,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         } else {
             refreshComPortListener((InboundComPort) refreshedComPort);
         }
-        // releasing the connectionTasks which are busy by this comserver (as suggested by Govanni)
-        this.getComServerDAO().releaseTasksFor(comPort);
+        // releasing the connectionTasks which are busy by this comport
+        getComServerDAO().releaseTasksFor(comPort);
         getLogger().successfullyRestartedComport(comPort);
     }
 

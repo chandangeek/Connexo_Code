@@ -62,11 +62,11 @@ Ext.define('Apr.view.taskmanagement.TaskGrid', {
                 width: 120,
                 isDisabled: function (view, rowIndex, colIndex, item, record) {
                     var taskType = record.get('queue'),
+                        canAdminTaskOverview = Uni.Auth.checkPrivileges('privilege.edit.AdministerTaskOverview') && (record.get('extraQueueCreationEnabled') || record.get('queuePrioritized')),
                         taskManagement = Apr.TaskManagementApp.getTaskManagementApps().get(taskType);
                    // return taskManagement == undefined || !taskManagement.controller.canAdministrate();
                     return !((taskManagement != undefined && taskManagement.controller.canAdministrate())
-                        || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview')
-                        ||  Uni.Auth.checkPrivileges('privilege.edit.AdministrateTaskOverview'));
+                        || Uni.Auth.checkPrivileges('privilege.suspend.SuspendTaskOverview') || canAdminTaskOverview);
                 },
                 menu: {
                     xtype: 'task-management-action-menu',

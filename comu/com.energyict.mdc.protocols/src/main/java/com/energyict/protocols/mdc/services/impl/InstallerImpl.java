@@ -15,6 +15,7 @@ import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFacto
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.device.data.Device;
@@ -226,7 +227,11 @@ public class InstallerImpl implements FullInstaller {
                         .duration(TimeDuration.years(1))
                         .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                         .add());
-        deviceType.addSecurityAccessorTypes(securityAccessorType);
+        // Hell knows if this works, normal way sec access type on device type should be done via admin (UI). This way we specify a sec accessor without wrapping sec accessor
+        // and may override the one defined in UI (with wrapping sec accessor).
+        // To me this code should be deleted and leave only admin to define a device type
+        deviceType.addDeviceSecurityAccessorType(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
+
         return securityAccessorType;
     }
 

@@ -45,7 +45,7 @@ public class A1800Test extends TestCase {
         assertEquals(powerQualityMonitorLog2.getMeterEvents().get(9).getMessage(), "End of total harmonic distortion voltage test failure, optional value not supported");
         assertEquals(powerQualityMonitorLog2.getMeterEvents().get(10).getMessage(), "End of voltage imbalance, optional value not supported");
         assertEquals(powerQualityMonitorLog2.getMeterEvents().get(11).getMessage(), "End of current imbalance, optional value not supported");
-        assertEquals(powerQualityMonitorLog2.getMeterEvents().get(12).getMessage(), "End of total demand distortion test failure, optional value not supported");
+        assertEquals(powerQualityMonitorLog2.getMeterEvents().get(12).getMessage(), "End of total demand distortion test failure, optional value: 17");
 
         assertEquals(powerQualityMonitorLog2.getSequenceNumber(), 13);
         assertEquals(powerQualityMonitorLog2.getUnreadEntries(), 13);

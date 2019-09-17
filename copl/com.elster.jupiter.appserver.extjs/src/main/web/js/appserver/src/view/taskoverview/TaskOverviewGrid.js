@@ -63,6 +63,7 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 width: 120,
+                hidden: !Uni.Auth.checkPrivileges(Apr.privileges.AppServer.administrateTaskOverview),
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return !(Uni.Auth.checkPrivileges(Apr.privileges.AppServer.administrateTaskOverview)
                            && (record.get('extraQueueCreationEnabled') || record.get('queuePrioritized')));

@@ -249,21 +249,21 @@ public class ComServerDAOImplTest {
 
     public void testReleaseInterruptedComTasks() throws SQLException {
         // Business method
-        this.comServerDAO.releaseInterruptedTasks(this.comServer);
+        comServerDAO.releaseInterruptedTasks(comPort);
 
         // Asserts
-        verify(this.connectionTaskService).releaseInterruptedConnectionTasks(this.comServer);
-        verify(this.communicationTaskService).releaseInterruptedComTasks(this.comServer);
+        verify(connectionTaskService).releaseInterruptedConnectionTasks(comPort);
+        verify(communicationTaskService).releaseInterruptedComTasks(comPort);
     }
 
     @Test
     public void testReleaseTimedOutComTasks() throws SQLException {
         // Business method
-        this.comServerDAO.releaseTimedOutTasks(this.comServer);
+        comServerDAO.releaseTimedOutTasks(comPort);
 
         // Asserts
-        verify(this.connectionTaskService).releaseTimedOutConnectionTasks(this.comServer);
-        verify(this.communicationTaskService).releaseTimedOutComTasks(this.comServer);
+        verify(connectionTaskService).releaseTimedOutConnectionTasks(comPort);
+        verify(communicationTaskService).releaseTimedOutComTasks(comPort);
     }
 
     @Test

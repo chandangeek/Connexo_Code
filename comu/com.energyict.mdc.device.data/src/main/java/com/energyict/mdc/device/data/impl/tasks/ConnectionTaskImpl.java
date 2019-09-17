@@ -16,8 +16,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
-import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.protocol.ConnectionProperty;
@@ -115,9 +115,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @ValidPluggableClassId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private long pluggableClassId;
     private ConnectionTypePluggableClass pluggableClass;
-   // @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
+    // @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
-    private Reference<ComServer> comServer = ValueReference.absent();
+    private Reference<ComPort> comPort = ValueReference.absent();
     private Reference<ComSession> lastSession = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_ARE_REQUIRED + "}")
     protected Reference<ProtocolDialectConfigurationProperties> protocolDialectConfigurationProperties = ValueReference.absent();
@@ -179,7 +179,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      *
      * @param eventService the new event service
      */
-    protected  void injectEventService(EventService eventService) {
+    protected void injectEventService(EventService eventService) {
         this.eventService = eventService;
     }
 
@@ -333,7 +333,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public void makeObsolete() {
         Save.UPDATE.validate(this.dataModel, this, Save.Update.class);
-        this.reloadComServerAndObsoleteDate();
+        this.reloadComPortAndObsoleteDate();
         this.validateMakeObsolete();
         this.obsoleteDate = this.clock.instant();
         this.dataModel.update(this);
@@ -359,9 +359,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      * We need to check if this task is currently running or someone else made it obsolete.
      * We are already in a Transaction so we don't wrap it again.
      */
-    private void reloadComServerAndObsoleteDate() {
+    private void reloadComPortAndObsoleteDate() {
         ConnectionTask updatedVersionOfMyself = this.connectionTaskService.findConnectionTask(this.getId()).get();
-        this.comServer.set(updatedVersionOfMyself.getExecutingComServer());
+        this.comPort.set(updatedVersionOfMyself.getExecutingComPort());
         this.obsoleteDate = updatedVersionOfMyself.getObsoleteDate() == null ? null : updatedVersionOfMyself.getObsoleteDate();
     }
 
@@ -370,8 +370,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private void validateMakeObsolete() {
-        if (this.comServer.isPresent()) {
-            throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComServer(), thesaurus, MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
+        if (this.comPort.isPresent()) {
+            throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComPort(), thesaurus, MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
         }
     }
 
@@ -394,15 +394,15 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this).find();
     }
 
-    public void executionStarted(ComServer comServer) {
+    public void executionStarted(ComPort comPort) {
         List<String> updatedColumns = new ArrayList<>();
-        this.doExecutionStarted(comServer, updatedColumns);
+        this.doExecutionStarted(comPort, updatedColumns);
         this.update(updatedColumns.toArray(new String[updatedColumns.size()]));
     }
 
-    protected void doExecutionStarted(ComServer comServer, List<String> updatedColumns) {
-        this.setExecutingComServer(comServer);
-        updatedColumns.add(ConnectionTaskFields.COM_SERVER.fieldName());
+    protected void doExecutionStarted(ComPort comPort, List<String> updatedColumns) {
+        this.setExecutingComPort(comPort);
+        updatedColumns.add(ConnectionTaskFields.COM_PORT.fieldName());
         this.lastCommunicationStart = this.clock.instant();
         updatedColumns.add(ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName());
     }
@@ -416,8 +416,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     protected void doExecutionCompleted(List<String> updatedFields) {
-        this.setExecutingComServer(null);
-        updatedFields.add(ConnectionTaskFields.COM_SERVER.fieldName());
+        this.setExecutingComPort(null);
+        updatedFields.add(ConnectionTaskFields.COM_PORT.fieldName());
         this.lastSuccessfulCommunicationEnd = clock.instant();
         updatedFields.add(ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName());
     }
@@ -777,9 +777,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void deactivate() {
-        if(!ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE.equals(this.getStatus())) {
+        if (!ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE.equals(this.getStatus())) {
             this.status = ConnectionTaskLifecycleStatus.INACTIVE;
-            setExecutingComServer(null);
+            setExecutingComPort(null);
             this.update();
         }
     }
@@ -797,21 +797,21 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public boolean isExecuting() {
-        return this.comServer.isPresent();
+        return this.comPort.isPresent();
     }
 
     @Override
-    public ComServer getExecutingComServer() {
-        return comServer.orNull();
+    public ComPort getExecutingComPort() {
+        return comPort.orNull();
     }
 
-    void setExecutingComServer(ComServer comServer) {
-        this.comServer.set(comServer);
+    void setExecutingComPort(ComPort comPort) {
+        this.comPort.set(comPort);
     }
 
-    public void updateExecutingComServer(ComServer comServer) {
-        this.comServer.set(comServer);
-        this.update(ConnectionTaskFields.COM_SERVER.fieldName());
+    public void updateExecutingComPort(ComPort comPort) {
+        this.comPort.set(comPort);
+        this.update(ConnectionTaskFields.COM_PORT.fieldName());
     }
 
     @XmlElement(name = "type")
@@ -829,7 +829,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.getPluggableClass().getConnectionType();
     }
 
-    protected TimeZone getClocksTimeZone() {
+    protected TimeZone getUTCTimeZone() {
         return TimeZone.getTimeZone("UTC");
     }
 
@@ -845,7 +845,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     @Override
     public void notifyConnectionFunctionUpdate(Optional<ConnectionFunction> previousConnectionFunction, Optional<ConnectionFunction> newConnectionFunction) {
-        if (previousConnectionFunction.isPresent() && newConnectionFunction.isPresent() && previousConnectionFunction.get().getId()== newConnectionFunction.get().getId()) {
+        if (previousConnectionFunction.isPresent() && newConnectionFunction.isPresent() && previousConnectionFunction.get().getId() == newConnectionFunction.get().getId()) {
             return; // In case the connection function has not changed, then there is no reason to notify someone
         }
 

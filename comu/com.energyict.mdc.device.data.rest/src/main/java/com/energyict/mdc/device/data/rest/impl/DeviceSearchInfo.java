@@ -11,6 +11,7 @@ import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Device.CalendarSupport;
 import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
@@ -43,6 +44,9 @@ public class DeviceSearchInfo {
     public String manufacturer;
     public String modelNbr;
     public String modelVersion;
+    public String activeCalendar;
+    public String passiveCalendar;
+    public String plannedPassiveCalendar;
     public Boolean hasServiceKeys;
 
     public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
@@ -83,10 +87,23 @@ public class DeviceSearchInfo {
         searchInfo.manufacturer = device.getManufacturer();
         searchInfo.modelNbr = device.getModelNumber();
         searchInfo.modelVersion = device.getModelVersion();
+        getCalendars(searchInfo, device);
         searchInfo.hasServiceKeys = device.getSecurityAccessors().stream()
                 .anyMatch(accessor -> accessor.isServiceKey());
-
         return searchInfo;
+    }
+
+    private static void getCalendars(DeviceSearchInfo searchInfo, Device device) {
+        CalendarSupport calendars = device.calendars();
+        calendars.getActive().ifPresent(cal -> {
+            searchInfo.activeCalendar = cal.getAllowedCalendar().getName();
+        });
+        calendars.getPassive().ifPresent(cal -> {
+            searchInfo.passiveCalendar = cal.getAllowedCalendar().getName();
+        });
+        calendars.getPlannedPassive().ifPresent(cal -> {
+            searchInfo.plannedPassiveCalendar = cal.getAllowedCalendar().getName();
+        });
     }
 
     private static String getStateName(State state, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {

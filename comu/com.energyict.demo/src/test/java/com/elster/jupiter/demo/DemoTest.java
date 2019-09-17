@@ -263,8 +263,8 @@ import static org.mockito.Mockito.when;
 
 public class DemoTest {
 
-    private static BundleContext bundleContext = mock(BundleContext.class) ;
-    private static ComponentContext componentContext = mock(ComponentContext.class) ;
+    private static BundleContext bundleContext = mock(BundleContext.class);
+    private static ComponentContext componentContext = mock(ComponentContext.class);
     protected static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private PassphraseFactory passphraseFactory;
@@ -840,7 +840,7 @@ public class DemoTest {
             createDefaultStuff();
             prepareSearchDomain();
             preparePKIService();
-            ((NlsServiceImpl) injector.getInstance(NlsService.class)).addTranslationKeyProvider((MeteringDataModelServiceImpl)injector.getInstance(MeteringDataModelService.class));
+            ((NlsServiceImpl) injector.getInstance(NlsService.class)).addTranslationKeyProvider((MeteringDataModelServiceImpl) injector.getInstance(MeteringDataModelService.class));
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.common.tasks;
 
-import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.ComPort;
 
 import aQute.bnd.annotation.ConsumerType;
 
@@ -30,9 +30,9 @@ public interface ConnectionTaskExecutionAspects {
      * Note that this requires that there is already a transactional
      * context active, i.e. no attempt will be made to create one.
      *
-     * @param comServer The ComServer that is started the execution
+     * @param comPort The ComServer that is started the execution
      */
-    void executionStarted(ComServer comServer);
+    void executionStarted(ComPort comPort);
 
     /**
      * Notifies this ConnectionTask that the execution has completed without errors.

@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
+import com.energyict.mdc.common.device.config.DeviceSecurityAccessorType;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
@@ -103,7 +104,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
                         .duration(key.getTimeDuration())
                         .purpose(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)
                         .add());
-        deviceConfiguration.getDeviceType().addSecurityAccessorTypes(securityAccessorType);
+        deviceConfiguration.getDeviceType().addDeviceSecurityAccessorType(new DeviceSecurityAccessorType(Optional.empty(), securityAccessorType));
         return securityAccessorType;
     }
 

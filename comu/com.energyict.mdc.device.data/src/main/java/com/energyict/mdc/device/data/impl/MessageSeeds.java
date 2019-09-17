@@ -36,7 +36,7 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_INCOMPATIBLE_PARTIAL(2003, Keys.CONNECTION_TASK_INCOMPATIBLE_PARTIAL, "The type of the partial connection task of a connection task must be compatible. Expected ''{0}'' but got ''{1}''"),
     CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION(2004, Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION, "A connection task must be added against a partial connection task (id={0}, configuration id={1}) from the same device configuration (id={2})"),
     CONNECTION_TASK_IS_ALREADY_OBSOLETE(2005, Keys.CONNECTION_TASK_IS_ALREADY_OBSOLETE, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}"),
-    CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE(2006, Keys.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is currently being executed by communication server ''{2}''"),
+    CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE(2006, Keys.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE, "The connection task ''{0}'' on device {1} cannot be made obsolete because it is currently being executed by communication port ''{2}''"),
     DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE(2008, Keys.DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE, "The default connection task ''{0}'' on device {1} cannot be removed because it is still in use by communication tasks"),
     CONNECTION_TASK_INVALID_PROPERTY(2009, Keys.CONNECTION_TASK_INVALID_PROPERTY, "Invalid value"),
     CONNECTION_TASK_PROPERTY_NOT_IN_SPEC(2010, Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC, "ConnectionType ''{0}'' does not contain a specification for attribute ''{1}''"),
@@ -61,7 +61,7 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2029, Keys.CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove connection task {0} because it is not owned by device {1}"),
     COM_TASK_IS_OBSOLETE_AND_CAN_NOT_BE_UPDATED(2030, Keys.COM_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not update comtaskexecution {0} for device {1} because it is obsolete"),
     COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE(2031, Keys.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it has already been made obsolete on {2}"),
-    COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(2032, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comserver {2}"),
+    COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(2032, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comport {2}"),
     COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2033, Keys.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove comtaskexecution {0} because it is not owned by device {1}"),
     VETO_COM_TASK_ENABLEMENT_DELETION(2034, Keys.VETO_COM_TASK_ENABLEMENT_DELETION, "The communication task ''{0}'' is still used by devices having the configuration ''{1}''"),
     VETO_DEVICE_CONFIGURATION_DEACTIVATION(2035, Keys.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device"),
@@ -179,6 +179,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_ACTUAL_CERTIFICATE(2153, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     CERTIFICATE_ENCODING_EXCEPTION(2154, "CertificateEncodingError", "The certificate is an unrecognized format"),
     ACTUAL_VALUE_NOT_SET(2155, "NoActualValue", "The security accessor does not contain an actual value"),
+    MASTER_KEY_ACTUAL_VALUE_NOT_SET(2156, "MasterWrapperNoActualValue", "Master/Wrapper security accessor does not contain an actual value"),
     VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2157, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
     ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
     NO_BASIC_CHECK_COMTASK(2159, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located"),
@@ -211,8 +212,15 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_ZONE(2184, "NoSuchZone", "No zone with id {0}"),
     ZONE_REMOVED(2185, "ZoneRemoved", "Zone {0} removed from {1}"),
     NO_SUCH_LOAD_PROFILE_ON_DEVICE(2186, "NoSuchLoadProfile", "Device {0} has no load profile {1}"),
-    WRONG_STATUS(2187, Keys.WRONG_STATUS, "Wrong Status"),
-    WRONG_CARD_FORMAT(2188, Keys.WRONG_CARD_FORMAT, "Wrong Card Format"),
+    NO_WRAPPER_DEFINED(2187, "hsm.no.wrapper.defined", "No wrapper defined"),
+    NO_WRAPPER_ACTUAL_VALUE(2188, "hsm.no.wrapper.value", "No wrapper value"),
+    WRAPPER_NOT_HSMKEY(2189, "hsm.wrong.type", "Wrapper is not hsm key"),
+    NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME(2190, "NoSecurityAccessorOnDeviceTypeForName", "No security accessor on device type with name {0}"),
+    NO_KEY_RENEWAL_COMMAND_CONFIGURED(2191, "NoKeyRenewalCommandConfigured", "No key renewal command configured at device type level on security accessor with name {0}"),
+    ONLY_ONE_KEY_TYPE_ATTRIBUTE_EXPECTED(2192, "OnlyOneKeyTypeAttributeExpetced", "Key renewal process does not support commands having more that one key type attribute"),
+    SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized.");
+    WRONG_STATUS(2194, Keys.WRONG_STATUS, "Wrong Status"),
+    WRONG_CARD_FORMAT(2195, Keys.WRONG_CARD_FORMAT, "Wrong Card Format"),
     ;
 
     private final int number;

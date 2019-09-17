@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.OutboundCapableComServer;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
@@ -38,28 +39,28 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
     private ComServerDAO comServerDAO;
     private long waitTime;
 
-    public TimeOutMonitorImpl (OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
+    public TimeOutMonitorImpl(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
         super();
         this.initialize(comServer, comServerDAO, threadFactory);
     }
 
-    private void initialize (OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
+    private void initialize(OutboundCapableComServer comServer, ComServerDAO comServerDAO, ThreadFactory threadFactory) {
         this.comServer = comServer;
         this.comServerDAO = comServerDAO;
         this.threadFactory = threadFactory;
     }
 
     @Override
-    public ServerProcessStatus getStatus () {
+    public ServerProcessStatus getStatus() {
         return this.status;
     }
 
-    public OutboundCapableComServer getComServer () {
+    public OutboundCapableComServer getComServer() {
         return comServer;
     }
 
     @Override
-    public void start () {
+    public void start() {
         this.status = ServerProcessStatus.STARTING;
         this.continueRunning = new AtomicBoolean(true);
         self = this.threadFactory.newThread(this);
@@ -69,60 +70,61 @@ public class TimeOutMonitorImpl implements Runnable, TimeOutMonitor {
     }
 
     @Override
-    public void shutdown () {
+    public void shutdown() {
         this.doShutdown();
     }
 
     @Override
-    public void shutdownImmediate () {
+    public void shutdownImmediate() {
         this.doShutdown();
     }
 
-    private void doShutdown () {
+    private void doShutdown() {
         this.status = ServerProcessStatus.SHUTTINGDOWN;
         this.continueRunning.set(false);
         self.interrupt();   // in case the thread was sleeping between detecting changes
     }
 
     @Override
-    public void run () {
+    public void run() {
         while (continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             this.monitorTasks();
             try {
                 Thread.sleep(this.waitTime);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
         this.status = ServerProcessStatus.SHUTDOWN;
     }
 
-    private void monitorTasks () {
+    private void monitorTasks() {
         try {
             this.waitTime = this.releaseTimedOutTasks();
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             this.waitTime = DEFAULT_WAIT_TIME.getMilliSeconds();
         }
     }
 
-    private long releaseTimedOutTasks () {
+    private long releaseTimedOutTasks() {
         try {
-            return this.comServerDAO.releaseTimedOutTasks(this.comServer).getMilliSeconds();
-        }
-        catch (DataAccessException e) {
-            OutboundCapableComServer comServer = this.getComServer();
-            this.getLogger(comServer).timeOutCleanupFailure(comServer, e);
+            long waitTimeMax = 0;
+            for (ComPort comPort : comServer.getComPorts()) {
+                waitTimeMax = Math.max(waitTimeMax, comServerDAO.releaseTimedOutTasks(comPort).getMilliSeconds());
+            }
+
+            return waitTimeMax;
+        } catch (DataAccessException e) {
+            getLogger(comServer).timeOutCleanupFailure(comServer, e);
             throw e;
         }
     }
 
-    private ComServerLogger getLogger (ComServer comServer) {
+    private ComServerLogger getLogger(ComServer comServer) {
         return LoggerFactory.getLoggerFor(ComServerLogger.class, this.getServerLogLevel(comServer));
     }
 
-    private LogLevel getServerLogLevel (ComServer comServer) {
+    private LogLevel getServerLogLevel(ComServer comServer) {
         return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
     }
 

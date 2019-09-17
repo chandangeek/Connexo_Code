@@ -8,10 +8,13 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskUserAction;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.engine.config.security.Privileges;
@@ -20,6 +23,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.rest.Categories;
 import com.energyict.mdc.tasks.rest.impl.util.ResourceHelper;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -38,13 +44,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Path("/comtasks")
 public class ComTaskResource {
@@ -53,14 +63,17 @@ public class ComTaskResource {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
+    private final UserService userService;
 
     @Inject
-    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus, ResourceHelper resourceHelper) {
+    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus, ResourceHelper resourceHelper,
+            UserService userService) {
         this.taskService = taskService;
         this.masterDataService = masterDataService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.thesaurus = thesaurus;
         this.resourceHelper = resourceHelper;
+        this.userService = userService;
     }
 
     @GET @Transactional
@@ -81,6 +94,40 @@ public class ComTaskResource {
         ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
         return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(comTask, thesaurus)).build();
     }
+    
+    @GET @Transactional
+    @Path("/list")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+            Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION })
+    public Response getComTasksByIds(@QueryParam("ids") String ids) {
+        List<ComTask> comTaskList = new ArrayList<>();
+        if (ids != null && !ids.trim().isEmpty()) {
+            comTaskList = Arrays.asList(ids.split(",")).stream()
+                    .map(id -> taskService.findComTask(Long.parseLong(id.trim()))
+                            .orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST)))
+                    .collect(Collectors.toList());
+        }
+        return Response.status(Response.Status.OK).entity(ComTaskInfo.from(comTaskList)).build();
+    }
+    
+    @GET @Transactional
+    @Path("/filtered")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION })
+    public PagedInfoList getComTasksFiltered(@BeanParam JsonQueryParameters queryParameters,
+            @QueryParam("exclude") String excludedList) {
+        List<ComTaskInfo> infos;
+        if (excludedList != null && !excludedList.trim().isEmpty()) {
+            final List<Long> excludedIds = Arrays.asList(excludedList.split(",")).stream().map(e -> Long.parseLong(e))
+                    .collect(Collectors.toList());
+            infos = ComTaskInfo.from(taskService.findAllComTasks().stream()
+                    .filter(ct -> !excludedIds.contains(ct.getId())).collect(Collectors.toList()));
+        } else {
+            infos = ComTaskInfo.from(taskService.findAllComTasks().stream().collect(Collectors.toList()));
+        }
+        return PagedInfoList.fromCompleteList("comTasks", infos, queryParameters);
+    }
 
     @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
@@ -95,6 +142,10 @@ public class ComTaskResource {
             category.createProtocolTask(masterDataService, newComTask, protocolTaskInfo);
         }
         addMessageCategoriesToComTask(comTaskInfo, newComTask);
+        // new task has all privileges by default
+        comTaskInfo.privileges = Arrays.stream(ComTaskUserAction.values())
+                .map(ComTaskPrivilegeInfo::from).collect(Collectors.toList());
+        updateComTaskPrivileges(comTaskInfo, newComTask);
         newComTask.save();
         return Response.ok(ComTaskInfo.from(newComTask)).build();
     }
@@ -140,8 +191,19 @@ public class ComTaskResource {
         }
 
         addMessageCategoriesToComTask(comTaskInfo, comTask);
+        updateComTaskPrivileges(comTaskInfo, comTask);
+
         comTask.save();
         return Response.ok(ComTaskInfo.from(comTask)).build();
+    }
+
+    private void updateComTaskPrivileges(ComTaskInfo comTaskInfo, ComTask comTask) {
+        if (comTaskInfo.privileges == null) {
+            comTaskInfo.privileges = new ArrayList<>();
+        }
+        Set<ComTaskUserAction> comTaskUserAction = comTaskInfo.privileges.stream().map(info -> info.privilege)
+                .collect(Collectors.toSet());
+        comTask.setUserActions(comTaskUserAction);
     }
 
     private boolean infoNoLongerContainsTask(ComTaskInfo comTaskInfo, ProtocolTask protocolTask) {
@@ -219,6 +281,25 @@ public class ComTaskResource {
                 .flatMap(Collection::stream)
                 .map(DeviceMessageCategory::getId)
                 .collect(Collectors.toList());
+    }
+
+    @GET
+    @Transactional
+    @Path("/privileges")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({ Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+            Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION })
+    public PagedInfoList getPrivileges(@BeanParam JsonQueryParameters queryParameters) {
+        Multimap<ComTaskUserAction, Group> privilegesMap = ArrayListMultimap.create();
+        for (Group group : userService.getGroups()) {
+            group.getPrivileges("MDC").stream().map(p -> ComTaskUserAction.forPrivilege(p.getName()))
+                    .flatMap(asStream()).forEach(action -> privilegesMap.put(action, group));
+        }
+        List<ComTaskPrivilegeInfo> infos = new ArrayList<>();
+        for (ComTaskUserAction action : ComTaskUserAction.values()) {
+            infos.add(ComTaskPrivilegeInfo.from(action, privilegesMap.get(action), thesaurus));
+        }
+        return PagedInfoList.fromPagedList("data", infos, queryParameters);
     }
 
 }

@@ -372,6 +372,10 @@ Ext.define('Tou.view.AddForm', {
         ];
 
         me.callParent(arguments);
+
+        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
+           item.setTooltip('Restore to default empty value');
+        })
     },
 
     onActiveCalendarChange: function (field, newValue) {

@@ -17,7 +17,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -322,12 +321,6 @@ public class DeviceResource {
     public Response addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
         Device newDevice = newDevice(info.deviceConfigurationId, info.batch, info.name, info.serialNumber, info.manufacturer, info.modelNbr, info.modelVersion, info.yearOfCertification, info.shipmentDate);
         return Response.status(Response.Status.CREATED).entity(deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice))).build();
-    }
-
-    private Response buildErrorResponse4(String field, MessageSeeds message) {
-        LocalizedFieldValidationException fieldValidationException = new LocalizedFieldValidationException(message, field);
-        ConstraintViolationInfo constraintViolationInfo = new ConstraintViolationInfo(thesaurus).from(fieldValidationException);
-        return Response.status(Response.Status.BAD_REQUEST).entity(constraintViolationInfo).build();
     }
 
     private Device newDevice(long deviceConfigurationId, String batch, String name, String serialNumber, String manufacturer, String modelNbr, String modelVersion, int yearOfCertification, Instant shipmentDate) {

@@ -4,6 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -34,6 +38,7 @@ import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.common.tasks.TaskPriorityConstants;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.cps.SIMCardCustomPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
@@ -47,10 +52,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Calendar;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -79,12 +81,14 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private UpdateStrategy updateStrategy = new Noop();
     private boolean calledByComtaskExecution = false;
     private final ServerCommunicationTaskService communicationTaskService;
+    private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService) {
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService,  CustomPropertySetService customPropertySetService) {
         super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, protocolPluggableService);
         this.schedulingService = schedulingService;
         this.communicationTaskService = communicationTaskService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
@@ -249,7 +253,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Instant doUpdateNextExecutionTimestamp(PostingMode postingMode) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(this.now().toEpochMilli());
         this.plannedNextExecutionTimestamp = this.applyComWindowIfAny(this.getNextExecutionSpecs().getNextTimestamp(calendar).toInstant());
         return this.schedule(this.plannedNextExecutionTimestamp, postingMode);
@@ -259,12 +263,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
-            if(comTask.getNextExecutionTimestamp() == null) {
+            if (comTask.getNextExecutionTimestamp() == null) {
                 updateNextExecutionTimeStampBasedOnComTask();
             } else {
                 this.schedule(comTask.getNextExecutionTimestamp().minusMillis(1));
             }
-        }else {
+        } else {
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -325,7 +329,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     public Instant applyComWindowIfAny(Instant calculatedNextExecutionTimestamp) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(calculatedNextExecutionTimestamp.toEpochMilli());
         this.applyComWindowIfAny(calendar);
         return calendar.getTime().toInstant();
@@ -367,7 +371,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant calculateNextRetryExecutionTimestamp() {
         Instant failureDate = this.now();
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(failureDate.toEpochMilli());
         TimeDuration baseRetryDelay = this.getRescheduleRetryDelay();
         TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
@@ -395,7 +399,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     private Instant calculateNextRescheduleTimestamp() {
         Instant failureDate = this.now();
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(failureDate.toEpochMilli());
         TimeDuration retryDelay = getRescheduleRetryDelay();
         retryDelay.addTo(calendar);
@@ -409,7 +413,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine, NextExecutionSpecs nextExecutionSpecs) {
-        Calendar calendar = Calendar.getInstance(getClocksTimeZone());
+        Calendar calendar = Calendar.getInstance(getUTCTimeZone());
         calendar.setTimeInMillis(baseLine.toEpochMilli());
         if (nextExecutionSpecs != null) {
             return nextExecutionSpecs.getNextTimestamp(calendar).toInstant();
@@ -589,7 +593,42 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         ConnectionType connectionType = this.getConnectionType();
         List<ConnectionProperty> connectionProperties = this.castToConnectionProperties(adaptedProperties);
         connectionProperties.add(new ComPortNameProperty(comPort));
+        connectionProperties.addAll(getDeviceIdentificationProperties());
+        connectionProperties.addAll(getSIMcardProperties());
+        connectionProperties.addAll(getConnectionProviderProperty());
         return connectionType.connect(connectionProperties);
+    }
+
+    private List<ConnectionTaskProperty>  getConnectionProviderProperty() {
+        List<ConnectionTaskProperty> connectionTaskPropertyList= new ArrayList();
+
+        connectionTaskPropertyList.add ( newProperty("connectionTask.id",   this.getId(),   Instant.now()) );
+        connectionTaskPropertyList.add ( newProperty("connectionTask.name", this.getName(), Instant.now()));
+
+        return connectionTaskPropertyList;
+    }
+
+    private List<ConnectionTaskProperty> getDeviceIdentificationProperties() {
+        List<ConnectionTaskProperty> deviceIDs = new ArrayList();
+
+        deviceIDs.add( newProperty("serialNumber",  getDevice().getSerialNumber(),  Instant.now()));
+        deviceIDs.add( newProperty("mrID",          getDevice().getmRID(),          Instant.now()));
+
+        return deviceIDs;
+    }
+
+    private List<ConnectionTaskProperty> getSIMcardProperties() {
+        try {
+            Optional<RegisteredCustomPropertySet> activeSet = getCustomPropertySetService().findActiveCustomPropertySet(SIMCardCustomPropertySet.CPS_ID);
+            if (activeSet.isPresent()) {
+                CustomPropertySet simCustomProperty = activeSet.get().getCustomPropertySet();
+                CustomPropertySetValues simProps = getCustomPropertySetService().getUniqueValuesFor(simCustomProperty, getDevice(), Instant.now());
+                return toConnectionProperties(simProps);
+            }
+        }catch (Exception ex){
+            System.err.println(ex);
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -627,6 +666,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public List<ComTaskExecution> getScheduledComTasks() {
         return this.communicationTaskService.findComTaskExecutionsByConnectionTask(this).find();
+    }
+
+    public CustomPropertySetService getCustomPropertySetService() {
+        return this.customPropertySetService;
     }
 
     private enum PostingMode {

@@ -26,6 +26,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
@@ -37,7 +38,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.devicelifecycle.impl.DeviceLifecycleIssueCreationRuleTemplate;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -223,6 +223,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     BasicDataCollectionRuleTemplate.RADIOGROUP,
                     getIssueUrgencyIncreaseProps());
             properties.put(DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
+            properties.put(BasicDataCollectionRuleTemplate.THRESHOLD, getRelativePeriodWithCount(DefaultRelativePeriodDefinition.TODAY));
         } else if (template.getName().equals(BASIC_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> deviceConfigurations = new ArrayList<>();
             deviceConfigurationService.findDeviceTypeByName("Elster A1800").get().getConfigurations()
@@ -258,7 +259,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("0:0:0"));
             properties.put(BasicDeviceAlarmRuleTemplate.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, getAllDeviceStatesInAllDeviceTypes());
             properties.put(
-                    BasicDeviceAlarmRuleTemplate.THRESHOLD, getRelativePeriodWithCount());
+                    BasicDeviceAlarmRuleTemplate.THRESHOLD, getRelativePeriodWithCount(DefaultRelativePeriodDefinition.LAST_7_DAYS));
         } else if (template.getName().equals(USAGE_POINT_DATA_VALIDATION_RULE_TEMPLATE)) {
             List<HasIdAndName> metrologyConfigurations = new ArrayList<>();
             metrologyConfigurationService
@@ -383,8 +384,8 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return list;
     }
 
-    private HasIdAndName getRelativePeriodWithCount() {
-        RelativePeriod relativePeriod = timeService.findRelativePeriodByName("Last 7 days").isPresent() ? timeService.findRelativePeriodByName("Last 7 days")
+    private HasIdAndName getRelativePeriodWithCount(DefaultRelativePeriodDefinition relativePeriodDefinition) {
+        RelativePeriod relativePeriod = timeService.findRelativePeriodByName(relativePeriodDefinition.getPeriodName()).isPresent() ? timeService.findRelativePeriodByName(relativePeriodDefinition.getPeriodName())
                 .get() : timeService.getAllRelativePeriod();
         int occurrenceCount = 1;
 

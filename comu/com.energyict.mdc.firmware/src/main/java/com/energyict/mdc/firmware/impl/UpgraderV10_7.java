@@ -81,7 +81,10 @@ public class UpgraderV10_7 implements Upgrader {
                 execute(statement, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY 1");
             }
             execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT PK_FWC_CAMPAIGN_PROPS DROP INDEX");
-            execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
+            try { // due to different behavior during the upgrade from 10.6 to 10.7 and 10.5 and older to 10.7
+                execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
+            } catch (Exception ignored) {
+            }
             executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN_PROPS", this::updateProps);
             execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS ADD CONSTRAINT PK_FWC_CAMPAIGN_PROPS PRIMARY KEY (CAMPAIGN, KEY) USING INDEX");
             dataModelUpgrader.upgrade(dataModel, version(10, 7));
@@ -90,7 +93,7 @@ public class UpgraderV10_7 implements Upgrader {
             execute(statement, "DROP TABLE FWC_CAMPAIGN_STATUS");
             execute(statement, "DROP TABLE FWC_CAMPAIGN_DEVICES");
             execute(statement, "DROP TABLE FWC_CAMPAIGN");
-            execute(dataModel,"UPDATE FWC_FIRMWAREVERSION SET TYPE = CASE WHEN TYPE=0 THEN 0 WHEN TYPE=1 THEN 1 WHEN TYPE=2 THEN 3 WHEN TYPE=3 THEN 2 END");
+            execute(dataModel, "UPDATE FWC_FIRMWAREVERSION SET TYPE = 3 WHERE TYPE = 2");
         } catch (SQLException e) {
             e.printStackTrace();
         }

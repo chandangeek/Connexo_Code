@@ -49,4 +49,12 @@ public enum MessageSeeds implements MessageSeed {
         return Level.SEVERE;
     }
 
+    public static class Keys {
+        private Keys() {}
+
+        public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
+        public static final String FIELD_TOO_LONG = "FieldTooLong";
+        public static final String PROPERTY_MISSING = "PropertyMissing";
+    }
+
 }

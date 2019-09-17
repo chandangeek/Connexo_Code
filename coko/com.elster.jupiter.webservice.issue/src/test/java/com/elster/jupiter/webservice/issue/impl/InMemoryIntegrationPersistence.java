@@ -17,6 +17,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -122,7 +123,8 @@ public class InMemoryIntegrationPersistence {
                 new CalendarModule(),
                 new DataVaultModule(),
                 new BpmModule(),
-                new AuditModule()
+                new AuditModule(),
+                new MeteringGroupsModule()
         );
         return modules.toArray(new Module[modules.size()]);
     }
