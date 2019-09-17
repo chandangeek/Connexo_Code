@@ -18,6 +18,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.ServiceException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.time.Duration;
@@ -58,6 +59,8 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
     public static final String PROPERTY_SOAP_ACTION = "soapAction";
     public static final String PROPERTY_WS_CONNECT_TIME_OUT = "wsConnectTimeOut";
     public static final String PROPERTY_WS_REQUEST_TIME_OUT = "wsRequestTimeOut";
+    public static final String PROPERTY_WAITING_TIME = "waitingTime";
+    public static final String PROPERTY_POOL_RETRIES = "poolRetries";
     public static final String PROPERTY_SOURCE_ID = "sourceId";
     public static final String PROPERTY_TRIGGER_TYPE = "triggerType";
     public static final String PROPERTY_USER_ID = "wsUserId";
@@ -90,6 +93,8 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         propertySpecs.add(triggerTypePropertySpec());
         propertySpecs.add(userIdPropertySpec());
         propertySpecs.add(passwordPropertySpec());
+        propertySpecs.add(waitingTimePropertySpec());
+        propertySpecs.add(numberOfPoolRetriesPropertySpec());
         propertySpecs.add(connectTimeOutPropertySpec());
         return propertySpecs;
     }
@@ -99,6 +104,8 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
     public ComChannel connect() throws ConnectionException {
         resetHostProperty();
         doWakeUp();
+
+        waitBeforeMonitoring();
 
         Optional<String> newHost = monitorHostProperty();
 
@@ -117,24 +124,32 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
                 "New host address was not filled-in by the IP notification service within expected waiting time.");
     }
 
+    private void waitBeforeMonitoring() {
+        Duration waitingTime = getPropertyWaitingTime();
+        log("Sleeping "+waitingTime.getSeconds()+" seconds before pooling host property");
+        try {
+            Thread.sleep(waitingTime.toMillis());
+        } catch (InterruptedException e) {
+            logError("Sleep interrupted, exiting! ("+e.getLocalizedMessage()+")");
+        }
+    }
+
     private Optional<String> monitorHostProperty() {
-        long connectTimeout = getPropertyConnectTimeout().getSeconds();
 
-        log("Monitoring the host property, waiting for the IP notification web-service to fill it in max "+connectTimeout+" sec ...");
+        Duration connectTimeout = getPropertyConnectTimeout();
+        int poolRetries = getPropertyNumberOfPoolRetries().intValue();
 
-        // will work in milliseconds here
-        long maxWaitingTime = 1000 * connectTimeout;
-        long currentTimeSpent = 0;
-        long delay = 1000; //ms
+        log("Monitoring the host property, waiting for the IP notification web-service to fill it: "
+                +poolRetries+" tries x "+connectTimeout.getSeconds()+" sec ...");
 
-        while (currentTimeSpent < maxWaitingTime){
+        while (poolRetries > 0){
             Optional<String> host = getUpdatedHostProperty();
             if (host.isPresent()){
                 if (WAITING_FOR_WAKEUP_TEMPORARY_HOST_VALUE.equals(host.get())){
                     try {
-                        Thread.sleep(delay);
-                        currentTimeSpent+= delay;
-                        log("\t host still not updated, waiting another "+(int)((maxWaitingTime-currentTimeSpent)/1000)+" sec");
+                        Thread.sleep(connectTimeout.toMillis());
+                        poolRetries--;
+                        log("\t host still not updated, waiting another "+poolRetries+" retries");
                     } catch (InterruptedException e) {
                         logError("Waiting for host property to be updated interrupted, exiting! ("+e.getLocalizedMessage()+")");
                         return Optional.empty();
@@ -146,7 +161,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
             }
         }
 
-        log("No value detected after waiting timeout ("+maxWaitingTime+" sec) exiting ");
+        log("No updated host value detected after waiting timeout, exiting ");
         return Optional.empty();
     }
 
@@ -438,12 +453,33 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
         return (Duration)getProperty(PROPERTY_WS_REQUEST_TIME_OUT);
     }
 
+    private PropertySpec numberOfPoolRetriesPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(PROPERTY_POOL_RETRIES, true, PropertyTranslationKeys.OUTBOUND_IP_WAKEUP_POOL_RETRIES, getPropertySpecService()::bigDecimalSpec)
+                .setDefaultValue(BigDecimal.valueOf(20))
+                .finish();
+    }
+
+    private BigDecimal getPropertyNumberOfPoolRetries(){
+        return (BigDecimal) getProperty(PROPERTY_POOL_RETRIES);
+    }
+
+    private PropertySpec waitingTimePropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(PROPERTY_WAITING_TIME, true, PropertyTranslationKeys.OUTBOUND_IP_WAKEUP_WAITING_TIME, getPropertySpecService()::durationSpec)
+                .setDefaultValue(Duration.ofSeconds(25))
+                .finish();
+    }
+
+    private Duration getPropertyWaitingTime(){
+        return (Duration)getProperty(PROPERTY_WAITING_TIME);
+    }
 
     private PropertySpec connectTimeOutPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(PROPERTY_WS_CONNECT_TIME_OUT, true, PropertyTranslationKeys.OUTBOUND_IP_WAKEUP_CONNECT_TIMEOUT, getPropertySpecService()::durationSpec)
-                .setDefaultValue(Duration.ofSeconds(30))
+                .setDefaultValue(Duration.ofSeconds(5))
                 .finish();
     }
+
+
 
     private Duration getPropertyConnectTimeout(){
         return (Duration)getProperty(PROPERTY_WS_CONNECT_TIME_OUT);

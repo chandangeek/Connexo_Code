@@ -77,6 +77,11 @@ class OutboundTcpIpWithWakeupConnectionPropertiesPersistenceSupport
                 .map(OutboundTcpIpWithWakeupConnectionProperties.Fields.PORT_NUMBER.javaName())
                 .add();
 
+        table
+                .column(OutboundTcpIpWithWakeupConnectionProperties.Fields.POOL_RETRIES.databaseName())
+                .number()
+                .map(OutboundTcpIpWithWakeupConnectionProperties.Fields.POOL_RETRIES.javaName())
+                .add();
 
         Stream
                 .of(
@@ -93,7 +98,8 @@ class OutboundTcpIpWithWakeupConnectionPropertiesPersistenceSupport
                 .of(
                         OutboundTcpIpWithWakeupConnectionProperties.Fields.CONNECTION_TIMEOUT,
                         OutboundTcpIpWithWakeupConnectionProperties.Fields.WS_CONNECT_TIME_OUT,
-                        OutboundTcpIpWithWakeupConnectionProperties.Fields.WS_REQUEST_TIME_OUT
+                        OutboundTcpIpWithWakeupConnectionProperties.Fields.WS_REQUEST_TIME_OUT,
+                        OutboundTcpIpWithWakeupConnectionProperties.Fields.WAITING_TIME
                 )
                 .forEach(field -> this.addDurationColumnTo(table, field));
 
