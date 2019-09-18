@@ -585,6 +585,74 @@
                             </packageName>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>MeterRegisterChangeRequest</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesDeviceERPSmartMeterRegisterChangeRequest_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterChangeRequest_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>MeterRegisterBulkChangeRequest</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesDeviceERPSmartMeterRegisterBulkChangeRequest_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterBulkChangeRequest_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>MeterRegisterChangeConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>MeterRegisterBulkChangeConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement
+                            </packageName>
+                        </configuration>
+                    </execution>
                 </executions>
 
                 <configuration>

@@ -58,6 +58,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterRea
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultBulkCreateConfirmationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateConfirmationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceRegisterCreateRequestCustomPropertySet;
@@ -78,6 +80,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocum
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -145,6 +151,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final List<UtilitiesDeviceRegisteredNotification> UTILITIES_DEVICE_REGISTERED_NOTIFICATION = new CopyOnWriteArrayList<>();
     public static final List<UtilitiesDeviceRegisteredBulkNotification> UTILITIES_DEVICE_REGISTERED_BULK_NOTIFICATION = new CopyOnWriteArrayList<>();
     public static final List<MeasurementTaskAssignmentChangeConfirmation> MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<MeterRegisterChangeConfirmation> METER_REGISTER_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<MeterRegisterBulkChangeConfirmation> METER_REGISTER_BULK_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final String EXPORT_TASK_NAME = "sap.soap.measurementtaskassignment.export.task";
     public static final String EXPORT_TASK_DEVICE_GROUP_NAME = "sap.soap.measurementtaskassignment.device.group";
     public static final String LIST_OF_ROLE_CODES = "sap.soap.measurementtaskassignment.role.codes";
@@ -390,6 +398,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new UtilitiesDeviceCreateRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(UtilitiesDeviceRegisterCreateRequestDomainExtension.class.getName(),
                 new UtilitiesDeviceRegisterCreateRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterMeterRegisterChangeRequestDomainExtension.class.getName(),
+                new MasterMeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MeterRegisterChangeRequestDomainExtension.class.getName(),
+                new MeterRegisterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
         return customPropertySetsMap;
     }
 
@@ -436,6 +448,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(MeasurementTaskAssignmentChangeRequestEndpoint.class),
                 InboundServices.SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(MeterRegisterChangeRequestEndpoint.class),
+                InboundServices.SAP_METER_REGISTER_CHANGE_REQUEST.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(MeterRegisterBulkChangeRequestEndpoint.class),
+                InboundServices.SAP_METER_REGISTER_BULK_CHANGE_REQUEST.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -561,6 +579,24 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeMeasurementTaskAssignmentChangeRequestConfirmation(MeasurementTaskAssignmentChangeConfirmation measurementTaskAssignmentChangeRequestConfirmation) {
             MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMeterRegisterChangeConfirmation(MeterRegisterChangeConfirmation requestConfirmation) {
+        METER_REGISTER_CHANGE_CONFIRMATIONS.add(requestConfirmation);
+    }
+
+    public void removeMeterRegisterChangeConfirmation(MeterRegisterChangeConfirmation requestConfirmation) {
+        METER_REGISTER_CHANGE_CONFIRMATIONS.remove(requestConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMeterRegisterBulkChangeConfirmation(MeterRegisterBulkChangeConfirmation requestConfirmation) {
+        METER_REGISTER_BULK_CHANGE_CONFIRMATIONS.add(requestConfirmation);
+    }
+
+    public void removeMeterRegisterBulkChangeConfirmation(MeterRegisterBulkChangeConfirmation requestConfirmation) {
+        METER_REGISTER_BULK_CHANGE_CONFIRMATIONS.remove(requestConfirmation);
     }
 
     @Reference

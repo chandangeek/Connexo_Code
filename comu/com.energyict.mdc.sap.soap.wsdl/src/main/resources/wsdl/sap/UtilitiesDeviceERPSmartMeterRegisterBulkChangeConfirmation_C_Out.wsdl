@@ -4,7 +4,7 @@
   <sidl:sidl xmlns:sidl="http://www.sap.com/2007/03/sidl"/>
  </wsdl:documentation>
  <wsp:UsingPolicy wsdl:required="true"/>
- <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out">
+ <wsp:Policy wsu:Id="OP_IF_OP_UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out">
   <sapcomhnd:enableCommit xmlns:sapcomhnd="http://www.sap.com/NW05/soap/features/commit/">true</sapcomhnd:enableCommit>
   <sapblock:enableBlocking xmlns:sapblock="http://www.sap.com/NW05/soap/features/blocking/">false</sapblock:enableBlocking>
   <saptrhnw05:required xmlns:saptrhnw05="http://www.sap.com/NW05/soap/features/transaction/">yes</saptrhnw05:required>
@@ -672,6 +672,13 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
+   <xsd:complexType name="UtilsDvceERPSmrtMtrRegBulkChgConfMsg">
+    <xsd:sequence>
+     <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
+     <xsd:element name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmationMessage" maxOccurs="unbounded" type="UtilsDvceERPSmrtMtrRegChgConfMsg"/>
+     <xsd:element name="Log" type="Log"/>
+    </xsd:sequence>
+   </xsd:complexType>
    <xsd:complexType name="UtilsDvceERPSmrtMtrRegChgConfMsg">
     <xsd:sequence>
      <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
@@ -715,44 +722,44 @@
      <sprx:documentation version="1" baseURL="http://ldciemi.wdf.sap.corp:50057/sap/bc/esdt/docu/xsd_type?sap-client=300"/>
     </xsd:documentation>
    </xsd:annotation>
-   <xsd:element name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation" type="tns:UtilsDvceERPSmrtMtrRegChgConfMsg"/>
+   <xsd:element name="UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation" type="tns:UtilsDvceERPSmrtMtrRegBulkChgConfMsg"/>
   </xsd:schema>
  </wsdl:types>
- <wsdl:message name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation">
-  <wsdl:part name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation" element="n2:UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation"/>
+ <wsdl:message name="UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation">
+  <wsdl:part name="UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation" element="n2:UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation"/>
  </wsdl:message>
  <wsdl:message name="StandardMessageFault">
   <wsdl:part name="StandardMessageFault" element="n1:StandardMessageFault"/>
  </wsdl:message>
- <wsdl:portType name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out">
+ <wsdl:portType name="UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out">
   <wsdl:documentation>
    <sapdoc:sapdoc xmlns:sapdoc="urn:sap:esi:documentation">
     <sapdoc:docitem applicationComponent="IS-U"/>
    </sapdoc:sapdoc>
   </wsdl:documentation>
-  <wsdl:operation name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out">
+  <wsdl:operation name="UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out">
    <wsp:Policy>
-    <wsp:PolicyReference URI="#OP_IF_OP_UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out"/>
+    <wsp:PolicyReference URI="#OP_IF_OP_UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out"/>
    </wsp:Policy>
-   <wsdl:input message="tns:UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation"/>
+   <wsdl:input message="tns:UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation"/>
   </wsdl:operation>
  </wsdl:portType>
- <wsdl:binding name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_OutBinding" type="tns:UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out">
+ <wsdl:binding name="UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_OutBinding" type="tns:UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out">
   <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
-   <wsdl:operation name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out">
+   <wsdl:operation name="UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out">
     <soap:operation soapAction="http://sap.com/xi/WebService/soap1.1" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
      <wsdl:input>
       <soap:body use="literal" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
      </wsdl:input>
    </wsdl:operation>
  </wsdl:binding>
- <wsdl:service name="UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_OutService">
-  <wsdl:port name="HTTP_Port" binding="tns:UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_OutBinding">
-   <soap:address location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
+ <wsdl:service name="UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_OutService">
+  <wsdl:port name="HTTP_Port" binding="tns:UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_OutBinding">
+   <soap:address location="http://svpopd5db.evn-r3.energy-it.net:50100/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
   </wsdl:port>
-  <wsdl:port name="HTTPS_Port" binding="tns:UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_OutBinding">
-   <soap:address location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
+  <wsdl:port name="HTTPS_Port" binding="tns:UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_OutBinding">
+   <soap:address location="https://svpopd5db.evn-r3.energy-it.net:50101/XISOAPAdapter/MessageServlet?senderParty=&amp;senderService=ElsterDev&amp;receiverParty=&amp;receiverService=&amp;interface=UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out&amp;interfaceNamespace=urn%3Aevn.at%3Aelster"
                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"/>
   </wsdl:port>
  </wsdl:service>

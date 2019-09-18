@@ -342,6 +342,75 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
         return map;
     }
 
+    public void truncateCpsInterval(Device device, String lrn, Instant endDate) {
+        Optional<Pair<Object, RegisteredCustomPropertySet>> dataSource = Stream.<Supplier<Optional<Pair<Object, RegisteredCustomPropertySet>>>>of(
+                () -> getChannelCps(device.getId(), lrn, endDate),
+                () -> getRegisterCps(device.getId(), lrn, endDate)
+        )
+                .map(Supplier::get)
+                .filter(Optional::isPresent)
+                .findFirst()
+                .map(Optional::get);
+        if (dataSource.isPresent()) {
+            List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                    .getFirst(), device.getId());
+            List<CustomPropertySetValues> toRecreateBeforeConflict = new ArrayList<>();
+            List<CustomPropertySetValues> toRecreateAfterConflict = new ArrayList<>();
+            CustomPropertySetValues versionToUpdate = customPropertySetService.getUniqueValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                    .getFirst(), endDate, device.getId());
+
+            Range<Instant> oldRange = versionToUpdate.getEffectiveRange();
+            Range<Instant> range = getRangeToUpdate(endDate, oldRange);
+            OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                    .getFirst(), device.getId());
+            Optional<ValuesRangeConflict> conflict = overlapCalculatorBuilder.whenUpdating(oldRange.hasLowerBound() ? oldRange.lowerEndpoint() : Instant.EPOCH, range).stream().filter(c -> c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE) || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)).findFirst();
+            if (conflict.isPresent()) {
+                Optional<Range<Instant>> conflictRange = Optional.ofNullable(conflict.get().getConflictingRange());
+                for (CustomPropertySetValues version : allVersions) {
+                    if (!version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasLowerBound() && version.getEffectiveRange().hasUpperBound()
+                            && (version.getEffectiveRange().upperEndpoint().isBefore(versionToUpdate.getEffectiveRange().lowerEndpoint()) || version.getEffectiveRange().upperEndpoint().equals(versionToUpdate.getEffectiveRange().lowerEndpoint()))) {
+                        toRecreateBeforeConflict.add(version);
+                    }
+                    if (conflictRange.isPresent() && !version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasUpperBound() && version.getEffectiveRange().hasLowerBound()
+                            && (version.getEffectiveRange().lowerEndpoint().isAfter(versionToUpdate.getEffectiveRange().upperEndpoint()) || version.getEffectiveRange().lowerEndpoint().equals(versionToUpdate.getEffectiveRange().upperEndpoint()))) {
+                        toRecreateAfterConflict.add(version);
+                    }
+                }
+                customPropertySetService.removeValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), device.getId());
+                for (CustomPropertySetValues version : toRecreateBeforeConflict) {
+                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                }
+                // set changed version
+                customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
+                customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                        .getFirst(), CustomPropertySetValues.emptyDuring(conflictRange.get()), conflictRange.get(), device.getId());
+                for (CustomPropertySetValues version : toRecreateAfterConflict) {
+                    customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
+                }
+            } else {
+                // set changed version
+                customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
+            }
+
+        } else {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DATASOURCE_NOT_FOUND, device.getName(), lrn, endDate);
+        }
+    }
+
+    private Range<Instant> getRangeToUpdate(Instant endDate, Range<Instant> oldRange) {
+        if (oldRange.hasLowerBound()) {
+            if (endDate.isBefore(oldRange.upperEndpoint()) && endDate.isAfter(oldRange.lowerEndpoint())) {
+                return Range.closedOpen(oldRange.lowerEndpoint(), endDate);
+            } else {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_END_DATE, endDate, oldRange);
+            }
+        } else if (endDate.equals(Instant.EPOCH)) {
+            return Range.all();
+        } else {
+            return Range.lessThan(endDate);
+        }
+    }
+
     private boolean isDeviceActive(Device device) {
         return device.getState().getName().equals(DefaultState.ACTIVE.getKey());
     }
@@ -414,6 +483,29 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .map(ext -> Pair.of(ext.getDeviceId(), ext.getRegisterSpec().getReadingType()));
     }
 
+    private Optional<Pair<Object, RegisteredCustomPropertySet>> getChannelCps(long deviceId, String lrn, Instant when) {
+        return getCPSDataModel(DeviceChannelSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceChannelSAPInfoDomainExtension.class)
+                .join(ChannelSpec.class)
+                .join(ReadingType.class)
+                .filter(Where.where(DeviceChannelSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isEqualTo(lrn))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(when))
+                .filter(e -> e.getDeviceId() == deviceId)
+                .findAny()
+                .map(ext -> Pair.of(ext.getChannelSpec(), ext.getRegisteredCustomPropertySet()));
+    }
+
+    private Optional<Pair<Object, RegisteredCustomPropertySet>> getRegisterCps(long deviceId, String lrn, Instant when) {
+        return getCPSDataModel(DeviceRegisterSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceRegisterSAPInfoDomainExtension.class)
+                .join(RegisterSpec.class)
+                .join(ReadingType.class)
+                .filter(Where.where(DeviceRegisterSAPInfoDomainExtension.FieldNames.LOGICAL_REGISTER_NUMBER.javaName()).isEqualTo(lrn))
+                .filter(Where.where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(when))
+                .filter(e -> e.getDeviceId() == deviceId)
+                .findAny()
+                .map(ext -> Pair.of(ext.getRegisterSpec(), ext.getRegisteredCustomPropertySet()));
+    }
     private Optional<Channel> getChannel(long deviceId, ReadingType readingType, Instant when) {
         return deviceService.findDeviceById(deviceId)
                 .flatMap(device -> device.getMeterActivation(when))

@@ -67,4 +67,6 @@ public interface SAPCustomPropertySets {
     Set<ReadingType> findReadingTypesForProfileId(String profileId);
 
     Map<String, RangeSet<Instant>> getProfileId(Channel channel, Range<Instant> range);
+
+    void truncateCpsInterval(Device device, String lrn, Instant endDate);
 }

@@ -13,6 +13,7 @@ public enum AdditionalProperties {
     CONFIRMATION_TIMEOUT("com.elster.jupiter.sap.confirmationtimeout", 5),
     CHECK_SCHEDULED_REQUESTS_FREQUENCY("com.elster.jupiter.sap.checkscheduledrequestsfrequency", 60),
     CHECK_CONFIRMATION_TIMEOUT_FREQUENCY("com.elster.jupiter.sap.checkconfirmationtimeoutfrequency", 1),
+    METER_REPLACEMENT_ADD_INTERVAL("com.elster.jupiter.sap.meterreplacementaddinterval", 1440),
     ;
 
     private String key;
