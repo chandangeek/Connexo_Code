@@ -218,7 +218,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SECURITY_ACCESSOR_ON_DEVICE_TYPE_FOR_NAME(2190, "NoSecurityAccessorOnDeviceTypeForName", "No security accessor on device type with name {0}"),
     NO_KEY_RENEWAL_COMMAND_CONFIGURED(2191, "NoKeyRenewalCommandConfigured", "No key renewal command configured at device type level on security accessor with name {0}"),
     ONLY_ONE_KEY_TYPE_ATTRIBUTE_EXPECTED(2192, "OnlyOneKeyTypeAttributeExpetced", "Key renewal process does not support commands having more that one key type attribute"),
-    SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized.");
+    SECURITY_ACCESSOR_NOT_INITIALIZED(2193, "SecurityAccessorNotInitialized", "Cannot continue! Security accessor object was not initialized."),
     WRONG_STATUS(2194, Keys.WRONG_STATUS, "Wrong Status"),
     WRONG_CARD_FORMAT(2195, Keys.WRONG_CARD_FORMAT, "Wrong Card Format"),
     ;
