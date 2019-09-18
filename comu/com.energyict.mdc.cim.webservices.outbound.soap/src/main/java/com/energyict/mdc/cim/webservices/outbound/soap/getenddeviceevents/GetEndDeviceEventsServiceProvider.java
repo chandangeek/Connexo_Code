@@ -90,7 +90,7 @@ public class GetEndDeviceEventsServiceProvider extends AbstractOutboundEndPointP
         });
         using("getEndDeviceEvents")
                 .toEndpoints(endPointConfiguration)
-                .withRelatedObject("Device",values)
+                //.withRelatedObject("Device",values)
                 .send(message);
     }
 

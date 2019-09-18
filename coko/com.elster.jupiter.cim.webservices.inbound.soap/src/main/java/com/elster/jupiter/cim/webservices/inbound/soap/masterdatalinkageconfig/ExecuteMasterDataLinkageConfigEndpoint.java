@@ -83,8 +83,8 @@ public class ExecuteMasterDataLinkageConfigEndpoint extends AbstractInboundEndPo
             try {
                 message.getPayload()
                         .getMasterDataLinkageConfig().getMeter().stream().forEach(meter ->{
-                            createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
-                            createRelatedObject("DeviceX", "mrID", meter.getMRID());
+                            createRelatedObject("name", meter.getNames().get(0).getName());
+                            createRelatedObject("mrID", meter.getMRID());
                 });
                 if (Boolean.TRUE.equals(message.getHeader().isAsyncReplyFlag())) {
                     return processAsynchronously(message, action);

@@ -13,6 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
 import com.elster.jupiter.util.Pair;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.SetMultimap;
 import org.apache.cxf.transport.http.HTTPException;
 import org.glassfish.jersey.message.internal.MessageBodyProviderNotFoundException;
 import org.osgi.service.component.annotations.Reference;
@@ -130,9 +131,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
     private final class RequestSenderImpl implements RequestSender {
         private final String methodName;
         private Collection<EndPointConfiguration> endPointConfigurations;
-        private String domain;
-        private String type;
-        private Set<String> values;
+        private SetMultimap<String,String> values;
 
 
         private RequestSenderImpl(String methodName) {
@@ -140,9 +139,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
         }
 
 
-        public RequestSenderImpl withRelatedObject(String domain, Set values){
-            this.domain = domain;
-            this.type = "dummyType"; //TO-DO Will remove it.
+        public RequestSenderImpl withRelatedObject(SetMultimap<String,String> values){
             this.values = values;
             return this;
         }
@@ -249,7 +246,7 @@ public abstract class AbstractOutboundEndPointProvider<EP> implements OutboundEn
                             MessageUtils.setOccurrenceId((BindingProvider) port, id);
                             WebServiceCallOccurrence wsCo= webServicesService.getOngoingOccurrence(id);
                             //values.stream().forEach(value -> wsCo.createRelatedObject(domain, type, value));
-                            wsCo.createRelatedObjects("Device", values);
+                            wsCo.createRelatedObjects( values);
                             Object response = method.invoke(port, request);
                             webServicesService.passOccurrence(id);
                             return Pair.of(epcAndEP.getKey(), response);

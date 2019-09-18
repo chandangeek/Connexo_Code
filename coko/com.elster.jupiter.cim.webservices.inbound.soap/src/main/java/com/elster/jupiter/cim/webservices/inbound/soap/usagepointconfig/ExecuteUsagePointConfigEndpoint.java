@@ -105,6 +105,9 @@ public class ExecuteUsagePointConfigEndpoint extends AbstractInboundEndPoint imp
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(messageSeed,
                                 MessageSeeds.EMPTY_LIST, "UsagePointConfig.UsagePoint"));
+                createRelatedObject( "name", usagePoint.getNames().get(0).getName());
+                createRelatedObject("mrID", usagePoint.getMRID());
+
                 com.elster.jupiter.metering.UsagePoint connexoUsagePoint = synchronousProcessor.apply(usagePoint);
             String correlationId = message.getHeader() == null ? null : message.getHeader().getCorrelationID();
             return createResponse(connexoUsagePoint, verb, usagePoints.size() > 1, correlationId);

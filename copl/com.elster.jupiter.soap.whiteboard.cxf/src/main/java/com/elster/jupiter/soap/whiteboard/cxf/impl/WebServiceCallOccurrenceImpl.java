@@ -18,6 +18,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
 
+import com.google.common.collect.SetMultimap;
+
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Map;
@@ -209,14 +211,14 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     @Override
-    public void createRelatedObject(String domain, String key, String value){
-        String[] fieldName = {"typeDomain", "key", "value"};
-        String[] values = {domain, key, value};
+    public void createRelatedObject( String key, String value){
+        String[] fieldName = {"key", "value"};
+        String[] values = {key, value};
         Optional<WebServiceCallRelatedObjectType> relatedObjectType = dataModel.mapper(WebServiceCallRelatedObjectType.class)
                 .getUnique(fieldName, values);
         if(!relatedObjectType.isPresent()){
             relatedObjectType = Optional.of(dataModel.getInstance(WebServiceCallRelatedObjectTypeImpl.class));
-            relatedObjectType.get().init(domain,key,value);
+            relatedObjectType.get().init(key,value);
             relatedObjectType.get().save();
         }
 
@@ -226,16 +228,14 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     @Override
-    public void createRelatedObjects(String domain, Set<String> values){
+    public void createRelatedObjects(SetMultimap<String,String> values){
 
-        values.forEach(value->{
-            /* TO-DO remove key. Now just for compability */
-            if (value != null && !value.isEmpty()){
-                createRelatedObject(domain, "dummyKey", value);
-            }
+        values.keys().forEach(key->{
+            values.get(key).forEach(value->{
+                createRelatedObject(key, value);
+            });
 
         });
-
     }
 
 

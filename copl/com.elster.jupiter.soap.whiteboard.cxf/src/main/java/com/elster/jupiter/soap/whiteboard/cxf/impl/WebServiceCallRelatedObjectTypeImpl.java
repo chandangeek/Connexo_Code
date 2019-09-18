@@ -19,10 +19,10 @@ public class WebServiceCallRelatedObjectTypeImpl implements WebServiceCallRelate
 
     public enum Fields {
         ID("id"),
-        TYPE_DOMAIN("typeDomain"),
-        TYPE_TRANSLATION("typeTranslation"),
-        TYPE_KEY("key"),
-        TYPE_VALUE("value");
+        //TYPE_DOMAIN("typeDomain"),
+        //TYPE_TRANSLATION("typeTranslation"),
+        OBJECT_KEY("key"),
+        OBJECT_VALUE("value");
 
         private final String javaFieldName;
 
@@ -42,10 +42,8 @@ public class WebServiceCallRelatedObjectTypeImpl implements WebServiceCallRelate
 
 
 
-    public WebServiceCallRelatedObjectTypeImpl init(String typeDomain,
-                                                String key,
-                                                String value) {
-        this.typeDomain = typeDomain;
+    public WebServiceCallRelatedObjectTypeImpl init(String key,
+                                                    String value) {
         this.key = key;
         this.value = value;
         return this;
@@ -60,8 +58,10 @@ public class WebServiceCallRelatedObjectTypeImpl implements WebServiceCallRelate
 
     public String getTypeTranslation(){return typeTranslation;}
 
+    @Override
     public String getKey(){return key;}
 
+    @Override
     public String getValue(){return value;}
 
     public void save() {

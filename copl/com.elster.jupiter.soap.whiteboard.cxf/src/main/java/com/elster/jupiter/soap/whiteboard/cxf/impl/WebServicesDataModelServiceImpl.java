@@ -23,6 +23,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedObjectTypeProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -58,6 +59,7 @@ import java.io.File;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +73,8 @@ import java.util.stream.Stream;
         service = {WebServicesDataModelService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = "name=" + WebServicesService.COMPONENT_NAME,
         immediate = true)
-public class WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageSeedProvider, TranslationKeyProvider, BundleWaiter.Startable {
+public class
+WebServicesDataModelServiceImpl implements WebServicesDataModelService, MessageSeedProvider, TranslationKeyProvider, BundleWaiter.Startable {
     private volatile BundleContext bundleContext;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -89,6 +92,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     private volatile WebServicesServiceImpl webServicesService;
     private volatile EndPointConfigurationServiceImpl endPointConfigurationService;
     private volatile WebServiceCallOccurrenceServiceImpl webServiceCallOccurrenceService;
+    private volatile NlsService nlsService;
 
     public WebServicesDataModelServiceImpl() {
         // for OSGi
@@ -140,6 +144,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
     @Reference
     public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(WebServicesService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
@@ -201,6 +206,18 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
     }
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addAttributesTypes(WebServiceCallRelatedObjectTypeProvider provider){
+
+        webServiceCallOccurrenceService.addRelatedObjectTypes(provider.getComponentName(),
+                                                                provider.getLayer(),
+                                                                provider.getTypes());
+    };
+
+    public void removeAttributesTypes(WebServiceCallRelatedObjectTypeProvider provider){
+        //TO-DO implement removing
+    }
+
     private Module getModule(String logDirectory) {
         return new AbstractModule() {
             @Override
@@ -240,7 +257,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         }
         webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock);
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
-        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel,endPointConfigurationService);
+        webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel,endPointConfigurationService, nlsService);
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),

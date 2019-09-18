@@ -33,6 +33,8 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -167,17 +169,20 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             default:
                 throw new UnsupportedOperationException(OperationEnum.class.getSimpleName() + '#' + operation.name() + " isn't supported.");
         }
-        Set<String> values = new HashSet();
+        //Set<String> values = new HashSet();
         successfulDevices.stream().map(device-> device.getName()).collect(Collectors.toSet());
+
+        SetMultimap<String, String> values = HashMultimap.create();
+
         successfulDevices.forEach(device->{
-            values.add(device.getName());
-            values.add(device.getmRID());
-            values.add(device.getSerialNumber());
+            values.put("CimDeviceName", device.getName());
+            values.put("CimDeviceMrID", device.getmRID());
+            values.put("CimDeviceSerialNumber", device.getSerialNumber());
         });
 
         using(method)
                 .toEndpoints(endPointConfiguration)
-                .withRelatedObject("DeviceX",  values)
+                .withRelatedObject(values)
                 .send(message);
     }
 

@@ -2,9 +2,13 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 
 //import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServiceCallRelatedObjectType;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
@@ -29,4 +33,8 @@ public interface WebServiceCallOccurrenceService {
     Optional<WebServiceCallRelatedObjectType> getRelatedObjectTypeByDomainKeyAndValue(String domain, String key, String value);
 
     List<WebServiceCallRelatedObjectType> getRelatedObjectTypeByValue(String value);
+
+    void addRelatedObjectTypes(String component, Layer layer, Map<String, TranslationKey> types);
+
+    String getTranslationForType(String key);
 }

@@ -91,6 +91,9 @@ public class UtilitiesDeviceCreateRequestEndpoint extends AbstractInboundEndPoin
             String sapDeviceId = getDeviceId(msg);
             List<Device> devices = deviceService.findDevicesBySerialNumber(serialId);
 
+            createRelatedObject("SerialID", serialId);
+            createRelatedObject("UtilitiesDeviceID", sapDeviceId);
+
             try {
                 if (!devices.isEmpty()) {
                     if (devices.size() == 1) {

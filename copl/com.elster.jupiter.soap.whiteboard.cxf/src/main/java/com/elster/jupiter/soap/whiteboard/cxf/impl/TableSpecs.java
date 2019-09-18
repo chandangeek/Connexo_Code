@@ -143,7 +143,7 @@ public enum TableSpecs {
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
-    WS_OCC_RELATED_OBJECTS_TYPES {
+    WS_OCC_RELATED_OBJECTS{
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceCallRelatedObjectType> table = dataModel.addTable(this.name(), WebServiceCallRelatedObjectType.class);
@@ -152,25 +152,25 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
 
-            table.column("TYPE_DOMAIN")
+            /*table.column("TYPE_DOMAIN")
                     .varChar(NAME_LENGTH)
                     .map(WebServiceCallRelatedObjectTypeImpl.Fields.TYPE_DOMAIN.fieldName())
+                   .add();*/
+
+            table.column("OBJECT_KEY")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.OBJECT_KEY.fieldName())
+                    .add();
+            table.column("OBJECT_VALUE")
+                    .varChar(NAME_LENGTH)
+                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.OBJECT_VALUE.fieldName())
                     .add();
 
-            table.column("TYPE_KEY")
-                    .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.TYPE_KEY.fieldName())
-                    .add();
-            table.column("TYPE_VALUE")
-                    .varChar(NAME_LENGTH)
-                    .map(WebServiceCallRelatedObjectTypeImpl.Fields.TYPE_VALUE.fieldName())
-                    .add();
-
-            table.primaryKey("PK_WS_RELATED_OBJECTS_TYPE").on(idColumn).add();
+            table.primaryKey("PK_WS_RELATED_OBJECTS").on(idColumn).add();
             //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
-    WS_OCC_RELATED_OBJECTS {
+    WS_OCC_BINDING {
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceCallRelatedObject> table = dataModel.addTable(this.name(), WebServiceCallRelatedObject.class);
@@ -190,13 +190,13 @@ public enum TableSpecs {
 
             Column type = table.column("TYPEID").number().add();
             table.foreignKey("FK_WS_RO_TYPE")
-                    .references(WS_OCC_RELATED_OBJECTS_TYPES.name())
+                    .references(WS_OCC_RELATED_OBJECTS.name())
                     .on(type)
                     .onDelete(DeleteRule.CASCADE)
                     .map(WebServiceCallRelatedObjectImpl.Fields.TYPE.fieldName())
                     .add();
 
-            table.primaryKey("PK_WS_RELATED_OBJECTS").on(idColumn).add();
+            table.primaryKey("PK_WS_OCC_BINDING").on(idColumn).add();
             //table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },

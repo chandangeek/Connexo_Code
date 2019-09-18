@@ -19,7 +19,9 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Component(name = UtilitiesDeviceCreateConfirmation.NAME,
         service = {UtilitiesDeviceCreateConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -64,7 +66,10 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
 
     @Override
     public void call(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
+        Set<String> values = new HashSet<>();
+        values.add(msg.getUtilitiesDevice().getID().getValue());
         using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut")
+                .withRelatedObject("DeviceX", values)
                 .send(msg);
     }
 

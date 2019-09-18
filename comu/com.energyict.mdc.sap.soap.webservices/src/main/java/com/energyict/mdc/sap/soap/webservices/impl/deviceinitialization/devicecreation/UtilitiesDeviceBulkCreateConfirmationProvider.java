@@ -17,7 +17,9 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.xml.ws.Service;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Component(name = UtilitiesDeviceBulkCreateConfirmation.NAME,
         service = {UtilitiesDeviceBulkCreateConfirmation.class, OutboundSoapEndPointProvider.class},
@@ -57,7 +59,12 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider extends AbstractOutbo
 
     @Override
     public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
+        Set<String> values = new HashSet<>();
+        msg.getConfirmationMessage().getUtilitiesDeviceERPSmartMeterCreateConfirmationMessage().forEach(message->{
+            values.add(message.getUtilitiesDevice().getID().getValue());
+        });
         using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut")
+                .withRelatedObject("DeviceX", values)
                 .send(msg.getConfirmationMessage());
     }
 

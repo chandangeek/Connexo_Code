@@ -1,6 +1,10 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -21,7 +25,9 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,11 +39,57 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
 
     private volatile DataModel dataModel;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile NlsService nlsService;
+    /* key for both maps is key of type */
+    private volatile Map<String, TranslationKey> types = new HashMap<>();
+    private volatile Map<String, LayerAndComponent>  layerAndComponentsMap = new HashMap<>();
+
+    private class LayerAndComponent {
+        Layer layer;
+        String component;
+
+        public LayerAndComponent(Layer layer, String component){
+            this.layer = layer;
+            this.component = component;
+        }
+
+        public LayerAndComponent(String component, Layer layer) {
+        }
+
+        @Override
+        public boolean equals(Object obj){
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+            LayerAndComponent that = (LayerAndComponent) obj;
+            return this.layer == that.layer && this.component.equals(that.component);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = 31*layer.hashCode() + component.hashCode();
+            return result;
+        }
+
+        public Layer getLayer(){
+            return this.layer;
+        }
+
+        public String getComponent(){
+            return this.component;
+        }
+    }
 
     @Inject
-    WebServiceCallOccurrenceServiceImpl(DataModel dataModel, EndPointConfigurationService endPointConfigurationService) {
+    WebServiceCallOccurrenceServiceImpl(DataModel dataModel,
+                                        EndPointConfigurationService endPointConfigurationService,
+                                        NlsService nlsService) {
         this.dataModel = dataModel;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.nlsService = nlsService;
     }
 
     @Override
@@ -106,6 +158,23 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
         return DefaultFinder.of(WebServiceCallRelatedObjectType.class, typeCondition, this.dataModel).find();
     };
 
+    @Override
+    public void addRelatedObjectTypes(String component, Layer layer, Map<String, TranslationKey> typesMap){
+        LayerAndComponent layerAndComponent = new LayerAndComponent(layer ,component);
+        types.putAll(typesMap);
+        typesMap.keySet().forEach(key->{
+            layerAndComponentsMap.put(key, layerAndComponent);
+        });
+    }
+
+    @Override
+    public String getTranslationForType(String key){
+        LayerAndComponent layerAndComponent = layerAndComponentsMap.get(key);
+        TranslationKey translationKey = types.get(key);
+        Thesaurus thesaurus = nlsService.getThesaurus(layerAndComponent.getComponent(), layerAndComponent.getLayer());
+
+        return thesaurus.getFormat(translationKey).format();
+    }
 
     @Override
     public OccurrenceLogFinderBuilder getOccurrenceLogFinderBuilder(){

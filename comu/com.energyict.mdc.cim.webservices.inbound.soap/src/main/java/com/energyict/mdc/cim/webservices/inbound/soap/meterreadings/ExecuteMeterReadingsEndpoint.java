@@ -172,6 +172,11 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     }
                     fillNotFoundReadingTypesOnDevices(syncReplyIssue);
 
+                    endDevices.forEach(device->{
+                        createRelatedObject( "name", device.getNames().get(0).getName());
+                        createRelatedObject( "mrID", device.getMRID());
+                    });
+
                     if (endDevices.size() > 1) {
                         syncReplyIssue.addErrorType((replyTypeFactory.errorType(MessageSeeds.UNSUPPORTED_BULK_OPERATION, null, END_DEVICE_LIST_ITEM)));
                     }
@@ -183,6 +188,10 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                 }
                 // -UsagePoint
                 List<UsagePoint> usagePoints = getMeterReadings.getUsagePoint();
+                usagePoints.forEach(usp->{
+                    createRelatedObject( "name", usp.getNames().get(0).getName());
+                    createRelatedObject( "mrID", usp.getMRID());
+                });
                 UsagePoint usagePoint = usagePoints.stream().findFirst()
                         .orElseThrow(faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.EMPTY_LIST, USAGE_POINTS_LIST_ITEM));
 

@@ -31,6 +31,14 @@ public class UtilitiesDeviceRegisterBulkCreateRequestEndpoint extends AbstractRe
     @Override
     public void utilitiesDeviceERPSmartMeterRegisterBulkCreateRequestCIn(UtilsDvceERPSmrtMtrRegBulkCrteReqMsg request) {
         runInTransactionWithOccurrence(() -> {
+
+            request.getUtilitiesDeviceERPSmartMeterRegisterCreateRequestMessage().forEach(req -> {
+                createRelatedObject( "UtilitiesDeviceID", req.getUtilitiesDevice().getID().getValue());
+                req.getUtilitiesDevice().getRegister().forEach(reg -> {
+                    createRelatedObject("UtilitiesMeasurementTaskID", reg.getUtilitiesMeasurementTaskID().getValue());
+                });
+            });
+
             if (!isAnyActiveEndpoint(UtilitiesDeviceRegisterBulkCreateConfirmation.NAME)) {
                 throw new SAPWebServiceException(getThesaurus(), MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
                         UtilitiesDeviceRegisterBulkCreateConfirmation.NAME);

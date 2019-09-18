@@ -57,6 +57,7 @@ public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractInb
         if (bulkMsg.isValid()) {
             bulkMsg.locationMessages.forEach(message -> {
                 if (message.isValid()) {
+                    createRelatedObject("UtilitiesDeviceID", message.deviceId);
                     Optional<Device> device = sapCustomPropertySets.getDevice(message.deviceId);
                     if (device.isPresent()) {
                         try {

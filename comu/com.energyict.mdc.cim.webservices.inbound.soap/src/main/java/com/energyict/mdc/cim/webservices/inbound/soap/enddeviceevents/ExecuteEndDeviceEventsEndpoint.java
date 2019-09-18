@@ -71,8 +71,8 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                                 MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
                 EndDeviceEvents createdEndDeviceEvents = endDeviceBuilder.prepareCreateFrom(endDeviceEvent).build();
                 createdEndDeviceEvents.getEndDeviceEvent().stream().forEach(event -> {
-                        createRelatedObject("DeviceX", "mrID", event.getMRID());
-                        createRelatedObject("DeviceX", "name", event.getNames().get(0).getName());
+                        createRelatedObject( "mrID", event.getMRID());
+                        createRelatedObject( "name", event.getNames().get(0).getName());
                 });
                 return createResponseMessage(createdEndDeviceEvents, HeaderType.Verb.CREATED, endDeviceEvents.size() > 1, correlationId);
             } catch (VerboseConstraintViolationException e) {
@@ -94,8 +94,8 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                                 MessageSeeds.EMPTY_LIST, END_DEVICE_EVENT_ITEM));
                 EndDeviceEvents closedEndDeviceEvents = endDeviceBuilder.prepareCloseFrom(endDeviceEvent).build();
                 closedEndDeviceEvents.getEndDeviceEvent().stream().forEach(event -> {
-                    createRelatedObject("DeviceX", "mrID", event.getMRID());
-                    createRelatedObject("DeviceX", "name", event.getNames().get(0).getName());
+                    createRelatedObject( "mrID", event.getMRID());
+                    createRelatedObject( "name", event.getNames().get(0).getName());
                 });
                 return createResponseMessage(closedEndDeviceEvents, HeaderType.Verb.CLOSED, endDeviceEvents.size() > 1, correlationId);
             } catch (VerboseConstraintViolationException e) {

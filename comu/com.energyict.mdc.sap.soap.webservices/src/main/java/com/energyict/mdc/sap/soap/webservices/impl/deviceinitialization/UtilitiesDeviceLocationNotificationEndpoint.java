@@ -52,6 +52,7 @@ public class UtilitiesDeviceLocationNotificationEndpoint extends AbstractInbound
     private void handleMessage(UtilsDvceERPSmrtMtrLocNotifMsg msg) {
         LocationMessage locationMsg = new LocationMessage(msg);
         if (locationMsg.isValid()) {
+            createRelatedObject( "UtilitiesDeviceID", locationMsg.deviceId);
             Optional<Device> device = sapCustomPropertySets.getDevice(locationMsg.deviceId);
             if (device.isPresent()) {
                 try {

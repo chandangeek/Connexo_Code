@@ -3,6 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 import com.elster.jupiter.domain.util.Finder;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.SetMultimap;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -36,8 +37,8 @@ public interface WebServiceCallOccurrence {
     void setPayload(String payload);
     void setApplicationName(String applicationName);
     void setRelatedObjectId(long relatedObjectId);
-    void createRelatedObject(String domain, String key, String value);
-    void createRelatedObjects(String domain, Set<String> values);
+    void createRelatedObject(String key, String value);
+    void createRelatedObjects(SetMultimap<String, String> values);
     void retry();
 
     void save();

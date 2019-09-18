@@ -5,6 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.SetMultimap;
 
 import java.util.Collection;
 import java.util.List;
@@ -62,6 +63,6 @@ public interface OutboundEndPointProvider extends EndPointProvider {
          */
         Map<EndPointConfiguration, ?> sendRawXml(String message);
 
-        RequestSender withRelatedObject(String domain, Set values);
+        RequestSender withRelatedObject(SetMultimap<String,String> values);
     }
 }

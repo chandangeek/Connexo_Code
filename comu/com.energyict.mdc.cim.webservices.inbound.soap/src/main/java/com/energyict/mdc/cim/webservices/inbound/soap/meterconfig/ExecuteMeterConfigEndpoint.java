@@ -38,6 +38,8 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigRequestMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -100,11 +102,19 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.CREATE, requestMessage.getHeader().getCorrelationID());
                     //TO-DO create objects from SET -> check that parameter is uniq in scope of this occurrence. And only after that try to create
+                    SetMultimap<String, String> values = HashMultimap.create();
+
                     meterConfig.getMeter().stream().forEach(meter -> {
-                        createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
-                        createRelatedObject("DeviceX", "mrID", meter.getMRID());
-                        createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
+                        values.put("CimDeviceName", meter.getNames().get(0).getName());
+                        values.put("CimDeviceMrID", meter.getMRID());
+                        values.put("CimDeviceSerialNumber", meter.getSerialNumber());
                     });
+                    values.keys().forEach(key->{
+                        createRelatedObjects(key, values.get(key));
+                    });
+                    /*createRelatedObject("DeviceX", "name", );
+                    createRelatedObject("DeviceX", "mrID", );
+                    createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());*/
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
@@ -117,9 +127,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             OperationEnum.CREATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
 
-                    createRelatedObject("DeviceX", "name", meterName);
-                    createRelatedObject("DeviceX", "mrID", meter.getMRID());
-                    createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
+                    createRelatedObject( "CimDeviceName", meterName);
+                    createRelatedObject( "CimDeviceMrID", meter.getMRID());
+                    createRelatedObject( "CimDeviceSerialNumber", meter.getSerialNumber());
 
                     Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
 
@@ -166,11 +176,22 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(requestMessage.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration,
                             OperationEnum.UPDATE, requestMessage.getHeader().getCorrelationID());
+                    SetMultimap<String, String> values = HashMultimap.create();
+
                     meterConfig.getMeter().stream().forEach(meter -> {
+                        values.put("CimDeviceName", meter.getNames().get(0).getName());
+                        values.put("CimDeviceMrID", meter.getMRID());
+                        values.put("CimDeviceSerialNumber", meter.getSerialNumber());
+                    });
+                    values.keys().forEach(key->{
+                        createRelatedObjects(key, values.get(key));
+                    });
+
+                    /*meterConfig.getMeter().stream().forEach(meter -> {
                         createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
                         createRelatedObject("DeviceX", "mrID", meter.getMRID());
                         createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
-                    });
+                    });*/
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, requestMessage.getHeader().getCorrelationID());
                 } else if (meterConfig.getMeter().size() > 1) {
                     throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE,
@@ -182,9 +203,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
                             OperationEnum.UPDATE);
                     meterName = meter.getNames().stream().findFirst().map(Name::getName).orElse(null);
-                    createRelatedObject("DeviceX", "name", meterName);
-                    createRelatedObject("DeviceX", "mrID", meter.getMRID());
-                    createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
+                    createRelatedObject( "CimDeviceName", meterName);
+                    createRelatedObject( "CimDeviceMrID", meter.getMRID());
+                    createRelatedObject( "CimDeviceSerialNumber", meter.getSerialNumber());
 
                     Device changedDevice = deviceBuilder.prepareChangeFrom(meterInfo).build();
                     return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, requestMessage.getHeader().getCorrelationID());
@@ -315,11 +336,22 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     // call asynchronously
                     EndPointConfiguration outboundEndPointConfiguration = getOutboundEndPointConfiguration(meterConfigRequestMessageType.getHeader().getReplyAddress());
                     createMeterConfigServiceCallAndTransition(meterConfig, outboundEndPointConfiguration, OperationEnum.GET, meterConfigRequestMessageType.getHeader().getCorrelationID());
+                    SetMultimap<String, String> values = HashMultimap.create();
+
                     meterConfig.getMeter().stream().forEach(meter -> {
+                        values.put("CimDeviceName", meter.getNames().get(0).getName());
+                        values.put("CimDeviceMrID", meter.getMRID());
+                        values.put("CimDeviceSerialNumber", meter.getSerialNumber());
+                    });
+                    values.keys().forEach(key->{
+                        createRelatedObjects(key, values.get(key));
+                    });
+
+                    /*meterConfig.getMeter().stream().forEach(meter -> {
                         createRelatedObject("DeviceX", "name", meter.getNames().get(0).getName());
                         createRelatedObject("DeviceX", "mrID", meter.getMRID());
                         createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
-                    });
+                    });*/
                     return createQuickResponseMessage(HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 } else {
                     // call synchronously
@@ -327,9 +359,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             .orElseThrow(faultMessageFactory.meterConfigFaultMessageSupplier(null, MessageSeeds.EMPTY_LIST, METER_ITEM));
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter);
                     Device device = deviceFinder.findDevice(meterInfo.getmRID(), meterInfo.getDeviceName());
-                    createRelatedObject("DeviceX", "name", meter.getNames().stream().findFirst().map(Name::getName).orElse(null));
-                    createRelatedObject("DeviceX", "mrID", meter.getMRID());
-                    createRelatedObject("DeviceX", "serialNumber", meter.getSerialNumber());
+                    createRelatedObject( "CimDeviceName", meter.getNames().stream().findFirst().map(Name::getName).orElse(null));
+                    createRelatedObject( "CimDeviceMrID", meter.getMRID());
+                    createRelatedObject( "CimDeviceSerialNumber", meter.getSerialNumber());
+
                     return createResponseMessage(device, HeaderType.Verb.REPLY, meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException e) {
