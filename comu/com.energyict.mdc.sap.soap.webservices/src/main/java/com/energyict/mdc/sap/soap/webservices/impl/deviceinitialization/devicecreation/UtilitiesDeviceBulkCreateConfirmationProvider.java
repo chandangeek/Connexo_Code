@@ -64,7 +64,7 @@ public class UtilitiesDeviceBulkCreateConfirmationProvider extends AbstractOutbo
             values.add(message.getUtilitiesDevice().getID().getValue());
         });
         using("utilitiesDeviceERPSmartMeterBulkCreateConfirmationCOut")
-                .withRelatedObject("DeviceX", values)
+                //.withRelatedObject("DeviceX", values)
                 .send(msg.getConfirmationMessage());
     }
 

@@ -61,7 +61,7 @@ public class UtilitiesDeviceRegisterBulkCreateConfirmationProvider extends Abstr
     public void call(UtilitiesDeviceRegisterCreateConfirmationMessage msg) {
         Set<String> values = new HashSet<>();
         using("utilitiesDeviceERPSmartMeterRegisterBulkCreateConfirmationCOut")
-                .withRelatedObject("DeviceX",values)
+                //.withRelatedObject("DeviceX",values)
                 .send(msg.getBulkConfirmationMessage().get());
     }
 

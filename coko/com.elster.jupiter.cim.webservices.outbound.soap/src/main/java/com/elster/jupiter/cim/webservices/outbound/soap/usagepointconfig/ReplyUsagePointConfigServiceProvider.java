@@ -131,7 +131,7 @@ public class ReplyUsagePointConfigServiceProvider
         });
         using(method)
                 .toEndpoints(endPointConfiguration)
-                .withRelatedObject("UsagePoint", values)
+                //.withRelatedObject("UsagePoint", values)
                 .send(message);
     }
 

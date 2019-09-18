@@ -103,7 +103,7 @@ public class ReplyMasterDataLinkageConfigServiceProvider
 		});
 		using(method)
 				.toEndpoints(endPointConfiguration)
-				.withRelatedObject("Device", values)
+				//.withRelatedObject("Device", values)
 				.send(message);
 	}
 

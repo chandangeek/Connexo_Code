@@ -69,7 +69,7 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
         Set<String> values = new HashSet<>();
         values.add(msg.getUtilitiesDevice().getID().getValue());
         using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut")
-                .withRelatedObject("DeviceX", values)
+                //.withRelatedObject("DeviceX", values)
                 .send(msg);
     }
 

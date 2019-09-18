@@ -62,7 +62,7 @@ public class UtilitiesDeviceRegisterCreateConfirmationProvider extends AbstractO
         Set<String> values = new HashSet<>();
         values.add(msg.getConfirmationMessage().get().getUtilitiesDevice().getID().getValue());
         using("utilitiesDeviceERPSmartMeterRegisterCreateConfirmationCOut")
-                .withRelatedObject("DeviceX", values)
+                //.withRelatedObject("DeviceX", values)
                 .send(msg.getConfirmationMessage().get());
     }
 

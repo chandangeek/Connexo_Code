@@ -196,7 +196,7 @@ public class EndDeviceConfigServiceProvider extends AbstractOutboundEndPointProv
         values.add(endDevice.getName());
         using(methodName)
                 .toEndpoints(endPointConfigurations)
-                .withRelatedObject("DeviceX", values)
+                //.withRelatedObject(values)
                 .send(message);
     }
 
