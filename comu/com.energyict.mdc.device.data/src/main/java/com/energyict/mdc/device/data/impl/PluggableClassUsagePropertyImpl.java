@@ -5,13 +5,14 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.ObjectXmlMarshallAdapter;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
-
 import com.google.common.collect.Range;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 
 /**
@@ -63,6 +64,7 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
 
     @Override
     @XmlAttribute
+    @XmlJavaTypeAdapter(ObjectXmlMarshallAdapter.class)
     public Object getValue () {
         return this.value;
     }

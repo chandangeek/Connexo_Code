@@ -54,7 +54,8 @@ public class ObjectParser<T> {
      * Parse a JSONArray (JSON object that represents an array)
      */
     public T parseArray(JSONArray jsonArray, Class clazz) throws JSONException {
-        return this.parseQueryResult(jsonArray, clazz);
+        T array = this.parseQueryResult(jsonArray, clazz);
+        return array;
     }
 
     @SuppressWarnings("unchecked")
@@ -63,7 +64,8 @@ public class ObjectParser<T> {
             convertAllClassNamesFor(objectJSON);
             Class<? extends T> objectClass = interfaceClazz != null ? interfaceClazz : this.getClassFor(objectJSON); // When clazz is null, then extract the type from the objectJSON
             ObjectMapper mapper = ObjectMapperFactory.newMapper();
-            return mapper.readValue(new StringReader(objectJSON.toString()), objectClass);
+            T object = mapper.readValue(new StringReader(objectJSON.toString()), objectClass);
+            return object;
         } catch (IOException e) {
             throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
         } catch (JSONException e) {

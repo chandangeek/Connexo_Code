@@ -774,7 +774,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected List<ConnectionTaskProperty> adaptToUPLValues(List<ConnectionTaskProperty> connectionTaskProperties) {
         return connectionTaskProperties.stream().map(property -> new ConnectionTaskPropertyImpl(
-                (ConnectionTaskImpl) property.getConnectionTask(),
+                this,
                 property.getName(),
                 TypedPropertiesValueAdapter.adaptToUPLValue(getDevice(), property.getValue()),
                 property.getActivePeriod(),
