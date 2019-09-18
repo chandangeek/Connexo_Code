@@ -94,13 +94,13 @@ Ext.define('Uni.property.view.property.Assign', {
 
     getValue: function () {
         var me = this,
-            checkbox = me.down('#cbo-checkbox'),
+            //checkbox = me.down('#cbo-checkbox'),
             workgroupCombo = me.down('#cbo-workgroup-assignee'),
             userCombo = me.down('#cbo-user-assignee'),
             comment = me.down('#txt-comment');
 
         return JSON.stringify({
-            checkbox: checkbox.getValue(),
+            //checkbox: checkbox.getValue(),
             workgroupId: workgroupCombo.getValue(),
             userId: userCombo.getValue(),
             comment: comment.getValue()

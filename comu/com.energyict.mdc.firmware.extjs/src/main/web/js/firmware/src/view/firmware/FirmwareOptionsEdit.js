@@ -394,7 +394,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                             },
                             {
                                 itemId: 'masterFirmwareCheckTest',
-                                boxLabel: Uni.I18n.translate('general.upload.fw.targetFirmwareCheckTestOption', 'FWC', 'Test status of firmware on master device'),
+                                boxLabel: Uni.I18n.translate('general.upload.fw.masterFirmwareCheckTestOption', 'FWC', 'Test status of firmware on master device'),
                                 inputValue: 'masterFirmwareCheckTest',
                             }
                         ]
