@@ -122,7 +122,7 @@ public class UpgraderV10_7 implements Upgrader {
     }
 
     private void updateCreationRule(final CreationRuleImpl creationRule) {
-        execute(dataModel, "INSERT INTO CONNEXO.ISU_CREATIONRULEPROPS\n" +
+        execute(dataModel, "INSERT INTO ISU_CREATIONRULEPROPS\n" +
                 "VALUES ('BasicDataCollectionRuleTemplate.threshold',\n" +
                 "        " + creationRule.getId() + ",\n" +
                 "        '1:7',\n" +

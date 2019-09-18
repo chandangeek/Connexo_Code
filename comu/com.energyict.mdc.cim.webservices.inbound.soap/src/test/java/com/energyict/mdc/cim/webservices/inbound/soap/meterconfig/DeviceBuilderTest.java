@@ -258,6 +258,7 @@ public class DeviceBuilderTest {
 
 	@Test
 	public void testPrepareChangeFrom_ChangeSecurityKeysAllowed_Success_NonDefaultState() throws FaultMessage {
+		meterInfo.setShipmentDate(null);
 		testable.prepareChangeFrom(meterInfo).build();
 		verify(device).setName(DEVICE_NAME);
 		verify(device).setSerialNumber(DEVICE_SERIAL_NUMBER);
@@ -359,6 +360,7 @@ public class DeviceBuilderTest {
 	public void testPrepareChangeFrom_ChangeSecurityKeysAllowed_Success_StatusChange_findDeviceByName()
 			throws FaultMessage {
 		meterInfo.setmRID(null);
+		meterInfo.setShipmentDate(null);
 		meterInfo.setDeviceConfigurationName(OTHER_DEVICE_CONFIG_NAME);
 		meterInfo.setConfigurationEventReason(CHANGE_STATUS_EVENT_REASON);
 		meterInfo.setStatusValue(DefaultState.IN_STOCK.getDefaultFormat());
@@ -416,6 +418,7 @@ public class DeviceBuilderTest {
 			throws FaultMessage {
 		meterInfo.setmRID(null);
 		meterInfo.setDeviceName(null);
+		meterInfo.setShipmentDate(null);
 		meterInfo.getSecurityInfo().setSecurityKeys(new ArrayList<>());
 		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
 		testable.prepareChangeFrom(meterInfo).build();
@@ -447,6 +450,7 @@ public class DeviceBuilderTest {
 		meterInfo.setmRID(null);
 		meterInfo.setDeviceName(null);
 		meterInfo.getSecurityInfo().setSecurityKeys(new ArrayList<>());
+		meterInfo.setShipmentDate(null);
 		when(deviceFinder.find()).thenReturn(Arrays.asList(otherDevice));
 		when(otherDevice.getId()).thenReturn(OTHER_ID);
 		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));

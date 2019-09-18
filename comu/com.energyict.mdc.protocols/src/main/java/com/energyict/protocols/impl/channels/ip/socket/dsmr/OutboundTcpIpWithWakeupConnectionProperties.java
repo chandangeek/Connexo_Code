@@ -124,6 +124,40 @@ public class OutboundTcpIpWithWakeupConnectionProperties
         },
 
 
+        WAITING_TIME {
+            @Override
+            public String propertySpecName() {
+                return OutboundTcpIpWithWakeUpConnectionType.PROPERTY_WAITING_TIME;
+            }
+
+            @Override
+            public String javaName() {
+                return "waitingTime";
+            }
+
+            @Override
+            public String databaseName() {
+                return "WAITINGTIME";
+            }
+        },
+
+        POOL_RETRIES {
+            @Override
+            public String propertySpecName() {
+                return OutboundTcpIpWithWakeUpConnectionType.PROPERTY_POOL_RETRIES;
+            }
+
+            @Override
+            public String javaName() {
+                return "poolRetries";
+            }
+
+            @Override
+            public String databaseName() {
+                return "POOLRETRIES";
+            }
+        },
+
         WS_REQUEST_TIME_OUT {
             @Override
             public String propertySpecName() {
@@ -209,6 +243,7 @@ public class OutboundTcpIpWithWakeupConnectionProperties
                 return "WSUSERPASS";
             }
         },
+
         ;
 
         public String javaName() {
@@ -254,6 +289,9 @@ public class OutboundTcpIpWithWakeupConnectionProperties
     private String wsUserPass;
     //TODO: refactor wsUserPass to private Reference<SecurityAccessorType> wsUserPass = Reference.empty();
 
+    private TimeDuration waitingTime;
+
+    private BigDecimal poolRetries;
 
     @Override
     public void postLoad() {
@@ -273,6 +311,9 @@ public class OutboundTcpIpWithWakeupConnectionProperties
             this.wsRequestTimeOut = null;
         }
 
+        if (this.waitingTime != null && this.waitingTime.getTimeUnitCode() == 0) {
+            this.waitingTime = null;
+        }
     }
 
     @Override
@@ -293,6 +334,8 @@ public class OutboundTcpIpWithWakeupConnectionProperties
         this.copyTriggerType(propertyValues);
         this.copyUserId(propertyValues);
         this.copyUserPass(propertyValues);
+        this.copyPoolRetries(propertyValues);
+        this.copyWaitingTime(propertyValues);
     }
 
     protected void copyHost(CustomPropertySetValues propertyValues) {
@@ -303,6 +346,13 @@ public class OutboundTcpIpWithWakeupConnectionProperties
         Object property = propertyValues.getProperty(Fields.PORT_NUMBER.propertySpecName());
         if (Objects.nonNull(property)) {
             this.portNumber = new BigDecimal(property.toString());
+        }
+    }
+
+    protected void copyPoolRetries(CustomPropertySetValues propertyValues) {
+        Object property = propertyValues.getProperty(Fields.POOL_RETRIES.propertySpecName());
+        if (Objects.nonNull(property)) {
+            this.poolRetries = new BigDecimal(property.toString());
         }
     }
 
@@ -322,6 +372,9 @@ public class OutboundTcpIpWithWakeupConnectionProperties
         this.wsConnectTimeOut = (TimeDuration) propertyValues.getProperty(Fields.WS_CONNECT_TIME_OUT.propertySpecName());
     }
 
+    protected void copyWaitingTime(CustomPropertySetValues propertyValues) {
+        this.waitingTime = (TimeDuration) propertyValues.getProperty(Fields.WAITING_TIME.propertySpecName());
+    }
 
     protected void copyWsRequestTimeout(CustomPropertySetValues propertyValues) {
         this.wsRequestTimeOut = (TimeDuration) propertyValues.getProperty(Fields.WS_REQUEST_TIME_OUT.propertySpecName());
@@ -359,6 +412,8 @@ public class OutboundTcpIpWithWakeupConnectionProperties
         this.copyNullablePropertyTo(propertySetValues, Fields.ENDPOINT_ADDRESS, this.endpointAddress);
         this.copyNullablePropertyTo(propertySetValues, Fields.SOAP_ACTION, this.soapAction);
         this.copyNullablePropertyTo(propertySetValues, Fields.WS_CONNECT_TIME_OUT, this.wsConnectTimeOut);
+        this.copyNullablePropertyTo(propertySetValues, Fields.WAITING_TIME, this.waitingTime);
+        this.copyNullablePropertyTo(propertySetValues, Fields.POOL_RETRIES, this.poolRetries);
         this.copyNullablePropertyTo(propertySetValues, Fields.WS_REQUEST_TIME_OUT, this.wsRequestTimeOut);
         this.copyNullablePropertyTo(propertySetValues, Fields.SOURCE_ID, this.sourceId);
         this.copyNullablePropertyTo(propertySetValues, Fields.TRIGGER_TYPE, this.triggerType);
