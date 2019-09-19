@@ -352,20 +352,19 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 .findFirst()
                 .map(Optional::get);
         if (dataSource.isPresent()) {
-            List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
-                    .getFirst(), device.getId());
-            List<CustomPropertySetValues> toRecreateBeforeConflict = new ArrayList<>();
-            List<CustomPropertySetValues> toRecreateAfterConflict = new ArrayList<>();
             CustomPropertySetValues versionToUpdate = customPropertySetService.getUniqueValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
                     .getFirst(), endDate, device.getId());
-
             Range<Instant> oldRange = versionToUpdate.getEffectiveRange();
             Range<Instant> range = getRangeToUpdate(endDate, oldRange);
             OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
                     .getFirst(), device.getId());
             Optional<ValuesRangeConflict> conflict = overlapCalculatorBuilder.whenUpdating(oldRange.hasLowerBound() ? oldRange.lowerEndpoint() : Instant.EPOCH, range).stream().filter(c -> c.getType().equals(ValuesRangeConflictType.RANGE_GAP_BEFORE) || c.getType().equals(ValuesRangeConflictType.RANGE_GAP_AFTER)).findFirst();
             if (conflict.isPresent()) {
+                List<CustomPropertySetValues> allVersions = customPropertySetService.getAllVersionedValuesFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
+                        .getFirst(), device.getId());
                 Optional<Range<Instant>> conflictRange = Optional.ofNullable(conflict.get().getConflictingRange());
+                List<CustomPropertySetValues> toRecreateBeforeConflict = new ArrayList<>();
+                List<CustomPropertySetValues> toRecreateAfterConflict = new ArrayList<>();
                 for (CustomPropertySetValues version : allVersions) {
                     if (!version.equals(versionToUpdate) && versionToUpdate.getEffectiveRange().hasLowerBound() && version.getEffectiveRange().hasUpperBound()
                             && (version.getEffectiveRange().upperEndpoint().isBefore(versionToUpdate.getEffectiveRange().lowerEndpoint()) || version.getEffectiveRange().upperEndpoint().equals(versionToUpdate.getEffectiveRange().lowerEndpoint()))) {
