@@ -70,6 +70,12 @@ my $CONNEXO_ADMIN_ACCOUNT="admin";
 my $CONNEXO_ADMIN_PASSWORD;
 my $TOMCAT_ADMIN_PASSWORD="D3moAdmin";
 
+my $SSO_IDP_ENDPOINT;
+my $SSO_ACS_ENDPOINT;
+my $SSO_X509_CERTIFICATE;
+my $SSO_ADMIN_USER;
+my $SSO_ENABLED;
+
 
 # Function Definitions
 sub dircopy {
@@ -231,6 +237,11 @@ sub read_config {
                 if ( "$val[0]" eq "FLOW_JDBC_URL" )                 {$FLOW_JDBC_URL=$val[1];}
                 if ( "$val[0]" eq "FLOW_DB_USER" )                  {$FLOW_DB_USER=$val[1];}
                 if ( "$val[0]" eq "FLOW_DB_PASSWORD" )              {$FLOW_DB_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "SSO_IDP_ENDPOINT" )              {$SSO_IDP_ENDPOINT=$val[1];}
+                if ( "$val[0]" eq "SSO_ACS_ENDPOINT" )              {$SSO_ACS_ENDPOINT=$val[1];}
+                if ( "$val[0]" eq "SSO_X509_CERTIFICATE" )          {$SSO_X509_CERTIFICATE=$val[1];}
+                if ( "$val[0]" eq "SSO_ADMIN_USER" )                {$SSO_ADMIN_USER=$val[1];}
+                if ( "$val[0]" eq "SSO_ENABLED" )                   {$SSO_ENABLED=$val[1];}
             }
         }
         close($FH);
@@ -448,6 +459,7 @@ sub install_connexo {
             } else {
                 replace_in_file($config_file,"com.energyict.mdc.url=","com.energyict.mdc.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT/apps/multisense/index.html");
             }
+			enable_sso();
         }
 
 		print "\n\nInstalling Connexo database schema ...\n";
@@ -1453,6 +1465,7 @@ sub perform_upgrade {
                 }
             }
             add_to_file_if($config_file,"upgrade=true");
+			enable_sso();
         }
 
         #copy content of lib folder
@@ -1642,6 +1655,17 @@ update_properties_file_with_encrypted_password();
       start_connexo();
   }
 
+}
+
+sub enable_sso{
+	print "Enabling SSO properties ...";
+	if($SSO_ENABLED eq "true"){
+                add_to_file_if($config_file,"sso.enabled=$SSO_ENABLED");
+                add_to_file_if($config_file,"sso.idp.endpoint=$SSO_IDP_ENDPOINT");
+                add_to_file_if($config_file,"sso.acs.endpoint=$SSO_ACS_ENDPOINT");
+                add_to_file_if($config_file,"sso.x509.certificate=$SSO_X509_CERTIFICATE");
+                add_to_file_if($config_file,"sso.admin.user=$SSO_ADMIN_USER");
+            }
 }
 
 # Main

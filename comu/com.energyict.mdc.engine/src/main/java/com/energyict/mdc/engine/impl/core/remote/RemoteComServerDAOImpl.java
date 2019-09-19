@@ -409,6 +409,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.RESCHEDULE_DATE, comWindowStartDate);
+        post(QueryMethod.ExecutionRescheduledToComWindow, queryParameters);
+    }
+
+    @Override
     public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION_COLLECTION, this.collectIds(comTaskExecutions));

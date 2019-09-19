@@ -6,22 +6,35 @@ package com.elster.jupiter.issue.impl.database;
 
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.MailIssueAction;
+import com.elster.jupiter.issue.impl.actions.ProcessAction;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.time.DefaultRelativePeriodDefinition;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -34,7 +47,6 @@ public class UpgraderV10_7 implements Upgrader {
     private final UserService userService;
     private final PrivilegesProviderV10_7 privilegesProviderV10_7;
     private final IssueActionService issueActionService;
-
 
     @Inject
     UpgraderV10_7(DataModel dataModel, IssueService issueService, UserService userService, PrivilegesProviderV10_7 privilegesProviderV10_7,
@@ -49,6 +61,7 @@ public class UpgraderV10_7 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, version(10, 7));
+        updateDataCollectionIssueCreationRule();
         this.addManualIssueType();
         this.createActionTypesIfNotPresent();
         addCloseActionType();
@@ -76,7 +89,9 @@ public class UpgraderV10_7 implements Upgrader {
 
     private void addCloseActionType() {
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), issueService.findIssueType(IssueService.MANUAL_ISSUE_TYPE).get());
+        issueActionService.createActionType(IssueDefaultActionsFactory.ID, ProcessAction.class.getName(), (IssueType) null);
     }
+
     private void createActionTypesIfNotPresent() {
         IssueType type = null;
         Condition classNameCondition = buildCondition("className", Optional.of(MailIssueAction.class.getName()));
@@ -86,11 +101,36 @@ public class UpgraderV10_7 implements Upgrader {
         }
     }
 
+    private void updateDataCollectionIssueCreationRule() {
+        final List<CreationRule> creationRules = issueService.getIssueCreationService()
+                .getCreationRuleQuery(IssueReason.class, IssueType.class)
+                .select(Condition.TRUE)
+                .stream()
+                .filter(rule -> rule.getTemplateImpl().equals("BasicDataCollectionRuleTemplate"))
+                .filter(rule -> !rule.getCreationRuleProperties().stream().anyMatch(creationRuleProperty -> creationRuleProperty.getName().equals("BasicDataCollectionRuleTemplate.threshold")))
+                .collect(Collectors.toList());
+
+        creationRules.forEach(creationRule -> updateCreationRule((CreationRuleImpl) creationRule));
+    }
+
     private Condition buildCondition(String field, Optional<?> value) {
         Condition condition = where(field).isNull();
         if (value.isPresent()) {
             condition = condition.or(where(field).isEqualTo(value.get()));
         }
         return condition;
+    }
+
+    private void updateCreationRule(final CreationRuleImpl creationRule) {
+        execute(dataModel, "INSERT INTO ISU_CREATIONRULEPROPS\n" +
+                "VALUES ('BasicDataCollectionRuleTemplate.threshold',\n" +
+                "        " + creationRule.getId() + ",\n" +
+                "        '1:7',\n" +
+                "        1,\n" +
+                "        " + Instant.now().toEpochMilli() + ",\n" +
+                "        " + Instant.now().toEpochMilli() + ",\n" +
+                "        DEFAULT)");
+        final IssueCreationService.CreationRuleUpdater creationRuleUpdater = creationRule.startUpdate();
+        creationRuleUpdater.complete();
     }
 }

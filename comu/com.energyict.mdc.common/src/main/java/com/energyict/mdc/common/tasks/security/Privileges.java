@@ -13,10 +13,10 @@ public enum Privileges implements TranslationKey {
 
     // Resources
     RESOURCE_COMMUNICATION_TASK_EXECUTION(
-            "comminication.task.execution.scheduling",
+            "communication.task.execution.scheduling",
             "Communication task execution/scheduling"),
     RESOURCE_COMMUNICATION_TASK_EXECUTION_DESCRIPTION(
-            "comminication.task.execution.scheduling.description",
+            "communication.task.execution.scheduling.description",
             "Execute/plan/schedule communication tasks"),
 
     // Privileges

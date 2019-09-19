@@ -7,6 +7,7 @@ package com.energyict.mdc.device.alarms.impl;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
+import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.entity.IssueActionClassLoadFailedException;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
@@ -55,6 +56,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile BpmService bpmService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile PropertyFactoriesProvider propertyFactoriesProvider;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -74,7 +76,8 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                                      UserService userService,
                                      BpmService bpmService,
                                      ThreadPrincipalService threadPrincipalService,
-                                     EndPointConfigurationService endPointConfigurationService) {
+                                     EndPointConfigurationService endPointConfigurationService,
+                                     PropertyFactoriesProvider propertyFactoriesProvider) {
         this();
         setOrmService(ormService);
         setThesaurus(nlsService);
@@ -85,6 +88,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
         setThreadPrincipalService(threadPrincipalService);
         setBpmService(bpmService);
         setEndPointConfigurationService(endPointConfigurationService);
+        setPropertyFactoriesProvider(propertyFactoriesProvider);
 
         activate();
     }
@@ -105,6 +109,7 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(BpmService.class).toInstance(bpmService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
+                bind(PropertyFactoriesProvider.class).toInstance(propertyFactoriesProvider);
             }
         });
 
@@ -169,6 +174,11 @@ public class DeviceAlarmActionsFactory implements IssueActionFactory {
     @Reference
     public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
         this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
+    public void setPropertyFactoriesProvider(final PropertyFactoriesProvider propertyFactoriesProvider) {
+        this.propertyFactoriesProvider = propertyFactoriesProvider;
     }
 
     private void addDefaultActions() {

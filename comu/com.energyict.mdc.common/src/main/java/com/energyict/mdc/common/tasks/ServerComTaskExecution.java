@@ -57,11 +57,19 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
     void executionFailed();
 
     /**
-     * Notifies this ComTaskExecution that it should be rescheduled based on the given date
+     * Notifies this ComTaskExecution that it should be rescheduled based on the given date. The number of tries is incremented.
      *
      * @param rescheduleDate the given reschedule date (additional restrictions can be applicable)
      */
     void executionRescheduled(Instant rescheduleDate);
+
+    /**
+     * Notifies this ComTaskExecution that it should be rescheduled based on the communication window start date.
+     * The number of tries is not incremented.
+     *
+     * @param comWindowStartDate the given reschedule date (additional restrictions can be applicable)
+     */
+    void executionRescheduledToComWindow(Instant comWindowStartDate);
 
     /**
      * Notifies this ComTaskExecution that execution has been started

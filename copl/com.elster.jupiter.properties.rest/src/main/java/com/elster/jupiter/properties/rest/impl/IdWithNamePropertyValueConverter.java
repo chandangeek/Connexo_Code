@@ -6,7 +6,9 @@ package com.elster.jupiter.properties.rest.impl;
 
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.AssignIssueFormPropertyFactory;
 import com.elster.jupiter.properties.rest.AssignPropertyFactory;
+import com.elster.jupiter.properties.rest.CloseIssueFormPropertyFactory;
 import com.elster.jupiter.properties.rest.CustomEventTypePropertyFactory;
 import com.elster.jupiter.properties.rest.ProcessPropertyFactory;
 import com.elster.jupiter.properties.rest.PropertyType;
@@ -42,6 +44,12 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
         if (propertySpec.getValueFactory() instanceof AssignPropertyFactory) {
             return SimplePropertyType.ASSIGN;
         }
+        if (propertySpec.getValueFactory() instanceof AssignIssueFormPropertyFactory) {
+            return SimplePropertyType.ASSIGN_ISSUE_FORM;
+        }
+        if (propertySpec.getValueFactory() instanceof CloseIssueFormPropertyFactory) {
+            return SimplePropertyType.CLOSE_ISSUE_FORM;
+        }
         if (propertySpec.getValueFactory() instanceof MailPropertyFactory) {
             return SimplePropertyType.MAILTO;
         }
@@ -72,7 +80,7 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
     @Override
     public Object convertInfoToValue(PropertySpec propertySpec, Object infoValue) {
         if (infoValue instanceof Map) {
-            return propertySpec.getValueFactory().fromStringValue((((Map)infoValue).get("id").toString()));
+            return propertySpec.getValueFactory().fromStringValue((((Map) infoValue).get("id").toString()));
         } else if (infoValue instanceof List) {
             List<HasName> listValue = new ArrayList<>();
             List<?> list = (List<?>) infoValue;
@@ -88,8 +96,8 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
 
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
-        if(domainValue!=null){
-            if (domainValue instanceof HasIdAndName){
+        if (domainValue != null) {
+            if (domainValue instanceof HasIdAndName) {
                 return ((HasIdAndName) domainValue).getId();
             } else if (HasId.class.isAssignableFrom(domainValue.getClass())) {
                 if (HasName.class.isAssignableFrom(domainValue.getClass())) {

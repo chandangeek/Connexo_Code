@@ -1,25 +1,23 @@
 package com.energyict.protocolimplv2.nta.dsmr40.landisgyr;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.DeviceFunction;
-import com.energyict.mdc.upl.DeviceProtocolCapabilities;
-import com.energyict.mdc.upl.DeviceProtocolDialect;
-import com.energyict.mdc.upl.ManufacturerInformation;
-import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.*;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.*;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -29,18 +27,11 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.Dsmr40Properties;
 import com.energyict.protocolimplv2.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
-import com.energyict.protocolimplv2.nta.dsmr40.eventhandling.Dsmr40LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
@@ -140,6 +131,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
     public List<? extends ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
         result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
+        result.add(new OutboundTcpIpWithWakeUpConnectionType(this.getPropertySpecService()));
         return result;
     }
 

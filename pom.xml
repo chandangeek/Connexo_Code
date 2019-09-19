@@ -9,7 +9,7 @@
 
     <groupId>com.elster.jupiter</groupId>
     <artifactId>parent</artifactId>
-    <version>1.1.0-Heracles-SNAPSHOT</version>
+    <version>1.0.0-Heracles-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -310,7 +310,7 @@
                 <plugin>
                     <groupId>com.elster.plugin</groupId>
                     <artifactId>bundle-version-maven-plugin</artifactId>
-                    <version>1.4</version>
+                    <version>1.5</version>
                 </plugin>
                 <plugin>
                     <groupId>com.elster.plugin</groupId>

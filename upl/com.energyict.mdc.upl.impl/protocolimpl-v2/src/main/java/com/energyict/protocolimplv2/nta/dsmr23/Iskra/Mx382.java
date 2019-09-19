@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr23.Iskra;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -137,6 +138,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
     public List<? extends ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
         result.add(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
+        result.add(new OutboundTcpIpWithWakeUpConnectionType(this.getPropertySpecService()));
         return result;
     }
 

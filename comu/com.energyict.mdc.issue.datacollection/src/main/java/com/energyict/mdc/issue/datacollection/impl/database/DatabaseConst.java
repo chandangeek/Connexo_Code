@@ -5,7 +5,8 @@
 package com.energyict.mdc.issue.datacollection.impl.database;
 
 final class DatabaseConst {
-    private DatabaseConst() {}
+    private DatabaseConst() {
+    }
 
     static final String IDC_ISSUE_HISTORY_PK = "IDC_ISSUE_HISTORY_PK";
     static final String IDC_ISSUE_HISTORY_FK_TO_ISSUE = "IDC_ISS_HIST_FK_TO_ISSUE";
@@ -35,5 +36,12 @@ final class DatabaseConst {
     static final String IDC_ISSUE_OPEN_FK_TO_CONNECTION_TASK = "IDC_ISSUE_OPEN_FK_TO_CON_TASK";
     static final String IDC_ISSUE_OPEN_FK_TO_COM_TASK = "IDC_ISSUE_OPEN_FK_TO_COM_TASK";
     static final String IDC_ISSUE_OPEN_FK_TO_COM_SESSION = "IDC_ISSUE_OPEN_FK_TO_COM_SESSN";
+
+    // Data collection event description
+    static final String DATACOLLECTION_COLUMN_EVENTTYPE = "EVENTTYPE";
+    static final String DATACOLLECTION_COLUMN_DEVICE = "DEVICE";
+    static final String DATACOLLECTION_EVENT_DESCRIPTION_PK = "IDC_DC_EVT_DES_PK";
+    static final String DATACOLLECTION_EVENT_DESCRIPTION_FK_TO_EVENTTYPE = "IDC_DC_EVT_DES_FK_TO_EVENTTYPE";
+    static final String DATACOLLECTION_EVENT_DESCRIPTION_FK_TO_DEVICE = "IDC_DC_EVT_DES_FK_TO_DEVICE";
 
 }

@@ -8,18 +8,12 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.1.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc</artifactId>
     <packaging>bundle</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.mdc</name>
-
-    <!-- This is a workaround until release while most of deployed artifacts for this artifact does not contain jar (they were pom type previously) and bundle plugin simply crashes,
-    the old bundle plugin for which we do not have documentation or sources -->
-    <properties>
-        <baseline>1.4.0</baseline>
-    </properties>
 
     <dependencyManagement>
         <dependencies>

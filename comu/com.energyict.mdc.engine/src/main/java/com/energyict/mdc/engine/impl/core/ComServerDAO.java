@@ -348,6 +348,16 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 
     /**
+     * Notifies that the execution of the specified ComTaskExecution was postponed and needs to be rescheduled based on the
+     * communication window start date.
+     * The number of tries is not incremented.
+     *
+     * @param comTaskExecution the ComTaskExecution
+     * @param comWindowStartDate the communication window start date on which the task should be rescheduled (additional restrictions can be applicable)
+     */
+    void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate);
+
+    /**
      * Notifies that execution of the specified ComTaskExecutions completed.
      *
      * @param comTaskExecutions The List of completed ComTaskExecution

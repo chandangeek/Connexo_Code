@@ -9,14 +9,12 @@ import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
-import com.energyict.mdc.issue.datacollection.event.RegisteredToGatewayEvent;
 import com.energyict.mdc.issue.datacollection.event.UnableToConnectEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownInboundDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.event.UnregisteredFromGatewayEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
-
 import org.osgi.service.event.EventConstants;
 
 import java.util.ArrayList;
@@ -29,7 +27,7 @@ import static com.elster.jupiter.util.Checks.is;
 
 public enum DataCollectionEventDescription implements EventDescription {
     CONNECTION_LOST(
-            "com/energyict/mdc/connectiontask/COMPLETION",
+            "com/energyict/mdc/connectiontask/FAILURE",
             CommunicationErrorType.CONNECTION_FAILURE,
             ConnectionLostEvent.class,
             TranslationKeys.EVENT_TITLE_CONNECTION_LOST) {
@@ -42,7 +40,7 @@ public enum DataCollectionEventDescription implements EventDescription {
     },
 
     DEVICE_COMMUNICATION_FAILURE(
-            "com/energyict/mdc/connectiontask/COMPLETION",
+            "com/energyict/mdc/connectiontask/FAILURE",
             CommunicationErrorType.COMMUNICATION_FAILURE,
             DeviceCommunicationFailureEvent.class,
             TranslationKeys.EVENT_TITLE_DEVICE_COMMUNICATION_FAILURE) {
@@ -69,14 +67,14 @@ public enum DataCollectionEventDescription implements EventDescription {
             "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE",
             null,
             UnknownInboundDeviceEvent.class,
-            TranslationKeys.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE) {
-    },
+            TranslationKeys.EVENT_TITLE_UNKNOWN_INBOUND_DEVICE),
 
     UNKNOWN_OUTBOUND_DEVICE(
             "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE",
             null,
             UnknownSlaveDeviceEvent.class,
             TranslationKeys.EVENT_TITLE_UNKNOWN_OUTBOUND_DEVICE),
+
     UNREGISTERED_FROM_GATEWAY(
             "com/energyict/mdc/topology/UNREGISTEREDFROMGATEWAY",
             null,
