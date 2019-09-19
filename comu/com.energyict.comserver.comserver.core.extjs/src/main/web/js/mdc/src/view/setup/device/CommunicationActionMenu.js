@@ -5,6 +5,9 @@
 Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-communication-action-menu',
+    requires: [
+    	'Uni.Auth'
+    ],
     router: null,
 
     listeners: {
