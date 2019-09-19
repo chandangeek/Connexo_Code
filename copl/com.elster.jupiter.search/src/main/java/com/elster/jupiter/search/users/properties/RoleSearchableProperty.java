@@ -8,11 +8,19 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.users.PropertyTranslationKeys;
 import com.elster.jupiter.search.users.UserSearchDomain;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class RoleSearchableProperty extends AbstractUserSearchableProperty {
@@ -66,6 +74,21 @@ public class RoleSearchableProperty extends AbstractUserSearchableProperty {
             return group.getName();
         }
         throw new IllegalArgumentException("Value not compatible with domain");
+    }
+
+    @Override
+    public Condition toCondition(final Condition specification) {
+        if (!(specification instanceof Contains)) {
+            throw new IllegalArgumentException("Condition must be IN or NOT IN");
+        }
+
+        Contains contains = (Contains) specification;
+
+        final Subquery subquery = userService.getDataModel()
+                .query(UserInGroup.class, Group.class)
+                .asSubquery(Where.where("group").in((List<?>) contains.getCollection()), "userid");
+
+        return ListOperator.IN.contains(subquery, "id");
     }
 
     private class UserGroupFactory implements ValueFactory<Group> {

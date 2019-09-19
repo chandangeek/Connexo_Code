@@ -24,6 +24,7 @@ import com.elster.jupiter.search.users.properties.StatusSearchableProperty;
 import com.elster.jupiter.search.users.properties.UserDirectorySearchableProperty;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -100,7 +101,6 @@ public class UserSearchDomain implements SearchDomain {
     public List<SearchableProperty> getProperties() {
         ImmutableList.Builder<SearchableProperty> properties = ImmutableList.builder();
 
-        // TODO: remove these two (out of spec.)
         properties.add(new NameSearchableProperty(userService, this, propertySpecService, thesaurus));
         properties.add(new DescriptionSearchableProperty(userService, this, propertySpecService, thesaurus));
         properties.add(new UserDirectorySearchableProperty(userService, this, propertySpecService, thesaurus));
@@ -171,7 +171,7 @@ public class UserSearchDomain implements SearchDomain {
 
         private UserFinder(Condition condition) {
             this.finder = DefaultFinder
-                    .of(User.class, condition.TRUE, userService.getDataModel())
+                    .of(User.class, condition, userService.getDataModel(), UserInGroup.class)
                     .defaultSortColumn("username");
         }
 
