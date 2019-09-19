@@ -85,7 +85,7 @@ public class WebServiceDataExportCustomPropertySet implements CustomPropertySet<
                         .fromThesaurus(thesaurus)
                         .finish(),
                 propertySpecService
-                        .longSpec()
+                        .stringSpec()
                         .named(WebServiceDataExportDomainExtension.FieldNames.TIMEOUT.javaName(), TranslationKeys.TIMEOUT)
                         .fromThesaurus(thesaurus)
                         .finish(),
