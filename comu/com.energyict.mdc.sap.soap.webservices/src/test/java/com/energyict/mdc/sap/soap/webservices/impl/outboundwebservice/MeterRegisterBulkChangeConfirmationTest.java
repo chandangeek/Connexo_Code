@@ -10,14 +10,9 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeConfirmationMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeConfirmationProvider;
-import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeConfirmationMessage;
-import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeConfirmationProvider;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmationCOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmationCOutService;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilitiesDeviceERPSmartMeterRegisterChangeConfirmationCOut;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilitiesDeviceERPSmartMeterRegisterChangeConfirmationCOutService;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegBulkChgConfMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmationCOut;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmationCOutService;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegBulkChgConfMsg;
 
 import java.util.ArrayList;
 import java.util.HashMap;

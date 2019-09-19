@@ -26,8 +26,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilitiesDeviceERPSmartMeterRegisterBulkChangeRequestCIn;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegBulkChgReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceERPSmartMeterRegisterBulkChangeRequestCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegBulkChgReqMsg;
 
 import javax.inject.Inject;
 import java.time.Clock;

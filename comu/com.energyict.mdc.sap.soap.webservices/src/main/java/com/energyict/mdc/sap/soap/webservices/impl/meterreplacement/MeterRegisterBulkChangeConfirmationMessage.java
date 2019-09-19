@@ -13,16 +13,16 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.BusinessDocumentMessageID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.Log;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.LogItem;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.LogItemCategoryCode;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.ObjectFactory;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilitiesDeviceID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegBulkChgConfMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegChgConfMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.Log;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.LogItem;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.LogItemCategoryCode;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.ObjectFactory;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegBulkChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
 import java.time.Instant;
 import java.util.List;
@@ -53,9 +53,9 @@ public class MeterRegisterBulkChangeConfirmationMessage {
 
             if (parent.getState().equals(DefaultState.CANCELLED)) {
                 confirmationMessage.setLog(createFailedLog(String.valueOf(MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getNumber()), MessageSeeds.SERVICE_CALL_WAS_CANCELLED.getDefaultFormat(null)));
-            } else if (ServiceCallHelper.hasAllChildrenInState(children, DefaultState.SUCCESSFUL)) {
+            } else if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
                 confirmationMessage.setLog(createSuccessfulLog());
-            } else if (ServiceCallHelper.hasAnyChildState(children, DefaultState.SUCCESSFUL)) {
+            } else if (parent.getState().equals(DefaultState.PARTIAL_SUCCESS)) {
                 confirmationMessage.setLog(createPartiallySuccessfulLog());
             } else {
                 confirmationMessage.setLog(createFailedLog());
@@ -133,8 +133,8 @@ public class MeterRegisterBulkChangeConfirmationMessage {
             return messageID;
         }
 
-        private com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UUID createUUID(String uuid) {
-            com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UUID messageUUID
+        private com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UUID createUUID(String uuid) {
+            com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation.UUID messageUUID
                     = objectFactory.createUUID();
             messageUUID.setValue(uuid);
             return messageUUID;

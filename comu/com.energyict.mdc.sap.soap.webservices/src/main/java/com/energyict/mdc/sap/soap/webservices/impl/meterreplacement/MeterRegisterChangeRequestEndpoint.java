@@ -26,8 +26,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilitiesDeviceERPSmartMeterRegisterChangeRequestCIn;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegChgReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceERPSmartMeterRegisterChangeRequestCIn;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -71,7 +71,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
             }
 
             Optional.ofNullable(request)
-                    .ifPresent(requestMessage -> createServiceCallAndTransition(MeterRegisterChangeMessage.builder()
+                    .ifPresent(requestMessage -> createServiceCallAndTransition(MeterRegisterChangeMessageBuilder.builder()
                             .from(requestMessage)
                             .build()));
             return null;

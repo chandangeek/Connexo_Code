@@ -10,7 +10,7 @@ import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface MeterRegisterChangeConfirmation {
-    String NAME = "SapMeterRegisterChangeConfirmation";
+    String NAME = "SAP MeterRegisterChangeConfirmation";
 
     /**
      * Sends confirmation message to SAP

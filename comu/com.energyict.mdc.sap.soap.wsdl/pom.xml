@@ -598,7 +598,7 @@
                             </wsdlFiles>
                             <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterChangeRequest_C_In.wsdl</wsdlLocation>
                             <packageName>
-                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement
+                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest
                             </packageName>
                         </configuration>
                     </execution>
@@ -615,7 +615,7 @@
                             </wsdlFiles>
                             <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterBulkChangeRequest_C_In.wsdl</wsdlLocation>
                             <packageName>
-                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement
+                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest
                             </packageName>
                         </configuration>
                     </execution>
@@ -632,7 +632,7 @@
                             </wsdlFiles>
                             <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterChangeConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
-                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement
+                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation
                             </packageName>
                         </configuration>
                     </execution>
@@ -649,7 +649,7 @@
                             </wsdlFiles>
                             <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterRegisterBulkChangeConfirmation_C_Out.wsdl</wsdlLocation>
                             <packageName>
-                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement
+                                com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkconfirmation
                             </packageName>
                         </configuration>
                     </execution>

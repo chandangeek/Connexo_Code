@@ -399,7 +399,7 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
 
     private Range<Instant> getRangeToUpdate(Instant endDate, Range<Instant> oldRange) {
         if (oldRange.hasLowerBound()) {
-            if (endDate.isBefore(oldRange.upperEndpoint()) && endDate.isAfter(oldRange.lowerEndpoint())) {
+            if (endDate.isAfter(oldRange.lowerEndpoint()) && oldRange.hasUpperBound() && endDate.isBefore(oldRange.upperEndpoint()) || !oldRange.hasUpperBound() ) {
                 return Range.closedOpen(oldRange.lowerEndpoint(), endDate);
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.INVALID_END_DATE, endDate, oldRange);

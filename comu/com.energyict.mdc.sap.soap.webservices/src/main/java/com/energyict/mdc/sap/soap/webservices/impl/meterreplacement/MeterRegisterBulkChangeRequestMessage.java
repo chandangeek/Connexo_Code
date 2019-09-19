@@ -5,11 +5,10 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
 import com.elster.jupiter.util.Checks;
 
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.BusinessDocumentMessageID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegBulkChgReqMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegBulkChgReqMsg;
 
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +50,7 @@ public class MeterRegisterBulkChangeRequestMessage {
 
             requestMessage.getUtilitiesDeviceERPSmartMeterRegisterChangeRequestMessage()
                     .forEach(message ->
-                            meterRegisterChangeMessages.add(MeterRegisterChangeMessage
+                            meterRegisterChangeMessages.add(MeterRegisterChangeBulkMessageBuilder
                                     .builder()
                                     .from(message)
                                     .build()));

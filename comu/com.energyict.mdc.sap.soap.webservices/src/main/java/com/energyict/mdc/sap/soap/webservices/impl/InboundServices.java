@@ -22,8 +22,8 @@ public enum InboundServices {
     SAP_POINT_OF_DELIVERY_BULK_ASSIGNED_NOTIFICATION_C_IN
             ("SAP PointOfDeliveryBulkAssignedNotification_C_In"),
     SAP_MEASUREMENT_TASK_ASSIGNMENT_CHANGE_REQUEST("SAP UtilitiesTimeSeriesERPMeasurementTaskAssignmentChangeRequest_C_In"),
-    SAP_METER_REGISTER_CHANGE_REQUEST("SapMeterRegisterChangeRequest"),
-    SAP_METER_REGISTER_BULK_CHANGE_REQUEST("SapMeterRegisterBulkChangeRequest"),
+    SAP_METER_REGISTER_CHANGE_REQUEST("SAP MeterRegisterChangeRequest"),
+    SAP_METER_REGISTER_BULK_CHANGE_REQUEST("SAP MeterRegisterBulkChangeRequest"),
     ;
 
     private String name;

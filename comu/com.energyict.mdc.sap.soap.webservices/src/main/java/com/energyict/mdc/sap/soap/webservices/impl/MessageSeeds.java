@@ -82,6 +82,7 @@ public enum MessageSeeds implements MessageSeed {
     ENDPOINT_BY_NAME_NOT_FOUND(7007, "EndpointByNameNotFound", "Couldn''t find active endpoint with name ''{0}''."),
     DEVICE_IS_NOT_ACTIVE(7008, "deviceIsNotActive", "Device ''{0}'' isn''t in active state."),
     ERROR_PROCESSING_MTA_REQUEST(7009, "ErrorProcessingMTARequest", "Error while processing measurement task assignment change request: ''{0}''"),
+    ERROR_PROCESSING_METER_REPLACEMENT_REQUEST(7010, "ErrorProcessingMeterReplacementRequest", "Error while processing meter replacement request: ''{0}''."),
 
     //Micro checks
     AT_LEAST_ONE_LRN_WAS_SET(10001,"AtLeastOneLrnWasSet", "No LRN has been set on the device.");

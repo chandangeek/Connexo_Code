@@ -12,15 +12,15 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.BusinessDocumentMessageHeader;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.BusinessDocumentMessageID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.Log;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.LogItem;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.LogItemCategoryCode;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.ObjectFactory;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilitiesDeviceID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegChgConfMsg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.BusinessDocumentMessageHeader;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.Log;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.LogItem;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.LogItemCategoryCode;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.ObjectFactory;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -110,8 +110,8 @@ public class MeterRegisterChangeConfirmationMessage {
             return messageID;
         }
 
-        private com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UUID createUUID(String uuid) {
-            com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacement.UUID messageUUID
+        private com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UUID createUUID(String uuid) {
+            com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UUID messageUUID
                     = objectFactory.createUUID();
             messageUUID.setValue(uuid);
             return messageUUID;

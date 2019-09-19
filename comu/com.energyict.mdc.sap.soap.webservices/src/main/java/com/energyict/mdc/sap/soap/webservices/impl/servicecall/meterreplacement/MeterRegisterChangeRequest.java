@@ -3,6 +3,9 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -12,6 +15,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -30,6 +34,7 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 
+    private volatile Thesaurus thesaurus;
     private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     @Override
@@ -52,6 +57,11 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
     }
 
     @Reference
+    public void setNlsService(NlsService nlsService) {
+        thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
+    }
+
+    @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
     }
@@ -66,7 +76,7 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
             } catch (SAPWebServiceException sapEx) {
                 failServiceCallWithException(extension, sapEx);
             } catch (Exception e) {
-                failServiceCallWithException(extension, e);
+                failServiceCallWithException(extension, new SAPWebServiceException(thesaurus, MessageSeeds.ERROR_PROCESSING_METER_REPLACEMENT_REQUEST, e.getLocalizedMessage()));
             }
         } else {
             failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());
@@ -91,15 +101,6 @@ public class MeterRegisterChangeRequest implements ServiceCallHandler {
         ServiceCall serviceCall = extension.getServiceCall();
 
         extension.setErrorCode(e.getErrorCode());
-        extension.setErrorMessage(e.getLocalizedMessage());
-        serviceCall.update(extension);
-        serviceCall.requestTransition(DefaultState.FAILED);
-    }
-
-    private void failServiceCallWithException(MeterRegisterChangeRequestDomainExtension extension, Exception e){
-        ServiceCall serviceCall = extension.getServiceCall();
-
-        extension.setErrorCode("0");
         extension.setErrorMessage(e.getLocalizedMessage());
         serviceCall.update(extension);
         serviceCall.requestTransition(DefaultState.FAILED);
