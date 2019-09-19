@@ -27,7 +27,8 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 action: 'run',
                 visible: function () {
                     return this.record.get('connectionDefinedOnDevice') &&
-                        this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;
+                        this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS' && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask
+                        && Uni.Auth.hasAnyPrivilege(this.record.get('comTask').privileges);
                 },
                 section: this.SECTION_ACTION
             },
@@ -35,7 +36,8 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 text: Uni.I18n.translate('general.runNow', 'MDC', 'Run now'),
                 action: 'runNow',
                 visible: function () {
-                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;;
+                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask
+                        && Uni.Auth.hasAnyPrivilege(this.record.get('comTask').privileges);
                 },
                 section: this.SECTION_ACTION
             },
@@ -43,7 +45,8 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
                 text: Uni.I18n.translate('general.runNowWithPriority', 'MDC', 'Run with priority'),
                 action: 'runNowWithPriority',
                 visible: function () {
-                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask;;
+                    return this.record.get('connectionDefinedOnDevice') && !this.record.get('isOnHold') && !this.record.get('comTask').isSystemComTask
+                        && Uni.Auth.hasAnyPrivilege(this.record.get('comTask').privileges);
                 },
                 section: this.SECTION_ACTION
             },
