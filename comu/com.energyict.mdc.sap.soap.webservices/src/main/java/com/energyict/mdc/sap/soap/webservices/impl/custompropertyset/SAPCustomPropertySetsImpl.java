@@ -381,8 +381,8 @@ public class SAPCustomPropertySetsImpl implements TranslationKeyProvider, SAPCus
                 }
                 // set changed version
                 customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), versionToUpdate, range, endDate, device.getId());
-                customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get()
-                        .getFirst(), CustomPropertySetValues.emptyDuring(conflictRange.get()), conflictRange.get(), device.getId());
+                customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(),
+                        CustomPropertySetValues.emptyDuring(conflictRange.get()), conflictRange.get(), device.getId());
                 for (CustomPropertySetValues version : toRecreateAfterConflict) {
                     customPropertySetService.setValuesVersionFor(dataSource.get().getLast().getCustomPropertySet(), dataSource.get().getFirst(), version, version.getEffectiveRange(), device.getId());
                 }
