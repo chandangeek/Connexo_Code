@@ -11,7 +11,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.UtilitiesDeviceCreateConfirma
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilitiesDeviceERPSmartMeterCreateConfirmationCOutService;
-import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreateconfirmation.UtilsDvceERPSmrtMtrCrteConfMsg;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -63,9 +62,9 @@ public class UtilitiesDeviceCreateConfirmationProvider extends AbstractOutboundE
     }
 
     @Override
-    public void call(UtilsDvceERPSmrtMtrCrteConfMsg msg) {
+    public void call(UtilitiesDeviceCreateConfirmationMessage msg) {
         using("utilitiesDeviceERPSmartMeterCreateConfirmationCOut")
-                .send(msg);
+                .send(msg.getConfirmationMessage().get());
     }
 
     @Override

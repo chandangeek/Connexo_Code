@@ -113,6 +113,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -125,6 +126,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
         immediate = true)
 public class WebServiceActivator implements MessageSeedProvider, TranslationKeyProvider {
     private static final Logger LOGGER = Logger.getLogger(WebServiceActivator.class.getName());
+    private static final String DEVICE_TYPES_MAPPING = "com.elster.jupiter.sap.device.types.mapping";
+    private static final String DEFAULT_DEVICE_TYPES_MAPPING = "MTREAHW0MV:A1860;MTREAHW0LV:AS3500";
 
     public static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     public static final String COMPONENT_NAME = "SAP";
@@ -165,6 +168,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static RelativePeriod exportTaskUpdateWindow;
     private static String exportTaskNewDataEndpointName;
     private static String exportTaskUpdatedDataEndpointName;
+    private static Map<String, String> deviceTypesMap;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -229,6 +233,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public static Optional<String> getExportTaskUpdatedDataEndpointName() {
         return Optional.ofNullable(exportTaskUpdatedDataEndpointName);
+    }
+
+    public static Map<String, String> getDeviceTypesMap() {
+        return deviceTypesMap;
     }
 
     public WebServiceActivator() {
@@ -348,6 +356,16 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .orElse(DEFAULT_UPDATE_WINDOW));
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
+
+        loadDeviceTypesMap();
+    }
+
+    private void loadDeviceTypesMap() {
+        String strMap = Optional.ofNullable(getPropertyValue(bundleContext, DEVICE_TYPES_MAPPING)).orElse(DEFAULT_DEVICE_TYPES_MAPPING);
+        deviceTypesMap = Arrays.asList(strMap.split(";"))
+                        .stream()
+                        .map(s -> s.split(":"))
+                        .collect(Collectors.toMap(e -> e[0], e -> e[1]));
     }
 
     private RelativePeriod findRelativePeriodOrThrowException(String name) {
@@ -560,7 +578,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     public void removeMeasurementTaskAssignmentChangeRequestConfirmation(MeasurementTaskAssignmentChangeConfirmation measurementTaskAssignmentChangeRequestConfirmation) {
-            MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
+        MEASUREMENT_TASK_ASSIGNMENT_CHANGE_CONFIRMATIONS.remove(measurementTaskAssignmentChangeRequestConfirmation);
     }
 
     @Reference

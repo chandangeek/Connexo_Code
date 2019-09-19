@@ -67,6 +67,7 @@ public enum TranslationKeys implements TranslationKey {
     MANUFACTURER("manufacturer", "Manufacturer"),
     MODEL_NUMBER("modelNumber", "Model number"),
     CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),
+    MATERIAL_ID("materialId", "Material id"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
