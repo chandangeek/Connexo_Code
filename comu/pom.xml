@@ -7,7 +7,7 @@
 	    <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.1.0-Heracles-SNAPSHOT</version>
+        <version>1.0.0-Heracles-SNAPSHOT</version>
     </parent>
 
 	<groupId>com.energyict</groupId>
@@ -495,6 +495,11 @@
 				<artifactId>logback-classic</artifactId>
 				<version>1.0.0</version>
 				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.mail</groupId>
+				<artifactId>mail</artifactId>
+				<version>1.4.7</version>
 			</dependency>
 			<!-- ComPort libraries -->
 			<!-- need to depend on org.rxtx version -->

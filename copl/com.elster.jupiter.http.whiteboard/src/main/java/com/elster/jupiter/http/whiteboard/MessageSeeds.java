@@ -10,7 +10,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed, TranslationKey {
-    NETWORK(1001, "Underlying Network logic failed");
+    NETWORK(1001, "Underlying Network logic failed"),
+    SSO_ACCESS_PERMISION_FORBIDDEN(1002, "You don''t have permission to access \"{0}\" ");
 
     private final int number;
     private final String defaultFormat;

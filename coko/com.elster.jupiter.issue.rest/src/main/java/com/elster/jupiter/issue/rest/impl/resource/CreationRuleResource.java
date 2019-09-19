@@ -71,7 +71,7 @@ import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/creationrules")
-public class CreationRuleResource extends BaseResource {
+public class    CreationRuleResource extends BaseResource {
 
     private final CreationRuleInfoFactory ruleInfoFactory;
     private final CreationRuleActionInfoFactory actionFactory;

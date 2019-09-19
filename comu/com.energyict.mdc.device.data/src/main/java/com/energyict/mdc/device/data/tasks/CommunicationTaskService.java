@@ -222,5 +222,7 @@ public interface CommunicationTaskService {
 
     void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 
+    void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate);
+
     List<ComTaskExecution> findComTaskExecutionsWhichAreExecuting(ComPort comPort);
 }

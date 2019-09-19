@@ -4,25 +4,36 @@
 
 package com.energyict.mdc.issue.datacollection.impl.database;
 
+import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMetadataImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.HistoricalIssueDataCollectionImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.IssueDataCollectionImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.ListIterator;
 
+import static com.elster.jupiter.issue.impl.database.DatabaseConst.ISSUE_CREATEDATETIME;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.DATACOLLECTION_COLUMN_DEVICE;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.DATACOLLECTION_COLUMN_EVENTTYPE;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.DATACOLLECTION_EVENT_DESCRIPTION_FK_TO_DEVICE;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.DATACOLLECTION_EVENT_DESCRIPTION_FK_TO_EVENTTYPE;
+import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.DATACOLLECTION_EVENT_DESCRIPTION_PK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_BASE_ISSUE;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_COMMUNICATION_TASK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_COM_SESSION;
@@ -100,15 +111,35 @@ public enum TableSpecs {
                     IDC_ISSUE_FK_TO_COM_SESSION);
             table.addAuditColumns();
         }
-    }
-    ;
+    },
+    IDC_DATACOLLECTION_EVENT {
+        @Override
+        public void addTo(final DataModel dataModel) {
+            Table<DataCollectionEventMetadata> table = dataModel.addTable(name(), DataCollectionEventMetadata.class);
+            table.map(DataCollectionEventMetadataImpl.class);
+            table.since(version(10, 7));
+            table.setJournalTableName("IDC_DATACOLLECTION_EVENT_JRNL");
 
-	public abstract void addTo(DataModel dataModel);
+            Column idColumn = table.addAutoIdColumn();
 
-    private static class TableBuilder{
+            TableBuilder.buildDataCollectionEventDescriptionTable(
+                    table,
+                    idColumn,
+                    DATACOLLECTION_EVENT_DESCRIPTION_PK,
+                    DATACOLLECTION_EVENT_DESCRIPTION_FK_TO_EVENTTYPE,
+                    DATACOLLECTION_EVENT_DESCRIPTION_FK_TO_DEVICE
+            );
+
+            table.addAuditColumns();
+        }
+    };
+
+    public abstract void addTo(DataModel dataModel);
+
+    private static class TableBuilder {
         private static final int EXPECTED_FK_KEYS_LENGTH = 4;
 
-        static void buildIssueTable(Table<?> table, Column idColumn, String issueTable, String pkKey, String... fkKeys){
+        static void buildIssueTable(Table<?> table, Column idColumn, String issueTable, String pkKey, String... fkKeys) {
             Column issueColRef = table.column(IDC_BASE_ISSUE).number().conversion(NUMBER2LONG).notNull().add();
             Column connectionTaskColRef = table.column(IDC_CONNECTION_TASK).number().conversion(NUMBER2LONG).add();
             Column comTaskColRef = table.column(IDC_COMMUNICATION_TASK).number().conversion(NUMBER2LONG).add();
@@ -120,7 +151,7 @@ public enum TableSpecs {
             table.column(IDC_LAST_GATEWAY_MRID).varChar(NAME_LENGTH).map("lastGatewayMRID").since(version(10, 4)).add();
 
             table.primaryKey(pkKey).on(idColumn).add();
-            if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH){
+            if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
                 throw new IllegalArgumentException("Passed arguments don't match foreign keys");
             }
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
@@ -128,6 +159,26 @@ public enum TableSpecs {
             table.foreignKey(fkKeysIter.next()).map("connectionTask").on(connectionTaskColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_CONNECTIONTASK").add();
             table.foreignKey(fkKeysIter.next()).map("comTask").on(comTaskColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_COMTASKEXEC").add();
             table.foreignKey(fkKeysIter.next()).map("comSession").on(comSessionColRef).references(DeviceDataServices.COMPONENT_NAME, "DDC_COMSESSION").add();
+        }
+
+        static void buildDataCollectionEventDescriptionTable(Table<?> table, Column idColumn, String pkKey, String... fkKeys) {
+            Column createdDateTimeColumn = table.column(ISSUE_CREATEDATETIME)
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createDateTime")
+                    .installValue(String.valueOf(Instant.EPOCH.toEpochMilli()))
+                    .add();
+
+            Column eventTypeRefColumn = table.column(DATACOLLECTION_COLUMN_EVENTTYPE).varChar(NAME_LENGTH).add();
+            Column deviceRefColumn = table.column(DATACOLLECTION_COLUMN_DEVICE).number().conversion(NUMBER2LONG).add();
+
+            table.partitionOn(createdDateTimeColumn);
+            table.primaryKey(pkKey).on(idColumn).add();
+
+            ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
+            table.foreignKey(fkKeysIter.next()).on(eventTypeRefColumn).references(EventType.class).map(DataCollectionEventMetadataImpl.Fields.EVENTYPE.fieldName()).add();
+            table.foreignKey(fkKeysIter.next()).on(deviceRefColumn).references(Device.class).map(DataCollectionEventMetadataImpl.Fields.DEVICE.fieldName()).add();
         }
     }
 }

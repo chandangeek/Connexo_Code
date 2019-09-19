@@ -392,6 +392,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        comTaskExecutionLocking.remove(comTaskExecution);
+    }
+
+    @Override
     public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             executionCompleted(comTaskExecution);

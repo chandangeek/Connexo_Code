@@ -55,16 +55,6 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         super(protocol, collectedDataFactory, issueFactory, keyAccessorTypeExtractor);
     }
 
-    @Override
-    protected void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName));
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
-        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
-        renewKey(wrappedKey, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId());
-
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
-    }
 
     @Override
     protected boolean isResume(OfflineDeviceMessage pendingMessage) {
@@ -169,25 +159,6 @@ public class Dsmr50MessageExecutor extends Dsmr40MessageExecutor {
         return ch >= 32 && ch < 127;
     }
 
-    @Override
-    protected void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
-        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
-        byte[] oldKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
-
-        renewKey(wrappedKey, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId());
-
-        //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
-
-        //Reset frame counter, only if a different key has been written
-        if (Arrays.equals(oldKey, newSymmetricKey)) {
-            SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
-            securityContext.setFrameCounter(1);
-            securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
-        }
-    }
 
     @Override
     protected AbstractMessageExecutor getMbusMessageExecutor() {

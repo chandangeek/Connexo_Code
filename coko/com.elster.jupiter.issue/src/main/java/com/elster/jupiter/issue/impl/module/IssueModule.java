@@ -6,6 +6,8 @@ package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.impl.service.PropertyFactoriesProviderImpl;
+import com.elster.jupiter.issue.share.PropertyFactoriesProvider;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -40,6 +42,7 @@ public class IssueModule extends AbstractModule {
         requireBinding(EndPointConfigurationService.class);
         requireBinding(MeteringGroupsService.class);
 
+        bind(PropertyFactoriesProvider.class).to(PropertyFactoriesProviderImpl.class).in(Scopes.SINGLETON);
         bind(IssueService.class).to(IssueServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

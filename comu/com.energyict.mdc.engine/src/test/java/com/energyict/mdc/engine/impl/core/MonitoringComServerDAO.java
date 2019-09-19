@@ -268,6 +268,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        this.comTaskExecutionCompleted.increment();
+        this.actual.executionCompleted(comTaskExecution);
+    }
+
+    @Override
     public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
         comTaskExecutions.forEach(this::executionCompleted);
     }
@@ -800,6 +806,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
+
+        }
+
+        @Override
+        public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
 
         }
 

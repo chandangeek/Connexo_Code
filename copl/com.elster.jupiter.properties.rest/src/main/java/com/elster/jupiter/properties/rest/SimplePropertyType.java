@@ -41,6 +41,8 @@ public enum SimplePropertyType implements PropertyType {
     LISTREADINGQUALITY(ListReadingQualityFactory.class),
     ASSIGN(String.class),
     MAILTO(String.class),
+    ASSIGN_ISSUE_FORM(String.class),
+    CLOSE_ISSUE_FORM(String.class),
     ENDDEVICEEVENTTYPE(ListValueFactory.class),
     LIFECYCLESTATUSINDEVICETYPE(ListValueFactory.class),
     DEVICEGROUPTYPE(ListValueFactory.class),

@@ -9,6 +9,7 @@ import com.elster.jupiter.hsm.HsmProtocolService;
 import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.Message;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmIrreversibleKey;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKey;
@@ -118,7 +119,7 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     @Override
-    public HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException {
+    public HsmKey importKey(ImportKeyRequest importKeyRequest) throws HsmBaseException, HsmNotConfiguredException {
         logger.debug("Import request:" + importKeyRequest);
         HsmConfiguration hsmConfiguration = hsmConfigurationService.getHsmConfiguration();
         if (importKeyRequest.getHsmKeyType().isReversible()) {

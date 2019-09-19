@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -35,9 +36,13 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
@@ -50,9 +55,11 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_2;
 import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_4;
+import com.energyict.mdc.issue.datacollection.impl.install.UpgraderV10_7;
+import com.energyict.mdc.issue.datacollection.impl.records.DataCollectionEventMetadataImpl;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
-
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -60,6 +67,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -134,7 +143,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         });
         upgradeService.register(identifier("MultiSense", IssueDataCollectionService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class,
-                version(10, 4), UpgraderV10_4.class
+                version(10, 4), UpgraderV10_4.class,
+                version(10, 7), UpgraderV10_7.class
         ));
     }
 
@@ -256,6 +266,38 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         }
         return DefaultFinder.of((Class<IssueDataCollection>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses
                 .size()]));
+    }
+
+    @Override
+    public void logDataCollectionEventDescription(final Device device, final String topic, final Long timestamp) {
+        final Optional<EventType> eventType = eventService.getEventType(topic);
+        if (eventType.isPresent()) {
+            final Instant creationTime = Instant.ofEpochMilli(timestamp);
+            final DataCollectionEventMetadataImpl dataCollectionEventDescription = new DataCollectionEventMetadataImpl(dataModel);
+            dataCollectionEventDescription.init(eventType.get(), device, null, creationTime).save();
+        }
+    }
+
+    @Override
+    public List<DataCollectionEventMetadata> getDataCollectionEvents() {
+        return dataModel
+                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .select(Condition.TRUE);
+    }
+
+    @Override
+    public List<DataCollectionEventMetadata> getDataCollectionEventsForDevice(final Device device) {
+        return dataModel
+                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .select(Operator.EQUAL.compare("DEVICE", device.getId()));
+    }
+
+    @Override
+    public List<DataCollectionEventMetadata> getDataCollectionEventsForDeviceWithinTimePeriod(final Device device, final Range<ZonedDateTime> range) {
+        return dataModel
+                .query(DataCollectionEventMetadata.class, Device.class, EventType.class)
+                .select(Operator.EQUAL.compare("DEVICE", device.getId())
+                        .and(Operator.BETWEEN.compare("createDateTime", range.lowerEndpoint().toInstant().toEpochMilli(), range.upperEndpoint().toInstant().toEpochMilli())), Order.descending("createDateTime"));
     }
 
     private List<Class<?>> determineMainApiClass(IssueDataCollectionFilter filter) {

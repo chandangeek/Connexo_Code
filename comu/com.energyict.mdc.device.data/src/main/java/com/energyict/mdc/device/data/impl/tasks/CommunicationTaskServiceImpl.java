@@ -882,6 +882,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
     }
 
+    public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
+        refreshComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
+    }
+
     @Override
     public List<ComTaskExecution> findComTaskExecutionsWhichAreExecuting(ComPort comPort) {
         Condition condition = where(ComTaskExecutionFields.COMPORT.fieldName()).isEqualTo(comPort);
