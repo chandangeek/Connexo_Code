@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.State;
@@ -36,7 +37,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.cbo.DateTimeFormatGenerator;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedBusinessProcessAction;
@@ -78,6 +78,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
+import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -115,6 +117,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile ServiceCallService serviceCallService;
     private volatile DeviceMicroCheckFactoryImpl deviceMicroCheckFactory;
     private volatile DeviceService deviceService;
+    private Optional<Savepoint> savepoint = Optional.empty();
 
     // For OSGi purposes
     public DeviceLifeCycleServiceImpl() {
@@ -385,12 +388,14 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public void execute(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws
             SecurityException, DeviceLifeCycleActionViolationException {
+        this.setSavepoint();
         this.validateTriggerExecution(action, device, effectiveTimestamp, properties);
         this.triggerExecution(action, device, effectiveTimestamp, properties);
     }
 
     @Override
     public void execute(AuthorizedBusinessProcessAction action, Device device, Instant effectiveTimestamp) throws SecurityException, DeviceLifeCycleActionViolationException {
+        this.setSavepoint();
         this.validateTriggerExecution(action, device);
         this.triggerExecution(action, device);
     }
@@ -405,12 +410,12 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
             if (action instanceof AuthorizedTransitionAction) {
                 AuthorizedTransitionAction transitionAction = (AuthorizedTransitionAction) action;
                 ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(transitionAction, device, this.thesaurus, MessageSeeds.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
-                postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
+                postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
                 throw exception;
             } else {
                 AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) action;
                 ActionDoesNotRelateToDeviceStateException exception = new ActionDoesNotRelateToDeviceStateException(businessProcessAction, device, this.thesaurus, MessageSeeds.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE);
-                postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
+                postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
                 throw exception;
             }
         }
@@ -451,7 +456,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .collect(Collectors.toSet());
         if (!missingRequiredPropertySpecNames.isEmpty()) {
             RequiredMicroActionPropertiesException exception = new RequiredMicroActionPropertiesException(this.thesaurus, MessageSeeds.MISSING_REQUIRED_PROPERTY_VALUES, missingRequiredPropertySpecNames);
-            postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
             throw exception;
         }
     }
@@ -480,7 +485,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (lastStateChangeTimestamp.isPresent() && !effectiveTimestamp.isAfter(lastStateChangeTimestamp.get())) {
             EffectiveTimestampNotAfterLastStateChangeException exception = new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
                     device, effectiveTimestamp, lastStateChangeTimestamp.get(), getLongDateFormatForCurrentUser());
-            postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
             throw exception;
         }
     }
@@ -496,7 +501,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         if (!range.contains(effectiveTimestamp)) {
             EffectiveTimestampNotInRangeException exception = new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
                     lowerBound, upperBound, getLongDateFormatForCurrentUser());
-            postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
             throw exception;
         }
     }
@@ -588,7 +593,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 .collect(Collectors.toList());
         if (!violations.isEmpty()) {
             MultipleMicroCheckViolationsException exception = new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
-            postEventForTransitionFailed(action, device, exception.getLocalizedMessage(), false);
+            postEventForTransitionFailed(action, device, exception.getLocalizedMessage());
             throw exception;
         }
     }
@@ -687,23 +692,17 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         return amrSystem.findMeter(String.valueOf(device.getId())).map(EndDevice.class::cast);
     }
 
-    private void postEventForTransitionFailed(AuthorizedAction action, Device device, String cause) {
-        postEventForTransitionFailed(action, device, cause, true);
-    }
-
     /**
      * Create an event for a Failed Transition.<br>
      * We don't want to do rollbacks before saving the failure message into DB, otherwise we'll get a
      * TransactionRequiredException
-     *
-     * @param action the authorize action
+     *  @param action the authorize action
      * @param device the device
      * @param cause the cause
-     * @param shouldRollback should rollback flag
      */
-    private void postEventForTransitionFailed(AuthorizedAction action, Device device, String cause, Boolean shouldRollback) {
-        if(transactionService.isInTransaction() && shouldRollback){
-            transactionService.rollback();
+    private void postEventForTransitionFailed(AuthorizedAction action, Device device, String cause) {
+        if(transactionService.isInTransaction()){
+            this.rollback();
         }
         eventService.postEvent(EventType.TRANSITION_FAILED.topic(),
                 TransitionFailedEventInfo.forFailure(action, device, cause, Instant.now(clock)));
@@ -720,5 +719,26 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private NlsMessageFormat getFormat(MessageSeed seed) {
         return this.thesaurus.getSimpleFormat(seed);
+    }
+
+    private void setSavepoint(){
+        savepoint = Optional.empty();
+        try {
+            if (transactionService.isInTransaction()) {
+                savepoint = Optional.of(dataModel.getConnection(false).setSavepoint());
+            }
+        } catch (SQLException e) {
+        }
+    }
+
+    private void rollback(){
+        try {
+            if (transactionService.isInTransaction() && savepoint.isPresent()) {
+                dataModel.getConnection(false).rollback(savepoint.get());
+                savepoint = Optional.empty();
+            }
+        } catch (SQLException e) {
+        }
+
     }
 }
