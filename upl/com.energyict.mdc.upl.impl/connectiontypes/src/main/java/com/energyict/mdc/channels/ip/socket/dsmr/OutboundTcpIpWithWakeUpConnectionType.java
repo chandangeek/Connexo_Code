@@ -423,7 +423,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
     private PropertySpec endpointAddressPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(PROPERTY_ENDPOINT_ADDRESS, true, PropertyTranslationKeys.OUTBOUND_IP_WAKEUP_ENDPOINT_ADDRESS, getPropertySpecService()::stringSpec)
-                .setDefaultValue("http://lb-eai-p1-bw.enexis.local:40351/WUTriggerService")
+                .setDefaultValue("http://...")
                 .finish();
     }
 
@@ -434,7 +434,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
     private PropertySpec soapActionPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(PROPERTY_SOAP_ACTION, true, PropertyTranslationKeys.OUTBOUND_IP_WAKEUP_SOAP_ACTION, getPropertySpecService()::stringSpec)
-                .setDefaultValue("/SharedResources/COMM_DEVICE/WUTriggerService.serviceagent/WUTriggerPort/submitWUTrigger")
+                .setDefaultValue("/.../submitWUTrigger")
                 .finish();
     }
 
@@ -487,7 +487,7 @@ public class OutboundTcpIpWithWakeUpConnectionType extends OutboundTcpIpConnecti
 
     private PropertySpec sourceIdPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(PROPERTY_SOURCE_ID, true, PropertyTranslationKeys.OUTBOUND_IP_WAKEUP_GPRS_SOURCE_ID, getPropertySpecService()::stringSpec)
-                .setDefaultValue("310000200")
+                .setDefaultValue("")
                 .finish();
     }
 
