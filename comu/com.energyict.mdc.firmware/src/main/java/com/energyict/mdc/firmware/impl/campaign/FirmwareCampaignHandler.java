@@ -105,10 +105,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                     .anyMatch(StatusInformationTask.class::isInstance)) {
                 FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
-                Instant calendarsTimeUpload = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get()
-                        .getServiceCall().getLastModificationTime();
-                if (calendarsTimeUpload.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
-                    if (firmwareCampaign.isWithVerification()) {
+                if (firmwareCampaign.isWithVerification()) {
+                    Instant firmwareTimeUpload = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get()
+                            .getServiceCall().getLastModificationTime();
+                    if (firmwareTimeUpload.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
                         ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                         if (serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class)
                                 .flatMap(FirmwareCampaignItemDomainExtension::getDeviceMessage)
@@ -119,9 +119,9 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                             serviceCall.requestTransition(DefaultState.FAILED);
                             serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED).format());
                         }
+                    } else {
+                        scheduleVerification(comTaskExecution.getDevice(), firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                     }
-                } else {
-                    scheduleVerification(comTaskExecution.getDevice(), calendarsTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                 }
             }
         }
@@ -145,10 +145,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                     .anyMatch(StatusInformationTask.class::isInstance)) {
                 FirmwareCampaign firmwareCampaign = firmwareCampaignOptional.get();
-                Instant calendarsTimeUpload = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get()
-                        .getServiceCall().getLastModificationTime();
-                if (calendarsTimeUpload.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
-                    if (firmwareCampaign.isWithVerification()) {
+                if (firmwareCampaign.isWithVerification()) {
+                    Instant firmwareTimeUpload = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get()
+                            .getServiceCall().getLastModificationTime();
+                    if (firmwareTimeUpload.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
                         ServiceCall serviceCall = firmwareCampaignService.findActiveFirmwareItemByDevice(comTaskExecution.getDevice()).get().getServiceCall();
                         if (serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class)
                                 .flatMap(FirmwareCampaignItemDomainExtension::getDeviceMessage)
@@ -165,9 +165,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                                 serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.VERIFICATION_FAILED_WRONG_FIRMWAREVERSION).format());
                             }
                         }
+                    } else {
+                        scheduleVerification(comTaskExecution.getDevice(), firmwareTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
+
                     }
-                } else {
-                    scheduleVerification(comTaskExecution.getDevice(), calendarsTimeUpload.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                 }
             }
         }
@@ -229,14 +230,14 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         comTaskExecution.schedule(when);
                     } else {
                         serviceCallService.lockServiceCall(serviceCall.getId());
-                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
+                        serviceCall.log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                                 .format(campaign.getValidationConnectionStrategy().get().name(), comTaskExecution.getComTask().getName()));
                         serviceCall.requestTransition(DefaultState.FAILED);
                     }
                 }
             } else {
                 serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+                serviceCall.log(LogLevel.SEVERE, thesaurus.getFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }

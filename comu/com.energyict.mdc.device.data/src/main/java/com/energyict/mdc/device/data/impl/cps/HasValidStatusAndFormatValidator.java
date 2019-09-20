@@ -37,8 +37,8 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
         cardFormats.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.CARD_FORMAT_SW, thesaurus));
         cardFormats.add(null);
         if (!cardFormats.contains(value.getCardFormat())) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.WRONG_CARD_FORMAT + "}")
+            String errmsg = thesaurus.getSimpleFormat(MessageSeeds.WRONG_CARD_FORMAT).format(cardFormats.toString().replace("[", "").replace("]", ""));
+            context.buildConstraintViolationWithTemplate(errmsg)
                     .addPropertyNode(SIMCardDomainExtension.FieldNames.CARD_FORMAT.javaName())
                     .addConstraintViolation()
                     .disableDefaultConstraintViolation();
@@ -53,7 +53,8 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
         statuses.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.STATUS_TEST, thesaurus));
         statuses.add(null);
         if (!statuses.contains(value.getStatus())) {
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.WRONG_STATUS + "}")
+            String errmsg = thesaurus.getSimpleFormat(MessageSeeds.WRONG_STATUS).format(statuses.toString().replace("[", "").replace("]", ""));
+            context.buildConstraintViolationWithTemplate(errmsg)
                     .addPropertyNode(SIMCardDomainExtension.FieldNames.STATUS.javaName())
                     .addConstraintViolation()
                     .disableDefaultConstraintViolation();
