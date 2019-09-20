@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -136,6 +137,8 @@ public abstract class AbstractMockActivator {
         when(builder.create()).thenReturn(serviceCall);
         when(serviceCallType.newServiceCall()).thenReturn(builder);
         when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
+        when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
     }
 
     private void initActivator() {
