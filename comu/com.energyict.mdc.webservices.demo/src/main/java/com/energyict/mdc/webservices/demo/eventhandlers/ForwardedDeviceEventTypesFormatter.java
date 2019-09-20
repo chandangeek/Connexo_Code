@@ -23,8 +23,10 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 class ForwardedDeviceEventTypesFormatter {
+    private static final Logger LOGGER = Logger.getLogger(ForwardedDeviceEventTypesFormatter.class.getName());
     private final Map<String, SapDeviceEventType> forwardedEventTypesByEventCode = new HashMap<>();
     private final Map<String, SapDeviceEventType> forwardedEventTypesByDeviceEventCode = new HashMap<>();
     private final ObjectFactory objectFactory = new ObjectFactory();
@@ -49,13 +51,16 @@ class ForwardedDeviceEventTypesFormatter {
             eventType = forwardedEventTypesByDeviceEventCode.get(eventRecord.getDeviceEventType());
         }
         if (eventType == null) {
-            return Optional.empty(); // this event type is either not present in mapping file, or has forwarded = false
+            return Optional.empty(); // this event type is either not present in mapping file, or has 'forwarded' = false
         }
-        String sapDeviceId = sapCustomPropertySets.getSapDeviceId(eventRecord.getEndDevice())
-                .orElseThrow(() -> new IllegalStateException("Device SAP id isn't found."));
+        Optional<String> sapDeviceId = sapCustomPropertySets.getSapDeviceId(eventRecord.getEndDevice());
+        if (!sapDeviceId.isPresent()) {
+            LOGGER.warning("SAP device id isn't found for device '" + eventRecord.getEndDevice().getName() + "'.");
+            return Optional.empty();
+        }
         UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt info = objectFactory.createUtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt();
-        info.setUtilitiesDeviceID(formatDeviceId(sapDeviceId));
-        info.setID(formatEventId(sapDeviceId, eventType, eventRecord.getCreatedDateTime()));
+        info.setUtilitiesDeviceID(formatDeviceId(sapDeviceId.get()));
+        info.setID(formatEventId(sapDeviceId.get(), eventType, eventRecord.getCreatedDateTime()));
         info.setCategoryCode(formatCategoryCode(eventType));
         info.setTypeCode(formatTypeCode(eventType));
         info.setSeverityCode(formatSeverityCode(eventType));

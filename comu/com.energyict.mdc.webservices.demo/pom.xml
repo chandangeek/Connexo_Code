@@ -74,6 +74,18 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
 
         <!-- test dependencies -->
     </dependencies>

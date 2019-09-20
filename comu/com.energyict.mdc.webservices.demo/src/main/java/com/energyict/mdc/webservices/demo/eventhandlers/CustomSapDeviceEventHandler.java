@@ -7,6 +7,9 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.energyict.mdc.sap.soap.webservices.MeterEventCreateRequestProvider;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.BusinessDocumentMessageHeader;
@@ -21,13 +24,19 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(name = CustomSapDeviceEventHandler.NAME, service = TopicHandler.class, immediate = true)
-public class CustomSapDeviceEventHandler implements TopicHandler {
+public class CustomSapDeviceEventHandler implements TopicHandler, TranslationKeyProvider {
+    static final String COMPONENT_NAME = "CSE";
+    static final String APPLICATION_NAME = "MultiSense";
     static final String NAME = "com.energyict.mdc.webservices.demo.eventhandlers.CustomSapDeviceEventHandler";
     private static final Logger LOGGER = Logger.getLogger(NAME);
 
@@ -56,6 +65,30 @@ public class CustomSapDeviceEventHandler implements TopicHandler {
     public void activate(BundleContext bundleContext) {
         eventFormatter = new ForwardedDeviceEventTypesFormatter(sapCustomPropertySets);
         // TODO
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.SOAP;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                TranslationKeys.values(),
+                SAPDeviceEventMappingStatusDomainExtension.FieldNames.values())
+                .flatMap(Arrays::stream)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getTopicMatcher() {
+        return EventType.END_DEVICE_EVENT_CREATED.topic();
     }
 
     @Override
@@ -100,11 +133,6 @@ public class CustomSapDeviceEventHandler implements TopicHandler {
         com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UUID uuid = objectFactory.createUUID();
         uuid.setValue(UUID.randomUUID().toString());
         return uuid;
-    }
-
-    @Override
-    public String getTopicMatcher() {
-        return EventType.END_DEVICE_EVENT_CREATED.topic();
     }
 
     @Reference
