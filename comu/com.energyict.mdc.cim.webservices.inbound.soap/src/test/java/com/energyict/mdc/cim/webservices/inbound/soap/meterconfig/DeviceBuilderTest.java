@@ -173,7 +173,7 @@ public class DeviceBuilderTest {
 		when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
 		SecurityInfo securityInfo = new SecurityInfo();
 		securityInfo.setDeviceStatusesElementPresent(true);
-		securityInfo.setDeviceStatuses(Arrays.asList(STATUS_VALUE));
+		securityInfo.setDeviceStatuses(Arrays.asList(STATUS_VALUE, DefaultState.IN_STOCK.getKey()));
 		SecurityKeyInfo securityKeyInfo = new SecurityKeyInfo();
 		securityKeyInfo.setPublicKeyLabel(PUBLIC_KEY_LABEL);
 		securityKeyInfo.setSymmetricKey(SYMMETRIC_KEY.getBytes());
@@ -428,6 +428,27 @@ public class DeviceBuilderTest {
 		verify(device).setManufacturer(MANUFACTURER);
 		verify(device).save();
 		verify(batch).addDevice(device);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_ShipmentDate() throws FaultMessage {
+		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
+		when(status.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+		testable.prepareChangeFrom(meterInfo).build();
+		verify(device.getLifecycleDates()).setReceivedDate(SHIPMENT_DATE);
+		verify(device).save();
+		verify(batch).addDevice(device);
+	}
+
+	@Test
+	public void testPrepareChangeFrom_ShipmentDateNotInStock() {
+		when(deviceService.findDevicesBySerialNumber(DEVICE_SERIAL_NUMBER)).thenReturn(Arrays.asList(device));
+		try {
+			testable.prepareChangeFrom(meterInfo).build();
+			fail("Exception should be thrown");
+		} catch (FaultMessage e) {
+		}
+		verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.SHIPMENT_DATE_NOT_IN_STOCK);
 	}
 
 	@Test
