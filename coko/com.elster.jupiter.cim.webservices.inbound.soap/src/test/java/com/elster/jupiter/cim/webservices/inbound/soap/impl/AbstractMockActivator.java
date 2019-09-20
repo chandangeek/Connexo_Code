@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
@@ -44,7 +45,6 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -115,6 +115,8 @@ public abstract class AbstractMockActivator {
     private UsagePointConfigMasterCustomPropertySet usagePointConfigMasterCustomPropertySet;
     @Mock
     private UsagePointConfigCustomPropertySet usagePointConfigCustomPropertySet;
+    @Mock
+    private OrmService ormService;
 
     @Before
     public void init() {
@@ -143,7 +145,7 @@ public abstract class AbstractMockActivator {
                 webServicesService, serviceCallService, messageService, jsonService,
                 replyMasterDataLinkageConfigWebService, replyUsagePointConfigWebService,
                 masterDataLinkageConfigMasterCustomPropertySet, masterDataLinkageConfigCustomPropertySet,
-                usagePointConfigMasterCustomPropertySet, usagePointConfigCustomPropertySet);
+                usagePointConfigMasterCustomPropertySet, usagePointConfigCustomPropertySet, ormService);
     }
 
     protected <T> T getInstance(Class<T> clazz) {
