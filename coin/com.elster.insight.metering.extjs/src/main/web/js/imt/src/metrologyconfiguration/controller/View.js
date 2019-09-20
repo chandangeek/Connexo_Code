@@ -159,7 +159,6 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 store.load(function (record){
                     if ( !record || !record.length ){
                         widget.getAddButton().hide();
-                        widget.getCancelButton().hide();
                     }
                 });
                 pageMainContent.setLoading(false);
