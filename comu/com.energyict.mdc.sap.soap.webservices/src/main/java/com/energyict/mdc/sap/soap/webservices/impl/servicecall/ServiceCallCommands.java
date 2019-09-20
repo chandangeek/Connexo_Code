@@ -19,8 +19,10 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -33,6 +35,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterRea
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentResultCreateConfirmationRequestMessage;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MasterMeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
@@ -40,6 +43,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMe
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -98,22 +105,33 @@ public class ServiceCallCommands {
 
     public void updateServiceCallTransition(MeterReadingDocumentResultCreateConfirmationRequestMessage message) {
         ServiceCallFilter filter = new ServiceCallFilter();
-        filter.types.add(ServiceCallTypes.METER_READING_DOCUMENT_CREATE_RESULT.getTypeName());
+        filter.types.add(ServiceCallTypes.MASTER_METER_READING_DOCUMENT_CREATE_RESULT.getTypeName());
         filter.states.add(DefaultState.WAITING.name());
         serviceCallService.getServiceCallFinder(filter)
                 .stream()
                 .forEach(serviceCall -> {
-                    MeterReadingDocumentCreateResultDomainExtension extension =
-                            serviceCall.getExtension(MeterReadingDocumentCreateResultDomainExtension.class).get();
-                    message.getProcessingResultCodes().stream().forEach(item ->{
-                        if (extension.getMeterReadingDocumentId().equals(item.getFirst())) {
-                            if (item.getLast().equals(ProcessingResultCode.FAILED.getCode())) {
-                                serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.ONGOING, DefaultState.FAILED);
-                            } else {
-                                serviceCallService.transitionWithLockIfPossible(serviceCall, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
-                             }
+                    MasterMeterReadingDocumentCreateResultDomainExtension extension =
+                            serviceCall.getExtension(MasterMeterReadingDocumentCreateResultDomainExtension.class).get();
+                    if (extension.getRequestUUID().equals(message.getUuid())) {
+                        List<ServiceCall> children = findChildren(serviceCall);
+                        if (!children.isEmpty()) {
+                            for (Iterator<Pair<String, String>> mrdIterator = message.getProcessingResultCodes().iterator(); mrdIterator.hasNext(); ) {
+                                Pair<String, String> item = mrdIterator.next();
+                                children.forEach(child -> {
+                                    MeterReadingDocumentCreateResultDomainExtension childExtension =
+                                            child.getExtension(MeterReadingDocumentCreateResultDomainExtension.class).get();
+                                    if (childExtension.getMeterReadingDocumentId().equals(item.getFirst())) {
+                                        if (item.getLast().equals(ProcessingResultCode.FAILED.getCode())) {
+                                            serviceCallService.transitionWithLockIfPossible(child, DefaultState.ONGOING, DefaultState.FAILED);
+                                        } else {
+                                            serviceCallService.transitionWithLockIfPossible(child, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
+                                        }
+                                    }
+                                });
+                                mrdIterator.remove();
+                            }
                         }
-                    });
+                    }
                 });
     }
 
@@ -188,12 +206,29 @@ public class ServiceCallCommands {
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
-        childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
+
+        Optional<SAPMeterReadingDocumentReason> provider = WebServiceActivator.findReadingReasonProvider(childDomainExtension.getReadingReasonCode());
+        if(provider.isPresent()){
+            if(provider.get().isUseCurrentDateTime() && isCurrentDate(message.getScheduledMeterReadingDate())){
+                childDomainExtension.setScheduledReadingDate(clock.instant());
+            }else{
+                childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate().plusSeconds(provider.get().getShiftDate()));
+            }
+        }else{
+            childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
+        }
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
         sapCustomPropertySets.getDevice(message.getDeviceId()).ifPresent(serviceCallBuilder::targetObject);
         serviceCallBuilder.create();
+    }
+
+    private boolean isCurrentDate(Instant date) {
+        LocalDateTime localDate = LocalDateTime.ofInstant(date, ZoneId.of("UTC"));
+        LocalDateTime localNow = LocalDateTime.ofInstant(clock.instant(), ZoneId.of("UTC"));
+
+        return localDate.getDayOfMonth() == localNow.getDayOfMonth() && localDate.getMonth().equals(localNow.getMonth()) && localDate.getYear() == localNow.getYear();
     }
 
     private void createServiceCall(ServiceCallType serviceCallType, StatusChangeRequestCreateMessage message) {

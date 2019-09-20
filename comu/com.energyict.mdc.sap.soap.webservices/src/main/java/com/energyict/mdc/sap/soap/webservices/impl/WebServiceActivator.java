@@ -368,6 +368,13 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::removeCustomPropertySet);
     }
 
+    public static Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
+        return WebServiceActivator.METER_READING_REASONS
+                .stream()
+                .filter(readingReason -> readingReason.getCodes().contains(readingReasonCode))
+                .findFirst();
+    }
+
     private void loadProperties(BundleContext context) {
         EnumSet.allOf(AdditionalProperties.class)
                 .forEach(key -> SAP_PROPERTIES.put(key, Optional.ofNullable(context.getProperty(key.getKey()))

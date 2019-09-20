@@ -10,7 +10,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import org.osgi.service.component.annotations.Component;
@@ -75,19 +74,12 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
         } else {
             Optional.of(domainExtension)
                     .map(MeterReadingDocumentCreateResultDomainExtension::getReadingReasonCode)
-                    .map(this::findReadingReasonProvider)
+                    .map(WebServiceActivator::findReadingReasonProvider)
                     .map(Optional::get)
                     .orElseThrow(() -> new IllegalStateException("Unable to get reading reason provider for service call"))
                     .process(SAPMeterReadingDocumentCollectionDataBuilder.builder(meteringService, clock, serviceCallService)
                             .from(serviceCall, WebServiceActivator.SAP_PROPERTIES)
                             .build());
         }
-    }
-
-    private Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
-        return WebServiceActivator.METER_READING_REASONS
-                .stream()
-                .filter(readingReason -> readingReason.getCodes().contains(readingReasonCode))
-                .findFirst();
     }
 }

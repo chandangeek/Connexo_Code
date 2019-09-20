@@ -14,7 +14,6 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
@@ -80,11 +79,12 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
                 return;
             }
 
-            findReadingReasonProvider(extension.getReadingReasonCode()).ifPresent(provider -> {
+            WebServiceActivator.findReadingReasonProvider(extension.getReadingReasonCode()).ifPresent(provider -> {
                 Instant plannedReadingCollectionDate = provider.hasCollectionInterval()
                         ? extension.getScheduledReadingDate().plusSeconds(WebServiceActivator.SAP_PROPERTIES
                         .get(AdditionalProperties.READING_COLLECTION_INTERVAL) * 60)
                         : extension.getScheduledReadingDate();
+
                 boolean futureCase = clock.instant().isBefore(plannedReadingCollectionDate);
                 extension.setFutureCase(futureCase);
                 if (futureCase) {
@@ -98,13 +98,6 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
             serviceCall.log(LogLevel.WARNING,"The device is not found or the device is not in operational stage.");
             serviceCall.requestTransition(DefaultState.PAUSED);
         }
-    }
-
-    private Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
-        return WebServiceActivator.METER_READING_REASONS
-                .stream()
-                .filter(readingReason -> readingReason.getCodes().contains(readingReasonCode))
-                .findFirst();
     }
 
     @Reference

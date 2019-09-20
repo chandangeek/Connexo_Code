@@ -6,6 +6,8 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
+import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -22,7 +24,6 @@ import java.util.List;
 public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterReadingDocumentReason {
     private static final String REASON_CODES_PERIODIC = "com.elster.jupiter.sap.reasoncodes.periodic";
     private static final String REASON_CODES_PERIODIC_DEFAULT_VALUE = "1";
-    private static final long INTERVAL_ONE_DAY = 86400; //24 hours
 
     private static List<String> codes;
 
@@ -47,8 +48,13 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     }
 
     @Override
-    public long gedAdditionalTime() {
-        return INTERVAL_ONE_DAY;
+    public long getShiftDate() {
+        return WebServiceActivator.SAP_PROPERTIES.get(AdditionalProperties.SCHEDULED_METER_READING_DATE_SHIFT_PERIODIC)*INTERVAL_ONE_DAY;
+    }
+
+    @Override
+    public boolean isUseCurrentDateTime() {
+        return false;
     }
 
     @Override

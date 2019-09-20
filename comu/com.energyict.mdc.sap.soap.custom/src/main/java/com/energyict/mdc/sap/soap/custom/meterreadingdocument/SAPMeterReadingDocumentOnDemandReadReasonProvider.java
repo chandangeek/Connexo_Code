@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Singleton
 @Component(name = "com.energyict.mdc.sap.soap.custom.meterreadingdocument.ondemandreadreason.provider",
@@ -35,8 +36,11 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private static final String REASON_CODES_ONDEMAND = "com.elster.jupiter.sap.reasoncodes.ondemand";
     private static final String REASON_CODES_ONDEMAND_DEFAULT_VALUE = "2";
+    private static final String SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND = "com.elster.jupiter.sap.sheduledmeterreadingdateshift.ondemand";
+    private static final int SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE = 1;
 
     private static List<String> codes;
+    private static int dateShift = SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE;
 
     @Activate
     public void activate(BundleContext bundleContext) {
@@ -46,6 +50,9 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
         }else{
             codes = Arrays.asList((valueCodes.split(",")));
         }
+
+        Optional.ofNullable(bundleContext.getProperty(SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND))
+                .ifPresent(property->dateShift = Integer.valueOf(property));
     }
 
     private volatile DeviceService deviceService;
@@ -72,8 +79,13 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     }
 
     @Override
-    public long gedAdditionalTime() {
-        return 0;
+    public long getShiftDate() {
+        return dateShift*INTERVAL_ONE_DAY;
+    }
+
+    @Override
+    public boolean isUseCurrentDateTime() {
+        return true;
     }
 
     @Override

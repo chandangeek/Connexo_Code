@@ -5,11 +5,11 @@ package com.energyict.mdc.sap.soap.webservices;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.time.Instant;
 import java.util.List;
 
 @ProviderType
 public interface SAPMeterReadingDocumentReason {
+    long INTERVAL_ONE_DAY = 86400; //24 hours
 
     /**
      * Reading reason code
@@ -22,9 +22,14 @@ public interface SAPMeterReadingDocumentReason {
     boolean hasCollectionInterval();
 
     /**
-     * Collection interval support
+     * Date shift in seconds
      */
-    long gedAdditionalTime();
+    long getShiftDate();
+
+    /**
+     * Using current dateTime support
+     */
+    boolean isUseCurrentDateTime();
 
     /**
      * Bulk request support

@@ -17,6 +17,7 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
 
     private boolean bulk;
     private String id;
+    private String uuid;
 
     //<meter reading document id, result code>
     List<Pair<String, String>> processingResultCodes = new ArrayList<>();
@@ -28,12 +29,16 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
         return id;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
     public List<Pair<String, String>> getProcessingResultCodes() {
         return processingResultCodes;
     }
 
     public boolean isValid() {
-        return id != null;
+        return id != null && uuid != null && !processingResultCodes.isEmpty();
     }
 
     public boolean isBulk() {
@@ -54,6 +59,7 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setId(getId(messageHeader));
+                        setUUID(getUUID(messageHeader));
                     });
 
             addProcessingResultCode(getMeterReadingDocumentId(requestMessage), getProcessingResultCode(requestMessage));
@@ -65,11 +71,17 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
             Optional.ofNullable(requestMessage.getMessageHeader())
                     .ifPresent(messageHeader -> {
                         setId(getId(messageHeader));
+                        setUUID(getUUID(messageHeader));
                     });
 
             requestMessage.getMeterReadingDocumentERPResultCreateConfirmationMessage()
                     .forEach(message->addProcessingResultCode(getMeterReadingDocumentId(message), getProcessingResultCode(message)));
 
+            return this;
+        }
+
+        public MeterReadingDocumentResultCreateConfirmationRequestMessage.Builder setUUID(String uuid) {
+            MeterReadingDocumentResultCreateConfirmationRequestMessage.this.uuid = uuid;
             return this;
         }
 
@@ -129,6 +141,20 @@ public class MeterReadingDocumentResultCreateConfirmationRequestMessage {
             return Optional.ofNullable(msg.getLog())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.Log::getBusinessDocumentProcessingResultCode)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUUID(com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.BusinessDocumentMessageHeader meterReadingDocument) {
+            return Optional.ofNullable(meterReadingDocument.getReferenceUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultcreateconfirmation.UUID::getValue)
+                    .filter(referenceId -> !Checks.is(referenceId).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getUUID(com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.BusinessDocumentMessageHeader meterReadingDocument) {
+            return Optional.ofNullable(meterReadingDocument.getReferenceUUID())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreadingresultbulkcreateconfirmation.UUID::getValue)
+                    .filter(referenceId -> !Checks.is(referenceId).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
     }
