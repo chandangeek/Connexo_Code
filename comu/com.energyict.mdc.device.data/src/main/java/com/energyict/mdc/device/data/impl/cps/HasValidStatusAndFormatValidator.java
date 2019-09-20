@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class HasValidStatusAndFormatValidator implements ConstraintValidator<HasValidStatusAndFormat, SIMCardDomainExtension> {
     Thesaurus thesaurus;
@@ -37,7 +38,7 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
         cardFormats.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.CARD_FORMAT_SW, thesaurus));
         cardFormats.add(null);
         if (!cardFormats.contains(value.getCardFormat())) {
-            String errmsg = thesaurus.getSimpleFormat(MessageSeeds.WRONG_CARD_FORMAT).format(cardFormats.toString().replace("[", "").replace("]", ""));
+            String errmsg = thesaurus.getSimpleFormat(MessageSeeds.WRONG_CARD_FORMAT).format(cardFormats.stream().map(String::valueOf).collect(Collectors.joining(", ")));
             context.buildConstraintViolationWithTemplate(errmsg)
                     .addPropertyNode(SIMCardDomainExtension.FieldNames.CARD_FORMAT.javaName())
                     .addConstraintViolation()
@@ -53,7 +54,7 @@ public class HasValidStatusAndFormatValidator implements ConstraintValidator<Has
         statuses.add(CustomPropertyTranslationKeys.translationFor(CustomPropertyTranslationKeys.STATUS_TEST, thesaurus));
         statuses.add(null);
         if (!statuses.contains(value.getStatus())) {
-            String errmsg = thesaurus.getSimpleFormat(MessageSeeds.WRONG_STATUS).format(statuses.toString().replace("[", "").replace("]", ""));
+            String errmsg = thesaurus.getSimpleFormat(MessageSeeds.WRONG_STATUS).format(statuses.stream().map(String::valueOf).collect(Collectors.joining(", ")));
             context.buildConstraintViolationWithTemplate(errmsg)
                     .addPropertyNode(SIMCardDomainExtension.FieldNames.STATUS.javaName())
                     .addConstraintViolation()
