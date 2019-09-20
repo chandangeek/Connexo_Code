@@ -74,6 +74,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
     private final DateTimeFormatter timeFormatter;
 
     private int exportCount;
+    private int updateCount;
     private Logger logger;
 
     @Inject
@@ -96,6 +97,10 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
 
     public int getExportCount() {
         return exportCount;
+    }
+
+    public int getUpdateCount() {
+        return updateCount;
     }
 
     Clock getClock() {
@@ -142,7 +147,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
 
@@ -440,8 +445,15 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval);
+            updateCount++;
             return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate()));
         }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, itemDescription);
+            context.commit();
+        }
+
         return Optional.empty();
     }
 

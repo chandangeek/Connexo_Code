@@ -65,12 +65,19 @@ abstract class AbstractDataSelector implements DataSelector {
                 activeItem.clearCachedReadingContainer();
             }
 
-            long numberOfItemsExported = selectedData.values().stream().filter(Optional::isPresent).count();
+            long numberOfItemsCreatedOrUpdated = 0;
+            for (ReadingTypeDataExportItem item : activeItems) {
+                if (selectedData.get(item.getId()).isPresent()) {
+                    numberOfItemsCreatedOrUpdated++;
+                } else if (updateData.get(item.getId()).isPresent()) {
+                    numberOfItemsCreatedOrUpdated++;
+                }
+            }
 
-            long numberOfItemsSkipped = activeItems.size() - numberOfItemsExported;
+            long numberOfItemsSkipped = activeItems.size() - numberOfItemsCreatedOrUpdated;
 
             occurrence.summarize(
-                    getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SELECTED).format(numberOfItemsExported) +
+                    getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SELECTED).format(numberOfItemsCreatedOrUpdated) +
                             System.getProperty("line.separator") +
                             getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SKIPPED).format(numberOfItemsSkipped));
 
@@ -81,7 +88,7 @@ abstract class AbstractDataSelector implements DataSelector {
                     .flatMap(Functions.asStream()).collect(Collectors.toList());
             return collect.stream();
         } finally {
-            if (itemDataSelector.getExportCount() == 0) {
+            if (itemDataSelector.getExportCount() == 0 && itemDataSelector.getUpdateCount() == 0) {
                 try (TransactionContext context = getTransactionService().getContext()) {
                     MessageSeeds.NO_DATA_TOEXPORT.log(getLogger(), getThesaurus());
                     context.commit();

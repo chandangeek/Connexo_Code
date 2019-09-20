@@ -66,6 +66,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
     private final TransactionService transactionService;
 
     private int exportCount;
+    private int updateCount;
     private Logger logger;
 
     @Inject
@@ -84,6 +85,10 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
 
     public int getExportCount() {
         return exportCount;
+    }
+
+    public int getUpdateCount() {
+        return updateCount;
     }
 
     Clock getClock() {
@@ -135,7 +140,7 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
         }
 
         try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CREATED_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, itemDescription);
             context.commit();
         }
 
@@ -278,8 +283,15 @@ class CustomMeterReadingItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             Map<Instant, DataValidationStatus> validationStatuses = new HashMap<>();
             readings.stream().forEach(r -> validationStatuses.put(r.getTimeStamp(), new SimpleDataValidationStatusImpl(r.getTimeStamp(), ValidationResult.ACTUAL)));
+            updateCount++;
             return Optional.of(new MeterReadingData(item, meterReading, new MeterReadingValidationData(validationStatuses), structureMarkerForUpdate()));
         }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            MessageSeeds.ITEM_DOES_NOT_HAVE_CHANGED_DATA_FOR_UPDATE_WINDOW.log(logger, thesaurus, item.getDescription());
+            context.commit();
+        }
+
         return Optional.empty();
     }
 
