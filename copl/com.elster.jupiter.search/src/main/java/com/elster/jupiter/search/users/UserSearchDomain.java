@@ -172,7 +172,7 @@ public class UserSearchDomain implements SearchDomain {
         private UserFinder(Condition condition) {
             this.finder = DefaultFinder
                     .of(User.class, condition, userService.getDataModel(), UserInGroup.class)
-                    .defaultSortColumn("username");
+                    .defaultSortColumn("authname");
         }
 
         @Override

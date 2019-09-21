@@ -205,7 +205,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         assertThat(wizardResult.targetState).isEqualTo("Target state");
         assertThat(wizardResult.result).isFalse();
 
-        //verify(transactionContext, never()).commit();
+            //verify(transactionContext, never()).commit();
     }
 
     @Test

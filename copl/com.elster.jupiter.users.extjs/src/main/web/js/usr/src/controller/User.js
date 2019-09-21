@@ -221,14 +221,14 @@ Ext.define('Usr.controller.User', {
 
     userActivation: function (record) {
         var me = this,
-            isActive = record.raw.active,
+            isActive = JSON.parse(record.get('active')),
             form = me.getUserBrowse().down('#userDetailsForm'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
         viewport.setLoading();
         Ext.Ajax.request({
             url: '/api/usr/users/' + record.get('id') + (isActive ? '/deactivate' : '/activate'),
-            jsonData: record.raw,
+            jsonData: _.pick(record.raw, 'version'),
             isNotEdit: true,
             method: 'PUT',
             success: function (response) {
@@ -237,18 +237,20 @@ Ext.define('Usr.controller.User', {
 
                 if (updatedRecord) {
                     record.beginEdit();
+                    record.raw.active = updatedRecord.active;
+                    record.raw.version = updatedRecord.version;
                     record.set(updatedRecord);
-                    record.set('statusDisplay', isActive
-                        ? Uni.I18n.translate('general.inactive', 'USR', 'Inactive')
-                        : Uni.I18n.translate('general.active', 'USR', 'Active'));
+                    record.set('statusDisplay', updatedRecord.active
+                        ? Uni.I18n.translate('general.active', 'USR', 'Active')
+                        : Uni.I18n.translate('general.inactive', 'USR', 'Inactive'));
                     record.endEdit();
                 }
                 if (form.rendered) {
                     form.loadRecord(record);
                 }
-                me.getApplication().fireEvent('acknowledge', isActive
-                    ? Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated')
-                    : Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated'));
+                me.getApplication().fireEvent('acknowledge', updatedRecord.active
+                    ? Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated')
+                    : Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated'));
             },
             callback: function () {
                 viewport.setLoading(false);
