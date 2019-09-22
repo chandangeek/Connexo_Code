@@ -69,7 +69,7 @@ public class DeviceStateDecoder {
     private String getStateName(State state) {
         return DefaultState
                 .from(state)
-                .map(s -> decoder.getDeviceLifeCycleConfigurationService().getDisplayName(s))
+                .map(s -> decoder.getMeteringTranslationService().getDisplayName(s))
                 .orElseGet(state::getName);
     }
 

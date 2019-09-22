@@ -42,6 +42,7 @@ import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
@@ -190,9 +191,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     private static final long endTimeSecond = 1489561597000L;
     private static final long startTimeNew = 1469561597000L;
     private static final long endTimeNew = 1499561597000L;
-
-    @Mock
-    private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     private ReadingType readingType;
 
@@ -1561,7 +1559,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(slice.getDevices()).thenReturn(slavesList);
         when(slice.getPeriod()).thenReturn(range);
 
-        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
+        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline,  meteringTranslationService);
 
         assertThat(infos.size()).isEqualTo(5);
         assertThat(infos.get(0).name).isEqualTo("slave7");
@@ -1572,7 +1570,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         slaves = new HashSet<>(Collections.singletonList(slave1));
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
-        infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
+        infos = DeviceTopologyInfo.from(topologyTimeline, meteringTranslationService);
         assertThat(infos.size()).isEqualTo(1);
     }
 

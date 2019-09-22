@@ -9,6 +9,7 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.metering.DefaultState;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeviceLifeCycleStateInfo {
@@ -37,17 +39,14 @@ public class DeviceLifeCycleStateInfo {
     public DeviceLifeCycleStateInfo() {
     }
 
-    public DeviceLifeCycleStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceLifeCycle deviceLifeCycle, State state) {
+    public DeviceLifeCycleStateInfo(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceLifeCycle deviceLifeCycle, State state, MeteringTranslationService meteringTranslationService) {
         this.id = state.getId();
         this.isCustom = state.isCustom();
         this.isInitial = state.isInitial();
         this.version = state.getVersion();
         state.getStage().map(Stage::getName).ifPresent(stageName ->
                 this.stage = new IdWithNameInfo(stageName, deviceLifeCycleConfigurationService.getStageDisplayName(EndDeviceStage.fromKey(stageName))));
-        this.name = DefaultState.from(state).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(state::getName);
-        if (deviceLifeCycle != null) {
-            this.parent = new VersionInfo<>(deviceLifeCycle.getId(), deviceLifeCycle.getVersion());
-        }
+        this.name = DefaultState.from(state).map(meteringTranslationService::getDisplayName).orElseGet(state::getName);
         addAllBusinessProcessInfos(onEntry, state.getOnEntryProcesses());
         addAllBusinessProcessInfos(onExit, state.getOnExitProcesses());
         addAllEndPointConfigurationInfos(onEntryEndPointConfigurations, state.getOnEntryEndPointConfigurations());
