@@ -97,6 +97,7 @@ public abstract class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRe
         application.setUserService(userService);
         application.setNlsService(nlsService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setMeteringTranslationService(meteringTranslationService);
         application.setFiniteStateMachineService(finiteStateMachineService);
         application.setEventService(eventService);
         application.setBpmService(bpmService);
